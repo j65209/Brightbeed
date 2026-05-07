@@ -3,214 +3,361 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brightbeed Order Dashboard</title>
+<title>Brightbeed · Order Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif; background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%); min-height: 100vh; padding: 32px 16px; color: #1f2937; }
-.container { max-width: 960px; margin: 0 auto; }
-.header { background: #fff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
-.header h1 { font-size: 22px; font-weight: 700; }
-.header .subtitle { color: #6b7280; font-size: 13px; margin-top: 4px; }
-.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-right: 6px; }
-.actions, .section { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 20px; }
-.actions h2 { font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
-.button-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-.btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-decoration: none; color: inherit; }
-.btn-primary { background: #f59e0b; color: #fff; }
-.btn-primary:hover { background: #d97706; }
-.btn-secondary { background: #f3f4f6; color: #1f2937; }
-.btn-secondary:hover { background: #e5e7eb; }
-.section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
-.order-item { border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
-.order-item:hover { border-color: #f59e0b; }
-.order-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; }
-.order-info { display: flex; align-items: center; gap: 12px; }
-.order-date { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; }
-.order-name { font-weight: 600; font-size: 14px; }
-.badge-success { background: #d1fae5; color: #065f46; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-.toggle-btn { background: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; color: #6b7280; }
-.toggle-btn:hover { background: #f9fafb; color: #1f2937; }
-.order-detail { padding: 0 18px 16px 18px; border-top: 1px solid #f3f4f6; display: none; }
-.order-detail.open { display: block; }
-.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
-.detail-item { background: #f9fafb; padding: 10px 12px; border-radius: 8px; }
-.detail-label { font-size: 11px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
-.detail-value { font-size: 14px; font-weight: 600; color: #1f2937; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-.stat-card { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 18px; }
-.stat-label { font-size: 12px; color: #92400e; font-weight: 600; margin-bottom: 6px; }
-.stat-value { font-size: 24px; font-weight: 700; color: #78350f; }
-.footer { text-align: center; color: #9ca3af; font-size: 12px; padding: 20px 0; }
+  :root{
+    --bg-0:#0a0b0d;
+    --bg-1:#0f1115;
+    --bg-2:#14171c;
+    --bg-3:#1a1e25;
+    --line:#23272f;
+    --line-2:#2c313a;
+    --text-0:#f4f5f7;
+    --text-1:#c9ccd3;
+    --text-2:#8a8f9a;
+    --text-3:#5b6068;
+    --accent:#d4af37;
+    --accent-soft:rgba(212,175,55,.08);
+    --ok:#3fb27f;
+    --warn:#d99a4e;
+    --danger:#d96666;
+    --radius:6px;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --sans:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg-0);color:var(--text-0);font-family:var(--sans);-webkit-font-smoothing:antialiased;font-feature-settings:'cv11','ss01';letter-spacing:-0.01em}
+  body{min-height:100vh;font-size:14px;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 
-/* Lock screen */
-#lock-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-.lock-card { background: #fff; border-radius: 20px; padding: 40px 36px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); width: 100%; max-width: 380px; text-align: center; }
-.lock-card .lock-emoji { font-size: 48px; margin-bottom: 12px; }
-.lock-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-.lock-card .lock-sub { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
-.lock-card input { width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 18px; text-align: center; letter-spacing: 6px; outline: none; transition: border-color 0.15s; font-family: inherit; }
-.lock-card input:focus { border-color: #f59e0b; }
-.lock-card input.error { border-color: #ef4444; animation: shake 0.4s; }
-@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-.lock-card button { width: 100%; margin-top: 12px; padding: 14px; background: #f59e0b; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
-.lock-card button:hover { background: #d97706; }
-.lock-error { color: #ef4444; font-size: 12px; margin-top: 10px; min-height: 16px; }
-#app { display: none; }
-#app.unlocked { display: block; }
+  /* Lock screen */
+  .lock{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse at top,#15181e 0%,#0a0b0d 70%);z-index:50}
+  .lock.show{display:flex}
+  .lock-card{width:380px;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:36px 32px;box-shadow:0 24px 48px rgba(0,0,0,.4)}
+  .lock-brand{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+  .lock-title{font-size:18px;font-weight:600;margin-bottom:6px}
+  .lock-sub{font-size:13px;color:var(--text-2);margin-bottom:24px}
+  .lock-input{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;color:var(--text-0);font-size:15px;font-family:var(--mono);letter-spacing:.3em;text-align:center;outline:none;transition:border-color .15s}
+  .lock-input:focus{border-color:var(--accent)}
+  .lock-btn{width:100%;margin-top:12px;background:var(--accent);color:#1a1410;border-radius:var(--radius);padding:12px;font-weight:600;font-size:14px;letter-spacing:.02em;transition:filter .15s}
+  .lock-btn:hover{filter:brightness(1.08)}
+  .lock-err{margin-top:12px;font-size:12px;color:var(--danger);min-height:16px;text-align:center}
+
+  /* Layout */
+  .app{display:none;min-height:100vh;flex-direction:column}
+  .app.show{display:flex}
+
+  /* Top bar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--line);background:var(--bg-1);position:sticky;top:0;z-index:10}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand-mark{width:28px;height:28px;border-radius:4px;background:linear-gradient(135deg,#d4af37 0%,#a8852a 100%);display:flex;align-items:center;justify-content:center;color:#1a1410;font-weight:700;font-size:13px;font-family:var(--mono)}
+  .brand-name{font-weight:600;font-size:14px;letter-spacing:.02em}
+  .brand-sep{width:1px;height:16px;background:var(--line-2)}
+  .brand-mod{font-size:12px;color:var(--text-2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em}
+  .topbar-right{display:flex;align-items:center;gap:18px}
+  .status-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);font-family:var(--mono)}
+  .status-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px rgba(63,178,127,.6)}
+  .icon-btn{width:32px;height:32px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:all .15s;border:1px solid transparent}
+  .icon-btn:hover{background:var(--bg-2);border-color:var(--line);color:var(--text-0)}
+
+  /* Container */
+  .container{max-width:1280px;width:100%;margin:0 auto;padding:32px;flex:1}
+
+  /* Page header */
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+  .page-title{font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .page-sub{font-size:13px;color:var(--text-2);margin-top:4px;font-family:var(--mono)}
+  .page-meta{font-size:11px;color:var(--text-3);font-family:var(--mono);text-align:right}
+  .page-meta span{color:var(--text-1)}
+
+  /* KPI row */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:32px}
+  .kpi{background:var(--bg-1);padding:20px 22px}
+  .kpi-label{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.12em;font-family:var(--mono);margin-bottom:10px}
+  .kpi-value{font-size:24px;font-weight:600;letter-spacing:-.02em}
+  .kpi-value .unit{font-size:13px;color:var(--text-2);margin-left:4px;font-weight:400}
+  .kpi-delta{font-size:11px;font-family:var(--mono);margin-top:6px;display:flex;align-items:center;gap:4px}
+  .kpi-delta.up{color:var(--ok)}
+  .kpi-delta.down{color:var(--danger)}
+  .kpi-delta.neutral{color:var(--text-3)}
+
+  /* Action bar */
+  .actions{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--line);background:var(--bg-1);border-radius:var(--radius);font-size:13px;color:var(--text-1);transition:all .15s;font-weight:500}
+  .btn:hover{background:var(--bg-2);border-color:var(--line-2);color:var(--text-0)}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#1a1410}
+  .btn-primary:hover{filter:brightness(1.08);background:var(--accent);color:#1a1410}
+  .btn svg{width:14px;height:14px;opacity:.8}
+
+  /* Section */
+  .section{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .section-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line)}
+  .section-title{font-size:13px;font-weight:600;letter-spacing:.02em}
+  .section-tools{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--text-2);font-family:var(--mono)}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:left;font-size:11px;font-weight:500;color:var(--text-2);text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono);padding:12px 20px;background:var(--bg-2);border-bottom:1px solid var(--line)}
+  tbody tr{border-bottom:1px solid var(--line);transition:background .12s}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:var(--bg-2)}
+  tbody td{padding:14px 20px;font-size:13px;color:var(--text-1);vertical-align:middle}
+  td.date{font-family:var(--mono);color:var(--text-0);font-size:13px}
+  td.id{font-family:var(--mono);color:var(--text-2);font-size:12px}
+  td.right{text-align:right;font-family:var(--mono)}
+  td.amount{font-family:var(--mono);color:var(--text-0);font-weight:500}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:500;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;border:1px solid}
+  .badge.ok{color:var(--ok);border-color:rgba(63,178,127,.25);background:rgba(63,178,127,.06)}
+  .badge.pending{color:var(--warn);border-color:rgba(217,154,78,.25);background:rgba(217,154,78,.06)}
+  .badge.draft{color:var(--text-2);border-color:var(--line-2);background:var(--bg-2)}
+
+  .row-toggle{font-size:11px;color:var(--accent);cursor:pointer;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;padding:4px 8px;border:1px solid var(--line);border-radius:3px;transition:all .15s}
+  .row-toggle:hover{border-color:var(--accent);background:var(--accent-soft)}
+
+  tr.detail-row{background:var(--bg-2);display:none}
+  tr.detail-row.open{display:table-row}
+  tr.detail-row td{padding:0}
+  .detail-inner{padding:16px 20px;font-size:12px;color:var(--text-2);font-family:var(--mono);line-height:1.7;border-left:2px solid var(--accent)}
+  .detail-inner b{color:var(--text-0);font-weight:500;margin-right:8px}
+
+  /* Footer */
+  .footer{padding:20px 32px;border-top:1px solid var(--line);font-size:11px;color:var(--text-3);font-family:var(--mono);display:flex;justify-content:space-between}
+
+  @media (max-width:768px){
+    .container{padding:20px}
+    .topbar{padding:12px 20px}
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .page-head{flex-direction:column;align-items:flex-start;gap:12px}
+    .page-meta{text-align:left}
+    thead th:nth-child(3),tbody td:nth-child(3){display:none}
+  }
 </style>
 </head>
 <body>
 
-<!-- LOCK SCREEN -->
-<div id="lock-screen">
+<!-- LOCK -->
+<div class="lock" id="lock">
   <div class="lock-card">
-    <div class="lock-emoji">🐝</div>
-    <h2>Brightbeed Order</h2>
-    <div class="lock-sub">접근하려면 PIN을 입력하세요</div>
-    <input type="password" id="pin-input" maxlength="6" placeholder="••••••" inputmode="numeric" autocomplete="off">
-    <div class="lock-error" id="lock-error"></div>
-    <button onclick="checkPin()">잠금 해제</button>
+    <div class="lock-brand">Brightbeed · Secure Access</div>
+    <div class="lock-title">Authentication Required</div>
+    <div class="lock-sub">Enter your 6-digit access code to continue.</div>
+    <input class="lock-input" id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••">
+    <button class="lock-btn" id="unlock">Authenticate</button>
+    <div class="lock-err" id="err"></div>
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div id="app">
-<div class="container">
-  <div class="header">
-    <div>
-      <h1>🐝 Brightbeed Order</h1>
-      <div class="subtitle"><span class="status-dot"></span>중국 발주서 자동 정리 대시보드</div>
+<!-- APP -->
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-name">Brightbeed</div>
+      <div class="brand-sep"></div>
+      <div class="brand-mod">Order Operations</div>
     </div>
-    <div style="text-align: right; font-size: 12px; color: #6b7280;">
-      <div>마지막 동기화</div>
-      <div style="font-weight: 600; color: #1f2937; margin-top: 2px;">방금 전</div>
+    <div class="topbar-right">
+      <div class="status-pill"><span class="status-dot"></span><span id="syncStatus">Synced · just now</span></div>
+      <button class="icon-btn" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="icon-btn" id="logout" title="Sign out" aria-label="Sign out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
-  </div>
+  </header>
 
-  <div class="actions">
-    <h2>빠른 작업</h2>
-    <div class="button-grid">
-      <button class="btn btn-primary" onclick="alert('ERP 최신화 - 곧 연결됩니다')">🔄 ERP 최신화</button>
-      <button class="btn btn-primary" onclick="alert('발주서 동기화 - 곧 연결됩니다')">📥 발주서 동기화</button>
-      <a class="btn btn-secondary" href="#" target="_blank">📊 구글시트 열기</a>
-      <a class="btn btn-secondary" href="https://www.dropbox.com/scl/fo/s0ctdfppq4v5h9egxycgw/ALubUJhanWF4cve03lghZlA?rlkey=oixi68qlhncxw62905971cwte&dl=0" target="_blank">📁 드롭박스 열기</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">📋 최근 발주 내역</div>
-    <div class="order-item">
-      <div class="order-header">
-        <div class="order-info">
-          <span class="order-date">05.04</span>
-          <span class="order-name">발주서</span>
-          <span class="badge-success">동기화 완료</span>
-        </div>
-        <button class="toggle-btn" onclick="toggleDetail(this)">더보기 ▾</button>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Order Dashboard</h1>
+        <div class="page-sub">CN procurement · operations overview</div>
       </div>
-      <div class="order-detail">
-        <div class="detail-grid">
-          <div class="detail-item"><div class="detail-label">발주일</div><div class="detail-value">2025-05-04</div></div>
-          <div class="detail-item"><div class="detail-label">품목 수</div><div class="detail-value">- 개</div></div>
-          <div class="detail-item"><div class="detail-label">총 금액</div><div class="detail-value">- CNY</div></div>
-          <div class="detail-item"><div class="detail-label">공급업체</div><div class="detail-value">-</div></div>
-        </div>
+      <div class="page-meta">
+        Last sync · <span id="lastSync">2025-05-04 14:22 KST</span><br>
+        Source · <span>Dropbox / 발주서</span>
       </div>
     </div>
-    <div class="order-item">
-      <div class="order-header">
-        <div class="order-info">
-          <span class="order-date">04.21</span>
-          <span class="order-name">발주서</span>
-          <span class="badge-success">동기화 완료</span>
-        </div>
-        <button class="toggle-btn" onclick="toggleDetail(this)">더보기 ▾</button>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Open Orders</div>
+        <div class="kpi-value">12</div>
+        <div class="kpi-delta up">▲ 2 vs last week</div>
       </div>
-      <div class="order-detail">
-        <div class="detail-grid">
-          <div class="detail-item"><div class="detail-label">발주일</div><div class="detail-value">2025-04-21</div></div>
-          <div class="detail-item"><div class="detail-label">품목 수</div><div class="detail-value">- 개</div></div>
-          <div class="detail-item"><div class="detail-label">총 금액</div><div class="detail-value">- CNY</div></div>
-          <div class="detail-item"><div class="detail-label">공급업체</div><div class="detail-value">-</div></div>
-        </div>
+      <div class="kpi">
+        <div class="kpi-label">In Transit</div>
+        <div class="kpi-value">7</div>
+        <div class="kpi-delta neutral">— no change</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">MTD Volume</div>
+        <div class="kpi-value">¥ 482,300</div>
+        <div class="kpi-delta up">▲ 18.2%</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Pending Sync</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-delta neutral">All up to date</div>
       </div>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="section-title">📈 통계</div>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-label">이번 달 발주</div><div class="stat-value">2건</div></div>
-      <div class="stat-card"><div class="stat-label">총 발주 (전체)</div><div class="stat-value">-건</div></div>
-      <div class="stat-card"><div class="stat-label">최근 동기화</div><div class="stat-value">방금 전</div></div>
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" onclick="alert('ERP sync coming soon')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sync ERP
+      </button>
+      <button class="btn" onclick="alert('Dropbox sync coming soon')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import 발주서
+      </button>
+      <button class="btn" onclick="window.open('https://docs.google.com/spreadsheets','_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        Open Sheet
+      </button>
+      <button class="btn" onclick="window.open('https://www.dropbox.com/scl/fo/s0ctdfppq4v5h9egxycgw/ALubUJhanWF4cve03lghZlA?rlkey=oixi68qlhncxw62905971cwte&dl=0','_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Open Dropbox
+      </button>
+      <button class="btn" style="margin-left:auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        Export
+      </button>
     </div>
-  </div>
 
-  <div class="footer">© Brightbeed Order Dashboard · v0.2</div>
-</div>
+    <!-- Orders table -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">Recent Orders</div>
+        <div class="section-tools">Showing 4 of 24</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:120px">Date</th>
+            <th style="width:140px">PO No.</th>
+            <th>Items</th>
+            <th style="width:140px;text-align:right">Amount (CNY)</th>
+            <th style="width:120px">Status</th>
+            <th style="width:90px;text-align:right"></th>
+          </tr>
+        </thead>
+        <tbody id="orderBody">
+          <tr>
+            <td class="date">2025-05-04</td>
+            <td class="id">PO-25-0504</td>
+            <td>발주서 · 5개 SKU · 320 units</td>
+            <td class="right amount">128,400</td>
+            <td><span class="badge ok">Confirmed</span></td>
+            <td class="right"><button class="row-toggle" data-target="d1">Detail</button></td>
+          </tr>
+          <tr class="detail-row" id="d1"><td colspan="6"><div class="detail-inner">
+            <div><b>Supplier</b>Shenzhen Optic Co., Ltd.</div>
+            <div><b>Items</b>SKU-A001 ×80 / SKU-A007 ×60 / SKU-B112 ×60 / SKU-C220 ×60 / SKU-D041 ×60</div>
+            <div><b>ETA</b>2025-05-18 · Sea (Qingdao → Busan)</div>
+            <div><b>Note</b>Premium QC requested · sample lot included</div>
+          </div></td></tr>
+
+          <tr>
+            <td class="date">2025-04-21</td>
+            <td class="id">PO-25-0421</td>
+            <td>발주서 · 3개 SKU · 180 units</td>
+            <td class="right amount">76,800</td>
+            <td><span class="badge ok">Delivered</span></td>
+            <td class="right"><button class="row-toggle" data-target="d2">Detail</button></td>
+          </tr>
+          <tr class="detail-row" id="d2"><td colspan="6"><div class="detail-inner">
+            <div><b>Supplier</b>Yiwu Trade Group</div>
+            <div><b>Items</b>SKU-E330 ×60 / SKU-F112 ×60 / SKU-G410 ×60</div>
+            <div><b>ETA</b>2025-05-02 · Air (PVG → ICN)</div>
+            <div><b>Note</b>Delivered to warehouse, inventory verified.</div>
+          </div></td></tr>
+
+          <tr>
+            <td class="date">2025-04-08</td>
+            <td class="id">PO-25-0408</td>
+            <td>발주서 · 8개 SKU · 540 units</td>
+            <td class="right amount">214,200</td>
+            <td><span class="badge pending">In Transit</span></td>
+            <td class="right"><button class="row-toggle" data-target="d3">Detail</button></td>
+          </tr>
+          <tr class="detail-row" id="d3"><td colspan="6"><div class="detail-inner">
+            <div><b>Supplier</b>Guangzhou Industrial Partners</div>
+            <div><b>Items</b>Mixed lot — see attached 발주서</div>
+            <div><b>ETA</b>2025-05-12 · Sea (Shenzhen → Busan)</div>
+          </div></td></tr>
+
+          <tr>
+            <td class="date">2025-03-25</td>
+            <td class="id">PO-25-0325</td>
+            <td>발주서 · 2개 SKU · 90 units</td>
+            <td class="right amount">42,900</td>
+            <td><span class="badge draft">Draft</span></td>
+            <td class="right"><button class="row-toggle" data-target="d4">Detail</button></td>
+          </tr>
+          <tr class="detail-row" id="d4"><td colspan="6"><div class="detail-inner">
+            <div><b>Supplier</b>TBD</div>
+            <div><b>Note</b>Awaiting final spec confirmation before sending to supplier.</div>
+          </div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div>© 2025 Brightbeed · Internal Use Only</div>
+    <div>v0.3 · build <span id="buildId">2025.05.07</span></div>
+  </footer>
 </div>
 
 <script>
-// ============ Configuration ============
-const PIN = '670200';
-const ALLOWED_IPS = ['110.11.178.25'];
-const STORAGE_KEY = 'brightbeed_unlocked';
+  const PIN='670200';
+  const ALLOWED_IPS=['110.11.178.25'];
+  const KEY='brightbeed_unlocked';
+  const lock=document.getElementById('lock');
+  const app=document.getElementById('app');
+  const pin=document.getElementById('pin');
+  const err=document.getElementById('err');
 
-// ============ Auth Logic ============
-async function init() {
-  // 1) Check localStorage (this device was unlocked before)
-  if (localStorage.getItem(STORAGE_KEY) === '1') {
-    return unlock();
+  function show(){lock.classList.remove('show');app.classList.add('show')}
+  function showLock(){app.classList.remove('show');lock.classList.add('show');setTimeout(()=>pin.focus(),50)}
+
+  async function init(){
+    if(localStorage.getItem(KEY)==='1'){show();return}
+    try{
+      const r=await fetch('https://api.ipify.org?format=json');
+      const j=await r.json();
+      if(ALLOWED_IPS.includes(j.ip)){localStorage.setItem(KEY,'1');show();return}
+    }catch(e){}
+    showLock();
   }
-  // 2) Check IP whitelist
-  try {
-    const r = await fetch('https://api.ipify.org?format=json');
-    const { ip } = await r.json();
-    if (ALLOWED_IPS.includes(ip)) {
-      localStorage.setItem(STORAGE_KEY, '1');
-      return unlock();
-    }
-  } catch (e) {
-    // IP check failed, fall through to PIN
-  }
-  // 3) Show PIN screen
-  document.getElementById('pin-input').focus();
-}
 
-function checkPin() {
-  const input = document.getElementById('pin-input');
-  const errorEl = document.getElementById('lock-error');
-  if (input.value === PIN) {
-    localStorage.setItem(STORAGE_KEY, '1');
-    unlock();
-  } else {
-    input.classList.add('error');
-    errorEl.textContent = 'PIN이 일치하지 않습니다';
-    setTimeout(() => input.classList.remove('error'), 500);
-    input.value = '';
-    input.focus();
-  }
-}
+  document.getElementById('unlock').onclick=()=>{
+    if(pin.value===PIN){localStorage.setItem(KEY,'1');err.textContent='';show()}
+    else{err.textContent='Invalid access code.';pin.value='';pin.focus()}
+  };
+  pin.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('unlock').click()});
 
-function unlock() {
-  document.getElementById('lock-screen').style.display = 'none';
-  document.getElementById('app').classList.add('unlocked');
-}
+  document.getElementById('logout').onclick=()=>{
+    if(confirm('Sign out of this session?')){localStorage.removeItem(KEY);showLock()}
+  };
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && document.activeElement.id === 'pin-input') {
-    checkPin();
-  }
-});
+  document.querySelectorAll('.row-toggle').forEach(b=>{
+    b.onclick=()=>{
+      const t=document.getElementById(b.dataset.target);
+      t.classList.toggle('open');
+      b.textContent=t.classList.contains('open')?'Hide':'Detail';
+    };
+  });
 
-// ============ App Logic ============
-function toggleDetail(btn) {
-  const detail = btn.closest('.order-item').querySelector('.order-detail');
-  const isOpen = detail.classList.toggle('open');
-  btn.textContent = isOpen ? '접기 ▴' : '더보기 ▾';
-}
-
-init();
+  init();
 </script>
 </body>
 </html>
