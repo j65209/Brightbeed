@@ -453,27 +453,32 @@
   const pin=document.getElementById('pin');
   const err=document.getElementById('err');
 
-  function show(){lock.classList.remove('show');app.classList.add('show')}
+  function show(){
+    lock.classList.remove('show');
+    app.classList.add('show');
+    syncFromRemote();
+    startPolling();
+  }
   function showLock(){app.classList.remove('show');lock.classList.add('show');setTimeout(()=>pin.focus(),50)}
 
   async function init(){
-    if(localStorage.getItem(KEY)==='1'){show();syncFromRemote();return}
+    if(localStorage.getItem(KEY)==='1'){show();return}
     try{
       const r=await fetch('https://api.ipify.org?format=json');
       const j=await r.json();
-      if(ALLOWED_IPS.includes(j.ip)){localStorage.setItem(KEY,'1');show();syncFromRemote();return}
+      if(ALLOWED_IPS.includes(j.ip)){localStorage.setItem(KEY,'1');show();return}
     }catch(e){}
     showLock();
   }
 
   document.getElementById('unlock').onclick=()=>{
-    if(pin.value===PIN){localStorage.setItem(KEY,'1');err.textContent='';show();syncFromRemote()}
+    if(pin.value===PIN){localStorage.setItem(KEY,'1');err.textContent='';show()}
     else{err.textContent='접속 코드가 올바르지 않습니다.';pin.value='';pin.focus()}
   };
   pin.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('unlock').click()});
 
   document.getElementById('logout').onclick=()=>{
-    if(confirm('로그아웃 하시겠습니까?')){localStorage.removeItem(KEY);showLock()}
+    if(confirm('로그아웃 하시겠습니까?')){stopPolling();localStorage.removeItem(KEY);showLock()}
   };
 
   // 상단 동기화 상태 클릭 시 강제 새로고침
@@ -657,7 +662,7 @@
 
   async function fetchPOFromRemote(){
     try{
-      const r=await fetch(`${PO_RAW}?cb=${Date.now()}`);
+      const r=await fetch(`${PO_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
       if(r.status===404) return [];
       if(!r.ok) return null;
       const data=await r.json();
@@ -717,6 +722,7 @@
       if(localStorage.getItem(TOKEN_KEY)){
         const result=await pushPOToRemote(local);
         if(result.ok){
+          _po_lastHash = JSON.stringify(local);
           renderPOList();
           if(status) status.textContent=`초기 동기화 완료 · ${t}`;
           if(last) last.textContent=t;
@@ -731,10 +737,47 @@
 
     // 일반: remote → local 덮어쓰기
     localStorage.setItem(PO_KEY,JSON.stringify(remote));
+    _po_lastHash = JSON.stringify(remote);
     renderPOList();
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
   }
+
+  /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
+  let _po_lastHash = null;
+  let _po_pollTimer = null;
+
+  async function pollPO(){
+    const remote = await fetchPOFromRemote();
+    if(remote === null) return;
+    const hash = JSON.stringify(remote);
+    if(hash === _po_lastHash) return; // 변경 없음 — silent
+    _po_lastHash = hash;
+    localStorage.setItem(PO_KEY, JSON.stringify(remote));
+    renderPOList();
+    const status = document.getElementById('syncStatus');
+    const now = new Date();
+    const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    if(status) status.textContent = `동기화 완료 · ${t}`;
+    const last = document.getElementById('lastSync');
+    if(last) last.textContent = t;
+  }
+
+  function startPolling(){
+    if(_po_pollTimer) return;
+    _po_pollTimer = setInterval(pollPO, 60000); // 60초
+  }
+  function stopPolling(){
+    if(_po_pollTimer){ clearInterval(_po_pollTimer); _po_pollTimer = null; }
+  }
+
+  // 탭 활성화 시 즉시 동기화 (다른 기기에서 다 와있는 변경 즉시 반영)
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible'){
+      pollPO();
+      startPolling();
+    }
+  });
 
   async function pushAfterChange(list){
     const result=await pushPOToRemote(list);
@@ -760,7 +803,9 @@
     try{return JSON.parse(localStorage.getItem(PO_KEY)||'[]')}catch(e){return []}
   }
   function savePOList(list){
-    localStorage.setItem(PO_KEY,JSON.stringify(list));
+    const json = JSON.stringify(list);
+    localStorage.setItem(PO_KEY, json);
+    _po_lastHash = json; // 자기가 저장한 데이터는 폴링에서 변경 감지 안 하게
     pushAfterChange(list).catch(e=>console.warn('sync error:',e));
   }
 
