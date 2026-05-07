@@ -228,7 +228,29 @@
   .po-table tr.po-row-g2:hover td,
   .po-table tr.po-row-g3:hover td{background:var(--bg-3)}
   .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px;width:62px;white-space:nowrap}
-  .po-table td.col-eta{font-family:var(--mono);color:var(--accent);font-size:12px;width:72px;white-space:nowrap;font-weight:500}
+  .po-table td.col-eta{width:78px;white-space:nowrap;vertical-align:middle;text-align:center}
+  /* 입고예정일 강조 pill (골드 = 일반 날짜, 네온 그린 = 현물/즉시) */
+  .eta-pill{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:4px;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.03em;
+    background:rgba(212,175,55,.14);
+    border:1px solid rgba(212,175,55,.45);
+    color:var(--accent);
+    text-shadow:0 0 8px rgba(212,175,55,.35);
+    box-shadow:0 0 0 1px rgba(212,175,55,.1) inset, 0 0 12px rgba(212,175,55,.18);
+  }
+  .eta-pill.eta-now{
+    background:rgba(15,255,193,.1);
+    border-color:rgba(15,255,193,.5);
+    color:var(--neon);
+    text-shadow:0 0 8px rgba(15,255,193,.4);
+    box-shadow:0 0 0 1px rgba(15,255,193,.12) inset, 0 0 14px rgba(15,255,193,.22);
+  }
   .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
   .po-table tr:first-child td{border-top:none}
   .po-table tr:hover td{background:var(--bg-2)}
@@ -765,7 +787,7 @@
       return `
       <tr class="${groupCls}">
         <td class="col-date">${escapeHTML(it.date||'')}</td>
-        <td class="col-eta">${escapeHTML(it.eta||'')}</td>
+        <td class="col-eta">${it.eta?`<span class="eta-pill${it.eta==='현물'?' eta-now':''}">${escapeHTML(it.eta)}</span>`:''}</td>
         <td class="col-name">${escapeHTML(combined)}</td>
         <td class="col-memo">${escapeHTML(it.memo||'')}</td>
         <td class="col-qty">${formatQty(it.qty)}</td>
