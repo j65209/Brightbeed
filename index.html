@@ -321,6 +321,97 @@
     .po-table th,.po-table td{padding:10px 6px;font-size:12px}
     .po-table td.col-name,.po-table td.col-memo{font-size:11.5px}
   }
+
+  /* === 모바일 (≤600px): 테이블 → 카드 레이아웃 + 톱바·버튼 압축 === */
+  @media (max-width:600px){
+    body{font-size:13px}
+    .container{padding:14px}
+
+    /* 톱바 — 압축 */
+    .topbar{padding:10px 14px}
+    .brand-name{font-size:13px}
+    .brand-sep,.brand-mod{display:none}
+    .topbar-right{gap:10px}
+    .status-pill{font-size:10px;letter-spacing:.01em}
+    .icon-btn{width:30px;height:30px}
+
+    /* 페이지 헤더 */
+    .page-head{margin-bottom:18px;padding-bottom:14px}
+    .page-title{font-size:18px}
+    .page-sub,.page-meta{font-size:11px}
+
+    /* 히어로 — ERP 최신화 */
+    .hero{padding:28px 12px 24px;margin-bottom:24px}
+    .hero-eyebrow{font-size:10px;margin-bottom:14px}
+    .btn-neon{padding:16px 28px;font-size:15px;gap:10px;border-radius:6px}
+    .btn-neon svg{width:18px;height:18px}
+    .hero-hint{font-size:10px;text-align:center;line-height:1.5;padding:0 10px;margin-top:12px}
+    .sec-actions{margin-top:18px}
+    .btn{padding:10px 14px;font-size:12px}
+    .sec-sync{margin-top:8px}
+    .btn-small{font-size:10px;padding:6px 12px}
+
+    /* === 테이블 → 카드 레이아웃 === */
+    .po-wrap{max-width:100%}
+    .po-section-head{padding:10px 14px}
+    .po-section-title{font-size:13px}
+    .po-section-meta{font-size:11px}
+
+    .po-table{display:block;table-layout:auto;width:100%}
+    .po-table thead{display:none}
+    .po-table tbody{display:block}
+    .po-table tr{
+      display:grid;
+      grid-template-columns:1fr auto;
+      grid-template-areas:
+        "date eta"
+        "name name"
+        "memo memo"
+        "qty del";
+      gap:6px 10px;
+      border:1px solid var(--line);
+      border-top:1px solid var(--line) !important;
+      border-radius:6px;
+      margin:8px 14px;
+      padding:12px 14px;
+    }
+    .po-table td{
+      display:block;
+      padding:0;
+      border:none !important;
+      text-align:left;
+      width:auto !important;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+    }
+    .po-table td.col-date{grid-area:date;font-size:11px;color:var(--text-3);font-family:var(--mono)}
+    .po-table td.col-eta{grid-area:eta;text-align:right}
+    .po-table td.col-name{grid-area:name;font-size:14px;font-weight:600;color:var(--text-0);line-height:1.3}
+    .po-table td.col-memo{grid-area:memo;font-size:11.5px;color:var(--text-2);line-height:1.4}
+    .po-table td.col-memo:empty{display:none}
+    .po-table td.col-qty{
+      grid-area:qty;
+      font-size:15px;font-weight:700;
+      color:var(--neon);
+      text-shadow:0 0 8px rgba(15,255,193,.25);
+      align-self:center;
+    }
+    .po-table td.col-act{grid-area:del;text-align:right;align-self:center;padding:0}
+    .po-table tr:hover td{background:transparent !important}
+
+    /* 발주일 그룹 톤은 카드 background로 */
+    .po-table tr.po-row-g0,.po-table tr.po-row-g0 td{background:#0f1115 !important}
+    .po-table tr.po-row-g1,.po-table tr.po-row-g1 td{background:#12161c !important}
+    .po-table tr.po-row-g2,.po-table tr.po-row-g2 td{background:#161a21 !important}
+    .po-table tr.po-row-g3,.po-table tr.po-row-g3 td{background:#191e26 !important}
+
+    /* ETA pill 모바일 사이즈 */
+    .eta-pill{font-size:11px;padding:3px 9px}
+
+    /* 푸터 */
+    .footer{padding:14px 16px;font-size:10px;flex-direction:column;gap:6px;align-items:flex-start}
+  }
 </style>
 </head>
 <body>
