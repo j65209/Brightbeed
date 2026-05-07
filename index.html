@@ -363,7 +363,7 @@
     .sec-sync{margin-top:8px}
     .btn-small{font-size:10px;padding:6px 12px}
 
-    /* === 테이블 → 카드 레이아웃 === */
+    /* === 테이블 → 3줄 카드 레이아웃 === */
     .po-wrap{max-width:100%}
     .po-section-head{padding:10px 14px}
     .po-section-title{font-size:13px}
@@ -372,20 +372,25 @@
     .po-table{display:block;table-layout:auto;width:100%}
     .po-table thead{display:none}
     .po-table tbody{display:block}
+
+    /* 카드 레이아웃: 3줄 grid
+       줄1 (헤더): [발주일 좌측] ━━━ [입고예정 pill 우측, 큰 강조]
+       줄2 (메인): 제품 및 옵션명 (큰 글씨)
+       줄3 (푸터): 메모 ━━━ 수량 ━━━ ✕ */
     .po-table tr{
       display:grid;
-      grid-template-columns:1fr auto;
+      grid-template-columns:auto 1fr auto auto;
       grid-template-areas:
-        "date eta"
-        "name name"
-        "memo memo"
-        "qty del";
-      gap:6px 10px;
+        "date  .     .    eta"
+        "name  name  name name"
+        "memo  memo  qty  del";
+      gap:8px 10px;
+      align-items:center;
       border:1px solid var(--line);
       border-top:1px solid var(--line) !important;
-      border-radius:6px;
-      margin:8px 14px;
-      padding:12px 14px;
+      border-radius:8px;
+      margin:10px 14px;
+      padding:14px 16px;
     }
     .po-table td{
       display:block;
@@ -397,29 +402,68 @@
       overflow:visible;
       text-overflow:clip;
     }
-    .po-table td.col-date{grid-area:date;font-size:11px;color:var(--text-3);font-family:var(--mono)}
-    .po-table td.col-eta{grid-area:eta;text-align:right}
-    .po-table td.col-name{grid-area:name;font-size:14px;font-weight:600;color:var(--text-0);line-height:1.3}
-    .po-table td.col-memo{grid-area:memo;font-size:11.5px;color:var(--text-2);line-height:1.4}
+    /* 줄 1: 발주일 (작게, 회색) ━ 입고예정일 (큰 pill 우측) */
+    .po-table td.col-date{
+      grid-area:date;
+      font-size:12px;
+      color:var(--text-3);
+      font-family:var(--mono);
+      letter-spacing:.02em;
+    }
+    .po-table td.col-eta{
+      grid-area:eta;
+      justify-self:end;
+    }
+    /* 줄 2: 제품 및 옵션명 (가장 큰 글씨, 강조) */
+    .po-table td.col-name{
+      grid-area:name;
+      font-size:16px;
+      font-weight:700;
+      color:var(--text-0);
+      line-height:1.35;
+      letter-spacing:-.005em;
+      padding:2px 0;
+    }
+    /* 줄 3: 메모 (좌) ━ 수량 (가운데 우측) ━ 삭제 (가장 우측) */
+    .po-table td.col-memo{
+      grid-area:memo;
+      font-size:12px;
+      color:var(--text-2);
+      line-height:1.4;
+    }
     .po-table td.col-memo:empty{display:none}
     .po-table td.col-qty{
       grid-area:qty;
-      font-size:15px;font-weight:700;
+      font-size:18px;
+      font-weight:700;
       color:var(--neon);
-      text-shadow:0 0 8px rgba(15,255,193,.25);
-      align-self:center;
+      text-shadow:0 0 10px rgba(15,255,193,.35);
+      letter-spacing:.01em;
+      justify-self:end;
+      padding-right:4px;
     }
-    .po-table td.col-act{grid-area:del;text-align:right;align-self:center;padding:0}
+    .po-table td.col-act{
+      grid-area:del;
+      justify-self:end;
+      padding:0;
+    }
     .po-table tr:hover td{background:transparent !important}
 
-    /* 발주일 그룹 톤은 카드 background로 */
+    /* 발주일 그룹 톤 = 카드 background */
     .po-table tr.po-row-g0,.po-table tr.po-row-g0 td{background:#0f1115 !important}
     .po-table tr.po-row-g1,.po-table tr.po-row-g1 td{background:#12161c !important}
     .po-table tr.po-row-g2,.po-table tr.po-row-g2 td{background:#161a21 !important}
     .po-table tr.po-row-g3,.po-table tr.po-row-g3 td{background:#191e26 !important}
 
-    /* ETA pill 모바일 사이즈 */
-    .eta-pill{font-size:11px;padding:3px 9px}
+    /* === ETA pill 모바일에서 크게 강조 === */
+    .eta-pill{
+      font-size:15px;
+      padding:6px 14px;
+      border-radius:6px;
+      font-weight:800;
+      letter-spacing:.04em;
+      box-shadow:0 0 0 1px rgba(15,255,193,.15) inset, 0 0 18px rgba(15,255,193,.3);
+    }
 
     /* 푸터 */
     .footer{padding:14px 16px;font-size:10px;flex-direction:column;gap:6px;align-items:flex-start}
