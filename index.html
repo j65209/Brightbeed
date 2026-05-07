@@ -215,9 +215,11 @@
   .po-table{width:100%;border-collapse:collapse}
   .po-table th{text-align:left;font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;background:var(--bg-2);border-bottom:1px solid var(--line)}
   .po-table th.col-date{width:62px}
+  .po-table th.col-eta{width:72px}
   .po-table th.col-qty{text-align:right;width:96px}
   .po-table th.col-act{width:36px}
   .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px;width:62px;white-space:nowrap}
+  .po-table td.col-eta{font-family:var(--mono);color:var(--accent);font-size:12px;width:72px;white-space:nowrap;font-weight:500}
   .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
   .po-table tr:first-child td{border-top:none}
   .po-table tr:hover td{background:var(--bg-2)}
@@ -350,8 +352,8 @@
           <thead>
             <tr>
               <th class="col-date">발주일</th>
-              <th class="col-name">제품명</th>
-              <th class="col-option">옵션명</th>
+              <th class="col-eta">입고예정일</th>
+              <th class="col-name">제품 및 옵션명</th>
               <th class="col-memo">메모</th>
               <th class="col-qty">수량</th>
               <th class="col-act"></th>
@@ -609,31 +611,93 @@
       .trim();
   }
 
-  /* 메모에서 현물/소요일 정보만 추출. 나머지 잡담은 버림 */
+  /* 발주서 시간 단위 변환 (일수로) */
+  function unitToDays(n,unit){
+    switch(unit){
+      case '일': return n;
+      case '주': return n*7;
+      case '개월': case '달': return n*30;
+      default: return 0;
+    }
+  }
+
+  /* 메모에서 현물 + 소요일(단일/범위) 정보만 추출. 그 외 잡담은 버림 */
   function extractDeliveryMemo(memo){
-    const text=String(memo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
+    let text=String(memo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
     const found=[];
     if(/현물/.test(text)) found.push('현물');
-    const patterns=[
-      /\d+\s*[일주개월달]\s*(?:정도|이내|이상|이하)?\s*소요/g,
-      /소요[:\s]*\d+\s*[일주개월달]/g,
-      /납기[:\s]*(?:\d+\s*[일주개월달]|\d{1,2}\/\d{1,2})/g,
+    const UNIT='(?:일|주|개월|달)';
+    const rangeRes=[
+      new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}`,'g'),
+      new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}\\s*소요`,'g'),
     ];
-    for(const p of patterns){
+    for(const p of rangeRes){
+      const ms=text.match(p)||[];
+      for(const m of ms) found.push(m.trim());
+      text=text.replace(p,' ');
+    }
+    const singleRes=[
+      new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}`,'g'),
+      new RegExp(`\\d+\\s*${UNIT}\\s*소요`,'g'),
+    ];
+    for(const p of singleRes){
       const ms=text.match(p)||[];
       for(const m of ms) found.push(m.trim());
     }
     return [...new Set(found)].join(' · ');
   }
 
-  /* 파일명에서 발주일 추출. "260507" → "5/7", "05.07" → "5/7" */
-  function extractDateFromFilename(filename){
+  /* 발주일 + raw memo로 입고예정일 계산. 범위는 상한 기준 (보수적). 현물만 있으면 "현물" 그대로 표시. */
+  function calculateETA(orderIso,rawMemo){
+    if(!orderIso) return '';
+    let text=String(rawMemo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
+    let maxDays=-1;
+    if(/현물/.test(text)) maxDays=0;
+    const UNIT='(?:일|주|개월|달)';
+    const rangeRe1=new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})`,'g');
+    const rangeRe2=new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})\\s*소요`,'g');
+    let m;
+    while((m=rangeRe1.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
+    while((m=rangeRe2.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
+    text=text.replace(rangeRe1,' ').replace(rangeRe2,' ');
+    const singleRe1=new RegExp(`소요일?[:\\s]*(\\d+)\\s*(${UNIT})`,'g');
+    const singleRe2=new RegExp(`(\\d+)\\s*(${UNIT})\\s*소요`,'g');
+    while((m=singleRe1.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
+    while((m=singleRe2.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
+    if(maxDays<0) return '';
+    if(maxDays===0) return '현물';
+    const [Y,M,D]=orderIso.split('-').map(Number);
+    const eta=new Date(Y,M-1,D);
+    eta.setDate(eta.getDate()+maxDays);
+    return `${eta.getMonth()+1}/${eta.getDate()}`;
+  }
+
+  /* 제품명 + 옵션명 합쳐서 한 컬럼 표시. 같은 값이면 한 번만, 다르면 슬래시로 결합 */
+  function combineProductOption(product,option){
+    const p=stripChinese(product||'');
+    const o=stripChinese(option||'');
+    if(!p) return o;
+    if(!o) return p;
+    if(p===o) return p;
+    return `${p} / ${o}`;
+  }
+
+  /* 파일명에서 발주일 추출. display ("5/7") + iso ("2026-05-07") 둘 다 반환 */
+  function parseDateFromFilename(filename){
     const base=String(filename||'').replace(/\.(xlsx|xls|xlsm|jpg|jpeg|png|gif|webp)$/i,'');
     let m=base.match(/(?:^|[^\d])(\d{2})(\d{2})(\d{2})(?:[^\d]|$)/);
-    if(m) return `${parseInt(m[2],10)}/${parseInt(m[3],10)}`;
+    if(m){
+      const yy=m[1],mm=m[2],dd=m[3];
+      return {display:`${parseInt(mm,10)}/${parseInt(dd,10)}`,iso:`20${yy}-${mm}-${dd}`};
+    }
     m=base.match(/(\d{1,2})[.\-_](\d{1,2})/);
-    if(m) return `${parseInt(m[1],10)}/${parseInt(m[2],10)}`;
-    return '';
+    if(m){
+      const yr=new Date().getFullYear();
+      const mm=String(parseInt(m[1],10)).padStart(2,'0');
+      const dd=String(parseInt(m[2],10)).padStart(2,'0');
+      return {display:`${parseInt(m[1],10)}/${parseInt(m[2],10)}`,iso:`${yr}-${mm}-${dd}`};
+    }
+    return {display:'',iso:''};
   }
 
   /* 병합 셀을 풀어서 모든 셀에 값 복제 (sheet_to_json은 좌상단만 채우므로) */
@@ -678,18 +742,21 @@
     empty.style.display='none';
     clr.style.display='inline-block';
 
-    tbody.innerHTML=list.map((it,i)=>`
+    tbody.innerHTML=list.map((it,i)=>{
+      // legacy data fallback: 기존 product/option 분리 데이터도 보이도록
+      const combined=it.combined||(it.product&&it.option&&it.product!==it.option?`${it.product} / ${it.option}`:(it.product||it.option||''));
+      return `
       <tr>
         <td class="col-date">${escapeHTML(it.date||'')}</td>
-        <td class="col-name">${escapeHTML(it.product||'')}</td>
-        <td class="col-option">${escapeHTML(it.option||'')}</td>
+        <td class="col-eta">${escapeHTML(it.eta||'')}</td>
+        <td class="col-name">${escapeHTML(combined)}</td>
         <td class="col-memo">${escapeHTML(it.memo||'')}</td>
         <td class="col-qty">${formatQty(it.qty)}</td>
         <td class="col-act"><button class="po-row-del" onclick="deletePORow(${i})" title="삭제" aria-label="삭제">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button></td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   }
 
   function deletePORow(idx){
@@ -774,14 +841,17 @@
     const m=text.match(/\[[\s\S]*\]/);
     if(!m) throw new Error('JSON 배열을 찾지 못했습니다: '+text.slice(0,150));
     const items=JSON.parse(m[0]);
-    const date=extractDateFromFilename(file.name);
-    return items.map(it=>({
-      date,
-      product:stripChinese(String(it.product||'')),
-      option:stripChinese(String(it.option||'')),
-      memo:extractDeliveryMemo(String(it.memo||'')),
-      qty:Number(it.qty)||0
-    })).filter(it=>it.product||it.option||it.qty>0);
+    const dateInfo=parseDateFromFilename(file.name);
+    return items.map(it=>{
+      const memoRaw=String(it.memo||'');
+      return {
+        date:dateInfo.display,
+        combined:combineProductOption(String(it.product||''),String(it.option||'')),
+        memo:extractDeliveryMemo(memoRaw),
+        eta:calculateETA(dateInfo.iso,memoRaw),
+        qty:Number(it.qty)||0
+      };
+    }).filter(it=>it.combined||it.qty>0);
   }
 
 /* xlsx 파싱 — 무료, 클라이언트 사이드 */
@@ -802,7 +872,7 @@
   async function analyzeXLSX(file){
     const wb=await readXLSXFile(file);
     const items=[];
-    const date=extractDateFromFilename(file.name);
+    const dateInfo=parseDateFromFilename(file.name);
     const norm=s=>String(s||'').replace(/\s/g,'').toLowerCase();
 
     for(const sn of wb.SheetNames){
@@ -853,10 +923,10 @@
         if(qty<=0) continue;
 
         items.push({
-          date,
-          product:stripChinese(productRaw),
-          option:stripChinese(optionRaw),
+          date:dateInfo.display,
+          combined:combineProductOption(productRaw,optionRaw),
           memo:extractDeliveryMemo(memoRaw),
+          eta:calculateETA(dateInfo.iso,memoRaw),
           qty
         });
       }
