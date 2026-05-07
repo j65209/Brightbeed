@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>브라이트비드 오피스</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
 <link rel="apple-touch-icon" sizes="167x167" href="assets/icon-167.png">
 <link rel="apple-touch-icon" sizes="152x152" href="assets/icon-152.png">
@@ -385,17 +388,17 @@
     .po-table tbody{display:block}
 
     /* 카드 레이아웃: 3줄 grid
-       줄1 (헤더): [발주일 좌측] ━━━ [입고예정 pill 우측, 큰 강조]
+       줄1 (헤더): [입고예정 pill 큰 강조 ━ 좌측] ━━━ [발주일 우측 작게]
        줄2 (메인): 제품 및 옵션명 (큰 글씨)
        줄3 (푸터): 메모 ━━━ 수량 ━━━ ✕ */
     .po-table tr{
       display:grid;
       grid-template-columns:auto 1fr auto auto;
       grid-template-areas:
-        "date  .     .    eta"
+        "eta   .     .    date"
         "name  name  name name"
         "memo  memo  qty  del";
-      gap:8px 10px;
+      gap:10px 10px;
       align-items:center;
       border:1px solid var(--line);
       border-top:1px solid var(--line) !important;
@@ -413,17 +416,22 @@
       overflow:visible;
       text-overflow:clip;
     }
-    /* 줄 1: 발주일 (작게, 회색) ━ 입고예정일 (큰 pill 우측) */
+    /* 줄 1: 입고예정일 (좌측 큰 pill, 가장 강조) ━ 발주일 (우측 작게) */
+    .po-table td.col-eta{
+      grid-area:eta;
+      justify-self:start;
+    }
     .po-table td.col-date{
       grid-area:date;
-      font-size:12px;
+      justify-self:end;
+      font-size:11px;
       color:var(--text-3);
       font-family:var(--mono);
       letter-spacing:.02em;
     }
-    .po-table td.col-eta{
-      grid-area:eta;
-      justify-self:end;
+    .po-table td.col-date::before{
+      content:"발주 ";
+      color:var(--text-3);
     }
     /* 줄 2: 제품 및 옵션명 (가장 큰 글씨, 강조) */
     .po-table td.col-name{
@@ -466,7 +474,16 @@
     .po-table tr.po-row-g2,.po-table tr.po-row-g2 td{background:#161a21 !important}
     .po-table tr.po-row-g3,.po-table tr.po-row-g3 td{background:#191e26 !important}
 
-    /* === ETA pill 모바일에서 크게 강조 === */
+    .eta-pill.eta-empty{
+    background:rgba(120,120,120,.08);
+    border-color:rgba(120,120,120,.3);
+    color:var(--text-3);
+    text-shadow:none;
+    box-shadow:none;
+    font-weight:500;
+  }
+
+  /* === ETA pill 모바일에서 크게 강조 === */
     .eta-pill{
       font-size:15px;
       padding:6px 14px;
@@ -1262,7 +1279,7 @@
       return `
       <tr class="${groupCls}">
         <td class="col-date">${escapeHTML(it.date||'')}</td>
-        <td class="col-eta">${it.eta?`<span class="eta-pill">${escapeHTML(it.eta)}</span>`:''}</td>
+        <td class="col-eta">${it.eta?`<span class="eta-pill">${escapeHTML(it.eta)}</span>`:`<span class="eta-pill eta-empty">미정</span>`}</td>
         <td class="col-name">${escapeHTML(combined)}</td>
         <td class="col-memo">${escapeHTML(it.memo||'')}</td>
         <td class="col-qty">${formatQty(it.qty)}<span class="qty-unit">개</span></td>
