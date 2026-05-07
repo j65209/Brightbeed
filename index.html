@@ -129,6 +129,36 @@
   .footer{padding:20px 32px;border-top:1px solid var(--line);font-size:12px;color:var(--text-3);display:flex;justify-content:space-between}
   .footer .mono{font-family:var(--mono)}
 
+  /* 토큰 모달 */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:60;backdrop-filter:blur(4px)}
+  .modal-bg.show{display:flex}
+  .modal{width:460px;max-width:92vw;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:28px 28px 24px;box-shadow:0 24px 48px rgba(0,0,0,.5)}
+  .modal-title{font-size:16px;font-weight:600;margin-bottom:6px}
+  .modal-sub{font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.6}
+  .modal-help{font-size:12px;color:var(--text-3);margin-bottom:18px;line-height:1.7;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
+  .modal-help a{color:var(--accent)}
+  .modal-help a:hover{text-decoration:underline}
+  .modal-help b{color:var(--text-1);font-weight:500}
+  .modal-input{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:11px 14px;color:var(--text-0);font-size:13px;font-family:var(--mono);outline:none;transition:border-color .15s;margin-bottom:14px}
+  .modal-input:focus{border-color:var(--accent)}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-end}
+  .modal-btn{padding:9px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--bg-2);color:var(--text-1);cursor:pointer;transition:all .15s}
+  .modal-btn:hover{background:var(--bg-3);color:var(--text-0)}
+  .modal-btn-primary{background:var(--accent);border-color:var(--accent);color:#1a1410}
+  .modal-btn-primary:hover{filter:brightness(1.08);background:var(--accent);color:#1a1410}
+
+  /* 토스트 */
+  .toast-area{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:80;pointer-events:none}
+  .toast{background:var(--bg-1);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text-1);max-width:380px;box-shadow:0 12px 32px rgba(0,0,0,.4);animation:toastIn .22s ease-out;pointer-events:auto}
+  .toast.ok{border-left-color:var(--ok)}
+  .toast.err{border-left-color:var(--danger)}
+  @keyframes toastIn{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+  /* 액션 버튼 비활성 */
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .btn.spin svg{animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
   @media (max-width:768px){
     .container{padding:20px}
     .topbar{padding:12px 20px}
@@ -211,9 +241,9 @@
 
     <!-- 액션 -->
     <div class="actions">
-      <button class="btn btn-primary" onclick="alert('ERP 연동은 곧 추가됩니다')">
+      <button class="btn btn-primary" id="erpBtn" onclick="triggerERP()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-        ERP 최신화
+        <span id="erpBtnLabel">ERP 최신화</span>
       </button>
       <button class="btn" onclick="alert('드롭박스 동기화는 곧 추가됩니다')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -314,9 +344,32 @@
 
   <footer class="footer">
     <div>© 2025 브라이트비드 오피스 · 내부 사용 전용</div>
-    <div>버전 0.5 · 빌드 <span class="mono">2025.05.07</span></div>
+    <div>버전 0.6 · 빌드 <span class="mono">2026.05.07</span></div>
   </footer>
 </div>
+
+<!-- 토큰 입력 모달 -->
+<div class="modal-bg" id="tokenModal">
+  <div class="modal">
+    <div class="modal-title">GitHub 토큰 입력</div>
+    <div class="modal-sub">ERP 워크플로우 트리거에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.</div>
+    <div class="modal-help">
+      <b>발급 방법</b><br>
+      1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 접속<br>
+      2. Repository access → <b>Only select</b> → <b>j65209/sixshop-collector</b> 선택<br>
+      3. Permissions → Repository permissions → <b>Actions: Read and write</b><br>
+      4. Generate token → 복사 → 아래 입력
+    </div>
+    <input class="modal-input" id="tokenInput" type="password" placeholder="github_pat_..." autocomplete="off">
+    <div class="modal-actions">
+      <button class="modal-btn" id="tokenCancel">취소</button>
+      <button class="modal-btn modal-btn-primary" id="tokenSave">저장 후 실행</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast-area" id="toastArea"></div>
 
 <script>
   const PIN='670200';
@@ -357,6 +410,127 @@
       b.textContent=t.classList.contains('open')?'접기':'상세';
     };
   });
+
+  /* ===== ERP 트리거 ===== */
+  const ERP_REPO='j65209/sixshop-collector';
+  const ERP_WORKFLOW='collect.yml';
+  const ERP_REF='main';
+  const TOKEN_KEY='brightbeed_gh_token';
+
+  const erpBtn=document.getElementById('erpBtn');
+  const erpLabel=document.getElementById('erpBtnLabel');
+  const tokenModal=document.getElementById('tokenModal');
+  const tokenInput=document.getElementById('tokenInput');
+
+  function toast(msg,type){
+    const el=document.createElement('div');
+    el.className='toast '+(type||'');
+    el.textContent=msg;
+    document.getElementById('toastArea').appendChild(el);
+    setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},5000);
+  }
+
+  function askToken(){
+    return new Promise(resolve=>{
+      tokenInput.value='';
+      tokenModal.classList.add('show');
+      setTimeout(()=>tokenInput.focus(),50);
+      const cleanup=()=>{
+        tokenModal.classList.remove('show');
+        document.getElementById('tokenSave').onclick=null;
+        document.getElementById('tokenCancel').onclick=null;
+        tokenInput.onkeydown=null;
+      };
+      const save=()=>{
+        const v=tokenInput.value.trim();
+        if(!v){tokenInput.focus();return}
+        cleanup();resolve(v);
+      };
+      document.getElementById('tokenSave').onclick=save;
+      document.getElementById('tokenCancel').onclick=()=>{cleanup();resolve(null)};
+      tokenInput.onkeydown=e=>{if(e.key==='Enter')save();if(e.key==='Escape'){cleanup();resolve(null)}};
+    });
+  }
+
+  async function triggerERP(){
+    let token=localStorage.getItem(TOKEN_KEY);
+    if(!token){
+      token=await askToken();
+      if(!token)return;
+      localStorage.setItem(TOKEN_KEY,token);
+    }
+
+    erpBtn.disabled=true;
+    erpBtn.classList.add('spin');
+    erpLabel.textContent='트리거 중...';
+
+    try{
+      const r=await fetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/dispatches`,{
+        method:'POST',
+        headers:{
+          'Authorization':`Bearer ${token}`,
+          'Accept':'application/vnd.github+json',
+          'X-GitHub-Api-Version':'2022-11-28',
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({ref:ERP_REF})
+      });
+
+      if(r.status===204){
+        erpLabel.textContent='✓ 시작됨';
+        toast('ERP 워크플로우 시작 · 약 2~3분 소요','ok');
+        document.getElementById('syncStatus').textContent='ERP 동기화 중...';
+        pollRun(token);
+      }else if(r.status===401||r.status===403){
+        localStorage.removeItem(TOKEN_KEY);
+        toast('토큰이 유효하지 않거나 권한이 부족합니다. 다시 입력해주세요.','err');
+        erpLabel.textContent='ERP 최신화';
+        erpBtn.disabled=false;
+        erpBtn.classList.remove('spin');
+        return;
+      }else{
+        const t=await r.text();
+        toast(`실패 (${r.status}): ${t.slice(0,100)}`,'err');
+      }
+    }catch(e){
+      toast(`네트워크 오류: ${e.message}`,'err');
+    }
+
+    setTimeout(()=>{
+      erpBtn.disabled=false;
+      erpBtn.classList.remove('spin');
+      erpLabel.textContent='ERP 최신화';
+    },3500);
+  }
+
+  async function pollRun(token){
+    const start=Date.now();
+    const maxWait=6*60*1000;
+    while(Date.now()-start<maxWait){
+      await new Promise(r=>setTimeout(r,15000));
+      try{
+        const r=await fetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/runs?per_page=1`,{
+          headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'}
+        });
+        if(!r.ok)continue;
+        const j=await r.json();
+        const run=j.workflow_runs&&j.workflow_runs[0];
+        if(!run)continue;
+        if(run.status==='completed'){
+          if(run.conclusion==='success'){
+            document.getElementById('syncStatus').textContent='ERP 동기화 완료 · 방금 전';
+            toast('✓ ERP 동기화 완료','ok');
+          }else{
+            document.getElementById('syncStatus').textContent=`ERP 실패 · ${run.conclusion}`;
+            toast(`✗ 워크플로우 ${run.conclusion}`,'err');
+          }
+          return;
+        }
+      }catch(e){}
+    }
+  }
+
+  window.triggerERP=triggerERP;
 
   init();
 </script>
