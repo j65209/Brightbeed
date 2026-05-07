@@ -214,8 +214,10 @@
 
   .po-table{width:100%;border-collapse:collapse}
   .po-table th{text-align:left;font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;background:var(--bg-2);border-bottom:1px solid var(--line)}
+  .po-table th.col-date{width:62px}
   .po-table th.col-qty{text-align:right;width:96px}
   .po-table th.col-act{width:36px}
+  .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px;width:62px;white-space:nowrap}
   .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
   .po-table tr:first-child td{border-top:none}
   .po-table tr:hover td{background:var(--bg-2)}
@@ -324,14 +326,6 @@
           발주서 가져오기
         </button>
         <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
-        <button class="btn" onclick="window.open('https://docs.google.com/spreadsheets','_blank')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-          구글 시트 열기
-        </button>
-        <button class="btn" onclick="window.open('https://www.dropbox.com/scl/fo/s0ctdfppq4v5h9egxycgw/ALubUJhanWF4cve03lghZlA?rlkey=oixi68qlhncxw62905971cwte&dl=0','_blank')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-          드롭박스 열기
-        </button>
       </div>
     </section>
 
@@ -355,9 +349,10 @@
         <table class="po-table" id="poTable" style="display:none">
           <thead>
             <tr>
+              <th class="col-date">발주일</th>
               <th class="col-name">제품명</th>
               <th class="col-option">옵션명</th>
-              <th class="col-memo">메모 / 소요일</th>
+              <th class="col-memo">메모</th>
               <th class="col-qty">수량</th>
               <th class="col-act"></th>
             </tr>
@@ -608,9 +603,55 @@
   /* 한자(중국어) 제거 — CJK Unified Ideographs */
   function stripChinese(s){
     return String(s||'')
-      .replace(/[一-鿿㐀-䶿豈-﫿]+/g,' ')
+      .replace(/[一-鿿㐀-䶿豈-﫿]+/g,'')
       .replace(/\s+/g,' ')
+      .replace(/^[\/\s,.\-·、，。]+|[\/\s,.\-·、，。]+$/g,'')
       .trim();
+  }
+
+  /* 메모에서 현물/소요일 정보만 추출. 나머지 잡담은 버림 */
+  function extractDeliveryMemo(memo){
+    const text=String(memo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
+    const found=[];
+    if(/현물/.test(text)) found.push('현물');
+    const patterns=[
+      /\d+\s*[일주개월달]\s*(?:정도|이내|이상|이하)?\s*소요/g,
+      /소요[:\s]*\d+\s*[일주개월달]/g,
+      /납기[:\s]*(?:\d+\s*[일주개월달]|\d{1,2}\/\d{1,2})/g,
+    ];
+    for(const p of patterns){
+      const ms=text.match(p)||[];
+      for(const m of ms) found.push(m.trim());
+    }
+    return [...new Set(found)].join(' · ');
+  }
+
+  /* 파일명에서 발주일 추출. "260507" → "5/7", "05.07" → "5/7" */
+  function extractDateFromFilename(filename){
+    const base=String(filename||'').replace(/\.(xlsx|xls|xlsm|jpg|jpeg|png|gif|webp)$/i,'');
+    let m=base.match(/(?:^|[^\d])(\d{2})(\d{2})(\d{2})(?:[^\d]|$)/);
+    if(m) return `${parseInt(m[2],10)}/${parseInt(m[3],10)}`;
+    m=base.match(/(\d{1,2})[.\-_](\d{1,2})/);
+    if(m) return `${parseInt(m[1],10)}/${parseInt(m[2],10)}`;
+    return '';
+  }
+
+  /* 병합 셀을 풀어서 모든 셀에 값 복제 (sheet_to_json은 좌상단만 채우므로) */
+  function expandMergedCells(ws){
+    if(!ws['!merges']) return;
+    for(const m of ws['!merges']){
+      const top=ws[XLSX.utils.encode_cell(m.s)];
+      if(!top) continue;
+      for(let r=m.s.r;r<=m.e.r;r++){
+        for(let c=m.s.c;c<=m.e.c;c++){
+          if(r===m.s.r&&c===m.s.c) continue;
+          const addr=XLSX.utils.encode_cell({r,c});
+          if(!ws[addr]||ws[addr].v===undefined||ws[addr].v===''){
+            ws[addr]={t:top.t,v:top.v,w:top.w};
+          }
+        }
+      }
+    }
   }
 
   function formatQty(n){
@@ -639,9 +680,10 @@
 
     tbody.innerHTML=list.map((it,i)=>`
       <tr>
-        <td class="col-name">${escapeHTML(stripChinese(it.product))}</td>
+        <td class="col-date">${escapeHTML(it.date||'')}</td>
+        <td class="col-name">${escapeHTML(it.product||'')}</td>
         <td class="col-option">${escapeHTML(it.option||'')}</td>
-        <td class="col-memo">${escapeHTML(stripChinese(it.memo))}</td>
+        <td class="col-memo">${escapeHTML(it.memo||'')}</td>
         <td class="col-qty">${formatQty(it.qty)}</td>
         <td class="col-act"><button class="po-row-del" onclick="deletePORow(${i})" title="삭제" aria-label="삭제">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -732,40 +774,23 @@
     const m=text.match(/\[[\s\S]*\]/);
     if(!m) throw new Error('JSON 배열을 찾지 못했습니다: '+text.slice(0,150));
     const items=JSON.parse(m[0]);
+    const date=extractDateFromFilename(file.name);
     return items.map(it=>({
+      date,
       product:stripChinese(String(it.product||'')),
-      option:String(it.option||'').trim(),
-      memo:stripChinese(String(it.memo||'')),
+      option:stripChinese(String(it.option||'')),
+      memo:extractDeliveryMemo(String(it.memo||'')),
       qty:Number(it.qty)||0
-    })).filter(it=>it.product||it.option||it.memo||it.qty);
+    })).filter(it=>it.product||it.option||it.qty>0);
   }
 
-  /* xlsx 파싱 — 무료, 클라이언트 사이드 */
-  function parseMemoToFields(memoRaw){
-    // "Cross (제품검수 확실히...)" → product="Cross", note="제품검수 확실히..."
-    // 소요일 패턴: "3주", "20일", "5/15", "납기 2주" 등
-    const memo=String(memoRaw||'').trim();
-    if(!memo) return {product:'',leadtime:''};
-    const m=memo.match(/^([^()\[\]]+?)\s*[(\[]([^)\]]*)[)\]]\s*(.*)$/);
-    let product='', note='';
-    if(m){
-      product=m[1].trim();
-      note=(m[2]+' '+m[3]).trim();
-    }else{
-      product=memo; note='';
-    }
-    // 소요일/납기 패턴 추출
-    const leadMatch=memo.match(/(\d+\s*(?:일|주|개월|달)\s*소요?|납기[\s:]*[^,/]+|소요[\s:]*[^,/]+|\d{1,2}\/\d{1,2}(?:까지)?)/);
-    const leadtime=leadMatch?leadMatch[0].trim():(note||'');
-    return {product, leadtime};
-  }
-
+/* xlsx 파싱 — 무료, 클라이언트 사이드 */
   function readXLSXFile(file){
     return new Promise((resolve,reject)=>{
       const r=new FileReader();
       r.onload=()=>{
         try{
-          const wb=XLSX.read(new Uint8Array(r.result),{type:'array'});
+          const wb=XLSX.read(new Uint8Array(r.result),{type:'array',cellMerges:true});
           resolve(wb);
         }catch(e){reject(e)}
       };
@@ -777,85 +802,61 @@
   async function analyzeXLSX(file){
     const wb=await readXLSXFile(file);
     const items=[];
+    const date=extractDateFromFilename(file.name);
     const norm=s=>String(s||'').replace(/\s/g,'').toLowerCase();
 
     for(const sn of wb.SheetNames){
       const ws=wb.Sheets[sn];
+      expandMergedCells(ws);
       const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
       if(data.length<2) continue;
 
-      // 헤더 행 찾기
+      // 헤더 행 찾기 — 수량 + (제품/상품/옵션/메모) 중 하나라도 있으면 헤더로 인정
       let headerIdx=-1;
       for(let i=0;i<Math.min(20,data.length);i++){
         const row=data[i].map(norm);
-        const hasOpt=row.some(c=>/(1688)?옵션명?$/.test(c)||c==='옵션');
-        const hasMemo=row.some(c=>c==='메모'||c==='비고'||c==='품명'||c==='품목');
-        const hasQty=row.some(c=>c==='수량'||c==='수량개');
-        if((hasOpt||hasMemo)&&hasQty){headerIdx=i;break}
+        const hasQty=row.some(c=>/수량$/.test(c)||c==='개수');
+        if(!hasQty) continue;
+        const hasProd=row.some(c=>/제품(?:및)?옵션?명?$|^제품명$|^상품명$|^품명$|^품목$|^옵션$|^옵션명$|^1688옵션명$/.test(c));
+        const hasMemo=row.some(c=>c==='메모'||c==='비고');
+        if(hasProd||hasMemo){headerIdx=i;break}
       }
       if(headerIdx<0) continue;
 
-      // 헤더 위 행에서 공통 메모 수집 (전체 발주에 적용되는 안내문)
-      const commonSet=new Set();
-      for(let i=0;i<headerIdx;i++){
-        for(const cell of data[i]||[]){
-          const v=String(cell||'').replace(/\*+/g,'').trim();
-          if(v.length>=4){
-            const cleaned=stripChinese(v);
-            if(cleaned&&cleaned.length>=4) commonSet.add(cleaned);
-          }
-        }
-      }
-      const commonMemo=[...commonSet].join(' / ');
-
-      const header=data[headerIdx].map(c=>String(c||'').replace(/\s/g,''));
-      const findIdx=(...cands)=>{
-        for(const c of cands){
-          const i=header.findIndex(h=>h===c||h.endsWith(c));
-          if(i>=0)return i;
-        }
-        return -1;
-      };
-      const idxOption=findIdx('1688옵션명','옵션명','옵션');
-      const idxMemo=findIdx('메모','비고','품명','품목');
-      const idxQty=findIdx('수량');
-      if(idxQty<0||idxMemo<0) continue;
+      const header=data[headerIdx].map(c=>norm(c));
+      const idxNo=header.findIndex(h=>/^번호$|^no\.?$/.test(h));
+      // 결합형 "제품 및 옵션명" 컬럼이 있으면 product=option=같은 인덱스
+      const idxCombined=header.findIndex(h=>/제품및옵션명$|제품옵션명$/.test(h));
+      const idxProduct=idxCombined>=0
+        ? idxCombined
+        : header.findIndex(h=>/^제품명$|^상품명$|^품명$|^품목$/.test(h));
+      const idxOption=idxCombined>=0
+        ? idxCombined
+        : header.findIndex(h=>/^옵션$|^옵션명$|^1688옵션명$/.test(h));
+      const idxMemo=header.findIndex(h=>/^메모$|^비고$/.test(h));
+      const idxQty=header.findIndex(h=>/수량$|^개수$/.test(h));
+      if(idxQty<0) continue;
 
       for(let i=headerIdx+1;i<data.length;i++){
         const r=data[i];
-        const memoRaw=String(r[idxMemo]||'').trim();
+        // 합계/소계 행 제외
+        const noCell=String(r[idxNo>=0?idxNo:0]||'').trim();
+        if(/^(합계|소계|총합|총계|합산|total)$/i.test(noCell)) continue;
+
+        const productRaw=idxProduct>=0?String(r[idxProduct]||'').trim():'';
         const optionRaw=idxOption>=0?String(r[idxOption]||'').trim():'';
+        const memoRaw=idxMemo>=0?String(r[idxMemo]||'').trim():'';
         const qty=Number(r[idxQty])||0;
-        if(qty===0) continue;
 
-        // E 메모 컬럼: 제품명 + 부가메모/소요일 분리
-        // "Cross (제품검수 확실히 필요해보입니다.)" → product="Cross", note="제품검수..."
-        // "Must / 3키로 에어 나머지 EMS..." → product="Must", note="3키로 에어..."
-        // "Candypop 1사이즈" → product="Candypop 1사이즈", note=""
-        const memoCleaned=stripChinese(memoRaw);
-        let product='', perRowNote='';
-        const parenMatch=memoCleaned.match(/^([^()\[\]]+?)\s*[(\[]([^)\]]*)[)\]]\s*(.*)$/);
-        const slashMatch=memoCleaned.match(/^([^/]+?)\s*\/\s*(.+)$/);
-        if(parenMatch){
-          product=parenMatch[1].trim();
-          perRowNote=(parenMatch[2]+' '+parenMatch[3]).trim();
-        }else if(slashMatch){
-          product=slashMatch[1].trim();
-          perRowNote=slashMatch[2].trim();
-        }else{
-          product=memoCleaned;
-          perRowNote='';
-        }
-
-        // 공통 소요일/안내문 + 행별 노트 결합 — 모든 행에 공통 메모 적용
-        const memoCombined=[commonMemo,perRowNote].filter(s=>s&&s.length>0).join(' · ');
-
-        if(!product&&!memoCombined&&!optionRaw) continue;
+        // 제품명/옵션명 둘 다 비어있는 줄 (요약/푸터) 제외, 수량 0 제외
+        if(!productRaw&&!optionRaw) continue;
+        if(qty<=0) continue;
 
         items.push({
-          product:product||'(제품명 없음)',
-          option:optionRaw,
-          memo:memoCombined,
+          date,
+          product:stripChinese(productRaw),
+          option:stripChinese(optionRaw),
+          memo:extractDeliveryMemo(memoRaw),
           qty
         });
       }
@@ -863,7 +864,7 @@
     return items;
   }
 
-  async function handlePOFiles(files){
+async function handlePOFiles(files){
     if(!files||files.length===0)return;
 
     const xlsxFiles=[], imgFiles=[];
