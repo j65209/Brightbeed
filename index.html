@@ -219,8 +219,9 @@
   .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
   .po-table tr:first-child td{border-top:none}
   .po-table tr:hover td{background:var(--bg-2)}
-  .po-table td.col-name{color:var(--text-0);font-weight:500;width:38%}
-  .po-table td.col-memo{color:var(--text-2);font-size:12.5px;width:48%;line-height:1.55}
+  .po-table td.col-name{color:var(--text-0);font-weight:500;width:26%}
+  .po-table td.col-option{color:var(--text-1);width:24%;font-size:12.5px;line-height:1.5}
+  .po-table td.col-memo{color:var(--text-2);font-size:12.5px;width:38%;line-height:1.55}
   .po-table td.col-qty{
     text-align:right;
     font-family:var(--sans);
@@ -258,7 +259,8 @@
     .page-meta{text-align:left}
     .hero{padding:40px 16px 32px}
     .btn-neon{padding:18px 36px;font-size:16px}
-    .po-table th,.po-table td{padding:10px 14px}
+    .po-table th,.po-table td{padding:10px 12px;font-size:12px}
+    .po-table td.col-option{font-size:11.5px}
   }
 </style>
 </head>
@@ -354,6 +356,7 @@
           <thead>
             <tr>
               <th class="col-name">제품명</th>
+              <th class="col-option">옵션명</th>
               <th class="col-memo">메모 / 소요일</th>
               <th class="col-qty">수량</th>
               <th class="col-act"></th>
@@ -367,7 +370,7 @@
 
   <footer class="footer">
     <div>© 2025 브라이트비드 오피스 · 내부 사용 전용</div>
-    <div>버전 0.8 · 빌드 <span class="mono">2026.05.07</span></div>
+    <div>버전 0.9 · 빌드 <span class="mono">2026.05.07</span></div>
   </footer>
 </div>
 
@@ -637,6 +640,7 @@
     tbody.innerHTML=list.map((it,i)=>`
       <tr>
         <td class="col-name">${escapeHTML(stripChinese(it.product))}</td>
+        <td class="col-option">${escapeHTML(it.option||'')}</td>
         <td class="col-memo">${escapeHTML(stripChinese(it.memo))}</td>
         <td class="col-qty">${formatQty(it.qty)}</td>
         <td class="col-act"><button class="po-row-del" onclick="deletePORow(${i})" title="삭제" aria-label="삭제">
@@ -679,20 +683,22 @@
 
   async function analyzeImage(file,key){
     const img=await fileToBase64(file);
-    const systemPrompt=`당신은 발주서 이미지를 분석해 표 형태로 추출하는 도우미입니다. 이미지에서 각 발주 항목을 다음 3개 필드로 추출하세요:
-- product: 제품명 (메모/품명/품목 등 한국어 표기에서 추정. 중국어가 섞여 있으면 한국어 부분만)
-- memo: 메모에 적힌 소요일·납기·검수 등 부가 안내. 발주서 상단에 '전체 적용' 안내문이 있으면 함께 포함 (예: "전체: 강하게 네고 / 3주 소요")
+    const systemPrompt=`당신은 발주서 이미지를 분석해 표 형태로 추출하는 도우미입니다. 이미지에서 각 발주 항목을 다음 4개 필드로 추출하세요:
+- product: 제품명 (메모/품명/품목 등 한국어/영문 표기에서 추정. 한자가 섞여 있으면 한국어 부분만)
+- option: 옵션명 (1688옵션명 / 옵션 컬럼의 값. 한자/한국어/숫자 그대로 보존 — 공급사 식별용)
+- memo: 메모에 적힌 소요일·납기·검수 등 부가 안내. 발주서 상단에 '전체 적용' 안내문이 있으면 모든 행에 공통으로 적어주세요 (예: "전체: 강하게 네고 / 3주 소요").
 - qty: 수량 (숫자)
 
 규칙:
 - 응답은 반드시 JSON 배열만. 다른 설명·마크다운 금지.
-- 중국어(한자) 텍스트는 제외하고 한국어/영문/숫자만 추출
+- product 필드만 한자 제외. option 필드는 한자 OK (공급사 옵션 원문 유지).
 - 정보 없는 필드는 빈 문자열 ""
 - 수량은 숫자(정수). 모르면 0
-- 품목이 여러 행이면 모두 추출`;
+- 품목이 여러 행이면 모두 추출
+- 상단의 공통 안내문(소요일/네고 안내 등)은 모든 행 memo에 동일하게 prepend`;
 
     const userText=`이 발주서 이미지에서 모든 발주 항목을 추출해 JSON 배열로 반환하세요. 형식:
-[{"product":"...","memo":"...","qty":0}, ...]`;
+[{"product":"...","option":"...","memo":"...","qty":0}, ...]`;
 
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -728,9 +734,10 @@
     const items=JSON.parse(m[0]);
     return items.map(it=>({
       product:stripChinese(String(it.product||'')),
+      option:String(it.option||'').trim(),
       memo:stripChinese(String(it.memo||'')),
       qty:Number(it.qty)||0
-    })).filter(it=>it.product||it.memo||it.qty);
+    })).filter(it=>it.product||it.option||it.memo||it.qty);
   }
 
   /* xlsx 파싱 — 무료, 클라이언트 사이드 */
@@ -809,6 +816,7 @@
         }
         return -1;
       };
+      const idxOption=findIdx('1688옵션명','옵션명','옵션');
       const idxMemo=findIdx('메모','비고','품명','품목');
       const idxQty=findIdx('수량');
       if(idxQty<0||idxMemo<0) continue;
@@ -816,28 +824,37 @@
       for(let i=headerIdx+1;i<data.length;i++){
         const r=data[i];
         const memoRaw=String(r[idxMemo]||'').trim();
+        const optionRaw=idxOption>=0?String(r[idxOption]||'').trim():'';
         const qty=Number(r[idxQty])||0;
         if(qty===0) continue;
 
-        // 메모 컬럼에서 중국어 제거 후 제품명/부가메모 분리
+        // E 메모 컬럼: 제품명 + 부가메모/소요일 분리
+        // "Cross (제품검수 확실히 필요해보입니다.)" → product="Cross", note="제품검수..."
+        // "Must / 3키로 에어 나머지 EMS..." → product="Must", note="3키로 에어..."
+        // "Candypop 1사이즈" → product="Candypop 1사이즈", note=""
         const memoCleaned=stripChinese(memoRaw);
-        const m=memoCleaned.match(/^([^()\[\]]+?)\s*[(\[]([^)\]]*)[)\]]\s*(.*)$/);
         let product='', perRowNote='';
-        if(m){
-          product=m[1].trim();
-          perRowNote=(m[2]+' '+m[3]).trim();
+        const parenMatch=memoCleaned.match(/^([^()\[\]]+?)\s*[(\[]([^)\]]*)[)\]]\s*(.*)$/);
+        const slashMatch=memoCleaned.match(/^([^/]+?)\s*\/\s*(.+)$/);
+        if(parenMatch){
+          product=parenMatch[1].trim();
+          perRowNote=(parenMatch[2]+' '+parenMatch[3]).trim();
+        }else if(slashMatch){
+          product=slashMatch[1].trim();
+          perRowNote=slashMatch[2].trim();
         }else{
           product=memoCleaned;
           perRowNote='';
         }
 
-        // 공통 메모 + 행별 노트 결합
+        // 공통 소요일/안내문 + 행별 노트 결합 — 모든 행에 공통 메모 적용
         const memoCombined=[commonMemo,perRowNote].filter(s=>s&&s.length>0).join(' · ');
 
-        if(!product&&!memoCombined) continue;
+        if(!product&&!memoCombined&&!optionRaw) continue;
 
         items.push({
           product:product||'(제품명 없음)',
+          option:optionRaw,
           memo:memoCombined,
           qty
         });
