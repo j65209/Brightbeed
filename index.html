@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightbeed Order Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif; background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%); min-height: 100vh; padding: 32px 16px; color: #1f2937; }
+.container { max-width: 960px; margin: 0 auto; }
+.header { background: #fff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .subtitle { color: #6b7280; font-size: 13px; margin-top: 4px; }
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-right: 6px; }
+.actions, .section { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 20px; }
+.actions h2 { font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+.button-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-decoration: none; color: inherit; }
+.btn-primary { background: #f59e0b; color: #fff; }
+.btn-primary:hover { background: #d97706; }
+.btn-secondary { background: #f3f4f6; color: #1f2937; }
+.btn-secondary:hover { background: #e5e7eb; }
+.section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.order-item { border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+.order-item:hover { border-color: #f59e0b; }
+.order-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; }
+.order-info { display: flex; align-items: center; gap: 12px; }
+.order-date { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; }
+.order-name { font-weight: 600; font-size: 14px; }
+.badge-success { background: #d1fae5; color: #065f46; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.toggle-btn { background: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; color: #6b7280; }
+.toggle-btn:hover { background: #f9fafb; color: #1f2937; }
+.order-detail { padding: 0 18px 16px 18px; border-top: 1px solid #f3f4f6; display: none; }
+.order-detail.open { display: block; }
+.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
+.detail-item { background: #f9fafb; padding: 10px 12px; border-radius: 8px; }
+.detail-label { font-size: 11px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
+.detail-value { font-size: 14px; font-weight: 600; color: #1f2937; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.stat-card { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 18px; }
+.stat-label { font-size: 12px; color: #92400e; font-weight: 600; margin-bottom: 6px; }
+.stat-value { font-size: 24px; font-weight: 700; color: #78350f; }
+.footer { text-align: center; color: #9ca3af; font-size: 12px; padding: 20px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>🐝 Brightbeed Order</h1>
+      <div class="subtitle"><span class="status-dot"></span>중국 발주서 자동 정리 대시보드</div>
+    </div>
+    <div style="text-align: right; font-size: 12px; color: #6b7280;">
+      <div>마지막 동기화</div>
+      <div style="font-weight: 600; color: #1f2937; margin-top: 2px;">방금 전</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <h2>빠른 작업</h2>
+    <div class="button-grid">
+      <button class="btn btn-primary" onclick="alert('ERP 최신화 - 곧 연결됩니다')">🔄 ERP 최신화</button>
+      <button class="btn btn-primary" onclick="alert('발주서 동기화 - 곧 연결됩니다')">📥 발주서 동기화</button>
+      <a class="btn btn-secondary" href="#" target="_blank">📊 구글시트 열기</a>
+      <a class="btn btn-secondary" href="https://www.dropbox.com/scl/fo/s0ctdfppq4v5h9egxycgw/ALubUJhanWF4cve03lghZlA?rlkey=oixi68qlhncxw62905971cwte&dl=0" target="_blank">📁 드롭박스 열기</a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📋 최근 발주 내역</div>
+    <div class="order-item">
+      <div class="order-header">
+        <div class="order-info">
+          <span class="order-date">05.04</span>
+          <span class="order-name">발주서</span>
+          <span class="badge-success">동기화 완료</span>
+        </div>
+        <button class="toggle-btn" onclick="toggleDetail(this)">더보기 ▾</button>
+      </div>
+      <div class="order-detail">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">발주일</div><div class="detail-value">2025-05-04</div></div>
+          <div class="detail-item"><div class="detail-label">품목 수</div><div class="detail-value">- 개</div></div>
+          <div class="detail-item"><div class="detail-label">총 금액</div><div class="detail-value">- CNY</div></div>
+          <div class="detail-item"><div class="detail-label">공급업체</div><div class="detail-value">-</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="order-item">
+      <div class="order-header">
+        <div class="order-info">
+          <span class="order-date">04.21</span>
+          <span class="order-name">발주서</span>
+          <span class="badge-success">동기화 완료</span>
+        </div>
+        <button class="toggle-btn" onclick="toggleDetail(this)">더보기 ▾</button>
+      </div>
+      <div class="order-detail">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">발주일</div><div class="detail-value">2025-04-21</div></div>
+          <div class="detail-item"><div class="detail-label">품목 수</div><div class="detail-value">- 개</div></div>
+          <div class="detail-item"><div class="detail-label">총 금액</div><div class="detail-value">- CNY</div></div>
+          <div class="detail-item"><div class="detail-label">공급업체</div><div class="detail-value">-</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📈 통계</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">이번 달 발주</div><div class="stat-value">2건</div></div>
+      <div class="stat-card"><div class="stat-label">총 발주 (전체)</div><div class="stat-value">-건</div></div>
+      <div class="stat-card"><div class="stat-label">최근 동기화</div><div class="stat-value">방금 전</div></div>
+    </div>
+  </div>
+
+  <div class="footer">© Brightbeed Order Dashboard · v0.1</div>
+</div>
+
+<script>
+function toggleDetail(btn) {
+  const detail = btn.closest('.order-item').querySelector('.order-detail');
+  const isOpen = detail.classList.toggle('open');
+  btn.textContent = isOpen ? '접기 ▴' : '더보기 ▾';
+}
+</script>
+</body>
+</html>
