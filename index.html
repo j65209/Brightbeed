@@ -41,9 +41,40 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR
 .stat-label { font-size: 12px; color: #92400e; font-weight: 600; margin-bottom: 6px; }
 .stat-value { font-size: 24px; font-weight: 700; color: #78350f; }
 .footer { text-align: center; color: #9ca3af; font-size: 12px; padding: 20px 0; }
+
+/* Lock screen */
+#lock-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.lock-card { background: #fff; border-radius: 20px; padding: 40px 36px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); width: 100%; max-width: 380px; text-align: center; }
+.lock-card .lock-emoji { font-size: 48px; margin-bottom: 12px; }
+.lock-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.lock-card .lock-sub { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+.lock-card input { width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 18px; text-align: center; letter-spacing: 6px; outline: none; transition: border-color 0.15s; font-family: inherit; }
+.lock-card input:focus { border-color: #f59e0b; }
+.lock-card input.error { border-color: #ef4444; animation: shake 0.4s; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.lock-card button { width: 100%; margin-top: 12px; padding: 14px; background: #f59e0b; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.lock-card button:hover { background: #d97706; }
+.lock-error { color: #ef4444; font-size: 12px; margin-top: 10px; min-height: 16px; }
+#app { display: none; }
+#app.unlocked { display: block; }
 </style>
 </head>
 <body>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-emoji">🐝</div>
+    <h2>Brightbeed Order</h2>
+    <div class="lock-sub">접근하려면 PIN을 입력하세요</div>
+    <input type="password" id="pin-input" maxlength="6" placeholder="••••••" inputmode="numeric" autocomplete="off">
+    <div class="lock-error" id="lock-error"></div>
+    <button onclick="checkPin()">잠금 해제</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
 <div class="container">
   <div class="header">
     <div>
@@ -115,15 +146,71 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR
     </div>
   </div>
 
-  <div class="footer">© Brightbeed Order Dashboard · v0.1</div>
+  <div class="footer">© Brightbeed Order Dashboard · v0.2</div>
+</div>
 </div>
 
 <script>
+// ============ Configuration ============
+const PIN = '670200';
+const ALLOWED_IPS = ['110.11.178.25'];
+const STORAGE_KEY = 'brightbeed_unlocked';
+
+// ============ Auth Logic ============
+async function init() {
+  // 1) Check localStorage (this device was unlocked before)
+  if (localStorage.getItem(STORAGE_KEY) === '1') {
+    return unlock();
+  }
+  // 2) Check IP whitelist
+  try {
+    const r = await fetch('https://api.ipify.org?format=json');
+    const { ip } = await r.json();
+    if (ALLOWED_IPS.includes(ip)) {
+      localStorage.setItem(STORAGE_KEY, '1');
+      return unlock();
+    }
+  } catch (e) {
+    // IP check failed, fall through to PIN
+  }
+  // 3) Show PIN screen
+  document.getElementById('pin-input').focus();
+}
+
+function checkPin() {
+  const input = document.getElementById('pin-input');
+  const errorEl = document.getElementById('lock-error');
+  if (input.value === PIN) {
+    localStorage.setItem(STORAGE_KEY, '1');
+    unlock();
+  } else {
+    input.classList.add('error');
+    errorEl.textContent = 'PIN이 일치하지 않습니다';
+    setTimeout(() => input.classList.remove('error'), 500);
+    input.value = '';
+    input.focus();
+  }
+}
+
+function unlock() {
+  document.getElementById('lock-screen').style.display = 'none';
+  document.getElementById('app').classList.add('unlocked');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.activeElement.id === 'pin-input') {
+    checkPin();
+  }
+});
+
+// ============ App Logic ============
 function toggleDetail(btn) {
   const detail = btn.closest('.order-item').querySelector('.order-detail');
   const isOpen = detail.classList.toggle('open');
   btn.textContent = isOpen ? '접기 ▴' : '더보기 ▾';
 }
+
+init();
 </script>
 </body>
 </html>
