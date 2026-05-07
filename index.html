@@ -289,6 +289,17 @@
   }
   .po-table td.col-act{padding:14px 6px}
 
+  /* 수량 단위 (개) — 작게 표시 */
+  .po-table td.col-qty .qty-unit{
+    font-size:.62em;
+    font-weight:500;
+    color:var(--text-2);
+    margin-left:3px;
+    letter-spacing:0;
+    text-shadow:none;
+    vertical-align:baseline;
+  }
+
   /* 입고예정일 강조 pill — 모두 네온 민트로 통일 */
   .eta-pill{
     display:inline-block;
@@ -1254,7 +1265,7 @@
         <td class="col-eta">${it.eta?`<span class="eta-pill">${escapeHTML(it.eta)}</span>`:''}</td>
         <td class="col-name">${escapeHTML(combined)}</td>
         <td class="col-memo">${escapeHTML(it.memo||'')}</td>
-        <td class="col-qty">${formatQty(it.qty)}</td>
+        <td class="col-qty">${formatQty(it.qty)}<span class="qty-unit">개</span></td>
         <td class="col-act"><button class="po-row-del" onclick="deletePORow(${i})" title="삭제" aria-label="삭제">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button></td>
