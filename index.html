@@ -21,6 +21,9 @@
     --text-3:#5b6068;
     --accent:#d4af37;
     --accent-soft:rgba(212,175,55,.08);
+    --neon:#0fffc1;
+    --neon-2:#06d8ff;
+    --neon-glow:rgba(15,255,193,.5);
     --ok:#3fb27f;
     --warn:#d99a4e;
     --danger:#d96666;
@@ -159,11 +162,93 @@
   .btn.spin svg{animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
+  /* 히어로 — 메인 ERP 트리거 */
+  .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 48px;border-bottom:1px solid var(--line);margin-bottom:40px}
+  .hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--neon);letter-spacing:.22em;text-transform:uppercase;margin-bottom:18px;text-shadow:0 0 12px var(--neon-glow)}
+  .btn-neon{
+    display:inline-flex;align-items:center;justify-content:center;gap:14px;
+    padding:22px 56px;border-radius:8px;font-size:18px;font-weight:600;letter-spacing:.02em;
+    background:linear-gradient(135deg,#0fffc1 0%,#06d8ff 100%);
+    color:#001a16;
+    border:1px solid rgba(15,255,193,.5);
+    box-shadow:
+      0 0 0 1px rgba(15,255,193,.35),
+      0 0 24px rgba(15,255,193,.45),
+      0 0 64px rgba(6,216,255,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+    cursor:pointer;
+    transition:all .2s;
+    position:relative;
+  }
+  .btn-neon:hover:not(:disabled){
+    filter:brightness(1.08);
+    box-shadow:
+      0 0 0 1px rgba(15,255,193,.55),
+      0 0 32px rgba(15,255,193,.65),
+      0 0 96px rgba(6,216,255,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+    transform:translateY(-1px);
+  }
+  .btn-neon:active:not(:disabled){transform:translateY(0)}
+  .btn-neon:disabled{opacity:.8;cursor:not-allowed;filter:saturate(.7)}
+  .btn-neon svg{width:20px;height:20px}
+  .btn-neon.spin svg{animation:spin .9s linear infinite}
+  .hero-hint{margin-top:16px;font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em}
+
+  /* 보조 액션 (작은 버튼들) */
+  .sec-actions{display:flex;gap:8px;margin-top:24px;justify-content:center;flex-wrap:wrap}
+
+  /* 발주 내역 — 가운데 컨테이너 */
+  .po-wrap{max-width:880px;margin:0 auto}
+  .po-section{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .po-section-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line)}
+  .po-section-title{font-size:14px;font-weight:600}
+  .po-section-meta{font-size:12px;color:var(--text-2)}
+
+  .po-group{border-bottom:1px solid var(--line)}
+  .po-group:last-child{border-bottom:none}
+  .po-group-head{padding:14px 20px;background:var(--bg-2);display:flex;justify-content:space-between;align-items:center}
+  .po-group-title{font-size:13px;font-weight:500;color:var(--text-0)}
+  .po-group-count{font-size:12px;color:var(--text-2);font-family:var(--mono)}
+
+  .po-table{width:100%;border-collapse:collapse}
+  .po-table th{text-align:left;font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;background:var(--bg-2);border-bottom:1px solid var(--line)}
+  .po-table th.col-qty{text-align:right}
+  .po-table th.col-act{width:36px}
+  .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
+  .po-table tr:first-child td{border-top:none}
+  .po-table tr:hover td{background:var(--bg-2)}
+  .po-table td.col-name{color:var(--text-0);font-weight:500;width:28%}
+  .po-table td.col-memo{color:var(--text-2);font-size:12.5px;width:22%}
+  .po-table td.col-physical{color:var(--text-1);font-family:var(--mono);font-size:12px;width:32%;line-height:1.5}
+  .po-table td.col-qty{text-align:right;font-family:var(--mono);color:var(--neon);font-weight:600;font-size:14px;width:80px;white-space:nowrap}
+  .po-table td.col-act{text-align:right;width:36px;padding:13px 14px}
+  .po-row-del{width:24px;height:24px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-3);background:transparent;border:1px solid transparent;cursor:pointer;transition:all .15s}
+  .po-row-del:hover{color:var(--danger);border-color:rgba(217,102,102,.3);background:rgba(217,102,102,.06)}
+  .po-row-del svg{width:13px;height:13px}
+
+  .po-empty{padding:48px 24px;text-align:center;color:var(--text-3)}
+  .po-empty-icon{display:inline-flex;width:56px;height:56px;border-radius:50%;background:var(--bg-2);border:1px solid var(--line);align-items:center;justify-content:center;color:var(--text-3);margin-bottom:14px}
+  .po-empty-text{font-size:14px;color:var(--text-1);font-weight:500;margin-bottom:6px}
+  .po-empty-sub{font-size:12px;color:var(--text-3);line-height:1.6}
+  .po-empty-sub b{color:var(--neon);font-weight:500}
+
+  .po-clear{margin-left:12px;padding:5px 10px;font-size:11px;color:var(--text-3);background:transparent;border:1px solid var(--line);border-radius:3px;cursor:pointer;transition:all .15s}
+  .po-clear:hover{color:var(--danger);border-color:rgba(217,102,102,.3)}
+
+  /* 이미지 업로드 진행 표시 */
+  .po-upload-row td{padding:12px 18px;background:rgba(15,255,193,.04);border-left:2px solid var(--neon)}
+  .po-upload-row .up-status{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2)}
+  .po-upload-row .up-spin{width:12px;height:12px;border:2px solid var(--bg-3);border-top-color:var(--neon);border-radius:50%;animation:spin .7s linear infinite}
+
   @media (max-width:768px){
     .container{padding:20px}
     .topbar{padding:12px 20px}
     .page-head{flex-direction:column;align-items:flex-start;gap:12px}
     .page-meta{text-align:left}
+    .hero{padding:40px 16px 32px}
+    .btn-neon{padding:18px 36px;font-size:16px}
+    .po-table th,.po-table td{padding:10px 14px}
   }
 </style>
 </head>
@@ -185,7 +270,6 @@
 <div class="app" id="app">
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark">B</div>
       <div class="brand-name">브라이트비드 오피스</div>
       <div class="brand-sep"></div>
       <div class="brand-mod">발주 관리</div>
@@ -207,111 +291,83 @@
         <h1 class="page-title">발주 대시보드</h1>
       </div>
       <div class="page-meta">
-        최근 동기화 · <span id="lastSync">2025-05-04 14:22</span><br>
+        최근 동기화 · <span id="lastSync">방금 전</span><br>
         데이터 출처 · <span>드롭박스 / 발주서 폴더</span>
       </div>
     </div>
 
-    <!-- 액션 -->
-    <div class="actions">
-      <button class="btn btn-primary" id="erpBtn" onclick="triggerERP()">
+    <!-- 히어로: ERP 최신화 -->
+    <section class="hero">
+      <div class="hero-eyebrow">ERP SYNC</div>
+      <button class="btn-neon" id="erpBtn" onclick="triggerERP()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         <span id="erpBtnLabel">ERP 최신화</span>
       </button>
-      <button class="btn" onclick="alert('드롭박스 동기화는 곧 추가됩니다')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        발주서 가져오기
-      </button>
-      <button class="btn" onclick="window.open('https://docs.google.com/spreadsheets','_blank')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-        구글 시트 열기
-      </button>
-      <button class="btn" onclick="window.open('https://www.dropbox.com/scl/fo/s0ctdfppq4v5h9egxycgw/ALubUJhanWF4cve03lghZlA?rlkey=oixi68qlhncxw62905971cwte&dl=0','_blank')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        드롭박스 열기
-      </button>
-      <button class="btn" style="margin-left:auto">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-        내보내기
-      </button>
-    </div>
+      <div class="hero-hint">한 번 누르면 sixshop-collector 워크플로우가 자동 실행됩니다 · 약 2~3분 소요</div>
 
-    <!-- 발주 내역 -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-title">최근 발주 내역</div>
-        <div class="section-tools">전체 24건 중 4건 표시</div>
+      <!-- 보조 액션 -->
+      <div class="sec-actions">
+        <button class="btn" id="importBtn" onclick="document.getElementById('poImageInput').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          발주서 가져오기
+        </button>
+        <input type="file" id="poImageInput" accept="image/*" multiple style="display:none" onchange="handlePOImages(this.files)">
+        <button class="btn" onclick="window.open('https://docs.google.com/spreadsheets','_blank')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          구글 시트 열기
+        </button>
+        <button class="btn" onclick="window.open('https://www.dropbox.com/scl/fo/s0ctdfppq4v5h9egxycgw/ALubUJhanWF4cve03lghZlA?rlkey=oixi68qlhncxw62905971cwte&dl=0','_blank')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          드롭박스 열기
+        </button>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th style="width:140px">발주일</th>
-            <th>품목</th>
-            <th style="width:90px;text-align:right"></th>
-          </tr>
-        </thead>
-        <tbody id="orderBody">
-          <tr>
-            <td class="date">2025-05-04</td>
-            <td>발주서 · 5개 품목 · 320개</td>
-            <td class="right"><button class="row-toggle" data-target="d1">상세</button></td>
-          </tr>
-          <tr class="detail-row" id="d1"><td colspan="3"><div class="detail-inner">
-            <div><b>공급사</b>심천 옵틱 유한공사</div>
-            <div><b>품목</b>SKU-A001 ×80 / SKU-A007 ×60 / SKU-B112 ×60 / SKU-C220 ×60 / SKU-D041 ×60</div>
-            <div><b>도착예정</b>2025-05-18 · 해상 (청도 → 부산)</div>
-            <div><b>비고</b>프리미엄 검수 요청 · 샘플 로트 포함</div>
-          </div></td></tr>
+    </section>
 
-          <tr>
-            <td class="date">2025-04-21</td>
-            <td>발주서 · 3개 품목 · 180개</td>
-            <td class="right"><button class="row-toggle" data-target="d2">상세</button></td>
-          </tr>
-          <tr class="detail-row" id="d2"><td colspan="3"><div class="detail-inner">
-            <div><b>공급사</b>이우 무역 그룹</div>
-            <div><b>품목</b>SKU-E330 ×60 / SKU-F112 ×60 / SKU-G410 ×60</div>
-            <div><b>도착예정</b>2025-05-02 · 항공 (상해 → 인천)</div>
-            <div><b>비고</b>창고 입고 완료, 재고 확인됨</div>
-          </div></td></tr>
-
-          <tr>
-            <td class="date">2025-04-08</td>
-            <td>발주서 · 8개 품목 · 540개</td>
-            <td class="right"><button class="row-toggle" data-target="d3">상세</button></td>
-          </tr>
-          <tr class="detail-row" id="d3"><td colspan="3"><div class="detail-inner">
-            <div><b>공급사</b>광저우 산업 파트너스</div>
-            <div><b>품목</b>혼합 로트 — 발주서 첨부 참조</div>
-            <div><b>도착예정</b>2025-05-12 · 해상 (심천 → 부산)</div>
-          </div></td></tr>
-
-          <tr>
-            <td class="date">2025-03-25</td>
-            <td>발주서 · 2개 품목 · 90개</td>
-            <td class="right"><button class="row-toggle" data-target="d4">상세</button></td>
-          </tr>
-          <tr class="detail-row" id="d4"><td colspan="3"><div class="detail-inner">
-            <div><b>공급사</b>미정</div>
-            <div><b>비고</b>최종 사양 확정 후 공급사로 발송 예정</div>
-          </div></td></tr>
-        </tbody>
-      </table>
+    <!-- 발주 내역 (이미지 분석 결과 누적) -->
+    <div class="po-wrap">
+      <div class="po-section">
+        <div class="po-section-head">
+          <div class="po-section-title">최근 발주 내역</div>
+          <div class="po-section-meta">
+            <span id="poCount">0건</span>
+            <button class="po-clear" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
+          </div>
+        </div>
+        <div id="poEmpty" class="po-empty">
+          <div class="po-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          </div>
+          <div class="po-empty-text">아직 발주 내역이 없습니다</div>
+          <div class="po-empty-sub">위 <b>발주서 가져오기</b> 버튼으로 이미지를 업로드하면 자동 분석됩니다</div>
+        </div>
+        <table class="po-table" id="poTable" style="display:none">
+          <thead>
+            <tr>
+              <th class="col-name">제품명</th>
+              <th class="col-memo">메모(소요일)</th>
+              <th class="col-physical">현물 내용</th>
+              <th class="col-qty">수량</th>
+              <th class="col-act"></th>
+            </tr>
+          </thead>
+          <tbody id="poBody"></tbody>
+        </table>
+      </div>
     </div>
   </main>
 
   <footer class="footer">
     <div>© 2025 브라이트비드 오피스 · 내부 사용 전용</div>
-    <div>버전 0.6 · 빌드 <span class="mono">2026.05.07</span></div>
+    <div>버전 0.7 · 빌드 <span class="mono">2026.05.07</span></div>
   </footer>
 </div>
 
-<!-- 토큰 입력 모달 -->
+<!-- 토큰 입력 모달 (GitHub PAT / Anthropic API Key 공용) -->
 <div class="modal-bg" id="tokenModal">
   <div class="modal">
-    <div class="modal-title">GitHub 토큰 입력</div>
-    <div class="modal-sub">ERP 워크플로우 트리거에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.</div>
-    <div class="modal-help">
+    <div class="modal-title" id="tokenModalTitle">GitHub 토큰 입력</div>
+    <div class="modal-sub" id="tokenModalSub">ERP 워크플로우 트리거에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.</div>
+    <div class="modal-help" id="tokenModalHelp">
       <b>발급 방법</b><br>
       1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 접속<br>
       2. Repository access → <b>Only select</b> → <b>j65209/sixshop-collector</b> 선택<br>
@@ -388,7 +444,38 @@
     setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},5000);
   }
 
-  function askToken(){
+  const MODAL_PRESETS={
+    github:{
+      title:'GitHub 토큰 입력',
+      sub:'ERP 워크플로우 트리거에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.',
+      help:`<b>발급 방법</b><br>
+        1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 접속<br>
+        2. Repository access → <b>Only select</b> → <b>j65209/sixshop-collector</b> 선택<br>
+        3. Permissions → Repository permissions → <b>Actions: Read and write</b><br>
+        4. Generate token → 복사 → 아래 입력`,
+      placeholder:'github_pat_...',
+      saveLabel:'저장 후 실행'
+    },
+    anthropic:{
+      title:'Anthropic API 키 입력',
+      sub:'발주서 이미지를 Claude로 분석하기 위해 필요합니다. 키는 이 브라우저(localStorage)에만 저장됩니다.',
+      help:`<b>발급 방법</b><br>
+        1. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com/settings/keys</a> 접속<br>
+        2. <b>Create Key</b> → 이름 지정 → 생성<br>
+        3. 키(<code>sk-ant-...</code>) 복사 → 아래 입력<br>
+        <span style="color:var(--text-3)">이미지 1장당 약 $0.01 ~ $0.03 (Sonnet 4.6 기준)</span>`,
+      placeholder:'sk-ant-...',
+      saveLabel:'저장 후 분석'
+    }
+  };
+
+  function askToken(preset){
+    const p=MODAL_PRESETS[preset]||MODAL_PRESETS.github;
+    document.getElementById('tokenModalTitle').textContent=p.title;
+    document.getElementById('tokenModalSub').textContent=p.sub;
+    document.getElementById('tokenModalHelp').innerHTML=p.help;
+    tokenInput.placeholder=p.placeholder;
+    document.getElementById('tokenSave').textContent=p.saveLabel;
     return new Promise(resolve=>{
       tokenInput.value='';
       tokenModal.classList.add('show');
@@ -413,7 +500,7 @@
   async function triggerERP(){
     let token=localStorage.getItem(TOKEN_KEY);
     if(!token){
-      token=await askToken();
+      token=await askToken('github');
       if(!token)return;
       localStorage.setItem(TOKEN_KEY,token);
     }
@@ -489,6 +576,183 @@
   }
 
   window.triggerERP=triggerERP;
+
+  /* ===== 발주서 이미지 분석 ===== */
+  const ANTHROPIC_KEY='brightbeed_anthropic_key';
+  const PO_KEY='brightbeed_po_list';
+  const ANTHROPIC_MODEL='claude-sonnet-4-6';
+
+  function loadPOList(){
+    try{return JSON.parse(localStorage.getItem(PO_KEY)||'[]')}catch(e){return []}
+  }
+  function savePOList(list){
+    localStorage.setItem(PO_KEY,JSON.stringify(list));
+  }
+
+  function escapeHTML(s){
+    return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderPOList(){
+    const list=loadPOList();
+    const tbody=document.getElementById('poBody');
+    const tbl=document.getElementById('poTable');
+    const empty=document.getElementById('poEmpty');
+    const cnt=document.getElementById('poCount');
+    const clr=document.getElementById('poClearBtn');
+
+    cnt.textContent=`${list.length}건`;
+    if(list.length===0){
+      tbl.style.display='none';
+      empty.style.display='block';
+      clr.style.display='none';
+      return;
+    }
+    tbl.style.display='';
+    empty.style.display='none';
+    clr.style.display='inline-block';
+
+    tbody.innerHTML=list.map((it,i)=>`
+      <tr>
+        <td class="col-name">${escapeHTML(it.product)}</td>
+        <td class="col-memo">${escapeHTML(it.memo)}</td>
+        <td class="col-physical">${escapeHTML(it.physical)}</td>
+        <td class="col-qty">${escapeHTML(String(it.qty))}</td>
+        <td class="col-act"><button class="po-row-del" onclick="deletePORow(${i})" title="삭제" aria-label="삭제">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button></td>
+      </tr>
+    `).join('');
+  }
+
+  function deletePORow(idx){
+    const list=loadPOList();
+    list.splice(idx,1);
+    savePOList(list);
+    renderPOList();
+  }
+  function clearAllPO(){
+    if(!confirm('전체 발주 내역을 비우시겠습니까?'))return;
+    savePOList([]);
+    renderPOList();
+  }
+  function appendPOItems(items){
+    const list=loadPOList();
+    items.forEach(it=>list.unshift(it));
+    savePOList(list);
+    renderPOList();
+  }
+
+  function fileToBase64(file){
+    return new Promise((resolve,reject)=>{
+      const r=new FileReader();
+      r.onload=()=>{
+        const result=r.result;
+        const idx=result.indexOf('base64,');
+        resolve({media_type:file.type,data:result.slice(idx+7)});
+      };
+      r.onerror=reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function analyzeImage(file,key){
+    const img=await fileToBase64(file);
+    const systemPrompt=`당신은 발주서 이미지를 분석해 표 형태로 추출하는 도우미입니다. 이미지에서 각 발주 항목을 다음 4개 필드로 추출하세요:
+- product: 제품명 (메모/품명/품목 등 컬럼에서 추정)
+- memo: 메모에 적힌 소요일·납기 정보 (예: "3주 소요", "20일", "5/15까지")
+- physical: 현물 내용 / 옵션명 / SKU / 색상·사이즈 등 실제 상품 식별 정보
+- qty: 수량 (숫자)
+
+규칙:
+- 응답은 반드시 JSON 배열만. 다른 설명·마크다운 금지.
+- 정보 없는 필드는 빈 문자열 ""
+- 수량은 숫자(정수). 모르면 0
+- 품목이 여러 행이면 모두 추출`;
+
+    const userText=`이 발주서 이미지에서 모든 발주 항목을 추출해 JSON 배열로 반환하세요. 형식:
+[{"product":"...","memo":"...","physical":"...","qty":0}, ...]`;
+
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:ANTHROPIC_MODEL,
+        max_tokens:2048,
+        system:systemPrompt,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image',source:{type:'base64',media_type:img.media_type,data:img.data}},
+            {type:'text',text:userText}
+          ]
+        }]
+      })
+    });
+
+    if(!r.ok){
+      const errText=await r.text();
+      throw new Error(`API ${r.status}: ${errText.slice(0,200)}`);
+    }
+    const j=await r.json();
+    const text=j.content?.[0]?.text||'';
+    // JSON 추출 (마크다운 코드펜스 등 대비)
+    const m=text.match(/\[[\s\S]*\]/);
+    if(!m) throw new Error('JSON 배열을 찾지 못했습니다: '+text.slice(0,150));
+    const items=JSON.parse(m[0]);
+    return items.map(it=>({
+      product:String(it.product||'').trim(),
+      memo:String(it.memo||'').trim(),
+      physical:String(it.physical||'').trim(),
+      qty:Number(it.qty)||0
+    })).filter(it=>it.product||it.physical||it.qty);
+  }
+
+  async function handlePOImages(files){
+    if(!files||files.length===0)return;
+    let key=localStorage.getItem(ANTHROPIC_KEY);
+    if(!key){
+      key=await askToken('anthropic');
+      if(!key){document.getElementById('poImageInput').value='';return}
+      localStorage.setItem(ANTHROPIC_KEY,key);
+    }
+
+    for(const file of files){
+      if(!file.type.startsWith('image/')){
+        toast(`${file.name}: 이미지 파일이 아닙니다`,'err');
+        continue;
+      }
+      toast(`${file.name} 분석 중...`,'ok');
+      try{
+        const items=await analyzeImage(file,key);
+        if(items.length===0){
+          toast(`${file.name}: 추출된 항목 없음`,'err');
+        }else{
+          appendPOItems(items);
+          toast(`✓ ${file.name}: ${items.length}개 항목 추가`,'ok');
+        }
+      }catch(e){
+        if(/401|invalid_api_key|authentication/i.test(e.message)){
+          localStorage.removeItem(ANTHROPIC_KEY);
+          toast('API 키가 유효하지 않습니다. 다시 입력해주세요.','err');
+          break;
+        }
+        toast(`${file.name} 실패: ${e.message.slice(0,100)}`,'err');
+      }
+    }
+    document.getElementById('poImageInput').value='';
+  }
+
+  window.handlePOImages=handlePOImages;
+  window.deletePORow=deletePORow;
+  window.clearAllPO=clearAllPO;
+
+  renderPOList();
 
   init();
 </script>
