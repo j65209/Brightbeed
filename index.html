@@ -342,7 +342,7 @@
     </div>
     <div class="topbar-right">
       <div class="status-pill"><span class="status-dot"></span><span id="syncStatus">동기화 완료 · 방금 전</span></div>
-      <button class="icon-btn" title="설정" aria-label="설정">
+      <button class="icon-btn" id="settingsBtn" title="GitHub 토큰 설정" aria-label="GitHub 토큰 설정">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
       <button class="icon-btn" id="logout" title="로그아웃" aria-label="로그아웃">
@@ -479,6 +479,26 @@
 
   document.getElementById('logout').onclick=()=>{
     if(confirm('로그아웃 하시겠습니까?')){stopPolling();localStorage.removeItem(KEY);showLock()}
+  };
+
+  // 톱니바퀴 → 언제든 GitHub 토큰 재입력 가능
+  document.getElementById('settingsBtn').onclick=async()=>{
+    const newToken = await askToken('github');
+    if(newToken){
+      localStorage.setItem(TOKEN_KEY,newToken);
+      toast('토큰 저장 완료 — GitHub 동기화 재시도 중...','ok');
+      const local = JSON.parse(localStorage.getItem(PO_KEY)||'[]');
+      if(local.length > 0){
+        const result = await pushPOToRemote(local);
+        if(result.ok){
+          _po_lastHash = JSON.stringify(local);
+          toast(`✓ ${local.length}건 GitHub 업로드 완료 — 다른 기기에서도 보입니다`,'ok');
+        }else{
+          toast(`업로드 실패 (${result.reason}) — 토큰 권한 다시 확인 (Brightbeed Contents Read/Write 필요)`,'err');
+        }
+      }
+      await syncFromRemote();
+    }
   };
 
   // 상단 동기화 상태 클릭 시 강제 새로고침
