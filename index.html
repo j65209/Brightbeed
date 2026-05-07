@@ -719,19 +719,31 @@
 
     // 마이그레이션: remote 비어있고 local에 데이터 있으면 local을 push (첫 사용자/기존 데이터 보존)
     if(remote.length===0 && local.length>0){
-      if(localStorage.getItem(TOKEN_KEY)){
-        const result=await pushPOToRemote(local);
-        if(result.ok){
-          _po_lastHash = JSON.stringify(local);
-          renderPOList();
-          if(status) status.textContent=`초기 동기화 완료 · ${t}`;
-          if(last) last.textContent=t;
-          return;
+      let result = localStorage.getItem(TOKEN_KEY)
+        ? await pushPOToRemote(local)
+        : {ok:false,reason:'notoken'};
+
+      // push 실패 (토큰 문제) → 자동 모달
+      if(!result.ok && (result.reason==='notoken' || result.reason==='auth')){
+        toast(`로컬 데이터(${local.length}건)를 GitHub로 동기화하려면 토큰 입력이 필요합니다`,'err');
+        const newToken = await askToken('github');
+        if(newToken){
+          localStorage.setItem(TOKEN_KEY,newToken);
+          result = await pushPOToRemote(local);
         }
       }
-      // 토큰 없거나 push 실패 — local 유지
+
+      if(result.ok){
+        _po_lastHash = JSON.stringify(local);
+        renderPOList();
+        if(status) status.textContent=`초기 동기화 완료 · ${t}`;
+        if(last) last.textContent=t;
+        toast(`✓ 로컬 데이터 ${local.length}건 GitHub 업로드 완료`,'ok');
+        return;
+      }
+      // push 실패 → local 유지
       renderPOList();
-      if(status) status.textContent='로컬 전용 (토큰 없음)';
+      if(status) status.textContent='로컬 전용 (동기화 안 됨)';
       return;
     }
 
@@ -780,21 +792,37 @@
   });
 
   async function pushAfterChange(list){
-    const result=await pushPOToRemote(list);
-    if(!result.ok){
-      if(result.reason==='notoken'){
-        // 토큰 없음 — 직원이거나 첫 사용자. silent (로컬에만 저장됨)
-      }else if(result.reason==='auth'){
-        toast('GitHub 토큰 만료/권한 부족 — 다음 작업 시 재입력 필요','err');
+    let result=await pushPOToRemote(list);
+
+    // 토큰 없거나 권한 부족이면 자동으로 모달 띄워서 재입력 유도
+    if(!result.ok && (result.reason==='notoken' || result.reason==='auth')){
+      const reason = result.reason==='auth'
+        ? 'GitHub 토큰 권한 부족 — 다른 기기와 동기화하려면 재입력 필요'
+        : 'GitHub 토큰 없음 — 다른 기기와 동기화하려면 입력 필요';
+      toast(reason,'err');
+      const newToken = await askToken('github');
+      if(newToken){
+        localStorage.setItem(TOKEN_KEY,newToken);
+        result = await pushPOToRemote(list);
+        if(result.ok){
+          toast('✓ GitHub 동기화 완료 — 이제 다른 기기에서도 보입니다','ok');
+        }else{
+          toast(`동기화 재시도 실패 (${result.reason}) — 토큰 권한 다시 확인`,'err');
+        }
       }else{
-        toast(`GitHub 동기화 실패 (${result.reason})`,'err');
+        toast('토큰 미입력 — 로컬에만 저장 (다른 기기 동기화 X)','err');
       }
+    }else if(!result.ok){
+      toast(`GitHub 동기화 실패 (${result.reason})`,'err');
       return;
     }
-    const status=document.getElementById('syncStatus');
-    const now=new Date();
-    const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    if(status) status.textContent=`동기화 완료 · ${t}`;
+
+    if(result.ok){
+      const status=document.getElementById('syncStatus');
+      const now=new Date();
+      const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      if(status) status.textContent=`동기화 완료 · ${t}`;
+    }
   }
 
   window.syncFromRemote=syncFromRemote;
