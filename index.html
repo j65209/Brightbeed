@@ -213,9 +213,9 @@
   .po-group-count{font-size:12px;color:var(--text-2);font-family:var(--mono)}
 
   .po-table{width:100%;border-collapse:collapse}
-  .po-table th{text-align:left;font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;background:var(--bg-2);border-bottom:1px solid var(--line)}
-  .po-table th.col-date{width:62px}
-  .po-table th.col-eta{width:72px}
+  .po-table th{text-align:left;font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;background:var(--bg-2);border-bottom:1px solid var(--line);white-space:nowrap}
+  .po-table th.col-date{width:84px}
+  .po-table th.col-eta{width:104px}
   .po-table th.col-qty{text-align:right;width:96px}
   .po-table th.col-act{width:36px}
   /* 발주일 그룹별 행 배경 (4단계 미세 톤차이 cycling) */
@@ -227,8 +227,8 @@
   .po-table tr.po-row-g1:hover td,
   .po-table tr.po-row-g2:hover td,
   .po-table tr.po-row-g3:hover td{background:var(--bg-3)}
-  .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px;width:62px;white-space:nowrap}
-  .po-table td.col-eta{width:78px;white-space:nowrap;vertical-align:middle;text-align:center}
+  .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px;width:84px;white-space:nowrap;text-align:left}
+  .po-table td.col-eta{width:104px;white-space:nowrap;vertical-align:middle;text-align:left}
   /* 입고예정일 강조 pill (골드 = 일반 날짜, 네온 그린 = 현물/즉시) */
   .eta-pill{
     display:inline-block;
@@ -251,7 +251,7 @@
     text-shadow:0 0 8px rgba(15,255,193,.4);
     box-shadow:0 0 0 1px rgba(15,255,193,.12) inset, 0 0 14px rgba(15,255,193,.22);
   }
-  .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
+  .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:middle}
   .po-table tr:first-child td{border-top:none}
   .po-table tr:hover td{background:var(--bg-2)}
   .po-table td.col-name{color:var(--text-0);font-weight:500;width:26%}
