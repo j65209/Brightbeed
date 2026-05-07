@@ -162,10 +162,8 @@
   @media (max-width:768px){
     .container{padding:20px}
     .topbar{padding:12px 20px}
-    .kpi-row{grid-template-columns:repeat(2,1fr)}
     .page-head{flex-direction:column;align-items:flex-start;gap:12px}
     .page-meta{text-align:left}
-    thead th:nth-child(3),tbody td:nth-child(3){display:none}
   }
 </style>
 </head>
@@ -207,35 +205,10 @@
     <div class="page-head">
       <div>
         <h1 class="page-title">발주 대시보드</h1>
-        <div class="page-sub">중국 발주 운영 현황</div>
       </div>
       <div class="page-meta">
         최근 동기화 · <span id="lastSync">2025-05-04 14:22</span><br>
         데이터 출처 · <span>드롭박스 / 발주서 폴더</span>
-      </div>
-    </div>
-
-    <!-- 핵심지표 -->
-    <div class="kpi-row">
-      <div class="kpi">
-        <div class="kpi-label">진행중 발주</div>
-        <div class="kpi-value">12<span class="unit">건</span></div>
-        <div class="kpi-delta up">▲ 지난주 대비 2건</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">운송중</div>
-        <div class="kpi-value">7<span class="unit">건</span></div>
-        <div class="kpi-delta neutral">— 변동 없음</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">이번 달 발주액</div>
-        <div class="kpi-value">¥482,300</div>
-        <div class="kpi-delta up">▲ 18.2%</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">동기화 대기</div>
-        <div class="kpi-value">0<span class="unit">건</span></div>
-        <div class="kpi-delta neutral">최신 상태</div>
       </div>
     </div>
 
@@ -272,24 +245,18 @@
       <table>
         <thead>
           <tr>
-            <th style="width:120px">발주일</th>
-            <th style="width:140px">발주번호</th>
+            <th style="width:140px">발주일</th>
             <th>품목</th>
-            <th style="width:140px;text-align:right">금액 (위안)</th>
-            <th style="width:120px">상태</th>
             <th style="width:90px;text-align:right"></th>
           </tr>
         </thead>
         <tbody id="orderBody">
           <tr>
             <td class="date">2025-05-04</td>
-            <td class="id">PO-25-0504</td>
             <td>발주서 · 5개 품목 · 320개</td>
-            <td class="right amount">128,400</td>
-            <td><span class="badge ok">확정</span></td>
             <td class="right"><button class="row-toggle" data-target="d1">상세</button></td>
           </tr>
-          <tr class="detail-row" id="d1"><td colspan="6"><div class="detail-inner">
+          <tr class="detail-row" id="d1"><td colspan="3"><div class="detail-inner">
             <div><b>공급사</b>심천 옵틱 유한공사</div>
             <div><b>품목</b>SKU-A001 ×80 / SKU-A007 ×60 / SKU-B112 ×60 / SKU-C220 ×60 / SKU-D041 ×60</div>
             <div><b>도착예정</b>2025-05-18 · 해상 (청도 → 부산)</div>
@@ -298,13 +265,10 @@
 
           <tr>
             <td class="date">2025-04-21</td>
-            <td class="id">PO-25-0421</td>
             <td>발주서 · 3개 품목 · 180개</td>
-            <td class="right amount">76,800</td>
-            <td><span class="badge ok">입고 완료</span></td>
             <td class="right"><button class="row-toggle" data-target="d2">상세</button></td>
           </tr>
-          <tr class="detail-row" id="d2"><td colspan="6"><div class="detail-inner">
+          <tr class="detail-row" id="d2"><td colspan="3"><div class="detail-inner">
             <div><b>공급사</b>이우 무역 그룹</div>
             <div><b>품목</b>SKU-E330 ×60 / SKU-F112 ×60 / SKU-G410 ×60</div>
             <div><b>도착예정</b>2025-05-02 · 항공 (상해 → 인천)</div>
@@ -313,13 +277,10 @@
 
           <tr>
             <td class="date">2025-04-08</td>
-            <td class="id">PO-25-0408</td>
             <td>발주서 · 8개 품목 · 540개</td>
-            <td class="right amount">214,200</td>
-            <td><span class="badge pending">운송중</span></td>
             <td class="right"><button class="row-toggle" data-target="d3">상세</button></td>
           </tr>
-          <tr class="detail-row" id="d3"><td colspan="6"><div class="detail-inner">
+          <tr class="detail-row" id="d3"><td colspan="3"><div class="detail-inner">
             <div><b>공급사</b>광저우 산업 파트너스</div>
             <div><b>품목</b>혼합 로트 — 발주서 첨부 참조</div>
             <div><b>도착예정</b>2025-05-12 · 해상 (심천 → 부산)</div>
@@ -327,13 +288,10 @@
 
           <tr>
             <td class="date">2025-03-25</td>
-            <td class="id">PO-25-0325</td>
             <td>발주서 · 2개 품목 · 90개</td>
-            <td class="right amount">42,900</td>
-            <td><span class="badge draft">작성중</span></td>
             <td class="right"><button class="row-toggle" data-target="d4">상세</button></td>
           </tr>
-          <tr class="detail-row" id="d4"><td colspan="6"><div class="detail-inner">
+          <tr class="detail-row" id="d4"><td colspan="3"><div class="detail-inner">
             <div><b>공급사</b>미정</div>
             <div><b>비고</b>최종 사양 확정 후 공급사로 발송 예정</div>
           </div></td></tr>
