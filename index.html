@@ -704,29 +704,53 @@
   async function pushPOToRemote(list){
     const token=localStorage.getItem(TOKEN_KEY);
     if(!token) return {ok:false,reason:'notoken'};
-    let sha=null;
-    try{
-      const r=await fetch(`${PO_API}?ref=${PO_BRANCH}`,{
-        headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'}
+
+    async function getSha(){
+      try{
+        const r=await fetch(`${PO_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
+          headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'},
+          cache:'no-cache'
+        });
+        if(r.status===401||r.status===403){
+          localStorage.removeItem(TOKEN_KEY);
+          return {error:'auth'};
+        }
+        if(r.status===404) return {sha:null};
+        if(!r.ok) return {error:`http_${r.status}`};
+        const j=await r.json();
+        return {sha:j.sha};
+      }catch(e){ return {error:'fetch'} }
+    }
+
+    async function doPut(sha){
+      const content=btoa(unescape(encodeURIComponent(JSON.stringify(list,null,2))));
+      const body={message:`chore: 발주 내역 갱신 (${list.length}건)`,content,branch:PO_BRANCH};
+      if(sha) body.sha=sha;
+      return fetch(PO_API,{
+        method:'PUT',
+        headers:{
+          'Authorization':`Bearer ${token}`,
+          'Accept':'application/vnd.github+json',
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(body)
       });
-      if(r.ok) sha=(await r.json()).sha;
-      else if(r.status===401||r.status===403){
-        localStorage.removeItem(TOKEN_KEY);
-        return {ok:false,reason:'auth'};
-      }
-    }catch(e){}
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(list,null,2))));
-    const body={message:`chore: 발주 내역 갱신 (${list.length}건)`,content,branch:PO_BRANCH};
-    if(sha) body.sha=sha;
-    const r=await fetch(PO_API,{
-      method:'PUT',
-      headers:{
-        'Authorization':`Bearer ${token}`,
-        'Accept':'application/vnd.github+json',
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify(body)
-    });
+    }
+
+    let shaResult=await getSha();
+    if(shaResult.error==='auth') return {ok:false,reason:'auth'};
+
+    let r=await doPut(shaResult.sha);
+
+    // 409 Conflict (sha 불일치) → sha 다시 받아서 retry. 최대 2회 재시도.
+    let retries=0;
+    while(r.status===409 && retries<2){
+      retries++;
+      shaResult=await getSha();
+      if(shaResult.error==='auth') return {ok:false,reason:'auth'};
+      r=await doPut(shaResult.sha);
+    }
+
     if(r.ok) return {ok:true};
     if(r.status===401||r.status===403){
       localStorage.removeItem(TOKEN_KEY);
