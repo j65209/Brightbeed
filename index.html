@@ -212,13 +212,28 @@
   .po-group-title{font-size:13px;font-weight:500;color:var(--text-0)}
   .po-group-count{font-size:12px;color:var(--text-2);font-family:var(--mono)}
 
-  .po-table{width:100%;border-collapse:collapse}
-  .po-table th{text-align:left;font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;background:var(--bg-2);border-bottom:1px solid var(--line);white-space:nowrap}
-  .po-table th.col-date{width:84px}
-  .po-table th.col-eta{width:104px}
-  .po-table th.col-qty{text-align:right;width:96px}
-  .po-table th.col-act{width:36px}
-  /* 발주일 그룹별 행 배경 (4단계 미세 톤차이 cycling) */
+  .po-table{width:100%;border-collapse:collapse;table-layout:fixed}
+  .po-table th{
+    text-align:center;
+    font-size:11px;
+    font-weight:500;
+    color:var(--text-3);
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:14px 10px;
+    background:var(--bg-2);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+    vertical-align:middle
+  }
+  .po-table th.col-date{width:13%}
+  .po-table th.col-eta{width:18%}
+  .po-table th.col-name{width:30%}
+  .po-table th.col-memo{width:21%}
+  .po-table th.col-qty{width:14%}
+  .po-table th.col-act{width:4%}
+
+  /* 발주일 그룹별 행 배경 (4단계 미세 톤 cycling) */
   .po-table tr.po-row-g0 td{background:#0f1115}
   .po-table tr.po-row-g1 td{background:#12161c}
   .po-table tr.po-row-g2 td{background:#161a21}
@@ -227,48 +242,51 @@
   .po-table tr.po-row-g1:hover td,
   .po-table tr.po-row-g2:hover td,
   .po-table tr.po-row-g3:hover td{background:var(--bg-3)}
-  .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px;width:84px;white-space:nowrap;text-align:left}
-  .po-table td.col-eta{width:104px;white-space:nowrap;vertical-align:middle;text-align:left}
-  /* 입고예정일 강조 pill (골드 = 일반 날짜, 네온 그린 = 현물/즉시) */
-  .eta-pill{
-    display:inline-block;
-    padding:4px 10px;
-    border-radius:4px;
-    font-family:var(--mono);
-    font-weight:700;
+
+  /* 모든 td 균등 padding + center 정렬 + 수직 중앙 */
+  .po-table td{
+    padding:14px 10px;
     font-size:13px;
-    letter-spacing:.03em;
-    background:rgba(212,175,55,.14);
-    border:1px solid rgba(212,175,55,.45);
-    color:var(--accent);
-    text-shadow:0 0 8px rgba(212,175,55,.35);
-    box-shadow:0 0 0 1px rgba(212,175,55,.1) inset, 0 0 12px rgba(212,175,55,.18);
+    color:var(--text-1);
+    border-top:1px solid var(--line);
+    vertical-align:middle;
+    text-align:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
   }
-  .eta-pill.eta-now{
-    background:rgba(15,255,193,.1);
-    border-color:rgba(15,255,193,.5);
-    color:var(--neon);
-    text-shadow:0 0 8px rgba(15,255,193,.4);
-    box-shadow:0 0 0 1px rgba(15,255,193,.12) inset, 0 0 14px rgba(15,255,193,.22);
-  }
-  .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:middle}
   .po-table tr:first-child td{border-top:none}
-  .po-table tr:hover td{background:var(--bg-2)}
-  .po-table td.col-name{color:var(--text-0);font-weight:500;width:26%}
-  .po-table td.col-option{color:var(--text-1);width:24%;font-size:12.5px;line-height:1.5}
-  .po-table td.col-memo{color:var(--text-2);font-size:12.5px;width:38%;line-height:1.55}
+
+  .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px}
+  .po-table td.col-eta{}
+  .po-table td.col-name{color:var(--text-0);font-weight:500;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45}
+  .po-table td.col-memo{color:var(--text-2);font-size:12.5px;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.5}
   .po-table td.col-qty{
-    text-align:right;
     font-family:var(--sans);
     color:var(--neon);
     font-weight:700;
     font-size:15px;
     letter-spacing:.01em;
-    width:96px;
-    white-space:nowrap;
-    text-shadow:0 0 12px rgba(15,255,193,.25);
+    text-shadow:0 0 12px rgba(15,255,193,.25)
   }
-  .po-table td.col-act{text-align:right;width:36px;padding:13px 14px}
+  .po-table td.col-act{padding:14px 6px}
+
+  /* 입고예정일 강조 pill — 모두 네온 민트로 통일 */
+  .eta-pill{
+    display:inline-block;
+    padding:5px 12px;
+    border-radius:4px;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.03em;
+    background:rgba(15,255,193,.1);
+    border:1px solid rgba(15,255,193,.5);
+    color:var(--neon);
+    text-shadow:0 0 8px rgba(15,255,193,.4);
+    box-shadow:0 0 0 1px rgba(15,255,193,.12) inset, 0 0 14px rgba(15,255,193,.22)
+  }
+
   .po-row-del{width:24px;height:24px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-3);background:transparent;border:1px solid transparent;cursor:pointer;transition:all .15s}
   .po-row-del:hover{color:var(--danger);border-color:rgba(217,102,102,.3);background:rgba(217,102,102,.06)}
   .po-row-del svg{width:13px;height:13px}
@@ -294,8 +312,8 @@
     .page-meta{text-align:left}
     .hero{padding:40px 16px 32px}
     .btn-neon{padding:18px 36px;font-size:16px}
-    .po-table th,.po-table td{padding:10px 12px;font-size:12px}
-    .po-table td.col-option{font-size:11.5px}
+    .po-table th,.po-table td{padding:10px 6px;font-size:12px}
+    .po-table td.col-name,.po-table td.col-memo{font-size:11.5px}
   }
 </style>
 </head>
@@ -787,7 +805,7 @@
       return `
       <tr class="${groupCls}">
         <td class="col-date">${escapeHTML(it.date||'')}</td>
-        <td class="col-eta">${it.eta?`<span class="eta-pill${it.eta==='현물'?' eta-now':''}">${escapeHTML(it.eta)}</span>`:''}</td>
+        <td class="col-eta">${it.eta?`<span class="eta-pill">${escapeHTML(it.eta)}</span>`:''}</td>
         <td class="col-name">${escapeHTML(combined)}</td>
         <td class="col-memo">${escapeHTML(it.memo||'')}</td>
         <td class="col-qty">${formatQty(it.qty)}</td>
