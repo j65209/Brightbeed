@@ -214,15 +214,24 @@
 
   .po-table{width:100%;border-collapse:collapse}
   .po-table th{text-align:left;font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;background:var(--bg-2);border-bottom:1px solid var(--line)}
-  .po-table th.col-qty{text-align:right}
+  .po-table th.col-qty{text-align:right;width:96px}
   .po-table th.col-act{width:36px}
   .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
   .po-table tr:first-child td{border-top:none}
   .po-table tr:hover td{background:var(--bg-2)}
-  .po-table td.col-name{color:var(--text-0);font-weight:500;width:28%}
-  .po-table td.col-memo{color:var(--text-2);font-size:12.5px;width:22%}
-  .po-table td.col-physical{color:var(--text-1);font-family:var(--mono);font-size:12px;width:32%;line-height:1.5}
-  .po-table td.col-qty{text-align:right;font-family:var(--mono);color:var(--neon);font-weight:600;font-size:14px;width:80px;white-space:nowrap}
+  .po-table td.col-name{color:var(--text-0);font-weight:500;width:38%}
+  .po-table td.col-memo{color:var(--text-2);font-size:12.5px;width:48%;line-height:1.55}
+  .po-table td.col-qty{
+    text-align:right;
+    font-family:var(--sans);
+    color:var(--neon);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:.01em;
+    width:96px;
+    white-space:nowrap;
+    text-shadow:0 0 12px rgba(15,255,193,.25);
+  }
   .po-table td.col-act{text-align:right;width:36px;padding:13px 14px}
   .po-row-del{width:24px;height:24px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-3);background:transparent;border:1px solid transparent;cursor:pointer;transition:all .15s}
   .po-row-del:hover{color:var(--danger);border-color:rgba(217,102,102,.3);background:rgba(217,102,102,.06)}
@@ -345,8 +354,7 @@
           <thead>
             <tr>
               <th class="col-name">제품명</th>
-              <th class="col-memo">메모(소요일)</th>
-              <th class="col-physical">현물 내용</th>
+              <th class="col-memo">메모 / 소요일</th>
               <th class="col-qty">수량</th>
               <th class="col-act"></th>
             </tr>
@@ -359,7 +367,7 @@
 
   <footer class="footer">
     <div>© 2025 브라이트비드 오피스 · 내부 사용 전용</div>
-    <div>버전 0.7 · 빌드 <span class="mono">2026.05.07</span></div>
+    <div>버전 0.8 · 빌드 <span class="mono">2026.05.07</span></div>
   </footer>
 </div>
 
@@ -594,6 +602,19 @@
     return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  /* 한자(중국어) 제거 — CJK Unified Ideographs */
+  function stripChinese(s){
+    return String(s||'')
+      .replace(/[一-鿿㐀-䶿豈-﫿]+/g,' ')
+      .replace(/\s+/g,' ')
+      .trim();
+  }
+
+  function formatQty(n){
+    const v=Number(n)||0;
+    return v.toLocaleString('ko-KR');
+  }
+
   function renderPOList(){
     const list=loadPOList();
     const tbody=document.getElementById('poBody');
@@ -615,10 +636,9 @@
 
     tbody.innerHTML=list.map((it,i)=>`
       <tr>
-        <td class="col-name">${escapeHTML(it.product)}</td>
-        <td class="col-memo">${escapeHTML(it.memo)}</td>
-        <td class="col-physical">${escapeHTML(it.physical)}</td>
-        <td class="col-qty">${escapeHTML(String(it.qty))}</td>
+        <td class="col-name">${escapeHTML(stripChinese(it.product))}</td>
+        <td class="col-memo">${escapeHTML(stripChinese(it.memo))}</td>
+        <td class="col-qty">${formatQty(it.qty)}</td>
         <td class="col-act"><button class="po-row-del" onclick="deletePORow(${i})" title="삭제" aria-label="삭제">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button></td>
@@ -659,20 +679,20 @@
 
   async function analyzeImage(file,key){
     const img=await fileToBase64(file);
-    const systemPrompt=`당신은 발주서 이미지를 분석해 표 형태로 추출하는 도우미입니다. 이미지에서 각 발주 항목을 다음 4개 필드로 추출하세요:
-- product: 제품명 (메모/품명/품목 등 컬럼에서 추정)
-- memo: 메모에 적힌 소요일·납기 정보 (예: "3주 소요", "20일", "5/15까지")
-- physical: 현물 내용 / 옵션명 / SKU / 색상·사이즈 등 실제 상품 식별 정보
+    const systemPrompt=`당신은 발주서 이미지를 분석해 표 형태로 추출하는 도우미입니다. 이미지에서 각 발주 항목을 다음 3개 필드로 추출하세요:
+- product: 제품명 (메모/품명/품목 등 한국어 표기에서 추정. 중국어가 섞여 있으면 한국어 부분만)
+- memo: 메모에 적힌 소요일·납기·검수 등 부가 안내. 발주서 상단에 '전체 적용' 안내문이 있으면 함께 포함 (예: "전체: 강하게 네고 / 3주 소요")
 - qty: 수량 (숫자)
 
 규칙:
 - 응답은 반드시 JSON 배열만. 다른 설명·마크다운 금지.
+- 중국어(한자) 텍스트는 제외하고 한국어/영문/숫자만 추출
 - 정보 없는 필드는 빈 문자열 ""
 - 수량은 숫자(정수). 모르면 0
 - 품목이 여러 행이면 모두 추출`;
 
     const userText=`이 발주서 이미지에서 모든 발주 항목을 추출해 JSON 배열로 반환하세요. 형식:
-[{"product":"...","memo":"...","physical":"...","qty":0}, ...]`;
+[{"product":"...","memo":"...","qty":0}, ...]`;
 
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -707,11 +727,10 @@
     if(!m) throw new Error('JSON 배열을 찾지 못했습니다: '+text.slice(0,150));
     const items=JSON.parse(m[0]);
     return items.map(it=>({
-      product:String(it.product||'').trim(),
-      memo:String(it.memo||'').trim(),
-      physical:String(it.physical||'').trim(),
+      product:stripChinese(String(it.product||'')),
+      memo:stripChinese(String(it.memo||'')),
       qty:Number(it.qty)||0
-    })).filter(it=>it.product||it.physical||it.qty);
+    })).filter(it=>it.product||it.memo||it.qty);
   }
 
   /* xlsx 파싱 — 무료, 클라이언트 사이드 */
@@ -758,7 +777,7 @@
       const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
       if(data.length<2) continue;
 
-      // 헤더 행 찾기 (옵션명/메모/수량 포함)
+      // 헤더 행 찾기
       let headerIdx=-1;
       for(let i=0;i<Math.min(20,data.length);i++){
         const row=data[i].map(norm);
@@ -769,6 +788,19 @@
       }
       if(headerIdx<0) continue;
 
+      // 헤더 위 행에서 공통 메모 수집 (전체 발주에 적용되는 안내문)
+      const commonSet=new Set();
+      for(let i=0;i<headerIdx;i++){
+        for(const cell of data[i]||[]){
+          const v=String(cell||'').replace(/\*+/g,'').trim();
+          if(v.length>=4){
+            const cleaned=stripChinese(v);
+            if(cleaned&&cleaned.length>=4) commonSet.add(cleaned);
+          }
+        }
+      }
+      const commonMemo=[...commonSet].join(' / ');
+
       const header=data[headerIdx].map(c=>String(c||'').replace(/\s/g,''));
       const findIdx=(...cands)=>{
         for(const c of cands){
@@ -777,25 +809,36 @@
         }
         return -1;
       };
-      const idxOpt=findIdx('1688옵션명','옵션명','옵션');
       const idxMemo=findIdx('메모','비고','품명','품목');
       const idxQty=findIdx('수량');
-
-      if(idxQty<0) continue;
+      if(idxQty<0||idxMemo<0) continue;
 
       for(let i=headerIdx+1;i<data.length;i++){
         const r=data[i];
-        const optRaw=idxOpt>=0?String(r[idxOpt]||'').trim():'';
-        const memoRaw=idxMemo>=0?String(r[idxMemo]||'').trim():'';
+        const memoRaw=String(r[idxMemo]||'').trim();
         const qty=Number(r[idxQty])||0;
-        if(qty===0&&!optRaw&&!memoRaw) continue;
         if(qty===0) continue;
 
-        const {product,leadtime}=parseMemoToFields(memoRaw);
+        // 메모 컬럼에서 중국어 제거 후 제품명/부가메모 분리
+        const memoCleaned=stripChinese(memoRaw);
+        const m=memoCleaned.match(/^([^()\[\]]+?)\s*[(\[]([^)\]]*)[)\]]\s*(.*)$/);
+        let product='', perRowNote='';
+        if(m){
+          product=m[1].trim();
+          perRowNote=(m[2]+' '+m[3]).trim();
+        }else{
+          product=memoCleaned;
+          perRowNote='';
+        }
+
+        // 공통 메모 + 행별 노트 결합
+        const memoCombined=[commonMemo,perRowNote].filter(s=>s&&s.length>0).join(' · ');
+
+        if(!product&&!memoCombined) continue;
+
         items.push({
-          product:product||memoRaw||'(제품명 없음)',
-          memo:leadtime,
-          physical:optRaw,
+          product:product||'(제품명 없음)',
+          memo:memoCombined,
           qty
         });
       }
