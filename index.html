@@ -218,6 +218,15 @@
   .po-table th.col-eta{width:72px}
   .po-table th.col-qty{text-align:right;width:96px}
   .po-table th.col-act{width:36px}
+  /* 발주일 그룹별 행 배경 (4단계 미세 톤차이 cycling) */
+  .po-table tr.po-row-g0 td{background:#0f1115}
+  .po-table tr.po-row-g1 td{background:#12161c}
+  .po-table tr.po-row-g2 td{background:#161a21}
+  .po-table tr.po-row-g3 td{background:#191e26}
+  .po-table tr.po-row-g0:hover td,
+  .po-table tr.po-row-g1:hover td,
+  .po-table tr.po-row-g2:hover td,
+  .po-table tr.po-row-g3:hover td{background:var(--bg-3)}
   .po-table td.col-date{font-family:var(--mono);color:var(--text-2);font-size:12px;width:62px;white-space:nowrap}
   .po-table td.col-eta{font-family:var(--mono);color:var(--accent);font-size:12px;width:72px;white-space:nowrap;font-weight:500}
   .po-table td{padding:13px 18px;font-size:13px;color:var(--text-1);border-top:1px solid var(--line);vertical-align:top}
@@ -742,11 +751,19 @@
     empty.style.display='none';
     clr.style.display='inline-block';
 
+    // 발주일별 그룹 번호 매핑 (등장 순서대로 0,1,2,... → 4단계 cycling)
+    const dateGroups={};
+    let nextGroup=0;
+    for(const it of list){
+      const d=it.date||'_';
+      if(!(d in dateGroups)) dateGroups[d]=nextGroup++;
+    }
     tbody.innerHTML=list.map((it,i)=>{
       // legacy data fallback: 기존 product/option 분리 데이터도 보이도록
       const combined=it.combined||(it.product&&it.option&&it.product!==it.option?`${it.product} / ${it.option}`:(it.product||it.option||''));
+      const groupCls=`po-row-g${dateGroups[it.date||'_']%4}`;
       return `
-      <tr>
+      <tr class="${groupCls}">
         <td class="col-date">${escapeHTML(it.date||'')}</td>
         <td class="col-eta">${escapeHTML(it.eta||'')}</td>
         <td class="col-name">${escapeHTML(combined)}</td>
