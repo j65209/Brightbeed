@@ -63,7 +63,8 @@
   .brand-sep{width:1px;height:16px;background:var(--line-2)}
   .brand-mod{font-size:12px;color:var(--text-2);letter-spacing:.04em}
   .topbar-right{display:flex;align-items:center;gap:18px}
-  .status-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)}
+  .status-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);cursor:pointer;user-select:none}
+  .status-pill:hover{color:var(--text-1)}
   .status-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px rgba(63,178,127,.6)}
   .icon-btn{width:32px;height:32px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:all .15s;border:1px solid transparent}
   .icon-btn:hover{background:var(--bg-2);border-color:var(--line);color:var(--text-0)}
@@ -456,17 +457,17 @@
   function showLock(){app.classList.remove('show');lock.classList.add('show');setTimeout(()=>pin.focus(),50)}
 
   async function init(){
-    if(localStorage.getItem(KEY)==='1'){show();return}
+    if(localStorage.getItem(KEY)==='1'){show();syncFromRemote();return}
     try{
       const r=await fetch('https://api.ipify.org?format=json');
       const j=await r.json();
-      if(ALLOWED_IPS.includes(j.ip)){localStorage.setItem(KEY,'1');show();return}
+      if(ALLOWED_IPS.includes(j.ip)){localStorage.setItem(KEY,'1');show();syncFromRemote();return}
     }catch(e){}
     showLock();
   }
 
   document.getElementById('unlock').onclick=()=>{
-    if(pin.value===PIN){localStorage.setItem(KEY,'1');err.textContent='';show()}
+    if(pin.value===PIN){localStorage.setItem(KEY,'1');err.textContent='';show();syncFromRemote()}
     else{err.textContent='접속 코드가 올바르지 않습니다.';pin.value='';pin.focus()}
   };
   pin.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('unlock').click()});
@@ -474,6 +475,9 @@
   document.getElementById('logout').onclick=()=>{
     if(confirm('로그아웃 하시겠습니까?')){localStorage.removeItem(KEY);showLock()}
   };
+
+  // 상단 동기화 상태 클릭 시 강제 새로고침
+  document.querySelector('.status-pill').onclick=()=>syncFromRemote();
 
   document.querySelectorAll('.row-toggle').forEach(b=>{
     b.onclick=()=>{
@@ -505,11 +509,15 @@
   const MODAL_PRESETS={
     github:{
       title:'GitHub 토큰 입력',
-      sub:'ERP 워크플로우 트리거에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.',
+      sub:'ERP 트리거 + 발주 내역 동기화에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.',
       help:`<b>발급 방법</b><br>
         1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 접속<br>
-        2. Repository access → <b>Only select</b> → <b>j65209/sixshop-collector</b> 선택<br>
-        3. Permissions → Repository permissions → <b>Actions: Read and write</b><br>
+        2. Repository access → <b>Only select</b>:<br>
+           &nbsp;&nbsp;☑ <b>j65209/sixshop-collector</b><br>
+           &nbsp;&nbsp;☑ <b>j65209/Brightbeed</b><br>
+        3. Permissions → Repository permissions:<br>
+           &nbsp;&nbsp;• <b>Actions: Read and write</b> (ERP 트리거)<br>
+           &nbsp;&nbsp;• <b>Contents: Read and write</b> (발주 내역 동기화)<br>
         4. Generate token → 복사 → 아래 입력`,
       placeholder:'github_pat_...',
       saveLabel:'저장 후 실행'
@@ -640,11 +648,120 @@
   const PO_KEY='brightbeed_po_list';
   const ANTHROPIC_MODEL='claude-sonnet-4-6';
 
+  /* ===== 발주 내역 GitHub 동기화 (다른 사람도 같은 데이터 보이게) ===== */
+  const PO_REPO='j65209/Brightbeed';
+  const PO_PATH='data/po-list.json';
+  const PO_BRANCH='main';
+  const PO_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${PO_PATH}`;
+  const PO_API=`https://api.github.com/repos/${PO_REPO}/contents/${PO_PATH}`;
+
+  async function fetchPOFromRemote(){
+    try{
+      const r=await fetch(`${PO_RAW}?cb=${Date.now()}`);
+      if(r.status===404) return [];
+      if(!r.ok) return null;
+      const data=await r.json();
+      return Array.isArray(data)?data:[];
+    }catch(e){return null}
+  }
+
+  async function pushPOToRemote(list){
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(!token) return {ok:false,reason:'notoken'};
+    let sha=null;
+    try{
+      const r=await fetch(`${PO_API}?ref=${PO_BRANCH}`,{
+        headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'}
+      });
+      if(r.ok) sha=(await r.json()).sha;
+      else if(r.status===401||r.status===403){
+        localStorage.removeItem(TOKEN_KEY);
+        return {ok:false,reason:'auth'};
+      }
+    }catch(e){}
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(list,null,2))));
+    const body={message:`chore: 발주 내역 갱신 (${list.length}건)`,content,branch:PO_BRANCH};
+    if(sha) body.sha=sha;
+    const r=await fetch(PO_API,{
+      method:'PUT',
+      headers:{
+        'Authorization':`Bearer ${token}`,
+        'Accept':'application/vnd.github+json',
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify(body)
+    });
+    if(r.ok) return {ok:true};
+    if(r.status===401||r.status===403){
+      localStorage.removeItem(TOKEN_KEY);
+      return {ok:false,reason:'auth'};
+    }
+    return {ok:false,reason:`http_${r.status}`};
+  }
+
+  async function syncFromRemote(){
+    const status=document.getElementById('syncStatus');
+    if(status) status.textContent='동기화 중...';
+    const remote=await fetchPOFromRemote();
+    if(remote===null){
+      if(status) status.textContent='동기화 실패';
+      return;
+    }
+    const local=JSON.parse(localStorage.getItem(PO_KEY)||'[]');
+    const now=new Date();
+    const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const last=document.getElementById('lastSync');
+
+    // 마이그레이션: remote 비어있고 local에 데이터 있으면 local을 push (첫 사용자/기존 데이터 보존)
+    if(remote.length===0 && local.length>0){
+      if(localStorage.getItem(TOKEN_KEY)){
+        const result=await pushPOToRemote(local);
+        if(result.ok){
+          renderPOList();
+          if(status) status.textContent=`초기 동기화 완료 · ${t}`;
+          if(last) last.textContent=t;
+          return;
+        }
+      }
+      // 토큰 없거나 push 실패 — local 유지
+      renderPOList();
+      if(status) status.textContent='로컬 전용 (토큰 없음)';
+      return;
+    }
+
+    // 일반: remote → local 덮어쓰기
+    localStorage.setItem(PO_KEY,JSON.stringify(remote));
+    renderPOList();
+    if(status) status.textContent=`동기화 완료 · ${t}`;
+    if(last) last.textContent=t;
+  }
+
+  async function pushAfterChange(list){
+    const result=await pushPOToRemote(list);
+    if(!result.ok){
+      if(result.reason==='notoken'){
+        // 토큰 없음 — 직원이거나 첫 사용자. silent (로컬에만 저장됨)
+      }else if(result.reason==='auth'){
+        toast('GitHub 토큰 만료/권한 부족 — 다음 작업 시 재입력 필요','err');
+      }else{
+        toast(`GitHub 동기화 실패 (${result.reason})`,'err');
+      }
+      return;
+    }
+    const status=document.getElementById('syncStatus');
+    const now=new Date();
+    const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    if(status) status.textContent=`동기화 완료 · ${t}`;
+  }
+
+  window.syncFromRemote=syncFromRemote;
+
   function loadPOList(){
     try{return JSON.parse(localStorage.getItem(PO_KEY)||'[]')}catch(e){return []}
   }
   function savePOList(list){
     localStorage.setItem(PO_KEY,JSON.stringify(list));
+    pushAfterChange(list).catch(e=>console.warn('sync error:',e));
   }
 
   function escapeHTML(s){
