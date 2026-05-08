@@ -414,6 +414,95 @@
   .po-import svg{opacity:.9}
   .po-import:hover{background:rgba(15,255,193,.12);border-color:rgba(15,255,193,.55);color:var(--neon)}
 
+  /* ===== 뷰 (홈 / 인사팀 / 물류팀) ===== */
+  .view{display:block}
+  .view[hidden]{display:none}
+
+  /* 서브페이지 헤더 (← 홈 + 타이틀) */
+  .view-head{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .btn-back{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:var(--bg-1);border-radius:var(--radius);font-size:12px;color:var(--text-2);cursor:pointer;transition:all .15s}
+  .btn-back:hover{color:var(--text-0);border-color:var(--line-2);background:var(--bg-2)}
+  .view-title{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .view-title .view-title-sub{font-weight:400;color:var(--text-3);margin-left:8px;font-size:14px}
+
+  /* ===== 조직도 트리 ===== */
+  .org-chart-wrap{overflow-x:auto;padding:24px 4px 12px;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:24px}
+  .tree, .tree ul{list-style:none;padding:0;margin:0}
+  .tree{display:flex;justify-content:center;min-width:max-content}
+  .tree ul{display:flex;justify-content:center;padding-top:22px;position:relative}
+  .tree li{position:relative;padding:22px 10px 0;text-align:center}
+  /* 단일 자식: 연결선 단순화 */
+  .tree li:only-child{padding-top:22px}
+  .tree li:only-child::before, .tree li:only-child::after{display:none}
+  /* 형제 노드: 위로 가는 가지 */
+  .tree li::before, .tree li::after{
+    content:'';position:absolute;top:0;
+    width:50%;height:22px;
+    border-top:1px solid var(--line-2);
+  }
+  .tree li::before{right:50%;border-right:1px solid var(--line-2)}
+  .tree li::after{left:50%}
+  .tree li:first-child::before{border:0}
+  .tree li:last-child::after{border:0}
+  .tree li:last-child::before{border-right:1px solid var(--line-2);border-radius:0 4px 0 0}
+  .tree li:first-child::after{border-radius:4px 0 0 0;border-top:1px solid var(--line-2)}
+  /* 부모 → 자식 수직선 */
+  .tree ul ul::before{
+    content:'';position:absolute;top:0;left:50%;
+    border-left:1px solid var(--line-2);
+    width:0;height:22px;
+  }
+
+  /* 노드 카드 */
+  .org-node{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:9px 14px;border-radius:6px;border:1px solid var(--line);
+    background:var(--bg-2);font-size:13px;font-weight:500;color:var(--text-1);
+    white-space:nowrap;letter-spacing:.01em;
+    min-width:64px;
+  }
+  /* 루트 (회사) */
+  .org-root{
+    background:linear-gradient(135deg,rgba(212,175,55,.16),rgba(212,175,55,.06));
+    border-color:rgba(212,175,55,.45);
+    color:#f4d57a;font-weight:700;font-size:14px;padding:11px 22px;
+    box-shadow:0 0 0 1px rgba(212,175,55,.15) inset, 0 0 16px rgba(212,175,55,.18);
+  }
+  /* 본부 (물류·브랜드·벤더) */
+  .org-div{
+    color:var(--neon-hr);
+    border-color:rgba(255,179,71,.4);
+    background:rgba(255,179,71,.06);
+    font-weight:600;
+    box-shadow:0 0 12px rgba(255,179,71,.12);
+  }
+  /* 팀 (마케팅·MD·C/S) */
+  .org-team{
+    color:var(--neon);
+    border-color:rgba(15,255,193,.35);
+    background:rgba(15,255,193,.05);
+    box-shadow:0 0 10px rgba(15,255,193,.1);
+  }
+  /* 인원 */
+  .org-mem{
+    color:var(--text-1);background:var(--bg-1);border-color:var(--line);
+    font-size:12.5px;font-weight:500;padding:7px 12px;
+    font-family:var(--sans);
+    min-width:58px;
+  }
+  .org-mem:hover{border-color:var(--line-2);color:var(--text-0)}
+
+  @media (max-width:768px){
+    .org-chart-wrap{padding:16px 4px 10px}
+    .tree li{padding:18px 6px 0}
+    .tree ul{padding-top:18px}
+    .tree li::before,.tree li::after,.tree ul ul::before{height:18px}
+    .org-node{padding:7px 10px;font-size:12px;min-width:52px}
+    .org-root{padding:9px 16px;font-size:13px}
+    .org-mem{padding:6px 10px;font-size:11.5px;min-width:50px}
+    .view-title{font-size:16px}
+  }
+
   /* 이미지 업로드 진행 표시 */
   .po-upload-row td{padding:12px 18px;background:rgba(15,255,193,.04);border-left:2px solid var(--neon)}
   .po-upload-row .up-status{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2)}
@@ -606,6 +695,8 @@
   </header>
 
   <main class="container">
+  <!-- ============ 홈 뷰 ============ -->
+  <div class="view" id="viewHome">
     <!-- 팀 카드: ERP / 인사팀 / 물류팀 -->
     <div class="hero-row">
       <section class="hero">
@@ -680,6 +771,72 @@
         </table>
       </div>
     </div>
+  </div><!-- /viewHome -->
+
+  <!-- ============ 인사팀 뷰: 조직도 ============ -->
+  <div class="view" id="viewHr" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">인사팀<span class="view-title-sub">/ 조직도</span></h1>
+    </div>
+
+    <div class="org-chart-wrap">
+      <ul class="tree">
+        <li>
+          <div class="org-node org-root">(주)브라이트비드</div>
+          <ul>
+            <!-- 물류 (서브팀 없음 → 인원 직접) -->
+            <li>
+              <div class="org-node org-div">물류</div>
+              <ul>
+                <li><div class="org-node org-mem">김성군</div></li>
+                <li><div class="org-node org-mem">전준호</div></li>
+                <li><div class="org-node org-mem">이소영</div></li>
+              </ul>
+            </li>
+            <!-- 브랜드 -->
+            <li>
+              <div class="org-node org-div">브랜드</div>
+              <ul>
+                <li>
+                  <div class="org-node org-team">마케팅</div>
+                  <ul><li><div class="org-node org-mem">서원진</div></li></ul>
+                </li>
+                <li>
+                  <div class="org-node org-team">MD</div>
+                  <ul><li><div class="org-node org-mem">임혜지</div></li></ul>
+                </li>
+                <li>
+                  <div class="org-node org-team">C/S</div>
+                  <ul><li><div class="org-node org-mem">정신혜</div></li></ul>
+                </li>
+              </ul>
+            </li>
+            <!-- 벤더 -->
+            <li>
+              <div class="org-node org-div">벤더</div>
+              <ul>
+                <li>
+                  <div class="org-node org-team">C/S</div>
+                  <ul><li><div class="org-node org-mem">정신혜</div></li></ul>
+                </li>
+                <li>
+                  <div class="org-node org-team">MD</div>
+                  <ul>
+                    <li><div class="org-node org-mem">조혜인</div></li>
+                    <li><div class="org-node org-mem">김완성</div></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div><!-- /viewHr -->
   </main>
 
   <footer class="footer">
@@ -935,11 +1092,22 @@
 
   window.triggerERP=triggerERP;
 
-  /* ===== 인사팀 / 물류팀 트리거 (placeholder) ===== */
-  function triggerHR(){ toast('인사팀 모듈 · 준비 중','ok'); }
+  /* ===== 뷰 전환 (홈 / 인사팀 / 물류팀) ===== */
+  function showView(id){
+    ['viewHome','viewHr','viewLg'].forEach(v=>{
+      const el=document.getElementById(v);
+      if(!el)return;
+      if(v===id) el.removeAttribute('hidden');
+      else el.setAttribute('hidden','');
+    });
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  function triggerHR(){ showView('viewHr'); }
   function triggerLogistics(){ toast('물류팀 모듈 · 준비 중','ok'); }
+  function goHome(){ showView('viewHome'); }
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
+  window.goHome=goHome;
 
   /* ===== 발주서 이미지 분석 ===== */
   const ANTHROPIC_KEY='brightbeed_anthropic_key';
