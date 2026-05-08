@@ -437,6 +437,44 @@
   .view{display:block}
   .view[hidden]{display:none}
 
+  /* 물류팀 뷰 — 외부 자료 카드 (브랜드 재고 / 구글 시트) */
+  .lg-resources{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px}
+  @media (max-width:768px){.lg-resources{grid-template-columns:1fr}}
+  .lg-res{
+    display:flex;flex-direction:column;gap:6px;
+    padding:18px 22px 16px;background:var(--bg-1);
+    border:1px solid var(--line);border-radius:8px;
+    transition:all .15s;text-decoration:none;color:inherit;
+    position:relative;
+  }
+  .lg-res:hover{
+    border-color:rgba(180,108,255,.45);background:var(--bg-2);
+    box-shadow:0 0 24px rgba(180,108,255,.10);
+    transform:translateY(-1px);
+  }
+  .lg-res-eyebrow{
+    font-size:10.5px;font-family:var(--mono);
+    letter-spacing:.18em;text-transform:uppercase;
+    color:var(--neon-lg);
+    text-shadow:0 0 10px rgba(180,108,255,.4);
+  }
+  .lg-res-title{font-size:15px;font-weight:600;color:var(--text-0);margin-top:2px}
+  .lg-res-sub{font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em}
+  .lg-res-arrow{
+    position:absolute;top:18px;right:20px;
+    color:var(--text-3);font-size:14px;transition:all .15s;
+  }
+  .lg-res:hover .lg-res-arrow{color:var(--neon-lg);transform:translateX(2px)}
+  .lg-res.todo{cursor:default;opacity:.85}
+  .lg-res.todo:hover{transform:none;border-color:var(--line);background:var(--bg-1);box-shadow:none}
+  .lg-res.todo .lg-res-arrow{display:none}
+  .lg-res-todo-tag{
+    display:inline-block;margin-top:6px;
+    font-size:10px;font-family:var(--mono);letter-spacing:.1em;
+    color:var(--text-3);padding:2px 6px;
+    border:1px dashed var(--line-2);border-radius:3px;width:fit-content;
+  }
+
   /* ===== 권한 (Viewer / Master) ===== */
   body.role-viewer .master-only{display:none !important}
   body.role-viewer .po-row-del{display:none !important}
@@ -993,51 +1031,6 @@
       </section>
     </div>
 
-    <!-- 발주 내역 (이미지 분석 결과 누적) -->
-    <div class="po-wrap">
-      <div class="po-section">
-        <div class="po-section-head">
-          <div class="po-section-title">최근 발주 내역</div>
-          <div class="po-section-meta">
-            <select class="po-sort" id="poSort" onchange="onSortChange(this.value)">
-              <option value="default">기본순 (최신 추가)</option>
-              <option value="date-desc">발주일 ↓ 최신순</option>
-              <option value="date-asc">발주일 ↑ 오래된순</option>
-              <option value="eta-asc">입고예정일 ↑ 빠른순</option>
-              <option value="eta-desc">입고예정일 ↓ 늦은순</option>
-            </select>
-            <span id="poCount">0건</span>
-            <button class="btn po-import master-only" id="importBtn" onclick="document.getElementById('poImageInput').click()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              발주서 가져오기
-            </button>
-            <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
-            <button class="po-clear master-only" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
-            <button class="po-edit master-only" id="poEditBtn" onclick="togglePOEdit()" style="display:none">수정</button>
-          </div>
-        </div>
-        <div id="poEmpty" class="po-empty">
-          <div class="po-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-          </div>
-          <div class="po-empty-text">아직 발주 내역이 없습니다</div>
-          <div class="po-empty-sub">위 <b>발주서 가져오기</b> 버튼으로 <b>엑셀(.xlsx)</b> 또는 이미지를 업로드하면 자동 분석됩니다</div>
-        </div>
-        <table class="po-table" id="poTable" style="display:none">
-          <thead>
-            <tr>
-              <th class="col-date">발주일</th>
-              <th class="col-eta">입고예정일</th>
-              <th class="col-name">제품 및 옵션명</th>
-              <th class="col-memo">메모</th>
-              <th class="col-qty">수량</th>
-              <th class="col-act"></th>
-            </tr>
-          </thead>
-          <tbody id="poBody"></tbody>
-        </table>
-      </div>
-    </div>
   </div><!-- /viewHome -->
 
   <!-- ============ 인사팀 뷰: 조직도 ============ -->
@@ -1198,6 +1191,81 @@
       <div class="leave-grid" id="leaveGrid"></div>
     </div>
   </div><!-- /viewHr -->
+
+  <!-- ============ 물류팀 뷰: 발주·재고 관리 ============ -->
+  <div class="view" id="viewLg" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주·재고 관리</span></h1>
+    </div>
+
+    <!-- 외부 자료 -->
+    <div class="lg-resources">
+      <a class="lg-res todo" href="#" id="lgStockLink" onclick="return openLgResource('stock', event)">
+        <div class="lg-res-eyebrow">📦 STOCK</div>
+        <div class="lg-res-title">브랜드 재고</div>
+        <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별</div>
+        <span class="lg-res-todo-tag">URL 미설정</span>
+        <span class="lg-res-arrow">→</span>
+      </a>
+      <a class="lg-res todo" href="#" id="lgPoListLink" onclick="return openLgResource('polist', event)">
+        <div class="lg-res-eyebrow">📋 GOOGLE SHEETS</div>
+        <div class="lg-res-title">제품 발주 리스트 정보</div>
+        <div class="lg-res-sub">단가·옵션·1688 링크 (구글 시트)</div>
+        <span class="lg-res-todo-tag">URL 미설정</span>
+        <span class="lg-res-arrow">→</span>
+      </a>
+    </div>
+
+    <!-- 최근 발주 내역 (홈에서 이동) -->
+    <div class="po-wrap">
+      <div class="po-section">
+        <div class="po-section-head">
+          <div class="po-section-title">최근 발주 내역</div>
+          <div class="po-section-meta">
+            <select class="po-sort" id="poSort" onchange="onSortChange(this.value)">
+              <option value="default">기본순 (최신 추가)</option>
+              <option value="date-desc">발주일 ↓ 최신순</option>
+              <option value="date-asc">발주일 ↑ 오래된순</option>
+              <option value="eta-asc">입고예정일 ↑ 빠른순</option>
+              <option value="eta-desc">입고예정일 ↓ 늦은순</option>
+            </select>
+            <span id="poCount">0건</span>
+            <button class="btn po-import master-only" id="importBtn" onclick="document.getElementById('poImageInput').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              발주서 가져오기
+            </button>
+            <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
+            <button class="po-clear master-only" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
+            <button class="po-edit master-only" id="poEditBtn" onclick="togglePOEdit()" style="display:none">수정</button>
+          </div>
+        </div>
+        <div id="poEmpty" class="po-empty">
+          <div class="po-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          </div>
+          <div class="po-empty-text">아직 발주 내역이 없습니다</div>
+          <div class="po-empty-sub">위 <b>발주서 가져오기</b> 버튼으로 <b>엑셀(.xlsx)</b> 또는 이미지를 업로드하면 자동 분석됩니다</div>
+        </div>
+        <table class="po-table" id="poTable" style="display:none">
+          <thead>
+            <tr>
+              <th class="col-date">발주일</th>
+              <th class="col-eta">입고예정일</th>
+              <th class="col-name">제품 및 옵션명</th>
+              <th class="col-memo">메모</th>
+              <th class="col-qty">수량</th>
+              <th class="col-act"></th>
+            </tr>
+          </thead>
+          <tbody id="poBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /viewLg -->
   </main>
 
   <footer class="footer">
@@ -1496,11 +1564,24 @@
     window.scrollTo({top:0,behavior:'instant'});
   }
   function triggerHR(){ showView('viewHr'); renderLeaveStatus(); }
-  function triggerLogistics(){ toast('물류팀 모듈 · 준비 중','ok'); }
+  function triggerLogistics(){ showView('viewLg'); }
   function goHome(){ showView('viewHome'); }
+  // 물류팀 외부 자료 — URL 박힐 때까지는 토스트 안내
+  const LG_URLS={ stock:'', polist:'' }; // 사용자 알려주면 박음
+  function openLgResource(key,e){
+    const url=LG_URLS[key];
+    if(!url){
+      e.preventDefault();
+      const label=key==='stock'?'브랜드 재고':'제품 발주 리스트 정보';
+      toast(`${label} URL이 아직 설정되지 않았습니다`,'err');
+      return false;
+    }
+    return true; // 정상 링크 이동
+  }
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
   window.goHome=goHome;
+  window.openLgResource=openLgResource;
 
   /* ===== 연차 (인사팀) ===== */
   // 직원 정보 (정적) — 연차 수치는 별도 leaveData에 저장
