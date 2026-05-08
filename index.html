@@ -496,7 +496,65 @@
   }
 
   /* ===== 연차 (인사팀 뷰) ===== */
-  .leave-cta{display:flex;justify-content:center;margin:8px 0 32px}
+  .leave-cta{display:flex;justify-content:center;margin:8px 0 18px}
+
+  /* 연차/반차 규정 안내 — 앰버 네온 강조 */
+  .leave-policy{
+    max-width:760px;margin:0 auto 36px;
+    padding:20px 24px 22px;
+    background:linear-gradient(180deg,rgba(255,179,71,.10) 0%,rgba(255,138,71,.04) 100%);
+    border:1px solid rgba(255,179,71,.45);
+    border-radius:10px;
+    box-shadow:0 0 0 1px rgba(255,179,71,.06) inset, 0 0 32px rgba(255,179,71,.10);
+  }
+  .leave-policy-title{
+    font-size:15px;font-weight:700;
+    color:#ffb347;
+    text-shadow:0 0 14px rgba(255,179,71,.55), 0 0 28px rgba(255,138,71,.25);
+    letter-spacing:.01em;
+    margin-bottom:16px;padding-bottom:12px;
+    border-bottom:1px dashed rgba(255,179,71,.3);
+  }
+  .leave-policy-section{margin-bottom:14px}
+  .leave-policy-section:last-child{margin-bottom:0}
+  .leave-policy-section-title{
+    font-size:13px;font-weight:600;
+    color:#ffd29a;
+    margin-bottom:7px;letter-spacing:-.005em;
+  }
+  .leave-policy-section-title .num{
+    display:inline-block;margin-right:8px;
+    color:#ffb347;font-family:var(--mono);font-weight:700;
+    text-shadow:0 0 10px rgba(255,179,71,.55);
+  }
+  .leave-policy-body{
+    font-size:12.5px;color:var(--text-1);line-height:1.7;
+    padding-left:24px;
+  }
+  .leave-policy-body em{
+    font-style:normal;color:#ffb347;font-weight:600;
+    text-shadow:0 0 6px rgba(255,179,71,.4);
+  }
+  .leave-policy-body .pol-ex{
+    display:block;margin-top:4px;
+    font-size:11.5px;color:var(--text-3);
+    padding:4px 10px;
+    border-left:2px solid rgba(255,179,71,.35);
+    background:rgba(255,179,71,.04);
+    border-radius:0 4px 4px 0;
+  }
+  .leave-policy-body .pol-sub{
+    display:block;margin-top:3px;padding-left:14px;
+    color:var(--text-2);font-size:12px;
+  }
+  .leave-policy-body .pol-sub::before{
+    content:'– ';color:rgba(255,179,71,.6);
+  }
+  @media (max-width:600px){
+    .leave-policy{padding:16px 16px 18px}
+    .leave-policy-title{font-size:13.5px}
+    .leave-policy-body{font-size:12px;padding-left:18px}
+  }
   .leave-cta .btn-neon{padding:14px 36px;font-size:15px}
   .leave-section{margin-bottom:32px}
   .leave-section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
@@ -925,6 +983,37 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14v4M10 16h4"/></svg>
         연차 신청하기
       </button>
+    </div>
+
+    <!-- 연차/반차 규정 안내 -->
+    <div class="leave-policy">
+      <div class="leave-policy-title">📢 연차 및 반차 사용 규정 안내</div>
+
+      <div class="leave-policy-section">
+        <div class="leave-policy-section-title"><span class="num">1.</span>연차 발생 및 부여 기준</div>
+        <div class="leave-policy-body">
+          • <em>신규 입사자</em>: 1개월 만근 시 <em>1일 발생</em> (1년 미만 구간)<br>
+          • <em>장기 근속자</em>: 1년 근무 시마다 <em>+1일 추가 부여</em> (법정 기준 이상 우대)
+          <span class="pol-ex">ex) 1년 만근 시 15개, 4년 근무 시 18개 (회사 기준 적용 시)</span>
+        </div>
+      </div>
+
+      <div class="leave-policy-section">
+        <div class="leave-policy-section-title"><span class="num">2.</span>연차 소멸 안내</div>
+        <div class="leave-policy-body">
+          <em>발생 연도 내 사용 원칙</em>: 연차는 발생일 연도 내 유효하며, 이후에는 사용 촉진 제도에 따라 자동 소멸됩니다. (미사용 시 소멸 전 적극 사용 권장)
+        </div>
+      </div>
+
+      <div class="leave-policy-section">
+        <div class="leave-policy-section-title"><span class="num">3.</span>반차(0.5일) 근무 기준</div>
+        <div class="leave-policy-body">
+          • <em>오전 반차</em>: 14:00 출근 (점심 식사 후 출근)<br>
+          • <em>오후 반차</em>:
+          <span class="pol-sub">13:00 퇴근 — 점심 식사 없이 바로 퇴근 시</span>
+          <span class="pol-sub">14:00 퇴근 — 점심 식사 후 퇴근 시</span>
+        </div>
+      </div>
     </div>
 
     <!-- 연차 현황 -->
