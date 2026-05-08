@@ -433,9 +433,87 @@
   .po-import svg{opacity:.9}
   .po-import:hover{background:rgba(15,255,193,.12);border-color:rgba(15,255,193,.55);color:var(--neon)}
 
-  /* ===== 뷰 (홈 / 인사팀 / 물류팀) ===== */
+  /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
   .view{display:block}
   .view[hidden]{display:none}
+
+  /* HQ 홈 보조 모듈 그리드 (메인 hero 아래) */
+  .sub-modules-section{margin:20px 0 40px}
+  .sub-modules-eyebrow{
+    font-size:11px;font-family:var(--mono);
+    color:var(--text-3);letter-spacing:.18em;
+    text-transform:uppercase;
+    text-align:center;margin-bottom:14px;
+  }
+  .sub-modules{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+    max-width:980px;margin:0 auto;
+  }
+  @media(max-width:900px){.sub-modules{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.sub-modules{grid-template-columns:1fr}}
+  .sub-module{
+    display:flex;flex-direction:column;gap:6px;
+    padding:16px 16px 14px;
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:6px;
+    transition:all .15s;
+    cursor:pointer;text-align:left;
+    position:relative;overflow:hidden;
+  }
+  .sub-module::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,var(--m-color,rgba(212,175,55,0)) 0%,transparent 60%);
+    opacity:0;transition:opacity .15s;pointer-events:none;
+  }
+  .sub-module:hover{
+    border-color:var(--m-border,var(--line-2));
+    background:var(--bg-2);
+    transform:translateY(-1px);
+  }
+  .sub-module:hover::before{opacity:.06}
+  .sub-module-icon{
+    width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    margin-bottom:2px;
+  }
+  .sub-module-title{
+    font-size:13.5px;font-weight:600;color:var(--text-0);
+    letter-spacing:-.005em;
+  }
+  .sub-module-sub{
+    font-size:11px;color:var(--text-3);
+    font-family:var(--mono);letter-spacing:.02em;
+    line-height:1.45;
+  }
+  .sub-module-tag{
+    position:absolute;top:10px;right:10px;
+    font-size:9.5px;font-family:var(--mono);letter-spacing:.08em;
+    color:var(--text-3);
+    padding:1px 6px;border:1px dashed var(--line-2);border-radius:3px;
+  }
+  /* 각 모듈별 accent 색 (호버 시 옅게 발광) */
+  .sub-module.m-sales   {--m-color:#a3e635;--m-border:rgba(163,230,53,.4)}
+  .sub-module.m-sales   .sub-module-icon{color:#a3e635}
+  .sub-module.m-ads     {--m-color:#ff8c70;--m-border:rgba(255,140,112,.4)}
+  .sub-module.m-ads     .sub-module-icon{color:#ff8c70}
+  .sub-module.m-vendors {--m-color:#06d8ff;--m-border:rgba(6,216,255,.4)}
+  .sub-module.m-vendors .sub-module-icon{color:#06d8ff}
+  .sub-module.m-notice  {--m-color:#ff6bb5;--m-border:rgba(255,107,181,.4)}
+  .sub-module.m-notice  .sub-module-icon{color:#ff6bb5}
+
+  /* 모듈 placeholder 영역 (각 뷰 본문) */
+  .placeholder-area{
+    text-align:center;padding:72px 24px;
+    background:var(--bg-1);
+    border:1px dashed var(--line-2);
+    border-radius:8px;margin-bottom:24px;
+  }
+  .ph-icon{font-size:36px;margin-bottom:14px;opacity:.55}
+  .ph-text{font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:6px}
+  .ph-sub{font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em;line-height:1.6}
+  .ph-sub b{color:var(--text-2);font-weight:500}
 
   /* 물류팀 뷰 — 외부 자료 카드 (브랜드 재고 / 구글 시트) */
   .lg-resources{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px}
@@ -1031,6 +1109,37 @@
       </section>
     </div>
 
+    <!-- 보조 모듈 (디자인만, 데이터/소스는 추후) -->
+    <div class="sub-modules-section">
+      <div class="sub-modules-eyebrow">기타 모듈</div>
+      <div class="sub-modules">
+        <div class="sub-module m-sales" onclick="triggerSales()">
+          <div class="sub-module-icon">📊</div>
+          <div class="sub-module-title">매출 대시보드</div>
+          <div class="sub-module-sub">일/월별 매출 · 채널별</div>
+          <div class="sub-module-tag">준비 중</div>
+        </div>
+        <div class="sub-module m-ads" onclick="triggerAds()">
+          <div class="sub-module-icon">💰</div>
+          <div class="sub-module-title">광고비 정산</div>
+          <div class="sub-module-sub">메타·구글애드·인플루언서</div>
+          <div class="sub-module-tag">준비 중</div>
+        </div>
+        <div class="sub-module m-vendors" onclick="triggerVendors()">
+          <div class="sub-module-icon">🤝</div>
+          <div class="sub-module-title">거래처 관리</div>
+          <div class="sub-module-sub">1688 · 국내 vendor 정보</div>
+          <div class="sub-module-tag">준비 중</div>
+        </div>
+        <div class="sub-module m-notice" onclick="triggerNotice()">
+          <div class="sub-module-icon">📌</div>
+          <div class="sub-module-title">사내 공지사항</div>
+          <div class="sub-module-sub">공지 · 일정 · 업무 안내</div>
+          <div class="sub-module-tag">준비 중</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /viewHome -->
 
   <!-- ============ 인사팀 뷰: 조직도 ============ -->
@@ -1204,11 +1313,10 @@
 
     <!-- 외부 자료 -->
     <div class="lg-resources">
-      <a class="lg-res todo" href="#" id="lgStockLink" onclick="return openLgResource('stock', event)">
+      <a class="lg-res" href="#" id="lgStockLink" onclick="return openLgResource('stock', event)">
         <div class="lg-res-eyebrow">📦 STOCK</div>
         <div class="lg-res-title">브랜드 재고</div>
-        <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별</div>
-        <span class="lg-res-todo-tag">URL 미설정</span>
+        <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
         <span class="lg-res-arrow">→</span>
       </a>
       <a class="lg-res todo" href="#" id="lgPoListLink" onclick="return openLgResource('polist', event)">
@@ -1266,6 +1374,70 @@
       </div>
     </div>
   </div><!-- /viewLg -->
+
+  <!-- ============ 매출 대시보드 (placeholder) ============ -->
+  <div class="view" id="viewSales" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">매출 대시보드<span class="view-title-sub">/ 일·월별 매출</span></h1>
+    </div>
+    <div class="placeholder-area">
+      <div class="ph-icon">📊</div>
+      <div class="ph-text">매출 대시보드 — 준비 중</div>
+      <div class="ph-sub">데이터 소스 (식스샵 / 스마트스토어 / 카드사) 연결 후 채워집니다<br><b>채널별 일·월 매출, 베스트셀러, 환불 추이</b> 등 표시 예정</div>
+    </div>
+  </div>
+
+  <!-- ============ 광고비 정산 (placeholder) ============ -->
+  <div class="view" id="viewAds" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">광고비 정산<span class="view-title-sub">/ 채널별 비용</span></h1>
+    </div>
+    <div class="placeholder-area">
+      <div class="ph-icon">💰</div>
+      <div class="ph-text">광고비 정산 — 준비 중</div>
+      <div class="ph-sub">메타(인스타·페북) · 구글애드 · 인플루언서 · 카카오모먼트 비용을 한곳에서 정산<br><b>월별 합계, ROAS, 채널별 비중</b> 등 표시 예정</div>
+    </div>
+  </div>
+
+  <!-- ============ 거래처 관리 (placeholder) ============ -->
+  <div class="view" id="viewVendors" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">거래처 관리<span class="view-title-sub">/ vendor 정보</span></h1>
+    </div>
+    <div class="placeholder-area">
+      <div class="ph-icon">🤝</div>
+      <div class="ph-text">거래처 관리 — 준비 중</div>
+      <div class="ph-sub">1688 · 국내 거래처 · 물류사 정보 통합 관리<br><b>거래처별 발주 이력, 결제 조건, 담당자 연락처</b> 등 표시 예정</div>
+    </div>
+  </div>
+
+  <!-- ============ 사내 공지사항 (placeholder) ============ -->
+  <div class="view" id="viewNotice" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">사내 공지사항<span class="view-title-sub">/ 공지 · 일정</span></h1>
+    </div>
+    <div class="placeholder-area">
+      <div class="ph-icon">📌</div>
+      <div class="ph-text">사내 공지사항 — 준비 중</div>
+      <div class="ph-sub">사장님이 직원들에게 공지·일정·업무 안내를 게시할 수 있는 공간<br><b>최신순 게시판 / 일정 캘린더 / 첨부 파일</b> 등 표시 예정</div>
+    </div>
+  </div>
   </main>
 
   <footer class="footer">
@@ -1553,9 +1725,10 @@
 
   window.triggerERP=triggerERP;
 
-  /* ===== 뷰 전환 (홈 / 인사팀 / 물류팀) ===== */
+  /* ===== 뷰 전환 ===== */
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewSales','viewAds','viewVendors','viewNotice'];
   function showView(id){
-    ['viewHome','viewHr','viewLg'].forEach(v=>{
+    VIEW_IDS.forEach(v=>{
       const el=document.getElementById(v);
       if(!el)return;
       if(v===id) el.removeAttribute('hidden');
@@ -1565,21 +1738,35 @@
   }
   function triggerHR(){ showView('viewHr'); renderLeaveStatus(); }
   function triggerLogistics(){ showView('viewLg'); }
+  function triggerSales(){ showView('viewSales'); }
+  function triggerAds(){ showView('viewAds'); }
+  function triggerVendors(){ showView('viewVendors'); }
+  function triggerNotice(){ showView('viewNotice'); }
   function goHome(){ showView('viewHome'); }
-  // 물류팀 외부 자료 — URL 박힐 때까지는 토스트 안내
-  const LG_URLS={ stock:'', polist:'' }; // 사용자 알려주면 박음
+
+  // 물류팀 외부 자료 URL — 비어있으면 placeholder 토스트
+  const LG_URLS={
+    stock:'https://docs.google.com/spreadsheets/d/1SmYlesBx6KGwPJJW6SO67hxg8wGj_aMqC1KB23uBZF8/edit?usp=sharing',
+    polist:''
+  };
   function openLgResource(key,e){
     const url=LG_URLS[key];
+    const label=key==='stock'?'브랜드 재고':'제품 발주 리스트 정보';
     if(!url){
       e.preventDefault();
-      const label=key==='stock'?'브랜드 재고':'제품 발주 리스트 정보';
       toast(`${label} URL이 아직 설정되지 않았습니다`,'err');
       return false;
     }
-    return true; // 정상 링크 이동
+    e.preventDefault();
+    window.open(url,'_blank','noopener');
+    return false;
   }
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
+  window.triggerSales=triggerSales;
+  window.triggerAds=triggerAds;
+  window.triggerVendors=triggerVendors;
+  window.triggerNotice=triggerNotice;
   window.goHome=goHome;
   window.openLgResource=openLgResource;
 
