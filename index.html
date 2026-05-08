@@ -1163,7 +1163,7 @@
       <div class="leave-section-head">
         <h2 class="leave-section-title">연차 현황</h2>
         <div class="leave-section-meta">
-          <span id="leaveMeta">2026 기준</span>
+          <span id="leaveMeta">2026.05 기준</span>
           <button class="leave-edit-btn master-only" id="leaveEditBtn" onclick="toggleLeaveEdit()">편집</button>
         </div>
       </div>
@@ -1567,6 +1567,12 @@
     const data=loadLeaveData();
     const editing=document.body.classList.contains('leave-edit-mode');
     grid.innerHTML=STAFF.map(s=>leaveCardHTML(s,data[s.name],editing)).join('');
+    // 우측 메타: 현재 년월 기준
+    const meta=document.getElementById('leaveMeta');
+    if(meta){
+      const now=new Date();
+      meta.textContent=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')} 기준`;
+    }
   }
   function updateLeaveCard(card,v){
     const name=card.dataset.staff;
