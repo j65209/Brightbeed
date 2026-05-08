@@ -628,6 +628,77 @@
     .view-title{font-size:16px}
   }
 
+  /* ===== 조직도 모바일 카드 레이아웃 (≤600px) ===== */
+  .org-mobile{display:none}
+  @media (max-width:600px){
+    .org-chart-wrap{padding:14px 12px;overflow:visible}
+    .org-svg{display:none}
+    .org-mobile{display:flex;flex-direction:column;gap:14px}
+  }
+  .om-root{
+    text-align:center;font-size:14px;font-weight:700;
+    color:#f4d57a;
+    padding:10px 14px;
+    border:1px solid rgba(212,175,55,.55);
+    background:rgba(212,175,55,.10);
+    border-radius:8px;letter-spacing:-.005em;
+    position:relative;
+  }
+  .om-root::after{
+    content:'';position:absolute;left:50%;bottom:-12px;
+    width:1px;height:12px;background:var(--line-2);
+    transform:translateX(-50%);
+  }
+  .om-divisions{display:flex;flex-direction:column;gap:10px;margin-top:2px}
+  .om-div{
+    background:var(--bg-1);border:1px solid var(--line);
+    border-radius:8px;padding:12px 14px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .om-div-name{
+    font-size:13px;font-weight:700;letter-spacing:-.005em;
+    padding-bottom:8px;border-bottom:1px dashed var(--line);
+  }
+  .om-members{display:flex;flex-wrap:wrap;gap:6px}
+  .om-teams{display:flex;flex-direction:column;gap:8px}
+  .om-team{
+    display:flex;align-items:center;flex-wrap:wrap;gap:8px;
+    padding:8px 10px;
+    background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
+  }
+  .om-team-name{
+    font-size:11.5px;font-weight:600;letter-spacing:.02em;
+    font-family:var(--mono);
+    padding:2px 8px;border-radius:3px;
+    background:var(--bg-3);color:var(--text-2);
+    display:inline-flex;align-items:center;gap:4px;
+  }
+  .om-team-name small{font-size:9.5px;font-weight:500;color:var(--text-3);letter-spacing:.04em}
+  .om-mem{
+    font-size:13px;font-weight:500;color:var(--text-1);letter-spacing:-.005em;
+    padding:3px 9px;background:var(--bg-2);
+    border:1px solid var(--line);border-radius:14px;
+  }
+
+  /* 본부별 색조 (테두리 + 헤더 색) */
+  .om-div.om-logi   {border-color:rgba(255,179,71,.40)}
+  .om-div.om-logi   .om-div-name{color:#ffb347;border-bottom-color:rgba(255,179,71,.30)}
+  .om-div.om-logi   .om-mem{color:#ffd6a3;border-color:rgba(255,179,71,.25);background:rgba(255,179,71,.06)}
+
+  .om-div.om-brand  {border-color:rgba(15,255,193,.35)}
+  .om-div.om-brand  .om-div-name{color:#0fffc1;border-bottom-color:rgba(15,255,193,.25)}
+  .om-div.om-brand  .om-team.om-mkt   .om-team-name{color:#ff6bb5;background:rgba(255,107,181,.10);border:1px solid rgba(255,107,181,.30)}
+  .om-div.om-brand  .om-team.om-mkt   .om-mem{color:#ff9ecf;border-color:rgba(255,107,181,.30);background:rgba(255,107,181,.06)}
+  .om-div.om-brand  .om-team.om-md1   .om-team-name{color:#06d8ff;background:rgba(6,216,255,.10);border:1px solid rgba(6,216,255,.30)}
+  .om-div.om-brand  .om-team.om-md1   .om-mem{color:#7be4ff;border-color:rgba(6,216,255,.30);background:rgba(6,216,255,.06)}
+  .om-div.om-brand  .om-team.om-share .om-team-name{color:#f4d57a;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.30)}
+  .om-div.om-brand  .om-team.om-share .om-mem{color:#f4d57a;border-color:rgba(212,175,55,.30);background:rgba(212,175,55,.06)}
+
+  .om-div.om-vendor {border-color:rgba(180,108,255,.40)}
+  .om-div.om-vendor .om-div-name{color:#b46cff;border-bottom-color:rgba(180,108,255,.30)}
+  .om-div.om-vendor .om-team.om-md2 .om-team-name{color:#ff8c70;background:rgba(255,140,112,.10);border:1px solid rgba(255,140,112,.30)}
+  .om-div.om-vendor .om-team.om-md2 .om-mem{color:#ffb39e;border-color:rgba(255,140,112,.30);background:rgba(255,140,112,.06)}
+
   /* ===== 연차 (인사팀 뷰) ===== */
   .leave-cta{display:flex;justify-content:center;margin:8px 0 18px}
 
@@ -1265,6 +1336,35 @@
         <text class="t-mem m-md2"   x="1000" y="320">조혜인</text>
         <text class="t-mem m-md2"   x="1000" y="348">김완성</text>
       </svg>
+
+      <!-- 모바일 전용 카드 레이아웃 (≤600px에서 표시, SVG는 숨김) -->
+      <div class="org-mobile" aria-hidden="true">
+        <div class="om-root">(주)브라이트비드</div>
+        <div class="om-divisions">
+          <div class="om-div om-logi">
+            <div class="om-div-name">물류</div>
+            <div class="om-members">
+              <span class="om-mem">김성군</span>
+              <span class="om-mem">전준호</span>
+              <span class="om-mem">이소영</span>
+            </div>
+          </div>
+          <div class="om-div om-brand">
+            <div class="om-div-name">브랜드</div>
+            <div class="om-teams">
+              <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">서원진</span></div>
+              <div class="om-team om-md1"><span class="om-team-name">MD</span><span class="om-mem">임혜지</span></div>
+              <div class="om-team om-share"><span class="om-team-name">C/S<small>공유</small></span><span class="om-mem">정신혜</span></div>
+            </div>
+          </div>
+          <div class="om-div om-vendor">
+            <div class="om-div-name">벤더</div>
+            <div class="om-teams">
+              <div class="om-team om-md2"><span class="om-team-name">MD</span><span class="om-mem">조혜인</span><span class="om-mem">김완성</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 연차 신청하기 (CTA) -->
