@@ -495,6 +495,50 @@
     .view-title{font-size:16px}
   }
 
+  /* ===== 연차 (인사팀 뷰) ===== */
+  .leave-cta{display:flex;justify-content:center;margin:8px 0 32px}
+  .leave-cta .btn-neon{padding:14px 36px;font-size:15px}
+  .leave-section{margin-bottom:32px}
+  .leave-section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .leave-section-title{font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .leave-section-meta{font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em}
+  .leave-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media (max-width:1080px){.leave-grid{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:768px){.leave-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:480px){.leave-grid{grid-template-columns:1fr}}
+
+  .leave-card{position:relative;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;padding:14px 14px 12px;transition:all .15s}
+  .leave-card:hover{border-color:var(--line-2);background:var(--bg-2)}
+  .leave-name{font-size:14px;font-weight:600;color:var(--text-0);letter-spacing:-.005em}
+  .leave-dept{font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em;margin-top:3px;margin-bottom:12px}
+  .leave-bar{height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;margin-bottom:8px}
+  .leave-bar-fill{height:100%;border-radius:2px;transition:width .3s}
+  .leave-stats{display:flex;align-items:baseline;justify-content:space-between;font-family:var(--mono)}
+  .leave-remain{font-size:18px;font-weight:700;letter-spacing:-.01em}
+  .leave-remain-unit{font-size:11px;color:var(--text-2);font-weight:500;margin-left:2px}
+  .leave-total{font-size:11px;color:var(--text-3)}
+
+  /* 부서 색조 */
+  .leave-card.l-logi   {border-color:rgba(255,179,71,.25)}
+  .leave-card.l-logi   .leave-name{color:#ffd6a3}
+  .leave-card.l-logi   .leave-bar-fill{background:linear-gradient(90deg,#ffb347,#ff8a47)}
+  .leave-card.l-logi   .leave-remain{color:#ffb347}
+
+  .leave-card.l-brand  {border-color:rgba(15,255,193,.25)}
+  .leave-card.l-brand  .leave-name{color:#9affe1}
+  .leave-card.l-brand  .leave-bar-fill{background:linear-gradient(90deg,#0fffc1,#06d8ff)}
+  .leave-card.l-brand  .leave-remain{color:#0fffc1}
+
+  .leave-card.l-share  {border-color:rgba(212,175,55,.3)}
+  .leave-card.l-share  .leave-name{color:#f4d57a}
+  .leave-card.l-share  .leave-bar-fill{background:linear-gradient(90deg,#f4d57a,#d4af37)}
+  .leave-card.l-share  .leave-remain{color:#f4d57a}
+
+  .leave-card.l-vendor {border-color:rgba(180,108,255,.25)}
+  .leave-card.l-vendor .leave-name{color:#d6b8ff}
+  .leave-card.l-vendor .leave-bar-fill{background:linear-gradient(90deg,#b46cff,#ff4dcd)}
+  .leave-card.l-vendor .leave-remain{color:#b46cff}
+
   /* 이미지 업로드 진행 표시 */
   .po-upload-row td{padding:12px 18px;background:rgba(15,255,193,.04);border-left:2px solid var(--neon)}
   .po-upload-row .up-status{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2)}
@@ -845,6 +889,23 @@
         <text class="t-mem m-vendor" x="1000" y="348">김완성</text>
       </svg>
     </div>
+
+    <!-- 연차 신청하기 (CTA) -->
+    <div class="leave-cta">
+      <button class="btn-neon btn-hr" onclick="openLeaveForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14v4M10 16h4"/></svg>
+        연차 신청하기
+      </button>
+    </div>
+
+    <!-- 연차 현황 -->
+    <div class="leave-section">
+      <div class="leave-section-head">
+        <h2 class="leave-section-title">연차 현황</h2>
+        <div class="leave-section-meta" id="leaveMeta">2026 기준</div>
+      </div>
+      <div class="leave-grid" id="leaveGrid"></div>
+    </div>
   </div><!-- /viewHr -->
   </main>
 
@@ -1143,12 +1204,46 @@
     });
     window.scrollTo({top:0,behavior:'instant'});
   }
-  function triggerHR(){ showView('viewHr'); }
+  function triggerHR(){ showView('viewHr'); renderLeaveStatus(); }
   function triggerLogistics(){ toast('물류팀 모듈 · 준비 중','ok'); }
   function goHome(){ showView('viewHome'); }
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
   window.goHome=goHome;
+
+  /* ===== 연차 (인사팀) ===== */
+  // placeholder — 후속 단계에서 실제 값/저장소(GitHub 동기화) 연결 예정
+  const STAFF=[
+    {name:'김성군',dept:'물류',team:null,color:'logi',total:15,used:3},
+    {name:'전준호',dept:'물류',team:null,color:'logi',total:15,used:5},
+    {name:'이소영',dept:'물류',team:null,color:'logi',total:15,used:2},
+    {name:'서원진',dept:'브랜드',team:'마케팅',color:'brand',total:15,used:7},
+    {name:'임혜지',dept:'브랜드',team:'MD',color:'brand',total:15,used:4},
+    {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share',total:15,used:6},
+    {name:'조혜인',dept:'벤더',team:'MD',color:'vendor',total:15,used:8},
+    {name:'김완성',dept:'벤더',team:'MD',color:'vendor',total:15,used:1},
+  ];
+  function renderLeaveStatus(){
+    const grid=document.getElementById('leaveGrid');
+    if(!grid) return;
+    grid.innerHTML=STAFF.map(s=>{
+      const remain=s.total-s.used;
+      const pct=Math.min(100,Math.round((s.used/s.total)*100));
+      const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
+      return `
+        <div class="leave-card l-${s.color}">
+          <div class="leave-name">${s.name}</div>
+          <div class="leave-dept">${sub}</div>
+          <div class="leave-bar"><div class="leave-bar-fill" style="width:${pct}%"></div></div>
+          <div class="leave-stats">
+            <div><span class="leave-remain">${remain}</span><span class="leave-remain-unit">일 남음</span></div>
+            <span class="leave-total">${s.used} / ${s.total}일 사용</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  function openLeaveForm(){ toast('연차 신청 양식 · 다음 단계에서 추가','ok'); }
+  window.openLeaveForm=openLeaveForm;
 
   /* ===== 발주서 이미지 분석 ===== */
   const ANTHROPIC_KEY='brightbeed_anthropic_key';
