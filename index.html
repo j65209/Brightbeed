@@ -187,12 +187,13 @@
   .btn.spin svg{animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* 히어로 — 메인 ERP 트리거 */
-  .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 48px;border-bottom:1px solid var(--line);margin-bottom:40px}
+  /* 히어로 카드 — ERP/인사팀/물류팀 3개 나란히 */
+  .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+  .hero{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:36px 20px 30px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;text-align:center}
   .hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--neon);letter-spacing:.22em;text-transform:uppercase;margin-bottom:18px;text-shadow:0 0 12px var(--neon-glow)}
   .btn-neon{
-    display:inline-flex;align-items:center;justify-content:center;gap:14px;
-    padding:22px 56px;border-radius:8px;font-size:18px;font-weight:600;letter-spacing:.02em;
+    display:inline-flex;align-items:center;justify-content:center;gap:12px;
+    padding:18px 36px;border-radius:8px;font-size:16px;font-weight:600;letter-spacing:.02em;
     background:linear-gradient(135deg,#0fffc1 0%,#06d8ff 100%);
     color:#001a16;
     border:1px solid rgba(15,255,193,.5);
@@ -218,7 +219,7 @@
   .btn-neon:disabled{opacity:.8;cursor:not-allowed;filter:saturate(.7)}
   .btn-neon svg{width:20px;height:20px}
   .btn-neon.spin svg{animation:spin .9s linear infinite}
-  .hero-hint{margin-top:16px;font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em}
+  .hero-hint{margin-top:14px;font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em;line-height:1.6}
 
   /* 히어로 — 인사팀 (앰버) */
   .hero.hero-hr .hero-eyebrow{color:var(--neon-hr);text-shadow:0 0 12px var(--neon-hr-glow)}
@@ -408,6 +409,11 @@
   .po-clear{margin-left:12px;padding:5px 10px;font-size:11px;color:var(--text-3);background:transparent;border:1px solid var(--line);border-radius:3px;cursor:pointer;transition:all .15s}
   .po-clear:hover{color:var(--danger);border-color:rgba(217,102,102,.3)}
 
+  /* 발주서 가져오기 (PO 섹션 헤더 inline 버전) */
+  .po-import{margin-left:10px;padding:5px 10px;font-size:11px;font-weight:500;color:var(--neon);background:rgba(15,255,193,.06);border:1px solid rgba(15,255,193,.35);border-radius:3px;display:inline-flex;align-items:center;gap:6px}
+  .po-import svg{opacity:.9}
+  .po-import:hover{background:rgba(15,255,193,.12);border-color:rgba(15,255,193,.55);color:var(--neon)}
+
   /* 이미지 업로드 진행 표시 */
   .po-upload-row td{padding:12px 18px;background:rgba(15,255,193,.04);border-left:2px solid var(--neon)}
   .po-upload-row .up-status{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2)}
@@ -416,9 +422,8 @@
   @media (max-width:768px){
     .container{padding:20px}
     .topbar{padding:12px 20px}
-    .page-head{flex-direction:column;align-items:flex-start;gap:12px}
-    .page-meta{text-align:left}
-    .hero{padding:40px 16px 32px}
+    .hero-row{grid-template-columns:1fr;gap:12px;margin-bottom:32px}
+    .hero{padding:32px 16px 28px}
     .btn-neon{padding:18px 36px;font-size:16px}
     .po-table th,.po-table td{padding:10px 6px;font-size:12px}
     .po-table td.col-name,.po-table td.col-memo{font-size:11.5px}
@@ -437,18 +442,13 @@
     .status-pill{font-size:10px;letter-spacing:.01em}
     .icon-btn{width:30px;height:30px}
 
-    /* 페이지 헤더 */
-    .page-head{margin-bottom:18px;padding-bottom:14px}
-    .page-title{font-size:18px}
-    .page-sub,.page-meta{font-size:11px}
-
-    /* 히어로 — ERP 최신화 */
-    .hero{padding:28px 12px 24px;margin-bottom:24px}
-    .hero-eyebrow{font-size:10px;margin-bottom:14px}
-    .btn-neon{padding:16px 28px;font-size:15px;gap:10px;border-radius:6px}
-    .btn-neon svg{width:18px;height:18px}
-    .hero-hint{font-size:10px;text-align:center;line-height:1.5;padding:0 10px;margin-top:12px}
-    .sec-actions{margin-top:18px}
+    /* 히어로 — 카드형 (모바일은 1열 stack) */
+    .hero-row{gap:10px;margin-bottom:22px}
+    .hero{padding:24px 12px 22px}
+    .hero-eyebrow{font-size:10px;margin-bottom:12px}
+    .btn-neon{padding:14px 24px;font-size:14px;gap:10px;border-radius:6px}
+    .btn-neon svg{width:16px;height:16px}
+    .hero-hint{font-size:10px;text-align:center;line-height:1.5;padding:0 10px;margin-top:10px}
     .btn{padding:10px 14px;font-size:12px}
 
     /* === 테이블 → 3줄 카드 레이아웃 === */
@@ -592,9 +592,7 @@
 <div class="app" id="app">
   <header class="topbar">
     <div class="brand">
-      <div class="brand-name">브라이트비드 오피스</div>
-      <div class="brand-sep"></div>
-      <div class="brand-mod">발주 관리</div>
+      <div class="brand-name">(주)브라이트비드 HQ</div>
     </div>
     <div class="topbar-right">
       <div class="status-pill"><span class="status-dot"></span><span id="syncStatus">동기화 완료 · 방금 전</span></div>
@@ -608,54 +606,35 @@
   </header>
 
   <main class="container">
-    <div class="page-head">
-      <div>
-        <h1 class="page-title">발주 대시보드</h1>
-      </div>
-      <div class="page-meta">
-        최근 동기화 · <span id="lastSync">방금 전</span><br>
-        데이터 출처 · <span>드롭박스 / 발주서 폴더</span>
-      </div>
-    </div>
-
-    <!-- 히어로: ERP 최신화 -->
-    <section class="hero">
-      <div class="hero-eyebrow">ERP SYNC</div>
-      <button class="btn-neon" id="erpBtn" onclick="triggerERP()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-        <span id="erpBtnLabel">ERP 최신화</span>
-      </button>
-      <div class="hero-hint">한 번 누르면 6A · CT · PP 식스샵 + PP 스마트스토어 모두 갱신됩니다 · 약 3~5분 소요</div>
-
-      <!-- 보조 액션 -->
-      <div class="sec-actions">
-        <button class="btn" id="importBtn" onclick="document.getElementById('poImageInput').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          발주서 가져오기
+    <!-- 팀 카드: ERP / 인사팀 / 물류팀 -->
+    <div class="hero-row">
+      <section class="hero">
+        <div class="hero-eyebrow">ERP SYNC</div>
+        <button class="btn-neon" id="erpBtn" onclick="triggerERP()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span id="erpBtnLabel">ERP 최신화</span>
         </button>
-        <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
-      </div>
-    </section>
+        <div class="hero-hint">6A · CT · PP 식스샵 + 스마트스토어 일괄 갱신</div>
+      </section>
 
-    <!-- 히어로: 인사팀 최신화 -->
-    <section class="hero hero-hr">
-      <div class="hero-eyebrow">HR SYNC</div>
-      <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span id="hrBtnLabel">인사팀 최신화</span>
-      </button>
-      <div class="hero-hint">근태 · 급여 · 인원 현황을 한 번에 갱신합니다 · 준비 중</div>
-    </section>
+      <section class="hero hero-hr">
+        <div class="hero-eyebrow">HR</div>
+        <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span id="hrBtnLabel">인사팀</span>
+        </button>
+        <div class="hero-hint">연차 · 비상연락망 · 부서설명</div>
+      </section>
 
-    <!-- 히어로: 물류팀 최신화 -->
-    <section class="hero hero-lg">
-      <div class="hero-eyebrow">LOGISTICS SYNC</div>
-      <button class="btn-neon btn-lg" id="lgBtn" onclick="triggerLogistics()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <span id="lgBtnLabel">물류팀 최신화</span>
-      </button>
-      <div class="hero-hint">입출고 · 배송 · 재고 현황을 한 번에 갱신합니다 · 준비 중</div>
-    </section>
+      <section class="hero hero-lg">
+        <div class="hero-eyebrow">LOGISTICS</div>
+        <button class="btn-neon btn-lg" id="lgBtn" onclick="triggerLogistics()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <span id="lgBtnLabel">물류팀</span>
+        </button>
+        <div class="hero-hint">최근 발주내역 · 브랜드재고</div>
+      </section>
+    </div>
 
     <!-- 발주 내역 (이미지 분석 결과 누적) -->
     <div class="po-wrap">
@@ -671,6 +650,11 @@
               <option value="eta-desc">입고예정일 ↓ 늦은순</option>
             </select>
             <span id="poCount">0건</span>
+            <button class="btn po-import" id="importBtn" onclick="document.getElementById('poImageInput').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              발주서 가져오기
+            </button>
+            <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
             <button class="po-clear" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
           </div>
         </div>
