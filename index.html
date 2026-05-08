@@ -515,6 +515,77 @@
   /* ===== 연차 (인사팀 뷰) ===== */
   .leave-cta{display:flex;justify-content:center;margin:8px 0 18px}
 
+  /* 연차 신청 양식 (CTA 바로 아래 토글) */
+  .leave-form{
+    max-width:580px;margin:0 auto 28px;
+    padding:20px 24px 22px;
+    background:linear-gradient(180deg,rgba(255,179,71,.07) 0%,rgba(255,179,71,.02) 100%);
+    border:1px solid rgba(255,179,71,.45);
+    border-radius:10px;
+    box-shadow:0 0 24px rgba(255,179,71,.08);
+    animation:lfIn .22s ease-out;
+  }
+  @keyframes lfIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .leave-form[hidden]{display:none}
+  .leave-form-title{
+    font-size:13px;font-weight:700;
+    color:#ffb347;letter-spacing:.01em;
+    margin-bottom:16px;padding-bottom:10px;
+    border-bottom:1px dashed rgba(255,179,71,.3);
+    text-shadow:0 0 10px rgba(255,179,71,.4);
+  }
+  .leave-form-grid{
+    display:grid;
+    grid-template-columns:78px 1fr;
+    gap:12px 14px;align-items:center;
+  }
+  .leave-form-label{font-size:12px;color:var(--text-2);font-weight:500}
+  .leave-form-select,.leave-form-input{
+    background:var(--bg-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:8px 10px;
+    color:var(--text-0);
+    font-size:13px;
+    font-family:var(--sans);
+    outline:none;transition:border-color .15s;
+    width:100%;
+  }
+  .leave-form-select:focus,.leave-form-input:focus{border-color:var(--neon-hr)}
+  .leave-form-radios{display:flex;gap:14px;flex-wrap:wrap}
+  .leave-form-radio{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:13px;color:var(--text-1);cursor:pointer;user-select:none;
+    padding:4px 0;
+  }
+  .leave-form-radio input{accent-color:var(--neon-hr);cursor:pointer}
+  .leave-form-radio.bday{color:#ffd29a}
+  .leave-form-radio.bday input{accent-color:#ff9ecf}
+  .leave-form-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+  .leave-form-btn{
+    padding:8px 18px;border-radius:4px;font-size:13px;font-weight:500;
+    cursor:pointer;transition:all .15s;font-family:var(--sans);
+  }
+  .leave-form-submit{
+    background:linear-gradient(135deg,#ffb347,#ff8a47);
+    color:#2a1405;border:1px solid rgba(255,179,71,.6);font-weight:600;
+  }
+  .leave-form-submit:hover{filter:brightness(1.08);box-shadow:0 0 16px rgba(255,179,71,.4)}
+  .leave-form-cancel{
+    background:transparent;color:var(--text-2);border:1px solid var(--line);
+  }
+  .leave-form-cancel:hover{color:var(--text-0);border-color:var(--line-2);background:var(--bg-2)}
+  .leave-form-hint{
+    margin-top:10px;font-size:11px;color:var(--text-3);font-family:var(--mono);
+    letter-spacing:.02em;
+  }
+  @media (max-width:600px){
+    .leave-form{padding:16px 16px 18px}
+    .leave-form-grid{grid-template-columns:1fr;gap:4px 0}
+    .leave-form-label{margin-top:10px}
+    .leave-form-radios{gap:10px 12px}
+  }
+
   /* 연차/반차 규정 안내 — 앰버 네온 강조 */
   .leave-policy{
     max-width:760px;margin:0 auto 36px;
@@ -1023,11 +1094,38 @@
 
     <!-- 연차 신청하기 (CTA) -->
     <div class="leave-cta">
-      <button class="btn-neon btn-hr" onclick="openLeaveForm()">
+      <button class="btn-neon btn-hr" onclick="toggleLeaveForm()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14v4M10 16h4"/></svg>
         연차 신청하기
       </button>
     </div>
+
+    <!-- 연차 신청 양식 (CTA 토글로 펼쳐짐) -->
+    <form class="leave-form" id="leaveForm" hidden onsubmit="submitLeaveForm(event)">
+      <div class="leave-form-title">📝 연차 신청서</div>
+      <div class="leave-form-grid">
+        <label class="leave-form-label" for="lfStaff">성함</label>
+        <select class="leave-form-select" id="lfStaff" required>
+          <option value="">선택해주세요</option>
+        </select>
+
+        <label class="leave-form-label" for="lfDate">사용일</label>
+        <input class="leave-form-input" id="lfDate" type="date" required>
+
+        <label class="leave-form-label">종류</label>
+        <div class="leave-form-radios">
+          <label class="leave-form-radio"><input type="radio" name="lfType" value="연차" required>연차 <span style="color:var(--text-3);font-size:11px">(-1)</span></label>
+          <label class="leave-form-radio"><input type="radio" name="lfType" value="오전반차">오전반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
+          <label class="leave-form-radio"><input type="radio" name="lfType" value="오후반차">오후반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
+          <label class="leave-form-radio bday"><input type="radio" name="lfType" value="생일반차">🎂 생일반차 <span style="color:var(--text-3);font-size:11px">(차감 X)</span></label>
+        </div>
+      </div>
+      <div class="leave-form-hint">생일반차는 모두에게 연 1회 무료로 부여됩니다 — 사용량에 합산되지 않습니다.</div>
+      <div class="leave-form-actions">
+        <button type="button" class="leave-form-btn leave-form-cancel" onclick="closeLeaveForm()">취소</button>
+        <button type="submit" class="leave-form-btn leave-form-submit">신청</button>
+      </div>
+    </form>
 
     <!-- 연차/반차 규정 안내 -->
     <div class="leave-policy">
@@ -1525,8 +1623,61 @@
     saveLeaveData(data);
     updateLeaveCard(card,data[name]||{});
   });
-  function openLeaveForm(){ toast('연차 신청 양식 · 다음 단계에서 추가','ok'); }
+  function toggleLeaveForm(){
+    if(!requireMaster('연차 신청'))return;
+    const form=document.getElementById('leaveForm');
+    if(!form)return;
+    const opening=form.hidden;
+    if(opening){
+      // STAFF 옵션 채움 + 오늘 날짜 default
+      const sel=document.getElementById('lfStaff');
+      sel.innerHTML='<option value="">선택해주세요</option>'+
+        STAFF.map(s=>`<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)} · ${escapeHTML(s.team||s.dept)}</option>`).join('');
+      const dateInput=document.getElementById('lfDate');
+      const today=new Date();
+      dateInput.value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      form.hidden=false;
+      setTimeout(()=>sel.focus(),60);
+    }else{
+      closeLeaveForm();
+    }
+  }
+  function closeLeaveForm(){
+    const form=document.getElementById('leaveForm');
+    if(!form)return;
+    form.reset();
+    form.hidden=true;
+  }
+  function submitLeaveForm(e){
+    e.preventDefault();
+    if(!requireMaster('연차 신청'))return;
+    const name=document.getElementById('lfStaff').value;
+    const date=document.getElementById('lfDate').value;
+    const type=document.querySelector('input[name="lfType"]:checked')?.value;
+    if(!name||!date||!type){toast('모든 항목을 입력해주세요','err');return}
+    const delta=type==='연차'?1:(type==='오전반차'||type==='오후반차'?0.5:0);
+    if(delta>0){
+      const data=loadLeaveData();
+      const s=STAFF.find(x=>x.name===name);
+      data[name]=data[name]||{};
+      const curUsed=Number.isFinite(data[name].used)?data[name].used:(Number.isFinite(s?.used)?s.used:0);
+      data[name].used=curUsed+delta;
+      saveLeaveData(data);
+      renderLeaveStatus();
+    }
+    const fmt=date.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3');
+    const msg=type==='생일반차'
+      ? `🎂 ${name} ${fmt} 생일반차 (차감 없음)`
+      : `✓ ${name} ${fmt} ${type} (-${delta}일)`;
+    toast(msg,'ok');
+    closeLeaveForm();
+  }
+  // 호환용 — CTA가 onclick="openLeaveForm()"이었던 시점 대비
+  function openLeaveForm(){ toggleLeaveForm(); }
   window.openLeaveForm=openLeaveForm;
+  window.toggleLeaveForm=toggleLeaveForm;
+  window.closeLeaveForm=closeLeaveForm;
+  window.submitLeaveForm=submitLeaveForm;
   window.toggleLeaveEdit=toggleLeaveEdit;
 
   /* ===== 발주서 이미지 분석 ===== */
