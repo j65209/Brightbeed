@@ -313,6 +313,37 @@
     text-shadow:0 0 8px rgba(15,255,193,.4);
     box-shadow:0 0 0 1px rgba(15,255,193,.12) inset, 0 0 14px rgba(15,255,193,.22)
   }
+  /* ETA pill 아래 "N일 남음/지남/오늘" 보조 텍스트 */
+  .eta-sub{
+    display:block;
+    margin-top:4px;
+    font-size:10.5px;
+    font-family:var(--mono);
+    color:var(--text-3);
+    letter-spacing:.02em;
+  }
+  .eta-sub.eta-sub-soon{color:var(--warn)}
+  .eta-sub.eta-sub-today{color:var(--neon)}
+  .eta-sub.eta-sub-late{color:var(--danger)}
+
+  /* 정렬 select */
+  .po-sort{
+    margin-right:10px;
+    padding:5px 26px 5px 10px;
+    font-size:11px;
+    color:var(--text-2);
+    background:transparent url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 8px center;
+    border:1px solid var(--line);
+    border-radius:3px;
+    cursor:pointer;
+    transition:all .15s;
+    appearance:none;
+    -webkit-appearance:none;
+    font-family:inherit;
+  }
+  .po-sort:hover{color:var(--text-1);border-color:var(--line-2)}
+  .po-sort:focus{outline:none;border-color:var(--accent)}
+  .po-sort option{background:var(--bg-1);color:var(--text-1)}
 
   .po-row-del{width:24px;height:24px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-3);background:transparent;border:1px solid transparent;cursor:pointer;transition:all .15s}
   .po-row-del:hover{color:var(--danger);border-color:rgba(217,102,102,.3);background:rgba(217,102,102,.06)}
@@ -485,6 +516,8 @@
       letter-spacing:.04em;
       box-shadow:0 0 0 1px rgba(15,255,193,.15) inset, 0 0 18px rgba(15,255,193,.3);
     }
+    .eta-sub{font-size:11px;margin-top:5px}
+    .po-sort{font-size:10px;padding:5px 22px 5px 9px}
 
     /* 푸터 */
     .footer{padding:14px 16px;font-size:10px;flex-direction:column;gap:6px;align-items:flex-start}
@@ -560,6 +593,13 @@
         <div class="po-section-head">
           <div class="po-section-title">최근 발주 내역</div>
           <div class="po-section-meta">
+            <select class="po-sort" id="poSort" onchange="onSortChange(this.value)">
+              <option value="default">기본순 (최신 추가)</option>
+              <option value="date-desc">발주일 ↓ 최신순</option>
+              <option value="date-asc">발주일 ↑ 오래된순</option>
+              <option value="eta-asc">입고예정일 ↑ 빠른순</option>
+              <option value="eta-desc">입고예정일 ↓ 늦은순</option>
+            </select>
             <span id="poCount">0건</span>
             <button class="po-clear" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
           </div>
@@ -1179,6 +1219,59 @@
     return v.toLocaleString('ko-KR');
   }
 
+  /* "M/D" → 비교 가능한 정수 (이번 해 기준 일수). 발주일/ETA 정렬에 사용 */
+  function mdToOrderable(s){
+    const m=String(s||'').match(/^(\d{1,2})\/(\d{1,2})$/);
+    if(!m) return null;
+    return parseInt(m[1],10)*100 + parseInt(m[2],10);
+  }
+  function etaToOrderable(s){
+    if(!s) return null;
+    if(s==='현물') return -1;
+    return mdToOrderable(s);
+  }
+
+  /* eta 텍스트("M/D" 또는 "현물") → today 대비 보조 문구 + 강조 클래스 */
+  function etaSubInfo(eta){
+    if(!eta||eta==='현물') return null;
+    const m=String(eta).match(/^(\d{1,2})\/(\d{1,2})$/);
+    if(!m) return null;
+    const mm=parseInt(m[1],10), dd=parseInt(m[2],10);
+    const today=new Date();
+    today.setHours(0,0,0,0);
+    let target=new Date(today.getFullYear(),mm-1,dd);
+    const diff=Math.round((target-today)/86400000);
+    // 너무 먼 과거(다음 해로 추정) / 너무 먼 미래(작년 데이터)
+    if(diff<-180) target=new Date(today.getFullYear()+1,mm-1,dd);
+    else if(diff>270) target=new Date(today.getFullYear()-1,mm-1,dd);
+    const days=Math.round((target-today)/86400000);
+    if(days===0) return {text:'오늘 도착',cls:'eta-sub-today'};
+    if(days>0) return {text:`${days}일 남음`,cls:days<=7?'eta-sub-soon':''};
+    return {text:`${-days}일 지남`,cls:'eta-sub-late'};
+  }
+
+  /* 정렬 상태 */
+  let _sortMode='default'; // default | date-asc | date-desc | eta-asc | eta-desc
+  function onSortChange(v){
+    _sortMode=v||'default';
+    renderPOList();
+  }
+  window.onSortChange=onSortChange;
+
+  function applySorted(indexed){
+    if(_sortMode==='default') return indexed;
+    const [key,dir]=_sortMode.split('-');
+    const sign=dir==='asc'?1:-1;
+    const keyFn=key==='date'?(it=>mdToOrderable(it.date)):(it=>etaToOrderable(it.eta));
+    return indexed.slice().sort((a,b)=>{
+      const av=keyFn(a), bv=keyFn(b);
+      if(av==null && bv==null) return 0;
+      if(av==null) return 1;   // 값 없는 건 항상 뒤로
+      if(bv==null) return -1;
+      return sign*(av-bv);
+    });
+  }
+
   function renderPOList(){
     const list=loadPOList();
     const tbody=document.getElementById('poBody');
@@ -1198,25 +1291,32 @@
     empty.style.display='none';
     clr.style.display='inline-block';
 
-    // 발주일별 그룹 번호 매핑 (등장 순서대로 0,1,2,... → 4단계 cycling)
+    // 원본 인덱스 보존 (정렬해도 삭제는 원본 list에서)
+    const indexed=list.map((it,i)=>({...it,_origIdx:i}));
+    const view=applySorted(indexed);
+
+    // 발주일별 그룹 번호 매핑 — 정렬 후의 등장 순서대로
     const dateGroups={};
     let nextGroup=0;
-    for(const it of list){
+    for(const it of view){
       const d=it.date||'_';
       if(!(d in dateGroups)) dateGroups[d]=nextGroup++;
     }
-    tbody.innerHTML=list.map((it,i)=>{
-      // legacy data fallback: 기존 product/option 분리 데이터도 보이도록
+    tbody.innerHTML=view.map(it=>{
       const combined=it.combined||(it.product&&it.option&&it.product!==it.option?`${it.product} / ${it.option}`:(it.product||it.option||''));
       const groupCls=`po-row-g${dateGroups[it.date||'_']%4}`;
+      const subInfo=etaSubInfo(it.eta);
+      const etaCell=it.eta
+        ? `<span class="eta-pill">${escapeHTML(it.eta)}</span>${subInfo?`<span class="eta-sub ${subInfo.cls}">${escapeHTML(subInfo.text)}</span>`:''}`
+        : `<span class="eta-pill eta-empty">미정</span>`;
       return `
       <tr class="${groupCls}">
         <td class="col-date">${escapeHTML(it.date||'')}</td>
-        <td class="col-eta">${it.eta?`<span class="eta-pill">${escapeHTML(it.eta)}</span>`:`<span class="eta-pill eta-empty">미정</span>`}</td>
+        <td class="col-eta">${etaCell}</td>
         <td class="col-name">${escapeHTML(combined)}</td>
         <td class="col-memo">${escapeHTML(it.memo||'')}</td>
         <td class="col-qty">${formatQty(it.qty)}<span class="qty-unit">개</span></td>
-        <td class="col-act"><button class="po-row-del" onclick="deletePORow(${i})" title="삭제" aria-label="삭제">
+        <td class="col-act"><button class="po-row-del" onclick="deletePORow(${it._origIdx})" title="삭제" aria-label="삭제">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button></td>
       </tr>`;
