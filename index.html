@@ -1541,6 +1541,7 @@
     lock.classList.remove('show');
     app.classList.add('show');
     applyRole();
+    if(typeof initHistoryFromHash==='function') initHistoryFromHash();
     syncFromRemote();
     startPolling();
   }
@@ -1770,9 +1771,12 @@
 
   window.triggerERP=triggerERP;
 
-  /* ===== 뷰 전환 ===== */
+  /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
   const VIEW_IDS=['viewHome','viewHr','viewLg','viewSales','viewAds','viewVendors','viewNotice'];
-  function showView(id){
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewSales:'sales',viewAds:'ads',viewVendors:'vendors',viewNotice:'notice'};
+  const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
+
+  function applyView(id){
     VIEW_IDS.forEach(v=>{
       const el=document.getElementById(v);
       if(!el)return;
@@ -1780,14 +1784,82 @@
       else el.setAttribute('hidden','');
     });
     window.scrollTo({top:0,behavior:'instant'});
+    if(id==='viewHr') renderLeaveStatus();
   }
-  function triggerHR(){ showView('viewHr'); renderLeaveStatus(); }
+
+  // showView: history에 push (사용자 클릭 진입). fromHistory=true면 popstate에서 호출된거라 push 생략.
+  function showView(id,opts){
+    opts=opts||{};
+    applyView(id);
+    if(opts.fromHistory) return;
+    const cur=history.state&&history.state.view;
+    if(cur===id) return; // 같은 뷰 중복 push 방지
+    const hash=VIEW_HASH[id];
+    const url=hash?'#'+hash:location.pathname+location.search;
+    if(id==='viewHome'){
+      history.replaceState({view:id},'',url);
+    }else{
+      history.pushState({view:id},'',url);
+    }
+  }
+
+  function triggerHR(){ showView('viewHr'); }
   function triggerLogistics(){ showView('viewLg'); }
   function triggerSales(){ showView('viewSales'); }
   function triggerAds(){ showView('viewAds'); }
   function triggerVendors(){ showView('viewVendors'); }
   function triggerNotice(){ showView('viewNotice'); }
-  function goHome(){ showView('viewHome'); }
+  // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
+  function goHome(){
+    const cur=history.state&&history.state.view;
+    if(cur&&cur!=='viewHome'){history.back();}
+    else{showView('viewHome',{fromHistory:true});}
+  }
+
+  // popstate: 브라우저 뒤로/앞으로, iOS 엣지 스와이프, Android 시스템 뒤로가기 모두 여기로 들어옴.
+  window.addEventListener('popstate',e=>{
+    if(!app.classList.contains('show')) return; // 잠금 상태면 무시
+    const view=(e.state&&e.state.view)||resolveViewFromHash();
+    // 외부 링크/직접 hash 입력으로 popstate가 state 없이 들어온 경우 — 보정해서 다음 navigation이 일관되게 동작.
+    if(!e.state) history.replaceState({view},'',VIEW_HASH[view]?'#'+VIEW_HASH[view]:location.pathname+location.search);
+    applyView(view);
+  });
+  function resolveViewFromHash(){
+    const h=(location.hash||'').replace('#','');
+    return HASH_VIEW[h]||'viewHome';
+  }
+  // 잠금 해제 후 호출 — 현재 hash로 초기 뷰 결정 + history state 시드
+  function initHistoryFromHash(){
+    const initial=resolveViewFromHash();
+    history.replaceState({view:initial},'',VIEW_HASH[initial]?'#'+VIEW_HASH[initial]:location.pathname+location.search);
+    applyView(initial);
+  }
+
+  /* ===== 좌측 엣지 스와이프 → 뒤로가기 (PWA standalone 모드 보강) =====
+     iOS Safari 브라우저는 네이티브 엣지 스와이프가 history.back()을 호출하므로 popstate로 이미 처리됨.
+     홈 화면에 추가된 PWA(standalone)는 네이티브 스와이프가 비활성화되므로 직접 감지. */
+  (function setupEdgeSwipe(){
+    const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+    if(!isStandalone) return; // 일반 브라우저는 네이티브 스와이프에 맡김
+    const EDGE_PX=24, MIN_DX=70, MAX_DY=50;
+    let sx=0,sy=0,tracking=false;
+    document.addEventListener('touchstart',e=>{
+      if(e.touches.length!==1){tracking=false;return}
+      const t=e.touches[0];
+      if(t.clientX<=EDGE_PX){sx=t.clientX;sy=t.clientY;tracking=true;}
+      else tracking=false;
+    },{passive:true});
+    document.addEventListener('touchend',e=>{
+      if(!tracking) return;
+      tracking=false;
+      const t=e.changedTouches[0];
+      const dx=t.clientX-sx, dy=Math.abs(t.clientY-sy);
+      if(dx>MIN_DX&&dy<MAX_DY){
+        const cur=history.state&&history.state.view;
+        if(cur&&cur!=='viewHome') history.back();
+      }
+    },{passive:true});
+  })();
 
   // 물류팀 외부 자료 URL — 비어있으면 placeholder 토스트
   const LG_URLS={
