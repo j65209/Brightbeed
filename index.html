@@ -418,6 +418,17 @@
   .view{display:block}
   .view[hidden]{display:none}
 
+  /* ===== 권한 (Viewer / Master) ===== */
+  body.role-viewer .master-only{display:none !important}
+  body.role-viewer .po-row-del{display:none !important}
+  /* viewer일 때 ERP 카드 빠지므로 hero-row 2열로 — 데스크탑 한정 */
+  @media (min-width:769px){
+    body.role-viewer .hero-row{grid-template-columns:repeat(2,1fr);max-width:760px;margin-left:auto;margin-right:auto}
+  }
+  /* viewer 안내 배지 */
+  .role-badge{display:none;align-items:center;gap:5px;padding:4px 10px;font-size:11px;font-family:var(--mono);letter-spacing:.04em;color:var(--text-3);background:var(--bg-2);border:1px solid var(--line);border-radius:4px}
+  body.role-viewer .role-badge{display:inline-flex}
+
   /* 서브페이지 헤더 (← 홈 + 타이틀) */
   .view-head{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
   .btn-back{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:var(--bg-1);border-radius:var(--radius);font-size:12px;color:var(--text-2);cursor:pointer;transition:all .15s}
@@ -627,10 +638,11 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-name">(주)브라이트비드 HQ</div>
+      <span class="role-badge" title="보기 전용 권한 — 수정은 마스터만 가능">VIEWER</span>
     </div>
     <div class="topbar-right">
       <div class="status-pill"><span class="status-dot"></span><span id="syncStatus">동기화 완료 · 방금 전</span></div>
-      <button class="icon-btn" id="settingsBtn" title="GitHub 토큰 설정" aria-label="GitHub 토큰 설정">
+      <button class="icon-btn master-only" id="settingsBtn" title="GitHub 토큰 설정" aria-label="GitHub 토큰 설정">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
       <button class="icon-btn" id="logout" title="로그아웃" aria-label="로그아웃">
@@ -644,7 +656,7 @@
   <div class="view" id="viewHome">
     <!-- 팀 카드: ERP / 인사팀 / 물류팀 -->
     <div class="hero-row">
-      <section class="hero">
+      <section class="hero master-only">
         <div class="hero-eyebrow">ERP SYNC</div>
         <button class="btn-neon" id="erpBtn" onclick="triggerERP()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -686,12 +698,12 @@
               <option value="eta-desc">입고예정일 ↓ 늦은순</option>
             </select>
             <span id="poCount">0건</span>
-            <button class="btn po-import" id="importBtn" onclick="document.getElementById('poImageInput').click()">
+            <button class="btn po-import master-only" id="importBtn" onclick="document.getElementById('poImageInput').click()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               발주서 가져오기
             </button>
             <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
-            <button class="po-clear" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
+            <button class="po-clear master-only" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
           </div>
         </div>
         <div id="poEmpty" class="po-empty">
@@ -826,40 +838,71 @@
 <div class="toast-area" id="toastArea"></div>
 
 <script>
-  const PIN='670200';
-  const ALLOWED_IPS=['110.11.178.25'];
+  const PIN_VIEWER='670200';   // 보기 전용
+  const PIN_MASTER='6702';     // 수정 권한
+  const ALLOWED_IPS=['110.11.178.25']; // 화이트리스트 IP는 master 자동 통과
   const KEY='brightbeed_unlocked';
+  const ROLE_KEY='brightbeed_role';
   const lock=document.getElementById('lock');
   const app=document.getElementById('app');
   const pin=document.getElementById('pin');
   const err=document.getElementById('err');
 
+  function getRole(){return localStorage.getItem(ROLE_KEY)||'viewer'}
+  function isMaster(){return getRole()==='master'}
+  function applyRole(){
+    const role=getRole();
+    document.body.classList.toggle('role-master',role==='master');
+    document.body.classList.toggle('role-viewer',role!=='master');
+  }
+  function requireMaster(action){
+    if(!isMaster()){toast(`마스터 권한이 필요합니다${action?` (${action})`:''}`,'err');return false}
+    return true;
+  }
+
   function show(){
     lock.classList.remove('show');
     app.classList.add('show');
+    applyRole();
     syncFromRemote();
     startPolling();
   }
   function showLock(){app.classList.remove('show');lock.classList.add('show');setTimeout(()=>pin.focus(),50)}
 
   async function init(){
+    applyRole();
     if(localStorage.getItem(KEY)==='1'){show();return}
     try{
       const r=await fetch('https://api.ipify.org?format=json');
       const j=await r.json();
-      if(ALLOWED_IPS.includes(j.ip)){localStorage.setItem(KEY,'1');show();return}
+      if(ALLOWED_IPS.includes(j.ip)){
+        localStorage.setItem(KEY,'1');
+        localStorage.setItem(ROLE_KEY,'master'); // 화이트리스트 IP = master
+        show();return;
+      }
     }catch(e){}
     showLock();
   }
 
   document.getElementById('unlock').onclick=()=>{
-    if(pin.value===PIN){localStorage.setItem(KEY,'1');err.textContent='';show()}
-    else{err.textContent='접속 코드가 올바르지 않습니다.';pin.value='';pin.focus()}
+    const v=pin.value;
+    if(v===PIN_MASTER){
+      localStorage.setItem(KEY,'1');
+      localStorage.setItem(ROLE_KEY,'master');
+      err.textContent='';show();
+    }else if(v===PIN_VIEWER){
+      localStorage.setItem(KEY,'1');
+      localStorage.setItem(ROLE_KEY,'viewer');
+      err.textContent='';show();
+    }else{
+      err.textContent='접속 코드가 올바르지 않습니다.';
+      pin.value='';pin.focus();
+    }
   };
   pin.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('unlock').click()});
 
   document.getElementById('logout').onclick=()=>{
-    if(confirm('로그아웃 하시겠습니까?')){stopPolling();localStorage.removeItem(KEY);showLock()}
+    if(confirm('로그아웃 하시겠습니까?')){stopPolling();localStorage.removeItem(KEY);localStorage.removeItem(ROLE_KEY);showLock()}
   };
 
   // 톱니바퀴 → 언제든 GitHub 토큰 재입력 가능
@@ -970,6 +1013,7 @@
   }
 
   async function triggerERP(){
+    if(!requireMaster('ERP 최신화'))return;
     let token=localStorage.getItem(TOKEN_KEY);
     if(!token){
       token=await askToken('github');
@@ -1534,17 +1578,20 @@
   }
 
   function deletePORow(idx){
+    if(!requireMaster('삭제'))return;
     const list=loadPOList();
     list.splice(idx,1);
     savePOList(list);
     renderPOList();
   }
   function clearAllPO(){
+    if(!requireMaster('전체 비우기'))return;
     if(!confirm('전체 발주 내역을 비우시겠습니까?'))return;
     savePOList([]);
     renderPOList();
   }
   function appendPOItems(items){
+    if(!requireMaster('발주서 추가'))return;
     const list=loadPOList();
     items.forEach(it=>list.unshift(it));
     savePOList(list);
