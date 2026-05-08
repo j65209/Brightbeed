@@ -1630,13 +1630,13 @@
       const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
       if(data.length<2) continue;
 
-      // 헤더 행 찾기 — 수량 + (제품/상품/옵션/메모) 중 하나라도 있으면 헤더로 인정
+      // 헤더 행 찾기 — 수량 + (제품/상품/품명/품목/옵션 어디든 등장) 또는 메모면 헤더로 인정
       let headerIdx=-1;
       for(let i=0;i<Math.min(20,data.length);i++){
         const row=data[i].map(norm);
         const hasQty=row.some(c=>/수량$/.test(c)||c==='개수');
         if(!hasQty) continue;
-        const hasProd=row.some(c=>/제품(?:및)?옵션?명?$|^제품명$|^상품명$|^품명$|^품목$|^옵션$|^옵션명$|^1688옵션명$/.test(c));
+        const hasProd=row.some(c=>/제품|상품|품명|품목|옵션/.test(c));
         const hasMemo=row.some(c=>c==='메모'||c==='비고');
         if(hasProd||hasMemo){headerIdx=i;break}
       }
@@ -1644,11 +1644,11 @@
 
       const header=data[headerIdx].map(c=>norm(c));
       const idxNo=header.findIndex(h=>/^번호$|^no\.?$/.test(h));
-      // 결합형 "제품 및 옵션명" 컬럼이 있으면 product=option=같은 인덱스
-      const idxCombined=header.findIndex(h=>/제품및옵션명$|제품옵션명$/.test(h));
+      // 결합형 "제품(명) 및 옵션(명)" 컬럼이 있으면 product=option=같은 인덱스
+      const idxCombined=header.findIndex(h=>/^제품명?및옵션명?$|^상품명?및옵션명?$|^제품옵션명$/.test(h));
       const idxProduct=idxCombined>=0
         ? idxCombined
-        : header.findIndex(h=>/^제품명$|^상품명$|^품명$|^품목$/.test(h));
+        : header.findIndex(h=>/^제품명?$|^상품명?$|^품명$|^품목$/.test(h));
       const idxOption=idxCombined>=0
         ? idxCombined
         : header.findIndex(h=>/^옵션$|^옵션명$|^1688옵션명$/.test(h));
