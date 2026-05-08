@@ -1507,7 +1507,12 @@
     // 올해 1/1 시점에 이미 만 1년 이상 근속했는지
     const oneYearAfterHire=new Date(h.getFullYear()+1,h.getMonth(),h.getDate());
     if(oneYearAfterHire<=yearStart){
-      const years=yearStart.getFullYear()-h.getFullYear();
+      // yearStart 시점의 만 근속연수 — 입사 anniversary가 yearStart 이전이면 단순 차이,
+      // 이후면 -1 (예: 2025-10-20 입사, 2027-01-01엔 만 1년만 지난 상태)
+      const annivThisYear=new Date(yearStart.getFullYear(),h.getMonth(),h.getDate());
+      const years=annivThisYear<=yearStart
+        ? yearStart.getFullYear()-h.getFullYear()
+        : yearStart.getFullYear()-h.getFullYear()-1;
       return 15+(years-1);
     }
     // 1년 미만: 회계연도 초기화 적용 — max(1/1, 입사일)부터 만근 카운트
