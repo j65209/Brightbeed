@@ -64,7 +64,7 @@
   /* 잠금화면 */
   .lock{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse at top,#15181e 0%,#0a0b0d 70%);z-index:50}
   .lock.show{display:flex}
-  .lock-card{width:380px;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:36px 32px;box-shadow:0 24px 48px rgba(0,0,0,.4)}
+  .lock-card{width:min(380px,calc(100vw - 28px));background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:36px 32px;box-shadow:0 24px 48px rgba(0,0,0,.4)}
   .lock-brand{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
   .lock-title{font-size:18px;font-weight:600;margin-bottom:6px}
   .lock-sub{font-size:13px;color:var(--text-2);margin-bottom:24px}
@@ -79,14 +79,14 @@
   .app.show{display:flex}
 
   /* 상단바 */
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--line);background:var(--bg-1);position:sticky;top:0;z-index:10}
-  .brand{display:flex;align-items:center;gap:14px}
-  .brand-mark{width:28px;height:28px;border-radius:4px;background:linear-gradient(135deg,#d4af37 0%,#a8852a 100%);display:flex;align-items:center;justify-content:center;color:#1a1410;font-weight:700;font-size:13px;font-family:var(--mono)}
-  .brand-name{font-weight:600;font-size:14px;letter-spacing:.02em}
-  .brand-sep{width:1px;height:16px;background:var(--line-2)}
-  .brand-mod{font-size:12px;color:var(--text-2);letter-spacing:.04em}
-  .topbar-right{display:flex;align-items:center;gap:18px}
-  .status-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);cursor:pointer;user-select:none}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 32px;border-bottom:1px solid var(--line);background:var(--bg-1);position:sticky;top:0;z-index:10}
+  .brand{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 auto}
+  .brand-mark{width:28px;height:28px;border-radius:4px;background:linear-gradient(135deg,#d4af37 0%,#a8852a 100%);display:flex;align-items:center;justify-content:center;color:#1a1410;font-weight:700;font-size:13px;font-family:var(--mono);flex-shrink:0}
+  .brand-name{font-weight:600;font-size:14px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .brand-sep{width:1px;height:16px;background:var(--line-2);flex-shrink:0}
+  .brand-mod{font-size:12px;color:var(--text-2);letter-spacing:.04em;white-space:nowrap}
+  .topbar-right{display:flex;align-items:center;gap:18px;flex-shrink:0}
+  .status-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);cursor:pointer;user-select:none;white-space:nowrap}
   .status-pill:hover{color:var(--text-1)}
   .status-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px rgba(63,178,127,.6)}
   .icon-btn{width:32px;height:32px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:all .15s;border:1px solid transparent}
@@ -905,11 +905,15 @@
     .container{padding:14px}
 
     /* 톱바 — 압축 */
-    .topbar{padding:10px 14px}
+    .topbar{padding:10px 14px;gap:8px}
+    .brand{gap:10px}
     .brand-name{font-size:13px}
     .brand-sep,.brand-mod{display:none}
     .topbar-right{gap:10px}
-    .status-pill{font-size:10px;letter-spacing:.01em}
+    .status-pill{font-size:10px;letter-spacing:.01em;gap:6px}
+    /* 동기화 텍스트는 너무 길어 모바일에서 숨김 — 점만 표시 (탭하면 그대로 동기화) */
+    .status-pill #syncStatus{display:none}
+    .role-badge{padding:3px 7px;font-size:10px;letter-spacing:.02em}
     .icon-btn{width:30px;height:30px}
 
     /* 히어로 — 카드형 (모바일은 1열 stack) */
@@ -923,9 +927,17 @@
 
     /* === 테이블 → 3줄 카드 레이아웃 === */
     .po-wrap{max-width:100%}
-    .po-section-head{padding:10px 14px}
+    /* 섹션 헤더 — 제목 한 줄 + 메타(정렬·건수·버튼) 다음 줄로 stack */
+    .po-section-head{flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px}
     .po-section-title{font-size:13px}
-    .po-section-meta{font-size:11px}
+    .po-section-meta{font-size:11px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%}
+    .po-section-meta .po-sort{margin-right:0}
+    .po-section-meta .po-import,
+    .po-section-meta .po-clear,
+    .po-section-meta .po-edit{margin-left:0}
+    /* 연차 섹션 헤더도 동일하게 좁아질 때 wrap */
+    .leave-section-head{flex-wrap:wrap;gap:6px 10px}
+    .leave-section-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
     .po-table{display:block;table-layout:auto;width:100%}
     .po-table thead{display:none}
@@ -1041,6 +1053,39 @@
 
     /* 푸터 */
     .footer{padding:14px 16px;font-size:10px;flex-direction:column;gap:6px;align-items:flex-start}
+  }
+
+  /* === 초좁은 화면 (≤380px) — iPhone SE 1세대, Galaxy 소형 === */
+  @media (max-width:380px){
+    .container{padding:12px}
+    .topbar{padding:9px 12px;gap:6px}
+    .topbar-right{gap:6px}
+    .brand{gap:8px}
+    .brand-name{font-size:12px}
+    .role-badge{padding:2px 6px;font-size:9.5px}
+    .icon-btn{width:28px;height:28px}
+    .icon-btn svg{width:14px;height:14px}
+    /* 뷰 헤더 — 백 버튼 + 타이틀 가독성 */
+    .view-head{gap:10px;padding-bottom:14px;margin-bottom:18px}
+    .btn-back{padding:6px 10px;font-size:11px}
+    .view-title{font-size:15px}
+    .view-title .view-title-sub{font-size:12px;margin-left:6px}
+    /* 히어로 살짝 더 컴팩트 */
+    .hero{padding:22px 10px 20px}
+    .btn-neon{padding:13px 20px;font-size:13px}
+    /* PO 카드 패딩·gap 축소 (현물 + 짧은 메모 카드에서 빈 공간 줄임) */
+    .po-table tr{margin:8px 10px;padding:12px 12px;gap:8px 8px}
+    .po-table td.col-name{font-size:15px}
+    .po-table td.col-qty{font-size:16px}
+    .eta-pill{font-size:13px;padding:5px 10px}
+    .eta-sub{font-size:11.5px}
+    /* 외부 자료 카드 패딩 축소 */
+    .lg-res{padding:14px 16px 14px}
+    /* sub-modules 본문 텍스트 줄임 */
+    .sub-module{padding:14px 14px 12px}
+    .sub-module-title{font-size:13px}
+    .sub-module-sub{font-size:10.5px}
+    .sub-module-tag{font-size:9px;top:8px;right:8px;padding:1px 5px}
   }
 </style>
 </head>
