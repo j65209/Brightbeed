@@ -316,15 +316,17 @@
   /* ETA pill 아래 "N일 남음/지남/오늘" 보조 텍스트 */
   .eta-sub{
     display:block;
-    margin-top:4px;
-    font-size:10.5px;
+    margin-top:5px;
+    font-size:12px;
+    font-weight:600;
     font-family:var(--mono);
-    color:var(--text-3);
+    color:#ffd866;
+    text-shadow:0 0 6px rgba(255,216,102,.35);
     letter-spacing:.02em;
   }
-  .eta-sub.eta-sub-soon{color:var(--warn)}
-  .eta-sub.eta-sub-today{color:var(--neon)}
-  .eta-sub.eta-sub-late{color:var(--danger)}
+  .eta-sub.eta-sub-soon{color:#ffb84d;text-shadow:0 0 8px rgba(255,184,77,.45)}
+  .eta-sub.eta-sub-today{color:var(--neon);text-shadow:0 0 8px rgba(15,255,193,.45)}
+  .eta-sub.eta-sub-late{color:var(--danger);text-shadow:0 0 6px rgba(217,102,102,.4)}
 
   /* 정렬 select */
   .po-sort{
@@ -516,7 +518,7 @@
       letter-spacing:.04em;
       box-shadow:0 0 0 1px rgba(15,255,193,.15) inset, 0 0 18px rgba(15,255,193,.3);
     }
-    .eta-sub{font-size:11px;margin-top:5px}
+    .eta-sub{font-size:13px;margin-top:6px;font-weight:700}
     .po-sort{font-size:10px;padding:5px 22px 5px 9px}
 
     /* 푸터 */
