@@ -40,6 +40,14 @@
     --neon:#0fffc1;
     --neon-2:#06d8ff;
     --neon-glow:rgba(15,255,193,.5);
+    /* 인사팀 — 앰버/오렌지 (사람·온기) */
+    --neon-hr:#ffb347;
+    --neon-hr-2:#ff7a47;
+    --neon-hr-glow:rgba(255,179,71,.5);
+    /* 물류팀 — 바이올렛/마젠타 (이동·속도) */
+    --neon-lg:#b46cff;
+    --neon-lg-2:#ff4dcd;
+    --neon-lg-glow:rgba(180,108,255,.5);
     --ok:#3fb27f;
     --warn:#d99a4e;
     --danger:#d96666;
@@ -211,6 +219,46 @@
   .btn-neon svg{width:20px;height:20px}
   .btn-neon.spin svg{animation:spin .9s linear infinite}
   .hero-hint{margin-top:16px;font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em}
+
+  /* 히어로 — 인사팀 (앰버) */
+  .hero.hero-hr .hero-eyebrow{color:var(--neon-hr);text-shadow:0 0 12px var(--neon-hr-glow)}
+  .btn-neon.btn-hr{
+    background:linear-gradient(135deg,var(--neon-hr) 0%,var(--neon-hr-2) 100%);
+    color:#2a1405;
+    border-color:rgba(255,179,71,.5);
+    box-shadow:
+      0 0 0 1px rgba(255,179,71,.35),
+      0 0 24px rgba(255,179,71,.45),
+      0 0 64px rgba(255,122,71,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-hr:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(255,179,71,.55),
+      0 0 32px rgba(255,179,71,.65),
+      0 0 96px rgba(255,122,71,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 히어로 — 물류팀 (바이올렛/마젠타) */
+  .hero.hero-lg .hero-eyebrow{color:var(--neon-lg);text-shadow:0 0 12px var(--neon-lg-glow)}
+  .btn-neon.btn-lg{
+    background:linear-gradient(135deg,var(--neon-lg) 0%,var(--neon-lg-2) 100%);
+    color:#1a0526;
+    border-color:rgba(180,108,255,.5);
+    box-shadow:
+      0 0 0 1px rgba(180,108,255,.35),
+      0 0 24px rgba(180,108,255,.45),
+      0 0 64px rgba(255,77,205,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-lg:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(180,108,255,.55),
+      0 0 32px rgba(180,108,255,.65),
+      0 0 96px rgba(255,77,205,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
 
   /* 보조 액션 (작은 버튼들) */
   .sec-actions{display:flex;gap:8px;margin-top:24px;justify-content:center;flex-wrap:wrap}
@@ -589,6 +637,26 @@
       </div>
     </section>
 
+    <!-- 히어로: 인사팀 최신화 -->
+    <section class="hero hero-hr">
+      <div class="hero-eyebrow">HR SYNC</div>
+      <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span id="hrBtnLabel">인사팀 최신화</span>
+      </button>
+      <div class="hero-hint">근태 · 급여 · 인원 현황을 한 번에 갱신합니다 · 준비 중</div>
+    </section>
+
+    <!-- 히어로: 물류팀 최신화 -->
+    <section class="hero hero-lg">
+      <div class="hero-eyebrow">LOGISTICS SYNC</div>
+      <button class="btn-neon btn-lg" id="lgBtn" onclick="triggerLogistics()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span id="lgBtnLabel">물류팀 최신화</span>
+      </button>
+      <div class="hero-hint">입출고 · 배송 · 재고 현황을 한 번에 갱신합니다 · 준비 중</div>
+    </section>
+
     <!-- 발주 내역 (이미지 분석 결과 누적) -->
     <div class="po-wrap">
       <div class="po-section">
@@ -882,6 +950,12 @@
   }
 
   window.triggerERP=triggerERP;
+
+  /* ===== 인사팀 / 물류팀 트리거 (placeholder) ===== */
+  function triggerHR(){ toast('인사팀 모듈 · 준비 중','ok'); }
+  function triggerLogistics(){ toast('물류팀 모듈 · 준비 중','ok'); }
+  window.triggerHR=triggerHR;
+  window.triggerLogistics=triggerLogistics;
 
   /* ===== 발주서 이미지 분석 ===== */
   const ANTHROPIC_KEY='brightbeed_anthropic_key';
