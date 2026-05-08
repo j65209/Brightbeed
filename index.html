@@ -1302,49 +1302,74 @@
     }
   }
 
-  /* 메모에서 현물 + 소요일(단일/범위) 정보만 추출. 그 외 잡담은 버림 */
+  /* 메모에서 현물 + 소요일(단일/범위) + 도착(N일/바로/즉시/당일/단독) 정보만 추출. 그 외 잡담은 버림 */
   function extractDeliveryMemo(memo){
     let text=String(memo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
     const found=[];
     if(/현물/.test(text)) found.push('현물');
     const UNIT='(?:일|주|개월|달)';
+    const ARRIVE='(?:\\s*(?:후|뒤|만에|내|이내))?\\s*도착';
+    // 범위형 — "5~7일 소요" / "5~7일 도착"
     const rangeRes=[
       new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}`,'g'),
       new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}\\s*소요`,'g'),
+      new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}${ARRIVE}`,'g'),
     ];
     for(const p of rangeRes){
       const ms=text.match(p)||[];
       for(const m of ms) found.push(m.trim());
       text=text.replace(p,' ');
     }
+    // 단일형 — "9일 소요" / "9일 도착" / "9일후도착"
     const singleRes=[
       new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}`,'g'),
       new RegExp(`\\d+\\s*${UNIT}\\s*소요`,'g'),
+      new RegExp(`\\d+\\s*${UNIT}${ARRIVE}`,'g'),
     ];
     for(const p of singleRes){
       const ms=text.match(p)||[];
       for(const m of ms) found.push(m.trim());
+      text=text.replace(p,' ');
     }
+    // 바로/즉시/당일 도착
+    const fastMs=text.match(/(?:바로|즉시|당일)\s*도착/g)||[];
+    for(const m of fastMs) found.push(m.trim());
+    text=text.replace(/(?:바로|즉시|당일)\s*도착/g,' ');
+    // 단독 "도착"
+    if(/도착/.test(text)) found.push('도착');
     return [...new Set(found)].join(' · ');
   }
 
-  /* 발주일 + raw memo로 입고예정일 계산. 범위는 상한 기준 (보수적). 현물만 있으면 "현물" 그대로 표시. */
+  /* 발주일 + raw memo로 입고예정일 계산. 범위는 상한 기준 (보수적). 현물/바로도착/단독 도착은 0일. */
   function calculateETA(orderIso,rawMemo){
     if(!orderIso) return '';
     let text=String(rawMemo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
     let maxDays=-1;
     if(/현물/.test(text)) maxDays=0;
     const UNIT='(?:일|주|개월|달)';
+    const ARRIVE='(?:\\s*(?:후|뒤|만에|내|이내))?\\s*도착';
+    // 범위 (소요 + 도착)
     const rangeRe1=new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})`,'g');
     const rangeRe2=new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})\\s*소요`,'g');
+    const rangeRe3=new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})${ARRIVE}`,'g');
     let m;
     while((m=rangeRe1.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
     while((m=rangeRe2.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    text=text.replace(rangeRe1,' ').replace(rangeRe2,' ');
+    while((m=rangeRe3.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
+    text=text.replace(rangeRe1,' ').replace(rangeRe2,' ').replace(rangeRe3,' ');
+    // 단일 (소요 + 도착)
     const singleRe1=new RegExp(`소요일?[:\\s]*(\\d+)\\s*(${UNIT})`,'g');
     const singleRe2=new RegExp(`(\\d+)\\s*(${UNIT})\\s*소요`,'g');
+    const singleRe3=new RegExp(`(\\d+)\\s*(${UNIT})${ARRIVE}`,'g');
     while((m=singleRe1.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
     while((m=singleRe2.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
+    while((m=singleRe3.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
+    text=text.replace(singleRe1,' ').replace(singleRe2,' ').replace(singleRe3,' ');
+    // 바로/즉시/당일 도착 → 0일
+    if(/(?:바로|즉시|당일)\s*도착/.test(text)) maxDays=Math.max(maxDays,0);
+    text=text.replace(/(?:바로|즉시|당일)\s*도착/g,' ');
+    // 단독 "도착" → 0일
+    if(/도착/.test(text)) maxDays=Math.max(maxDays,0);
     if(maxDays<0) return '';
     if(maxDays===0) return '현물';
     const [Y,M,D]=orderIso.split('-').map(Number);
