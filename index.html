@@ -214,11 +214,6 @@
 
   /* 보조 액션 (작은 버튼들) */
   .sec-actions{display:flex;gap:8px;margin-top:24px;justify-content:center;flex-wrap:wrap}
-  .sec-sync{display:flex;justify-content:center;margin-top:10px}
-  .btn-small{font-size:11px;padding:5px 12px;color:var(--text-3);border-color:var(--line);background:transparent;letter-spacing:.02em}
-  .btn-small:hover{color:var(--text-1);border-color:var(--line-2);background:var(--bg-2)}
-  .btn-small svg{width:11px;height:11px;opacity:.7}
-  .btn-small.spin svg{animation:spin .9s linear infinite}
 
   /* 발주 내역 — 가운데 컨테이너 */
   .po-wrap{max-width:880px;margin:0 auto}
@@ -374,8 +369,6 @@
     .hero-hint{font-size:10px;text-align:center;line-height:1.5;padding:0 10px;margin-top:12px}
     .sec-actions{margin-top:18px}
     .btn{padding:10px 14px;font-size:12px}
-    .sec-sync{margin-top:8px}
-    .btn-small{font-size:10px;padding:6px 12px}
 
     /* === 테이블 → 3줄 카드 레이아웃 === */
     .po-wrap{max-width:100%}
@@ -558,12 +551,6 @@
           발주서 가져오기
         </button>
         <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
-      </div>
-      <div class="sec-sync">
-        <button class="btn btn-small" id="syncBtn" onclick="manualSync()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16l-4-4-4 4M12 12v9"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-          동기화하기
-        </button>
       </div>
     </section>
 
@@ -1056,60 +1043,6 @@
   }
 
   window.syncFromRemote=syncFromRemote;
-
-  /* === 동기화하기 버튼 — 사용자가 명시적으로 GitHub 업로드 === */
-  async function manualSync(){
-    const list = JSON.parse(localStorage.getItem(PO_KEY) || '[]');
-    if(list.length === 0){
-      toast('동기화할 발주 데이터가 없습니다','err');
-      return;
-    }
-    let token = localStorage.getItem(TOKEN_KEY);
-    if(!token){
-      token = await askToken('github');
-      if(!token){
-        toast('토큰 미입력 — 동기화 취소','err');
-        return;
-      }
-      localStorage.setItem(TOKEN_KEY, token);
-    }
-    const btn = document.getElementById('syncBtn');
-    const origLabel = btn ? btn.innerHTML : '';
-    if(btn){
-      btn.disabled = true;
-      btn.classList.add('spin');
-      btn.textContent = '동기화 중...';
-    }
-    let result = await pushPOToRemote(list);
-    // 토큰 권한 부족 → 자동 재입력 prompt
-    if(!result.ok && result.reason === 'auth'){
-      toast('토큰 권한 부족 — 새 토큰 입력해주세요','err');
-      const newToken = await askToken('github');
-      if(newToken){
-        localStorage.setItem(TOKEN_KEY, newToken);
-        result = await pushPOToRemote(list);
-      }
-    }
-    if(btn){
-      btn.disabled = false;
-      btn.classList.remove('spin');
-      btn.innerHTML = origLabel;
-    }
-    if(result.ok){
-      _po_lastHash = JSON.stringify(list);
-      const status = document.getElementById('syncStatus');
-      const now = new Date();
-      const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-      if(status) status.textContent = `동기화 완료 · ${t}`;
-      toast(`✓ ${list.length}건 GitHub 업로드 완료 — 다른 기기에서도 보입니다`,'ok');
-    }else if(result.reason === 'notoken'){
-      // 사용자가 askToken cancel → 이미 위에서 toast 처리됨
-    }else{
-      toast(`동기화 실패 (${result.reason}) — 토큰에 Brightbeed Contents Read/Write 권한 있는지 확인`,'err');
-    }
-  }
-
-  window.manualSync = manualSync;
 
   function loadPOList(){
     try{return JSON.parse(localStorage.getItem(PO_KEY)||'[]')}catch(e){return []}
