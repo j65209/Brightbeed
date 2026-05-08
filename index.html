@@ -482,13 +482,30 @@
   /* C/S — 양쪽 공유, 중립 골드 */
   .org-svg .b-share{fill:rgba(212,175,55,.07);stroke:rgba(212,175,55,.5);stroke-width:1}
   .org-svg .t-share{fill:#f4d57a;font-weight:600;font-size:14px}
+  .org-svg .l-share{stroke:rgba(212,175,55,.5)}
 
-  /* 인원 — 박스 없이 텍스트, 본부 톤 */
+  /* 마케팅 — 핑크 */
+  .org-svg .b-mkt{fill:rgba(255,107,181,.08);stroke:rgba(255,107,181,.55);stroke-width:1}
+  .org-svg .t-mkt{fill:#ff6bb5;font-weight:600;font-size:14px}
+  .org-svg .l-mkt{stroke:rgba(255,107,181,.5)}
+
+  /* MD-브랜드 — 시안 */
+  .org-svg .b-md1{fill:rgba(6,216,255,.08);stroke:rgba(6,216,255,.55);stroke-width:1}
+  .org-svg .t-md1{fill:#06d8ff;font-weight:600;font-size:14px}
+  .org-svg .l-md1{stroke:rgba(6,216,255,.5)}
+
+  /* MD-벤더 — 코랄 */
+  .org-svg .b-md2{fill:rgba(255,140,112,.08);stroke:rgba(255,140,112,.55);stroke-width:1}
+  .org-svg .t-md2{fill:#ff8c70;font-weight:600;font-size:14px}
+  .org-svg .l-md2{stroke:rgba(255,140,112,.5)}
+
+  /* 인원 — 박스 없이 텍스트, 팀 톤 (옅은 버전) */
   .org-svg .t-mem{font-weight:500;font-size:13px;letter-spacing:.01em}
-  .org-svg .t-mem.m-logi{fill:#ffd6a3}
-  .org-svg .t-mem.m-brand{fill:#9affe1}
-  .org-svg .t-mem.m-share{fill:#f4d57a}
-  .org-svg .t-mem.m-vendor{fill:#d6b8ff}
+  .org-svg .t-mem.m-logi  {fill:#ffd6a3}
+  .org-svg .t-mem.m-mkt   {fill:#ff9ecf}
+  .org-svg .t-mem.m-md1   {fill:#7be4ff}
+  .org-svg .t-mem.m-share {fill:#f4d57a}
+  .org-svg .t-mem.m-md2   {fill:#ffb39e}
 
   @media (max-width:768px){
     .org-chart-wrap{padding:18px 10px 14px}
@@ -596,6 +613,24 @@
   .leave-card.l-vendor .leave-name{color:#d6b8ff}
   .leave-card.l-vendor .leave-bar-fill{background:linear-gradient(90deg,#b46cff,#ff4dcd)}
   .leave-card.l-vendor .leave-remain{color:#b46cff}
+
+  /* 마케팅 — 핑크 */
+  .leave-card.l-mkt    {border-color:rgba(255,107,181,.28)}
+  .leave-card.l-mkt    .leave-name{color:#ff9ecf}
+  .leave-card.l-mkt    .leave-bar-fill{background:linear-gradient(90deg,#ff6bb5,#ff4d8e)}
+  .leave-card.l-mkt    .leave-remain{color:#ff6bb5}
+
+  /* MD-브랜드 — 시안 */
+  .leave-card.l-md1    {border-color:rgba(6,216,255,.28)}
+  .leave-card.l-md1    .leave-name{color:#7be4ff}
+  .leave-card.l-md1    .leave-bar-fill{background:linear-gradient(90deg,#06d8ff,#0bb7ff)}
+  .leave-card.l-md1    .leave-remain{color:#06d8ff}
+
+  /* MD-벤더 — 코랄 */
+  .leave-card.l-md2    {border-color:rgba(255,140,112,.28)}
+  .leave-card.l-md2    .leave-name{color:#ffb39e}
+  .leave-card.l-md2    .leave-bar-fill{background:linear-gradient(90deg,#ff8c70,#ff6b50)}
+  .leave-card.l-md2    .leave-remain{color:#ff8c70}
 
   /* 미입력 카드 — 회색 톤 */
   .leave-card.leave-empty .leave-remain{color:var(--text-3) !important;font-weight:600}
@@ -921,20 +956,20 @@
         <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(310)/MD(540)/C/S(770) -->
         <path class="line l-brand" d="M 540 152 V 200"/>
         <path class="line l-brand" d="M 310 200 H 770"/>
-        <path class="line l-brand" d="M 310 200 V 230"/>
-        <path class="line l-brand" d="M 540 200 V 230"/>
-        <path class="line l-brand" d="M 770 200 V 230"/>
+        <path class="line l-mkt"   d="M 310 200 V 230"/>
+        <path class="line l-md1"   d="M 540 200 V 230"/>
+        <path class="line l-share" d="M 770 200 V 230"/>
 
         <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(770, 공유)/MD(1000) -->
         <path class="line l-vendor" d="M 885 152 V 200"/>
         <path class="line l-vendor" d="M 770 200 H 1000"/>
-        <path class="line l-vendor" d="M 1000 200 V 230"/>
+        <path class="line l-md2"    d="M 1000 200 V 230"/>
 
-        <!-- 팀 → 인원 (단일 드롭) -->
-        <path class="line l-brand"  d="M 310 272 V 305"/>
-        <path class="line l-brand"  d="M 540 272 V 305"/>
-        <path class="line"          d="M 770 272 V 305"/>
-        <path class="line l-vendor" d="M 1000 272 V 305"/>
+        <!-- 팀 → 인원 (단일 드롭, 팀 색) -->
+        <path class="line l-mkt"   d="M 310 272 V 305"/>
+        <path class="line l-md1"   d="M 540 272 V 305"/>
+        <path class="line l-share" d="M 770 272 V 305"/>
+        <path class="line l-md2"   d="M 1000 272 V 305"/>
 
         <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
         <path class="line l-logi" d="M 80 152 V 305"/>
@@ -951,29 +986,30 @@
         <rect class="b-vendor" x="845" y="110" width="80" height="42" rx="6"/>
         <text class="t-vendor" x="885" y="133">벤더</text>
 
-        <!-- 팀 (마케팅·MD-브랜드·C/S공유·MD-벤더) -->
-        <rect class="b-brand"  x="270" y="230" width="80" height="42" rx="6"/>
-        <text class="t-brand"  x="310" y="253">마케팅</text>
-        <rect class="b-brand"  x="500" y="230" width="80" height="42" rx="6"/>
-        <text class="t-brand"  x="540" y="253">MD</text>
-        <rect class="b-share"  x="730" y="230" width="80" height="42" rx="6"/>
-        <text class="t-share"  x="770" y="253">C/S</text>
-        <rect class="b-vendor" x="960" y="230" width="80" height="42" rx="6"/>
-        <text class="t-vendor" x="1000" y="253">MD</text>
+        <!-- 팀 (마케팅·MD-브랜드·C/S공유·MD-벤더) — 각각 다른 색 -->
+        <rect class="b-mkt"   x="270" y="230" width="80" height="42" rx="6"/>
+        <text class="t-mkt"   x="310" y="253">마케팅</text>
+        <rect class="b-md1"   x="500" y="230" width="80" height="42" rx="6"/>
+        <text class="t-md1"   x="540" y="253">MD</text>
+        <rect class="b-share" x="730" y="230" width="80" height="42" rx="6"/>
+        <text class="t-share" x="770" y="253">C/S</text>
+        <rect class="b-md2"   x="960" y="230" width="80" height="42" rx="6"/>
+        <text class="t-md2"   x="1000" y="253">MD</text>
 
-        <!-- 인원 (텍스트만, 본부 톤) -->
+        <!-- 인원 (텍스트만, 팀 톤 — 같은 팀 직원은 같은 색) -->
         <!-- 물류 -->
-        <text class="t-mem m-logi"   x="80"   y="320">김성군</text>
-        <text class="t-mem m-logi"   x="80"   y="348">전준호</text>
-        <text class="t-mem m-logi"   x="80"   y="376">이소영</text>
-        <!-- 브랜드 팀 -->
-        <text class="t-mem m-brand"  x="310"  y="320">서원진</text>
-        <text class="t-mem m-brand"  x="540"  y="320">임혜지</text>
+        <text class="t-mem m-logi"  x="80"   y="320">김성군</text>
+        <text class="t-mem m-logi"  x="80"   y="348">전준호</text>
+        <text class="t-mem m-logi"  x="80"   y="376">이소영</text>
+        <!-- 마케팅 -->
+        <text class="t-mem m-mkt"   x="310"  y="320">서원진</text>
+        <!-- MD-브랜드 -->
+        <text class="t-mem m-md1"   x="540"  y="320">임혜지</text>
         <!-- C/S 공유 -->
-        <text class="t-mem m-share"  x="770"  y="320">정신혜</text>
-        <!-- 벤더 MD -->
-        <text class="t-mem m-vendor" x="1000" y="320">조혜인</text>
-        <text class="t-mem m-vendor" x="1000" y="348">김완성</text>
+        <text class="t-mem m-share" x="770"  y="320">정신혜</text>
+        <!-- MD-벤더 -->
+        <text class="t-mem m-md2"   x="1000" y="320">조혜인</text>
+        <text class="t-mem m-md2"   x="1000" y="348">김완성</text>
       </svg>
     </div>
 
@@ -1338,11 +1374,11 @@
     {name:'김성군',dept:'물류',team:null,color:'logi'},
     {name:'전준호',dept:'물류',team:null,color:'logi'},
     {name:'이소영',dept:'물류',team:null,color:'logi'},
-    {name:'서원진',dept:'브랜드',team:'마케팅',color:'brand'},
-    {name:'임혜지',dept:'브랜드',team:'MD',color:'brand'},
+    {name:'서원진',dept:'브랜드',team:'마케팅',color:'mkt'},
+    {name:'임혜지',dept:'브랜드',team:'MD',color:'md1'},
     {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share'},
-    {name:'조혜인',dept:'벤더',team:'MD',color:'vendor'},
-    {name:'김완성',dept:'벤더',team:'MD',color:'vendor'},
+    {name:'조혜인',dept:'벤더',team:'MD',color:'md2'},
+    {name:'김완성',dept:'벤더',team:'MD',color:'md2'},
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
