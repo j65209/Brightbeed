@@ -1392,9 +1392,11 @@
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
   function saveLeaveData(data){localStorage.setItem(LEAVE_KEY,JSON.stringify(data))}
 
-  /* 입사일 기준 발생 연차 자동 계산
-     · 1년 미만: 1개월 만근 시 1일 (만근 개월수만큼)
-     · 1년 이상: 15 + (근속연수 - 1)  ex) 1년→15, 4년→18 */
+  /* 회계연도(매년 1/1 초기화) 기준 발생 연차 자동 계산
+     카운트 시작 = max(올해 1/1, 입사일) — 작년 발생분은 누적 안 함
+     · 1년 미만 직원(올해 1/1 시점에 입사한지 1년 안 된 경우):
+       그 시작일부터 만근 개월수
+     · 1년 이상 직원: 매년 1/1에 15 + (근속연수 - 1) 일괄 부여 */
   function calculateLeaveTotal(hire,today){
     if(!hire) return null;
     const t=today||new Date();
@@ -1403,12 +1405,19 @@
     const h=new Date(+m[1],+m[2]-1,+m[3]);
     if(isNaN(h.getTime())) return null;
     if(h>t) return 0; // 미래 입사 (아직 미입사)
-    let months=(t.getFullYear()-h.getFullYear())*12+(t.getMonth()-h.getMonth());
-    if(t.getDate()<h.getDate()) months--;
+    const yearStart=new Date(t.getFullYear(),0,1);
+    // 올해 1/1 시점에 이미 만 1년 이상 근속했는지
+    const oneYearAfterHire=new Date(h.getFullYear()+1,h.getMonth(),h.getDate());
+    if(oneYearAfterHire<=yearStart){
+      const years=yearStart.getFullYear()-h.getFullYear();
+      return 15+(years-1);
+    }
+    // 1년 미만: 회계연도 초기화 적용 — max(1/1, 입사일)부터 만근 카운트
+    const start=h>yearStart?h:yearStart;
+    let months=(t.getFullYear()-start.getFullYear())*12+(t.getMonth()-start.getMonth());
+    if(t.getDate()<start.getDate()) months--;
     if(months<0) months=0;
-    if(months<12) return months;
-    const years=Math.floor(months/12);
-    return 15+(years-1);
+    return months;
   }
 
   function leaveCardHTML(s,v,editing){
