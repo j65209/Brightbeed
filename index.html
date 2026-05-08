@@ -1392,11 +1392,34 @@
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
   function saveLeaveData(data){localStorage.setItem(LEAVE_KEY,JSON.stringify(data))}
 
+  /* 입사일 기준 발생 연차 자동 계산
+     · 1년 미만: 1개월 만근 시 1일 (만근 개월수만큼)
+     · 1년 이상: 15 + (근속연수 - 1)  ex) 1년→15, 4년→18 */
+  function calculateLeaveTotal(hire,today){
+    if(!hire) return null;
+    const t=today||new Date();
+    const m=String(hire).match(/(\d{4})\D?(\d{1,2})\D?(\d{1,2})/);
+    if(!m) return null;
+    const h=new Date(+m[1],+m[2]-1,+m[3]);
+    if(isNaN(h.getTime())) return null;
+    if(h>t) return 0; // 미래 입사 (아직 미입사)
+    let months=(t.getFullYear()-h.getFullYear())*12+(t.getMonth()-h.getMonth());
+    if(t.getDate()<h.getDate()) months--;
+    if(months<0) months=0;
+    if(months<12) return months;
+    const years=Math.floor(months/12);
+    return 15+(years-1);
+  }
+
   function leaveCardHTML(s,v,editing){
-    // leaveData(v) 우선, 없으면 STAFF default — hire/used/total 모두 동일 패턴
-    const total=Number.isFinite(v?.total)?v.total:(Number.isFinite(s.total)?s.total:null);
-    const used =Number.isFinite(v?.used )?v.used :(Number.isFinite(s.used )?s.used :null);
+    // leaveData(v) 우선 → STAFF default → 입사일 기반 자동 계산
     const hire =v?.hire||s.hire||'';
+    let total=Number.isFinite(v?.total)?v.total:(Number.isFinite(s.total)?s.total:null);
+    if(total===null){
+      const auto=calculateLeaveTotal(hire);
+      if(Number.isFinite(auto)) total=auto;
+    }
+    const used =Number.isFinite(v?.used )?v.used :(Number.isFinite(s.used )?s.used :null);
     const hasFull=total!==null&&used!==null;
     const remain=hasFull?(total-used):null;
     const pct=hasFull&&total>0?Math.min(100,Math.round((used/total)*100)):0;
@@ -1436,7 +1459,12 @@
   function updateLeaveCard(card,v){
     const name=card.dataset.staff;
     const s=STAFF.find(x=>x.name===name)||{};
-    const total=Number.isFinite(v?.total)?v.total:(Number.isFinite(s.total)?s.total:null);
+    const hire=v?.hire||s.hire||'';
+    let total=Number.isFinite(v?.total)?v.total:(Number.isFinite(s.total)?s.total:null);
+    if(total===null){
+      const auto=calculateLeaveTotal(hire);
+      if(Number.isFinite(auto)) total=auto;
+    }
     const used =Number.isFinite(v?.used )?v.used :(Number.isFinite(s.used )?s.used :null);
     const hasFull=total!==null&&used!==null;
     const remain=hasFull?(total-used):null;
