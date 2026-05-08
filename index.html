@@ -705,6 +705,34 @@
   .leave-card.l-md2    .leave-bar-fill{background:linear-gradient(90deg,#ff8c70,#ff6b50)}
   .leave-card.l-md2    .leave-remain{color:#ff8c70}
 
+  /* 사용 내역 펼치기 */
+  .leave-toggle{
+    margin-top:10px;display:inline-flex;align-items:center;gap:4px;
+    font-size:11px;color:var(--text-3);cursor:pointer;
+    background:transparent;border:none;padding:4px 0;
+    font-family:var(--mono);letter-spacing:.02em;
+  }
+  .leave-toggle:hover{color:var(--text-1)}
+  .leave-toggle .arrow{transition:transform .18s;display:inline-block}
+  .leave-card.expanded .leave-toggle .arrow{transform:rotate(180deg)}
+  .leave-history{
+    margin-top:8px;padding-top:8px;
+    border-top:1px dashed var(--line);
+    display:none;animation:lhIn .18s ease-out;
+  }
+  .leave-card.expanded .leave-history{display:block}
+  @keyframes lhIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+  .leave-history-item{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:3px 0;font-size:11.5px;font-family:var(--mono);
+    letter-spacing:.02em;
+  }
+  .leave-history-date{color:var(--text-1);font-weight:500}
+  .leave-history-type{color:var(--text-3)}
+  .leave-history-type.t-annual{color:var(--text-1)}
+  .leave-history-type.t-half{color:var(--text-2)}
+  .leave-history-type.t-bday{color:#ff9ecf}
+
   /* 미입력 카드 — 회색 톤 */
   .leave-card.leave-empty .leave-remain{color:var(--text-3) !important;font-weight:600}
   .leave-card.leave-empty .leave-remain-unit{color:var(--text-3)}
@@ -1477,14 +1505,41 @@
   /* ===== 연차 (인사팀) ===== */
   // 직원 정보 (정적) — 연차 수치는 별도 leaveData에 저장
   const STAFF=[
-    {name:'김성군',dept:'물류',team:null,color:'logi',hire:'2025-10-20',used:3},
-    {name:'전준호',dept:'물류',team:null,color:'logi',hire:'2025-11-24',used:2},
-    {name:'이소영',dept:'물류',team:null,color:'logi',hire:'2026-05-01',used:1},
+    {name:'김성군',dept:'물류',team:null,color:'logi',hire:'2025-10-20',used:3,history:[
+      {date:'2026-02-05',type:'반차'},
+      {date:'2026-02-26',type:'반차'},
+      {date:'2026-02-27',type:'연차'},
+      {date:'2026-04-03',type:'연차'},
+    ]},
+    {name:'전준호',dept:'물류',team:null,color:'logi',hire:'2025-11-24',used:2,history:[
+      {date:'2026-01-21',type:'연차'},
+      {date:'2026-03-18',type:'연차'},
+    ]},
+    {name:'이소영',dept:'물류',team:null,color:'logi',hire:'2026-05-01',used:1,history:[
+      {date:'2026-04-30',type:'연차'},
+    ]},
     {name:'서원진',dept:'브랜드',team:'마케팅',color:'mkt',hire:'2026-04-06',used:0},
     {name:'임혜지',dept:'브랜드',team:'MD',color:'md1',hire:'2026-05-12'},
     {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share',hire:'2026-05-14'},
-    {name:'조혜인',dept:'벤더',team:'MD',color:'md2',hire:'2025-10-27',used:6.5},
-    {name:'김완성',dept:'벤더',team:'MD',color:'md2',hire:'2026-01-14',used:4},
+    {name:'조혜인',dept:'벤더',team:'MD',color:'md2',hire:'2025-10-27',used:6.5,history:[
+      {date:'2026-01-02',type:'오후반차'},
+      {date:'2026-01-20',type:'연차'},
+      {date:'2026-03-03',type:'오후반차'},
+      {date:'2026-03-10',type:'연차'},
+      {date:'2026-03-16',type:'연차'},
+      {date:'2026-04-02',type:'연차'},
+      {date:'2026-05-06',type:'연차'},
+      {date:'2026-05-14',type:'오전반차'},
+    ]},
+    // 김완성 used: 4 → 3.5 (생일반차는 차감 X 정책 적용)
+    {name:'김완성',dept:'벤더',team:'MD',color:'md2',hire:'2026-01-14',used:3.5,history:[
+      {date:'2026-03-05',type:'연차'},
+      {date:'2026-03-06',type:'연차'},
+      {date:'2026-03-31',type:'오전반차'},
+      {date:'2026-04-03',type:'오후반차'},
+      {date:'2026-04-10',type:'생일반차'},
+      {date:'2026-04-21',type:'오전반차'},
+    ]},
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
@@ -1542,6 +1597,22 @@
     const hireHtml=showHire?`<span class="leave-hire" data-field="hire" ${ceTxt}>${escapeHTML(hire)}</span>`:'';
     // 어떤 정보든 있으면 정상 색 카드, 둘 다 없을 때만 leave-empty (회색 톤)
     const isEmpty=used===null&&total===null;
+    // 사용 내역 — STAFF default + leaveData(v) 추가분 병합 후 날짜 정렬
+    const history=[...(s.history||[]),...(v?.history||[])]
+      .slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const historyHtml=history.length?`
+      <button class="leave-toggle" type="button" onclick="toggleLeaveHistory(this)">
+        <span class="arrow">▾</span> 사용 내역 ${history.length}건
+      </button>
+      <div class="leave-history">
+        ${history.map(h=>{
+          const cls=h.type==='생일반차'?'t-bday':(h.type==='연차'?'t-annual':'t-half');
+          const md=String(h.date||'').match(/^\d{4}-(\d{2})-(\d{2})$/);
+          const dlabel=md?`${md[1]}/${md[2]}`:escapeHTML(h.date||'');
+          return `<div class="leave-history-item"><span class="leave-history-date">${dlabel}</span><span class="leave-history-type ${cls}">${escapeHTML(h.type||'')}</span></div>`;
+        }).join('')}
+      </div>
+    `:'';
     return `
       <div class="leave-card l-${s.color}${isEmpty?' leave-empty':''}" data-staff="${escapeHTML(s.name)}">
         <div class="leave-name-row">
@@ -1559,6 +1630,7 @@
             <span>일 사용</span>
           </div>
         </div>
+        ${historyHtml}
       </div>`;
   }
   function renderLeaveStatus(){
@@ -1667,15 +1739,18 @@
     const type=document.querySelector('input[name="lfType"]:checked')?.value;
     if(!name||!date||!type){toast('모든 항목을 입력해주세요','err');return}
     const delta=type==='연차'?1:(type==='오전반차'||type==='오후반차'?0.5:0);
+    const data=loadLeaveData();
+    const s=STAFF.find(x=>x.name===name);
+    data[name]=data[name]||{};
     if(delta>0){
-      const data=loadLeaveData();
-      const s=STAFF.find(x=>x.name===name);
-      data[name]=data[name]||{};
       const curUsed=Number.isFinite(data[name].used)?data[name].used:(Number.isFinite(s?.used)?s.used:0);
       data[name].used=curUsed+delta;
-      saveLeaveData(data);
-      renderLeaveStatus();
     }
+    // history 추가 (생일반차도 기록 — 사용량은 안 늘리되 내역엔 남김)
+    data[name].history=data[name].history||[];
+    data[name].history.push({date,type});
+    saveLeaveData(data);
+    renderLeaveStatus();
     const fmt=date.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3');
     const msg=type==='생일반차'
       ? `🎂 ${name} ${fmt} 생일반차 (차감 없음)`
@@ -1683,6 +1758,11 @@
     toast(msg,'ok');
     closeLeaveForm();
   }
+  function toggleLeaveHistory(btn){
+    const card=btn.closest('.leave-card');
+    if(card) card.classList.toggle('expanded');
+  }
+  window.toggleLeaveHistory=toggleLeaveHistory;
   // 호환용 — CTA가 onclick="openLeaveForm()"이었던 시점 대비
   function openLeaveForm(){ toggleLeaveForm(); }
   window.openLeaveForm=openLeaveForm;
