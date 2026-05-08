@@ -409,6 +409,25 @@
   .po-clear{margin-left:12px;padding:5px 10px;font-size:11px;color:var(--text-3);background:transparent;border:1px solid var(--line);border-radius:3px;cursor:pointer;transition:all .15s}
   .po-clear:hover{color:var(--danger);border-color:rgba(217,102,102,.3)}
 
+  /* 수정 모드 토글 버튼 */
+  .po-edit{margin-left:8px;padding:5px 10px;font-size:11px;color:var(--text-2);background:transparent;border:1px solid var(--line);border-radius:3px;cursor:pointer;transition:all .15s}
+  .po-edit:hover{color:var(--neon);border-color:rgba(15,255,193,.4)}
+  body.po-edit-mode .po-edit{color:var(--neon);border-color:rgba(15,255,193,.55);background:rgba(15,255,193,.06)}
+
+  /* 수정 모드 — col-name, col-memo 인라인 편집 */
+  body.po-edit-mode .po-table td.col-name,
+  body.po-edit-mode .po-table td.col-memo{
+    outline:1px dashed rgba(15,255,193,.35);
+    outline-offset:-3px;
+    cursor:text;
+    background-color:rgba(15,255,193,.04) !important;
+  }
+  body.po-edit-mode .po-table td.col-name:focus,
+  body.po-edit-mode .po-table td.col-memo:focus{
+    outline:2px solid var(--neon);
+    background-color:rgba(15,255,193,.1) !important;
+  }
+
   /* 발주서 가져오기 (PO 섹션 헤더 inline 버전) */
   .po-import{margin-left:10px;padding:5px 10px;font-size:11px;font-weight:500;color:var(--neon);background:rgba(15,255,193,.06);border:1px solid rgba(15,255,193,.35);border-radius:3px;display:inline-flex;align-items:center;gap:6px}
   .po-import svg{opacity:.9}
@@ -721,6 +740,7 @@
             </button>
             <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
             <button class="po-clear master-only" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
+            <button class="po-edit master-only" id="poEditBtn" onclick="togglePOEdit()" style="display:none">수정</button>
           </div>
         </div>
         <div id="poEmpty" class="po-empty">
@@ -1555,15 +1575,18 @@
     const clr=document.getElementById('poClearBtn');
 
     cnt.textContent=`${list.length}건`;
+    const editBtn=document.getElementById('poEditBtn');
     if(list.length===0){
       tbl.style.display='none';
       empty.style.display='block';
       clr.style.display='none';
+      if(editBtn) editBtn.style.display='none';
       return;
     }
     tbl.style.display='';
     empty.style.display='none';
     clr.style.display='inline-block';
+    if(editBtn) editBtn.style.display='inline-block';
 
     // 원본 인덱스 보존 (정렬해도 삭제는 원본 list에서)
     const indexed=list.map((it,i)=>({...it,_origIdx:i}));
@@ -1576,6 +1599,7 @@
       const d=it.date||'_';
       if(!(d in dateGroups)) dateGroups[d]=nextGroup++;
     }
+    const editing=document.body.classList.contains('po-edit-mode');
     tbody.innerHTML=view.map(it=>{
       const combined=it.combined||(it.product&&it.option&&it.product!==it.option?`${it.product} / ${it.option}`:(it.product||it.option||''));
       const groupCls=`po-row-g${dateGroups[it.date||'_']%4}`;
@@ -1583,12 +1607,13 @@
       const etaCell=it.eta
         ? `<span class="eta-pill">${escapeHTML(it.eta)}</span>${subInfo?`<span class="eta-sub ${subInfo.cls}">${escapeHTML(subInfo.text)}</span>`:''}`
         : `<span class="eta-pill eta-empty">미정</span>`;
+      const ce=editing?'contenteditable="true" spellcheck="false"':'';
       return `
-      <tr class="${groupCls}">
+      <tr class="${groupCls}" data-orig-idx="${it._origIdx}">
         <td class="col-date">${escapeHTML(it.date||'')}</td>
         <td class="col-eta">${etaCell}</td>
-        <td class="col-name">${escapeHTML(combined)}</td>
-        <td class="col-memo">${escapeHTML(it.memo||'')}</td>
+        <td class="col-name" data-field="combined" ${ce}>${escapeHTML(combined)}</td>
+        <td class="col-memo" data-field="memo" ${ce}>${escapeHTML(it.memo||'')}</td>
         <td class="col-qty">${formatQty(it.qty)}<span class="qty-unit">개</span></td>
         <td class="col-act"><button class="po-row-del" onclick="deletePORow(${it._origIdx})" title="삭제" aria-label="삭제">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1610,6 +1635,45 @@
     savePOList([]);
     renderPOList();
   }
+  function togglePOEdit(){
+    if(!requireMaster('수정'))return;
+    const editing=document.body.classList.toggle('po-edit-mode');
+    const btn=document.getElementById('poEditBtn');
+    if(btn) btn.textContent=editing?'완료':'수정';
+    renderPOList(); // contenteditable 토글 위해 재렌더
+  }
+  // 인라인 셀 수정 — blur 시점에 저장 (capture 단계로 td blur 잡기)
+  document.addEventListener('focusout',e=>{
+    const td=e.target.closest?.('#poBody td.col-name, #poBody td.col-memo');
+    if(!td) return;
+    if(!document.body.classList.contains('po-edit-mode')) return;
+    if(!isMaster()) return;
+    const tr=td.closest('tr');
+    const idx=Number(tr.dataset.origIdx);
+    const field=td.dataset.field;
+    const newVal=td.textContent.replace(/ /g,' ').trim();
+    const list=loadPOList();
+    if(!list[idx]) return;
+    if(field==='combined'){
+      if((list[idx].combined||'')===newVal) return;
+      list[idx].combined=newVal;
+      list[idx].product=newVal;
+      list[idx].option='';
+    }else if(field==='memo'){
+      if((list[idx].memo||'')===newVal) return;
+      list[idx].memo=newVal;
+    }
+    savePOList(list);
+  });
+  // Enter 키로 셀 편집 종료 (줄바꿈 방지 + blur)
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Enter') return;
+    const td=e.target.closest?.('#poBody td.col-name, #poBody td.col-memo');
+    if(!td) return;
+    if(!document.body.classList.contains('po-edit-mode')) return;
+    e.preventDefault();
+    td.blur();
+  });
   function appendPOItems(items){
     if(!requireMaster('발주서 추가'))return;
     const list=loadPOList();
