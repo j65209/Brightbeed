@@ -539,6 +539,35 @@
   .leave-card.l-vendor .leave-bar-fill{background:linear-gradient(90deg,#b46cff,#ff4dcd)}
   .leave-card.l-vendor .leave-remain{color:#b46cff}
 
+  /* 미입력 카드 — 회색 톤 */
+  .leave-card.leave-empty .leave-remain{color:var(--text-3) !important;font-weight:600}
+  .leave-card.leave-empty .leave-remain-unit{color:var(--text-3)}
+  .leave-card.leave-empty .leave-bar-fill{background:var(--bg-3) !important;width:0 !important}
+  .leave-card.leave-empty .leave-name{opacity:.85}
+
+  /* 사용/총 inline 입력 */
+  .leave-stats .leave-edit-row{display:flex;align-items:baseline;gap:3px;font-family:var(--mono);font-size:11px;color:var(--text-3)}
+  .leave-stats .leave-used,.leave-stats .leave-total{color:var(--text-1);font-weight:500;min-width:14px;display:inline-block;text-align:center}
+  .leave-card.leave-empty .leave-used,
+  .leave-card.leave-empty .leave-total{color:var(--text-3)}
+
+  /* 편집 모드 — 마스터만 보이는 토글 버튼 */
+  .leave-edit-btn{margin-left:10px;padding:3px 10px;font-size:11px;color:var(--text-2);background:transparent;border:1px solid var(--line);border-radius:3px;cursor:pointer;font-family:var(--sans);font-weight:500;transition:all .15s}
+  .leave-edit-btn:hover{color:var(--neon-hr);border-color:rgba(255,179,71,.45)}
+  body.leave-edit-mode .leave-edit-btn{color:var(--neon-hr);border-color:rgba(255,179,71,.55);background:rgba(255,179,71,.08)}
+
+  /* 편집 모드 — 사용/총 셀 contenteditable 시각화 */
+  body.leave-edit-mode .leave-card .leave-used,
+  body.leave-edit-mode .leave-card .leave-total{
+    outline:1px dashed rgba(255,179,71,.4);
+    outline-offset:2px;border-radius:2px;cursor:text;
+    background:rgba(255,179,71,.06);padding:0 2px;
+  }
+  body.leave-edit-mode .leave-card .leave-used:focus,
+  body.leave-edit-mode .leave-card .leave-total:focus{
+    outline:2px solid var(--neon-hr);background:rgba(255,179,71,.15);color:var(--text-0);
+  }
+
   /* 이미지 업로드 진행 표시 */
   .po-upload-row td{padding:12px 18px;background:rgba(15,255,193,.04);border-left:2px solid var(--neon)}
   .po-upload-row .up-status{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2)}
@@ -902,7 +931,10 @@
     <div class="leave-section">
       <div class="leave-section-head">
         <h2 class="leave-section-title">연차 현황</h2>
-        <div class="leave-section-meta" id="leaveMeta">2026 기준</div>
+        <div class="leave-section-meta">
+          <span id="leaveMeta">2026 기준</span>
+          <button class="leave-edit-btn master-only" id="leaveEditBtn" onclick="toggleLeaveEdit()">편집</button>
+        </div>
       </div>
       <div class="leave-grid" id="leaveGrid"></div>
     </div>
@@ -1212,38 +1244,98 @@
   window.goHome=goHome;
 
   /* ===== 연차 (인사팀) ===== */
-  // placeholder — 후속 단계에서 실제 값/저장소(GitHub 동기화) 연결 예정
+  // 직원 정보 (정적) — 연차 수치는 별도 leaveData에 저장
   const STAFF=[
-    {name:'김성군',dept:'물류',team:null,color:'logi',total:15,used:3},
-    {name:'전준호',dept:'물류',team:null,color:'logi',total:15,used:5},
-    {name:'이소영',dept:'물류',team:null,color:'logi',total:15,used:2},
-    {name:'서원진',dept:'브랜드',team:'마케팅',color:'brand',total:15,used:7},
-    {name:'임혜지',dept:'브랜드',team:'MD',color:'brand',total:15,used:4},
-    {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share',total:15,used:6},
-    {name:'조혜인',dept:'벤더',team:'MD',color:'vendor',total:15,used:8},
-    {name:'김완성',dept:'벤더',team:'MD',color:'vendor',total:15,used:1},
+    {name:'김성군',dept:'물류',team:null,color:'logi'},
+    {name:'전준호',dept:'물류',team:null,color:'logi'},
+    {name:'이소영',dept:'물류',team:null,color:'logi'},
+    {name:'서원진',dept:'브랜드',team:'마케팅',color:'brand'},
+    {name:'임혜지',dept:'브랜드',team:'MD',color:'brand'},
+    {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share'},
+    {name:'조혜인',dept:'벤더',team:'MD',color:'vendor'},
+    {name:'김완성',dept:'벤더',team:'MD',color:'vendor'},
   ];
+  const LEAVE_KEY='brightbeed_leave_v1';
+  function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
+  function saveLeaveData(data){localStorage.setItem(LEAVE_KEY,JSON.stringify(data))}
+
+  function leaveCardHTML(s,v,editing){
+    const total=Number.isFinite(v?.total)?v.total:null;
+    const used=Number.isFinite(v?.used)?v.used:null;
+    const hasData=total!==null&&used!==null;
+    const remain=hasData?(total-used):null;
+    const pct=hasData&&total>0?Math.min(100,Math.round((used/total)*100)):0;
+    const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
+    const ce=editing?'contenteditable="true" inputmode="numeric" spellcheck="false"':'';
+    return `
+      <div class="leave-card l-${s.color}${hasData?'':' leave-empty'}" data-staff="${escapeHTML(s.name)}">
+        <div class="leave-name">${escapeHTML(s.name)}</div>
+        <div class="leave-dept">${escapeHTML(sub)}</div>
+        <div class="leave-bar"><div class="leave-bar-fill" style="width:${pct}%"></div></div>
+        <div class="leave-stats">
+          <div><span class="leave-remain">${remain!==null?remain:'—'}</span><span class="leave-remain-unit">${remain!==null?'일 남음':' 미입력'}</span></div>
+          <div class="leave-edit-row">
+            <span class="leave-used" data-field="used" ${ce}>${used??''}</span>
+            <span>/</span>
+            <span class="leave-total" data-field="total" ${ce}>${total??''}</span>
+            <span>일 사용</span>
+          </div>
+        </div>
+      </div>`;
+  }
   function renderLeaveStatus(){
     const grid=document.getElementById('leaveGrid');
     if(!grid) return;
-    grid.innerHTML=STAFF.map(s=>{
-      const remain=s.total-s.used;
-      const pct=Math.min(100,Math.round((s.used/s.total)*100));
-      const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
-      return `
-        <div class="leave-card l-${s.color}">
-          <div class="leave-name">${s.name}</div>
-          <div class="leave-dept">${sub}</div>
-          <div class="leave-bar"><div class="leave-bar-fill" style="width:${pct}%"></div></div>
-          <div class="leave-stats">
-            <div><span class="leave-remain">${remain}</span><span class="leave-remain-unit">일 남음</span></div>
-            <span class="leave-total">${s.used} / ${s.total}일 사용</span>
-          </div>
-        </div>`;
-    }).join('');
+    const data=loadLeaveData();
+    const editing=document.body.classList.contains('leave-edit-mode');
+    grid.innerHTML=STAFF.map(s=>leaveCardHTML(s,data[s.name],editing)).join('');
   }
+  function updateLeaveCard(card,v){
+    const total=Number.isFinite(v?.total)?v.total:null;
+    const used=Number.isFinite(v?.used)?v.used:null;
+    const hasData=total!==null&&used!==null;
+    const remain=hasData?(total-used):null;
+    const pct=hasData&&total>0?Math.min(100,Math.round((used/total)*100)):0;
+    card.classList.toggle('leave-empty',!hasData);
+    card.querySelector('.leave-remain').textContent=remain!==null?remain:'—';
+    card.querySelector('.leave-remain-unit').textContent=remain!==null?'일 남음':' 미입력';
+    card.querySelector('.leave-bar-fill').style.width=pct+'%';
+  }
+  function toggleLeaveEdit(){
+    if(!requireMaster('연차 편집'))return;
+    const editing=document.body.classList.toggle('leave-edit-mode');
+    const btn=document.getElementById('leaveEditBtn');
+    if(btn) btn.textContent=editing?'완료':'편집';
+    renderLeaveStatus();
+  }
+  // 인라인 편집 — blur 시 저장 (master + leave-edit-mode일 때만)
+  document.addEventListener('focusout',e=>{
+    const span=e.target.closest?.('.leave-card .leave-used, .leave-card .leave-total');
+    if(!span) return;
+    if(!document.body.classList.contains('leave-edit-mode')) return;
+    if(!isMaster()) return;
+    const card=span.closest('.leave-card');
+    const name=card.dataset.staff;
+    const field=span.dataset.field;
+    const raw=span.textContent.replace(/[^\d.-]/g,'').trim();
+    const val=raw===''?null:Number(raw);
+    if(raw!==''&&(!Number.isFinite(val)||val<0)){
+      toast('0 이상의 숫자만 입력 가능합니다','err');
+      span.textContent='';
+      return;
+    }
+    const data=loadLeaveData();
+    data[name]=data[name]||{};
+    if(val===null) delete data[name][field];
+    else data[name][field]=val;
+    if(!Number.isFinite(data[name].total)&&!Number.isFinite(data[name].used)) delete data[name];
+    saveLeaveData(data);
+    span.textContent=val!==null?val:'';
+    updateLeaveCard(card,data[name]||{});
+  });
   function openLeaveForm(){ toast('연차 신청 양식 · 다음 단계에서 추가','ok'); }
   window.openLeaveForm=openLeaveForm;
+  window.toggleLeaveEdit=toggleLeaveEdit;
 
   /* ===== 발주서 이미지 분석 ===== */
   const ANTHROPIC_KEY='brightbeed_anthropic_key';
