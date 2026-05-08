@@ -437,25 +437,42 @@
   .view-title .view-title-sub{font-weight:400;color:var(--text-3);margin-left:8px;font-size:14px}
 
   /* ===== 조직도 (SVG) ===== */
-  .org-chart-wrap{overflow-x:auto;padding:20px 16px 16px;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:24px}
-  .org-svg{display:block;width:100%;max-width:1080px;height:auto;margin:0 auto;min-width:780px}
-  .org-svg .lines path{fill:none;stroke:var(--line-2);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .org-chart-wrap{overflow-x:auto;padding:28px 20px 24px;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:24px}
+  .org-svg{display:block;width:100%;max-width:1100px;height:auto;margin:0 auto;min-width:840px}
+  .org-svg path.line{fill:none;stroke:var(--line-2);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
   .org-svg rect{shape-rendering:geometricPrecision}
   .org-svg text{font-family:var(--sans);text-anchor:middle;dominant-baseline:middle;letter-spacing:-.005em}
+
   /* 루트 — 골드 */
-  .org-svg .b-root{fill:rgba(212,175,55,.10);stroke:rgba(212,175,55,.55);stroke-width:1}
-  .org-svg .t-root{fill:#f4d57a;font-weight:700;font-size:17px}
-  /* 본부 — 앰버 */
-  .org-svg .b-div{fill:rgba(255,179,71,.08);stroke:rgba(255,179,71,.5);stroke-width:1}
-  .org-svg .t-div{fill:var(--neon-hr);font-weight:600;font-size:15px}
-  /* 팀 — 네온 mint */
-  .org-svg .b-team{fill:rgba(15,255,193,.06);stroke:rgba(15,255,193,.45);stroke-width:1}
-  .org-svg .t-team{fill:var(--neon);font-weight:600;font-size:14px}
-  /* 인원 — 텍스트만 */
-  .org-svg .t-mem{fill:var(--text-1);font-weight:500;font-size:13px}
+  .org-svg .b-root{fill:rgba(212,175,55,.10);stroke:rgba(212,175,55,.55);stroke-width:1.1}
+  .org-svg .t-root{fill:#f4d57a;font-weight:700;font-size:16px}
+
+  /* 본부별 색 — 물류=앰버 / 브랜드=민트 / 벤더=바이올렛 / C/S 공유=골드 중립 */
+  .org-svg .b-logi{fill:rgba(255,179,71,.10);stroke:rgba(255,179,71,.55);stroke-width:1}
+  .org-svg .t-logi{fill:#ffb347;font-weight:600;font-size:14px}
+  .org-svg .l-logi{stroke:rgba(255,179,71,.42)}
+
+  .org-svg .b-brand{fill:rgba(15,255,193,.07);stroke:rgba(15,255,193,.5);stroke-width:1}
+  .org-svg .t-brand{fill:#0fffc1;font-weight:600;font-size:14px}
+  .org-svg .l-brand{stroke:rgba(15,255,193,.4)}
+
+  .org-svg .b-vendor{fill:rgba(180,108,255,.10);stroke:rgba(180,108,255,.55);stroke-width:1}
+  .org-svg .t-vendor{fill:#b46cff;font-weight:600;font-size:14px}
+  .org-svg .l-vendor{stroke:rgba(180,108,255,.42)}
+
+  /* C/S — 양쪽 공유, 중립 골드 */
+  .org-svg .b-share{fill:rgba(212,175,55,.07);stroke:rgba(212,175,55,.5);stroke-width:1}
+  .org-svg .t-share{fill:#f4d57a;font-weight:600;font-size:14px}
+
+  /* 인원 — 박스 없이 텍스트, 본부 톤 */
+  .org-svg .t-mem{font-weight:500;font-size:13px;letter-spacing:.01em}
+  .org-svg .t-mem.m-logi{fill:#ffd6a3}
+  .org-svg .t-mem.m-brand{fill:#9affe1}
+  .org-svg .t-mem.m-share{fill:#f4d57a}
+  .org-svg .t-mem.m-vendor{fill:#d6b8ff}
 
   @media (max-width:768px){
-    .org-chart-wrap{padding:14px 10px 10px}
+    .org-chart-wrap{padding:18px 10px 14px}
     .view-title{font-size:16px}
   }
 
@@ -741,68 +758,71 @@
     </div>
 
     <div class="org-chart-wrap">
-      <svg class="org-svg" viewBox="0 0 1080 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="(주)브라이트비드 조직도">
-        <!-- 연결선 -->
-        <g class="lines">
-          <!-- 루트(540,54) → 본부 버스(y=85) → 물류(80)/브랜드(470)/벤더(820) -->
-          <path d="M 540 54 V 85"/>
-          <path d="M 80 85 H 820"/>
-          <path d="M 80 85 V 110 M 470 85 V 110 M 820 85 V 110"/>
+      <svg class="org-svg" viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="(주)브라이트비드 조직도">
+        <!-- 연결선 — 본부별 색 -->
+        <!-- 루트(500,52) → 본부 버스(y=84) → 물류(80)/브랜드(540)/벤더(885) -->
+        <path class="line" d="M 500 52 V 84"/>
+        <path class="line" d="M 80 84 H 885"/>
+        <path class="line l-logi"   d="M 80 84 V 110"/>
+        <path class="line l-brand"  d="M 540 84 V 110"/>
+        <path class="line l-vendor" d="M 885 84 V 110"/>
 
-          <!-- 브랜드(470,165) → 팀 버스(y=200) → 마케팅(350)/MD(480)/C/S(660) -->
-          <path d="M 470 165 V 200"/>
-          <path d="M 350 200 H 660"/>
-          <path d="M 350 200 V 230 M 480 200 V 230 M 660 200 V 230"/>
+        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(310)/MD(540)/C/S(770) -->
+        <path class="line l-brand" d="M 540 152 V 200"/>
+        <path class="line l-brand" d="M 310 200 H 770"/>
+        <path class="line l-brand" d="M 310 200 V 230"/>
+        <path class="line l-brand" d="M 540 200 V 230"/>
+        <path class="line l-brand" d="M 770 200 V 230"/>
 
-          <!-- 벤더(820,165) → 팀 버스(y=200) → C/S(660, 공유)/MD(910) -->
-          <path d="M 820 165 V 200"/>
-          <path d="M 660 200 H 910"/>
-          <path d="M 910 200 V 230"/>
+        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(770, 공유)/MD(1000) -->
+        <path class="line l-vendor" d="M 885 152 V 200"/>
+        <path class="line l-vendor" d="M 770 200 H 1000"/>
+        <path class="line l-vendor" d="M 1000 200 V 230"/>
 
-          <!-- 팀 → 인원 (단일 멤버 단순 드롭) -->
-          <path d="M 350 285 V 308"/>
-          <path d="M 480 285 V 308"/>
-          <path d="M 660 285 V 308"/>
-          <path d="M 910 285 V 308"/>
+        <!-- 팀 → 인원 (단일 드롭) -->
+        <path class="line l-brand"  d="M 310 272 V 305"/>
+        <path class="line l-brand"  d="M 540 272 V 305"/>
+        <path class="line"          d="M 770 272 V 305"/>
+        <path class="line l-vendor" d="M 1000 272 V 305"/>
 
-          <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
-          <path d="M 80 165 V 308"/>
-        </g>
+        <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
+        <path class="line l-logi" d="M 80 152 V 305"/>
 
         <!-- 루트 -->
-        <rect class="b-root" x="420" y="10" width="240" height="44" rx="8"/>
-        <text class="t-root" x="540" y="34">(주)브라이트비드</text>
+        <rect class="b-root" x="395" y="10" width="210" height="42" rx="8"/>
+        <text class="t-root" x="500" y="33">(주)브라이트비드</text>
 
         <!-- 본부 (물류·브랜드·벤더) -->
-        <rect class="b-div" x="40" y="110" width="80" height="44" rx="6"/>
-        <text class="t-div" x="80" y="134">물류</text>
-        <rect class="b-div" x="430" y="110" width="80" height="44" rx="6"/>
-        <text class="t-div" x="470" y="134">브랜드</text>
-        <rect class="b-div" x="780" y="110" width="80" height="44" rx="6"/>
-        <text class="t-div" x="820" y="134">벤더</text>
+        <rect class="b-logi"   x="40"  y="110" width="80" height="42" rx="6"/>
+        <text class="t-logi"   x="80"  y="133">물류</text>
+        <rect class="b-brand"  x="500" y="110" width="80" height="42" rx="6"/>
+        <text class="t-brand"  x="540" y="133">브랜드</text>
+        <rect class="b-vendor" x="845" y="110" width="80" height="42" rx="6"/>
+        <text class="t-vendor" x="885" y="133">벤더</text>
 
-        <!-- 팀 (마케팅·MD·C/S·MD) -->
-        <rect class="b-team" x="310" y="230" width="80" height="44" rx="6"/>
-        <text class="t-team" x="350" y="254">마케팅</text>
-        <rect class="b-team" x="440" y="230" width="80" height="44" rx="6"/>
-        <text class="t-team" x="480" y="254">MD</text>
-        <rect class="b-team" x="620" y="230" width="80" height="44" rx="6"/>
-        <text class="t-team" x="660" y="254">C/S</text>
-        <rect class="b-team" x="870" y="230" width="80" height="44" rx="6"/>
-        <text class="t-team" x="910" y="254">MD</text>
+        <!-- 팀 (마케팅·MD-브랜드·C/S공유·MD-벤더) -->
+        <rect class="b-brand"  x="270" y="230" width="80" height="42" rx="6"/>
+        <text class="t-brand"  x="310" y="253">마케팅</text>
+        <rect class="b-brand"  x="500" y="230" width="80" height="42" rx="6"/>
+        <text class="t-brand"  x="540" y="253">MD</text>
+        <rect class="b-share"  x="730" y="230" width="80" height="42" rx="6"/>
+        <text class="t-share"  x="770" y="253">C/S</text>
+        <rect class="b-vendor" x="960" y="230" width="80" height="42" rx="6"/>
+        <text class="t-vendor" x="1000" y="253">MD</text>
 
-        <!-- 인원 (텍스트만) -->
+        <!-- 인원 (텍스트만, 본부 톤) -->
         <!-- 물류 -->
-        <text class="t-mem" x="80" y="320">김성군</text>
-        <text class="t-mem" x="80" y="350">전준호</text>
-        <text class="t-mem" x="80" y="380">이소영</text>
+        <text class="t-mem m-logi"   x="80"   y="320">김성군</text>
+        <text class="t-mem m-logi"   x="80"   y="348">전준호</text>
+        <text class="t-mem m-logi"   x="80"   y="376">이소영</text>
         <!-- 브랜드 팀 -->
-        <text class="t-mem" x="350" y="320">서원진</text>
-        <text class="t-mem" x="480" y="320">임혜지</text>
-        <text class="t-mem" x="660" y="320">정신혜</text>
+        <text class="t-mem m-brand"  x="310"  y="320">서원진</text>
+        <text class="t-mem m-brand"  x="540"  y="320">임혜지</text>
+        <!-- C/S 공유 -->
+        <text class="t-mem m-share"  x="770"  y="320">정신혜</text>
         <!-- 벤더 MD -->
-        <text class="t-mem" x="910" y="320">조혜인</text>
-        <text class="t-mem" x="910" y="350">김완성</text>
+        <text class="t-mem m-vendor" x="1000" y="320">조혜인</text>
+        <text class="t-mem m-vendor" x="1000" y="348">김완성</text>
       </svg>
     </div>
   </div><!-- /viewHr -->
