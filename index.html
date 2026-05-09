@@ -1932,7 +1932,10 @@
     });
     window.scrollTo({top:0,behavior:'instant'});
     if(id==='viewHr') renderLeaveStatus();
-    if(id==='viewSales' && typeof renderSalesView==='function') renderSalesView();
+    if(id==='viewSales'){
+      if(typeof renderSalesView==='function') renderSalesView();
+      if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
+    }
   }
 
   // showView: history에 push (사용자 클릭 진입). fromHistory=true면 popstate에서 호출된거라 push 생략.
@@ -2433,6 +2436,9 @@
     renderPOList();
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
+
+    // 매출 데이터도 함께 동기화
+    if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -2441,18 +2447,22 @@
 
   async function pollPO(){
     const remote = await fetchPOFromRemote();
-    if(remote === null) return;
-    const hash = JSON.stringify(remote);
-    if(hash === _po_lastHash) return; // 변경 없음 — silent
-    _po_lastHash = hash;
-    localStorage.setItem(PO_KEY, JSON.stringify(remote));
-    renderPOList();
-    const status = document.getElementById('syncStatus');
-    const now = new Date();
-    const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    if(status) status.textContent = `동기화 완료 · ${t}`;
-    const last = document.getElementById('lastSync');
-    if(last) last.textContent = t;
+    if(remote !== null){
+      const hash = JSON.stringify(remote);
+      if(hash !== _po_lastHash){
+        _po_lastHash = hash;
+        localStorage.setItem(PO_KEY, JSON.stringify(remote));
+        renderPOList();
+        const status = document.getElementById('syncStatus');
+        const now = new Date();
+        const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        if(status) status.textContent = `동기화 완료 · ${t}`;
+        const last = document.getElementById('lastSync');
+        if(last) last.textContent = t;
+      }
+    }
+    // 매출 데이터도 함께 폴링
+    if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -3059,17 +3069,118 @@ async function handlePOFiles(files){
   renderPOList();
 
   /* ===================================================== */
-  /* ============ 매출 엑셀 (raw 시트 표시) ============ */
+  /* ============ 매출 엑셀 (raw 시트 표시 + GitHub 동기화) ============ */
   /* ===================================================== */
   const SALES_KEY='brightbeed_sales_xlsx';
+  const SALES_PATH='data/sales-data.json';
+  const SALES_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${SALES_PATH}`;
+  const SALES_API=`https://api.github.com/repos/${PO_REPO}/contents/${SALES_PATH}`;
   let _salesActiveSheet=0;
+  let _sales_lastHash=null;
+
+  /* --- GitHub 동기화 (PO 패턴) --- */
+  async function fetchSalesDataFromRemote(){
+    try{
+      const r=await fetch(`${SALES_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {empty:true};
+      if(!r.ok) return null;
+      const data=await r.json();
+      return (data && typeof data==='object' && data.sheets) ? data : {empty:true};
+    }catch(e){return null}
+  }
+  async function pushSalesDataToRemote(data){
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(!token) return {ok:false,reason:'notoken'};
+    async function getSha(){
+      try{
+        const r=await fetch(`${SALES_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
+          headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'},
+          cache:'no-cache'
+        });
+        if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {error:'auth'}}
+        if(r.status===404) return {sha:null};
+        if(!r.ok) return {error:`http_${r.status}`};
+        const j=await r.json();
+        return {sha:j.sha};
+      }catch(e){return {error:'fetch'}}
+    }
+    async function doPut(sha){
+      const payload=data?JSON.stringify(data,null,2):'null';
+      const content=btoa(unescape(encodeURIComponent(payload)));
+      const body={message:`chore: 매출 엑셀 갱신${data?` (${data.filename||''})`:' (비우기)'}`,content,branch:PO_BRANCH};
+      if(sha) body.sha=sha;
+      return fetch(SALES_API,{
+        method:'PUT',
+        headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+    }
+    let shaResult=await getSha();
+    if(shaResult.error==='auth') return {ok:false,reason:'auth'};
+    let r=await doPut(shaResult.sha);
+    let retries=0;
+    while(r.status===409 && retries<2){
+      retries++;
+      shaResult=await getSha();
+      if(shaResult.error==='auth') return {ok:false,reason:'auth'};
+      r=await doPut(shaResult.sha);
+    }
+    if(r.ok) return {ok:true};
+    if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
+    if(r.status===422||r.status===413){
+      // 파일 크기 초과 (GitHub Contents API 100MB 제한)
+      return {ok:false,reason:'too_large'};
+    }
+    return {ok:false,reason:`http_${r.status}`};
+  }
+  async function pushSalesAfterChange(data){
+    if(!localStorage.getItem(TOKEN_KEY)) return;
+    let result=await pushSalesDataToRemote(data);
+    if(!result.ok && result.reason==='auth'){
+      const newToken=await askToken('github');
+      if(newToken){
+        localStorage.setItem(TOKEN_KEY,newToken);
+        result=await pushSalesDataToRemote(data);
+      }
+    }
+    if(!result.ok && result.reason==='too_large'){
+      toast('파일이 너무 큽니다 (GitHub 100MB 제한). 다른 기기에서는 안 보일 수 있습니다','err');
+    }
+  }
+  async function syncSalesDataFromRemote(){
+    const remote=await fetchSalesDataFromRemote();
+    if(remote===null) return; // fetch 실패 — silent
+    const local=loadSalesData();
+    // 마이그레이션: remote 비어있고 local에 데이터 있으면 local push
+    if(remote.empty){
+      if(local && localStorage.getItem(TOKEN_KEY)){
+        const r=await pushSalesDataToRemote(local);
+        if(r.ok) _sales_lastHash=JSON.stringify(local);
+      }
+      return;
+    }
+    // remote에 데이터 있음 → local 갱신
+    const json=JSON.stringify(remote);
+    if(json===_sales_lastHash) return; // 변경 없음
+    _sales_lastHash=json;
+    localStorage.setItem(SALES_KEY,json);
+    renderSalesView();
+  }
+  window.syncSalesDataFromRemote=syncSalesDataFromRemote;
 
   function loadSalesData(){
     try{return JSON.parse(localStorage.getItem(SALES_KEY)||'null')}catch(e){return null}
   }
   function saveSalesData(data){
-    if(data) localStorage.setItem(SALES_KEY,JSON.stringify(data));
-    else localStorage.removeItem(SALES_KEY);
+    if(data){
+      const json=JSON.stringify(data);
+      localStorage.setItem(SALES_KEY,json);
+      _sales_lastHash=json;
+    }else{
+      localStorage.removeItem(SALES_KEY);
+      _sales_lastHash='null';
+    }
+    pushSalesAfterChange(data).catch(e=>console.warn('sales sync error:',e));
   }
 
   function readSalesXLSX(file){
