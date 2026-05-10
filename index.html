@@ -888,6 +888,75 @@
     .leave-form-radios{gap:10px 12px}
   }
 
+  /* 최근 연차 신청 내역 */
+  .leave-recent{
+    max-width:580px;margin:0 auto 28px;
+    padding:14px 18px 16px;
+    background:rgba(255,179,71,.025);
+    border:1px solid rgba(255,179,71,.18);
+    border-radius:8px;
+  }
+  .leave-recent[hidden]{display:none}
+  .leave-recent-head{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    margin-bottom:10px;padding-bottom:8px;
+    border-bottom:1px dashed rgba(255,179,71,.18);
+  }
+  .leave-recent-title{
+    font-size:12px;font-weight:600;color:#ffb347;letter-spacing:.01em;
+  }
+  .leave-recent-meta{
+    font-size:10.5px;color:var(--text-3);font-family:var(--mono);
+  }
+  .leave-recent-list{display:flex;flex-direction:column;gap:4px}
+  .leave-recent-item{
+    display:grid;
+    grid-template-columns:78px 1fr auto auto;
+    gap:10px;align-items:center;
+    padding:5px 4px;
+    font-size:12px;
+    border-bottom:1px solid rgba(255,255,255,.03);
+  }
+  .leave-recent-item:last-child{border-bottom:none}
+  .leave-recent-when{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-3);
+    letter-spacing:.01em;
+  }
+  .leave-recent-name{color:var(--text-0);font-weight:500}
+  .leave-recent-date{
+    color:var(--text-2);font-family:var(--mono);font-size:11px;
+  }
+  .leave-recent-type{
+    font-size:11px;font-weight:500;
+    padding:2px 8px;border-radius:3px;
+    border:1px solid;
+  }
+  .leave-recent-type.t-annual{
+    color:#ffb347;border-color:rgba(255,179,71,.4);background:rgba(255,179,71,.06);
+  }
+  .leave-recent-type.t-half{
+    color:#ffd29a;border-color:rgba(255,210,154,.35);background:rgba(255,210,154,.05);
+  }
+  .leave-recent-type.t-bday{
+    color:#ff9ecf;border-color:rgba(255,158,207,.4);background:rgba(255,158,207,.06);
+  }
+  .leave-recent-empty{
+    padding:8px 4px;font-size:11.5px;color:var(--text-3);text-align:center;
+    font-family:var(--mono);
+  }
+  @media (max-width:600px){
+    .leave-recent{padding:12px 14px 14px}
+    .leave-recent-item{
+      grid-template-columns:1fr auto;
+      gap:4px 8px;
+      padding:6px 2px;
+    }
+    .leave-recent-when{grid-column:1/-1;order:-1}
+    .leave-recent-name{order:1}
+    .leave-recent-type{order:2;justify-self:end}
+    .leave-recent-date{grid-column:1/-1;order:3;font-size:10.5px}
+  }
+
   /* 연차/반차 규정 안내 — 앰버 네온 강조 */
   .leave-policy{
     max-width:760px;margin:0 auto 36px;
@@ -1519,6 +1588,15 @@
         <button type="submit" class="leave-form-btn leave-form-submit">신청</button>
       </div>
     </form>
+
+    <!-- 최근 연차 신청 내역 -->
+    <div class="leave-recent" id="leaveRecent" hidden>
+      <div class="leave-recent-head">
+        <span class="leave-recent-title">📋 최근 연차 신청 내역</span>
+        <span class="leave-recent-meta" id="leaveRecentMeta"></span>
+      </div>
+      <div class="leave-recent-list" id="leaveRecentList"></div>
+    </div>
 
     <!-- 연차/반차 규정 안내 -->
     <div class="leave-policy">
@@ -2305,6 +2383,65 @@
       const now=new Date();
       meta.textContent=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')} 기준`;
     }
+    renderRecentLeaveLog();
+  }
+
+  /* 최근 연차 신청 내역 — 신청서로 들어온 항목(submittedAt 있는 것)만 모아 최신순 N개 */
+  function renderRecentLeaveLog(){
+    const wrap=document.getElementById('leaveRecent');
+    const list=document.getElementById('leaveRecentList');
+    const meta=document.getElementById('leaveRecentMeta');
+    if(!wrap||!list) return;
+    const data=loadLeaveData();
+    const items=[];
+    Object.keys(data).forEach(name=>{
+      const h=Array.isArray(data[name]?.history)?data[name].history:[];
+      h.forEach(e=>{
+        if(!e||!e.submittedAt) return;
+        items.push({name,date:e.date||'',type:e.type||'',submittedAt:e.submittedAt});
+      });
+    });
+    items.sort((a,b)=>String(b.submittedAt).localeCompare(String(a.submittedAt)));
+    const top=items.slice(0,8);
+    if(items.length===0){
+      wrap.hidden=false;
+      list.innerHTML=`<div class="leave-recent-empty">아직 신청 내역이 없어요</div>`;
+      if(meta) meta.textContent='';
+      return;
+    }
+    wrap.hidden=false;
+    if(meta) meta.textContent=`총 ${items.length}건${items.length>top.length?` · 최근 ${top.length}건 표시`:''}`;
+    list.innerHTML=top.map(it=>{
+      const cls=it.type==='생일반차'?'t-bday':(it.type==='연차'?'t-annual':'t-half');
+      const md=String(it.date).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const dlabel=md?`${md[2]}/${md[3]}`:escapeHTML(it.date);
+      const when=formatLeaveSubmittedAt(it.submittedAt);
+      return `<div class="leave-recent-item">
+        <span class="leave-recent-when">${escapeHTML(when)}</span>
+        <span class="leave-recent-name">${escapeHTML(it.name)}</span>
+        <span class="leave-recent-date">${dlabel}</span>
+        <span class="leave-recent-type ${cls}">${escapeHTML(it.type)}</span>
+      </div>`;
+    }).join('');
+  }
+  function formatLeaveSubmittedAt(iso){
+    try{
+      const d=new Date(iso);
+      if(isNaN(d.getTime())) return '';
+      const now=new Date();
+      const diffMs=now-d;
+      const diffMin=Math.floor(diffMs/60000);
+      if(diffMin<1) return '방금';
+      if(diffMin<60) return `${diffMin}분 전`;
+      const diffHr=Math.floor(diffMin/60);
+      if(diffHr<24&&d.getDate()===now.getDate()) return `${diffHr}시간 전`;
+      const sameYear=d.getFullYear()===now.getFullYear();
+      const mm=String(d.getMonth()+1).padStart(2,'0');
+      const dd=String(d.getDate()).padStart(2,'0');
+      const hh=String(d.getHours()).padStart(2,'0');
+      const mi=String(d.getMinutes()).padStart(2,'0');
+      return sameYear?`${mm}/${dd} ${hh}:${mi}`:`${d.getFullYear()}/${mm}/${dd}`;
+    }catch(e){return ''}
   }
   function updateLeaveCard(card,v){
     const name=card.dataset.staff;
@@ -2367,7 +2504,6 @@
     updateLeaveCard(card,data[name]||{});
   });
   function toggleLeaveForm(){
-    if(!requireMaster('연차 신청'))return;
     const form=document.getElementById('leaveForm');
     if(!form)return;
     const opening=form.hidden;
@@ -2393,7 +2529,6 @@
   }
   function submitLeaveForm(e){
     e.preventDefault();
-    if(!requireMaster('연차 신청'))return;
     const name=document.getElementById('lfStaff').value;
     const date=document.getElementById('lfDate').value;
     const type=document.querySelector('input[name="lfType"]:checked')?.value;
@@ -2408,9 +2543,10 @@
     }
     // history 추가 (생일반차도 기록 — 사용량은 안 늘리되 내역엔 남김)
     data[name].history=data[name].history||[];
-    data[name].history.push({date,type});
+    data[name].history.push({date,type,submittedAt:new Date().toISOString()});
     saveLeaveData(data);
     renderLeaveStatus();
+    renderRecentLeaveLog();
     const fmt=date.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3');
     const msg=type==='생일반차'
       ? `🎂 ${name} ${fmt} 생일반차 (차감 없음)`
