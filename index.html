@@ -433,30 +433,10 @@
   .po-import svg{opacity:.9}
   .po-import:hover{background:rgba(15,255,193,.12);border-color:rgba(15,255,193,.55);color:var(--neon)}
 
-  /* ===== 매출 엑셀 ===== */
+  /* ===== 매출 보고서 — 업로드 버튼 / 메타 ===== */
   .sales-import{color:#a3e635 !important;background:rgba(163,230,53,.06) !important;border-color:rgba(163,230,53,.35) !important}
   .sales-import:hover{background:rgba(163,230,53,.12) !important;border-color:rgba(163,230,53,.55) !important}
   .sales-file-meta{font-family:var(--mono);font-size:11px;color:var(--text-3)}
-
-  .sales-tabs{display:flex;gap:2px;padding:8px 14px 0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin}
-  .sales-tabs:empty{display:none}
-  .sales-tab{padding:7px 14px;font-size:12px;color:var(--text-2);background:transparent;border:1px solid transparent;border-bottom:none;border-radius:4px 4px 0 0;cursor:pointer;font-family:var(--sans);white-space:nowrap;letter-spacing:.01em}
-  .sales-tab:hover{color:var(--text-1);background:var(--bg-2)}
-  .sales-tab.active{color:#a3e635;background:var(--bg-2);border-color:var(--line);position:relative;top:1px}
-
-  .sales-sheet-wrap{overflow:auto;max-height:70vh;padding:0}
-  .sales-sheet{width:100%;border-collapse:collapse;table-layout:auto;font-family:var(--mono);font-size:12px}
-  .sales-sheet td,.sales-sheet th{padding:6px 10px;border:1px solid var(--line);color:var(--text-1);vertical-align:top;white-space:nowrap;background:var(--bg-1)}
-  .sales-sheet tr:first-child td,.sales-sheet thead td{background:var(--bg-2);color:var(--text-0);font-weight:600;position:sticky;top:0;z-index:1}
-  .sales-sheet tr:hover td{background:var(--bg-3)}
-  .sales-sheet td.num{text-align:right;font-variant-numeric:tabular-nums}
-  .sales-sheet td.empty{color:var(--text-3)}
-
-  @media(max-width:600px){
-    .sales-sheet{font-size:11px}
-    .sales-sheet td,.sales-sheet th{padding:5px 8px}
-    .sales-tabs{padding:8px 12px 0}
-  }
 
   /* 매출 보고서 — 최신화 태그 */
   .sales-updated-tag{margin-left:10px;font-family:var(--mono);font-size:11px;font-weight:400;color:var(--text-3);letter-spacing:.01em;white-space:nowrap}
@@ -1278,7 +1258,7 @@
         <div class="sub-module m-sales" onclick="triggerSales()">
           <div class="sub-module-icon">📊</div>
           <div class="sub-module-title">매출 보고서</div>
-          <div class="sub-module-sub">엑셀 · PPT 보고서</div>
+          <div class="sub-module-sub">월간 매출 PPT</div>
           <div class="sub-module-tag">준비 중</div>
         </div>
         <div class="sub-module m-ads" onclick="triggerAds()">
@@ -1573,35 +1553,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">매출 보고서<span class="view-title-sub">/ 엑셀 + PPT</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">매출 보고서<span class="view-title-sub">/ 월간 PPT</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
-      <div class="po-section">
-        <div class="po-section-head">
-          <div class="po-section-title">매출 엑셀</div>
-          <div class="po-section-meta">
-            <span id="salesFileMeta" class="sales-file-meta">파일 없음</span>
-            <button class="btn po-import sales-import master-only" onclick="document.getElementById('salesFileInput').click()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              엑셀 업로드
-            </button>
-            <input type="file" id="salesFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleSalesFile(this.files[0])">
-            <button class="po-clear master-only" id="salesClearBtn" onclick="clearSalesFile()" style="display:none">비우기</button>
-          </div>
-        </div>
-        <div class="po-empty" id="salesEmpty">
-          <div class="po-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-          </div>
-          <div class="po-empty-text">아직 매출 엑셀이 없습니다</div>
-          <div class="po-empty-sub">위 <b>엑셀 업로드</b> 버튼으로 <b>.xlsx / .xls / .csv</b> 파일을 올리면 시트 내용이 그대로 표시됩니다</div>
-        </div>
-        <div id="salesContent" style="display:none">
-          <div class="sales-tabs" id="salesTabs"></div>
-          <div class="sales-sheet-wrap"><table class="sales-sheet" id="salesSheet"></table></div>
-        </div>
-      </div>
-
       <div class="po-section">
         <div class="po-section-head">
           <div class="po-section-title">매출 보고서 PPT</div>
@@ -1985,10 +1939,8 @@
     window.scrollTo({top:0,behavior:'instant'});
     if(id==='viewHr') renderLeaveStatus();
     if(id==='viewSales'){
-      if(typeof renderSalesView==='function') renderSalesView();
       if(typeof renderSalesPptView==='function') renderSalesPptView();
       if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
-      if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     }
   }
@@ -2492,8 +2444,7 @@
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
 
-    // 매출 데이터도 함께 동기화
-    if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
+    // 매출 PPT도 함께 동기화
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
   }
 
@@ -2517,8 +2468,7 @@
         if(last) last.textContent = t;
       }
     }
-    // 매출 데이터도 함께 폴링
-    if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
+    // 매출 PPT도 함께 폴링
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
   }
 
@@ -3126,274 +3076,6 @@ async function handlePOFiles(files){
   renderPOList();
 
   /* ===================================================== */
-  /* ============ 매출 엑셀 (raw 시트 표시 + GitHub 동기화) ============ */
-  /* ===================================================== */
-  const SALES_KEY='brightbeed_sales_xlsx';
-  const SALES_PATH='data/sales-data.json';
-  const SALES_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${SALES_PATH}`;
-  const SALES_API=`https://api.github.com/repos/${PO_REPO}/contents/${SALES_PATH}`;
-  let _salesActiveSheet=0;
-  let _sales_lastHash=null;
-
-  /* --- GitHub 동기화 (PO 패턴) --- */
-  async function fetchSalesDataFromRemote(){
-    try{
-      const r=await fetch(`${SALES_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
-      if(r.status===404) return {empty:true};
-      if(!r.ok) return null;
-      const data=await r.json();
-      return (data && typeof data==='object' && data.sheets) ? data : {empty:true};
-    }catch(e){return null}
-  }
-  async function pushSalesDataToRemote(data){
-    const token=localStorage.getItem(TOKEN_KEY);
-    if(!token) return {ok:false,reason:'notoken'};
-    async function getSha(){
-      try{
-        const r=await fetch(`${SALES_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
-          headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'},
-          cache:'no-cache'
-        });
-        if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {error:'auth'}}
-        if(r.status===404) return {sha:null};
-        if(!r.ok) return {error:`http_${r.status}`};
-        const j=await r.json();
-        return {sha:j.sha};
-      }catch(e){return {error:'fetch'}}
-    }
-    async function doPut(sha){
-      const payload=data?JSON.stringify(data,null,2):'null';
-      const content=btoa(unescape(encodeURIComponent(payload)));
-      const body={message:`chore: 매출 엑셀 갱신${data?` (${data.filename||''})`:' (비우기)'}`,content,branch:PO_BRANCH};
-      if(sha) body.sha=sha;
-      return fetch(SALES_API,{
-        method:'PUT',
-        headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
-        body:JSON.stringify(body)
-      });
-    }
-    let shaResult=await getSha();
-    if(shaResult.error==='auth') return {ok:false,reason:'auth'};
-    let r=await doPut(shaResult.sha);
-    let retries=0;
-    while(r.status===409 && retries<2){
-      retries++;
-      shaResult=await getSha();
-      if(shaResult.error==='auth') return {ok:false,reason:'auth'};
-      r=await doPut(shaResult.sha);
-    }
-    if(r.ok) return {ok:true};
-    if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
-    if(r.status===422||r.status===413){
-      // 파일 크기 초과 (GitHub Contents API 100MB 제한)
-      return {ok:false,reason:'too_large'};
-    }
-    return {ok:false,reason:`http_${r.status}`};
-  }
-  async function pushSalesAfterChange(data){
-    if(!localStorage.getItem(TOKEN_KEY)) return;
-    let result=await pushSalesDataToRemote(data);
-    if(!result.ok && result.reason==='auth'){
-      const newToken=await askToken('github');
-      if(newToken){
-        localStorage.setItem(TOKEN_KEY,newToken);
-        result=await pushSalesDataToRemote(data);
-      }
-    }
-    if(!result.ok && result.reason==='too_large'){
-      toast('파일이 너무 큽니다 (GitHub 100MB 제한). 다른 기기에서는 안 보일 수 있습니다','err');
-    }
-  }
-  async function syncSalesDataFromRemote(){
-    const remote=await fetchSalesDataFromRemote();
-    if(remote===null) return; // fetch 실패 — silent
-    const local=loadSalesData();
-    // 마이그레이션: remote 비어있고 local에 데이터 있으면 local push
-    if(remote.empty){
-      if(local && localStorage.getItem(TOKEN_KEY)){
-        const r=await pushSalesDataToRemote(local);
-        if(r.ok) _sales_lastHash=JSON.stringify(local);
-      }
-      return;
-    }
-    // remote에 데이터 있음 → local 갱신
-    const json=JSON.stringify(remote);
-    if(json===_sales_lastHash) return; // 변경 없음
-    _sales_lastHash=json;
-    localStorage.setItem(SALES_KEY,json);
-    renderSalesView();
-  }
-  window.syncSalesDataFromRemote=syncSalesDataFromRemote;
-
-  function loadSalesData(){
-    try{return JSON.parse(localStorage.getItem(SALES_KEY)||'null')}catch(e){return null}
-  }
-  function saveSalesData(data){
-    if(data){
-      const json=JSON.stringify(data);
-      localStorage.setItem(SALES_KEY,json);
-      _sales_lastHash=json;
-    }else{
-      localStorage.removeItem(SALES_KEY);
-      _sales_lastHash='null';
-    }
-    pushSalesAfterChange(data).catch(e=>console.warn('sales sync error:',e));
-  }
-
-  function readSalesXLSX(file){
-    return new Promise((resolve,reject)=>{
-      const r=new FileReader();
-      r.onload=()=>{
-        try{
-          const buf=new Uint8Array(r.result);
-          const isCSV=file.name.toLowerCase().endsWith('.csv');
-          if(isCSV){
-            let text=new TextDecoder('utf-8').decode(buf);
-            const repl=(text.match(/�/g)||[]).length;
-            if(repl>5){try{text=new TextDecoder('euc-kr').decode(buf)}catch(e){}}
-            text=text.replace(/^﻿/,'');
-            resolve(XLSX.read(text,{type:'string'}));
-          }else{
-            resolve(XLSX.read(buf,{type:'array',cellDates:true}));
-          }
-        }catch(e){reject(e)}
-      };
-      r.onerror=()=>reject(new Error('파일 읽기 실패'));
-      r.readAsArrayBuffer(file);
-    });
-  }
-
-  function fmtCellValue(v){
-    if(v==null||v==='') return '';
-    if(v instanceof Date){
-      const y=v.getFullYear(),m=String(v.getMonth()+1).padStart(2,'0'),d=String(v.getDate()).padStart(2,'0');
-      const h=v.getHours(),mi=v.getMinutes(),s=v.getSeconds();
-      if(h===0&&mi===0&&s===0) return `${y}-${m}-${d}`;
-      return `${y}-${m}-${d} ${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;
-    }
-    if(typeof v==='number'){
-      if(Number.isInteger(v)) return v.toLocaleString('ko-KR');
-      return v.toLocaleString('ko-KR',{maximumFractionDigits:6});
-    }
-    return String(v);
-  }
-
-  async function handleSalesFile(file){
-    if(!file) return;
-    if(!requireMaster('매출 업로드')) return;
-    const ext=file.name.toLowerCase();
-    if(!(ext.endsWith('.xlsx')||ext.endsWith('.xls')||ext.endsWith('.csv'))){
-      toast('지원 형식: .xlsx / .xls / .csv','err');
-      return;
-    }
-    toast(`${file.name} 읽는 중...`,'ok');
-    try{
-      const wb=await readSalesXLSX(file);
-      const sheets=[];
-      for(const sn of wb.SheetNames){
-        const ws=wb.Sheets[sn];
-        const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
-        sheets.push({name:sn,data});
-      }
-      if(sheets.length===0){toast('시트가 비어있습니다','err');return}
-      const payload={
-        filename:file.name,
-        size:file.size,
-        uploadedAt:Date.now(),
-        sheets
-      };
-      saveSalesData(payload);
-      _salesActiveSheet=0;
-      renderSalesView();
-      toast(`✓ ${file.name} 업로드 완료 (${sheets.length}개 시트)`,'ok');
-    }catch(e){
-      toast(`업로드 실패: ${(e.message||'').slice(0,100)}`,'err');
-    }finally{
-      const inp=document.getElementById('salesFileInput');
-      if(inp) inp.value='';
-    }
-  }
-
-  function clearSalesFile(){
-    if(!requireMaster('매출 비우기')) return;
-    if(!confirm('매출 엑셀을 비우시겠습니까?')) return;
-    saveSalesData(null);
-    _salesActiveSheet=0;
-    renderSalesView();
-    toast('매출 엑셀 비움','ok');
-  }
-
-  function switchSalesSheet(idx){
-    _salesActiveSheet=idx;
-    renderSalesView();
-  }
-  window.switchSalesSheet=switchSalesSheet;
-
-  function renderSalesView(){
-    const empty=document.getElementById('salesEmpty');
-    const content=document.getElementById('salesContent');
-    const meta=document.getElementById('salesFileMeta');
-    const clearBtn=document.getElementById('salesClearBtn');
-    const tabsEl=document.getElementById('salesTabs');
-    const sheetEl=document.getElementById('salesSheet');
-    if(!empty||!content) return;
-
-    const data=loadSalesData();
-    if(!data||!data.sheets||data.sheets.length===0){
-      empty.style.display='block';
-      content.style.display='none';
-      meta.textContent='파일 없음';
-      clearBtn.style.display='none';
-      return;
-    }
-
-    empty.style.display='none';
-    content.style.display='block';
-    if(isMaster()) clearBtn.style.display='';
-
-    const upDate=new Date(data.uploadedAt||Date.now());
-    const dt=`${upDate.getFullYear()}-${String(upDate.getMonth()+1).padStart(2,'0')}-${String(upDate.getDate()).padStart(2,'0')} ${String(upDate.getHours()).padStart(2,'0')}:${String(upDate.getMinutes()).padStart(2,'0')}`;
-    const sizeKB=Math.round((data.size||0)/1024);
-    meta.textContent=`${data.filename} · ${sizeKB.toLocaleString('ko-KR')}KB · ${dt}`;
-
-    if(_salesActiveSheet>=data.sheets.length) _salesActiveSheet=0;
-
-    if(data.sheets.length>1){
-      tabsEl.innerHTML=data.sheets.map((s,i)=>
-        `<button class="sales-tab ${i===_salesActiveSheet?'active':''}" onclick="switchSalesSheet(${i})">${escapeHTML(s.name)}</button>`
-      ).join('');
-    }else{
-      tabsEl.innerHTML='';
-    }
-
-    const sheet=data.sheets[_salesActiveSheet];
-    const rows=sheet.data||[];
-    if(rows.length===0){
-      sheetEl.innerHTML='<tbody><tr><td class="empty">빈 시트</td></tr></tbody>';
-      return;
-    }
-    const maxCols=rows.reduce((m,r)=>Math.max(m,(r||[]).length),0);
-    const html=rows.map((r,ri)=>{
-      const cells=[];
-      for(let c=0;c<maxCols;c++){
-        const v=(r&&r[c]!==undefined)?r[c]:'';
-        const s=fmtCellValue(v);
-        const isNum=typeof v==='number'||(s&&/^-?[\d,]+(\.\d+)?$/.test(s)&&s!=='');
-        const cls=[];
-        if(isNum) cls.push('num');
-        if(s==='') cls.push('empty');
-        cells.push(`<td class="${cls.join(' ')}">${escapeHTML(s)}</td>`);
-      }
-      return `<tr>${cells.join('')}</tr>`;
-    }).join('');
-    sheetEl.innerHTML=`<tbody>${html}</tbody>`;
-  }
-
-  window.handleSalesFile=handleSalesFile;
-  window.clearSalesFile=clearSalesFile;
-  window.renderSalesView=renderSalesView;
-
-  /* ===================================================== */
   /* ============ 매출 보고서 PPT (업로드 + GitHub 동기화) ============ */
   /* ===================================================== */
   const PPT_META_KEY='brightbeed_sales_ppt_meta';
@@ -3613,27 +3295,17 @@ async function handlePOFiles(files){
   function renderSalesUpdatedTag(){
     const tag=document.getElementById('salesUpdatedTag');
     if(!tag) return;
-    const sales=loadSalesData();
     const ppt=loadPptMeta();
-    let latest=0;
-    if(sales && sales.uploadedAt) latest=Math.max(latest, sales.uploadedAt);
-    if(ppt && ppt.uploadedAt) latest=Math.max(latest, ppt.uploadedAt);
-    if(!latest){tag.textContent='';return}
-    const d=new Date(latest);
+    if(!ppt || !ppt.uploadedAt){tag.textContent='';return}
+    const d=new Date(ppt.uploadedAt);
     tag.textContent=`(${d.getMonth()+1}월${d.getDate()}일${d.getHours()}시 최신화완료)`;
   }
-
-  // 매출 엑셀 렌더 후에도 최신화 태그 갱신
-  const _origRenderSalesView=renderSalesView;
-  renderSalesView=function(){_origRenderSalesView.apply(this,arguments);renderSalesUpdatedTag()};
-  window.renderSalesView=renderSalesView;
 
   window.handleSalesPpt=handleSalesPpt;
   window.clearSalesPpt=clearSalesPpt;
   window.renderSalesPptView=renderSalesPptView;
   window.renderSalesUpdatedTag=renderSalesUpdatedTag;
 
-  renderSalesView();
   renderSalesPptView();
   renderSalesUpdatedTag();
 
