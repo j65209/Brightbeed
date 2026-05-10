@@ -6,6 +6,7 @@ on:
     paths:
       - 'data/sales-report.pptx'
       - 'data/sales-report.ppt'
+      - 'data/sales-ppt-meta.json'
   workflow_dispatch:
 
 permissions:
@@ -17,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install LibreOffice + Korean fonts
+      - name: Install LibreOffice + Korean fonts + jq
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
@@ -26,7 +27,8 @@ jobs:
             fonts-noto-cjk-extra \
             fonts-nanum \
             fonts-nanum-coding \
-            fonts-nanum-extra
+            fonts-nanum-extra \
+            jq
 
       - name: Determine source file
         id: src
@@ -41,17 +43,73 @@ jobs:
             echo "found=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Extract date key from meta filename
+        id: date
+        if: steps.src.outputs.found == 'true'
+        run: |
+          # meta.json의 filename에서 YYYY-MM-DD 또는 YYMMDD 추출
+          if [ -f data/sales-ppt-meta.json ]; then
+            FNAME=$(jq -r '.filename // ""' data/sales-ppt-meta.json)
+          else
+            FNAME=""
+          fi
+          # 1) YYYY-MM-DD (예: 2026-05-10)
+          DATEKEY=$(echo "$FNAME" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1 || true)
+          if [ -z "$DATEKEY" ]; then
+            # 2) YYMMDD (예: 260510) → 20YY-MM-DD
+            YYMMDD=$(echo "$FNAME" | grep -oE '[0-9]{6}' | head -1 || true)
+            if [ -n "$YYMMDD" ]; then
+              DATEKEY="20${YYMMDD:0:2}-${YYMMDD:2:2}-${YYMMDD:4:2}"
+            fi
+          fi
+          # 3) fallback: 오늘 (KST)
+          if [ -z "$DATEKEY" ]; then
+            DATEKEY=$(TZ=Asia/Seoul date +%Y-%m-%d)
+          fi
+          echo "key=$DATEKEY" >> "$GITHUB_OUTPUT"
+          echo "filename=$FNAME" >> "$GITHUB_OUTPUT"
+          echo "Date key: $DATEKEY (from $FNAME)"
+
       - name: Convert to PDF
         if: steps.src.outputs.found == 'true'
         run: |
           libreoffice --headless --convert-to pdf "${{ steps.src.outputs.file }}" --outdir data/
           ls -la data/
 
-      - name: Commit PDF
+      - name: Copy to archive + update sales-archive.json
+        if: steps.src.outputs.found == 'true'
+        run: |
+          DATE_KEY="${{ steps.date.outputs.key }}"
+          FNAME="${{ steps.date.outputs.filename }}"
+          mkdir -p data/archive
+          cp data/sales-report.pdf "data/archive/${DATE_KEY}.pdf"
+
+          # archive 매니페스트 업데이트 (없으면 새로 만듦, 있으면 같은 date 항목 교체)
+          if [ -f data/sales-archive.json ]; then
+            EXISTING=$(cat data/sales-archive.json)
+          else
+            EXISTING='[]'
+          fi
+          UPDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          PDF_SIZE=$(stat -c%s "data/archive/${DATE_KEY}.pdf")
+
+          # 같은 date 제거 후 새 항목 push, date desc 정렬
+          echo "$EXISTING" | jq \
+            --arg d "$DATE_KEY" \
+            --arg f "$FNAME" \
+            --arg p "data/archive/${DATE_KEY}.pdf" \
+            --arg u "$UPDATED_AT" \
+            --argjson s "$PDF_SIZE" \
+            '[.[] | select(.date != $d)] + [{date:$d, filename:$f, pdfPath:$p, size:$s, updatedAt:$u}]
+             | sort_by(.date) | reverse' \
+            > data/sales-archive.json
+          cat data/sales-archive.json
+
+      - name: Commit changes
         if: steps.src.outputs.found == 'true'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/sales-report.pdf
-          git diff --cached --quiet || git commit -m "chore: PPT → PDF 자동 변환 ($(basename '${{ steps.src.outputs.file }}'))"
+          git add data/sales-report.pdf "data/archive/${{ steps.date.outputs.key }}.pdf" data/sales-archive.json
+          git diff --cached --quiet || git commit -m "chore: PPT → PDF 자동 변환 + 아카이브 (${{ steps.date.outputs.key }})"
           git push
