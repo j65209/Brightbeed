@@ -1,0 +1,57 @@
+name: PPT to PDF (sales report)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/sales-report.pptx'
+      - 'data/sales-report.ppt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LibreOffice + Korean fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libreoffice \
+            fonts-noto-cjk \
+            fonts-noto-cjk-extra \
+            fonts-nanum \
+            fonts-nanum-coding \
+            fonts-nanum-extra
+
+      - name: Determine source file
+        id: src
+        run: |
+          if [ -f data/sales-report.pptx ]; then
+            echo "file=data/sales-report.pptx" >> "$GITHUB_OUTPUT"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          elif [ -f data/sales-report.ppt ]; then
+            echo "file=data/sales-report.ppt" >> "$GITHUB_OUTPUT"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Convert to PDF
+        if: steps.src.outputs.found == 'true'
+        run: |
+          libreoffice --headless --convert-to pdf "${{ steps.src.outputs.file }}" --outdir data/
+          ls -la data/
+
+      - name: Commit PDF
+        if: steps.src.outputs.found == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/sales-report.pdf
+          git diff --cached --quiet || git commit -m "chore: PPT → PDF 자동 변환 ($(basename '${{ steps.src.outputs.file }}'))"
+          git push
