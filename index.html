@@ -309,10 +309,11 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
-  /* 두 번째 hero-row — 첫 행과 명확히 분리되도록 충분한 위쪽 여백 */
+  /* 두 번째 hero-row — 데스크탑은 행간을 명확히, 모바일은 카드 간격과 동일하게 */
   .hero-row + .hero-row{margin-top:8px}
+  /* 모바일에서 물류팀↔CS팀 간격이 32px로 튀는 현상 보정 (32 - 20 = 12, 카드 내부 gap과 일치) */
   @media(max-width:760px){
-    .hero-row + .hero-row{margin-top:0}
+    .hero-row + .hero-row{margin-top:-20px}
   }
 
   /* 보조 액션 (작은 버튼들) */
