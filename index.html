@@ -458,6 +458,27 @@
     .sales-tabs{padding:8px 12px 0}
   }
 
+  /* 매출 보고서 — 최신화 태그 */
+  .sales-updated-tag{margin-left:10px;font-family:var(--mono);font-size:11px;font-weight:400;color:var(--text-3);letter-spacing:.01em;white-space:nowrap}
+  .sales-updated-tag:empty{display:none}
+  @media(max-width:600px){
+    .sales-updated-tag{display:block;margin:4px 0 0;font-size:10px}
+  }
+
+  /* 매출 보고서 — PPT 뷰어 */
+  .sales-ppt-toolbar{display:flex;gap:14px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .sales-ppt-link{font-size:12px;color:var(--text-2);text-decoration:none;padding:6px 12px;border:1px solid var(--line);border-radius:4px;transition:all .15s;font-family:var(--sans)}
+  .sales-ppt-link:hover{color:var(--text-1);border-color:var(--text-3);background:var(--bg-2)}
+  .sales-ppt-link-strong{color:#a3e635;border-color:rgba(163,230,53,.35);background:rgba(163,230,53,.06)}
+  .sales-ppt-link-strong:hover{color:#a3e635;border-color:rgba(163,230,53,.55);background:rgba(163,230,53,.12)}
+  .sales-ppt-viewer-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#0a0d12}
+  .sales-ppt-viewer{width:100%;height:100%;border:0;background:#fff;display:block}
+  @media(max-width:600px){
+    .sales-ppt-toolbar{padding:10px 14px;gap:8px}
+    .sales-ppt-link{font-size:11px;padding:5px 10px}
+    .sales-ppt-viewer-wrap{aspect-ratio:4/3}
+  }
+
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
   .view{display:block}
   .view[hidden]{display:none}
@@ -1256,8 +1277,8 @@
       <div class="sub-modules">
         <div class="sub-module m-sales" onclick="triggerSales()">
           <div class="sub-module-icon">📊</div>
-          <div class="sub-module-title">매출 대시보드</div>
-          <div class="sub-module-sub">일/월별 매출 · 채널별</div>
+          <div class="sub-module-title">매출 보고서</div>
+          <div class="sub-module-sub">엑셀 · PPT 보고서</div>
           <div class="sub-module-tag">준비 중</div>
         </div>
         <div class="sub-module m-ads" onclick="triggerAds()">
@@ -1545,14 +1566,14 @@
     </div>
   </div><!-- /viewLg -->
 
-  <!-- ============ 매출 대시보드 ============ -->
+  <!-- ============ 매출 보고서 ============ -->
   <div class="view" id="viewSales" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">매출 대시보드<span class="view-title-sub">/ 엑셀 자료</span></h1>
+      <h1 class="view-title">매출 보고서<span class="view-title-sub">/ 엑셀 + PPT</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
       <div class="po-section">
@@ -1578,6 +1599,37 @@
         <div id="salesContent" style="display:none">
           <div class="sales-tabs" id="salesTabs"></div>
           <div class="sales-sheet-wrap"><table class="sales-sheet" id="salesSheet"></table></div>
+        </div>
+      </div>
+
+      <div class="po-section">
+        <div class="po-section-head">
+          <div class="po-section-title">매출 보고서 PPT</div>
+          <div class="po-section-meta">
+            <span id="salesPptMeta" class="sales-file-meta">파일 없음</span>
+            <button class="btn po-import sales-import master-only" onclick="document.getElementById('salesPptInput').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              PPT 업로드
+            </button>
+            <input type="file" id="salesPptInput" accept=".pptx,.ppt" style="display:none" onchange="handleSalesPpt(this.files[0])">
+            <button class="po-clear master-only" id="salesPptClearBtn" onclick="clearSalesPpt()" style="display:none">비우기</button>
+          </div>
+        </div>
+        <div class="po-empty" id="salesPptEmpty">
+          <div class="po-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h6"/></svg>
+          </div>
+          <div class="po-empty-text">아직 매출 보고서 PPT가 없습니다</div>
+          <div class="po-empty-sub">위 <b>PPT 업로드</b> 버튼으로 <b>.pptx / .ppt</b> 파일을 올리면 미리보기 + 다운로드가 가능합니다</div>
+        </div>
+        <div id="salesPptContent" style="display:none">
+          <div class="sales-ppt-toolbar">
+            <a id="salesPptDownload" class="sales-ppt-link sales-ppt-link-strong" target="_blank" rel="noopener" download>다운로드</a>
+            <a id="salesPptOpen" class="sales-ppt-link" target="_blank" rel="noopener">새 창에서 보기</a>
+          </div>
+          <div class="sales-ppt-viewer-wrap">
+            <iframe id="salesPptViewer" class="sales-ppt-viewer" src="about:blank" loading="lazy"></iframe>
+          </div>
         </div>
       </div>
     </div>
@@ -1934,7 +1986,10 @@
     if(id==='viewHr') renderLeaveStatus();
     if(id==='viewSales'){
       if(typeof renderSalesView==='function') renderSalesView();
+      if(typeof renderSalesPptView==='function') renderSalesPptView();
+      if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
       if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
+      if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     }
   }
 
@@ -2439,6 +2494,7 @@
 
     // 매출 데이터도 함께 동기화
     if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
+    if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -2463,6 +2519,7 @@
     }
     // 매출 데이터도 함께 폴링
     if(typeof syncSalesDataFromRemote==='function') syncSalesDataFromRemote().catch(()=>{});
+    if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -3336,7 +3393,249 @@ async function handlePOFiles(files){
   window.clearSalesFile=clearSalesFile;
   window.renderSalesView=renderSalesView;
 
+  /* ===================================================== */
+  /* ============ 매출 보고서 PPT (업로드 + GitHub 동기화) ============ */
+  /* ===================================================== */
+  const PPT_META_KEY='brightbeed_sales_ppt_meta';
+  const PPT_META_PATH='data/sales-ppt-meta.json';
+  const PPT_META_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${PPT_META_PATH}`;
+  const PPT_META_API=`https://api.github.com/repos/${PO_REPO}/contents/${PPT_META_PATH}`;
+  let _ppt_lastHash=null;
+
+  function loadPptMeta(){try{return JSON.parse(localStorage.getItem(PPT_META_KEY)||'null')}catch(e){return null}}
+  function savePptMetaLocal(m){
+    if(m){const j=JSON.stringify(m);localStorage.setItem(PPT_META_KEY,j);_ppt_lastHash=j}
+    else{localStorage.removeItem(PPT_META_KEY);_ppt_lastHash='null'}
+  }
+
+  async function ghGetSha(apiUrl){
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(!token) return {error:'notoken'};
+    try{
+      const r=await fetch(`${apiUrl}?ref=${PO_BRANCH}&_=${Date.now()}`,{
+        headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'},
+        cache:'no-cache'
+      });
+      if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {error:'auth'}}
+      if(r.status===404) return {sha:null};
+      if(!r.ok) return {error:`http_${r.status}`};
+      const j=await r.json();
+      return {sha:j.sha};
+    }catch(e){return {error:'fetch'}}
+  }
+  async function ghPut(apiUrl, base64Content, message){
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(!token) return {ok:false,reason:'notoken'};
+    let shaR=await ghGetSha(apiUrl);
+    if(shaR.error==='auth') return {ok:false,reason:'auth'};
+    const buildBody=(sha)=>{const b={message,content:base64Content,branch:PO_BRANCH};if(sha)b.sha=sha;return JSON.stringify(b)};
+    let r=await fetch(apiUrl,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
+    let retries=0;
+    while(r.status===409 && retries<2){
+      retries++;
+      shaR=await ghGetSha(apiUrl);
+      if(shaR.error==='auth') return {ok:false,reason:'auth'};
+      r=await fetch(apiUrl,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
+    }
+    if(r.ok) return {ok:true};
+    if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
+    if(r.status===422||r.status===413) return {ok:false,reason:'too_large'};
+    return {ok:false,reason:`http_${r.status}`};
+  }
+  async function ghDelete(apiUrl, message){
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(!token) return {ok:false,reason:'notoken'};
+    const shaR=await ghGetSha(apiUrl);
+    if(shaR.error==='auth') return {ok:false,reason:'auth'};
+    if(!shaR.sha) return {ok:true};
+    const r=await fetch(apiUrl,{
+      method:'DELETE',
+      headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({message,sha:shaR.sha,branch:PO_BRANCH})
+    });
+    if(r.ok) return {ok:true};
+    if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
+    return {ok:false,reason:`http_${r.status}`};
+  }
+
+  function arrayBufferToBase64(buf){
+    const bytes=new Uint8Array(buf);
+    const CHUNK=0x8000;
+    let bin='';
+    for(let i=0;i<bytes.length;i+=CHUNK){
+      bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+CHUNK));
+    }
+    return btoa(bin);
+  }
+
+  async function fetchPptMetaFromRemote(){
+    try{
+      const r=await fetch(`${PPT_META_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {empty:true};
+      if(!r.ok) return null;
+      const data=await r.json();
+      return (data && typeof data==='object' && data.filePath) ? data : {empty:true};
+    }catch(e){return null}
+  }
+
+  async function syncSalesPptFromRemote(){
+    const remote=await fetchPptMetaFromRemote();
+    if(remote===null) return;
+    if(remote.empty){
+      if(loadPptMeta()){
+        savePptMetaLocal(null);
+        renderSalesPptView();
+        renderSalesUpdatedTag();
+      }else{
+        _ppt_lastHash='null';
+      }
+      return;
+    }
+    const json=JSON.stringify(remote);
+    if(json===_ppt_lastHash) return;
+    _ppt_lastHash=json;
+    localStorage.setItem(PPT_META_KEY,json);
+    renderSalesPptView();
+    renderSalesUpdatedTag();
+  }
+  window.syncSalesPptFromRemote=syncSalesPptFromRemote;
+
+  async function ensureGhToken(){
+    if(localStorage.getItem(TOKEN_KEY)) return true;
+    const t=await askToken('github');
+    if(t){localStorage.setItem(TOKEN_KEY,t);return true}
+    return false;
+  }
+
+  async function handleSalesPpt(file){
+    if(!file) return;
+    if(!requireMaster('PPT 업로드')) return;
+    const m=file.name.toLowerCase().match(/\.(pptx|ppt)$/);
+    if(!m){toast('지원 형식: .pptx / .ppt','err');return}
+    if(file.size > 50*1024*1024){toast('파일이 너무 큽니다 (최대 50MB)','err');return}
+    if(!(await ensureGhToken())){toast('GitHub 토큰이 필요합니다','err');return}
+
+    toast(`${file.name} 업로드 중...`,'ok');
+    const inp=document.getElementById('salesPptInput');
+    try{
+      const buf=await file.arrayBuffer();
+      const b64=arrayBufferToBase64(buf);
+      const ext=m[1];
+      const filePath=`data/sales-report.${ext}`;
+      const fileApi=`https://api.github.com/repos/${PO_REPO}/contents/${filePath}`;
+
+      // 1) 이전 PPT가 다른 확장자였다면 같이 정리
+      const prev=loadPptMeta();
+      if(prev && prev.filePath && prev.filePath !== filePath){
+        const prevApi=`https://api.github.com/repos/${PO_REPO}/contents/${prev.filePath}`;
+        await ghDelete(prevApi, `chore: 이전 PPT 정리 (${prev.filename||''})`);
+      }
+
+      // 2) 바이너리 PUT
+      const upR=await ghPut(fileApi, b64, `chore: 매출 PPT 업로드 (${file.name})`);
+      if(!upR.ok){
+        if(upR.reason==='too_large'){toast('파일이 너무 큽니다 (GitHub 제한)','err');return}
+        if(upR.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
+        toast(`업로드 실패: ${upR.reason}`,'err');return;
+      }
+
+      // 3) 메타 PUT
+      const meta={filename:file.name, ext, size:file.size, uploadedAt:Date.now(), filePath};
+      const metaB64=btoa(unescape(encodeURIComponent(JSON.stringify(meta,null,2))));
+      const metaR=await ghPut(PPT_META_API, metaB64, `chore: 매출 PPT 메타 갱신 (${file.name})`);
+      if(!metaR.ok){toast('메타 동기화 실패','err')}
+
+      savePptMetaLocal(meta);
+      renderSalesPptView();
+      renderSalesUpdatedTag();
+      toast(`✓ ${file.name} PPT 업로드 완료`,'ok');
+    }catch(e){
+      toast(`업로드 실패: ${(e.message||'').slice(0,100)}`,'err');
+    }finally{
+      if(inp) inp.value='';
+    }
+  }
+
+  async function clearSalesPpt(){
+    if(!requireMaster('PPT 비우기')) return;
+    const m=loadPptMeta();
+    if(!m){toast('이미 비어있습니다','err');return}
+    if(!confirm('매출 보고서 PPT를 비우시겠습니까?')) return;
+    if(!(await ensureGhToken())){toast('GitHub 토큰이 필요합니다','err');return}
+    const fileApi=`https://api.github.com/repos/${PO_REPO}/contents/${m.filePath}`;
+    await ghDelete(fileApi, `chore: 매출 PPT 비우기 (${m.filename||''})`);
+    await ghDelete(PPT_META_API, `chore: 매출 PPT 메타 비우기`);
+    savePptMetaLocal(null);
+    renderSalesPptView();
+    renderSalesUpdatedTag();
+    toast('매출 PPT 비움','ok');
+  }
+
+  function renderSalesPptView(){
+    const empty=document.getElementById('salesPptEmpty');
+    const content=document.getElementById('salesPptContent');
+    const metaEl=document.getElementById('salesPptMeta');
+    const clearBtn=document.getElementById('salesPptClearBtn');
+    const viewer=document.getElementById('salesPptViewer');
+    const dl=document.getElementById('salesPptDownload');
+    const open=document.getElementById('salesPptOpen');
+    if(!empty||!content) return;
+
+    const m=loadPptMeta();
+    if(!m||!m.filePath){
+      empty.style.display='block';
+      content.style.display='none';
+      if(metaEl) metaEl.textContent='파일 없음';
+      if(clearBtn) clearBtn.style.display='none';
+      if(viewer){viewer.src='about:blank';delete viewer.dataset.cur}
+      return;
+    }
+
+    empty.style.display='none';
+    content.style.display='block';
+    if(isMaster() && clearBtn) clearBtn.style.display='';
+
+    const upDate=new Date(m.uploadedAt||Date.now());
+    const dt=`${upDate.getFullYear()}-${String(upDate.getMonth()+1).padStart(2,'0')}-${String(upDate.getDate()).padStart(2,'0')} ${String(upDate.getHours()).padStart(2,'0')}:${String(upDate.getMinutes()).padStart(2,'0')}`;
+    const sizeKB=Math.round((m.size||0)/1024);
+    if(metaEl) metaEl.textContent=`${m.filename} · ${sizeKB.toLocaleString('ko-KR')}KB · ${dt}`;
+
+    const rawUrl=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${m.filePath}?cb=${m.uploadedAt||Date.now()}`;
+    const viewerUrl=`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawUrl)}`;
+    if(viewer && viewer.dataset.cur !== rawUrl){
+      viewer.src=viewerUrl;
+      viewer.dataset.cur=rawUrl;
+    }
+    if(dl){dl.href=rawUrl;dl.setAttribute('download',m.filename||'')}
+    if(open){open.href=viewerUrl}
+  }
+
+  function renderSalesUpdatedTag(){
+    const tag=document.getElementById('salesUpdatedTag');
+    if(!tag) return;
+    const sales=loadSalesData();
+    const ppt=loadPptMeta();
+    let latest=0;
+    if(sales && sales.uploadedAt) latest=Math.max(latest, sales.uploadedAt);
+    if(ppt && ppt.uploadedAt) latest=Math.max(latest, ppt.uploadedAt);
+    if(!latest){tag.textContent='';return}
+    const d=new Date(latest);
+    tag.textContent=`(${d.getMonth()+1}월${d.getDate()}일${d.getHours()}시 최신화완료)`;
+  }
+
+  // 매출 엑셀 렌더 후에도 최신화 태그 갱신
+  const _origRenderSalesView=renderSalesView;
+  renderSalesView=function(){_origRenderSalesView.apply(this,arguments);renderSalesUpdatedTag()};
+  window.renderSalesView=renderSalesView;
+
+  window.handleSalesPpt=handleSalesPpt;
+  window.clearSalesPpt=clearSalesPpt;
+  window.renderSalesPptView=renderSalesPptView;
+  window.renderSalesUpdatedTag=renderSalesUpdatedTag;
+
   renderSalesView();
+  renderSalesPptView();
+  renderSalesUpdatedTag();
 
   init();
 </script>
