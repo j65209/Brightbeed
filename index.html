@@ -445,6 +445,44 @@
     .sales-updated-tag{display:block;margin:4px 0 0;font-size:10px}
   }
 
+  /* 사내 공지사항 — 자유양식 에디터 */
+  .notice-btn{color:#ff6bb5 !important;background:rgba(255,107,181,.06) !important;border-color:rgba(255,107,181,.35) !important}
+  .notice-btn:hover{background:rgba(255,107,181,.12) !important;border-color:rgba(255,107,181,.55) !important}
+  .notice-btn-save{color:#a3e635 !important;background:rgba(163,230,53,.08) !important;border-color:rgba(163,230,53,.4) !important}
+  .notice-btn-save:hover{background:rgba(163,230,53,.16) !important;border-color:rgba(163,230,53,.6) !important}
+
+  .notice-toolbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:10px 20px;border-bottom:1px solid var(--line);background:var(--bg-2)}
+  .notice-toolbar button{min-width:30px;height:28px;padding:0 8px;font-size:12px;color:var(--text-2);background:var(--bg-1);border:1px solid var(--line);border-radius:3px;cursor:pointer;font-family:var(--sans);transition:all .12s;display:inline-flex;align-items:center;justify-content:center}
+  .notice-toolbar button:hover{color:var(--text-0);background:var(--bg-3);border-color:var(--text-3)}
+  .notice-toolbar button:active{background:var(--bg-3);transform:scale(.97)}
+  .notice-toolbar-sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+
+  .notice-content{padding:24px 28px;min-height:240px;color:var(--text-1);font-size:14px;line-height:1.7;font-family:var(--sans);outline:none;word-break:break-word}
+  .notice-content[contenteditable="true"]{cursor:text;background:var(--bg-1);box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s}
+  .notice-content[contenteditable="true"]:focus{box-shadow:inset 0 0 0 1px rgba(255,107,181,.35)}
+  .notice-content h1,.notice-content h2,.notice-content h3{margin:18px 0 10px;color:var(--text-0);font-weight:600;letter-spacing:-.01em}
+  .notice-content h1{font-size:20px}
+  .notice-content h2{font-size:17px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .notice-content h3{font-size:14px;color:var(--text-1)}
+  .notice-content p{margin:8px 0}
+  .notice-content ul,.notice-content ol{margin:8px 0 8px 22px;padding:0}
+  .notice-content li{margin:3px 0}
+  .notice-content a{color:#06d8ff;text-decoration:underline;text-underline-offset:2px}
+  .notice-content a:hover{color:#a3e635}
+  .notice-content blockquote{margin:10px 0;padding:6px 14px;border-left:3px solid #ff6bb5;color:var(--text-2);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .notice-content code{font-family:var(--mono);font-size:12px;background:var(--bg-2);padding:1px 6px;border-radius:3px;color:#a3e635}
+  .notice-content hr{border:none;border-top:1px dashed var(--line);margin:18px 0}
+  .notice-content[contenteditable="true"]:empty::before,
+  .notice-content[contenteditable="true"] p:only-child:empty::before{content:"공지 내용을 입력하세요...";color:var(--text-3);font-style:italic;pointer-events:none}
+
+  body.role-viewer .master-only-text{display:none !important}
+
+  @media(max-width:600px){
+    .notice-toolbar{padding:8px 14px;gap:3px}
+    .notice-toolbar button{min-width:26px;height:26px;padding:0 6px;font-size:11px}
+    .notice-content{padding:18px 16px;font-size:13px;min-height:180px}
+  }
+
   /* 매출 보고서 — PPT 뷰어 */
   .sales-ppt-toolbar{display:flex;gap:14px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .sales-ppt-link{font-size:12px;color:var(--text-2);text-decoration:none;padding:6px 12px;border:1px solid var(--line);border-radius:4px;transition:all .15s;font-family:var(--sans)}
@@ -1573,19 +1611,57 @@
     </div>
   </div>
 
-  <!-- ============ 사내 공지사항 (placeholder) ============ -->
+  <!-- ============ 사내 공지사항 (자유양식) ============ -->
   <div class="view" id="viewNotice" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">사내 공지사항<span class="view-title-sub">/ 공지 · 일정</span></h1>
+      <h1 class="view-title">사내 공지사항<span class="view-title-sub">/ 공지 · 일정</span><span id="noticeUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
-    <div class="placeholder-area">
-      <div class="ph-icon">📌</div>
-      <div class="ph-text">사내 공지사항 — 준비 중</div>
-      <div class="ph-sub">사장님이 직원들에게 공지·일정·업무 안내를 게시할 수 있는 공간<br><b>최신순 게시판 / 일정 캘린더 / 첨부 파일</b> 등 표시 예정</div>
+    <div class="po-wrap">
+      <div class="po-section">
+        <div class="po-section-head">
+          <div class="po-section-title">공지사항</div>
+          <div class="po-section-meta">
+            <button class="btn po-import notice-btn master-only" id="noticeEditBtn" onclick="enterNoticeEdit()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+              편집
+            </button>
+            <button class="btn po-import notice-btn-save master-only" id="noticeSaveBtn" onclick="saveNoticeEdit()" style="display:none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+              저장
+            </button>
+            <button class="po-clear master-only" id="noticeCancelBtn" onclick="cancelNoticeEdit()" style="display:none">취소</button>
+          </div>
+        </div>
+        <div class="notice-toolbar" id="noticeToolbar" style="display:none">
+          <button type="button" data-cmd="bold" title="굵게 (Ctrl+B)"><b>B</b></button>
+          <button type="button" data-cmd="italic" title="기울임 (Ctrl+I)"><i>I</i></button>
+          <button type="button" data-cmd="underline" title="밑줄 (Ctrl+U)"><u>U</u></button>
+          <span class="notice-toolbar-sep"></span>
+          <button type="button" data-cmd="formatBlock" data-arg="H2" title="제목">H2</button>
+          <button type="button" data-cmd="formatBlock" data-arg="H3" title="소제목">H3</button>
+          <button type="button" data-cmd="formatBlock" data-arg="P" title="본문">¶</button>
+          <span class="notice-toolbar-sep"></span>
+          <button type="button" data-cmd="insertUnorderedList" title="리스트">•</button>
+          <button type="button" data-cmd="insertOrderedList" title="번호 리스트">1.</button>
+          <button type="button" data-cmd="formatBlock" data-arg="BLOCKQUOTE" title="인용">”</button>
+          <span class="notice-toolbar-sep"></span>
+          <button type="button" data-cmd="link" title="링크">🔗</button>
+          <button type="button" data-cmd="hr" title="구분선">—</button>
+          <button type="button" data-cmd="removeFormat" title="서식 제거">⟲</button>
+        </div>
+        <div class="po-empty" id="noticeEmpty">
+          <div class="po-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg>
+          </div>
+          <div class="po-empty-text">아직 공지사항이 없습니다</div>
+          <div class="po-empty-sub master-only-text">우측 상단 <b>편집</b> 버튼으로 작성하세요 (마스터 전용)</div>
+        </div>
+        <div class="notice-content" id="noticeContent" contenteditable="false"></div>
+      </div>
     </div>
   </div>
   </main>
@@ -1894,6 +1970,11 @@
       if(typeof renderSalesPptView==='function') renderSalesPptView();
       if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
+    }
+    if(id==='viewNotice'){
+      if(typeof renderNotice==='function') renderNotice();
+      if(typeof renderNoticeUpdatedTag==='function') renderNoticeUpdatedTag();
+      if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     }
   }
 
@@ -2392,8 +2473,9 @@
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
 
-    // 매출 PPT도 함께 동기화
+    // 매출 PPT + 공지사항도 함께 동기화
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
+    if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -2416,8 +2498,9 @@
         if(last) last.textContent = t;
       }
     }
-    // 매출 PPT도 함께 폴링
+    // 매출 PPT + 공지사항도 함께 폴링
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
+    if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -3256,6 +3339,206 @@ async function handlePOFiles(files){
 
   renderSalesPptView();
   renderSalesUpdatedTag();
+
+  /* ===================================================== */
+  /* ============ 사내 공지사항 (자유양식 + GitHub 동기화) ============ */
+  /* ===================================================== */
+  const NOTICE_KEY='brightbeed_notice';
+  const NOTICE_PATH='data/notice.json';
+  const NOTICE_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${NOTICE_PATH}`;
+  const NOTICE_API=`https://api.github.com/repos/${PO_REPO}/contents/${NOTICE_PATH}`;
+  let _notice_lastHash=null;
+  let _notice_editing=false;
+  let _notice_origHtml='';
+
+  function loadNotice(){try{return JSON.parse(localStorage.getItem(NOTICE_KEY)||'null')}catch(e){return null}}
+  function saveNoticeLocal(n){
+    if(n){const j=JSON.stringify(n);localStorage.setItem(NOTICE_KEY,j);_notice_lastHash=j}
+    else{localStorage.removeItem(NOTICE_KEY);_notice_lastHash='null'}
+  }
+
+  async function fetchNoticeFromRemote(){
+    try{
+      const r=await fetch(`${NOTICE_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {empty:true};
+      if(!r.ok) return null;
+      const data=await r.json();
+      return (data && typeof data==='object' && typeof data.html==='string') ? data : {empty:true};
+    }catch(e){return null}
+  }
+
+  async function syncNoticeFromRemote(){
+    if(_notice_editing) return; // 편집 중이면 덮어쓰기 방지
+    const remote=await fetchNoticeFromRemote();
+    if(remote===null) return;
+    if(remote.empty){
+      if(loadNotice()){saveNoticeLocal(null);renderNotice();renderNoticeUpdatedTag()}
+      else{_notice_lastHash='null'}
+      return;
+    }
+    const json=JSON.stringify(remote);
+    if(json===_notice_lastHash) return;
+    _notice_lastHash=json;
+    localStorage.setItem(NOTICE_KEY,json);
+    renderNotice();
+    renderNoticeUpdatedTag();
+  }
+  window.syncNoticeFromRemote=syncNoticeFromRemote;
+
+  function renderNotice(){
+    if(_notice_editing) return; // 편집 모드 보존
+    const empty=document.getElementById('noticeEmpty');
+    const content=document.getElementById('noticeContent');
+    if(!content) return;
+    const n=loadNotice();
+    const hasContent = n && n.html && n.html.replace(/<[^>]*>/g,'').trim() !== '';
+    if(!hasContent){
+      if(empty) empty.style.display='block';
+      content.innerHTML='';
+      content.style.display='none';
+      return;
+    }
+    if(empty) empty.style.display='none';
+    content.style.display='block';
+    content.innerHTML=n.html;
+  }
+
+  function renderNoticeUpdatedTag(){
+    const tag=document.getElementById('noticeUpdatedTag');
+    if(!tag) return;
+    const n=loadNotice();
+    if(!n || !n.updatedAt){tag.textContent='';return}
+    const d=new Date(n.updatedAt);
+    tag.textContent=`(${d.getMonth()+1}월${d.getDate()}일${d.getHours()}시 최신화완료)`;
+  }
+
+  function enterNoticeEdit(){
+    if(!requireMaster('공지 편집')) return;
+    const content=document.getElementById('noticeContent');
+    const empty=document.getElementById('noticeEmpty');
+    const editBtn=document.getElementById('noticeEditBtn');
+    const saveBtn=document.getElementById('noticeSaveBtn');
+    const cancelBtn=document.getElementById('noticeCancelBtn');
+    const toolbar=document.getElementById('noticeToolbar');
+    if(!content) return;
+    const n=loadNotice();
+    _notice_origHtml=(n&&n.html)||'';
+    _notice_editing=true;
+    content.innerHTML=_notice_origHtml || '<p><br></p>';
+    content.contentEditable='true';
+    content.style.display='block';
+    if(empty) empty.style.display='none';
+    if(editBtn) editBtn.style.display='none';
+    if(saveBtn) saveBtn.style.display='';
+    if(cancelBtn) cancelBtn.style.display='';
+    if(toolbar) toolbar.style.display='flex';
+    setTimeout(()=>{
+      content.focus();
+      try{
+        const r=document.createRange();
+        r.selectNodeContents(content);
+        r.collapse(false);
+        const s=window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+      }catch(e){}
+    },30);
+  }
+
+  function exitNoticeEditMode(){
+    _notice_editing=false;
+    const content=document.getElementById('noticeContent');
+    const editBtn=document.getElementById('noticeEditBtn');
+    const saveBtn=document.getElementById('noticeSaveBtn');
+    const cancelBtn=document.getElementById('noticeCancelBtn');
+    const toolbar=document.getElementById('noticeToolbar');
+    if(content) content.contentEditable='false';
+    if(editBtn) editBtn.style.display='';
+    if(saveBtn) saveBtn.style.display='none';
+    if(cancelBtn) cancelBtn.style.display='none';
+    if(toolbar) toolbar.style.display='none';
+  }
+
+  async function saveNoticeEdit(){
+    if(!requireMaster('공지 저장')) return;
+    const content=document.getElementById('noticeContent');
+    if(!content) return;
+    if(!localStorage.getItem(TOKEN_KEY)){
+      const t=await askToken('github');
+      if(!t){toast('GitHub 토큰이 필요합니다','err');return}
+      localStorage.setItem(TOKEN_KEY,t);
+    }
+    let html=content.innerHTML.trim();
+    if(html==='<p><br></p>' || html==='<br>' || html==='') html='';
+    const meta={html, updatedAt:Date.now()};
+    toast('공지 저장 중...','ok');
+    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta,null,2))));
+    const r=await ghPut(NOTICE_API, b64, `chore: 사내 공지 갱신`);
+    if(!r.ok){
+      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
+      if(r.reason==='too_large'){toast('공지가 너무 깁니다','err');return}
+      toast(`저장 실패: ${r.reason}`,'err');return;
+    }
+    saveNoticeLocal(meta);
+    exitNoticeEditMode();
+    renderNotice();
+    renderNoticeUpdatedTag();
+    toast('✓ 공지 저장 완료','ok');
+  }
+
+  function cancelNoticeEdit(){
+    if(!_notice_editing) return;
+    const content=document.getElementById('noticeContent');
+    const cur=content?content.innerHTML.trim():'';
+    if(cur && cur !== _notice_origHtml.trim()){
+      if(!confirm('변경사항이 저장되지 않습니다. 취소하시겠습니까?')) return;
+    }
+    exitNoticeEditMode();
+    renderNotice();
+  }
+
+  function execNoticeCmd(cmd, arg){
+    const content=document.getElementById('noticeContent');
+    if(!content) return;
+    content.focus();
+    if(cmd==='link'){
+      const url=prompt('링크 URL을 입력하세요 (https://...)');
+      if(url){
+        const safe=/^https?:\/\//i.test(url)?url:('https://'+url);
+        document.execCommand('createLink', false, safe);
+      }
+      return;
+    }
+    if(cmd==='hr'){
+      document.execCommand('insertHorizontalRule', false, null);
+      return;
+    }
+    document.execCommand(cmd, false, arg||null);
+  }
+
+  // 툴바 위임 (mousedown으로 선택영역 보존)
+  const _noticeToolbar=document.getElementById('noticeToolbar');
+  if(_noticeToolbar){
+    _noticeToolbar.addEventListener('mousedown', e=>{
+      if(e.target.closest('button[data-cmd]')) e.preventDefault();
+    });
+    _noticeToolbar.addEventListener('click', e=>{
+      const btn=e.target.closest('button[data-cmd]');
+      if(!btn) return;
+      e.preventDefault();
+      execNoticeCmd(btn.dataset.cmd, btn.dataset.arg);
+    });
+  }
+
+  window.enterNoticeEdit=enterNoticeEdit;
+  window.saveNoticeEdit=saveNoticeEdit;
+  window.cancelNoticeEdit=cancelNoticeEdit;
+  window.execNoticeCmd=execNoticeCmd;
+  window.renderNotice=renderNotice;
+  window.renderNoticeUpdatedTag=renderNoticeUpdatedTag;
+
+  renderNotice();
+  renderNoticeUpdatedTag();
 
   init();
 </script>
