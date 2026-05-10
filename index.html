@@ -309,8 +309,11 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
-  /* 두 번째 hero-row와의 간격 보정 */
-  .hero-row + .hero-row{margin-top:-26px}
+  /* 두 번째 hero-row — 첫 행과 명확히 분리되도록 충분한 위쪽 여백 */
+  .hero-row + .hero-row{margin-top:8px}
+  @media(max-width:760px){
+    .hero-row + .hero-row{margin-top:0}
+  }
 
   /* 보조 액션 (작은 버튼들) */
   .sec-actions{display:flex;gap:8px;margin-top:24px;justify-content:center;flex-wrap:wrap}
@@ -609,8 +612,6 @@
     padding:1px 6px;border:1px dashed var(--line-2);border-radius:3px;
   }
   /* 각 모듈별 accent 색 (호버 시 옅게 발광) */
-  .sub-module.m-sales   {--m-color:#a3e635;--m-border:rgba(163,230,53,.4)}
-  .sub-module.m-sales   .sub-module-icon{color:#a3e635}
   .sub-module.m-notice  {--m-color:#ff6bb5;--m-border:rgba(255,107,181,.4)}
   .sub-module.m-notice  .sub-module-icon{color:#ff6bb5}
 
@@ -1361,12 +1362,6 @@
     <div class="sub-modules-section">
       <div class="sub-modules-eyebrow">기타 모듈</div>
       <div class="sub-modules">
-        <div class="sub-module m-sales" onclick="triggerSales()">
-          <div class="sub-module-icon">📊</div>
-          <div class="sub-module-title">매출 보고서</div>
-          <div class="sub-module-sub">월간 매출 PPT</div>
-          <div class="sub-module-tag">준비 중</div>
-        </div>
         <div class="sub-module m-notice" onclick="triggerNotice()">
           <div class="sub-module-icon">📌</div>
           <div class="sub-module-title">사내 공지사항</div>
@@ -1640,14 +1635,30 @@
     </div>
   </div><!-- /viewLg -->
 
-  <!-- ============ 매출 보고서 ============ -->
-  <div class="view" id="viewSales" hidden>
+  <!-- ============ CS팀 (placeholder) ============ -->
+  <div class="view" id="viewCs" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">매출 보고서<span class="view-title-sub">/ 월간 PPT</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">CS팀<span class="view-title-sub">/ 고객 응대</span></h1>
+    </div>
+    <div class="placeholder-area">
+      <div class="ph-icon">🎧</div>
+      <div class="ph-text">CS팀 — 준비 중</div>
+      <div class="ph-sub">고객 문의 · 응대 매뉴얼 · 자주 묻는 질문 · 클레임 처리 이력 통합 관리<br><b>채널별 문의량, 응답속도, 응대 템플릿</b> 등 표시 예정</div>
+    </div>
+  </div>
+
+  <!-- ============ MD팀 (매출 보고서 포함) ============ -->
+  <div class="view" id="viewMd" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">MD팀<span class="view-title-sub">/ 매출 보고서</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
       <div class="po-section">
@@ -1680,38 +1691,6 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ============ CS팀 (placeholder) ============ -->
-  <div class="view" id="viewCs" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">CS팀<span class="view-title-sub">/ 고객 응대</span></h1>
-    </div>
-    <div class="placeholder-area">
-      <div class="ph-icon">🎧</div>
-      <div class="ph-text">CS팀 — 준비 중</div>
-      <div class="ph-sub">고객 문의 · 응대 매뉴얼 · 자주 묻는 질문 · 클레임 처리 이력 통합 관리<br><b>채널별 문의량, 응답속도, 응대 템플릿</b> 등 표시 예정</div>
-    </div>
-  </div>
-
-  <!-- ============ MD팀 (placeholder) ============ -->
-  <div class="view" id="viewMd" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">MD팀<span class="view-title-sub">/ 상품기획</span></h1>
-    </div>
-    <div class="placeholder-area">
-      <div class="ph-icon">🛍️</div>
-      <div class="ph-text">MD팀 — 준비 중</div>
-      <div class="ph-sub">상품 기획 · 시즌 캘린더 · 트렌드 리서치 · 신상 라인업 관리<br><b>시즌별 카테고리 · 발주 일정 · 경쟁사 모니터링</b> 등 표시 예정</div>
     </div>
   </div>
 
@@ -2057,8 +2036,8 @@
   window.triggerERP=triggerERP;
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewSales','viewNotice','viewCs','viewMd'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewSales:'sales',viewNotice:'notice',viewCs:'cs',viewMd:'md'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -2070,7 +2049,7 @@
     });
     window.scrollTo({top:0,behavior:'instant'});
     if(id==='viewHr') renderLeaveStatus();
-    if(id==='viewSales'){
+    if(id==='viewMd'){
       if(typeof renderSalesPptView==='function') renderSalesPptView();
       if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
@@ -2100,7 +2079,6 @@
 
   function triggerHR(){ showView('viewHr'); }
   function triggerLogistics(){ showView('viewLg'); }
-  function triggerSales(){ showView('viewSales'); }
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
@@ -2175,7 +2153,6 @@
   }
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
-  window.triggerSales=triggerSales;
   window.triggerNotice=triggerNotice;
   window.triggerCs=triggerCs;
   window.triggerMd=triggerMd;
