@@ -48,6 +48,14 @@
     --neon-lg:#b46cff;
     --neon-lg-2:#ff4dcd;
     --neon-lg-glow:rgba(180,108,255,.5);
+    /* CS팀 — 시안/틸 (소통·차분함) */
+    --neon-cs:#22d3ee;
+    --neon-cs-2:#0891b2;
+    --neon-cs-glow:rgba(34,211,238,.5);
+    /* MD팀 — 로즈/마젠타 (감각·기획) */
+    --neon-md:#fb7185;
+    --neon-md-2:#be185d;
+    --neon-md-glow:rgba(251,113,133,.5);
     --ok:#3fb27f;
     --warn:#d99a4e;
     --danger:#d96666;
@@ -260,6 +268,49 @@
       0 0 96px rgba(255,77,205,.4),
       inset 0 1px 0 rgba(255,255,255,.45);
   }
+
+  /* 히어로 — CS팀 (시안/틸) */
+  .hero.hero-cs .hero-eyebrow{color:var(--neon-cs);text-shadow:0 0 12px var(--neon-cs-glow)}
+  .btn-neon.btn-cs{
+    background:linear-gradient(135deg,var(--neon-cs) 0%,var(--neon-cs-2) 100%);
+    color:#04212b;
+    border-color:rgba(34,211,238,.5);
+    box-shadow:
+      0 0 0 1px rgba(34,211,238,.35),
+      0 0 24px rgba(34,211,238,.45),
+      0 0 64px rgba(8,145,178,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-cs:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(34,211,238,.55),
+      0 0 32px rgba(34,211,238,.65),
+      0 0 96px rgba(8,145,178,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 히어로 — MD팀 (로즈/핑크) */
+  .hero.hero-md .hero-eyebrow{color:var(--neon-md);text-shadow:0 0 12px var(--neon-md-glow)}
+  .btn-neon.btn-md{
+    background:linear-gradient(135deg,var(--neon-md) 0%,var(--neon-md-2) 100%);
+    color:#2a050f;
+    border-color:rgba(251,113,133,.5);
+    box-shadow:
+      0 0 0 1px rgba(251,113,133,.35),
+      0 0 24px rgba(251,113,133,.45),
+      0 0 64px rgba(190,24,93,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-md:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(251,113,133,.55),
+      0 0 32px rgba(251,113,133,.65),
+      0 0 96px rgba(190,24,93,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 두 번째 hero-row와의 간격 보정 */
+  .hero-row + .hero-row{margin-top:-26px}
 
   /* 보조 액션 (작은 버튼들) */
   .sec-actions{display:flex;gap:8px;margin-top:24px;justify-content:center;flex-wrap:wrap}
@@ -1285,6 +1336,27 @@
       </section>
     </div>
 
+    <!-- 팀 카드 2행: CS / MD -->
+    <div class="hero-row">
+      <section class="hero hero-cs">
+        <div class="hero-eyebrow">CS</div>
+        <button class="btn-neon btn-cs" id="csBtn" onclick="triggerCs()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+          <span id="csBtnLabel">CS팀</span>
+        </button>
+        <div class="hero-hint">고객문의 · 응대 매뉴얼</div>
+      </section>
+
+      <section class="hero hero-md">
+        <div class="hero-eyebrow">MD</div>
+        <button class="btn-neon btn-md" id="mdBtn" onclick="triggerMd()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span id="mdBtnLabel">MD팀</span>
+        </button>
+        <div class="hero-hint">상품기획 · 시즌 · 트렌드</div>
+      </section>
+    </div>
+
     <!-- 보조 모듈 (디자인만, 데이터/소스는 추후) -->
     <div class="sub-modules-section">
       <div class="sub-modules-eyebrow">기타 모듈</div>
@@ -1608,6 +1680,38 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ CS팀 (placeholder) ============ -->
+  <div class="view" id="viewCs" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">CS팀<span class="view-title-sub">/ 고객 응대</span></h1>
+    </div>
+    <div class="placeholder-area">
+      <div class="ph-icon">🎧</div>
+      <div class="ph-text">CS팀 — 준비 중</div>
+      <div class="ph-sub">고객 문의 · 응대 매뉴얼 · 자주 묻는 질문 · 클레임 처리 이력 통합 관리<br><b>채널별 문의량, 응답속도, 응대 템플릿</b> 등 표시 예정</div>
+    </div>
+  </div>
+
+  <!-- ============ MD팀 (placeholder) ============ -->
+  <div class="view" id="viewMd" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">MD팀<span class="view-title-sub">/ 상품기획</span></h1>
+    </div>
+    <div class="placeholder-area">
+      <div class="ph-icon">🛍️</div>
+      <div class="ph-text">MD팀 — 준비 중</div>
+      <div class="ph-sub">상품 기획 · 시즌 캘린더 · 트렌드 리서치 · 신상 라인업 관리<br><b>시즌별 카테고리 · 발주 일정 · 경쟁사 모니터링</b> 등 표시 예정</div>
     </div>
   </div>
 
@@ -1953,8 +2057,8 @@
   window.triggerERP=triggerERP;
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewSales','viewNotice'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewSales:'sales',viewNotice:'notice'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewSales','viewNotice','viewCs','viewMd'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewSales:'sales',viewNotice:'notice',viewCs:'cs',viewMd:'md'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -1998,6 +2102,8 @@
   function triggerLogistics(){ showView('viewLg'); }
   function triggerSales(){ showView('viewSales'); }
   function triggerNotice(){ showView('viewNotice'); }
+  function triggerCs(){ showView('viewCs'); }
+  function triggerMd(){ showView('viewMd'); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
     const cur=history.state&&history.state.view;
@@ -2071,6 +2177,8 @@
   window.triggerLogistics=triggerLogistics;
   window.triggerSales=triggerSales;
   window.triggerNotice=triggerNotice;
+  window.triggerCs=triggerCs;
+  window.triggerMd=triggerMd;
   window.goHome=goHome;
   window.openLgResource=openLgResource;
 
