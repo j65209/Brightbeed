@@ -2386,32 +2386,37 @@
     renderRecentLeaveLog();
   }
 
-  /* 최근 연차 신청 내역 — 신청서로 들어온 항목(submittedAt 있는 것)만 모아 최신순 N개 */
+  /* 최근 연차 신청 내역 — 신청서로 들어온 항목(submittedAt 있는 것) 중 올해 신청만 최신순 전체
+     · 연도 바뀌면(예: 2027-01-01) 작년 항목은 자동으로 안 보이고 비어보임 */
   function renderRecentLeaveLog(){
     const wrap=document.getElementById('leaveRecent');
     const list=document.getElementById('leaveRecentList');
     const meta=document.getElementById('leaveRecentMeta');
+    const titleEl=wrap?.querySelector('.leave-recent-title');
     if(!wrap||!list) return;
     const data=loadLeaveData();
+    const currentYear=new Date().getFullYear();
     const items=[];
     Object.keys(data).forEach(name=>{
       const h=Array.isArray(data[name]?.history)?data[name].history:[];
       h.forEach(e=>{
         if(!e||!e.submittedAt) return;
+        const y=new Date(e.submittedAt).getFullYear();
+        if(y!==currentYear) return;
         items.push({name,date:e.date||'',type:e.type||'',submittedAt:e.submittedAt});
       });
     });
     items.sort((a,b)=>String(b.submittedAt).localeCompare(String(a.submittedAt)));
-    const top=items.slice(0,8);
+    if(titleEl) titleEl.textContent=`📋 ${currentYear}년 연차 신청 내역`;
     if(items.length===0){
       wrap.hidden=false;
-      list.innerHTML=`<div class="leave-recent-empty">아직 신청 내역이 없어요</div>`;
+      list.innerHTML=`<div class="leave-recent-empty">${currentYear}년 신청 내역이 없어요</div>`;
       if(meta) meta.textContent='';
       return;
     }
     wrap.hidden=false;
-    if(meta) meta.textContent=`총 ${items.length}건${items.length>top.length?` · 최근 ${top.length}건 표시`:''}`;
-    list.innerHTML=top.map(it=>{
+    if(meta) meta.textContent=`총 ${items.length}건`;
+    list.innerHTML=items.map(it=>{
       const cls=it.type==='생일반차'?'t-bday':(it.type==='연차'?'t-annual':'t-half');
       const md=String(it.date).match(/^(\d{4})-(\d{2})-(\d{2})$/);
       const dlabel=md?`${md[2]}/${md[3]}`:escapeHTML(it.date);
