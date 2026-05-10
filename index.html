@@ -522,10 +522,6 @@
   /* 각 모듈별 accent 색 (호버 시 옅게 발광) */
   .sub-module.m-sales   {--m-color:#a3e635;--m-border:rgba(163,230,53,.4)}
   .sub-module.m-sales   .sub-module-icon{color:#a3e635}
-  .sub-module.m-ads     {--m-color:#ff8c70;--m-border:rgba(255,140,112,.4)}
-  .sub-module.m-ads     .sub-module-icon{color:#ff8c70}
-  .sub-module.m-vendors {--m-color:#06d8ff;--m-border:rgba(6,216,255,.4)}
-  .sub-module.m-vendors .sub-module-icon{color:#06d8ff}
   .sub-module.m-notice  {--m-color:#ff6bb5;--m-border:rgba(255,107,181,.4)}
   .sub-module.m-notice  .sub-module-icon{color:#ff6bb5}
 
@@ -1261,18 +1257,6 @@
           <div class="sub-module-sub">월간 매출 PPT</div>
           <div class="sub-module-tag">준비 중</div>
         </div>
-        <div class="sub-module m-ads" onclick="triggerAds()">
-          <div class="sub-module-icon">💰</div>
-          <div class="sub-module-title">광고비 정산</div>
-          <div class="sub-module-sub">메타·구글애드·인플루언서</div>
-          <div class="sub-module-tag">준비 중</div>
-        </div>
-        <div class="sub-module m-vendors" onclick="triggerVendors()">
-          <div class="sub-module-icon">🤝</div>
-          <div class="sub-module-title">거래처 관리</div>
-          <div class="sub-module-sub">1688 · 국내 vendor 정보</div>
-          <div class="sub-module-tag">준비 중</div>
-        </div>
         <div class="sub-module m-notice" onclick="triggerNotice()">
           <div class="sub-module-icon">📌</div>
           <div class="sub-module-title">사내 공지사항</div>
@@ -1589,38 +1573,6 @@
     </div>
   </div>
 
-  <!-- ============ 광고비 정산 (placeholder) ============ -->
-  <div class="view" id="viewAds" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">광고비 정산<span class="view-title-sub">/ 채널별 비용</span></h1>
-    </div>
-    <div class="placeholder-area">
-      <div class="ph-icon">💰</div>
-      <div class="ph-text">광고비 정산 — 준비 중</div>
-      <div class="ph-sub">메타(인스타·페북) · 구글애드 · 인플루언서 · 카카오모먼트 비용을 한곳에서 정산<br><b>월별 합계, ROAS, 채널별 비중</b> 등 표시 예정</div>
-    </div>
-  </div>
-
-  <!-- ============ 거래처 관리 (placeholder) ============ -->
-  <div class="view" id="viewVendors" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">거래처 관리<span class="view-title-sub">/ vendor 정보</span></h1>
-    </div>
-    <div class="placeholder-area">
-      <div class="ph-icon">🤝</div>
-      <div class="ph-text">거래처 관리 — 준비 중</div>
-      <div class="ph-sub">1688 · 국내 거래처 · 물류사 정보 통합 관리<br><b>거래처별 발주 이력, 결제 조건, 담당자 연락처</b> 등 표시 예정</div>
-    </div>
-  </div>
-
   <!-- ============ 사내 공지사항 (placeholder) ============ -->
   <div class="view" id="viewNotice" hidden>
     <div class="view-head">
@@ -1925,8 +1877,8 @@
   window.triggerERP=triggerERP;
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewSales','viewAds','viewVendors','viewNotice'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewSales:'sales',viewAds:'ads',viewVendors:'vendors',viewNotice:'notice'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewSales','viewNotice'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewSales:'sales',viewNotice:'notice'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -1964,8 +1916,6 @@
   function triggerHR(){ showView('viewHr'); }
   function triggerLogistics(){ showView('viewLg'); }
   function triggerSales(){ showView('viewSales'); }
-  function triggerAds(){ showView('viewAds'); }
-  function triggerVendors(){ showView('viewVendors'); }
   function triggerNotice(){ showView('viewNotice'); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
@@ -2039,8 +1989,6 @@
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
   window.triggerSales=triggerSales;
-  window.triggerAds=triggerAds;
-  window.triggerVendors=triggerVendors;
   window.triggerNotice=triggerNotice;
   window.goHome=goHome;
   window.openLgResource=openLgResource;
