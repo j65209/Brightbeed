@@ -23,6 +23,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if(window.pdfjsLib){
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
 <style>
   :root{
     --bg-0:#0a0b0d;
@@ -540,18 +546,75 @@
     .notice-content{padding:18px 16px;font-size:13px;min-height:180px}
   }
 
-  /* 매출 보고서 — PPT 뷰어 */
+  /* 매출 보고서 — PPT/PDF 뷰어 */
   .sales-ppt-toolbar{display:flex;gap:14px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-  .sales-ppt-link{font-size:12px;color:var(--text-2);text-decoration:none;padding:6px 12px;border:1px solid var(--line);border-radius:4px;transition:all .15s;font-family:var(--sans)}
+  .sales-ppt-link{font-size:12px;color:var(--text-2);text-decoration:none;padding:6px 12px;border:1px solid var(--line);border-radius:4px;transition:all .15s;font-family:var(--sans);background:transparent;cursor:pointer}
   .sales-ppt-link:hover{color:var(--text-1);border-color:var(--text-3);background:var(--bg-2)}
   .sales-ppt-link-strong{color:#a3e635;border-color:rgba(163,230,53,.35);background:rgba(163,230,53,.06)}
   .sales-ppt-link-strong:hover{color:#a3e635;border-color:rgba(163,230,53,.55);background:rgba(163,230,53,.12)}
+  .sales-ppt-link-fs{color:#fb7185;border-color:rgba(251,113,133,.4);background:rgba(251,113,133,.06)}
+  .sales-ppt-link-fs:hover{color:#fb7185;border-color:rgba(251,113,133,.6);background:rgba(251,113,133,.12)}
+  .sales-ppt-toolbar-spacer{flex:1}
   .sales-ppt-viewer-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#0a0d12}
   .sales-ppt-viewer{width:100%;height:100%;border:0;background:#fff;display:block}
+
+  /* PDF 슬라이드 뷰어 — 페이지를 이미지처럼 렌더링 + prev/next */
+  .sales-pdf-stage{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    background:#0a0d12;overflow:hidden;
+  }
+  .sales-pdf-stage[hidden]{display:none}
+  .sales-pdf-canvas{
+    max-width:100%;max-height:100%;
+    background:#fff;
+    box-shadow:0 0 32px rgba(0,0,0,.4);
+    display:block;user-select:none;
+  }
+  .sales-pdf-loading{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text-2);font-family:var(--mono);font-size:13px;
+    background:rgba(10,13,18,.85);z-index:5;
+  }
+  .sales-pdf-loading[hidden]{display:none}
+  .sales-pdf-nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:44px;height:64px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.4);color:#fff;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:6px;cursor:pointer;font-size:20px;
+    transition:all .15s;z-index:3;
+  }
+  .sales-pdf-nav:hover:not(:disabled){background:rgba(0,0,0,.7);border-color:rgba(255,255,255,.4)}
+  .sales-pdf-nav:disabled{opacity:.25;cursor:not-allowed}
+  .sales-pdf-prev{left:12px}
+  .sales-pdf-next{right:12px}
+  .sales-pdf-counter{
+    position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+    padding:4px 12px;border-radius:14px;
+    background:rgba(0,0,0,.6);color:#fff;
+    font-family:var(--mono);font-size:11px;
+    border:1px solid rgba(255,255,255,.15);z-index:3;
+  }
+  /* 전체화면 모드 — fullscreen API */
+  .sales-ppt-viewer-wrap:fullscreen,
+  .sales-ppt-viewer-wrap:-webkit-full-screen{
+    width:100vw;height:100vh;aspect-ratio:auto;background:#000;
+  }
+  .sales-ppt-viewer-wrap:fullscreen .sales-pdf-nav,
+  .sales-ppt-viewer-wrap:-webkit-full-screen .sales-pdf-nav{width:52px;height:80px;font-size:24px}
+  .sales-ppt-viewer-wrap:fullscreen .sales-pdf-counter,
+  .sales-ppt-viewer-wrap:-webkit-full-screen .sales-pdf-counter{font-size:13px;padding:6px 16px;bottom:18px}
+
   @media(max-width:600px){
     .sales-ppt-toolbar{padding:10px 14px;gap:8px}
     .sales-ppt-link{font-size:11px;padding:5px 10px}
     .sales-ppt-viewer-wrap{aspect-ratio:4/3}
+    .sales-pdf-nav{width:36px;height:52px;font-size:16px}
+    .sales-pdf-prev{left:6px}
+    .sales-pdf-next{right:6px}
   }
 
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
@@ -1749,9 +1812,9 @@
             <span id="salesPptMeta" class="sales-file-meta">파일 없음</span>
             <button class="btn po-import sales-import master-only" onclick="document.getElementById('salesPptInput').click()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              PPT 업로드
+              PPT/PDF 업로드
             </button>
-            <input type="file" id="salesPptInput" accept=".pptx,.ppt" style="display:none" onchange="handleSalesPpt(this.files[0])">
+            <input type="file" id="salesPptInput" accept=".pptx,.ppt,.pdf" style="display:none" onchange="handleSalesPpt(this.files[0])">
             <button class="po-clear master-only" id="salesPptClearBtn" onclick="clearSalesPpt()" style="display:none">비우기</button>
           </div>
         </div>
@@ -1759,16 +1822,25 @@
           <div class="po-empty-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h6"/></svg>
           </div>
-          <div class="po-empty-text">아직 매출 보고서 PPT가 없습니다</div>
-          <div class="po-empty-sub">위 <b>PPT 업로드</b> 버튼으로 <b>.pptx / .ppt</b> 파일을 올리면 미리보기 + 다운로드가 가능합니다</div>
+          <div class="po-empty-text">아직 매출 보고서가 없습니다</div>
+          <div class="po-empty-sub"><b>PDF</b>로 올리면 슬라이드 모드(이미지 + 좌우 넘김 + 전체화면)로 볼 수 있어요. <b>PPT/PPTX</b>는 미리보기 + 다운로드만 지원.</div>
         </div>
         <div id="salesPptContent" style="display:none">
           <div class="sales-ppt-toolbar">
             <a id="salesPptDownload" class="sales-ppt-link sales-ppt-link-strong" target="_blank" rel="noopener" download>다운로드</a>
             <a id="salesPptOpen" class="sales-ppt-link" target="_blank" rel="noopener">새 창에서 보기</a>
+            <span class="sales-ppt-toolbar-spacer"></span>
+            <button type="button" id="salesPptFullscreen" class="sales-ppt-link sales-ppt-link-fs" onclick="toggleSalesFullscreen()" title="전체화면 (F)">⛶ 전체화면</button>
           </div>
-          <div class="sales-ppt-viewer-wrap">
-            <iframe id="salesPptViewer" class="sales-ppt-viewer" src="about:blank" loading="lazy"></iframe>
+          <div class="sales-ppt-viewer-wrap" id="salesPptViewerWrap">
+            <iframe id="salesPptViewer" class="sales-ppt-viewer" src="about:blank" loading="lazy" hidden></iframe>
+            <div class="sales-pdf-stage" id="salesPdfStage" hidden>
+              <canvas id="salesPdfCanvas" class="sales-pdf-canvas"></canvas>
+              <button type="button" class="sales-pdf-nav sales-pdf-prev" id="salesPdfPrev" onclick="salesPdfPrev()" aria-label="이전 슬라이드">◀</button>
+              <button type="button" class="sales-pdf-nav sales-pdf-next" id="salesPdfNext" onclick="salesPdfNext()" aria-label="다음 슬라이드">▶</button>
+              <div class="sales-pdf-counter" id="salesPdfCounter">1 / 1</div>
+              <div class="sales-pdf-loading" id="salesPdfLoading" hidden>슬라이드 로딩 중...</div>
+            </div>
           </div>
         </div>
       </div>
@@ -3452,8 +3524,8 @@ async function handlePOFiles(files){
   async function handleSalesPpt(file){
     if(!file) return;
     if(!requireMaster('PPT 업로드')) return;
-    const m=file.name.toLowerCase().match(/\.(pptx|ppt)$/);
-    if(!m){toast('지원 형식: .pptx / .ppt','err');return}
+    const m=file.name.toLowerCase().match(/\.(pptx|ppt|pdf)$/);
+    if(!m){toast('지원 형식: .pptx / .ppt / .pdf','err');return}
     if(file.size > 50*1024*1024){toast('파일이 너무 큽니다 (최대 50MB)','err');return}
     if(!(await ensureGhToken())){toast('GitHub 토큰이 필요합니다','err');return}
 
@@ -3519,6 +3591,7 @@ async function handlePOFiles(files){
     const metaEl=document.getElementById('salesPptMeta');
     const clearBtn=document.getElementById('salesPptClearBtn');
     const viewer=document.getElementById('salesPptViewer');
+    const pdfStage=document.getElementById('salesPdfStage');
     const dl=document.getElementById('salesPptDownload');
     const open=document.getElementById('salesPptOpen');
     if(!empty||!content) return;
@@ -3530,6 +3603,7 @@ async function handlePOFiles(files){
       if(metaEl) metaEl.textContent='파일 없음';
       if(clearBtn) clearBtn.style.display='none';
       if(viewer){viewer.src='about:blank';delete viewer.dataset.cur}
+      _salesPdfReset();
       return;
     }
 
@@ -3543,14 +3617,174 @@ async function handlePOFiles(files){
     if(metaEl) metaEl.textContent=`${m.filename} · ${sizeKB.toLocaleString('ko-KR')}KB · ${dt}`;
 
     const rawUrl=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${m.filePath}?cb=${m.uploadedAt||Date.now()}`;
-    const viewerUrl=`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawUrl)}`;
-    if(viewer && viewer.dataset.cur !== rawUrl){
-      viewer.src=viewerUrl;
-      viewer.dataset.cur=rawUrl;
+    const isPdf=String(m.ext||'').toLowerCase()==='pdf';
+
+    if(isPdf){
+      // PDF: pdf.js 슬라이드 뷰어
+      if(viewer){viewer.hidden=true;viewer.src='about:blank';delete viewer.dataset.cur}
+      if(pdfStage){pdfStage.hidden=false}
+      if(dl){dl.href=rawUrl;dl.setAttribute('download',m.filename||'')}
+      if(open){open.href=rawUrl}
+      _salesPdfLoad(rawUrl);
+    } else {
+      // PPT/PPTX: Office Online iframe (기존)
+      _salesPdfReset();
+      if(pdfStage){pdfStage.hidden=true}
+      if(viewer){viewer.hidden=false}
+      const viewerUrl=`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawUrl)}`;
+      if(viewer && viewer.dataset.cur !== rawUrl){
+        viewer.src=viewerUrl;
+        viewer.dataset.cur=rawUrl;
+      }
+      if(dl){dl.href=rawUrl;dl.setAttribute('download',m.filename||'')}
+      if(open){open.href=viewerUrl}
     }
-    if(dl){dl.href=rawUrl;dl.setAttribute('download',m.filename||'')}
-    if(open){open.href=viewerUrl}
   }
+
+  /* ===== PDF 슬라이드 뷰어 (pdf.js) =====
+     · 페이지마다 canvas로 렌더링 (이미지처럼 표시)
+     · ◀/▶ 버튼·키보드 ←/→·Home/End로 슬라이드 넘김
+     · 전체화면(F or 버튼)은 toggleSalesFullscreen 사용 */
+  let _salesPdfDoc=null;
+  let _salesPdfPage=1;
+  let _salesPdfUrl=null;
+  let _salesPdfRenderToken=0;
+  let _salesPdfRenderTask=null;
+  let _salesPdfRenderChain=Promise.resolve();
+
+  function _salesPdfReset(){
+    _salesPdfDoc=null;_salesPdfPage=1;_salesPdfUrl=null;
+    const canvas=document.getElementById('salesPdfCanvas');
+    if(canvas){const ctx=canvas.getContext('2d');ctx&&ctx.clearRect(0,0,canvas.width,canvas.height)}
+    const counter=document.getElementById('salesPdfCounter');
+    if(counter) counter.textContent='—';
+  }
+
+  async function _salesPdfLoad(url){
+    if(_salesPdfUrl===url && _salesPdfDoc) return;
+    if(!window.pdfjsLib){toast('PDF 라이브러리 로드 실패 (네트워크 확인)','err');return}
+    const loading=document.getElementById('salesPdfLoading');
+    if(loading) loading.hidden=false;
+    try{
+      const task=pdfjsLib.getDocument({url,cMapUrl:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',cMapPacked:true});
+      _salesPdfDoc=await task.promise;
+      _salesPdfUrl=url;
+      _salesPdfPage=1;
+      await _salesPdfRender();
+    }catch(e){
+      toast(`PDF 로드 실패: ${(e.message||'').slice(0,80)}`,'err');
+      _salesPdfReset();
+    }finally{
+      if(loading) loading.hidden=true;
+    }
+  }
+
+  function _salesPdfRender(){
+    // 동시 호출(resize·키 입력·자동 갱신 등)을 직렬화해서 같은 canvas 동시 렌더 금지 회피
+    const myToken=++_salesPdfRenderToken;
+    _salesPdfRenderChain=_salesPdfRenderChain.then(()=>_salesPdfRenderInner(myToken)).catch(e=>{
+      if(e?.name!=='RenderingCancelledException') console.warn('PDF render chain:',e);
+    });
+    return _salesPdfRenderChain;
+  }
+  async function _salesPdfRenderInner(myToken){
+    if(!_salesPdfDoc) return;
+    if(myToken!==_salesPdfRenderToken) return; // 더 새 호출이 들어왔으면 skip
+    const canvas=document.getElementById('salesPdfCanvas');
+    const stage=document.getElementById('salesPdfStage');
+    const prev=document.getElementById('salesPdfPrev');
+    const next=document.getElementById('salesPdfNext');
+    const counter=document.getElementById('salesPdfCounter');
+    if(!canvas||!stage) return;
+    if(stage.hidden) return;
+    // 진행 중인 task 취소 (있으면)
+    if(_salesPdfRenderTask){
+      try{ _salesPdfRenderTask.cancel(); }catch(e){}
+      try{ await _salesPdfRenderTask.promise; }catch(e){}
+      _salesPdfRenderTask=null;
+    }
+    if(myToken!==_salesPdfRenderToken) return;
+    const page=await _salesPdfDoc.getPage(_salesPdfPage);
+    if(myToken!==_salesPdfRenderToken) return;
+    const baseViewport=page.getViewport({scale:1});
+    const stageRect=stage.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    const fitW=stageRect.width/baseViewport.width;
+    const fitH=stageRect.height/baseViewport.height;
+    const fitScale=Math.min(fitW,fitH)||1;
+    const viewport=page.getViewport({scale:fitScale*dpr});
+    canvas.width=viewport.width;
+    canvas.height=viewport.height;
+    canvas.style.width=`${viewport.width/dpr}px`;
+    canvas.style.height=`${viewport.height/dpr}px`;
+    const ctx=canvas.getContext('2d');
+    const task=page.render({canvasContext:ctx,viewport});
+    _salesPdfRenderTask=task;
+    try{
+      await task.promise;
+    }finally{
+      if(_salesPdfRenderTask===task) _salesPdfRenderTask=null;
+    }
+    if(myToken!==_salesPdfRenderToken) return;
+    if(counter) counter.textContent=`${_salesPdfPage} / ${_salesPdfDoc.numPages}`;
+    if(prev) prev.disabled=_salesPdfPage<=1;
+    if(next) next.disabled=_salesPdfPage>=_salesPdfDoc.numPages;
+  }
+
+  function salesPdfPrev(){if(_salesPdfDoc && _salesPdfPage>1){_salesPdfPage--;_salesPdfRender()}}
+  function salesPdfNext(){if(_salesPdfDoc && _salesPdfPage<_salesPdfDoc.numPages){_salesPdfPage++;_salesPdfRender()}}
+  function salesPdfFirst(){if(_salesPdfDoc){_salesPdfPage=1;_salesPdfRender()}}
+  function salesPdfLast(){if(_salesPdfDoc){_salesPdfPage=_salesPdfDoc.numPages;_salesPdfRender()}}
+
+  function toggleSalesFullscreen(){
+    const wrap=document.getElementById('salesPptViewerWrap');
+    if(!wrap) return;
+    const fsEl=document.fullscreenElement||document.webkitFullscreenElement;
+    if(fsEl){
+      (document.exitFullscreen||document.webkitExitFullscreen)?.call(document);
+    } else {
+      const req=wrap.requestFullscreen||wrap.webkitRequestFullscreen;
+      if(req) req.call(wrap); else toast('이 브라우저는 전체화면을 지원하지 않습니다','err');
+    }
+  }
+
+  // 키보드: MD 뷰가 활성 + PDF 모드일 때만 좌우/Home/End 사용. F는 어디서나 동작 (input 입력 중엔 제외).
+  document.addEventListener('keydown',e=>{
+    if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||'')) return;
+    if(e.target?.isContentEditable) return;
+    const mdActive=!document.getElementById('viewMd')?.hidden;
+    const pdfActive=_salesPdfDoc && !document.getElementById('salesPdfStage')?.hidden;
+    if(mdActive && pdfActive){
+      if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){salesPdfNext();e.preventDefault();return}
+      if(e.key==='ArrowLeft'||e.key==='PageUp'){salesPdfPrev();e.preventDefault();return}
+      if(e.key==='Home'){salesPdfFirst();e.preventDefault();return}
+      if(e.key==='End'){salesPdfLast();e.preventDefault();return}
+    }
+    if(mdActive && (e.key==='f'||e.key==='F')){
+      const fsEl=document.fullscreenElement||document.webkitFullscreenElement;
+      const wrap=document.getElementById('salesPptViewerWrap');
+      // PPT 콘텐츠가 표시 중일 때만
+      if(document.getElementById('salesPptContent')?.style.display!=='none'){
+        toggleSalesFullscreen();e.preventDefault();
+      }
+    }
+  });
+
+  // 전체화면 진입/이탈 시 캔버스 다시 그리기 (사이즈 바뀜)
+  ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>{
+    document.addEventListener(ev,()=>{ if(_salesPdfDoc) setTimeout(_salesPdfRender,80) });
+  });
+  // 윈도우 리사이즈 시에도 재렌더
+  let _salesResizeT=null;
+  window.addEventListener('resize',()=>{
+    if(!_salesPdfDoc) return;
+    clearTimeout(_salesResizeT);
+    _salesResizeT=setTimeout(_salesPdfRender,150);
+  });
+
+  window.salesPdfPrev=salesPdfPrev;
+  window.salesPdfNext=salesPdfNext;
+  window.toggleSalesFullscreen=toggleSalesFullscreen;
 
   function renderSalesUpdatedTag(){
     const tag=document.getElementById('salesUpdatedTag');
