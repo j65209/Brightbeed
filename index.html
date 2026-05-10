@@ -985,6 +985,16 @@
   .leave-form-radio input{accent-color:var(--neon-hr);cursor:pointer}
   .leave-form-radio.bday{color:#ffd29a}
   .leave-form-radio.bday input{accent-color:#ff9ecf}
+  .leave-form-input:disabled{opacity:.4;cursor:not-allowed;background:var(--bg-1)}
+  .leave-form-days{
+    font-size:14px;color:#ffb347;font-weight:600;
+    font-family:var(--mono);letter-spacing:.01em;
+    padding:6px 0;
+  }
+  .leave-form-days-sub{
+    font-size:11px;color:var(--text-3);font-weight:400;
+    margin-left:6px;
+  }
   .leave-form-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
   .leave-form-btn{
     padding:8px 18px;border-radius:4px;font-size:13px;font-weight:500;
@@ -1693,18 +1703,24 @@
           <option value="">선택해주세요</option>
         </select>
 
-        <label class="leave-form-label" for="lfDate">사용일</label>
-        <input class="leave-form-input" id="lfDate" type="date" required>
+        <label class="leave-form-label" for="lfDate">시작일</label>
+        <input class="leave-form-input" id="lfDate" type="date" required oninput="updateLeaveDays()">
+
+        <label class="leave-form-label" for="lfDateEnd" id="lfDateEndLabel">종료일</label>
+        <input class="leave-form-input" id="lfDateEnd" type="date" oninput="updateLeaveDays()">
 
         <label class="leave-form-label">종류</label>
         <div class="leave-form-radios">
-          <label class="leave-form-radio"><input type="radio" name="lfType" value="연차" required>연차 <span style="color:var(--text-3);font-size:11px">(-1)</span></label>
-          <label class="leave-form-radio"><input type="radio" name="lfType" value="오전반차">오전반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
-          <label class="leave-form-radio"><input type="radio" name="lfType" value="오후반차">오후반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
-          <label class="leave-form-radio bday"><input type="radio" name="lfType" value="생일반차">🎂 생일반차 <span style="color:var(--text-3);font-size:11px">(차감 X)</span></label>
+          <label class="leave-form-radio"><input type="radio" name="lfType" value="연차" required onchange="updateLeaveDays()">연차 <span style="color:var(--text-3);font-size:11px">(-1)</span></label>
+          <label class="leave-form-radio"><input type="radio" name="lfType" value="오전반차" onchange="updateLeaveDays()">오전반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
+          <label class="leave-form-radio"><input type="radio" name="lfType" value="오후반차" onchange="updateLeaveDays()">오후반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
+          <label class="leave-form-radio bday"><input type="radio" name="lfType" value="생일반차" onchange="updateLeaveDays()">🎂 생일반차 <span style="color:var(--text-3);font-size:11px">(차감 X)</span></label>
         </div>
+
+        <span class="leave-form-label">사용 일수</span>
+        <div class="leave-form-days" id="lfDaysOut">— <span class="leave-form-days-sub" id="lfDaysSub"></span></div>
       </div>
-      <div class="leave-form-hint">생일반차는 모두에게 연 1회 무료로 부여됩니다 — 사용량에 합산되지 않습니다.</div>
+      <div class="leave-form-hint">반차/생일반차는 단일일만 가능 (종료일 자동 비활성화). 생일반차는 모두에게 연 1회 무료로 부여됩니다.</div>
       <div class="leave-form-actions">
         <button type="button" class="leave-form-btn leave-form-cancel" onclick="closeLeaveForm()">취소</button>
         <button type="submit" class="leave-form-btn leave-form-submit">신청</button>
@@ -2484,9 +2500,9 @@
       <div class="leave-history">
         ${history.map(h=>{
           const cls=h.type==='생일반차'?'t-bday':(h.type==='연차'?'t-annual':'t-half');
-          const md=String(h.date||'').match(/^\d{4}-(\d{2})-(\d{2})$/);
-          const dlabel=md?`${md[1]}/${md[2]}`:escapeHTML(h.date||'');
-          return `<div class="leave-history-item"><span class="leave-history-date">${dlabel}</span><span class="leave-history-type ${cls}">${escapeHTML(h.type||'')}</span></div>`;
+          const dlabel=_fmtLeaveDateRange(h.date,h.endDate);
+          const daySuffix=(h.endDate&&h.endDate!==h.date&&h.days)?` <span style="color:var(--text-3);font-size:11px">${h.days}일</span>`:'';
+          return `<div class="leave-history-item"><span class="leave-history-date">${dlabel}</span><span class="leave-history-type ${cls}">${escapeHTML(h.type||'')}${daySuffix}</span></div>`;
         }).join('')}
       </div>
     `:'';
@@ -2542,7 +2558,7 @@
         if(!e||!e.submittedAt) return;
         const y=new Date(e.submittedAt).getFullYear();
         if(y!==currentYear) return;
-        items.push({name,date:e.date||'',type:e.type||'',submittedAt:e.submittedAt});
+        items.push({name,date:e.date||'',endDate:e.endDate||'',days:e.days,type:e.type||'',submittedAt:e.submittedAt});
       });
     });
     items.sort((a,b)=>String(b.submittedAt).localeCompare(String(a.submittedAt)));
@@ -2557,17 +2573,29 @@
     if(meta) meta.textContent=`총 ${items.length}건`;
     list.innerHTML=items.map(it=>{
       const cls=it.type==='생일반차'?'t-bday':(it.type==='연차'?'t-annual':'t-half');
-      const md=String(it.date).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      const dlabel=md?`${md[2]}/${md[3]}`:escapeHTML(it.date);
+      const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
+      const typeLabel=it.endDate&&it.endDate!==it.date&&it.days?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
       return `<div class="leave-recent-item">
         <span class="leave-recent-when">${escapeHTML(when)}</span>
         <span class="leave-recent-name">${escapeHTML(it.name)}</span>
         <span class="leave-recent-date">${dlabel}</span>
-        <span class="leave-recent-type ${cls}">${escapeHTML(it.type)}</span>
+        <span class="leave-recent-type ${cls}">${typeLabel}</span>
       </div>`;
     }).join('');
   }
+  /* "5/14" 또는 "5/10~14" / "5/30~6/3" 같은 짧은 날짜 라벨 */
+  function _fmtLeaveDateRange(start,end){
+    const m1=String(start||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m1) return escapeHTML(start||'');
+    const s=`${parseInt(m1[2],10)}/${parseInt(m1[3],10)}`;
+    if(!end||end===start) return s;
+    const m2=String(end).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m2) return s;
+    if(m1[2]===m2[2]) return `${s}~${parseInt(m2[3],10)}`;
+    return `${s}~${parseInt(m2[2],10)}/${parseInt(m2[3],10)}`;
+  }
+  window._fmtLeaveDateRange=_fmtLeaveDateRange;
   function formatLeaveSubmittedAt(iso){
     try{
       const d=new Date(iso);
@@ -2657,8 +2685,12 @@
       sel.innerHTML='<option value="">선택해주세요</option>'+
         STAFF.map(s=>`<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)} · ${escapeHTML(s.team||s.dept)}</option>`).join('');
       const dateInput=document.getElementById('lfDate');
+      const dateEndInput=document.getElementById('lfDateEnd');
       const today=new Date();
-      dateInput.value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      dateInput.value=todayStr;
+      if(dateEndInput) dateEndInput.value=todayStr;
+      updateLeaveDays();
       form.hidden=false;
       setTimeout(()=>sel.focus(),60);
     }else{
@@ -2671,13 +2703,69 @@
     form.reset();
     form.hidden=true;
   }
+
+  /* 날짜 범위 → 사용 일수 계산. 반차/생일반차는 단일일만 허용 (종료일=시작일 강제) */
+  function _calcLeaveDays(type,startStr,endStr){
+    if(!type||!startStr) return {days:0,err:null};
+    if(type==='오전반차'||type==='오후반차') return {days:0.5,err:null};
+    if(type==='생일반차') return {days:0,err:null};
+    // 연차 — 종료일 없거나 같으면 1일, 범위면 (end-start+1)
+    const end=endStr||startStr;
+    const s=new Date(startStr+'T00:00:00');
+    const e=new Date(end+'T00:00:00');
+    if(isNaN(s.getTime())||isNaN(e.getTime())) return {days:0,err:'invalid'};
+    if(e<s) return {days:0,err:'end_before_start'};
+    const ms=24*60*60*1000;
+    const total=Math.round((e-s)/ms)+1;
+    // 주말 제외 평일 일수도 함께 계산해서 안내
+    let weekdays=0;
+    for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+      const dow=d.getDay();
+      if(dow!==0&&dow!==6) weekdays++;
+    }
+    return {days:total,weekdays,err:null};
+  }
+  function updateLeaveDays(){
+    const start=document.getElementById('lfDate')?.value;
+    const endInput=document.getElementById('lfDateEnd');
+    const endLabel=document.getElementById('lfDateEndLabel');
+    const out=document.getElementById('lfDaysOut');
+    const sub=document.getElementById('lfDaysSub');
+    const type=document.querySelector('input[name="lfType"]:checked')?.value;
+    if(!out) return;
+    // 반차/생일반차면 종료일 비활성화 + 시작일과 동일하게
+    const isHalf=(type==='오전반차'||type==='오후반차'||type==='생일반차');
+    if(endInput){
+      endInput.disabled=isHalf;
+      if(isHalf) endInput.value=start||'';
+    }
+    if(endLabel) endLabel.style.opacity=isHalf?'.4':'';
+    const r=_calcLeaveDays(type,start,endInput?.value||start);
+    if(!type){out.innerHTML='— <span class="leave-form-days-sub">종류 선택</span>';return}
+    if(r.err==='end_before_start'){out.innerHTML='⚠ <span class="leave-form-days-sub">종료일이 시작일보다 빠릅니다</span>';return}
+    if(type==='연차'){
+      const wd=r.weekdays!=null&&r.weekdays!==r.days?` <span class="leave-form-days-sub">(주말 포함, 평일 ${r.weekdays}일)</span>`:'';
+      out.innerHTML=`${r.days}일${wd}`;
+    } else if(type==='생일반차'){
+      out.innerHTML='0일 <span class="leave-form-days-sub">(차감 없음)</span>';
+    } else {
+      out.innerHTML='0.5일';
+    }
+  }
+
   function submitLeaveForm(e){
     e.preventDefault();
     const name=document.getElementById('lfStaff').value;
-    const date=document.getElementById('lfDate').value;
+    const startDate=document.getElementById('lfDate').value;
+    const endDateRaw=document.getElementById('lfDateEnd')?.value||startDate;
     const type=document.querySelector('input[name="lfType"]:checked')?.value;
-    if(!name||!date||!type){toast('모든 항목을 입력해주세요','err');return}
-    const delta=type==='연차'?1:(type==='오전반차'||type==='오후반차'?0.5:0);
+    if(!name||!startDate||!type){toast('모든 항목을 입력해주세요','err');return}
+    // 반차/생일반차는 단일일 강제
+    const isHalf=(type==='오전반차'||type==='오후반차'||type==='생일반차');
+    const endDate=isHalf?startDate:(endDateRaw||startDate);
+    const r=_calcLeaveDays(type,startDate,endDate);
+    if(r.err==='end_before_start'){toast('종료일이 시작일보다 빠릅니다','err');return}
+    const delta=type==='연차'?r.days:(isHalf?(type==='생일반차'?0:0.5):0);
     const data=loadLeaveData();
     const s=STAFF.find(x=>x.name===name);
     data[name]=data[name]||{};
@@ -2685,16 +2773,21 @@
       const curUsed=Number.isFinite(data[name].used)?data[name].used:(Number.isFinite(s?.used)?s.used:0);
       data[name].used=curUsed+delta;
     }
-    // history 추가 (생일반차도 기록 — 사용량은 안 늘리되 내역엔 남김)
     data[name].history=data[name].history||[];
-    data[name].history.push({date,type,submittedAt:new Date().toISOString()});
+    const entry={date:startDate,type,submittedAt:new Date().toISOString()};
+    if(endDate&&endDate!==startDate){entry.endDate=endDate;entry.days=r.days}
+    data[name].history.push(entry);
     saveLeaveData(data);
     renderLeaveStatus();
     renderRecentLeaveLog();
-    const fmt=date.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3');
+    const fmtRange=(d1,d2)=>{
+      const f=x=>x.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3');
+      return d1===d2?f(d1):`${f(d1)}~${d2.slice(5).replace('-','/')}`;
+    };
+    const range=fmtRange(startDate,endDate);
     const msg=type==='생일반차'
-      ? `🎂 ${name} ${fmt} 생일반차 (차감 없음)`
-      : `✓ ${name} ${fmt} ${type} (-${delta}일)`;
+      ? `🎂 ${name} ${range} 생일반차 (차감 없음)`
+      : `✓ ${name} ${range} ${type} (-${delta}일)`;
     toast(msg,'ok');
     closeLeaveForm();
   }
@@ -2710,6 +2803,7 @@
   window.closeLeaveForm=closeLeaveForm;
   window.submitLeaveForm=submitLeaveForm;
   window.toggleLeaveEdit=toggleLeaveEdit;
+  window.updateLeaveDays=updateLeaveDays;
 
   /* ===== 발주서 이미지 분석 ===== */
   const ANTHROPIC_KEY='brightbeed_anthropic_key';
