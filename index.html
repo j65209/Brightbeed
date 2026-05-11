@@ -2282,7 +2282,10 @@
       else el.setAttribute('hidden','');
     });
     window.scrollTo({top:0,behavior:'instant'});
-    if(id==='viewHr') renderLeaveStatus();
+    if(id==='viewHr'){
+      renderLeaveStatus();
+      if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
+    }
     if(id==='viewMd'){
       if(typeof renderSalesPptView==='function') renderSalesPptView();
       if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
@@ -2436,7 +2439,12 @@
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
-  function saveLeaveData(data){localStorage.setItem(LEAVE_KEY,JSON.stringify(data))}
+  function saveLeaveData(data){
+    const j=JSON.stringify(data);
+    localStorage.setItem(LEAVE_KEY,j);
+    _leave_lastHash=j;
+    if(typeof scheduleLeavePush==='function') scheduleLeavePush();
+  }
 
   /* 회계연도(매년 1/1 초기화) 기준 발생 연차 자동 계산
      카운트 시작 = max(올해 1/1, 입사일) — 작년 발생분은 누적 안 함
@@ -2790,6 +2798,33 @@
       : `✓ ${name} ${range} ${type} (-${delta}일)`;
     toast(msg,'ok');
     closeLeaveForm();
+    // 다른 기기/IP 동기화 — 토큰 없으면 일회성 안내 후 입력 유도
+    ensureLeaveSync().catch(()=>{});
+  }
+
+  /* 연차 신청 후 GitHub 동기화 보장 — 토큰 없거나 인증 실패면 한 번 모달 띄움 */
+  async function ensureLeaveSync(){
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(token){
+      // 토큰 있으면 디바운스 푸시가 알아서 처리 — 중복 커밋 방지 위해 여기선 패스
+      return;
+    }
+    const t=await askToken('github');
+    if(!t){
+      toast('토큰 미입력 — 로컬에만 저장 (다른 기기 동기화 X)','err');
+      return;
+    }
+    localStorage.setItem(TOKEN_KEY,t);
+    // 토큰 새로 받았으니 예약된 푸시 취소하고 즉시 푸시 (중복 방지)
+    if(_leave_pushTimer){clearTimeout(_leave_pushTimer);_leave_pushTimer=null}
+    const r=await pushLeaveToRemote();
+    if(r.ok){
+      toast('✓ 연차 신청 동기화 완료 — 다른 기기에서도 보입니다','ok');
+    }else if(r.reason==='auth'){
+      toast('GitHub 토큰 인증 실패 — 로컬에만 저장됨','err');
+    }else if(r.reason!=='notoken' && r.reason!=='busy'){
+      toast(`동기화 실패 (${r.reason}) — 로컬에만 저장됨`,'err');
+    }
   }
   function toggleLeaveHistory(btn){
     const card=btn.closest('.leave-card');
@@ -2935,10 +2970,11 @@
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
 
-    // 매출 PPT + 공지사항도 함께 동기화
+    // 매출 PPT + 공지사항 + 연차도 함께 동기화
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
+    if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -2961,10 +2997,11 @@
         if(last) last.textContent = t;
       }
     }
-    // 매출 PPT + 공지사항도 함께 폴링
+    // 매출 PPT + 공지사항 + 연차도 함께 폴링
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
+    if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -3634,6 +3671,108 @@ async function handlePOFiles(files){
     if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
     return {ok:false,reason:`http_${r.status}`};
   }
+
+  /* ===== 연차 데이터 GitHub 동기화 (누구나 신청 → 자동저장 → 다른 기기/IP에서도 보임) ===== */
+  const LEAVE_PATH='data/leave-data.json';
+  const LEAVE_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${LEAVE_PATH}`;
+  const LEAVE_API=`https://api.github.com/repos/${PO_REPO}/contents/${LEAVE_PATH}`;
+  let _leave_lastHash=null;
+  let _leave_pushTimer=null;
+  let _leave_pushing=false;
+
+  async function fetchLeaveFromRemote(){
+    try{
+      const r=await fetch(`${LEAVE_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {};
+      if(!r.ok) return null;
+      const data=await r.json();
+      return (data && typeof data==='object' && !Array.isArray(data)) ? data : {};
+    }catch(e){return null}
+  }
+
+  /* 양쪽 데이터를 안전하게 머지 — history는 union(중복 제거), used/total/hire는 local 우선 */
+  function mergeLeaveData(remote, local){
+    const out={};
+    const names=new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
+    const keyOf=e=>e?.submittedAt||`${e?.date||''}|${e?.type||''}|${e?.endDate||''}`;
+    for(const name of names){
+      const r=(remote&&remote[name])||{};
+      const l=(local&&local[name])||{};
+      const m={};
+      if(Number.isFinite(l.total)) m.total=l.total;
+      else if(Number.isFinite(r.total)) m.total=r.total;
+      if(Number.isFinite(l.used)) m.used=l.used;
+      else if(Number.isFinite(r.used)) m.used=r.used;
+      if(typeof l.hire==='string'&&l.hire) m.hire=l.hire;
+      else if(typeof r.hire==='string'&&r.hire) m.hire=r.hire;
+      const rh=Array.isArray(r.history)?r.history:[];
+      const lh=Array.isArray(l.history)?l.history:[];
+      const seen=new Map();
+      for(const e of [...rh, ...lh]){ if(e) seen.set(keyOf(e), e); }
+      if(seen.size){
+        m.history=Array.from(seen.values())
+          .sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+      }
+      if(Object.keys(m).length) out[name]=m;
+    }
+    return out;
+  }
+
+  async function syncLeaveFromRemote(){
+    const remote=await fetchLeaveFromRemote();
+    if(remote===null) return; // 네트워크 실패 — 조용히 패스
+    const local=loadLeaveData();
+    const merged=mergeLeaveData(remote, local);
+    const json=JSON.stringify(merged);
+    if(json===_leave_lastHash && json===JSON.stringify(local)) return;
+    _leave_lastHash=json;
+    localStorage.setItem(LEAVE_KEY, json);
+    if(document.getElementById('leaveGrid')) renderLeaveStatus();
+  }
+  window.syncLeaveFromRemote=syncLeaveFromRemote;
+
+  async function pushLeaveToRemote(){
+    if(_leave_pushing) return {ok:false,reason:'busy'};
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(!token) return {ok:false,reason:'notoken'};
+    _leave_pushing=true;
+    try{
+      // 푸시 직전에 remote와 머지 — 동시 편집 시 데이터 손실 방지
+      const remote=await fetchLeaveFromRemote();
+      const local=loadLeaveData();
+      const merged=(remote===null)?local:mergeLeaveData(remote, local);
+      const json=JSON.stringify(merged, null, 2);
+      const b64=btoa(unescape(encodeURIComponent(json)));
+      const r=await ghPut(LEAVE_API, b64, 'chore: 연차 데이터 갱신');
+      if(r.ok){
+        const compact=JSON.stringify(merged);
+        _leave_lastHash=compact;
+        localStorage.setItem(LEAVE_KEY, compact);
+        if(document.getElementById('leaveGrid')) renderLeaveStatus();
+      }
+      return r;
+    } finally {
+      _leave_pushing=false;
+    }
+  }
+
+  /* 디바운스 자동 푸시 — 편집/제출 후 1.2초 묶어서 1회만 push */
+  function scheduleLeavePush(){
+    if(_leave_pushTimer) clearTimeout(_leave_pushTimer);
+    _leave_pushTimer=setTimeout(async ()=>{
+      _leave_pushTimer=null;
+      const token=localStorage.getItem(TOKEN_KEY);
+      if(!token){
+        // 토큰 없으면 로컬 저장만 — 조용히 패스 (UX 방해 X)
+        return;
+      }
+      const r=await pushLeaveToRemote();
+      if(!r.ok && r.reason!=='notoken' && r.reason!=='busy'){
+        console.warn('leave sync push failed:', r.reason);
+      }
+    }, 1200);
+  }
+  window.scheduleLeavePush=scheduleLeavePush;
 
   function arrayBufferToBase64(buf){
     const bytes=new Uint8Array(buf);
