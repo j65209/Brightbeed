@@ -1250,6 +1250,16 @@
   .leave-history-type.t-annual{color:var(--text-1)}
   .leave-history-type.t-half{color:var(--text-2)}
   .leave-history-type.t-bday{color:#ff9ecf}
+  .leave-history-right{display:flex;align-items:center;gap:8px}
+  .leave-history-del{
+    width:18px;height:18px;border-radius:3px;
+    background:transparent;border:1px solid rgba(255,255,255,.08);
+    color:var(--text-3);cursor:pointer;
+    font-size:11px;line-height:1;padding:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .leave-history-del:hover{color:#ff7373;border-color:rgba(255,115,115,.5);background:rgba(255,115,115,.08)}
 
   /* 미입력 카드 — 회색 톤 */
   .leave-card.leave-empty .leave-remain{color:var(--text-3) !important;font-weight:600}
@@ -2589,7 +2599,8 @@
           const cls=h.type==='생일반차'?'t-bday':(h.type==='연차'?'t-annual':'t-half');
           const dlabel=_fmtLeaveDateRange(h.date,h.endDate);
           const daySuffix=(h.endDate&&h.endDate!==h.date&&h.days)?` <span style="color:var(--text-3);font-size:11px">${h.days}일</span>`:'';
-          return `<div class="leave-history-item"><span class="leave-history-date">${dlabel}</span><span class="leave-history-type ${cls}">${escapeHTML(h.type||'')}${daySuffix}</span></div>`;
+          const delBtn=h._id?`<button class="leave-history-del master-only" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(h._id)}','${escapeHTML(s.name)}','${escapeHTML(dlabel)}','${escapeHTML(h.type||'')}')">×</button>`:'';
+          return `<div class="leave-history-item"><span class="leave-history-date">${dlabel}</span><span class="leave-history-right"><span class="leave-history-type ${cls}">${escapeHTML(h.type||'')}${daySuffix}</span>${delBtn}</span></div>`;
         }).join('')}
       </div>
     `:'';
@@ -2663,7 +2674,7 @@
       const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
       const typeLabel=it.endDate&&it.endDate!==it.date&&it.days?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
-      const delBtn=it._id?`<button class="leave-recent-del" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(it._id)}', '${escapeHTML(it.name)}', '${escapeHTML(dlabel)}', '${escapeHTML(it.type)}')">×</button>`:'';
+      const delBtn=it._id?`<button class="leave-recent-del master-only" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(it._id)}', '${escapeHTML(it.name)}', '${escapeHTML(dlabel)}', '${escapeHTML(it.type)}')">×</button>`:'';
       return `<div class="leave-recent-item">
         <span class="leave-recent-when">${escapeHTML(when)}</span>
         <span class="leave-recent-name">${escapeHTML(it.name)}</span>
@@ -3845,6 +3856,7 @@ async function handlePOFiles(files){
   /* 최근 신청 내역에서 × 클릭 시 호출 — confirm 후 Supabase에서 삭제 */
   async function deleteLeaveEntry(id, name, dateLabel, type){
     if(!id) return;
+    if(!requireMaster('연차 신청 취소')) return;
     const ok=confirm(`'${name} · ${dateLabel} ${type}' 신청을 취소할까요?\n취소하면 사용 일수도 자동으로 복구됩니다.`);
     if(!ok) return;
     const r=await sbDeleteLeaveEntry(id);
