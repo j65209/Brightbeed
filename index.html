@@ -2439,11 +2439,11 @@
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
+  /* 로컬 캐시 저장 — 실제 영속화는 Supabase로 (submit/inline-edit 핸들러가 직접 호출) */
   function saveLeaveData(data){
     const j=JSON.stringify(data);
     localStorage.setItem(LEAVE_KEY,j);
     _leave_lastHash=j;
-    if(typeof scheduleLeavePush==='function') scheduleLeavePush();
   }
 
   /* 회계연도(매년 1/1 초기화) 기준 발생 연차 자동 계산
@@ -2479,6 +2479,22 @@
     return months;
   }
 
+  /* used는 baseline(override v.used 또는 STAFF.used) + 신규 entries(submittedAt 있는 것) 합산.
+     STAFF.history는 이미 STAFF.used baseline에 반영되어 있으므로 중복 합산 X */
+  function _computeLeaveUsed(s, v){
+    const baseline=Number.isFinite(v?.used)?v.used:(Number.isFinite(s?.used)?s.used:null);
+    if(baseline===null) return null;
+    const newEntries=Array.isArray(v?.history)?v.history:[];
+    let extra=0;
+    for(const h of newEntries){
+      if(!h||!h.submittedAt) continue;
+      if(h.type==='연차'){ extra += Number.isFinite(h.days)?h.days:1 }
+      else if(h.type==='오전반차'||h.type==='오후반차'){ extra += 0.5 }
+      // 생일반차: 차감 X
+    }
+    return baseline+extra;
+  }
+
   function leaveCardHTML(s,v,editing){
     // leaveData(v) 우선 → STAFF default → 입사일 기반 자동 계산
     const hire =v?.hire||s.hire||'';
@@ -2487,7 +2503,9 @@
       const auto=calculateLeaveTotal(hire);
       if(Number.isFinite(auto)) total=auto;
     }
-    const used =Number.isFinite(v?.used )?v.used :(Number.isFinite(s.used )?s.used :null);
+    const used=_computeLeaveUsed(s,v);
+    // 편집 모드에선 baseline만 표시 (master가 override 직접 설정)
+    const usedDisplay=editing?(Number.isFinite(v?.used)?v.used:(Number.isFinite(s.used)?s.used:'')):used;
     const hasFull=total!==null&&used!==null;
     const remain=hasFull?(total-used):null;
     const pct=hasFull&&total>0?Math.min(100,Math.round((used/total)*100)):0;
@@ -2525,7 +2543,7 @@
         <div class="leave-stats">
           <div><span class="leave-remain">${remain!==null?remain:'—'}</span><span class="leave-remain-unit">${remain!==null?'일 남음':' 미입력'}</span></div>
           <div class="leave-edit-row">
-            <span class="leave-used" data-field="used" ${ceNum}>${used??''}</span>
+            <span class="leave-used" data-field="used" ${ceNum}>${usedDisplay??''}</span>
             <span>/</span>
             <span class="leave-total" data-field="total" ${ceNum}>${total??''}</span>
             <span>일 사용</span>
@@ -2632,7 +2650,7 @@
       const auto=calculateLeaveTotal(hire);
       if(Number.isFinite(auto)) total=auto;
     }
-    const used =Number.isFinite(v?.used )?v.used :(Number.isFinite(s.used )?s.used :null);
+    const used=_computeLeaveUsed(s,v);
     const hasFull=total!==null&&used!==null;
     const remain=hasFull?(total-used):null;
     const pct=hasFull&&total>0?Math.min(100,Math.round((used/total)*100)):0;
@@ -2650,7 +2668,7 @@
     renderLeaveStatus();
   }
   // 인라인 편집 — blur 시 저장 (master + leave-edit-mode일 때만)
-  document.addEventListener('focusout',e=>{
+  document.addEventListener('focusout',async e=>{
     const span=e.target.closest?.('.leave-card .leave-used, .leave-card .leave-total, .leave-card .leave-hire');
     if(!span) return;
     if(!document.body.classList.contains('leave-edit-mode')) return;
@@ -2660,13 +2678,12 @@
     const field=span.dataset.field;
     const data=loadLeaveData();
     data[name]=data[name]||{};
+    let nextVal; // Supabase에 보낼 값 (null = 컬럼 비움)
     if(field==='hire'){
-      // 자유 텍스트 (날짜 형식 — 사용자가 자유롭게 입력)
       const val=span.textContent.trim();
-      if(val==='') delete data[name].hire;
-      else data[name].hire=val;
+      if(val===''){delete data[name].hire; nextVal=null}
+      else{data[name].hire=val; nextVal=val}
     }else{
-      // total / used — 숫자 검증
       const raw=span.textContent.replace(/[^\d.-]/g,'').trim();
       const val=raw===''?null:Number(raw);
       if(raw!==''&&(!Number.isFinite(val)||val<0)){
@@ -2674,14 +2691,30 @@
         span.textContent='';
         return;
       }
-      if(val===null) delete data[name][field];
-      else data[name][field]=val;
+      if(val===null){delete data[name][field]; nextVal=null}
+      else{data[name][field]=val; nextVal=val}
       span.textContent=val!==null?val:'';
     }
-    // 모든 필드가 비면 키 자체 제거
-    if(Object.keys(data[name]).length===0) delete data[name];
     saveLeaveData(data);
     updateLeaveCard(card,data[name]||{});
+
+    // Supabase upsert — used/total/hire 중 변경된 필드만 갱신
+    const fields={};
+    fields[field]=nextVal;
+    const allEmpty=!Number.isFinite(data[name].used)&&!Number.isFinite(data[name].total)&&!data[name].hire;
+    let r;
+    if(allEmpty){
+      r=await sbDeleteLeaveOverride(name);
+    }else{
+      r=await sbUpsertLeaveOverride(name, fields);
+    }
+    if(!r.ok){
+      toast(`동기화 실패 (${r.reason||'fetch'}) — 다시 시도해주세요`,'err');
+    }
+    if(allEmpty){
+      delete data[name];
+      saveLeaveData(data);
+    }
   });
   function toggleLeaveForm(){
     const form=document.getElementById('leaveForm');
@@ -2761,7 +2794,7 @@
     }
   }
 
-  function submitLeaveForm(e){
+  async function submitLeaveForm(e){
     e.preventDefault();
     const name=document.getElementById('lfStaff').value;
     const startDate=document.getElementById('lfDate').value;
@@ -2774,20 +2807,31 @@
     const r=_calcLeaveDays(type,startDate,endDate);
     if(r.err==='end_before_start'){toast('종료일이 시작일보다 빠릅니다','err');return}
     const delta=type==='연차'?r.days:(isHalf?(type==='생일반차'?0:0.5):0);
-    const data=loadLeaveData();
-    const s=STAFF.find(x=>x.name===name);
-    data[name]=data[name]||{};
-    if(delta>0){
-      const curUsed=Number.isFinite(data[name].used)?data[name].used:(Number.isFinite(s?.used)?s.used:0);
-      data[name].used=curUsed+delta;
+
+    const submitBtn=e.target.querySelector('button[type="submit"]');
+    if(submitBtn) submitBtn.disabled=true;
+
+    const payload={
+      staff_name:name,
+      start_date:startDate,
+      end_date:(endDate&&endDate!==startDate)?endDate:null,
+      days:(endDate&&endDate!==startDate)?r.days:null,
+      leave_type:type
+    };
+    const ins=await sbInsertLeaveEntry(payload);
+    if(!ins.ok){
+      if(submitBtn) submitBtn.disabled=false;
+      toast(`저장 실패 (${ins.reason}) — 네트워크 확인 후 다시 시도해주세요`,'err');
+      return;
     }
-    data[name].history=data[name].history||[];
-    const entry={date:startDate,type,submittedAt:new Date().toISOString()};
-    if(endDate&&endDate!==startDate){entry.endDate=endDate;entry.days=r.days}
-    data[name].history.push(entry);
-    saveLeaveData(data);
-    renderLeaveStatus();
+
+    // used는 따로 저장하지 않음 — 렌더링 시 baseline + 신규 entries 합산으로 계산.
+    // (동시 신청 race condition 방지)
+
+    // remote에서 다시 pull → 캐시·UI 동기화
+    await syncLeaveFromRemote();
     renderRecentLeaveLog();
+
     const fmtRange=(d1,d2)=>{
       const f=x=>x.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3');
       return d1===d2?f(d1):`${f(d1)}~${d2.slice(5).replace('-','/')}`;
@@ -2798,33 +2842,7 @@
       : `✓ ${name} ${range} ${type} (-${delta}일)`;
     toast(msg,'ok');
     closeLeaveForm();
-    // 다른 기기/IP 동기화 — 토큰 없으면 일회성 안내 후 입력 유도
-    ensureLeaveSync().catch(()=>{});
-  }
-
-  /* 연차 신청 후 GitHub 동기화 보장 — 토큰 없거나 인증 실패면 한 번 모달 띄움 */
-  async function ensureLeaveSync(){
-    const token=localStorage.getItem(TOKEN_KEY);
-    if(token){
-      // 토큰 있으면 디바운스 푸시가 알아서 처리 — 중복 커밋 방지 위해 여기선 패스
-      return;
-    }
-    const t=await askToken('github');
-    if(!t){
-      toast('토큰 미입력 — 로컬에만 저장 (다른 기기 동기화 X)','err');
-      return;
-    }
-    localStorage.setItem(TOKEN_KEY,t);
-    // 토큰 새로 받았으니 예약된 푸시 취소하고 즉시 푸시 (중복 방지)
-    if(_leave_pushTimer){clearTimeout(_leave_pushTimer);_leave_pushTimer=null}
-    const r=await pushLeaveToRemote();
-    if(r.ok){
-      toast('✓ 연차 신청 동기화 완료 — 다른 기기에서도 보입니다','ok');
-    }else if(r.reason==='auth'){
-      toast('GitHub 토큰 인증 실패 — 로컬에만 저장됨','err');
-    }else if(r.reason!=='notoken' && r.reason!=='busy'){
-      toast(`동기화 실패 (${r.reason}) — 로컬에만 저장됨`,'err');
-    }
+    if(submitBtn) submitBtn.disabled=false;
   }
   function toggleLeaveHistory(btn){
     const card=btn.closest('.leave-card');
@@ -3672,107 +3690,98 @@ async function handlePOFiles(files){
     return {ok:false,reason:`http_${r.status}`};
   }
 
-  /* ===== 연차 데이터 GitHub 동기화 (누구나 신청 → 자동저장 → 다른 기기/IP에서도 보임) ===== */
-  const LEAVE_PATH='data/leave-data.json';
-  const LEAVE_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${LEAVE_PATH}`;
-  const LEAVE_API=`https://api.github.com/repos/${PO_REPO}/contents/${LEAVE_PATH}`;
+  /* ===== 연차 데이터 Supabase 동기화 (누구나 신청 → 자동저장 → 다른 기기/IP) ===== */
+  const SUPABASE_URL='https://ckyjkxbqsyjoqpuqwoce.supabase.co';
+  const SUPABASE_KEY='sb_publishable_WNT8oBTcKiOUAYZZ4dPJbg_RcqVzOFj';
   let _leave_lastHash=null;
-  let _leave_pushTimer=null;
-  let _leave_pushing=false;
 
-  async function fetchLeaveFromRemote(){
-    try{
-      const r=await fetch(`${LEAVE_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
-      if(r.status===404) return {};
-      if(!r.ok) return null;
-      const data=await r.json();
-      return (data && typeof data==='object' && !Array.isArray(data)) ? data : {};
-    }catch(e){return null}
+  function _sbHeaders(extra){
+    return Object.assign({
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json'
+    }, extra||{});
   }
 
-  /* 양쪽 데이터를 안전하게 머지 — history는 union(중복 제거), used/total/hire는 local 우선 */
-  function mergeLeaveData(remote, local){
-    const out={};
-    const names=new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
-    const keyOf=e=>e?.submittedAt||`${e?.date||''}|${e?.type||''}|${e?.endDate||''}`;
-    for(const name of names){
-      const r=(remote&&remote[name])||{};
-      const l=(local&&local[name])||{};
-      const m={};
-      if(Number.isFinite(l.total)) m.total=l.total;
-      else if(Number.isFinite(r.total)) m.total=r.total;
-      if(Number.isFinite(l.used)) m.used=l.used;
-      else if(Number.isFinite(r.used)) m.used=r.used;
-      if(typeof l.hire==='string'&&l.hire) m.hire=l.hire;
-      else if(typeof r.hire==='string'&&r.hire) m.hire=r.hire;
-      const rh=Array.isArray(r.history)?r.history:[];
-      const lh=Array.isArray(l.history)?l.history:[];
-      const seen=new Map();
-      for(const e of [...rh, ...lh]){ if(e) seen.set(keyOf(e), e); }
-      if(seen.size){
-        m.history=Array.from(seen.values())
-          .sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+  /* leave_entries + leave_overrides 두 테이블을 가져와 기존 v 형태로 조합
+     v = { used?, total?, hire?, history: [{date,endDate?,days?,type,submittedAt,_id?}] } */
+  async function sbFetchLeave(){
+    try{
+      const [entriesR, overridesR]=await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/leave_entries?select=*&order=submitted_at.asc&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'}),
+        fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?select=*&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'})
+      ]);
+      if(!entriesR.ok || !overridesR.ok) return null;
+      const entries=await entriesR.json();
+      const overrides=await overridesR.json();
+      const data={};
+      for(const o of (overrides||[])){
+        const row={};
+        if(o.total!=null){const v=Number(o.total);if(Number.isFinite(v)) row.total=v}
+        if(o.used !=null){const v=Number(o.used );if(Number.isFinite(v)) row.used =v}
+        if(o.hire) row.hire=String(o.hire);
+        if(Object.keys(row).length) data[o.staff_name]=row;
       }
-      if(Object.keys(m).length) out[name]=m;
-    }
-    return out;
+      for(const e of (entries||[])){
+        const name=e.staff_name;
+        if(!data[name]) data[name]={};
+        if(!data[name].history) data[name].history=[];
+        const item={date:e.start_date, type:e.leave_type, submittedAt:e.submitted_at};
+        if(e.end_date && e.end_date!==e.start_date) item.endDate=e.end_date;
+        if(e.days!=null){const v=Number(e.days);if(Number.isFinite(v)) item.days=v}
+        if(e.id) item._id=e.id;
+        data[name].history.push(item);
+      }
+      return data;
+    }catch(err){return null}
+  }
+
+  async function sbInsertLeaveEntry(payload){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_entries`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'return=representation'}),
+        body:JSON.stringify(payload)
+      });
+      if(!r.ok) return {ok:false,reason:`http_${r.status}`};
+      const rows=await r.json();
+      return {ok:true, row:Array.isArray(rows)?rows[0]:rows};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+
+  /* 직원별 override upsert. fields의 키가 있고 값이 null이면 그 컬럼만 비움. */
+  async function sbUpsertLeaveOverride(staff_name, fields){
+    try{
+      const body=Object.assign({staff_name}, fields);
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?on_conflict=staff_name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify(body)
+      });
+      if(!r.ok) return {ok:false,reason:`http_${r.status}`};
+      return {ok:true};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+
+  async function sbDeleteLeaveOverride(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
+    }catch(e){return {ok:false}}
   }
 
   async function syncLeaveFromRemote(){
-    const remote=await fetchLeaveFromRemote();
-    if(remote===null) return; // 네트워크 실패 — 조용히 패스
-    const local=loadLeaveData();
-    const merged=mergeLeaveData(remote, local);
-    const json=JSON.stringify(merged);
-    if(json===_leave_lastHash && json===JSON.stringify(local)) return;
+    const fresh=await sbFetchLeave();
+    if(fresh===null) return; // 네트워크 실패 — 조용히 패스
+    const json=JSON.stringify(fresh);
+    if(json===_leave_lastHash) return;
     _leave_lastHash=json;
     localStorage.setItem(LEAVE_KEY, json);
     if(document.getElementById('leaveGrid')) renderLeaveStatus();
   }
   window.syncLeaveFromRemote=syncLeaveFromRemote;
-
-  async function pushLeaveToRemote(){
-    if(_leave_pushing) return {ok:false,reason:'busy'};
-    const token=localStorage.getItem(TOKEN_KEY);
-    if(!token) return {ok:false,reason:'notoken'};
-    _leave_pushing=true;
-    try{
-      // 푸시 직전에 remote와 머지 — 동시 편집 시 데이터 손실 방지
-      const remote=await fetchLeaveFromRemote();
-      const local=loadLeaveData();
-      const merged=(remote===null)?local:mergeLeaveData(remote, local);
-      const json=JSON.stringify(merged, null, 2);
-      const b64=btoa(unescape(encodeURIComponent(json)));
-      const r=await ghPut(LEAVE_API, b64, 'chore: 연차 데이터 갱신');
-      if(r.ok){
-        const compact=JSON.stringify(merged);
-        _leave_lastHash=compact;
-        localStorage.setItem(LEAVE_KEY, compact);
-        if(document.getElementById('leaveGrid')) renderLeaveStatus();
-      }
-      return r;
-    } finally {
-      _leave_pushing=false;
-    }
-  }
-
-  /* 디바운스 자동 푸시 — 편집/제출 후 1.2초 묶어서 1회만 push */
-  function scheduleLeavePush(){
-    if(_leave_pushTimer) clearTimeout(_leave_pushTimer);
-    _leave_pushTimer=setTimeout(async ()=>{
-      _leave_pushTimer=null;
-      const token=localStorage.getItem(TOKEN_KEY);
-      if(!token){
-        // 토큰 없으면 로컬 저장만 — 조용히 패스 (UX 방해 X)
-        return;
-      }
-      const r=await pushLeaveToRemote();
-      if(!r.ok && r.reason!=='notoken' && r.reason!=='busy'){
-        console.warn('leave sync push failed:', r.reason);
-      }
-    }, 1200);
-  }
-  window.scheduleLeavePush=scheduleLeavePush;
 
   function arrayBufferToBase64(buf){
     const bytes=new Uint8Array(buf);
