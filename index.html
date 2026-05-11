@@ -2175,6 +2175,52 @@
   }
   window.hardReload=hardReload;
 
+  /* === 네트워크 진단 (모바일 디버깅 — URL 끝에 #diag 붙여 접속하면 자동 실행) ===
+     각 단계의 status / 응답 시간 / 에러 종류를 alert로 표시.
+     "Load failed"가 어느 fetch에서 발생하는지 정확히 짚어줌. */
+  async function _diagFetch(label, url, opts){
+    const t0=Date.now();
+    try{
+      const r=await fetch(url, opts||{});
+      return `${label}: ${r.status} (${Date.now()-t0}ms)`;
+    }catch(e){
+      return `${label}: ❌ ${e.name||'Error'} "${e.message}" (${Date.now()-t0}ms)`;
+    }
+  }
+  async function runNetDiag(){
+    const out=[];
+    out.push('🔧 네트워크 진단');
+    out.push('online: '+navigator.onLine);
+    const uaShort=navigator.userAgent.replace(/.*\((.+?)\).*/,'$1').slice(0,60);
+    out.push('device: '+uaShort);
+    out.push('PWA: '+(window.matchMedia('(display-mode: standalone)').matches?'standalone':'browser'));
+    out.push('---');
+    // 1. tunnel.json (raw GitHub)
+    out.push(await _diagFetch('1. tunnel.json', `${PROXY_TUNNEL_URL}?cb=${Date.now()}`, {cache:'no-cache'}));
+    // 2. proxy base 확보
+    _proxyBase=null;
+    const base=await loadProxyBase(true);
+    if(!base){ out.push('proxyBase: ❌ null — 종료'); alert(out.join('\n')); return; }
+    out.push('proxyBase: '+base);
+    // 3. 터널 루트 (no auth)
+    out.push(await _diagFetch('3. 터널 / (no auth)', base+'/', {cache:'no-cache'}));
+    // 4. /gh/ (no PIN, 401 정상)
+    out.push(await _diagFetch('4. /gh/ noPIN', base+'/gh/', {cache:'no-cache'}));
+    // 5. /gh/ + PIN GET (200 기대)
+    out.push(await _diagFetch('5. /gh/ +PIN GET', base+'/gh/repos/j65209/sixshop-collector/actions/workflows/collect.yml/runs?per_page=1', {headers:{'X-Brightbeed-PIN':ghPin(),'Accept':'application/vnd.github+json'},cache:'no-cache'}));
+    // 6. ghFetch 경유 동일 호출
+    try{
+      const t0=Date.now();
+      const r=await ghFetch(`https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/collect.yml/runs?per_page=1`,{headers:{'Accept':'application/vnd.github+json'}});
+      out.push(`6. ghFetch GET: ${r.status} (${Date.now()-t0}ms)`);
+    }catch(e){
+      out.push(`6. ghFetch GET: ❌ ${e.name} "${e.message}"`);
+    }
+    alert(out.join('\n'));
+  }
+  window.runNetDiag=runNetDiag;
+  if((location.hash||'').toLowerCase()==='#diag') setTimeout(runNetDiag, 1200);
+
   // 톱니바퀴 → 서버 프록시 URL 강제 갱신 + 재싱크 (토큰은 서버 Mac에만 있음)
   document.getElementById('settingsBtn').onclick=async()=>{
     toast('서버 연결 갱신 중...','ok');
