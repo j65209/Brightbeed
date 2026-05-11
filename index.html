@@ -671,12 +671,25 @@
   .sales-archive-size{font-family:var(--mono);font-size:10.5px;color:var(--text-3)}
   .sales-archive-when{font-family:var(--mono);font-size:10.5px;color:var(--text-3)}
   .sales-archive-empty{padding:8px 4px;font-size:11.5px;color:var(--text-3);text-align:center;font-family:var(--mono)}
+  /* 마스터 전용: 항목 우측 ✕ 삭제 버튼 — hover 시 노출 */
+  body:not(.role-viewer) .sales-archive-item{grid-template-columns:96px 1fr auto auto 22px}
+  .sales-archive-del{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;border-radius:4px;
+    color:var(--text-3);font-size:14px;line-height:1;font-weight:300;
+    background:transparent;border:1px solid transparent;cursor:pointer;
+    opacity:0;transition:opacity .12s,background .12s,color .12s,border-color .12s;
+  }
+  .sales-archive-item:hover .sales-archive-del{opacity:.7}
+  .sales-archive-del:hover{opacity:1;background:rgba(217,102,102,.15);color:var(--danger);border-color:rgba(217,102,102,.3)}
   @media(max-width:600px){
     .sales-archive-item{grid-template-columns:1fr auto;gap:4px 10px;padding:8px 10px}
+    body:not(.role-viewer) .sales-archive-item{grid-template-columns:1fr auto 22px}
     .sales-archive-fname{grid-column:1/-1;order:2}
     .sales-archive-date{order:1}
     .sales-archive-size{order:3;justify-self:end}
     .sales-archive-when{display:none}
+    .sales-archive-del{order:4;opacity:.6}
   }
 
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
@@ -4477,6 +4490,7 @@ async function handlePOFiles(files){
   /* ===== 매출 보고서 아카이브 (월/일 별 누적) ===== */
   const SALES_ARCHIVE_PATH='data/sales-archive.json';
   const SALES_ARCHIVE_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${SALES_ARCHIVE_PATH}`;
+  const SALES_ARCHIVE_API=`https://api.github.com/repos/${PO_REPO}/contents/${SALES_ARCHIVE_PATH}`;
   window._salesArchiveCache=[];
   let _salesArchiveSelectedDate=null; // 사용자가 클릭한 항목 (없으면 latest)
 
@@ -4514,11 +4528,13 @@ async function handlePOFiles(files){
       const md=String(it.date||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
       const dateLabel=md?`${md[2]}/${md[3]}`:escapeHTML(it.date||'');
       const fname=String(it.filename||'').replace(/\.(pptx|ppt|pdf)$/i,'');
-      return `<button class="sales-archive-item${isCur}" type="button" data-date="${escapeHTML(it.date||'')}" data-pdf="${escapeHTML(it.pdfPath||'')}" onclick="loadSalesArchive(this.dataset.date,this.dataset.pdf)">
+      const dateKey=escapeHTML(it.date||'');
+      return `<button class="sales-archive-item${isCur}" type="button" data-date="${dateKey}" data-pdf="${escapeHTML(it.pdfPath||'')}" onclick="loadSalesArchive(this.dataset.date,this.dataset.pdf)">
         <span class="sales-archive-date">${escapeHTML(it.date||'')}</span>
         <span class="sales-archive-fname" title="${escapeHTML(it.filename||'')}">${escapeHTML(fname||'(이름 없음)')}</span>
         <span class="sales-archive-size">${sizeKB.toLocaleString('ko-KR')}KB</span>
         <span class="sales-archive-when">${escapeHTML(when)}</span>
+        <span class="sales-archive-del master-only" role="button" title="이 내역 삭제" aria-label="삭제" onclick="event.stopPropagation();deleteSalesArchiveItem('${dateKey}')">✕</span>
       </button>`;
     }).join('');
   }
@@ -4553,6 +4569,59 @@ async function handlePOFiles(files){
   }
   window.loadSalesArchive=loadSalesArchive;
   window.renderSalesArchive=renderSalesArchive;
+
+  /* 보고서 내역 개별 삭제 — 해당 PDF + sales-archive.json 갱신 (마스터 전용) */
+  async function deleteSalesArchiveItem(dateKey){
+    if(!dateKey) return;
+    if(!requireMaster('보고서 내역 삭제')) return;
+    const items=Array.isArray(window._salesArchiveCache)?window._salesArchiveCache:[];
+    const target=items.find(it=>it && it.date===dateKey);
+    if(!target){toast('이미 삭제된 항목입니다','err');return}
+    const fname=String(target.filename||'(이름 없음)');
+    if(!confirm(`'${target.date} · ${fname}' 보고서 내역을 삭제할까요?\n해당 PDF 파일도 함께 삭제됩니다.`)) return;
+    if(!(await ensureGhToken())){toast('GitHub 토큰이 필요합니다','err');return}
+
+    const errors=[];
+    // 1) 해당 PDF 삭제 (이미 없으면 ghDelete가 ok 반환)
+    if(target.pdfPath){
+      const api=`https://api.github.com/repos/${PO_REPO}/contents/${encodeURI(target.pdfPath)}`;
+      const r=await ghDelete(api, `chore: 매출 보고서 내역 삭제 (${target.pdfPath})`);
+      if(!r.ok){
+        if(r.reason==='auth'){toast('GitHub 토큰 인증 실패 — 톱니바퀴에서 다시 입력해주세요','err');return}
+        errors.push(`pdf:${r.reason}`);
+      }
+    }
+    // 2) sales-archive.json 갱신 — 항목 제거 후 빈 배열이면 파일 자체 삭제
+    const next=items.filter(it=>!(it && it.date===dateKey));
+    if(next.length===0){
+      const r=await ghDelete(SALES_ARCHIVE_API, `chore: 매출 보고서 내역 비우기`);
+      if(!r.ok){
+        if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
+        errors.push(`archive:${r.reason}`);
+      }
+    } else {
+      const b64=btoa(unescape(encodeURIComponent(JSON.stringify(next,null,2)+'\n')));
+      const r=await ghPut(SALES_ARCHIVE_API, b64, `chore: 매출 보고서 내역 삭제 (${target.date})`);
+      if(!r.ok){
+        if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
+        errors.push(`archive:${r.reason}`);
+      }
+    }
+
+    // 로컬 캐시 즉시 갱신
+    window._salesArchiveCache=next;
+    if(_salesArchiveSelectedDate===dateKey) _salesArchiveSelectedDate=null;
+    renderSalesArchive();
+
+    if(errors.length){
+      toast(`일부 삭제 실패: ${errors.slice(0,2).join(' / ')}`,'err');
+    } else {
+      toast(`✓ ${target.date} 내역 삭제됨`,'ok');
+    }
+    // 원격 재동기화로 최종 상태 검증
+    setTimeout(()=>{ try{ syncSalesArchiveFromRemote(); }catch(e){} },1500);
+  }
+  window.deleteSalesArchiveItem=deleteSalesArchiveItem;
 
   function renderSalesUpdatedTag(){
     const tag=document.getElementById('salesUpdatedTag');
