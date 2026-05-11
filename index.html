@@ -3706,7 +3706,8 @@ async function handlePOFiles(files){
 
   /* ===== 연차 데이터 Supabase 동기화 (누구나 신청 → 자동저장 → 다른 기기/IP) ===== */
   const SUPABASE_URL='https://ckyjkxbqsyjoqpuqwoce.supabase.co';
-  const SUPABASE_KEY='sb_publishable_WNT8oBTcKiOUAYZZ4dPJbg_RcqVzOFj';
+  // anon JWT — Authorization: Bearer 헤더로 PostgREST가 role=anon 인식
+  const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNreWpreGJxc3lqb3FwdXF3b2NlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjI2NzEsImV4cCI6MjA5Mzk5ODY3MX0.C8WIGqf-zIYkCq0dGWTMjIYuPM-IVInMn1p6FaWbVKA';
   let _leave_lastHash=null;
 
   function _sbHeaders(extra){
