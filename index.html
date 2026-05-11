@@ -2790,32 +2790,119 @@
       saveLeaveData(data);
     }
   });
-  /* 연차 신청서 임시저장(draft) — 입력 도중 자동 저장, 폼 다시 열면 복원, 신청 성공 시 삭제 */
+  /* 연차 신청서 임시저장(draft) — 입력 도중 자동 저장 + 기기/브라우저 간 동기화(Supabase)
+     - localStorage: 즉시 저장/복원 (오프라인·빠른 UX)
+     - Supabase leave_drafts: 성함을 키로 cross-device 동기화 (debounced upsert)
+     - 신청 성공 시 양쪽 다 삭제 */
   const LEAVE_DRAFT_KEY='brightbeed_leave_draft';
+  let _leaveDraftSyncTimer=null;
   function _readLeaveDraft(){try{return JSON.parse(localStorage.getItem(LEAVE_DRAFT_KEY)||'null')}catch(e){return null}}
   function clearLeaveDraft(){localStorage.removeItem(LEAVE_DRAFT_KEY)}
+  function _writeLeaveDraftLocal(staff,start,end,type,savedAt){
+    try{localStorage.setItem(LEAVE_DRAFT_KEY,JSON.stringify({staff,start,end,type,savedAt:savedAt||Date.now()}))}catch(e){}
+  }
   function saveLeaveDraft(){
     const staff=document.getElementById('lfStaff')?.value||'';
     const start=document.getElementById('lfDate')?.value||'';
     const end=document.getElementById('lfDateEnd')?.value||'';
     const type=document.querySelector('input[name="lfType"]:checked')?.value||'';
     if(!staff && !type){clearLeaveDraft();return}
-    try{localStorage.setItem(LEAVE_DRAFT_KEY,JSON.stringify({staff,start,end,type,savedAt:Date.now()}))}catch(e){}
+    _lastUserEditTs=Date.now(); // polling이 사용자 입력을 덮어쓰지 않도록 마킹
+    _writeLeaveDraftLocal(staff,start,end,type);
+    // 성함이 있을 때만 리모트 동기화 — 800ms debounce로 네트워크 부하 완화
+    if(staff && typeof sbUpsertLeaveDraft==='function'){
+      clearTimeout(_leaveDraftSyncTimer);
+      _leaveDraftSyncTimer=setTimeout(()=>{
+        sbUpsertLeaveDraft({
+          staff_name:staff,
+          start_date:start||null,
+          end_date:end||null,
+          leave_type:type||null,
+          updated_at:new Date().toISOString()
+        }).catch(()=>{});
+      },800);
+    }
+  }
+  /* 리모트 draft를 폼에 적용. 사용자가 이미 입력 중이면 덮어쓰지 않음(silent merge).
+     opts.silent: polling 호출 시 토스트 억제. 적용 시 true 반환. */
+  let _lastDraftRemoteToastTs=0;
+  async function applyRemoteLeaveDraftFor(staffName,opts){
+    opts=opts||{};
+    if(!staffName || typeof sbFetchLeaveDraft!=='function') return false;
+    const res=await sbFetchLeaveDraft(staffName);
+    if(!res || !res.ok || !res.row) return false;
+    const row=res.row;
+    const local=_readLeaveDraft();
+    const localTs=local && local.staff===staffName ? (Number(local.savedAt)||0) : 0;
+    const remoteTs=row.updated_at ? Date.parse(row.updated_at) : 0;
+    if(remoteTs<=localTs) return false; // 로컬이 같거나 더 최신이면 무시
+    const dateInput=document.getElementById('lfDate');
+    const dateEndInput=document.getElementById('lfDateEnd');
+    if(row.start_date && dateInput) dateInput.value=row.start_date;
+    if(row.end_date && dateEndInput) dateEndInput.value=row.end_date;
+    if(row.leave_type){
+      const radio=document.querySelector(`input[name="lfType"][value="${row.leave_type}"]`);
+      if(radio) radio.checked=true;
+    }
+    _writeLeaveDraftLocal(staffName,row.start_date||'',row.end_date||'',row.leave_type||'',remoteTs);
+    if(typeof updateLeaveDays==='function') updateLeaveDays();
+    if(!opts.silent){
+      toast('다른 기기에서 입력 중이던 내용을 불러왔습니다','ok');
+      _lastDraftRemoteToastTs=Date.now();
+    } else if(Date.now()-_lastDraftRemoteToastTs>20000){
+      // polling 중 20초 이상 만에 변경 발견 — 한 번만 안내
+      toast('다른 기기 입력이 반영되었습니다','ok');
+      _lastDraftRemoteToastTs=Date.now();
+    }
+    return true;
+  }
+  /* 실시간 polling — 폼 열려있는 동안 3초마다 리모트 draft 변경 확인.
+     사용자가 최근 1.5초 안에 입력했으면 보류 (덮어쓰기 방지). */
+  let _draftPollTimer=null;
+  let _lastUserEditTs=0;
+  function startDraftPolling(){
+    if(_draftPollTimer) return;
+    _draftPollTimer=setInterval(()=>{
+      const form=document.getElementById('leaveForm');
+      if(!form || form.hidden){stopDraftPolling();return}
+      const staff=document.getElementById('lfStaff')?.value||'';
+      if(!staff) return; // 성함 안 고르면 키가 없어서 fetch 의미 없음
+      if(Date.now()-_lastUserEditTs<1500) return; // 사용자 입력 직후엔 보류
+      applyRemoteLeaveDraftFor(staff,{silent:true}).catch(()=>{});
+    },3000);
+  }
+  function stopDraftPolling(){
+    if(_draftPollTimer){clearInterval(_draftPollTimer);_draftPollTimer=null;}
   }
   function applyLeaveDraft(){
     const d=_readLeaveDraft();
-    if(!d) return false;
-    const staffSel=document.getElementById('lfStaff');
-    const dateInput=document.getElementById('lfDate');
-    const dateEndInput=document.getElementById('lfDateEnd');
-    if(d.staff && staffSel && [...staffSel.options].some(o=>o.value===d.staff)) staffSel.value=d.staff;
-    if(d.start && dateInput) dateInput.value=d.start;
-    if(d.end && dateEndInput) dateEndInput.value=d.end;
-    if(d.type){
-      const radio=document.querySelector(`input[name="lfType"][value="${d.type}"]`);
-      if(radio) radio.checked=true;
+    let restoredStaff='';
+    if(d){
+      const staffSel=document.getElementById('lfStaff');
+      const dateInput=document.getElementById('lfDate');
+      const dateEndInput=document.getElementById('lfDateEnd');
+      if(d.staff && staffSel && [...staffSel.options].some(o=>o.value===d.staff)){
+        staffSel.value=d.staff;
+        restoredStaff=d.staff;
+      }
+      if(d.start && dateInput) dateInput.value=d.start;
+      if(d.end && dateEndInput) dateEndInput.value=d.end;
+      if(d.type){
+        const radio=document.querySelector(`input[name="lfType"][value="${d.type}"]`);
+        if(radio) radio.checked=true;
+      }
     }
-    return !!(d.staff || d.type);
+    // 백그라운드로 리모트(다른 기기) 머지
+    if(restoredStaff) applyRemoteLeaveDraftFor(restoredStaff).catch(()=>{});
+    return !!(d && (d.staff || d.type));
+  }
+  /* 성함 select 변경 시: 다른 필드가 비어있으면 리모트 draft 복원 시도 */
+  function onLeaveStaffPicked(e){
+    const staff=e?.target?.value||'';
+    if(!staff) return;
+    const type=document.querySelector('input[name="lfType"]:checked')?.value||'';
+    if(type) return; // 이미 입력 중 — 사용자 입력 보존
+    applyRemoteLeaveDraftFor(staff).catch(()=>{});
   }
 
   function toggleLeaveForm(){
@@ -2839,11 +2926,15 @@
       if(!form.dataset.draftBound){
         form.dataset.draftBound='1';
         form.addEventListener('input',saveLeaveDraft);
-        form.addEventListener('change',saveLeaveDraft);
+        form.addEventListener('change',(ev)=>{
+          saveLeaveDraft();
+          if(ev.target && ev.target.id==='lfStaff') onLeaveStaffPicked(ev);
+        });
       }
       updateLeaveDays();
       form.hidden=false;
       if(restored) toast('임시 저장된 내용을 복원했습니다','ok');
+      startDraftPolling(); // 폼 열린 동안 리모트 변경 실시간 반영
       setTimeout(()=>sel.focus(),60);
     }else{
       closeLeaveForm();
@@ -2852,6 +2943,7 @@
   function closeLeaveForm(){
     const form=document.getElementById('leaveForm');
     if(!form)return;
+    stopDraftPolling();
     form.reset();
     form.hidden=true;
   }
@@ -2936,6 +3028,7 @@
       return;
     }
     clearLeaveDraft();
+    if(typeof sbDeleteLeaveDraft==='function') sbDeleteLeaveDraft(name).catch(()=>{});
 
     // used는 따로 저장하지 않음 — 렌더링 시 baseline + 신규 entries 합산으로 계산.
     // (동시 신청 race condition 방지)
@@ -3850,6 +3943,36 @@ async function handlePOFiles(files){
         method:'DELETE', headers:_sbHeaders()
       });
       return {ok:r.ok, status:r.status};
+    }catch(e){return {ok:false}}
+  }
+
+  /* 연차 신청서 임시저장 — Supabase upsert/fetch/delete (성함을 키로 cross-device 동기화) */
+  async function sbUpsertLeaveDraft(payload){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_drafts?on_conflict=staff_name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify(payload)
+      });
+      return r.ok?{ok:true}:{ok:false,reason:`http_${r.status}`};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+  async function sbFetchLeaveDraft(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_drafts?staff_name=eq.${encodeURIComponent(staff_name)}&select=*&_=${Date.now()}`,{
+        headers:_sbHeaders(),cache:'no-cache'
+      });
+      if(!r.ok) return {ok:false,row:null};
+      const rows=await r.json();
+      return {ok:true, row:(Array.isArray(rows)&&rows[0])||null};
+    }catch(e){return {ok:false,row:null}}
+  }
+  async function sbDeleteLeaveDraft(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_drafts?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
     }catch(e){return {ok:false}}
   }
 
