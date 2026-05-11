@@ -105,6 +105,9 @@
   .status-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px rgba(63,178,127,.6)}
   .icon-btn{width:32px;height:32px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:all .15s;border:1px solid transparent}
   .icon-btn:hover{background:var(--bg-2);border-color:var(--line);color:var(--text-0)}
+  .icon-btn.spin svg{animation:spin .9s linear infinite}
+  #hardReloadBtn{width:26px;height:26px}
+  #hardReloadBtn svg{width:13px;height:13px}
 
   /* 컨테이너 */
   .container{max-width:1280px;width:100%;margin:0 auto;padding:32px;flex:1}
@@ -1043,11 +1046,22 @@
   .leave-recent-list{display:flex;flex-direction:column;gap:4px}
   .leave-recent-item{
     display:grid;
-    grid-template-columns:78px 1fr auto auto;
+    grid-template-columns:78px 1fr auto auto auto;
     gap:10px;align-items:center;
     padding:5px 4px;
     font-size:12px;
     border-bottom:1px solid rgba(255,255,255,.03);
+  }
+  .leave-recent-del{
+    width:22px;height:22px;border-radius:4px;
+    background:transparent;border:1px solid rgba(255,255,255,.08);
+    color:var(--text-3);cursor:pointer;
+    font-size:14px;line-height:1;padding:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .leave-recent-del:hover{
+    color:#ff7373;border-color:rgba(255,115,115,.5);background:rgba(255,115,115,.08);
   }
   .leave-recent-item:last-child{border-bottom:none}
   .leave-recent-when{
@@ -1079,14 +1093,15 @@
   @media (max-width:600px){
     .leave-recent{padding:12px 14px 14px}
     .leave-recent-item{
-      grid-template-columns:1fr auto;
+      grid-template-columns:1fr auto auto;
       gap:4px 8px;
       padding:6px 2px;
     }
     .leave-recent-when{grid-column:1/-1;order:-1}
     .leave-recent-name{order:1}
     .leave-recent-type{order:2;justify-self:end}
-    .leave-recent-date{grid-column:1/-1;order:3;font-size:10.5px}
+    .leave-recent-del{order:3}
+    .leave-recent-date{grid-column:1/-1;order:4;font-size:10.5px}
   }
 
   /* 연차/반차 규정 안내 — 앰버 네온 강조 */
@@ -1501,6 +1516,9 @@
       <div class="status-pill"><span class="status-dot"></span><span id="syncStatus">동기화 완료 · 방금 전</span></div>
       <button class="icon-btn master-only" id="settingsBtn" title="GitHub 토큰 설정" aria-label="GitHub 토큰 설정">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="icon-btn" id="hardReloadBtn" title="강제 새로고침 (캐시 무시)" aria-label="강제 새로고침" onclick="hardReload()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
       <button class="icon-btn" id="logout" title="로그아웃" aria-label="로그아웃">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -2081,6 +2099,22 @@
     if(confirm('로그아웃 하시겠습니까?')){stopPolling();localStorage.removeItem(KEY);localStorage.removeItem(ROLE_KEY);showLock()}
   };
 
+  /* 강제 새로고침 — Service Worker / Cache API 비우고 cache-busting 쿼리로 reload */
+  async function hardReload(){
+    const btn=document.getElementById('hardReloadBtn');
+    if(btn) btn.classList.add('spin');
+    try{
+      if('caches' in window){
+        const names=await caches.keys();
+        await Promise.all(names.map(n=>caches.delete(n)));
+      }
+    }catch(e){}
+    const url=new URL(location.href);
+    url.searchParams.set('_v',Date.now());
+    location.replace(url.toString());
+  }
+  window.hardReload=hardReload;
+
   // 톱니바퀴 → 언제든 GitHub 토큰 재입력 가능
   document.getElementById('settingsBtn').onclick=async()=>{
     const newToken = await askToken('github');
@@ -2282,7 +2316,10 @@
       else el.setAttribute('hidden','');
     });
     window.scrollTo({top:0,behavior:'instant'});
-    if(id==='viewHr') renderLeaveStatus();
+    if(id==='viewHr'){
+      renderLeaveStatus();
+      if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
+    }
     if(id==='viewMd'){
       if(typeof renderSalesPptView==='function') renderSalesPptView();
       if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
@@ -2436,7 +2473,12 @@
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
-  function saveLeaveData(data){localStorage.setItem(LEAVE_KEY,JSON.stringify(data))}
+  /* 로컬 캐시 저장 — 실제 영속화는 Supabase로 (submit/inline-edit 핸들러가 직접 호출) */
+  function saveLeaveData(data){
+    const j=JSON.stringify(data);
+    localStorage.setItem(LEAVE_KEY,j);
+    _leave_lastHash=j;
+  }
 
   /* 회계연도(매년 1/1 초기화) 기준 발생 연차 자동 계산
      카운트 시작 = max(올해 1/1, 입사일) — 작년 발생분은 누적 안 함
@@ -2471,6 +2513,22 @@
     return months;
   }
 
+  /* used는 baseline(override v.used 또는 STAFF.used) + 신규 entries(submittedAt 있는 것) 합산.
+     STAFF.history는 이미 STAFF.used baseline에 반영되어 있으므로 중복 합산 X */
+  function _computeLeaveUsed(s, v){
+    const baseline=Number.isFinite(v?.used)?v.used:(Number.isFinite(s?.used)?s.used:null);
+    if(baseline===null) return null;
+    const newEntries=Array.isArray(v?.history)?v.history:[];
+    let extra=0;
+    for(const h of newEntries){
+      if(!h||!h.submittedAt) continue;
+      if(h.type==='연차'){ extra += Number.isFinite(h.days)?h.days:1 }
+      else if(h.type==='오전반차'||h.type==='오후반차'){ extra += 0.5 }
+      // 생일반차: 차감 X
+    }
+    return baseline+extra;
+  }
+
   function leaveCardHTML(s,v,editing){
     // leaveData(v) 우선 → STAFF default → 입사일 기반 자동 계산
     const hire =v?.hire||s.hire||'';
@@ -2479,7 +2537,9 @@
       const auto=calculateLeaveTotal(hire);
       if(Number.isFinite(auto)) total=auto;
     }
-    const used =Number.isFinite(v?.used )?v.used :(Number.isFinite(s.used )?s.used :null);
+    const used=_computeLeaveUsed(s,v);
+    // 편집 모드에선 baseline만 표시 (master가 override 직접 설정)
+    const usedDisplay=editing?(Number.isFinite(v?.used)?v.used:(Number.isFinite(s.used)?s.used:'')):used;
     const hasFull=total!==null&&used!==null;
     const remain=hasFull?(total-used):null;
     const pct=hasFull&&total>0?Math.min(100,Math.round((used/total)*100)):0;
@@ -2517,7 +2577,7 @@
         <div class="leave-stats">
           <div><span class="leave-remain">${remain!==null?remain:'—'}</span><span class="leave-remain-unit">${remain!==null?'일 남음':' 미입력'}</span></div>
           <div class="leave-edit-row">
-            <span class="leave-used" data-field="used" ${ceNum}>${used??''}</span>
+            <span class="leave-used" data-field="used" ${ceNum}>${usedDisplay??''}</span>
             <span>/</span>
             <span class="leave-total" data-field="total" ${ceNum}>${total??''}</span>
             <span>일 사용</span>
@@ -2558,7 +2618,7 @@
         if(!e||!e.submittedAt) return;
         const y=new Date(e.submittedAt).getFullYear();
         if(y!==currentYear) return;
-        items.push({name,date:e.date||'',endDate:e.endDate||'',days:e.days,type:e.type||'',submittedAt:e.submittedAt});
+        items.push({name,date:e.date||'',endDate:e.endDate||'',days:e.days,type:e.type||'',submittedAt:e.submittedAt,_id:e._id});
       });
     });
     items.sort((a,b)=>String(b.submittedAt).localeCompare(String(a.submittedAt)));
@@ -2576,11 +2636,13 @@
       const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
       const typeLabel=it.endDate&&it.endDate!==it.date&&it.days?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
+      const delBtn=it._id?`<button class="leave-recent-del" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(it._id)}', '${escapeHTML(it.name)}', '${escapeHTML(dlabel)}', '${escapeHTML(it.type)}')">×</button>`:'';
       return `<div class="leave-recent-item">
         <span class="leave-recent-when">${escapeHTML(when)}</span>
         <span class="leave-recent-name">${escapeHTML(it.name)}</span>
         <span class="leave-recent-date">${dlabel}</span>
         <span class="leave-recent-type ${cls}">${typeLabel}</span>
+        ${delBtn}
       </div>`;
     }).join('');
   }
@@ -2624,7 +2686,7 @@
       const auto=calculateLeaveTotal(hire);
       if(Number.isFinite(auto)) total=auto;
     }
-    const used =Number.isFinite(v?.used )?v.used :(Number.isFinite(s.used )?s.used :null);
+    const used=_computeLeaveUsed(s,v);
     const hasFull=total!==null&&used!==null;
     const remain=hasFull?(total-used):null;
     const pct=hasFull&&total>0?Math.min(100,Math.round((used/total)*100)):0;
@@ -2642,7 +2704,7 @@
     renderLeaveStatus();
   }
   // 인라인 편집 — blur 시 저장 (master + leave-edit-mode일 때만)
-  document.addEventListener('focusout',e=>{
+  document.addEventListener('focusout',async e=>{
     const span=e.target.closest?.('.leave-card .leave-used, .leave-card .leave-total, .leave-card .leave-hire');
     if(!span) return;
     if(!document.body.classList.contains('leave-edit-mode')) return;
@@ -2652,13 +2714,12 @@
     const field=span.dataset.field;
     const data=loadLeaveData();
     data[name]=data[name]||{};
+    let nextVal; // Supabase에 보낼 값 (null = 컬럼 비움)
     if(field==='hire'){
-      // 자유 텍스트 (날짜 형식 — 사용자가 자유롭게 입력)
       const val=span.textContent.trim();
-      if(val==='') delete data[name].hire;
-      else data[name].hire=val;
+      if(val===''){delete data[name].hire; nextVal=null}
+      else{data[name].hire=val; nextVal=val}
     }else{
-      // total / used — 숫자 검증
       const raw=span.textContent.replace(/[^\d.-]/g,'').trim();
       const val=raw===''?null:Number(raw);
       if(raw!==''&&(!Number.isFinite(val)||val<0)){
@@ -2666,14 +2727,30 @@
         span.textContent='';
         return;
       }
-      if(val===null) delete data[name][field];
-      else data[name][field]=val;
+      if(val===null){delete data[name][field]; nextVal=null}
+      else{data[name][field]=val; nextVal=val}
       span.textContent=val!==null?val:'';
     }
-    // 모든 필드가 비면 키 자체 제거
-    if(Object.keys(data[name]).length===0) delete data[name];
     saveLeaveData(data);
     updateLeaveCard(card,data[name]||{});
+
+    // Supabase upsert — used/total/hire 중 변경된 필드만 갱신
+    const fields={};
+    fields[field]=nextVal;
+    const allEmpty=!Number.isFinite(data[name].used)&&!Number.isFinite(data[name].total)&&!data[name].hire;
+    let r;
+    if(allEmpty){
+      r=await sbDeleteLeaveOverride(name);
+    }else{
+      r=await sbUpsertLeaveOverride(name, fields);
+    }
+    if(!r.ok){
+      toast(`동기화 실패 (${r.reason||'fetch'}) — 다시 시도해주세요`,'err');
+    }
+    if(allEmpty){
+      delete data[name];
+      saveLeaveData(data);
+    }
   });
   function toggleLeaveForm(){
     const form=document.getElementById('leaveForm');
@@ -2753,7 +2830,7 @@
     }
   }
 
-  function submitLeaveForm(e){
+  async function submitLeaveForm(e){
     e.preventDefault();
     const name=document.getElementById('lfStaff').value;
     const startDate=document.getElementById('lfDate').value;
@@ -2766,20 +2843,31 @@
     const r=_calcLeaveDays(type,startDate,endDate);
     if(r.err==='end_before_start'){toast('종료일이 시작일보다 빠릅니다','err');return}
     const delta=type==='연차'?r.days:(isHalf?(type==='생일반차'?0:0.5):0);
-    const data=loadLeaveData();
-    const s=STAFF.find(x=>x.name===name);
-    data[name]=data[name]||{};
-    if(delta>0){
-      const curUsed=Number.isFinite(data[name].used)?data[name].used:(Number.isFinite(s?.used)?s.used:0);
-      data[name].used=curUsed+delta;
+
+    const submitBtn=e.target.querySelector('button[type="submit"]');
+    if(submitBtn) submitBtn.disabled=true;
+
+    const payload={
+      staff_name:name,
+      start_date:startDate,
+      end_date:(endDate&&endDate!==startDate)?endDate:null,
+      days:(endDate&&endDate!==startDate)?r.days:null,
+      leave_type:type
+    };
+    const ins=await sbInsertLeaveEntry(payload);
+    if(!ins.ok){
+      if(submitBtn) submitBtn.disabled=false;
+      toast(`저장 실패 (${ins.reason}) — 네트워크 확인 후 다시 시도해주세요`,'err');
+      return;
     }
-    data[name].history=data[name].history||[];
-    const entry={date:startDate,type,submittedAt:new Date().toISOString()};
-    if(endDate&&endDate!==startDate){entry.endDate=endDate;entry.days=r.days}
-    data[name].history.push(entry);
-    saveLeaveData(data);
-    renderLeaveStatus();
+
+    // used는 따로 저장하지 않음 — 렌더링 시 baseline + 신규 entries 합산으로 계산.
+    // (동시 신청 race condition 방지)
+
+    // remote에서 다시 pull → 캐시·UI 동기화
+    await syncLeaveFromRemote();
     renderRecentLeaveLog();
+
     const fmtRange=(d1,d2)=>{
       const f=x=>x.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3');
       return d1===d2?f(d1):`${f(d1)}~${d2.slice(5).replace('-','/')}`;
@@ -2790,6 +2878,7 @@
       : `✓ ${name} ${range} ${type} (-${delta}일)`;
     toast(msg,'ok');
     closeLeaveForm();
+    if(submitBtn) submitBtn.disabled=false;
   }
   function toggleLeaveHistory(btn){
     const card=btn.closest('.leave-card');
@@ -2935,10 +3024,11 @@
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
 
-    // 매출 PPT + 공지사항도 함께 동기화
+    // 매출 PPT + 공지사항 + 연차도 함께 동기화
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
+    if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -2961,10 +3051,11 @@
         if(last) last.textContent = t;
       }
     }
-    // 매출 PPT + 공지사항도 함께 폴링
+    // 매출 PPT + 공지사항 + 연차도 함께 폴링
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
+    if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -3634,6 +3725,126 @@ async function handlePOFiles(files){
     if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
     return {ok:false,reason:`http_${r.status}`};
   }
+
+  /* ===== 연차 데이터 Supabase 동기화 (누구나 신청 → 자동저장 → 다른 기기/IP) ===== */
+  const SUPABASE_URL='https://ckyjkxbqsyjoqpuqwoce.supabase.co';
+  // anon JWT — Authorization: Bearer 헤더로 PostgREST가 role=anon 인식
+  const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNreWpreGJxc3lqb3FwdXF3b2NlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjI2NzEsImV4cCI6MjA5Mzk5ODY3MX0.C8WIGqf-zIYkCq0dGWTMjIYuPM-IVInMn1p6FaWbVKA';
+  let _leave_lastHash=null;
+
+  function _sbHeaders(extra){
+    return Object.assign({
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json'
+    }, extra||{});
+  }
+
+  /* leave_entries + leave_overrides 두 테이블을 가져와 기존 v 형태로 조합
+     v = { used?, total?, hire?, history: [{date,endDate?,days?,type,submittedAt,_id?}] } */
+  async function sbFetchLeave(){
+    try{
+      const [entriesR, overridesR]=await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/leave_entries?select=*&order=submitted_at.asc&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'}),
+        fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?select=*&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'})
+      ]);
+      if(!entriesR.ok || !overridesR.ok) return null;
+      const entries=await entriesR.json();
+      const overrides=await overridesR.json();
+      const data={};
+      for(const o of (overrides||[])){
+        const row={};
+        if(o.total!=null){const v=Number(o.total);if(Number.isFinite(v)) row.total=v}
+        if(o.used !=null){const v=Number(o.used );if(Number.isFinite(v)) row.used =v}
+        if(o.hire) row.hire=String(o.hire);
+        if(Object.keys(row).length) data[o.staff_name]=row;
+      }
+      for(const e of (entries||[])){
+        const name=e.staff_name;
+        if(!data[name]) data[name]={};
+        if(!data[name].history) data[name].history=[];
+        const item={date:e.start_date, type:e.leave_type, submittedAt:e.submitted_at};
+        if(e.end_date && e.end_date!==e.start_date) item.endDate=e.end_date;
+        if(e.days!=null){const v=Number(e.days);if(Number.isFinite(v)) item.days=v}
+        if(e.id) item._id=e.id;
+        data[name].history.push(item);
+      }
+      return data;
+    }catch(err){return null}
+  }
+
+  async function sbInsertLeaveEntry(payload){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_entries`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'return=representation'}),
+        body:JSON.stringify(payload)
+      });
+      if(!r.ok) return {ok:false,reason:`http_${r.status}`};
+      const rows=await r.json();
+      return {ok:true, row:Array.isArray(rows)?rows[0]:rows};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+
+  /* 직원별 override upsert. fields의 키가 있고 값이 null이면 그 컬럼만 비움. */
+  async function sbUpsertLeaveOverride(staff_name, fields){
+    try{
+      const body=Object.assign({staff_name}, fields);
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?on_conflict=staff_name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify(body)
+      });
+      if(!r.ok) return {ok:false,reason:`http_${r.status}`};
+      return {ok:true};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+
+  async function sbDeleteLeaveOverride(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
+    }catch(e){return {ok:false}}
+  }
+
+  async function sbDeleteLeaveEntry(id){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_entries?id=eq.${encodeURIComponent(id)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok, status:r.status};
+    }catch(e){return {ok:false}}
+  }
+
+  /* 최근 신청 내역에서 × 클릭 시 호출 — confirm 후 Supabase에서 삭제 */
+  async function deleteLeaveEntry(id, name, dateLabel, type){
+    if(!id) return;
+    const ok=confirm(`'${name} · ${dateLabel} ${type}' 신청을 취소할까요?\n취소하면 사용 일수도 자동으로 복구됩니다.`);
+    if(!ok) return;
+    const r=await sbDeleteLeaveEntry(id);
+    if(!r.ok){
+      toast(`삭제 실패 (HTTP ${r.status||'?'}) — 잠시 후 다시 시도해주세요`,'err');
+      return;
+    }
+    // 캐시 무효화 후 재동기화 → UI 즉시 갱신
+    _leave_lastHash=null;
+    await syncLeaveFromRemote();
+    toast(`✓ ${name} ${dateLabel} ${type} 신청 취소됨`,'ok');
+  }
+  window.deleteLeaveEntry=deleteLeaveEntry;
+
+  async function syncLeaveFromRemote(){
+    const fresh=await sbFetchLeave();
+    if(fresh===null) return; // 네트워크 실패 — 조용히 패스
+    const json=JSON.stringify(fresh);
+    if(json===_leave_lastHash) return;
+    _leave_lastHash=json;
+    localStorage.setItem(LEAVE_KEY, json);
+    if(document.getElementById('leaveGrid')) renderLeaveStatus();
+  }
+  window.syncLeaveFromRemote=syncLeaveFromRemote;
 
   function arrayBufferToBase64(buf){
     const bytes=new Uint8Array(buf);
