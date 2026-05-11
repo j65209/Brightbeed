@@ -3909,9 +3909,9 @@ async function handlePOFiles(files){
   async function sbFetchLeave(){
     try{
       const [entriesR, overridesR, deletesR]=await Promise.all([
-        fetch(`${SUPABASE_URL}/rest/v1/leave_entries?select=*&order=submitted_at.asc&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'}),
-        fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?select=*&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'}),
-        fetch(`${SUPABASE_URL}/rest/v1/leave_baseline_deletes?select=*&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'})
+        fetch(`${SUPABASE_URL}/rest/v1/leave_entries?select=*&order=submitted_at.asc`,{headers:_sbHeaders(),cache:'no-cache'}),
+        fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?select=*`,{headers:_sbHeaders(),cache:'no-cache'}),
+        fetch(`${SUPABASE_URL}/rest/v1/leave_baseline_deletes?select=*`,{headers:_sbHeaders(),cache:'no-cache'})
       ]);
       if(!entriesR.ok || !overridesR.ok || !deletesR.ok) return null;
       const entries=await entriesR.json();
@@ -4021,7 +4021,7 @@ async function handlePOFiles(files){
   }
   async function sbFetchLeaveDraft(staff_name){
     try{
-      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_drafts?staff_name=eq.${encodeURIComponent(staff_name)}&select=*&_=${Date.now()}`,{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_drafts?staff_name=eq.${encodeURIComponent(staff_name)}&select=*`,{
         headers:_sbHeaders(),cache:'no-cache'
       });
       if(!r.ok) return {ok:false,row:null};
