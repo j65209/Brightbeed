@@ -2033,13 +2033,59 @@
 <script>
   const PIN_VIEWER='670200';   // 보기 전용
   const PIN_MASTER='6702';     // 수정 권한
-  const ALLOWED_IPS=['110.11.178.25']; // 화이트리스트 IP는 master 자동 통과
   const KEY='brightbeed_unlocked';
   const ROLE_KEY='brightbeed_role';
   const lock=document.getElementById('lock');
   const app=document.getElementById('app');
   const pin=document.getElementById('pin');
   const err=document.getElementById('err');
+
+  /* ===== GitHub API 프록시 (토큰은 서버 Mac에만 보관) =====
+     - 서버 Mac이 cloudflared quick tunnel을 띄우고 URL을 tunnel.json에 기록.
+     - 대시보드는 tunnel.json을 읽어 base URL을 확보, /gh/* 로 호출 → 프록시가 PAT 주입 후 api.github.com 으로 포워딩.
+     - 인증은 X-Brightbeed-PIN 헤더. viewer PIN은 GET만, master PIN은 모든 메서드. */
+  const PROXY_TUNNEL_URL='https://raw.githubusercontent.com/j65209/Brightbeed/main/tunnel.json';
+  let _proxyBase=null;
+  async function loadProxyBase(force){
+    if(_proxyBase && !force) return _proxyBase;
+    try{
+      const r=await fetch(`${PROXY_TUNNEL_URL}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(!r.ok) return null;
+      const j=await r.json();
+      _proxyBase=(j && typeof j.url==='string') ? j.url.replace(/\/$/,'') : null;
+      return _proxyBase;
+    }catch(e){ return null }
+  }
+  function ghPin(){ return localStorage.getItem(ROLE_KEY)==='master' ? PIN_MASTER : PIN_VIEWER }
+  async function ghFetch(url,opts){
+    opts=opts||{};
+    const buildReq=async()=>{
+      const base=await loadProxyBase();
+      if(!base) throw new Error('proxy unavailable');
+      const proxyUrl=url.replace(/^https:\/\/api\.github\.com/, base+'/gh');
+      const headers=Object.assign({},opts.headers||{});
+      delete headers.Authorization;
+      headers['X-Brightbeed-PIN']=ghPin();
+      return [proxyUrl, Object.assign({},opts,{headers})];
+    };
+    try{
+      const [u,o]=await buildReq();
+      const r=await fetch(u,o);
+      if(r.status>=502 && r.status<=504){
+        // 터널 재시작 등으로 base가 바뀌었을 수 있음 — 한 번 갱신 후 재시도
+        _proxyBase=null;
+        const [u2,o2]=await buildReq();
+        return fetch(u2,o2);
+      }
+      return r;
+    }catch(e){
+      _proxyBase=null;
+      const [u2,o2]=await buildReq();
+      return fetch(u2,o2);
+    }
+  }
+  // 기존 코드 호환: 레거시 토큰 정리 (이제 클라이언트가 토큰을 들고 있을 필요 없음)
+  try{ localStorage.removeItem('brightbeed_gh_token') }catch(e){}
 
   function getRole(){return localStorage.getItem(ROLE_KEY)||'viewer'}
   function isMaster(){return getRole()==='master'}
@@ -2066,15 +2112,6 @@
   async function init(){
     applyRole();
     if(localStorage.getItem(KEY)==='1'){show();return}
-    try{
-      const r=await fetch('https://api.ipify.org?format=json');
-      const j=await r.json();
-      if(ALLOWED_IPS.includes(j.ip)){
-        localStorage.setItem(KEY,'1');
-        localStorage.setItem(ROLE_KEY,'master'); // 화이트리스트 IP = master
-        show();return;
-      }
-    }catch(e){}
     showLock();
   }
 
@@ -2115,24 +2152,22 @@
   }
   window.hardReload=hardReload;
 
-  // 톱니바퀴 → 언제든 GitHub 토큰 재입력 가능
+  // 톱니바퀴 → 서버 프록시 URL 강제 갱신 + 재싱크 (토큰은 서버 Mac에만 있음)
   document.getElementById('settingsBtn').onclick=async()=>{
-    const newToken = await askToken('github');
-    if(newToken){
-      localStorage.setItem(TOKEN_KEY,newToken);
-      toast('토큰 저장 완료 — GitHub 동기화 재시도 중...','ok');
-      const local = JSON.parse(localStorage.getItem(PO_KEY)||'[]');
-      if(local.length > 0){
-        const result = await pushPOToRemote(local);
-        if(result.ok){
-          _po_lastHash = JSON.stringify(local);
-          toast(`✓ ${local.length}건 GitHub 업로드 완료 — 다른 기기에서도 보입니다`,'ok');
-        }else{
-          toast(`업로드 실패 (${result.reason}) — 토큰 권한 다시 확인 (Brightbeed Contents Read/Write 필요)`,'err');
-        }
+    toast('서버 연결 갱신 중...','ok');
+    const base=await loadProxyBase(true);
+    if(!base){ toast('서버 프록시 URL을 읽지 못했습니다 (tunnel.json)','err'); return; }
+    const local = JSON.parse(localStorage.getItem(PO_KEY)||'[]');
+    if(local.length > 0 && isMaster()){
+      const result = await pushPOToRemote(local);
+      if(result.ok){
+        _po_lastHash = JSON.stringify(local);
+        toast(`✓ ${local.length}건 GitHub 업로드 완료`,'ok');
+      }else if(result.reason!=='notoken'){
+        toast(`업로드 실패 (${result.reason})`,'err');
       }
-      await syncFromRemote();
     }
+    await syncFromRemote();
   };
 
   // 상단 동기화 상태 클릭 시 강제 새로고침
@@ -2224,22 +2259,15 @@
 
   async function triggerERP(){
     if(!requireMaster('ERP 최신화'))return;
-    let token=localStorage.getItem(TOKEN_KEY);
-    if(!token){
-      token=await askToken('github');
-      if(!token)return;
-      localStorage.setItem(TOKEN_KEY,token);
-    }
 
     erpBtn.disabled=true;
     erpBtn.classList.add('spin');
     erpLabel.textContent='트리거 중...';
 
     try{
-      const r=await fetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/dispatches`,{
+      const r=await ghFetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/dispatches`,{
         method:'POST',
         headers:{
-          'Authorization':`Bearer ${token}`,
           'Accept':'application/vnd.github+json',
           'X-GitHub-Api-Version':'2022-11-28',
           'Content-Type':'application/json'
@@ -2251,10 +2279,9 @@
         erpLabel.textContent='✓ 시작됨';
         toast('ERP 워크플로우 시작 · 약 2~3분 소요','ok');
         document.getElementById('syncStatus').textContent='ERP 동기화 중...';
-        pollRun(token);
+        pollRun();
       }else if(r.status===401||r.status===403){
-        localStorage.removeItem(TOKEN_KEY);
-        toast('토큰이 유효하지 않거나 권한이 부족합니다. 다시 입력해주세요.','err');
+        toast('서버 프록시 인증 실패 — PIN 확인','err');
         erpLabel.textContent='ERP 최신화';
         erpBtn.disabled=false;
         erpBtn.classList.remove('spin');
@@ -2274,14 +2301,14 @@
     },3500);
   }
 
-  async function pollRun(token){
+  async function pollRun(){
     const start=Date.now();
     const maxWait=6*60*1000;
     while(Date.now()-start<maxWait){
       await new Promise(r=>setTimeout(r,15000));
       try{
-        const r=await fetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/runs?per_page=1`,{
-          headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'}
+        const r=await ghFetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/runs?per_page=1`,{
+          headers:{'Accept':'application/vnd.github+json'}
         });
         if(!r.ok)continue;
         const j=await r.json();
@@ -2917,19 +2944,13 @@
   }
 
   async function pushPOToRemote(list){
-    const token=localStorage.getItem(TOKEN_KEY);
-    if(!token) return {ok:false,reason:'notoken'};
-
     async function getSha(){
       try{
-        const r=await fetch(`${PO_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
-          headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'},
+        const r=await ghFetch(`${PO_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
+          headers:{'Accept':'application/vnd.github+json'},
           cache:'no-cache'
         });
-        if(r.status===401||r.status===403){
-          localStorage.removeItem(TOKEN_KEY);
-          return {error:'auth'};
-        }
+        if(r.status===401||r.status===403) return {error:'auth'};
         if(r.status===404) return {sha:null};
         if(!r.ok) return {error:`http_${r.status}`};
         const j=await r.json();
@@ -2941,10 +2962,9 @@
       const content=btoa(unescape(encodeURIComponent(JSON.stringify(list,null,2))));
       const body={message:`chore: 발주 내역 갱신 (${list.length}건)`,content,branch:PO_BRANCH};
       if(sha) body.sha=sha;
-      return fetch(PO_API,{
+      return ghFetch(PO_API,{
         method:'PUT',
         headers:{
-          'Authorization':`Bearer ${token}`,
           'Accept':'application/vnd.github+json',
           'Content-Type':'application/json'
         },
@@ -2967,10 +2987,7 @@
     }
 
     if(r.ok) return {ok:true};
-    if(r.status===401||r.status===403){
-      localStorage.removeItem(TOKEN_KEY);
-      return {ok:false,reason:'auth'};
-    }
+    if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
     return {ok:false,reason:`http_${r.status}`};
   }
 
@@ -2987,21 +3004,11 @@
     const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const last=document.getElementById('lastSync');
 
-    // 마이그레이션: remote 비어있고 local에 데이터 있으면 local을 push (첫 사용자/기존 데이터 보존)
+    // 마이그레이션: remote 비어있고 local에 데이터 있으면 local을 push (master 권한 필요)
     if(remote.length===0 && local.length>0){
-      let result = localStorage.getItem(TOKEN_KEY)
+      let result = isMaster()
         ? await pushPOToRemote(local)
-        : {ok:false,reason:'notoken'};
-
-      // push 실패 (토큰 문제) → 자동 모달
-      if(!result.ok && (result.reason==='notoken' || result.reason==='auth')){
-        toast(`로컬 데이터(${local.length}건)를 GitHub로 동기화하려면 토큰 입력이 필요합니다`,'err');
-        const newToken = await askToken('github');
-        if(newToken){
-          localStorage.setItem(TOKEN_KEY,newToken);
-          result = await pushPOToRemote(local);
-        }
-      }
+        : {ok:false,reason:'viewer'};
 
       if(result.ok){
         _po_lastHash = JSON.stringify(local);
@@ -3075,28 +3082,13 @@
   });
 
   async function pushAfterChange(list){
-    let result=await pushPOToRemote(list);
-
-    // 토큰 없거나 권한 부족이면 자동으로 모달 띄워서 재입력 유도
-    if(!result.ok && (result.reason==='notoken' || result.reason==='auth')){
-      const reason = result.reason==='auth'
-        ? 'GitHub 토큰 권한 부족 — 다른 기기와 동기화하려면 재입력 필요'
-        : 'GitHub 토큰 없음 — 다른 기기와 동기화하려면 입력 필요';
-      toast(reason,'err');
-      const newToken = await askToken('github');
-      if(newToken){
-        localStorage.setItem(TOKEN_KEY,newToken);
-        result = await pushPOToRemote(list);
-        if(result.ok){
-          toast('✓ GitHub 동기화 완료 — 이제 다른 기기에서도 보입니다','ok');
-        }else{
-          toast(`동기화 재시도 실패 (${result.reason}) — 토큰 권한 다시 확인`,'err');
-        }
+    const result=await pushPOToRemote(list);
+    if(!result.ok){
+      if(result.reason==='auth'){
+        toast('서버 프록시 인증 실패 — master PIN 확인','err');
       }else{
-        toast('토큰 미입력 — 로컬에만 저장 (다른 기기 동기화 X)','err');
+        toast(`GitHub 동기화 실패 (${result.reason})`,'err');
       }
-    }else if(!result.ok){
-      toast(`GitHub 동기화 실패 (${result.reason})`,'err');
       return;
     }
 
@@ -3677,14 +3669,12 @@ async function handlePOFiles(files){
   }
 
   async function ghGetSha(apiUrl){
-    const token=localStorage.getItem(TOKEN_KEY);
-    if(!token) return {error:'notoken'};
     try{
-      const r=await fetch(`${apiUrl}?ref=${PO_BRANCH}&_=${Date.now()}`,{
-        headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'},
+      const r=await ghFetch(`${apiUrl}?ref=${PO_BRANCH}&_=${Date.now()}`,{
+        headers:{'Accept':'application/vnd.github+json'},
         cache:'no-cache'
       });
-      if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {error:'auth'}}
+      if(r.status===401||r.status===403) return {error:'auth'};
       if(r.status===404) return {sha:null};
       if(!r.ok) return {error:`http_${r.status}`};
       const j=await r.json();
@@ -3692,37 +3682,33 @@ async function handlePOFiles(files){
     }catch(e){return {error:'fetch'}}
   }
   async function ghPut(apiUrl, base64Content, message){
-    const token=localStorage.getItem(TOKEN_KEY);
-    if(!token) return {ok:false,reason:'notoken'};
     let shaR=await ghGetSha(apiUrl);
     if(shaR.error==='auth') return {ok:false,reason:'auth'};
     const buildBody=(sha)=>{const b={message,content:base64Content,branch:PO_BRANCH};if(sha)b.sha=sha;return JSON.stringify(b)};
-    let r=await fetch(apiUrl,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
+    let r=await ghFetch(apiUrl,{method:'PUT',headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
     let retries=0;
     while(r.status===409 && retries<2){
       retries++;
       shaR=await ghGetSha(apiUrl);
       if(shaR.error==='auth') return {ok:false,reason:'auth'};
-      r=await fetch(apiUrl,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
+      r=await ghFetch(apiUrl,{method:'PUT',headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
     }
     if(r.ok) return {ok:true};
-    if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
+    if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
     if(r.status===422||r.status===413) return {ok:false,reason:'too_large'};
     return {ok:false,reason:`http_${r.status}`};
   }
   async function ghDelete(apiUrl, message){
-    const token=localStorage.getItem(TOKEN_KEY);
-    if(!token) return {ok:false,reason:'notoken'};
     const shaR=await ghGetSha(apiUrl);
     if(shaR.error==='auth') return {ok:false,reason:'auth'};
     if(!shaR.sha) return {ok:true};
-    const r=await fetch(apiUrl,{
+    const r=await ghFetch(apiUrl,{
       method:'DELETE',
-      headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+      headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},
       body:JSON.stringify({message,sha:shaR.sha,branch:PO_BRANCH})
     });
     if(r.ok) return {ok:true};
-    if(r.status===401||r.status===403){localStorage.removeItem(TOKEN_KEY);return {ok:false,reason:'auth'}}
+    if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
     return {ok:false,reason:`http_${r.status}`};
   }
 
@@ -3889,10 +3875,9 @@ async function handlePOFiles(files){
   window.syncSalesPptFromRemote=syncSalesPptFromRemote;
 
   async function ensureGhToken(){
-    if(localStorage.getItem(TOKEN_KEY)) return true;
-    const t=await askToken('github');
-    if(t){localStorage.setItem(TOKEN_KEY,t);return true}
-    return false;
+    // 서버 프록시 사용 모드: 클라이언트에 토큰 없음. 프록시 URL 가용성으로 대체 체크.
+    const base=await loadProxyBase();
+    return !!base;
   }
 
   async function handleSalesPpt(file){
@@ -4452,11 +4437,7 @@ async function handlePOFiles(files){
     if(!requireMaster('공지 저장')) return;
     const content=document.getElementById('noticeContent');
     if(!content) return;
-    if(!localStorage.getItem(TOKEN_KEY)){
-      const t=await askToken('github');
-      if(!t){toast('GitHub 토큰이 필요합니다','err');return}
-      localStorage.setItem(TOKEN_KEY,t);
-    }
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
     let html=content.innerHTML.trim();
     if(html==='<p><br></p>' || html==='<br>' || html==='') html='';
     const meta={html, updatedAt:Date.now()};
