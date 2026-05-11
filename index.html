@@ -2654,9 +2654,18 @@
   function renderLeaveStatus(){
     const grid=document.getElementById('leaveGrid');
     if(!grid) return;
+    // re-render 시 펼친 카드 상태 보존
+    const expandedStaff=new Set(
+      [...grid.querySelectorAll('.leave-card.expanded')].map(c=>c.dataset.staff)
+    );
     const data=loadLeaveData();
     const editing=document.body.classList.contains('leave-edit-mode');
     grid.innerHTML=STAFF.map(s=>leaveCardHTML(s,data[s.name],editing)).join('');
+    if(expandedStaff.size){
+      grid.querySelectorAll('.leave-card').forEach(c=>{
+        if(expandedStaff.has(c.dataset.staff)) c.classList.add('expanded');
+      });
+    }
     // 우측 메타: 현재 년월 기준
     const meta=document.getElementById('leaveMeta');
     if(meta){
