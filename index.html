@@ -2550,20 +2550,37 @@
     return months;
   }
 
-  /* used는 baseline(override v.used 또는 STAFF.used) + 신규 entries(submittedAt 있는 것) 합산.
+  /* 사용 내역 항목 하나의 차감 일수 */
+  function _itemUsedDays(h){
+    if(!h || !h.type) return 0;
+    if(h.type==='연차') return Number.isFinite(h.days)?h.days:1;
+    if(h.type==='오전반차'||h.type==='오후반차') return 0.5;
+    return 0; // 생일반차
+  }
+
+  /* used = baseline(override v.used 또는 STAFF.used) − 삭제된 baseline 항목 + 신규 entries 합산.
      STAFF.history는 이미 STAFF.used baseline에 반영되어 있으므로 중복 합산 X */
   function _computeLeaveUsed(s, v){
     const baseline=Number.isFinite(v?.used)?v.used:(Number.isFinite(s?.used)?s.used:null);
     if(baseline===null) return null;
+    // baseline에서 삭제 표시된 항목 days 차감
+    const deletes=Array.isArray(v?.baselineDeletes)?v.baselineDeletes:[];
+    let baselineDelta=0;
+    if(deletes.length){
+      const bhist=Array.isArray(s?.history)?s.history:[];
+      for(const del of deletes){
+        const h=bhist.find(x=>x.date===del.date && x.type===del.type);
+        if(h) baselineDelta += _itemUsedDays(h);
+        else if(Number.isFinite(del.days)) baselineDelta += del.days;
+      }
+    }
     const newEntries=Array.isArray(v?.history)?v.history:[];
     let extra=0;
     for(const h of newEntries){
       if(!h||!h.submittedAt) continue;
-      if(h.type==='연차'){ extra += Number.isFinite(h.days)?h.days:1 }
-      else if(h.type==='오전반차'||h.type==='오후반차'){ extra += 0.5 }
-      // 생일반차: 차감 X
+      extra += _itemUsedDays(h);
     }
-    return baseline+extra;
+    return baseline - baselineDelta + extra;
   }
 
   function leaveCardHTML(s,v,editing){
@@ -2587,8 +2604,13 @@
     const hireHtml=showHire?`<span class="leave-hire" data-field="hire" ${ceTxt}>${escapeHTML(hire)}</span>`:'';
     // 어떤 정보든 있으면 정상 색 카드, 둘 다 없을 때만 leave-empty (회색 톤)
     const isEmpty=used===null&&total===null;
-    // 사용 내역 — STAFF default + leaveData(v) 추가분 병합 후 날짜 정렬
-    const history=[...(s.history||[]),...(v?.history||[])]
+    // 사용 내역 — STAFF baseline(deletes 제외) + leaveData(v) 추가분 병합 후 날짜 정렬
+    const baselineDeletes=Array.isArray(v?.baselineDeletes)?v.baselineDeletes:[];
+    const _delSet=new Set(baselineDeletes.map(d=>`${d.date}|${d.type}`));
+    const baselineFiltered=(s.history||[])
+      .filter(h=>!_delSet.has(`${h.date}|${h.type}`))
+      .map(h=>Object.assign({_baseline:true}, h));
+    const history=[...baselineFiltered,...(v?.history||[])]
       .slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
     const historyHtml=history.length?`
       <button class="leave-toggle" type="button" onclick="toggleLeaveHistory(this)">
@@ -2599,7 +2621,12 @@
           const cls=h.type==='생일반차'?'t-bday':(h.type==='연차'?'t-annual':'t-half');
           const dlabel=_fmtLeaveDateRange(h.date,h.endDate);
           const daySuffix=(h.endDate&&h.endDate!==h.date&&h.days)?` <span style="color:var(--text-3);font-size:11px">${h.days}일</span>`:'';
-          const delBtn=h._id?`<button class="leave-history-del master-only" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(h._id)}','${escapeHTML(s.name)}','${escapeHTML(dlabel)}','${escapeHTML(h.type||'')}')">×</button>`:'';
+          let delBtn='';
+          if(h._id){
+            delBtn=`<button class="leave-history-del master-only" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(h._id)}','${escapeHTML(s.name)}','${escapeHTML(dlabel)}','${escapeHTML(h.type||'')}')">×</button>`;
+          } else if(h._baseline){
+            delBtn=`<button class="leave-history-del master-only" type="button" title="사용 내역 삭제" onclick="deleteBaselineLeave('${escapeHTML(s.name)}','${escapeHTML(h.date||'')}','${escapeHTML(h.type||'')}','${escapeHTML(dlabel)}')">×</button>`;
+          }
           return `<div class="leave-history-item"><span class="leave-history-date">${dlabel}</span><span class="leave-history-right"><span class="leave-history-type ${cls}">${escapeHTML(h.type||'')}${daySuffix}</span>${delBtn}</span></div>`;
         }).join('')}
       </div>
@@ -3868,17 +3895,19 @@ async function handlePOFiles(files){
     }, extra||{});
   }
 
-  /* leave_entries + leave_overrides 두 테이블을 가져와 기존 v 형태로 조합
-     v = { used?, total?, hire?, history: [{date,endDate?,days?,type,submittedAt,_id?}] } */
+  /* leave_entries + leave_overrides + leave_baseline_deletes 세 테이블을 가져와 v 형태로 조합
+     v = { used?, total?, hire?, history: [...신규 entries], baselineDeletes: [{date,type,days}] } */
   async function sbFetchLeave(){
     try{
-      const [entriesR, overridesR]=await Promise.all([
+      const [entriesR, overridesR, deletesR]=await Promise.all([
         fetch(`${SUPABASE_URL}/rest/v1/leave_entries?select=*&order=submitted_at.asc&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'}),
-        fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?select=*&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'})
+        fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?select=*&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'}),
+        fetch(`${SUPABASE_URL}/rest/v1/leave_baseline_deletes?select=*&_=${Date.now()}`,{headers:_sbHeaders(),cache:'no-cache'})
       ]);
-      if(!entriesR.ok || !overridesR.ok) return null;
+      if(!entriesR.ok || !overridesR.ok || !deletesR.ok) return null;
       const entries=await entriesR.json();
       const overrides=await overridesR.json();
+      const deletes=await deletesR.json();
       const data={};
       for(const o of (overrides||[])){
         const row={};
@@ -3896,6 +3925,16 @@ async function handlePOFiles(files){
         if(e.days!=null){const v=Number(e.days);if(Number.isFinite(v)) item.days=v}
         if(e.id) item._id=e.id;
         data[name].history.push(item);
+      }
+      for(const d of (deletes||[])){
+        const name=d.staff_name;
+        if(!data[name]) data[name]={};
+        if(!data[name].baselineDeletes) data[name].baselineDeletes=[];
+        const days=d.days!=null?Number(d.days):null;
+        data[name].baselineDeletes.push({
+          date:d.date, type:d.leave_type,
+          days:Number.isFinite(days)?days:null
+        });
       }
       return data;
     }catch(err){return null}
@@ -3946,6 +3985,20 @@ async function handlePOFiles(files){
     }catch(e){return {ok:false}}
   }
 
+  /* baseline 사용 내역 삭제 표시(insert) — (staff_name,date,leave_type) 복합 PK */
+  async function sbInsertBaselineDelete({staff_name, date, leave_type, days}){
+    try{
+      const body={staff_name, date, leave_type};
+      if(Number.isFinite(days)) body.days=days;
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_baseline_deletes?on_conflict=staff_name,date,leave_type`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify(body)
+      });
+      return r.ok?{ok:true}:{ok:false,reason:`http_${r.status}`};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+
   /* 연차 신청서 임시저장 — Supabase upsert/fetch/delete (성함을 키로 cross-device 동기화) */
   async function sbUpsertLeaveDraft(payload){
     try{
@@ -3993,6 +4046,28 @@ async function handlePOFiles(files){
     toast(`✓ ${name} ${dateLabel} ${type} 신청 취소됨`,'ok');
   }
   window.deleteLeaveEntry=deleteLeaveEntry;
+
+  /* baseline(STAFF 상수) 사용 내역 × 클릭 — 마스터 전용. 삭제 표시 + days 자동 차감 */
+  async function deleteBaselineLeave(name, date, type, dateLabel){
+    if(!name||!date||!type) return;
+    if(!requireMaster('연차 사용 내역 삭제')) return;
+    const label=dateLabel||date;
+    const ok=confirm(`'${name} · ${label} ${type}' 사용 내역을 삭제할까요?\n사용 일수도 자동으로 복구됩니다.`);
+    if(!ok) return;
+    // STAFF baseline에서 days 추정 (없으면 null로 저장, 렌더 시 type 기반 fallback)
+    const staff=Array.isArray(STAFF)?STAFF.find(x=>x.name===name):null;
+    const h=staff?.history?.find(x=>x.date===date && x.type===type);
+    const days=h?_itemUsedDays(h):null;
+    const r=await sbInsertBaselineDelete({staff_name:name, date, leave_type:type, days});
+    if(!r.ok){
+      toast(`삭제 실패 (${r.reason||'?'}) — 잠시 후 다시 시도해주세요`,'err');
+      return;
+    }
+    _leave_lastHash=null;
+    await syncLeaveFromRemote();
+    toast(`✓ ${name} ${label} ${type} 삭제됨`,'ok');
+  }
+  window.deleteBaselineLeave=deleteBaselineLeave;
 
   async function syncLeaveFromRemote(){
     const fresh=await sbFetchLeave();
