@@ -2779,6 +2779,34 @@
       saveLeaveData(data);
     }
   });
+  /* 연차 신청서 임시저장(draft) — 입력 도중 자동 저장, 폼 다시 열면 복원, 신청 성공 시 삭제 */
+  const LEAVE_DRAFT_KEY='brightbeed_leave_draft';
+  function _readLeaveDraft(){try{return JSON.parse(localStorage.getItem(LEAVE_DRAFT_KEY)||'null')}catch(e){return null}}
+  function clearLeaveDraft(){localStorage.removeItem(LEAVE_DRAFT_KEY)}
+  function saveLeaveDraft(){
+    const staff=document.getElementById('lfStaff')?.value||'';
+    const start=document.getElementById('lfDate')?.value||'';
+    const end=document.getElementById('lfDateEnd')?.value||'';
+    const type=document.querySelector('input[name="lfType"]:checked')?.value||'';
+    if(!staff && !type){clearLeaveDraft();return}
+    try{localStorage.setItem(LEAVE_DRAFT_KEY,JSON.stringify({staff,start,end,type,savedAt:Date.now()}))}catch(e){}
+  }
+  function applyLeaveDraft(){
+    const d=_readLeaveDraft();
+    if(!d) return false;
+    const staffSel=document.getElementById('lfStaff');
+    const dateInput=document.getElementById('lfDate');
+    const dateEndInput=document.getElementById('lfDateEnd');
+    if(d.staff && staffSel && [...staffSel.options].some(o=>o.value===d.staff)) staffSel.value=d.staff;
+    if(d.start && dateInput) dateInput.value=d.start;
+    if(d.end && dateEndInput) dateEndInput.value=d.end;
+    if(d.type){
+      const radio=document.querySelector(`input[name="lfType"][value="${d.type}"]`);
+      if(radio) radio.checked=true;
+    }
+    return !!(d.staff || d.type);
+  }
+
   function toggleLeaveForm(){
     const form=document.getElementById('leaveForm');
     if(!form)return;
@@ -2794,8 +2822,17 @@
       const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
       dateInput.value=todayStr;
       if(dateEndInput) dateEndInput.value=todayStr;
+      // draft가 있으면 today/기본값을 덮어쓰기
+      const restored=applyLeaveDraft();
+      // 입력마다 draft 저장 (한 번만 바인딩)
+      if(!form.dataset.draftBound){
+        form.dataset.draftBound='1';
+        form.addEventListener('input',saveLeaveDraft);
+        form.addEventListener('change',saveLeaveDraft);
+      }
       updateLeaveDays();
       form.hidden=false;
+      if(restored) toast('임시 저장된 내용을 복원했습니다','ok');
       setTimeout(()=>sel.focus(),60);
     }else{
       closeLeaveForm();
@@ -2887,6 +2924,7 @@
       toast(`저장 실패 (${ins.reason}) — 네트워크 확인 후 다시 시도해주세요`,'err');
       return;
     }
+    clearLeaveDraft();
 
     // used는 따로 저장하지 않음 — 렌더링 시 baseline + 신규 entries 합산으로 계산.
     // (동시 신청 race condition 방지)
