@@ -1043,11 +1043,22 @@
   .leave-recent-list{display:flex;flex-direction:column;gap:4px}
   .leave-recent-item{
     display:grid;
-    grid-template-columns:78px 1fr auto auto;
+    grid-template-columns:78px 1fr auto auto auto;
     gap:10px;align-items:center;
     padding:5px 4px;
     font-size:12px;
     border-bottom:1px solid rgba(255,255,255,.03);
+  }
+  .leave-recent-del{
+    width:22px;height:22px;border-radius:4px;
+    background:transparent;border:1px solid rgba(255,255,255,.08);
+    color:var(--text-3);cursor:pointer;
+    font-size:14px;line-height:1;padding:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .leave-recent-del:hover{
+    color:#ff7373;border-color:rgba(255,115,115,.5);background:rgba(255,115,115,.08);
   }
   .leave-recent-item:last-child{border-bottom:none}
   .leave-recent-when{
@@ -1079,14 +1090,15 @@
   @media (max-width:600px){
     .leave-recent{padding:12px 14px 14px}
     .leave-recent-item{
-      grid-template-columns:1fr auto;
+      grid-template-columns:1fr auto auto;
       gap:4px 8px;
       padding:6px 2px;
     }
     .leave-recent-when{grid-column:1/-1;order:-1}
     .leave-recent-name{order:1}
     .leave-recent-type{order:2;justify-self:end}
-    .leave-recent-date{grid-column:1/-1;order:3;font-size:10.5px}
+    .leave-recent-del{order:3}
+    .leave-recent-date{grid-column:1/-1;order:4;font-size:10.5px}
   }
 
   /* 연차/반차 규정 안내 — 앰버 네온 강조 */
@@ -2584,7 +2596,7 @@
         if(!e||!e.submittedAt) return;
         const y=new Date(e.submittedAt).getFullYear();
         if(y!==currentYear) return;
-        items.push({name,date:e.date||'',endDate:e.endDate||'',days:e.days,type:e.type||'',submittedAt:e.submittedAt});
+        items.push({name,date:e.date||'',endDate:e.endDate||'',days:e.days,type:e.type||'',submittedAt:e.submittedAt,_id:e._id});
       });
     });
     items.sort((a,b)=>String(b.submittedAt).localeCompare(String(a.submittedAt)));
@@ -2602,11 +2614,13 @@
       const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
       const typeLabel=it.endDate&&it.endDate!==it.date&&it.days?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
+      const delBtn=it._id?`<button class="leave-recent-del" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(it._id)}', '${escapeHTML(it.name)}', '${escapeHTML(dlabel)}', '${escapeHTML(it.type)}')">×</button>`:'';
       return `<div class="leave-recent-item">
         <span class="leave-recent-when">${escapeHTML(when)}</span>
         <span class="leave-recent-name">${escapeHTML(it.name)}</span>
         <span class="leave-recent-date">${dlabel}</span>
         <span class="leave-recent-type ${cls}">${typeLabel}</span>
+        ${delBtn}
       </div>`;
     }).join('');
   }
@@ -3771,6 +3785,32 @@ async function handlePOFiles(files){
       return {ok:r.ok};
     }catch(e){return {ok:false}}
   }
+
+  async function sbDeleteLeaveEntry(id){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_entries?id=eq.${encodeURIComponent(id)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok, status:r.status};
+    }catch(e){return {ok:false}}
+  }
+
+  /* 최근 신청 내역에서 × 클릭 시 호출 — confirm 후 Supabase에서 삭제 */
+  async function deleteLeaveEntry(id, name, dateLabel, type){
+    if(!id) return;
+    const ok=confirm(`'${name} · ${dateLabel} ${type}' 신청을 취소할까요?\n취소하면 사용 일수도 자동으로 복구됩니다.`);
+    if(!ok) return;
+    const r=await sbDeleteLeaveEntry(id);
+    if(!r.ok){
+      toast(`삭제 실패 (HTTP ${r.status||'?'}) — 잠시 후 다시 시도해주세요`,'err');
+      return;
+    }
+    // 캐시 무효화 후 재동기화 → UI 즉시 갱신
+    _leave_lastHash=null;
+    await syncLeaveFromRemote();
+    toast(`✓ ${name} ${dateLabel} ${type} 신청 취소됨`,'ok');
+  }
+  window.deleteLeaveEntry=deleteLeaveEntry;
 
   async function syncLeaveFromRemote(){
     const fresh=await sbFetchLeave();
