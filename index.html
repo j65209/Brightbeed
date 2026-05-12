@@ -1953,7 +1953,7 @@
       <section class="cs-section" id="csFaqSection">
         <div class="cs-section-head">
           <div class="cs-section-title">자주 묻는 질문</div>
-          <button class="cs-add-btn" onclick="addCsItem('faq')">＋ 추가</button>
+          <button class="cs-add-btn" onclick="addCsItem()">＋ 추가</button>
         </div>
         <div id="csFaqList" class="cs-list"></div>
       </section>
@@ -4968,14 +4968,14 @@ async function handlePOFiles(files){
   renderNoticeUpdatedTag();
 
   /* ===================================================== */
-  /* ============ CS팀 (FAQ + 템플릿 + 메모장) ============ */
+  /* ============ CS팀 (FAQ + 메모장) ============ */
   /* ===================================================== */
   const CS_KEY='brightbeed_cs';
   const CS_PATH='data/cs-data.json';
   const CS_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${CS_PATH}`;
   const CS_API=`https://api.github.com/repos/${PO_REPO}/contents/${CS_PATH}`;
   let _cs_lastHash=null;
-  let _cs_editingItem=null; // {kind:'faq'|'tpl', idx:number, isNew:bool}
+  let _cs_editingItem=null; // {idx:number, isNew:bool}
   let _cs_memoEditing=false;
   let _cs_memoOrig='';
   // 푸시 직렬화 — 빠른 연속 변경으로 인한 동시 PUT(409 충돌) 방지
@@ -4983,15 +4983,17 @@ async function handlePOFiles(files){
   let _cs_pushPending=null;
   let _cs_savingCount=0;
 
-  function csDefault(){return{faqs:[],templates:[],memo:'',updatedAt:''}}
+  function csDefault(){return{faqs:[],memo:'',updatedAt:''}}
   function loadCs(){
     try{
       const v=JSON.parse(localStorage.getItem(CS_KEY)||'null');
       if(!v) return csDefault();
-      return Object.assign(csDefault(),v,{
+      // 레거시 templates 필드는 의도적으로 드롭 (UI 제거됨, 다음 save 때 사라짐)
+      return {
         faqs:Array.isArray(v.faqs)?v.faqs:[],
-        templates:Array.isArray(v.templates)?v.templates:[]
-      });
+        memo:typeof v.memo==='string'?v.memo:'',
+        updatedAt:v.updatedAt||''
+      };
     }catch(e){return csDefault()}
   }
   function saveCsLocal(d){
@@ -5006,10 +5008,11 @@ async function handlePOFiles(files){
       if(r.status===404) return csDefault();
       if(!r.ok) return null;
       const data=await r.json();
-      return Object.assign(csDefault(),data,{
+      return {
         faqs:Array.isArray(data.faqs)?data.faqs:[],
-        templates:Array.isArray(data.templates)?data.templates:[]
-      });
+        memo:typeof data.memo==='string'?data.memo:'',
+        updatedAt:data.updatedAt||''
+      };
     }catch(e){return null}
   }
 
@@ -5086,25 +5089,22 @@ async function handlePOFiles(files){
     return _cs_pushChain;
   }
 
-  function renderCs(){renderCsList('faq');renderCsMemo()}
+  function renderCs(){renderCsFaqs();renderCsMemo()}
 
-  function renderCsList(kind){
-    const root=document.getElementById(kind==='faq'?'csFaqList':'csTplList');
+  function renderCsFaqs(){
+    const root=document.getElementById('csFaqList');
     if(!root) return;
     const d=loadCs();
-    const list=kind==='faq'?d.faqs:d.templates;
-    if(list.length===0){
-      root.innerHTML=`<div class="cs-empty">${kind==='faq'?'아직 등록된 질문이 없습니다':'아직 등록된 템플릿이 없습니다'}</div>`;
+    if(d.faqs.length===0){
+      root.innerHTML='<div class="cs-empty">아직 등록된 질문이 없습니다</div>';
       return;
     }
-    // CS팀은 뷰어도 편집 가능 — 편집/삭제 컨트롤 항상 노출
-    const showEditCtrls=true;
-    root.innerHTML=list.map((it,i)=>{
-      const editing=_cs_editingItem && _cs_editingItem.kind===kind && _cs_editingItem.idx===i;
+    root.innerHTML=d.faqs.map((it,i)=>{
+      const editing=_cs_editingItem && _cs_editingItem.idx===i;
       if(editing){
         return `<div class="cs-item cs-item-editing">
-          <input class="cs-edit-q" id="csEditQ" placeholder="${kind==='faq'?'질문':'제목'}" value="${escapeHTML(it.q||'')}">
-          <textarea class="cs-edit-a" id="csEditA" placeholder="${kind==='faq'?'답변':'본문'}">${escapeHTML(it.a||'')}</textarea>
+          <input class="cs-edit-q" id="csEditQ" placeholder="질문" value="${escapeHTML(it.q||'')}">
+          <textarea class="cs-edit-a" id="csEditA" placeholder="답변">${escapeHTML(it.a||'')}</textarea>
           <div class="cs-item-actions">
             <button class="cs-act-copy" onclick="saveCsItemEdit()">저장</button>
             <button onclick="cancelCsItemEdit()">취소</button>
@@ -5112,12 +5112,12 @@ async function handlePOFiles(files){
         </div>`;
       }
       return `<div class="cs-item">
-        <div class="cs-item-q">${kind==='faq'?'Q. ':'▸ '}${escapeHTML(it.q||'')}</div>
+        <div class="cs-item-q">Q. ${escapeHTML(it.q||'')}</div>
         <div class="cs-item-a">${escapeHTML(it.a||'')}</div>
         <div class="cs-item-actions">
-          <button class="cs-act-copy" onclick="copyCsItem('${kind}',${i})" title="답변 복사">복사</button>
-          ${showEditCtrls?`<button onclick="editCsItem('${kind}',${i})">편집</button>`:''}
-          ${showEditCtrls?`<button class="cs-act-del" onclick="deleteCsItem('${kind}',${i})">×</button>`:''}
+          <button class="cs-act-copy" onclick="copyCsItem(${i})" title="답변 복사">복사</button>
+          <button onclick="editCsItem(${i})">편집</button>
+          <button class="cs-act-del" onclick="deleteCsItem(${i})">×</button>
         </div>
       </div>`;
     }).join('');
@@ -5132,66 +5132,61 @@ async function handlePOFiles(files){
     el.setAttribute('data-placeholder','내부 공유용 메모를 작성하세요');
   }
 
-  function addCsItem(kind){
+  function addCsItem(){
     if(_cs_editingItem){toast('편집 중인 항목을 먼저 저장/취소해주세요','err');return}
     const d=loadCs();
-    const list=kind==='faq'?d.faqs:d.templates;
-    list.unshift({q:'',a:''});
+    d.faqs.unshift({q:'',a:''});
     saveCsLocal(d);
-    _cs_editingItem={kind,idx:0,isNew:true};
-    renderCsList(kind);
+    _cs_editingItem={idx:0,isNew:true};
+    renderCsFaqs();
     setTimeout(()=>{const q=document.getElementById('csEditQ');if(q)q.focus()},30);
   }
-  function editCsItem(kind,i){
+  function editCsItem(i){
     if(_cs_editingItem){toast('편집 중인 항목을 먼저 저장/취소해주세요','err');return}
-    _cs_editingItem={kind,idx:i,isNew:false};
-    renderCsList(kind);
+    _cs_editingItem={idx:i,isNew:false};
+    renderCsFaqs();
     setTimeout(()=>{const q=document.getElementById('csEditQ');if(q){q.focus();q.select()}},30);
   }
   async function saveCsItemEdit(){
     if(!_cs_editingItem) return;
-    const {kind,idx}=_cs_editingItem;
+    const {idx}=_cs_editingItem;
     const q=document.getElementById('csEditQ')?.value.trim()||'';
     const a=document.getElementById('csEditA')?.value.trim()||'';
     const d=loadCs();
-    const list=kind==='faq'?d.faqs:d.templates;
     if(!q && !a){
       // 빈 내용으로 저장 → 새 항목이면 자동 제거
-      if(_cs_editingItem.isNew) list.splice(idx,1);
+      if(_cs_editingItem.isNew) d.faqs.splice(idx,1);
       _cs_editingItem=null;
       saveCsLocal(d);
-      renderCsList(kind);
+      renderCsFaqs();
       return;
     }
-    list[idx]={q,a};
+    d.faqs[idx]={q,a};
     _cs_editingItem=null;
     await persistCs(d);
-    renderCsList(kind);
+    renderCsFaqs();
   }
   function cancelCsItemEdit(){
     if(!_cs_editingItem) return;
-    const {kind,idx,isNew}=_cs_editingItem;
+    const {idx,isNew}=_cs_editingItem;
     if(isNew){
       const d=loadCs();
-      const list=kind==='faq'?d.faqs:d.templates;
-      list.splice(idx,1);
+      d.faqs.splice(idx,1);
       saveCsLocal(d);
     }
     _cs_editingItem=null;
-    renderCsList(kind);
+    renderCsFaqs();
   }
-  async function deleteCsItem(kind,i){
-    if(!confirm(kind==='faq'?'이 질문을 삭제하시겠습니까?':'이 템플릿을 삭제하시겠습니까?')) return;
+  async function deleteCsItem(i){
+    if(!confirm('이 질문을 삭제하시겠습니까?')) return;
     const d=loadCs();
-    const list=kind==='faq'?d.faqs:d.templates;
-    list.splice(i,1);
+    d.faqs.splice(i,1);
     await persistCs(d);
-    renderCsList(kind);
+    renderCsFaqs();
   }
-  async function copyCsItem(kind,i){
+  async function copyCsItem(i){
     const d=loadCs();
-    const list=kind==='faq'?d.faqs:d.templates;
-    const it=list[i];
+    const it=d.faqs[i];
     if(!it) return;
     const text=it.a||it.q||'';
     try{
