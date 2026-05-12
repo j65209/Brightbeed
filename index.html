@@ -797,6 +797,14 @@
   }
   .lg-res:hover .lg-res-arrow{color:var(--neon-lg);transform:translateX(2px)}
 
+  /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
+  *::-webkit-scrollbar{width:10px;height:10px}
+  *::-webkit-scrollbar-track{background:transparent}
+  *::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:5px;border:2px solid transparent;background-clip:content-box}
+  *::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18);background-clip:content-box}
+  *::-webkit-scrollbar-corner{background:transparent}
+  *{scrollbar-color:rgba(255,255,255,.12) transparent;scrollbar-width:thin}
+
   /* ===== CS팀 — FAQ / 템플릿 / 메모장 ===== */
   .cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:0 32px 32px}
   @media (max-width:980px){.cs-grid{grid-template-columns:1fr}}
