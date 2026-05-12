@@ -797,6 +797,40 @@
   }
   .lg-res:hover .lg-res-arrow{color:var(--neon-lg);transform:translateX(2px)}
 
+  /* ===== CS팀 — FAQ / 템플릿 / 메모장 ===== */
+  .cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:0 32px 32px}
+  @media (max-width:980px){.cs-grid{grid-template-columns:1fr}}
+  .cs-section{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;display:flex;flex-direction:column;min-height:280px}
+  .cs-section-memo{grid-column:1 / -1}
+  .cs-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .cs-section-title{font-size:15px;font-weight:600;color:var(--text-0);letter-spacing:.01em}
+  .cs-section-sub{font-size:11px;font-weight:400;color:var(--text-3);font-family:var(--mono);margin-left:6px}
+  .cs-add-btn{background:transparent;border:1px solid var(--neon-cs);color:var(--neon-cs);font-size:12px;font-family:var(--mono);letter-spacing:.04em;padding:5px 11px;border-radius:4px;cursor:pointer;transition:all .15s}
+  .cs-add-btn:hover{background:rgba(34,211,238,.10);box-shadow:0 0 10px rgba(34,211,238,.25)}
+  .cs-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:520px;padding-right:4px}
+  .cs-empty{font-size:12px;color:var(--text-3);text-align:center;padding:28px 0;font-family:var(--mono);letter-spacing:.04em}
+  .cs-item{background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s}
+  .cs-item:hover{border-color:var(--line-2)}
+  .cs-item-q{font-size:13px;font-weight:600;color:var(--text-0);line-height:1.4}
+  .cs-item-a{font-size:13px;color:var(--text-1);line-height:1.55;white-space:pre-wrap;word-break:break-word}
+  .cs-item-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:2px}
+  .cs-item-actions button{background:transparent;border:1px solid var(--line);color:var(--text-2);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .12s}
+  .cs-item-actions button:hover{border-color:var(--neon-cs);color:var(--neon-cs)}
+  .cs-item-actions .cs-act-copy:hover{border-color:var(--neon);color:var(--neon)}
+  .cs-item-actions .cs-act-del{color:var(--text-3)}
+  .cs-item-actions .cs-act-del:hover{border-color:var(--danger);color:var(--danger)}
+  .cs-edit-q,.cs-edit-a{width:100%;background:var(--bg-1);border:1px solid var(--line-2);border-radius:4px;color:var(--text-0);font-family:inherit;font-size:13px;padding:8px 10px;box-sizing:border-box;outline:none;transition:border-color .12s}
+  .cs-edit-q:focus,.cs-edit-a:focus{border-color:var(--neon-cs);box-shadow:0 0 0 1px rgba(34,211,238,.18)}
+  .cs-edit-a{min-height:90px;resize:vertical;line-height:1.55;font-family:inherit}
+  .cs-memo{flex:1;min-height:220px;background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--text-1);font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;outline:none;overflow-y:auto;transition:border-color .12s}
+  .cs-memo[contenteditable="true"]{border-color:var(--neon-cs);box-shadow:inset 0 0 0 1px rgba(34,211,238,.15)}
+  .cs-memo:empty::before{content:attr(data-placeholder);color:var(--text-3);font-style:italic}
+  .cs-memo-controls{display:flex;gap:6px}
+  .cs-memo-controls button{background:transparent;border:1px solid var(--line);color:var(--text-2);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 11px;border-radius:3px;cursor:pointer;transition:all .12s}
+  .cs-memo-controls .cs-memo-edit:hover{border-color:var(--neon-cs);color:var(--neon-cs)}
+  .cs-memo-controls .cs-memo-save{border-color:var(--neon-cs);color:var(--neon-cs)}
+  .cs-memo-controls .cs-memo-save:hover{background:rgba(34,211,238,.10)}
+
   /* ===== 권한 (Viewer / Master) ===== */
   body.role-viewer .master-only{display:none !important}
   body.role-viewer .po-row-del{display:none !important}
@@ -1879,7 +1913,7 @@
     </div>
   </div><!-- /viewLg -->
 
-  <!-- ============ CS팀 (placeholder) ============ -->
+  <!-- ============ CS팀 — FAQ / 템플릿 / 메모장 ============ -->
   <div class="view" id="viewCs" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
@@ -1888,10 +1922,38 @@
       </button>
       <h1 class="view-title">CS팀<span class="view-title-sub">/ 고객 응대</span></h1>
     </div>
-    <div class="placeholder-area">
-      <div class="ph-icon">🎧</div>
-      <div class="ph-text">CS팀 — 준비 중</div>
-      <div class="ph-sub">고객 문의 · 응대 매뉴얼 · 자주 묻는 질문 · 클레임 처리 이력 통합 관리<br><b>채널별 문의량, 응답속도, 응대 템플릿</b> 등 표시 예정</div>
+
+    <div class="cs-grid">
+      <!-- FAQ (뷰어도 편집 가능) -->
+      <section class="cs-section" id="csFaqSection">
+        <div class="cs-section-head">
+          <div class="cs-section-title">자주 묻는 질문 <span class="cs-section-sub">(누구나 편집)</span></div>
+          <button class="cs-add-btn" onclick="addCsItem('faq')">＋ 추가</button>
+        </div>
+        <div id="csFaqList" class="cs-list"></div>
+      </section>
+
+      <!-- 응대 템플릿 -->
+      <section class="cs-section" id="csTplSection">
+        <div class="cs-section-head">
+          <div class="cs-section-title">응대 템플릿</div>
+          <button class="cs-add-btn master-only" onclick="addCsItem('tpl')">＋ 추가</button>
+        </div>
+        <div id="csTplList" class="cs-list"></div>
+      </section>
+
+      <!-- CS팀 메모장 -->
+      <section class="cs-section cs-section-memo" id="csMemoSection">
+        <div class="cs-section-head">
+          <div class="cs-section-title">CS팀 메모장</div>
+          <div class="cs-memo-controls">
+            <button class="cs-memo-edit master-only" id="csMemoEditBtn" onclick="enterCsMemoEdit()">편집</button>
+            <button class="cs-memo-save" id="csMemoSaveBtn" onclick="saveCsMemoEdit()" style="display:none">저장</button>
+            <button class="cs-memo-cancel" id="csMemoCancelBtn" onclick="cancelCsMemoEdit()" style="display:none">취소</button>
+          </div>
+        </div>
+        <div id="csMemo" class="cs-memo" contenteditable="false"></div>
+      </section>
     </div>
   </div>
 
@@ -2410,6 +2472,10 @@
       if(typeof renderNotice==='function') renderNotice();
       if(typeof renderNoticeUpdatedTag==='function') renderNoticeUpdatedTag();
       if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
+    }
+    if(id==='viewCs'){
+      if(typeof renderCs==='function') renderCs();
+      if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     }
   }
 
@@ -3254,6 +3320,7 @@
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
+    if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -3281,6 +3348,7 @@
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
+    if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -4882,6 +4950,282 @@ async function handlePOFiles(files){
 
   renderNotice();
   renderNoticeUpdatedTag();
+
+  /* ===================================================== */
+  /* ============ CS팀 (FAQ + 템플릿 + 메모장) ============ */
+  /* ===================================================== */
+  const CS_KEY='brightbeed_cs';
+  const CS_PATH='data/cs-data.json';
+  const CS_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${CS_PATH}`;
+  const CS_API=`https://api.github.com/repos/${PO_REPO}/contents/${CS_PATH}`;
+  let _cs_lastHash=null;
+  let _cs_editingItem=null; // {kind:'faq'|'tpl', idx:number, isNew:bool}
+  let _cs_memoEditing=false;
+  let _cs_memoOrig='';
+
+  function csDefault(){return{faqs:[],templates:[],memo:'',updatedAt:''}}
+  function loadCs(){
+    try{
+      const v=JSON.parse(localStorage.getItem(CS_KEY)||'null');
+      if(!v) return csDefault();
+      return Object.assign(csDefault(),v,{
+        faqs:Array.isArray(v.faqs)?v.faqs:[],
+        templates:Array.isArray(v.templates)?v.templates:[]
+      });
+    }catch(e){return csDefault()}
+  }
+  function saveCsLocal(d){
+    const j=JSON.stringify(d);
+    localStorage.setItem(CS_KEY,j);
+    _cs_lastHash=j;
+  }
+
+  async function fetchCsFromRemote(){
+    try{
+      const r=await fetch(`${CS_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return csDefault();
+      if(!r.ok) return null;
+      const data=await r.json();
+      return Object.assign(csDefault(),data,{
+        faqs:Array.isArray(data.faqs)?data.faqs:[],
+        templates:Array.isArray(data.templates)?data.templates:[]
+      });
+    }catch(e){return null}
+  }
+
+  async function syncCsFromRemote(){
+    if(_cs_editingItem || _cs_memoEditing) return; // 편집 중이면 덮어쓰기 방지
+    const remote=await fetchCsFromRemote();
+    if(remote===null) return;
+    const json=JSON.stringify(remote);
+    if(json===_cs_lastHash) return;
+    _cs_lastHash=json;
+    localStorage.setItem(CS_KEY,json);
+    renderCs();
+  }
+  window.syncCsFromRemote=syncCsFromRemote;
+
+  async function pushCsToRemote(d){
+    async function getSha(){
+      try{
+        const r=await ghFetch(`${CS_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
+          headers:{'Accept':'application/vnd.github+json'},cache:'no-cache'
+        });
+        if(r.status===401||r.status===403) return {error:'auth'};
+        if(r.status===404) return {sha:null};
+        if(!r.ok) return {error:`http_${r.status}`};
+        const j=await r.json();
+        return {sha:j.sha};
+      }catch(e){return {error:'fetch'}}
+    }
+    async function doPut(sha){
+      const content=btoa(unescape(encodeURIComponent(JSON.stringify(d,null,2))));
+      const body={message:`chore(cs): CS 데이터 갱신`,content,branch:PO_BRANCH};
+      if(sha) body.sha=sha;
+      return ghFetch(CS_API,{
+        method:'PUT',
+        headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+    }
+    let shaResult=await getSha();
+    if(shaResult.error==='auth') return {ok:false,reason:'auth'};
+    let r=await doPut(shaResult.sha);
+    let retries=0;
+    while(r.status===409 && retries<2){
+      retries++;
+      shaResult=await getSha();
+      if(shaResult.error==='auth') return {ok:false,reason:'auth'};
+      r=await doPut(shaResult.sha);
+    }
+    if(r.ok) return {ok:true};
+    if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
+    return {ok:false,reason:`http_${r.status}`};
+  }
+
+  async function persistCs(d){
+    d.updatedAt=new Date().toISOString();
+    saveCsLocal(d);
+    const r=await pushCsToRemote(d);
+    if(!r.ok){
+      if(r.reason==='auth') toast('CS 동기화 — 인증 실패','err');
+      else toast(`CS 동기화 실패 (${r.reason})`,'err');
+    }
+  }
+
+  function renderCs(){renderCsList('faq');renderCsList('tpl');renderCsMemo()}
+
+  function renderCsList(kind){
+    const root=document.getElementById(kind==='faq'?'csFaqList':'csTplList');
+    if(!root) return;
+    const d=loadCs();
+    const list=kind==='faq'?d.faqs:d.templates;
+    if(list.length===0){
+      root.innerHTML=`<div class="cs-empty">${kind==='faq'?'아직 등록된 질문이 없습니다':'아직 등록된 템플릿이 없습니다'}</div>`;
+      return;
+    }
+    const canEditTpl=isMaster();
+    const showEditCtrls=(kind==='faq') || canEditTpl;
+    root.innerHTML=list.map((it,i)=>{
+      const editing=_cs_editingItem && _cs_editingItem.kind===kind && _cs_editingItem.idx===i;
+      if(editing){
+        return `<div class="cs-item">
+          <input class="cs-edit-q" id="csEditQ" placeholder="${kind==='faq'?'질문':'제목'}" value="${escapeHTML(it.q||'')}">
+          <textarea class="cs-edit-a" id="csEditA" placeholder="${kind==='faq'?'답변':'본문'}">${escapeHTML(it.a||'')}</textarea>
+          <div class="cs-item-actions">
+            <button class="cs-act-copy" onclick="saveCsItemEdit()">저장</button>
+            <button onclick="cancelCsItemEdit()">취소</button>
+          </div>
+        </div>`;
+      }
+      return `<div class="cs-item">
+        <div class="cs-item-q">${kind==='faq'?'Q. ':'▸ '}${escapeHTML(it.q||'')}</div>
+        <div class="cs-item-a">${escapeHTML(it.a||'')}</div>
+        <div class="cs-item-actions">
+          <button class="cs-act-copy" onclick="copyCsItem('${kind}',${i})" title="답변 복사">복사</button>
+          ${showEditCtrls?`<button onclick="editCsItem('${kind}',${i})">편집</button>`:''}
+          ${showEditCtrls?`<button class="cs-act-del" onclick="deleteCsItem('${kind}',${i})">×</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderCsMemo(){
+    if(_cs_memoEditing) return;
+    const el=document.getElementById('csMemo');
+    if(!el) return;
+    const d=loadCs();
+    el.textContent=d.memo||'';
+    el.setAttribute('data-placeholder','내부 공유용 메모를 작성하세요');
+  }
+
+  function addCsItem(kind){
+    if(kind==='tpl' && !requireMaster('템플릿 추가')) return;
+    if(_cs_editingItem){toast('편집 중인 항목을 먼저 저장/취소해주세요','err');return}
+    const d=loadCs();
+    const list=kind==='faq'?d.faqs:d.templates;
+    list.unshift({q:'',a:''});
+    saveCsLocal(d);
+    _cs_editingItem={kind,idx:0,isNew:true};
+    renderCsList(kind);
+    setTimeout(()=>{const q=document.getElementById('csEditQ');if(q)q.focus()},30);
+  }
+  function editCsItem(kind,i){
+    if(kind==='tpl' && !requireMaster('템플릿 편집')) return;
+    if(_cs_editingItem){toast('편집 중인 항목을 먼저 저장/취소해주세요','err');return}
+    _cs_editingItem={kind,idx:i,isNew:false};
+    renderCsList(kind);
+    setTimeout(()=>{const q=document.getElementById('csEditQ');if(q){q.focus();q.select()}},30);
+  }
+  async function saveCsItemEdit(){
+    if(!_cs_editingItem) return;
+    const {kind,idx}=_cs_editingItem;
+    const q=document.getElementById('csEditQ')?.value.trim()||'';
+    const a=document.getElementById('csEditA')?.value.trim()||'';
+    const d=loadCs();
+    const list=kind==='faq'?d.faqs:d.templates;
+    if(!q && !a){
+      // 빈 내용으로 저장 → 새 항목이면 자동 제거
+      if(_cs_editingItem.isNew) list.splice(idx,1);
+      _cs_editingItem=null;
+      saveCsLocal(d);
+      renderCsList(kind);
+      return;
+    }
+    list[idx]={q,a};
+    _cs_editingItem=null;
+    await persistCs(d);
+    renderCsList(kind);
+  }
+  function cancelCsItemEdit(){
+    if(!_cs_editingItem) return;
+    const {kind,idx,isNew}=_cs_editingItem;
+    if(isNew){
+      const d=loadCs();
+      const list=kind==='faq'?d.faqs:d.templates;
+      list.splice(idx,1);
+      saveCsLocal(d);
+    }
+    _cs_editingItem=null;
+    renderCsList(kind);
+  }
+  async function deleteCsItem(kind,i){
+    if(kind==='tpl' && !requireMaster('템플릿 삭제')) return;
+    if(!confirm(kind==='faq'?'이 질문을 삭제하시겠습니까?':'이 템플릿을 삭제하시겠습니까?')) return;
+    const d=loadCs();
+    const list=kind==='faq'?d.faqs:d.templates;
+    list.splice(i,1);
+    await persistCs(d);
+    renderCsList(kind);
+  }
+  async function copyCsItem(kind,i){
+    const d=loadCs();
+    const list=kind==='faq'?d.faqs:d.templates;
+    const it=list[i];
+    if(!it) return;
+    const text=it.a||it.q||'';
+    try{
+      await navigator.clipboard.writeText(text);
+      toast('✓ 클립보드에 복사됨','ok');
+    }catch(e){
+      const ta=document.createElement('textarea');
+      ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';
+      document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');toast('✓ 클립보드에 복사됨','ok')}
+      catch(e2){toast('복사 실패 — 브라우저 권한 확인','err')}
+      document.body.removeChild(ta);
+    }
+  }
+
+  function enterCsMemoEdit(){
+    if(!requireMaster('메모 편집')) return;
+    const el=document.getElementById('csMemo');
+    if(!el) return;
+    _cs_memoEditing=true;
+    _cs_memoOrig=loadCs().memo||'';
+    el.textContent=_cs_memoOrig;
+    el.setAttribute('contenteditable','true');
+    document.getElementById('csMemoEditBtn').style.display='none';
+    document.getElementById('csMemoSaveBtn').style.display='';
+    document.getElementById('csMemoCancelBtn').style.display='';
+    setTimeout(()=>{el.focus();try{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const s=window.getSelection();s.removeAllRanges();s.addRange(r)}catch(e){}},30);
+  }
+  async function saveCsMemoEdit(){
+    const el=document.getElementById('csMemo');
+    if(!el) return;
+    const newMemo=el.innerText.replace(/ /g,' ').replace(/\s+$/,'');
+    _cs_memoEditing=false;
+    el.setAttribute('contenteditable','false');
+    document.getElementById('csMemoEditBtn').style.display='';
+    document.getElementById('csMemoSaveBtn').style.display='none';
+    document.getElementById('csMemoCancelBtn').style.display='none';
+    const d=loadCs();
+    d.memo=newMemo;
+    await persistCs(d);
+    renderCsMemo();
+  }
+  function cancelCsMemoEdit(){
+    _cs_memoEditing=false;
+    const el=document.getElementById('csMemo');
+    if(el){el.setAttribute('contenteditable','false');el.textContent=_cs_memoOrig}
+    document.getElementById('csMemoEditBtn').style.display='';
+    document.getElementById('csMemoSaveBtn').style.display='none';
+    document.getElementById('csMemoCancelBtn').style.display='none';
+  }
+
+  window.addCsItem=addCsItem;
+  window.editCsItem=editCsItem;
+  window.saveCsItemEdit=saveCsItemEdit;
+  window.cancelCsItemEdit=cancelCsItemEdit;
+  window.deleteCsItem=deleteCsItem;
+  window.copyCsItem=copyCsItem;
+  window.enterCsMemoEdit=enterCsMemoEdit;
+  window.saveCsMemoEdit=saveCsMemoEdit;
+  window.cancelCsMemoEdit=cancelCsMemoEdit;
+  window.renderCs=renderCs;
+
+  renderCs();
+  syncCsFromRemote().catch(()=>{});
 
   init();
 </script>
