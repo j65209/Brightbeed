@@ -3683,14 +3683,14 @@
   async function analyzeImage(file,key){
     const img=await fileToBase64(file);
     const systemPrompt=`당신은 발주서 이미지를 분석해 표 형태로 추출하는 도우미입니다. 이미지에서 각 발주 항목을 다음 4개 필드로 추출하세요:
-- product: 제품명 (메모/품명/품목 등 한국어/영문 표기에서 추정. 한자가 섞여 있으면 한국어 부분만)
-- option: 옵션명 (1688옵션명 / 옵션 컬럼의 값. 한자/한국어/숫자 그대로 보존 — 공급사 식별용)
-- memo: 메모에 적힌 소요일·납기·검수 등 부가 안내. 발주서 상단에 '전체 적용' 안내문이 있으면 모든 행에 공통으로 적어주세요 (예: "전체: 강하게 네고 / 3주 소요").
+- product: 제품명 (한글옵션명 컬럼의 한국어 표기. 한자/영문이 섞여 있으면 한국어 부분만)
+- option: 옵션명 (한글옵션명 컬럼에서 product 외에 옵션 정보가 있으면 그 부분. 보통 product와 동일. ※ '1688옵션명' 컬럼은 무시)
+- memo: 메모/소요일 컬럼에 적힌 소요일·납기·검수 등 부가 안내. 발주서 상단에 '전체 적용' 안내문이 있으면 모든 행에 공통으로 적어주세요 (예: "전체: 강하게 네고 / 3주 소요").
 - qty: 수량 (숫자)
 
 규칙:
 - 응답은 반드시 JSON 배열만. 다른 설명·마크다운 금지.
-- product 필드만 한자 제외. option 필드는 한자 OK (공급사 옵션 원문 유지).
+- '한글옵션명' 컬럼만 보고 product/option 채우기. '1688옵션명' 컬럼이 있으면 완전히 무시.
 - 정보 없는 필드는 빈 문자열 ""
 - 수량은 숫자(정수). 모르면 0
 - 품목이 여러 행이면 모두 추출
@@ -3778,22 +3778,22 @@
         const hasQty=row.some(c=>/수량$/.test(c)||c==='개수');
         if(!hasQty) continue;
         const hasProd=row.some(c=>/제품|상품|품명|품목|옵션/.test(c));
-        const hasMemo=row.some(c=>c==='메모'||c==='비고');
+        const hasMemo=row.some(c=>c==='메모'||c==='비고'||c==='소요일');
         if(hasProd||hasMemo){headerIdx=i;break}
       }
       if(headerIdx<0) continue;
 
       const header=data[headerIdx].map(c=>norm(c));
       const idxNo=header.findIndex(h=>/^번호$|^no\.?$/.test(h));
-      // 결합형 "제품(명) 및 옵션(명)" 컬럼이 있으면 product=option=같은 인덱스
-      const idxCombined=header.findIndex(h=>/^제품명?및옵션명?$|^상품명?및옵션명?$|^제품옵션명$/.test(h));
+      // 결합형 "제품(명) 및 옵션(명)" / "한글옵션명" 컬럼이 있으면 product=option=같은 인덱스. 1688옵션명은 무시.
+      const idxCombined=header.findIndex(h=>/^제품명?및옵션명?$|^상품명?및옵션명?$|^제품옵션명$|^한글옵션명$/.test(h));
       const idxProduct=idxCombined>=0
         ? idxCombined
         : header.findIndex(h=>/^제품명?$|^상품명?$|^품명$|^품목$/.test(h));
       const idxOption=idxCombined>=0
         ? idxCombined
-        : header.findIndex(h=>/^옵션$|^옵션명$|^1688옵션명$/.test(h));
-      const idxMemo=header.findIndex(h=>/^메모$|^비고$/.test(h));
+        : header.findIndex(h=>/^옵션$|^옵션명$/.test(h));
+      const idxMemo=header.findIndex(h=>/^메모$|^비고$|^소요일$/.test(h));
       const idxQty=header.findIndex(h=>/수량$|^개수$/.test(h));
       if(idxQty<0) continue;
 
