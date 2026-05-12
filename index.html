@@ -1950,15 +1950,6 @@
         <div id="csFaqList" class="cs-list"></div>
       </section>
 
-      <!-- 응대 템플릿 — 뷰어도 편집 가능 -->
-      <section class="cs-section" id="csTplSection">
-        <div class="cs-section-head">
-          <div class="cs-section-title">응대 템플릿</div>
-          <button class="cs-add-btn" onclick="addCsItem('tpl')">＋ 추가</button>
-        </div>
-        <div id="csTplList" class="cs-list"></div>
-      </section>
-
       <!-- CS팀 메모장 — 뷰어도 편집 가능 -->
       <section class="cs-section cs-section-memo" id="csMemoSection">
         <div class="cs-section-head">
@@ -5070,7 +5061,7 @@ async function handlePOFiles(files){
     }
   }
 
-  function renderCs(){renderCsList('faq');renderCsList('tpl');renderCsMemo()}
+  function renderCs(){renderCsList('faq');renderCsMemo()}
 
   function renderCsList(kind){
     const root=document.getElementById(kind==='faq'?'csFaqList':'csTplList');
