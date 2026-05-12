@@ -4978,6 +4978,10 @@ async function handlePOFiles(files){
   let _cs_editingItem=null; // {kind:'faq'|'tpl', idx:number, isNew:bool}
   let _cs_memoEditing=false;
   let _cs_memoOrig='';
+  // 푸시 직렬화 — 빠른 연속 변경으로 인한 동시 PUT(409 충돌) 방지
+  let _cs_pushChain=Promise.resolve();
+  let _cs_pushPending=null;
+  let _cs_savingCount=0;
 
   function csDefault(){return{faqs:[],templates:[],memo:'',updatedAt:''}}
   function loadCs(){
@@ -5011,6 +5015,7 @@ async function handlePOFiles(files){
 
   async function syncCsFromRemote(){
     if(_cs_editingItem || _cs_memoEditing) return; // 편집 중이면 덮어쓰기 방지
+    if(_cs_savingCount>0) return; // 푸시 진행 중이면 폴링도 보류 (race condition 방지)
     const remote=await fetchCsFromRemote();
     if(remote===null) return;
     const json=JSON.stringify(remote);
@@ -5048,8 +5053,9 @@ async function handlePOFiles(files){
     if(shaResult.error==='auth') return {ok:false,reason:'auth'};
     let r=await doPut(shaResult.sha);
     let retries=0;
-    while(r.status===409 && retries<2){
+    while(r.status===409 && retries<4){
       retries++;
+      await new Promise(res=>setTimeout(res,150*retries)); // 백오프: 150·300·450·600ms
       shaResult=await getSha();
       if(shaResult.error==='auth') return {ok:false,reason:'auth'};
       r=await doPut(shaResult.sha);
@@ -5062,11 +5068,22 @@ async function handlePOFiles(files){
   async function persistCs(d){
     d.updatedAt=new Date().toISOString();
     saveCsLocal(d);
-    const r=await pushCsToRemote(d);
-    if(!r.ok){
-      if(r.reason==='auth') toast('CS 동기화 — 인증 실패','err');
-      else toast(`CS 동기화 실패 (${r.reason})`,'err');
-    }
+    // 빠른 연속 변경 → 큐에 합쳐서 한 번만 푸시 (마지막 상태 기준)
+    _cs_pushPending=d;
+    _cs_savingCount++;
+    _cs_pushChain = _cs_pushChain.then(async ()=>{
+      if(_cs_pushPending===null) return; // 다른 작업이 이미 처리함
+      const target=_cs_pushPending;
+      _cs_pushPending=null;
+      const r=await pushCsToRemote(target);
+      if(!r.ok){
+        if(r.reason==='auth') toast('CS 동기화 — 인증 실패','err');
+        else toast(`CS 동기화 실패 (${r.reason})`,'err');
+      }
+    }).catch(e=>console.warn('cs push chain error:',e)).finally(()=>{
+      _cs_savingCount--;
+    });
+    return _cs_pushChain;
   }
 
   function renderCs(){renderCsList('faq');renderCsMemo()}
