@@ -813,6 +813,8 @@
   .cs-item:hover{border-color:var(--line-2)}
   .cs-item-q{font-size:13px;font-weight:600;color:var(--text-0);line-height:1.4}
   .cs-item-a{font-size:13px;color:var(--text-1);line-height:1.55;white-space:pre-wrap;word-break:break-word}
+  /* FAQ 질문은 본문과 대비되게 CS 시그니처 시안 컬러로 */
+  #csFaqList .cs-item-q{color:var(--neon-cs);text-shadow:0 0 6px rgba(34,211,238,.25);letter-spacing:.01em}
   .cs-item-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:2px}
   .cs-item-actions button{background:transparent;border:1px solid var(--line);color:var(--text-2);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .12s}
   .cs-item-actions button:hover{border-color:var(--neon-cs);color:var(--neon-cs)}
