@@ -1924,30 +1924,30 @@
     </div>
 
     <div class="cs-grid">
-      <!-- FAQ (뷰어도 편집 가능) -->
+      <!-- FAQ — CS팀 전체가 뷰어 권한이어도 편집 가능 -->
       <section class="cs-section" id="csFaqSection">
         <div class="cs-section-head">
-          <div class="cs-section-title">자주 묻는 질문 <span class="cs-section-sub">(누구나 편집)</span></div>
+          <div class="cs-section-title">자주 묻는 질문</div>
           <button class="cs-add-btn" onclick="addCsItem('faq')">＋ 추가</button>
         </div>
         <div id="csFaqList" class="cs-list"></div>
       </section>
 
-      <!-- 응대 템플릿 -->
+      <!-- 응대 템플릿 — 뷰어도 편집 가능 -->
       <section class="cs-section" id="csTplSection">
         <div class="cs-section-head">
           <div class="cs-section-title">응대 템플릿</div>
-          <button class="cs-add-btn master-only" onclick="addCsItem('tpl')">＋ 추가</button>
+          <button class="cs-add-btn" onclick="addCsItem('tpl')">＋ 추가</button>
         </div>
         <div id="csTplList" class="cs-list"></div>
       </section>
 
-      <!-- CS팀 메모장 -->
+      <!-- CS팀 메모장 — 뷰어도 편집 가능 -->
       <section class="cs-section cs-section-memo" id="csMemoSection">
         <div class="cs-section-head">
-          <div class="cs-section-title">CS팀 메모장</div>
+          <div class="cs-section-title">CS팀 메모장 <span class="cs-section-sub">누구나 편집 가능</span></div>
           <div class="cs-memo-controls">
-            <button class="cs-memo-edit master-only" id="csMemoEditBtn" onclick="enterCsMemoEdit()">편집</button>
+            <button class="cs-memo-edit" id="csMemoEditBtn" onclick="enterCsMemoEdit()">편집</button>
             <button class="cs-memo-save" id="csMemoSaveBtn" onclick="saveCsMemoEdit()" style="display:none">저장</button>
             <button class="cs-memo-cancel" id="csMemoCancelBtn" onclick="cancelCsMemoEdit()" style="display:none">취소</button>
           </div>
@@ -5064,8 +5064,8 @@ async function handlePOFiles(files){
       root.innerHTML=`<div class="cs-empty">${kind==='faq'?'아직 등록된 질문이 없습니다':'아직 등록된 템플릿이 없습니다'}</div>`;
       return;
     }
-    const canEditTpl=isMaster();
-    const showEditCtrls=(kind==='faq') || canEditTpl;
+    // CS팀은 뷰어도 편집 가능 — 편집/삭제 컨트롤 항상 노출
+    const showEditCtrls=true;
     root.innerHTML=list.map((it,i)=>{
       const editing=_cs_editingItem && _cs_editingItem.kind===kind && _cs_editingItem.idx===i;
       if(editing){
@@ -5100,7 +5100,6 @@ async function handlePOFiles(files){
   }
 
   function addCsItem(kind){
-    if(kind==='tpl' && !requireMaster('템플릿 추가')) return;
     if(_cs_editingItem){toast('편집 중인 항목을 먼저 저장/취소해주세요','err');return}
     const d=loadCs();
     const list=kind==='faq'?d.faqs:d.templates;
@@ -5111,7 +5110,6 @@ async function handlePOFiles(files){
     setTimeout(()=>{const q=document.getElementById('csEditQ');if(q)q.focus()},30);
   }
   function editCsItem(kind,i){
-    if(kind==='tpl' && !requireMaster('템플릿 편집')) return;
     if(_cs_editingItem){toast('편집 중인 항목을 먼저 저장/취소해주세요','err');return}
     _cs_editingItem={kind,idx:i,isNew:false};
     renderCsList(kind);
@@ -5150,7 +5148,6 @@ async function handlePOFiles(files){
     renderCsList(kind);
   }
   async function deleteCsItem(kind,i){
-    if(kind==='tpl' && !requireMaster('템플릿 삭제')) return;
     if(!confirm(kind==='faq'?'이 질문을 삭제하시겠습니까?':'이 템플릿을 삭제하시겠습니까?')) return;
     const d=loadCs();
     const list=kind==='faq'?d.faqs:d.templates;
@@ -5178,7 +5175,6 @@ async function handlePOFiles(files){
   }
 
   function enterCsMemoEdit(){
-    if(!requireMaster('메모 편집')) return;
     const el=document.getElementById('csMemo');
     if(!el) return;
     _cs_memoEditing=true;
