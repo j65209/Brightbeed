@@ -3755,7 +3755,19 @@
     const dateInfo=parseDateFromFilename(file.name);
     const norm=s=>String(s||'').replace(/\s/g,'').toLowerCase();
 
-    for(const sn of wb.SheetNames){
+    // v2 양식 엑셀은 동일 데이터를 구버전("제품 및 옵션명") + 신버전("한글옵션명") 시트 두 벌로 들고 있어
+    // 양쪽 다 파싱하면 중복됨 → "한글옵션명"이 있는 시트가 있으면 그 시트들만 처리. 없으면 전체 처리(레거시).
+    const sheetsWithKor=wb.SheetNames.filter(sn=>{
+      const ws=wb.Sheets[sn];
+      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      for(let i=0;i<Math.min(20,data.length);i++){
+        if((data[i]||[]).map(norm).some(c=>c==='한글옵션명')) return true;
+      }
+      return false;
+    });
+    const targetSheets = sheetsWithKor.length>0 ? sheetsWithKor : wb.SheetNames;
+
+    for(const sn of targetSheets){
       const ws=wb.Sheets[sn];
       expandMergedCells(ws);
       const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
