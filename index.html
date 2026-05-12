@@ -796,15 +796,6 @@
     color:var(--text-3);font-size:14px;transition:all .15s;
   }
   .lg-res:hover .lg-res-arrow{color:var(--neon-lg);transform:translateX(2px)}
-  .lg-res.todo{cursor:default;opacity:.85}
-  .lg-res.todo:hover{transform:none;border-color:var(--line);background:var(--bg-1);box-shadow:none}
-  .lg-res.todo .lg-res-arrow{display:none}
-  .lg-res-todo-tag{
-    display:inline-block;margin-top:6px;
-    font-size:10px;font-family:var(--mono);letter-spacing:.1em;
-    color:var(--text-3);padding:2px 6px;
-    border:1px dashed var(--line-2);border-radius:3px;width:fit-content;
-  }
 
   /* ===== 권한 (Viewer / Master) ===== */
   body.role-viewer .master-only{display:none !important}
@@ -1839,13 +1830,6 @@
         <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
         <span class="lg-res-arrow">→</span>
       </a>
-      <a class="lg-res todo" href="#" id="lgPoListLink" onclick="return openLgResource('polist', event)">
-        <div class="lg-res-eyebrow">📋 GOOGLE SHEETS</div>
-        <div class="lg-res-title">제품 발주 리스트 정보</div>
-        <div class="lg-res-sub">단가·옵션·1688 링크 (구글 시트)</div>
-        <span class="lg-res-todo-tag">URL 미설정</span>
-        <span class="lg-res-arrow">→</span>
-      </a>
     </div>
 
     <!-- 최근 발주 내역 (홈에서 이동) -->
@@ -2504,15 +2488,13 @@
 
   // 물류팀 외부 자료 URL — 비어있으면 placeholder 토스트
   const LG_URLS={
-    stock:'https://docs.google.com/spreadsheets/d/1SmYlesBx6KGwPJJW6SO67hxg8wGj_aMqC1KB23uBZF8/edit?usp=sharing',
-    polist:''
+    stock:'https://docs.google.com/spreadsheets/d/1SmYlesBx6KGwPJJW6SO67hxg8wGj_aMqC1KB23uBZF8/edit?usp=sharing'
   };
   function openLgResource(key,e){
     const url=LG_URLS[key];
-    const label=key==='stock'?'브랜드 재고':'제품 발주 리스트 정보';
     if(!url){
       e.preventDefault();
-      toast(`${label} URL이 아직 설정되지 않았습니다`,'err');
+      toast(`URL이 아직 설정되지 않았습니다`,'err');
       return false;
     }
     e.preventDefault();
