@@ -815,6 +815,21 @@
   .cs-item-a{font-size:13px;color:var(--text-1);line-height:1.55;white-space:pre-wrap;word-break:break-word}
   /* FAQ 질문은 본문과 대비되게 CS 시그니처 시안 컬러로 */
   #csFaqList .cs-item-q{color:var(--neon-cs);text-shadow:0 0 6px rgba(34,211,238,.25);letter-spacing:.01em}
+  /* FAQ 컴팩트 레이아웃 — 입력 항목이 많아 간격·버튼 축소, 액션은 질문 우측 인라인 */
+  #csFaqList{gap:6px}
+  #csFaqList .cs-item:not(.cs-item-editing){
+    display:grid;
+    grid-template-columns:1fr auto;
+    grid-template-rows:auto auto;
+    column-gap:10px;
+    row-gap:3px;
+    padding:9px 12px;
+  }
+  #csFaqList .cs-item:not(.cs-item-editing) .cs-item-q{grid-column:1;grid-row:1;align-self:center;font-size:13px}
+  #csFaqList .cs-item:not(.cs-item-editing) .cs-item-actions{grid-column:2;grid-row:1;align-self:center;margin-top:0;gap:4px}
+  #csFaqList .cs-item:not(.cs-item-editing) .cs-item-a{grid-column:1 / -1;grid-row:2;font-size:12.5px;line-height:1.5;color:var(--text-2)}
+  #csFaqList .cs-item:not(.cs-item-editing) .cs-item-actions button{padding:2px 7px;font-size:10px;border-radius:3px;letter-spacing:.02em}
+  #csFaqList .cs-item:not(.cs-item-editing) .cs-item-actions .cs-act-del{padding:2px 6px;line-height:1}
   .cs-item-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:2px}
   .cs-item-actions button{background:transparent;border:1px solid var(--line);color:var(--text-2);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .12s}
   .cs-item-actions button:hover{border-color:var(--neon-cs);color:var(--neon-cs)}
@@ -5071,7 +5086,7 @@ async function handlePOFiles(files){
     root.innerHTML=list.map((it,i)=>{
       const editing=_cs_editingItem && _cs_editingItem.kind===kind && _cs_editingItem.idx===i;
       if(editing){
-        return `<div class="cs-item">
+        return `<div class="cs-item cs-item-editing">
           <input class="cs-edit-q" id="csEditQ" placeholder="${kind==='faq'?'질문':'제목'}" value="${escapeHTML(it.q||'')}">
           <textarea class="cs-edit-a" id="csEditA" placeholder="${kind==='faq'?'답변':'본문'}">${escapeHTML(it.a||'')}</textarea>
           <div class="cs-item-actions">
