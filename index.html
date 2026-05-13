@@ -1026,10 +1026,6 @@
   /* ===== 권한 (Viewer / Master) ===== */
   body.role-viewer .master-only{display:none !important}
   body.role-viewer .po-row-del{display:none !important}
-  /* viewer일 때 ERP 카드 빠지므로 hero-row 2열로 — 데스크탑 한정 */
-  @media (min-width:769px){
-    body.role-viewer .hero-row{grid-template-columns:repeat(2,1fr);max-width:760px;margin-left:auto;margin-right:auto}
-  }
   /* viewer 안내 배지 */
   .role-badge{display:none;align-items:center;gap:5px;padding:4px 10px;font-size:11px;font-family:var(--mono);letter-spacing:.04em;color:var(--text-3);background:var(--bg-2);border:1px solid var(--line);border-radius:4px}
   body.role-viewer .role-badge{display:inline-flex}
@@ -1771,7 +1767,7 @@
   <div class="view" id="viewHome">
     <!-- 팀 카드: ERP / 인사팀 / 물류팀 -->
     <div class="hero-row">
-      <section class="hero master-only">
+      <section class="hero">
         <div class="hero-eyebrow">ERP SYNC</div>
         <button class="btn-neon" id="erpBtn" onclick="triggerERP()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -2388,8 +2384,11 @@
       const proxyUrl=url.replace(/^https:\/\/api\.github\.com/, base+'/gh');
       const headers=Object.assign({},opts.headers||{});
       delete headers.Authorization;
-      headers['X-Brightbeed-PIN']=ghPin();
-      return [proxyUrl, Object.assign({},opts,{headers})];
+      // forceMaster: viewer 역할이어도 master PIN으로 호출 (ERP 트리거 등 일부 공용 액션용)
+      headers['X-Brightbeed-PIN']=opts.forceMaster ? PIN_MASTER : ghPin();
+      const fwd=Object.assign({},opts,{headers});
+      delete fwd.forceMaster;
+      return [proxyUrl, fwd];
     };
     try{
       const [u,o]=await buildReq();
@@ -2627,8 +2626,6 @@
   }
 
   async function triggerERP(){
-    if(!requireMaster('ERP 최신화'))return;
-
     erpBtn.disabled=true;
     erpBtn.classList.add('spin');
     erpLabel.textContent='트리거 중...';
@@ -2636,6 +2633,7 @@
     try{
       const r=await ghFetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/dispatches`,{
         method:'POST',
+        forceMaster:true,
         headers:{
           'Accept':'application/vnd.github+json',
           'Content-Type':'application/json'
