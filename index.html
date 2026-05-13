@@ -692,6 +692,137 @@
     .sales-archive-del{order:4;opacity:.6}
   }
 
+  /* ===== MD팀 기획전 일정 캘린더 ===== */
+  .md-cal-section{margin-bottom:18px}
+  .md-cal-head{flex-wrap:wrap;gap:10px}
+  .md-cal-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .md-cal-nav{display:inline-flex;align-items:center;gap:4px}
+  .btn-md-cal-nav{
+    display:inline-flex;align-items:center;justify-content:center;
+    height:26px;min-width:38px;padding:0 9px;
+    font-size:11.5px;font-family:var(--mono);font-weight:500;color:var(--text-1);
+    background:var(--bg-2);border:1px solid var(--line);border-radius:4px;
+    cursor:pointer;transition:all .12s;
+  }
+  .btn-md-cal-nav:hover{background:var(--bg-3);border-color:var(--line-2);color:var(--text-0)}
+  .btn-md-cal-nav.md-cal-nav-arrow{font-size:15px;line-height:1;padding:0;min-width:26px;font-family:var(--sans);font-weight:600}
+  .md-cal-monthlabel{
+    display:inline-block;min-width:84px;text-align:center;
+    font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text-0);
+    letter-spacing:.04em;padding:0 6px;
+  }
+  .md-cal-add{margin-left:0}
+  .md-cal-body{padding:14px 18px 16px}
+  .md-cal-weekdays{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:0;
+    margin-bottom:6px;padding:0 1px;
+  }
+  .md-cal-wd{
+    text-align:center;font-size:10.5px;color:var(--text-3);
+    font-family:var(--mono);font-weight:500;padding:4px 0;letter-spacing:.08em;
+  }
+  .md-cal-wd.md-cal-sun{color:#fb7185}
+  .md-cal-wd.md-cal-sat{color:#6ab7ff}
+  .md-cal-grid{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:0;
+    border-top:1px solid var(--line);border-left:1px solid var(--line);
+    border-radius:4px;overflow:hidden;
+  }
+  .md-cal-cell{
+    background:var(--bg-1);
+    min-height:94px;padding:4px 0 5px;
+    display:flex;flex-direction:column;gap:2px;
+    cursor:pointer;transition:background .12s;
+    border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .md-cal-cell:hover{background:var(--bg-2)}
+  .md-cal-cell.is-out{background:#0c0e12}
+  .md-cal-cell.is-out:hover{background:#0e1116}
+  .md-cal-cell.is-today{box-shadow:inset 0 0 0 1.5px rgba(251,113,133,.55)}
+  body.role-viewer .md-cal-cell{cursor:default}
+  .md-cal-daynum{
+    font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text-1);
+    letter-spacing:.02em;padding:0 6px;height:18px;line-height:18px;
+  }
+  .md-cal-cell.is-out .md-cal-daynum{opacity:.4}
+  .md-cal-cell.is-sun .md-cal-daynum{color:#fb7185}
+  .md-cal-cell.is-sat .md-cal-daynum{color:#6ab7ff}
+  .md-cal-cell.is-today .md-cal-daynum{color:#fb7185;font-weight:700}
+  .md-cal-events{display:flex;flex-direction:column;gap:2px;padding:0 1px;overflow:hidden}
+  .md-cal-event-ph{height:16px;flex-shrink:0}
+  .md-cal-event{
+    --evcolor:#fb7185;
+    display:block;width:calc(100% + 2px);margin:0 -1px;flex-shrink:0;
+    height:16px;line-height:16px;padding:0 6px;
+    font-size:10.5px;font-weight:500;letter-spacing:.01em;
+    background:color-mix(in srgb, var(--evcolor) 26%, transparent);
+    color:var(--evcolor);
+    border:none;cursor:pointer;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;
+    transition:filter .12s;border-radius:0;
+  }
+  .md-cal-event:hover{filter:brightness(1.2) saturate(1.15)}
+  .md-cal-event.is-left-cap{border-top-left-radius:4px;border-bottom-left-radius:4px;margin-left:1px;width:calc(100% + 1px)}
+  .md-cal-event.is-right-cap{border-top-right-radius:4px;border-bottom-right-radius:4px;margin-right:1px;width:calc(100% + 1px)}
+  .md-cal-event.is-left-cap.is-right-cap{margin-left:1px;margin-right:1px;width:calc(100% - 2px)}
+  .md-cal-more{
+    font-family:var(--mono);font-size:9.5px;color:var(--text-3);
+    padding:0 6px;line-height:14px;flex-shrink:0;
+  }
+  .md-cal-hint{
+    margin-top:10px;font-size:11px;color:var(--text-3);font-family:var(--mono);
+    letter-spacing:.02em;text-align:right;
+  }
+
+  /* 기획전 모달 */
+  .md-event-modal{width:460px;max-width:92vw}
+  .md-event-field{margin-bottom:12px}
+  .md-event-field-memo{margin-bottom:6px}
+  .md-event-label{
+    display:block;font-size:10.5px;color:var(--text-3);font-family:var(--mono);
+    letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;
+  }
+  .md-event-input{margin-bottom:0;font-family:var(--sans);font-size:13px}
+  .md-event-input[type="date"]{font-family:var(--mono)}
+  .md-event-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .md-event-row .md-event-field{margin-bottom:0}
+  .md-event-memo{resize:vertical;min-height:54px;font-family:var(--sans);line-height:1.5}
+  .md-event-colors{display:flex;gap:8px;flex-wrap:wrap;padding:2px 0}
+  .md-event-color-btn{
+    --evcolor:#fb7185;
+    width:24px;height:24px;border-radius:50%;
+    background:var(--evcolor);
+    border:2px solid transparent;cursor:pointer;
+    transition:transform .12s,border-color .12s,box-shadow .12s;
+    padding:0;
+  }
+  .md-event-color-btn:hover{transform:scale(1.08)}
+  .md-event-color-btn.is-active{
+    border-color:var(--text-0);transform:scale(1.05);
+    box-shadow:0 0 0 2px var(--bg-1), 0 0 0 3px var(--evcolor);
+  }
+  .md-event-actions{align-items:center}
+  .md-event-actions-spacer{flex:1}
+  .md-event-delete-btn{color:var(--danger);border-color:rgba(217,102,102,.32)}
+  .md-event-delete-btn:hover{background:rgba(217,102,102,.10);color:var(--danger)}
+
+  @media(max-width:600px){
+    .md-cal-head{padding:10px 12px}
+    .md-cal-meta{gap:8px;width:100%;justify-content:space-between}
+    .md-cal-body{padding:8px 6px 10px}
+    .md-cal-monthlabel{min-width:72px;font-size:12px}
+    .btn-md-cal-nav{height:24px;font-size:11px}
+    .btn-md-cal-nav.md-cal-nav-arrow{font-size:14px;min-width:24px}
+    .md-cal-cell{min-height:62px;padding:3px 0 4px;gap:1px}
+    .md-cal-daynum{font-size:10px;height:15px;line-height:15px;padding:0 4px}
+    .md-cal-event{height:13px;line-height:13px;font-size:9px;padding:0 4px}
+    .md-cal-event-ph{height:13px}
+    .md-cal-more{font-size:9px;padding:0 4px;line-height:12px}
+    .md-cal-wd{font-size:9.5px;padding:3px 0}
+    .md-cal-hint{font-size:10px}
+  }
+
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
   .view{display:block}
   .view[hidden]{display:none}
@@ -1983,6 +2114,39 @@
       <h1 class="view-title">MD팀<span class="view-title-sub">/ 매출 보고서</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
+
+      <!-- 기획전 일정 캘린더 -->
+      <div class="po-section md-cal-section">
+        <div class="po-section-head md-cal-head">
+          <div class="po-section-title">기획전 일정</div>
+          <div class="po-section-meta md-cal-meta">
+            <div class="md-cal-nav">
+              <button type="button" class="btn-md-cal-nav" onclick="mdCalNavToday()" title="오늘">오늘</button>
+              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="mdCalNavPrev()" aria-label="이전 달">‹</button>
+              <span class="md-cal-monthlabel" id="mdCalMonthLabel">2026.05</span>
+              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="mdCalNavNext()" aria-label="다음 달">›</button>
+            </div>
+            <button class="btn po-import master-only md-cal-add" onclick="mdCalOpenAdd()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              일정 추가
+            </button>
+          </div>
+        </div>
+        <div class="md-cal-body">
+          <div class="md-cal-weekdays">
+            <div class="md-cal-wd md-cal-sun">일</div>
+            <div class="md-cal-wd">월</div>
+            <div class="md-cal-wd">화</div>
+            <div class="md-cal-wd">수</div>
+            <div class="md-cal-wd">목</div>
+            <div class="md-cal-wd">금</div>
+            <div class="md-cal-wd md-cal-sat">토</div>
+          </div>
+          <div class="md-cal-grid" id="mdCalGrid"></div>
+          <div class="md-cal-hint master-only-text">날짜 칸 클릭 → 그 날짜로 일정 추가 · 일정 클릭 → 수정/삭제</div>
+        </div>
+      </div>
+
       <div class="po-section">
         <div class="po-section-head">
           <div class="po-section-title">매출 보고서 PPT</div>
@@ -2088,7 +2252,7 @@
 
   <footer class="footer">
     <div>© 2025 브라이트비드 오피스 · 내부 사용 전용</div>
-    <div>버전 0.9 · 빌드 <span class="mono">2026.05.07</span></div>
+    <div>버전 1.0 · 빌드 <span class="mono">2026.05.13</span></div>
   </footer>
 </div>
 
@@ -2108,6 +2272,41 @@
     <div class="modal-actions">
       <button class="modal-btn" id="tokenCancel">취소</button>
       <button class="modal-btn modal-btn-primary" id="tokenSave">저장 후 실행</button>
+    </div>
+  </div>
+</div>
+
+<!-- 기획전 일정 추가/수정 모달 -->
+<div class="modal-bg" id="mdEventModal">
+  <div class="modal md-event-modal">
+    <div class="modal-title" id="mdEventModalTitle">기획전 추가</div>
+    <div class="md-event-field">
+      <label class="md-event-label">제목</label>
+      <input class="modal-input md-event-input" id="mdEventTitle" type="text" maxlength="40" placeholder="예: 여름 세일 기획전" autocomplete="off">
+    </div>
+    <div class="md-event-row">
+      <div class="md-event-field">
+        <label class="md-event-label">시작</label>
+        <input class="modal-input md-event-input" id="mdEventStart" type="date">
+      </div>
+      <div class="md-event-field">
+        <label class="md-event-label">종료</label>
+        <input class="modal-input md-event-input" id="mdEventEnd" type="date">
+      </div>
+    </div>
+    <div class="md-event-field">
+      <label class="md-event-label">색상</label>
+      <div class="md-event-colors" id="mdEventColors"></div>
+    </div>
+    <div class="md-event-field md-event-field-memo">
+      <label class="md-event-label">메모 (선택)</label>
+      <textarea class="modal-input md-event-memo" id="mdEventMemo" rows="2" maxlength="200" placeholder="상세 메모"></textarea>
+    </div>
+    <div class="modal-actions md-event-actions">
+      <button class="modal-btn md-event-delete-btn" id="mdEventDeleteBtn" style="display:none">삭제</button>
+      <span class="md-event-actions-spacer"></span>
+      <button class="modal-btn" id="mdEventCancelBtn">취소</button>
+      <button class="modal-btn modal-btn-primary" id="mdEventSaveBtn">저장</button>
     </div>
   </div>
 </div>
@@ -2478,6 +2677,8 @@
       if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     }
     if(id==='viewMd'){
+      if(typeof renderMdCal==='function') renderMdCal();
+      if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
       if(typeof renderSalesPptView==='function') renderSalesPptView();
       if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
       if(typeof renderSalesArchive==='function') renderSalesArchive();
@@ -3331,12 +3532,13 @@
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
 
-    // 매출 PPT + 공지사항 + 연차도 함께 동기화
+    // 매출 PPT + 공지사항 + 연차 + MD 기획전도 함께 동기화
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
+    if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -3359,12 +3561,13 @@
         if(last) last.textContent = t;
       }
     }
-    // 매출 PPT + 공지사항 + 연차도 함께 폴링
+    // 매출 PPT + 공지사항 + 연차 + MD 기획전도 함께 폴링
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
+    if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -5250,6 +5453,362 @@ async function handlePOFiles(files){
 
   renderCs();
   syncCsFromRemote().catch(()=>{});
+
+  /* ===== MD팀 기획전 일정 캘린더 ===== */
+  const MD_EVENTS_KEY='brightbeed_md_events';
+  const MD_EVENTS_PATH='data/md-events.json';
+  const MD_EVENTS_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${MD_EVENTS_PATH}`;
+  const MD_EVENTS_API=`https://api.github.com/repos/${PO_REPO}/contents/${MD_EVENTS_PATH}`;
+
+  const MD_EVENT_COLORS=[
+    {key:'rose',    hex:'#fb7185', label:'로즈'},
+    {key:'amber',   hex:'#f59e0b', label:'앰버'},
+    {key:'emerald', hex:'#10b981', label:'에메랄드'},
+    {key:'sky',     hex:'#38bdf8', label:'스카이'},
+    {key:'violet',  hex:'#a78bfa', label:'바이올렛'},
+    {key:'slate',   hex:'#94a3b8', label:'그레이'},
+  ];
+
+  const _mdToday=new Date();
+  let _mdCal={year:_mdToday.getFullYear(), month:_mdToday.getMonth(), events:[]};
+  let _mdCal_lastHash=null;
+  let _mdCal_editingId=null;
+  let _mdCal_pickedColor='rose';
+
+  function _mdIso(d){
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dd}`;
+  }
+  function _mdEvColor(key){
+    return MD_EVENT_COLORS.find(c=>c.key===key) || MD_EVENT_COLORS[0];
+  }
+
+  function loadMdEvents(){
+    try{
+      const j=JSON.parse(localStorage.getItem(MD_EVENTS_KEY)||'null');
+      if(j && Array.isArray(j.events)) return j.events;
+    }catch(e){}
+    return [];
+  }
+  function saveMdEventsLocal(events){
+    const meta={events, updatedAt:Date.now()};
+    const j=JSON.stringify(meta);
+    localStorage.setItem(MD_EVENTS_KEY, j);
+    _mdCal_lastHash=j;
+    _mdCal.events=events;
+  }
+
+  async function fetchMdEventsFromRemote(){
+    try{
+      const r=await fetch(`${MD_EVENTS_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {empty:true};
+      if(!r.ok) return null;
+      const data=await r.json();
+      if(data && Array.isArray(data.events)) return data;
+      return {empty:true};
+    }catch(e){return null}
+  }
+
+  async function syncMdEventsFromRemote(){
+    const remote=await fetchMdEventsFromRemote();
+    if(remote===null) return;
+    if(remote.empty){
+      if(loadMdEvents().length){saveMdEventsLocal([]); renderMdCal();}
+      else{_mdCal_lastHash='null'}
+      return;
+    }
+    const json=JSON.stringify(remote);
+    if(json===_mdCal_lastHash) return;
+    _mdCal_lastHash=json;
+    localStorage.setItem(MD_EVENTS_KEY, json);
+    _mdCal.events=remote.events;
+    renderMdCal();
+  }
+
+  function mdCalNavPrev(){
+    _mdCal.month--;
+    if(_mdCal.month<0){_mdCal.month=11; _mdCal.year--;}
+    renderMdCal();
+  }
+  function mdCalNavNext(){
+    _mdCal.month++;
+    if(_mdCal.month>11){_mdCal.month=0; _mdCal.year++;}
+    renderMdCal();
+  }
+  function mdCalNavToday(){
+    const n=new Date();
+    _mdCal.year=n.getFullYear();
+    _mdCal.month=n.getMonth();
+    renderMdCal();
+  }
+
+  function renderMdCal(){
+    const grid=document.getElementById('mdCalGrid');
+    if(!grid) return;
+    const label=document.getElementById('mdCalMonthLabel');
+    if(label) label.textContent=`${_mdCal.year}.${String(_mdCal.month+1).padStart(2,'0')}`;
+
+    const firstDay=new Date(_mdCal.year, _mdCal.month, 1);
+    const startWd=firstDay.getDay();
+    const monthLast=new Date(_mdCal.year, _mdCal.month+1, 0).getDate();
+    const prevMonthLast=new Date(_mdCal.year, _mdCal.month, 0).getDate();
+    const todayIso=_mdIso(new Date());
+
+    const cells=[];
+    for(let i=startWd-1; i>=0; i--){
+      cells.push({date:new Date(_mdCal.year, _mdCal.month-1, prevMonthLast-i), isOut:true});
+    }
+    for(let d=1; d<=monthLast; d++){
+      cells.push({date:new Date(_mdCal.year, _mdCal.month, d), isOut:false});
+    }
+    while(cells.length<42){
+      const lc=cells[cells.length-1].date;
+      cells.push({date:new Date(lc.getFullYear(), lc.getMonth(), lc.getDate()+1), isOut:true});
+    }
+
+    grid.innerHTML='';
+    const MAX_LANES=3;
+
+    for(let wi=0; wi<6; wi++){
+      const week=cells.slice(wi*7, wi*7+7);
+      const weekStartIso=_mdIso(week[0].date);
+      const weekEndIso=_mdIso(week[6].date);
+
+      const weekEvs=(_mdCal.events||[]).filter(ev=>{
+        if(!ev.start) return false;
+        const e=ev.end || ev.start;
+        return ev.start<=weekEndIso && e>=weekStartIso;
+      });
+      weekEvs.sort((a,b)=>{
+        if(a.start!==b.start) return a.start<b.start?-1:1;
+        const aE=a.end||a.start, bE=b.end||b.start;
+        if(aE!==bE) return aE>bE?-1:1;
+        return (a.id||'').localeCompare(b.id||'');
+      });
+
+      const lanes=[];
+      const evLane=new Map();
+      weekEvs.forEach(ev=>{
+        const s=ev.start<weekStartIso ? weekStartIso : ev.start;
+        const e=(ev.end||ev.start)>weekEndIso ? weekEndIso : (ev.end||ev.start);
+        let li=-1;
+        for(let i=0;i<lanes.length;i++){
+          if(lanes[i].every(seg=>seg.end<s || seg.start>e)){li=i; break;}
+        }
+        if(li<0){lanes.push([{start:s,end:e}]); li=lanes.length-1;}
+        else{lanes[li].push({start:s,end:e});}
+        evLane.set(ev, li);
+      });
+
+      week.forEach(cell=>{
+        const iso=_mdIso(cell.date);
+        const wd=cell.date.getDay();
+        const cellEl=document.createElement('div');
+        cellEl.className='md-cal-cell';
+        if(cell.isOut) cellEl.classList.add('is-out');
+        if(iso===todayIso) cellEl.classList.add('is-today');
+        if(wd===0) cellEl.classList.add('is-sun');
+        if(wd===6) cellEl.classList.add('is-sat');
+        cellEl.dataset.date=iso;
+
+        const numEl=document.createElement('div');
+        numEl.className='md-cal-daynum';
+        numEl.textContent=cell.date.getDate();
+        cellEl.appendChild(numEl);
+
+        const eventsEl=document.createElement('div');
+        eventsEl.className='md-cal-events';
+
+        const visibleLanes=Math.min(lanes.length, MAX_LANES);
+        for(let li=0; li<visibleLanes; li++){
+          const ev=weekEvs.find(e=>{
+            if(evLane.get(e)!==li) return false;
+            const s=e.start<weekStartIso?weekStartIso:e.start;
+            const en=(e.end||e.start)>weekEndIso?weekEndIso:(e.end||e.start);
+            return iso>=s && iso<=en;
+          });
+          if(ev){
+            eventsEl.appendChild(_mdRenderChip(ev, iso, weekStartIso, weekEndIso));
+          }else{
+            const ph=document.createElement('div');
+            ph.className='md-cal-event-ph';
+            eventsEl.appendChild(ph);
+          }
+        }
+
+        const evsHere=weekEvs.filter(e=>{
+          const s=e.start<weekStartIso?weekStartIso:e.start;
+          const en=(e.end||e.start)>weekEndIso?weekEndIso:(e.end||e.start);
+          return iso>=s && iso<=en;
+        });
+        const hidden=evsHere.filter(e=>evLane.get(e)>=MAX_LANES).length;
+        if(hidden>0){
+          const more=document.createElement('div');
+          more.className='md-cal-more';
+          more.textContent=`+${hidden}`;
+          eventsEl.appendChild(more);
+        }
+
+        cellEl.appendChild(eventsEl);
+
+        cellEl.addEventListener('click', (e)=>{
+          if(e.target.closest('.md-cal-event')) return;
+          if(!isMaster()) return;
+          mdCalOpenAdd(iso);
+        });
+
+        grid.appendChild(cellEl);
+      });
+    }
+  }
+
+  function _mdRenderChip(ev, iso, weekStartIso, weekEndIso){
+    const chip=document.createElement('button');
+    chip.type='button';
+    chip.className='md-cal-event';
+    const co=_mdEvColor(ev.color);
+    chip.style.setProperty('--evcolor', co.hex);
+    const evEnd=ev.end || ev.start;
+    const isEvStart=iso===ev.start;
+    const isEvEnd=iso===evEnd;
+    const isWStart=iso===weekStartIso;
+    const isWEnd=iso===weekEndIso;
+    if(isEvStart || isWStart) chip.classList.add('is-left-cap');
+    if(isEvEnd || isWEnd) chip.classList.add('is-right-cap');
+    chip.textContent=(isEvStart || isWStart) ? ev.title : '';
+    const rangeStr=ev.start + (evEnd!==ev.start ? ` ~ ${evEnd}` : '');
+    chip.title=`${ev.title}\n${rangeStr}${ev.memo?'\n'+ev.memo:''}`;
+    chip.addEventListener('click', (e)=>{e.stopPropagation(); mdCalOpenEdit(ev.id)});
+    return chip;
+  }
+
+  function _mdRenderColorPicker(){
+    const wrap=document.getElementById('mdEventColors');
+    if(!wrap) return;
+    wrap.innerHTML='';
+    MD_EVENT_COLORS.forEach(c=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='md-event-color-btn';
+      if(c.key===_mdCal_pickedColor) b.classList.add('is-active');
+      b.style.setProperty('--evcolor', c.hex);
+      b.title=c.label;
+      b.addEventListener('click', ()=>{_mdCal_pickedColor=c.key; _mdRenderColorPicker();});
+      wrap.appendChild(b);
+    });
+  }
+
+  function mdCalOpenAdd(presetIso){
+    if(!requireMaster('일정 추가')) return;
+    _mdCal_editingId=null;
+    const today=_mdIso(new Date());
+    const date=presetIso || today;
+    document.getElementById('mdEventModalTitle').textContent='기획전 추가';
+    document.getElementById('mdEventTitle').value='';
+    document.getElementById('mdEventStart').value=date;
+    document.getElementById('mdEventEnd').value=date;
+    document.getElementById('mdEventMemo').value='';
+    _mdCal_pickedColor='rose';
+    _mdRenderColorPicker();
+    document.getElementById('mdEventDeleteBtn').style.display='none';
+    document.getElementById('mdEventModal').classList.add('show');
+    setTimeout(()=>document.getElementById('mdEventTitle').focus(), 60);
+  }
+
+  function mdCalOpenEdit(id){
+    const ev=(_mdCal.events||[]).find(e=>e.id===id);
+    if(!ev) return;
+    if(!isMaster()){
+      const evEnd=ev.end||ev.start;
+      const rangeStr=ev.start + (evEnd!==ev.start ? ` ~ ${evEnd}` : '');
+      toast(`${ev.title} · ${rangeStr}${ev.memo?' · '+ev.memo:''}`, 'ok');
+      return;
+    }
+    _mdCal_editingId=id;
+    document.getElementById('mdEventModalTitle').textContent='기획전 수정';
+    document.getElementById('mdEventTitle').value=ev.title||'';
+    document.getElementById('mdEventStart').value=ev.start||'';
+    document.getElementById('mdEventEnd').value=ev.end||ev.start||'';
+    document.getElementById('mdEventMemo').value=ev.memo||'';
+    _mdCal_pickedColor=ev.color || 'rose';
+    _mdRenderColorPicker();
+    document.getElementById('mdEventDeleteBtn').style.display='';
+    document.getElementById('mdEventModal').classList.add('show');
+    setTimeout(()=>document.getElementById('mdEventTitle').focus(), 60);
+  }
+
+  function mdCalCloseModal(){
+    document.getElementById('mdEventModal').classList.remove('show');
+    _mdCal_editingId=null;
+  }
+
+  async function mdCalSaveEvent(){
+    if(!requireMaster('일정 저장')) return;
+    const title=document.getElementById('mdEventTitle').value.trim();
+    const start=document.getElementById('mdEventStart').value;
+    let end=document.getElementById('mdEventEnd').value || start;
+    const memo=document.getElementById('mdEventMemo').value.trim();
+    if(!title){toast('제목을 입력하세요','err');return}
+    if(!start){toast('시작일을 선택하세요','err');return}
+    if(end<start) end=start;
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+
+    const events=(_mdCal.events||[]).slice();
+    if(_mdCal_editingId){
+      const i=events.findIndex(e=>e.id===_mdCal_editingId);
+      if(i>=0) events[i]={...events[i], title, start, end, memo, color:_mdCal_pickedColor, updatedAt:Date.now()};
+    }else{
+      events.push({
+        id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+        title, start, end, memo, color:_mdCal_pickedColor,
+        createdAt:Date.now(), updatedAt:Date.now()
+      });
+    }
+    await _mdPersist(events, _mdCal_editingId?'chore: MD 기획전 수정':'chore: MD 기획전 추가');
+  }
+
+  async function mdCalDeleteEvent(){
+    if(!requireMaster('일정 삭제')) return;
+    if(!_mdCal_editingId) return;
+    if(!confirm('이 기획전 일정을 삭제할까요?')) return;
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+    const events=(_mdCal.events||[]).filter(e=>e.id!==_mdCal_editingId);
+    await _mdPersist(events, 'chore: MD 기획전 삭제');
+  }
+
+  async function _mdPersist(events, msg){
+    toast('일정 저장 중...','ok');
+    const meta={events, updatedAt:Date.now()};
+    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
+    const r=await ghPut(MD_EVENTS_API, b64, msg);
+    if(!r.ok){
+      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
+      if(r.reason==='too_large'){toast('일정 데이터가 너무 큽니다','err');return}
+      toast(`저장 실패: ${r.reason}`,'err');return;
+    }
+    saveMdEventsLocal(events);
+    mdCalCloseModal();
+    renderMdCal();
+    toast('✓ 저장 완료','ok');
+  }
+
+  document.getElementById('mdEventCancelBtn')?.addEventListener('click', mdCalCloseModal);
+  document.getElementById('mdEventSaveBtn')?.addEventListener('click', mdCalSaveEvent);
+  document.getElementById('mdEventDeleteBtn')?.addEventListener('click', mdCalDeleteEvent);
+  document.getElementById('mdEventModal')?.addEventListener('click', (e)=>{
+    if(e.target.id==='mdEventModal') mdCalCloseModal();
+  });
+
+  window.mdCalNavPrev=mdCalNavPrev;
+  window.mdCalNavNext=mdCalNavNext;
+  window.mdCalNavToday=mdCalNavToday;
+  window.mdCalOpenAdd=mdCalOpenAdd;
+  window.mdCalOpenEdit=mdCalOpenEdit;
+  window.renderMdCal=renderMdCal;
+  window.syncMdEventsFromRemote=syncMdEventsFromRemote;
+
+  _mdCal.events=loadMdEvents();
+  renderMdCal();
 
   init();
 </script>
