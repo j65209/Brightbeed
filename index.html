@@ -740,7 +740,6 @@
   .md-cal-cell.is-out{background:#0c0e12}
   .md-cal-cell.is-out:hover{background:#0e1116}
   .md-cal-cell.is-today{box-shadow:inset 0 0 0 1.5px rgba(251,113,133,.55)}
-  body.role-viewer .md-cal-cell{cursor:default}
   .md-cal-daynum{
     font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text-1);
     letter-spacing:.02em;padding:0 6px;height:18px;line-height:18px;
@@ -773,6 +772,41 @@
   .md-cal-hint{
     margin-top:10px;font-size:11px;color:var(--text-3);font-family:var(--mono);
     letter-spacing:.02em;text-align:right;
+  }
+
+  /* 기획전 호버 툴팁 */
+  .md-cal-tooltip{
+    --evcolor:#fb7185;
+    position:fixed;z-index:70;
+    max-width:300px;min-width:140px;
+    background:var(--bg-3);border:1px solid var(--line-2);
+    border-radius:6px;padding:10px 12px 11px;
+    box-shadow:0 12px 32px rgba(0,0,0,.45);
+    pointer-events:none;
+    font-size:12px;line-height:1.5;color:var(--text-1);
+    opacity:0;transform:translateY(4px);
+    transition:opacity .12s,transform .12s;
+  }
+  .md-cal-tooltip[data-visible="true"]{opacity:1;transform:translateY(0)}
+  .md-cal-tooltip-title{
+    display:flex;align-items:center;gap:7px;
+    font-size:13px;font-weight:600;color:var(--text-0);
+    margin-bottom:5px;word-break:break-word;
+  }
+  .md-cal-tooltip-dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--evcolor);flex-shrink:0;
+    box-shadow:0 0 0 1px rgba(255,255,255,.1);
+  }
+  .md-cal-tooltip-date{
+    font-family:var(--mono);font-size:11px;color:var(--text-2);
+    letter-spacing:.02em;
+  }
+  .md-cal-tooltip-memo{
+    margin-top:7px;padding-top:7px;
+    border-top:1px solid var(--line);
+    white-space:pre-wrap;word-break:break-word;
+    color:var(--text-2);font-size:11.5px;
   }
 
   /* 기획전 모달 */
@@ -2126,7 +2160,7 @@
               <span class="md-cal-monthlabel" id="mdCalMonthLabel">2026.05</span>
               <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="mdCalNavNext()" aria-label="다음 달">›</button>
             </div>
-            <button class="btn po-import master-only md-cal-add" onclick="mdCalOpenAdd()">
+            <button class="btn po-import md-cal-add" onclick="mdCalOpenAdd()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               일정 추가
             </button>
@@ -2143,7 +2177,7 @@
             <div class="md-cal-wd md-cal-sat">토</div>
           </div>
           <div class="md-cal-grid" id="mdCalGrid"></div>
-          <div class="md-cal-hint master-only-text">날짜 칸 클릭 → 그 날짜로 일정 추가 · 일정 클릭 → 수정/삭제</div>
+          <div class="md-cal-hint">날짜 칸 클릭 → 그 날짜로 일정 추가 · 일정 클릭 → 수정/삭제 · 일정 위에 마우스 올리면 상세보기</div>
         </div>
       </div>
 
@@ -2252,7 +2286,7 @@
 
   <footer class="footer">
     <div>© 2025 브라이트비드 오피스 · 내부 사용 전용</div>
-    <div>버전 1.0 · 빌드 <span class="mono">2026.05.13</span></div>
+    <div>버전 1.1 · 빌드 <span class="mono">2026.05.13</span></div>
   </footer>
 </div>
 
@@ -2310,6 +2344,9 @@
     </div>
   </div>
 </div>
+
+<!-- 기획전 호버 툴팁 -->
+<div class="md-cal-tooltip" id="mdCalTooltip" hidden></div>
 
 <!-- 토스트 -->
 <div class="toast-area" id="toastArea"></div>
@@ -5653,7 +5690,6 @@ async function handlePOFiles(files){
 
         cellEl.addEventListener('click', (e)=>{
           if(e.target.closest('.md-cal-event')) return;
-          if(!isMaster()) return;
           mdCalOpenAdd(iso);
         });
 
@@ -5676,10 +5712,57 @@ async function handlePOFiles(files){
     if(isEvStart || isWStart) chip.classList.add('is-left-cap');
     if(isEvEnd || isWEnd) chip.classList.add('is-right-cap');
     chip.textContent=(isEvStart || isWStart) ? ev.title : '';
-    const rangeStr=ev.start + (evEnd!==ev.start ? ` ~ ${evEnd}` : '');
-    chip.title=`${ev.title}\n${rangeStr}${ev.memo?'\n'+ev.memo:''}`;
     chip.addEventListener('click', (e)=>{e.stopPropagation(); mdCalOpenEdit(ev.id)});
+    chip.addEventListener('mouseenter', ()=>_mdShowTip(ev, chip));
+    chip.addEventListener('mouseleave', _mdHideTip);
     return chip;
+  }
+
+  function _mdShowTip(ev, chip){
+    const tip=document.getElementById('mdCalTooltip');
+    if(!tip) return;
+    const co=_mdEvColor(ev.color);
+    const evEnd=ev.end||ev.start;
+    const rangeStr=ev.start + (evEnd!==ev.start ? ` ~ ${evEnd}` : '');
+    tip.style.setProperty('--evcolor', co.hex);
+    tip.innerHTML='';
+    const titleEl=document.createElement('div');
+    titleEl.className='md-cal-tooltip-title';
+    const dot=document.createElement('span');
+    dot.className='md-cal-tooltip-dot';
+    titleEl.appendChild(dot);
+    const ttext=document.createElement('span');
+    ttext.textContent=ev.title || '(제목 없음)';
+    titleEl.appendChild(ttext);
+    tip.appendChild(titleEl);
+    const dateEl=document.createElement('div');
+    dateEl.className='md-cal-tooltip-date';
+    dateEl.textContent=rangeStr;
+    tip.appendChild(dateEl);
+    if(ev.memo){
+      const memoEl=document.createElement('div');
+      memoEl.className='md-cal-tooltip-memo';
+      memoEl.textContent=ev.memo;
+      tip.appendChild(memoEl);
+    }
+    tip.hidden=false;
+    requestAnimationFrame(()=>{
+      const rect=chip.getBoundingClientRect();
+      const tw=tip.offsetWidth, th=tip.offsetHeight;
+      let left=rect.left + rect.width/2 - tw/2;
+      left=Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+      let top=rect.top - th - 8;
+      if(top<8) top=rect.bottom + 8;
+      tip.style.left=left+'px';
+      tip.style.top=top+'px';
+      tip.setAttribute('data-visible', 'true');
+    });
+  }
+  function _mdHideTip(){
+    const tip=document.getElementById('mdCalTooltip');
+    if(!tip) return;
+    tip.removeAttribute('data-visible');
+    setTimeout(()=>{ if(tip.getAttribute('data-visible')!=='true') tip.hidden=true; }, 140);
   }
 
   function _mdRenderColorPicker(){
@@ -5699,7 +5782,6 @@ async function handlePOFiles(files){
   }
 
   function mdCalOpenAdd(presetIso){
-    if(!requireMaster('일정 추가')) return;
     _mdCal_editingId=null;
     const today=_mdIso(new Date());
     const date=presetIso || today;
@@ -5718,12 +5800,6 @@ async function handlePOFiles(files){
   function mdCalOpenEdit(id){
     const ev=(_mdCal.events||[]).find(e=>e.id===id);
     if(!ev) return;
-    if(!isMaster()){
-      const evEnd=ev.end||ev.start;
-      const rangeStr=ev.start + (evEnd!==ev.start ? ` ~ ${evEnd}` : '');
-      toast(`${ev.title} · ${rangeStr}${ev.memo?' · '+ev.memo:''}`, 'ok');
-      return;
-    }
     _mdCal_editingId=id;
     document.getElementById('mdEventModalTitle').textContent='기획전 수정';
     document.getElementById('mdEventTitle').value=ev.title||'';
@@ -5743,7 +5819,6 @@ async function handlePOFiles(files){
   }
 
   async function mdCalSaveEvent(){
-    if(!requireMaster('일정 저장')) return;
     const title=document.getElementById('mdEventTitle').value.trim();
     const start=document.getElementById('mdEventStart').value;
     let end=document.getElementById('mdEventEnd').value || start;
@@ -5768,7 +5843,6 @@ async function handlePOFiles(files){
   }
 
   async function mdCalDeleteEvent(){
-    if(!requireMaster('일정 삭제')) return;
     if(!_mdCal_editingId) return;
     if(!confirm('이 기획전 일정을 삭제할까요?')) return;
     if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
