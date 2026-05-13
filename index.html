@@ -63,6 +63,10 @@
     --neon-md:#e11d48;
     --neon-md-2:#9f1239;
     --neon-md-glow:rgba(225,29,72,.4);
+    /* 재고연동(PlayAuto) — 비비드 에메랄드 (재고·sync) */
+    --neon-pa:#059669;
+    --neon-pa-2:#047857;
+    --neon-pa-glow:rgba(5,150,105,.4);
     --ok:#15803d;
     --warn:#b45309;
     --danger:#b91c1c;
@@ -317,6 +321,82 @@
       0 0 0 1px rgba(225,29,72,.55),
       0 0 32px rgba(225,29,72,.65),
       0 0 96px rgba(190,24,93,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 재고연동 — 마스터 + 플랫폼 카드 */
+  .stock-master{display:flex;align-items:center;gap:20px;padding:20px 24px;background:linear-gradient(135deg,rgba(5,150,105,.08) 0%,rgba(5,150,105,.02) 100%);border:1px solid rgba(5,150,105,.25);border-radius:var(--radius);margin-bottom:20px;flex-wrap:wrap}
+  .stock-master-icon{font-size:36px;line-height:1;flex-shrink:0}
+  .stock-master-info{flex:1;min-width:200px}
+  .stock-master-name{font-size:20px;font-weight:600;color:var(--text-0);margin-bottom:6px}
+  .stock-master-meta{font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .stock-master-meta strong{color:var(--text-1);font-weight:600;font-family:var(--mono)}
+  .stock-master-sep{color:var(--line-2)}
+  .stock-master-apply{display:flex;gap:8px;align-items:center;flex-shrink:0}
+  .stock-master-apply input{width:110px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg-1);font-size:13px;font-family:var(--mono);text-align:right}
+  .stock-apply-btn{padding:10px 16px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+
+  .stock-grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 4px}
+  .stock-grid-title{font-size:14px;font-weight:600;color:var(--text-1)}
+  .stock-grid-count{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:10px;background:var(--bg-2);color:var(--text-2);font-size:11px;font-family:var(--mono)}
+  .stock-grid-actions{display:flex;gap:8px}
+
+  .stock-add-form{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+  .stock-add-form-row{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .stock-add-form-row label{flex:1;min-width:160px;font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;display:flex;flex-direction:column;gap:4px}
+  .stock-add-form-row label.stock-add-form-url{flex:1 1 100%}
+  .stock-add-form-row input, .stock-add-form-row select{padding:9px 11px;border:1px solid var(--line);border-radius:6px;background:var(--bg-0);font-size:13px;color:var(--text-1)}
+  .stock-add-form-row input:focus, .stock-add-form-row select:focus{outline:none;border-color:var(--neon-pa);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
+  .stock-add-form-actions{display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+  .stock-add-cancel{padding:8px 16px;background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--text-2);font-size:12px;cursor:pointer}
+  .stock-add-save{padding:8px 18px;background:var(--neon-pa);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+  .stock-add-save:hover{background:var(--neon-pa-2)}
+
+  .stock-platforms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  @media(max-width:760px){ .stock-platforms-grid{grid-template-columns:1fr} }
+
+  .stock-platform-card{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,box-shadow .15s}
+  .stock-platform-card:hover{border-color:rgba(5,150,105,.35);box-shadow:0 0 0 3px rgba(5,150,105,.06)}
+  .stock-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .stock-card-platform{font-size:14px;font-weight:600;color:var(--text-0)}
+  .stock-card-account{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-top:2px}
+  .stock-card-delete{background:transparent;border:none;color:var(--text-3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1}
+  .stock-card-delete:hover{background:rgba(225,29,72,.08);color:var(--danger)}
+  .stock-card-body{display:flex;flex-direction:column;gap:8px}
+  .stock-card-field{display:flex;flex-direction:column;gap:3px}
+  .stock-card-field label{font-size:10px;color:var(--text-3);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  .stock-card-field input{padding:7px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg-0);font-size:12px;color:var(--text-1);font-family:var(--mono)}
+  .stock-card-field input:focus{outline:none;border-color:var(--neon-pa)}
+  .stock-card-field input[readonly]{background:var(--bg-2);color:var(--text-2)}
+  .stock-card-stock-row{display:flex;gap:8px;align-items:flex-end}
+  .stock-card-stock-row .stock-card-field{flex:1}
+  .stock-card-open{padding:7px 10px;background:var(--bg-2);border:1px solid var(--line);border-radius:5px;color:var(--text-1);font-size:11px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;height:fit-content}
+  .stock-card-open:hover{background:var(--neon-pa);color:#fff;border-color:var(--neon-pa)}
+  .stock-card-open[aria-disabled="true"]{opacity:.4;pointer-events:none}
+  .stock-card-footer{font-size:10px;color:var(--text-3);font-family:var(--mono);padding-top:6px;border-top:1px solid var(--line)}
+
+  .stock-empty{grid-column:1 / -1;padding:48px 20px;text-align:center;background:var(--bg-1);border:1px dashed var(--line);border-radius:var(--radius)}
+  .stock-empty-icon{font-size:32px;margin-bottom:12px;opacity:.6}
+  .stock-empty-title{font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:6px}
+  .stock-empty-hint{font-size:12px;color:var(--text-3);line-height:1.6}
+
+  /* 히어로 — 재고연동 (에메랄드) */
+  .hero.hero-pa .hero-eyebrow{color:#10b981;text-shadow:0 0 12px var(--neon-pa-glow)}
+  .btn-neon.btn-pa{
+    background:linear-gradient(135deg,var(--neon-pa) 0%,var(--neon-pa-2) 100%);
+    color:#ffffff;
+    border-color:rgba(52,211,153,.5);
+    box-shadow:
+      0 0 0 1px rgba(52,211,153,.35),
+      0 0 24px rgba(52,211,153,.45),
+      0 0 64px rgba(5,150,105,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-pa:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(52,211,153,.55),
+      0 0 32px rgba(52,211,153,.65),
+      0 0 96px rgba(5,150,105,.4),
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
@@ -1814,6 +1894,15 @@
         </button>
         <div class="hero-hint">상품기획 · 시즌 · 트렌드</div>
       </section>
+
+      <section class="hero hero-pa master-only">
+        <div class="hero-eyebrow">STOCK SYNC</div>
+        <button class="btn-neon btn-pa" id="paBtn" onclick="triggerStock()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span id="paBtnLabel">재고연동</span>
+        </button>
+        <div class="hero-hint">플레이오토 · 플랫폼별 매핑 · SKU 재고</div>
+      </section>
     </div>
 
     <!-- 보조 모듈 (디자인만, 데이터/소스는 추후) -->
@@ -2227,6 +2316,94 @@
     </div>
   </div>
 
+  <!-- ============ 재고연동 (180도 케이블 통합 관리) ============ -->
+  <div class="view" id="viewStock" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">재고연동<span class="view-title-sub">/ 180도 케이블 통합 관리</span><span id="stockUpdatedTag" class="sales-updated-tag"></span></h1>
+    </div>
+
+    <div class="po-wrap">
+      <!-- 마스터 카드: 180도 케이블 -->
+      <div class="stock-master">
+        <div class="stock-master-icon">📦</div>
+        <div class="stock-master-info">
+          <div class="stock-master-name" id="stockMasterName">180도 케이블</div>
+          <div class="stock-master-meta">
+            <span>연결 플랫폼 <strong id="stockMasterCount">0</strong></span>
+            <span class="stock-master-sep">·</span>
+            <span>총 재고 합산 <strong id="stockMasterTotal">—</strong></span>
+            <span class="stock-master-sep">·</span>
+            <span>마지막 업데이트 <strong id="stockMasterUpdated">—</strong></span>
+          </div>
+        </div>
+        <div class="stock-master-apply master-only">
+          <input type="number" id="stockApplyValue" placeholder="일괄 재고" min="0">
+          <button class="btn-neon btn-pa stock-apply-btn" onclick="applyStockToAll()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+            전체 적용
+          </button>
+        </div>
+      </div>
+
+      <!-- 플랫폼 그리드 헤더 -->
+      <div class="stock-grid-head">
+        <div class="stock-grid-title">플랫폼별 매핑 <span id="stockPlatformCountLabel" class="stock-grid-count">0</span></div>
+        <div class="stock-grid-actions">
+          <button class="btn po-import master-only" onclick="openAddPlatformForm()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            플랫폼 추가
+          </button>
+        </div>
+      </div>
+
+      <!-- 플랫폼 추가 폼 (토글) -->
+      <div class="stock-add-form" id="stockAddForm" hidden>
+        <div class="stock-add-form-row">
+          <label>플랫폼 <select id="stockAddPlatform">
+            <option value="">선택</option>
+            <option value="스마트스토어">스마트스토어</option>
+            <option value="쿠팡">쿠팡</option>
+            <option value="11번가">11번가</option>
+            <option value="에이블리">에이블리</option>
+            <option value="오늘의집">오늘의집</option>
+            <option value="29CM">29CM</option>
+            <option value="지그재그">지그재그</option>
+            <option value="지그재그-포스티">지그재그-포스티</option>
+            <option value="한섬EQL">한섬EQL</option>
+            <option value="옥션">옥션</option>
+            <option value="G마켓">G마켓</option>
+            <option value="기타">기타 (직접 입력)</option>
+          </select></label>
+          <label>계정/별칭 <input type="text" id="stockAddAccount" placeholder="예: holicmaster (선택)"></label>
+        </div>
+        <div class="stock-add-form-row">
+          <label class="stock-add-form-url">상품 URL <input type="url" id="stockAddUrl" placeholder="https://..."></label>
+        </div>
+        <div class="stock-add-form-row">
+          <label>상품번호 <input type="text" id="stockAddProductNo" placeholder="플랫폼 상품번호 (선택)"></label>
+          <label>현재 재고 <input type="number" id="stockAddInitStock" min="0" placeholder="예: 50 (선택)"></label>
+        </div>
+        <div class="stock-add-form-actions">
+          <button class="stock-add-cancel" onclick="closeAddPlatformForm()">취소</button>
+          <button class="stock-add-save" onclick="saveAddPlatform()">추가</button>
+        </div>
+      </div>
+
+      <!-- 플랫폼 카드 그리드 -->
+      <div class="stock-platforms-grid" id="stockPlatformsGrid">
+        <div class="stock-empty" id="stockEmptyState">
+          <div class="stock-empty-icon">🔗</div>
+          <div class="stock-empty-title">아직 연결된 플랫폼이 없습니다</div>
+          <div class="stock-empty-hint">상단 "플랫폼 추가" 버튼으로 각 쇼핑몰의 180도 케이블 URL을 입력하세요.<br>한 번 등록해두면 매번 다 찾으러 다닐 필요 없이 한 화면에서 관리할 수 있습니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ 사내 공지사항 (자유양식) ============ -->
   <div class="view" id="viewNotice" hidden>
     <div class="view-head">
@@ -2405,6 +2582,249 @@
       const [u2,o2]=await buildReq();
       return fetch(u2,o2);
     }
+  }
+
+  /* ===== PlayAuto 2.0 OpenAPI 호출 (프록시 /pa/* 경유) =====
+     - path: '/products/search?q=...' 처럼 PlayAuto API base 이후 경로만.
+     - 인증/베이스 URL은 서버 Mac config.env에서 주입 — 클라이언트는 PIN만 보냄.
+     - 503 응답이면 API가 아직 설정되지 않은 상태 → 상단 배너 표시. */
+  async function paFetch(path, opts){
+    opts=opts||{};
+    const base=await loadProxyBase();
+    if(!base) throw new Error('proxy unavailable');
+    const headers=Object.assign({'Accept':'application/json'}, opts.headers||{});
+    headers['X-Brightbeed-PIN']=ghPin();
+    if(opts.body && typeof opts.body==='object' && !(opts.body instanceof FormData) && !(opts.body instanceof Blob)){
+      headers['Content-Type']=headers['Content-Type']||'application/json';
+      opts=Object.assign({},opts,{body:JSON.stringify(opts.body)});
+    }
+    const url=base+'/pa'+(path.startsWith('/')?path:'/'+path);
+    return fetch(url, Object.assign({},opts,{headers}));
+  }
+
+  /* ===== 재고연동 뷰 — 180도 케이블 통합 매핑 =====
+     데이터 모델 (data/stock-cables.json):
+     {
+       "version": 1,
+       "master": { "name": "180도 케이블", "sku": "SKU_180_CABLE" },
+       "platforms": [
+         { "id": "p_xxx", "name": "스마트스토어", "account": "holicmaster",
+           "url": "https://...", "productNo": "12345", "stock": 50, "updatedAt": "..." }
+       ],
+       "appliedAt": "2026-05-14T..."
+     } */
+  const STOCK_FILE_PATH = 'data/stock-cables.json';
+  const STOCK_API_URL = `https://api.github.com/repos/j65209/Brightbeed/contents/${STOCK_FILE_PATH}`;
+
+  let _stockData = null;     // 최신 로드된 상태
+  let _stockFileSha = null;  // GitHub Contents API의 ETag 대용 (PUT 시 필요)
+
+  function _emptyStockData(){
+    return { version:1, master:{ name:'180도 케이블', sku:'SKU_180_CABLE' }, platforms:[], appliedAt:null };
+  }
+
+  async function loadStockData(){
+    const grid=document.getElementById('stockPlatformsGrid');
+    try{
+      const r=await ghFetch(STOCK_API_URL,{cache:'no-cache'});
+      if(r.status===404){
+        _stockData=_emptyStockData();
+        _stockFileSha=null;
+        renderStockView();
+        return;
+      }
+      if(!r.ok){
+        if(grid) grid.innerHTML=`<div class="stock-empty"><div class="stock-empty-icon">⚠</div><div class="stock-empty-title">불러오기 실패 (HTTP ${r.status})</div><div class="stock-empty-hint">잠시 후 다시 시도해주세요.</div></div>`;
+        return;
+      }
+      const j=await r.json();
+      _stockFileSha=j.sha;
+      const decoded=atob((j.content||'').replace(/\n/g,''));
+      const utf8=decodeURIComponent(escape(decoded));
+      _stockData=Object.assign(_emptyStockData(), JSON.parse(utf8||'{}'));
+      if(!Array.isArray(_stockData.platforms)) _stockData.platforms=[];
+      renderStockView();
+    }catch(e){
+      console.error('loadStockData failed', e);
+      if(grid) grid.innerHTML=`<div class="stock-empty"><div class="stock-empty-icon">⚠</div><div class="stock-empty-title">불러오기 오류</div><div class="stock-empty-hint">${(e&&e.message)||e}</div></div>`;
+    }
+  }
+
+  async function saveStockData(){
+    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return false; }
+    if(!_stockData) return false;
+    const body={
+      message:`stock-cables: update ${new Date().toISOString()}`,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(_stockData,null,2)))),
+      branch:'main',
+    };
+    if(_stockFileSha) body.sha=_stockFileSha;
+    try{
+      const r=await ghFetch(STOCK_API_URL,{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      if(!r.ok){
+        const t=await r.text();
+        toast(`저장 실패 (HTTP ${r.status})`,'err');
+        console.error('saveStockData failed', t);
+        return false;
+      }
+      const j=await r.json();
+      if(j.content && j.content.sha) _stockFileSha=j.content.sha;
+      return true;
+    }catch(e){
+      console.error(e);
+      toast('저장 중 오류','err');
+      return false;
+    }
+  }
+
+  function renderStockView(){
+    if(!_stockData) return;
+    const platforms=_stockData.platforms||[];
+    document.getElementById('stockMasterName').textContent=_stockData.master?.name||'180도 케이블';
+    document.getElementById('stockMasterCount').textContent=platforms.length;
+    document.getElementById('stockPlatformCountLabel').textContent=platforms.length;
+    const totalStock=platforms.reduce((sum,p)=>sum+(Number.isFinite(+p.stock)?+p.stock:0),0);
+    const anyStock=platforms.some(p=>Number.isFinite(+p.stock));
+    document.getElementById('stockMasterTotal').textContent=anyStock?totalStock:'—';
+    document.getElementById('stockMasterUpdated').textContent=_stockData.appliedAt?_fmtDateShort(_stockData.appliedAt):'—';
+
+    const grid=document.getElementById('stockPlatformsGrid');
+    if(!grid) return;
+    if(!platforms.length){
+      grid.innerHTML='<div class="stock-empty" id="stockEmptyState"><div class="stock-empty-icon">🔗</div><div class="stock-empty-title">아직 연결된 플랫폼이 없습니다</div><div class="stock-empty-hint">상단 "플랫폼 추가" 버튼으로 각 쇼핑몰의 180도 케이블 URL을 입력하세요.<br>한 번 등록해두면 매번 다 찾으러 다닐 필요 없이 한 화면에서 관리할 수 있습니다.</div></div>';
+      return;
+    }
+    grid.innerHTML=platforms.map(p=>_renderPlatformCard(p)).join('');
+  }
+
+  function _renderPlatformCard(p){
+    const url=p.url||'';
+    const productNo=p.productNo||'';
+    const stock=(p.stock!==null&&p.stock!==undefined&&p.stock!=='')?p.stock:'';
+    const account=p.account?`<div class="stock-card-account">${_esc(p.account)}</div>`:'';
+    const updated=p.updatedAt?`업데이트 ${_fmtDateShort(p.updatedAt)}`:'미저장';
+    const openHref=url?`href="${_esc(url)}" target="_blank" rel="noopener"`:'aria-disabled="true"';
+    return `
+      <div class="stock-platform-card" data-id="${_esc(p.id)}">
+        <div class="stock-card-head">
+          <div>
+            <div class="stock-card-platform">${_esc(p.name||'—')}</div>
+            ${account}
+          </div>
+          <button class="stock-card-delete master-only" onclick="removeStockPlatform('${_esc(p.id)}')" title="삭제" aria-label="삭제">✕</button>
+        </div>
+        <div class="stock-card-body">
+          <div class="stock-card-field">
+            <label>상품 URL</label>
+            <input type="url" value="${_esc(url)}" onchange="updateStockField('${_esc(p.id)}','url',this.value)" placeholder="https://...">
+          </div>
+          <div class="stock-card-field">
+            <label>상품번호</label>
+            <input type="text" value="${_esc(productNo)}" onchange="updateStockField('${_esc(p.id)}','productNo',this.value)" placeholder="플랫폼 상품번호">
+          </div>
+          <div class="stock-card-stock-row">
+            <div class="stock-card-field">
+              <label>현재 재고</label>
+              <input type="number" min="0" value="${_esc(stock)}" onchange="updateStockField('${_esc(p.id)}','stock',this.value)">
+            </div>
+            <a class="stock-card-open" ${openHref}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              열기
+            </a>
+          </div>
+          <div class="stock-card-footer">${updated}</div>
+        </div>
+      </div>`;
+  }
+
+  function _esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function _fmtDateShort(iso){ try{ const d=new Date(iso); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); const h=String(d.getHours()).padStart(2,'0'); const mi=String(d.getMinutes()).padStart(2,'0'); return `${m}.${day} ${h}:${mi}`; }catch(e){ return iso; } }
+
+  function openAddPlatformForm(){
+    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
+    const f=document.getElementById('stockAddForm'); if(f) f.hidden=false;
+    document.getElementById('stockAddPlatform').value='';
+    document.getElementById('stockAddAccount').value='';
+    document.getElementById('stockAddUrl').value='';
+    document.getElementById('stockAddProductNo').value='';
+    document.getElementById('stockAddInitStock').value='';
+  }
+  function closeAddPlatformForm(){ const f=document.getElementById('stockAddForm'); if(f) f.hidden=true; }
+
+  async function saveAddPlatform(){
+    const name=document.getElementById('stockAddPlatform').value.trim();
+    const account=document.getElementById('stockAddAccount').value.trim();
+    const url=document.getElementById('stockAddUrl').value.trim();
+    const productNo=document.getElementById('stockAddProductNo').value.trim();
+    const stockRaw=document.getElementById('stockAddInitStock').value.trim();
+    if(!name){ toast('플랫폼을 선택하세요','err'); return; }
+    if(!url){ toast('상품 URL을 입력하세요','err'); return; }
+    const entry={
+      id:'p_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+      name, account, url, productNo,
+      stock: stockRaw===''?null:Number(stockRaw),
+      updatedAt: new Date().toISOString(),
+    };
+    if(!_stockData) _stockData=_emptyStockData();
+    _stockData.platforms.push(entry);
+    const ok=await saveStockData();
+    if(ok){
+      closeAddPlatformForm();
+      renderStockView();
+      toast('플랫폼 추가됨','ok');
+    }else{
+      _stockData.platforms.pop(); // rollback on save failure
+    }
+  }
+
+  async function removeStockPlatform(id){
+    if(!_stockData) return;
+    const idx=_stockData.platforms.findIndex(p=>p.id===id);
+    if(idx<0) return;
+    if(!confirm(`"${_stockData.platforms[idx].name}" 매핑을 삭제할까요?`)) return;
+    const removed=_stockData.platforms.splice(idx,1)[0];
+    const ok=await saveStockData();
+    if(ok){ renderStockView(); toast('삭제됨','ok'); }
+    else{ _stockData.platforms.splice(idx,0,removed); }
+  }
+
+  let _stockFieldSaveTimer=null;
+  function updateStockField(id,field,value){
+    if(!_stockData) return;
+    const p=_stockData.platforms.find(x=>x.id===id);
+    if(!p) return;
+    if(field==='stock'){ p.stock=value===''?null:Number(value); }
+    else{ p[field]=value; }
+    p.updatedAt=new Date().toISOString();
+    // 디바운스 저장 (입력 도중 매번 PUT하지 않도록)
+    clearTimeout(_stockFieldSaveTimer);
+    _stockFieldSaveTimer=setTimeout(async()=>{
+      const ok=await saveStockData();
+      if(ok){ renderStockView(); }
+    }, 900);
+  }
+
+  async function applyStockToAll(){
+    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
+    const raw=document.getElementById('stockApplyValue').value.trim();
+    if(raw===''){ toast('재고 값을 입력하세요','err'); return; }
+    const n=Number(raw);
+    if(!Number.isFinite(n) || n<0){ toast('0 이상 숫자를 입력하세요','err'); return; }
+    if(!_stockData || !_stockData.platforms.length){ toast('등록된 플랫폼이 없습니다','err'); return; }
+    if(!confirm(`${_stockData.platforms.length}개 플랫폼 모두에 재고 ${n}을 적용할까요?\n(우리 대시보드에 기록만 됩니다. 실제 셀러콘솔에서는 직접 변경해야 합니다.)`)) return;
+    const now=new Date().toISOString();
+    _stockData.platforms.forEach(p=>{ p.stock=n; p.updatedAt=now; });
+    _stockData.appliedAt=now;
+    const ok=await saveStockData();
+    if(ok){
+      document.getElementById('stockApplyValue').value='';
+      renderStockView();
+      toast(`${_stockData.platforms.length}개 플랫폼에 ${n} 적용됨`,'ok');
+    }
+  }
+
+  async function initStockView(){
+    await loadStockData();
   }
   // 기존 코드 호환: 레거시 토큰 정리 (이제 클라이언트가 토큰을 들고 있을 필요 없음)
   try{ localStorage.removeItem('brightbeed_gh_token') }catch(e){}
@@ -2697,8 +3117,8 @@
   window.triggerERP=triggerERP;
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewStock'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -2754,6 +3174,7 @@
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
+  function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
     const cur=history.state&&history.state.view;
