@@ -1894,15 +1894,6 @@
         </button>
         <div class="hero-hint">상품기획 · 시즌 · 트렌드</div>
       </section>
-
-      <section class="hero hero-pa master-only">
-        <div class="hero-eyebrow">STOCK SYNC</div>
-        <button class="btn-neon btn-pa" id="paBtn" onclick="triggerStock()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          <span id="paBtnLabel">재고연동</span>
-        </button>
-        <div class="hero-hint">플레이오토 · 플랫폼별 매핑 · SKU 재고</div>
-      </section>
     </div>
 
     <!-- 보조 모듈 (디자인만, 데이터/소스는 추후) -->
@@ -2139,6 +2130,12 @@
         <div class="lg-res-eyebrow">📦 STOCK</div>
         <div class="lg-res-title">브랜드 재고</div>
         <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
+        <span class="lg-res-arrow">→</span>
+      </a>
+      <a class="lg-res master-only" href="#stock" id="lgStockSyncLink" onclick="triggerStock(); return false;">
+        <div class="lg-res-eyebrow">🔗 SYNC</div>
+        <div class="lg-res-title">재고연동</div>
+        <div class="lg-res-sub">플랫폼별 매핑 · 180도 케이블 통합 관리</div>
         <span class="lg-res-arrow">→</span>
       </a>
     </div>
