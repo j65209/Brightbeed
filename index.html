@@ -2929,7 +2929,9 @@
     }
     return `<td class="stock-cell ${statClass}${changedClass}">
       <span class="stock-num">${stock}</span>
-      ${stat ? `<span class="stock-num-sub">${_esc(stat)}</span>` : ''}
+      ${pending!==undefined
+        ? `<span class="stock-num-sub" style="color:#b45309;font-weight:600">→ ${_esc(pending.newValue)}</span>`
+        : (stat ? `<span class="stock-num-sub">${_esc(stat)}</span>` : '')}
       ${resultBadge}
     </td>`;
   }
@@ -2955,7 +2957,13 @@
         ${resultBadge}
       </td>`;
     }
-    return `<td class="stock-cell ${stateClass}"><span class="stock-num">${displayStock}</span>${!isLive?'<span class="stock-num-sub">시트 미연결</span>':''}${resultBadge}</td>`;
+    return `<td class="stock-cell ${stateClass}${pending!==undefined?' is-changed':''}">
+      <span class="stock-num">${displayStock}</span>
+      ${pending!==undefined
+        ? `<span class="stock-num-sub" style="color:#b45309;font-weight:600">→ ${_esc(pending.newValue)}</span>`
+        : (!isLive ? '<span class="stock-num-sub">시트 미연결</span>' : '')}
+      ${resultBadge}
+    </td>`;
   }
 
   function onSixshopInput(optKey, elOrValue){
@@ -2996,7 +3004,7 @@
     const btn=document.getElementById('stockSendBtn');
     const lbl=document.getElementById('stockSendCount');
     if(!btn) return;
-    btn.disabled = cnt===0 || !_stockEditMode;
+    btn.disabled = cnt===0;  // 변경분만 있으면 언제든지 전송 가능 (편집 모드 무관)
     if(lbl){ lbl.hidden = cnt===0; lbl.textContent=cnt; }
   }
 
@@ -3027,11 +3035,8 @@
     const btn=document.getElementById('stockEditBtn');
     const lbl=document.getElementById('stockEditLabel');
     if(btn) btn.classList.toggle('is-active', _stockEditMode);
-    if(lbl) lbl.textContent = _stockEditMode ? '편집중' : '수정';
-    if(!_stockEditMode){
-      // 편집 종료 → 변경분 초기화
-      _stockPending={};
-    }
+    if(lbl) lbl.textContent = _stockEditMode ? '저장' : '수정';
+    // 편집 종료 시 변경분은 유지 (전송에서 사용). 편집 다시 누르면 ON → 다시 입력 가능.
     renderStockTable();
   }
 
