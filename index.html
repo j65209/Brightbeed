@@ -324,76 +324,57 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
-  /* 재고연동 — 마스터 + 플랫폼 카드 */
-  .stock-master{display:flex;align-items:center;gap:20px;padding:20px 24px;background:linear-gradient(135deg,rgba(5,150,105,.08) 0%,rgba(5,150,105,.02) 100%);border:1px solid rgba(5,150,105,.25);border-radius:var(--radius);margin-bottom:20px;flex-wrap:wrap}
-  .stock-master-icon{font-size:36px;line-height:1;flex-shrink:0}
-  .stock-master-info{flex:1;min-width:200px}
-  .stock-master-name{font-size:20px;font-weight:600;color:var(--text-0);margin-bottom:6px}
-  .stock-master-meta{font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  .stock-master-meta strong{color:var(--text-1);font-weight:600;font-family:var(--mono)}
-  .stock-master-sep{color:var(--line-2)}
-  .stock-master-apply{display:flex;gap:8px;align-items:center;flex-shrink:0}
-  .stock-master-apply input{width:110px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg-1);font-size:13px;font-family:var(--mono);text-align:right}
-  .stock-apply-btn{padding:10px 16px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+  /* 재고연동 — 옵션별 표 */
+  .stock-tbl-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:14px 18px;background:linear-gradient(135deg,rgba(5,150,105,.06) 0%,rgba(5,150,105,.01) 100%);border:1px solid rgba(5,150,105,.22);border-radius:var(--radius);margin-bottom:14px}
+  .stock-tbl-title-name{font-size:16px;font-weight:600;color:var(--text-0);display:block;margin-bottom:3px}
+  .stock-tbl-title-meta{font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em}
+  .stock-tbl-title-meta strong{color:var(--text-1);font-weight:600}
+  .stock-tbl-actions{display:flex;gap:8px;align-items:center}
+  .stock-tbl-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:1px solid var(--line);border-radius:6px;background:var(--bg-0);color:var(--text-1);font-size:12px;font-weight:500;cursor:pointer;transition:.15s}
+  .stock-tbl-btn:hover:not(:disabled){border-color:var(--neon-pa);color:var(--neon-pa-2)}
+  .stock-tbl-btn:disabled{opacity:.45;cursor:not-allowed}
+  .stock-tbl-btn.is-active{background:var(--neon-pa);color:#fff;border-color:var(--neon-pa)}
+  .stock-tbl-btn-send{background:var(--neon-pa);color:#fff;border-color:var(--neon-pa)}
+  .stock-tbl-btn-send:hover:not(:disabled){background:var(--neon-pa-2);color:#fff}
+  .stock-send-count{display:inline-block;margin-left:2px;padding:0 6px;border-radius:9px;background:rgba(255,255,255,.25);font-size:10px;font-family:var(--mono);font-weight:600}
 
-  .stock-grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 4px}
-  .stock-grid-title{font-size:14px;font-weight:600;color:var(--text-1)}
-  .stock-grid-count{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:10px;background:var(--bg-2);color:var(--text-2);font-size:11px;font-family:var(--mono)}
-  .stock-grid-actions{display:flex;gap:8px}
-
-  .stock-add-form{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
-  .stock-add-form-row{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-  .stock-add-form-row label{flex:1;min-width:160px;font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;display:flex;flex-direction:column;gap:4px}
-  .stock-add-form-row label.stock-add-form-url{flex:1 1 100%}
-  .stock-add-form-row input, .stock-add-form-row select{padding:9px 11px;border:1px solid var(--line);border-radius:6px;background:var(--bg-0);font-size:13px;color:var(--text-1)}
-  .stock-add-form-row input:focus, .stock-add-form-row select:focus{outline:none;border-color:var(--neon-pa);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
-  .stock-add-form-actions{display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
-  .stock-add-cancel{padding:8px 16px;background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--text-2);font-size:12px;cursor:pointer}
-  .stock-add-save{padding:8px 18px;background:var(--neon-pa);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
-  .stock-add-save:hover{background:var(--neon-pa-2)}
-
-  .stock-platforms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-  @media(max-width:760px){ .stock-platforms-grid{grid-template-columns:1fr} }
-
-  .stock-platform-card{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,box-shadow .15s}
-  .stock-platform-card:hover{border-color:rgba(5,150,105,.35);box-shadow:0 0 0 3px rgba(5,150,105,.06)}
-  .stock-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-  .stock-card-platform{font-size:14px;font-weight:600;color:var(--text-0)}
-  .stock-card-account{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-top:2px}
-  .stock-card-delete{background:transparent;border:none;color:var(--text-3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1}
-  .stock-card-delete:hover{background:rgba(225,29,72,.08);color:var(--danger)}
-  .stock-card-body{display:flex;flex-direction:column;gap:8px}
-  .stock-card-field{display:flex;flex-direction:column;gap:3px}
-  .stock-card-field label{font-size:10px;color:var(--text-3);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
-  .stock-card-field input{padding:7px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg-0);font-size:12px;color:var(--text-1);font-family:var(--mono)}
-  .stock-card-field input:focus{outline:none;border-color:var(--neon-pa)}
-  .stock-card-field input[readonly]{background:var(--bg-2);color:var(--text-2)}
-  .stock-card-stock-row{display:flex;gap:8px;align-items:flex-end}
-  .stock-card-stock-row .stock-card-field{flex:1}
-  .stock-card-open{padding:7px 10px;background:var(--bg-2);border:1px solid var(--line);border-radius:5px;color:var(--text-1);font-size:11px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;height:fit-content}
-  .stock-card-open:hover{background:var(--neon-pa);color:#fff;border-color:var(--neon-pa)}
-  .stock-card-open[aria-disabled="true"]{opacity:.4;pointer-events:none}
-  .stock-card-footer{font-size:10px;color:var(--text-3);font-family:var(--mono);padding-top:6px;border-top:1px solid var(--line)}
-
-  .stock-card-tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;letter-spacing:.05em;margin-left:4px;vertical-align:middle;font-family:var(--mono)}
-  .stock-card-tag-pa{background:rgba(5,150,105,.12);color:#047857;border:1px solid rgba(5,150,105,.3)}
-  .stock-card-tag-manual{background:rgba(180,83,9,.10);color:#92400e;border:1px solid rgba(180,83,9,.3)}
-  .stock-platform-card.is-pa{border-color:rgba(5,150,105,.2)}
-  .stock-platform-card.is-pa:hover{border-color:rgba(5,150,105,.45)}
-  .stock-card-live{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 8px;background:rgba(5,150,105,.04);border:1px solid rgba(5,150,105,.15);border-radius:5px;font-size:11px;font-family:var(--mono);color:var(--text-2)}
-  .stock-card-live b{color:var(--neon-pa-2);font-weight:600;font-size:13px}
-  .stock-muted{color:var(--text-3)}
-  .stock-status{padding:1px 6px;border-radius:3px;background:rgba(5,150,105,.1);color:#047857;font-size:10px}
-  .stock-sku-ok{padding:1px 5px;border-radius:3px;background:rgba(34,197,94,.15);color:#15803d;font-size:10px;font-weight:600}
-  .stock-sku-no{padding:1px 5px;border-radius:3px;background:rgba(245,158,11,.15);color:#b45309;font-size:10px;font-weight:600}
-  .stock-card-save{padding:7px 12px;background:var(--neon-pa);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;height:fit-content;white-space:nowrap}
-  .stock-card-save:hover{background:var(--neon-pa-2)}
-  .stock-card-save:disabled{opacity:.5;cursor:not-allowed}
-
-  .stock-empty{grid-column:1 / -1;padding:48px 20px;text-align:center;background:var(--bg-1);border:1px dashed var(--line);border-radius:var(--radius)}
-  .stock-empty-icon{font-size:32px;margin-bottom:12px;opacity:.6}
-  .stock-empty-title{font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:6px}
-  .stock-empty-hint{font-size:12px;color:var(--text-3);line-height:1.6}
+  .stock-tbl-wrap{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);overflow:auto;max-height:calc(100vh - 280px)}
+  .stock-tbl{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+  .stock-tbl thead{position:sticky;top:0;background:var(--bg-2);z-index:2;box-shadow:0 1px 0 var(--line)}
+  .stock-tbl th{padding:9px 10px;text-align:left;font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.04em;border-bottom:1px solid var(--line);font-family:var(--mono)}
+  .stock-tbl td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--text-1)}
+  .stock-tbl tr:hover td{background:rgba(5,150,105,.025)}
+  .stock-tbl tr.is-platform-head td{background:rgba(5,150,105,.05);font-weight:600;color:var(--neon-pa-2);padding:6px 10px;font-size:11px;letter-spacing:.02em}
+  .stock-tbl tr.is-platform-head td .acct{font-weight:400;color:var(--text-3);font-family:var(--mono);font-size:10.5px;margin-left:6px}
+  .stock-tbl tr.is-changed td{background:rgba(245,158,11,.06)}
+  .stock-tbl .col-plat{width:120px}
+  .stock-tbl .col-acct{width:130px;color:var(--text-3);font-family:var(--mono);font-size:11px}
+  .stock-tbl .col-opt{}
+  .stock-tbl .col-cur{width:70px;text-align:right;font-family:var(--mono);font-weight:600}
+  .stock-tbl .col-stat{width:70px}
+  .stock-tbl .col-new{width:110px}
+  .stock-tbl .col-act{width:64px;text-align:center}
+  .stock-tbl td.col-opt{color:var(--text-1)}
+  .stock-tbl .opt-empty{color:var(--text-3);font-style:italic}
+  .stock-status-badge{display:inline-block;padding:1px 7px;border-radius:9px;font-size:10px;font-family:var(--mono);font-weight:600}
+  .stock-status-badge.is-on{background:rgba(34,197,94,.12);color:#15803d}
+  .stock-status-badge.is-out{background:rgba(225,29,72,.10);color:#b91c1c}
+  .stock-status-badge.is-other{background:var(--bg-2);color:var(--text-3)}
+  .stock-new-input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg-0);font-size:12px;font-family:var(--mono);text-align:right;color:var(--text-1)}
+  .stock-new-input:focus{outline:none;border-color:var(--neon-pa);box-shadow:0 0 0 2px rgba(5,150,105,.12)}
+  .stock-new-input:disabled{background:var(--bg-2);color:var(--text-3);cursor:not-allowed;border-color:transparent}
+  .stock-new-input.is-changed{border-color:#b45309;background:rgba(245,158,11,.04)}
+  .stock-console-link{display:inline-flex;align-items:center;gap:3px;padding:4px 7px;background:var(--bg-2);border:1px solid var(--line);border-radius:4px;color:var(--text-2);font-size:10px;text-decoration:none}
+  .stock-console-link:hover{background:var(--neon-pa);color:#fff;border-color:var(--neon-pa)}
+  .stock-console-link[aria-disabled="true"]{opacity:.35;pointer-events:none}
+  .stock-tbl-empty{padding:48px 20px;text-align:center;color:var(--text-3);font-size:13px}
+  .stock-row-result{font-size:10px;font-family:var(--mono);padding:1px 5px;border-radius:3px}
+  .stock-row-result.ok{background:rgba(34,197,94,.15);color:#15803d}
+  .stock-row-result.err{background:rgba(225,29,72,.12);color:#b91c1c}
+  @media(max-width:768px){
+    .stock-tbl-wrap{overflow-x:auto;max-height:none}
+    .stock-tbl{min-width:760px}
+  }
 
   /* 히어로 — 재고연동 (에메랄드) */
   .hero.hero-pa .hero-eyebrow{color:#10b981;text-shadow:0 0 12px var(--neon-pa-glow)}
@@ -2343,79 +2324,50 @@
     </div>
 
     <div class="po-wrap">
-      <!-- 마스터 카드: 180도 케이블 -->
-      <div class="stock-master">
-        <div class="stock-master-icon">📦</div>
-        <div class="stock-master-info">
-          <div class="stock-master-name" id="stockMasterName">180도 케이블</div>
-          <div class="stock-master-meta">
-            <span>연결 플랫폼 <strong id="stockMasterCount">0</strong></span>
-            <span class="stock-master-sep">·</span>
-            <span>총 재고 합산 <strong id="stockMasterTotal">—</strong></span>
-            <span class="stock-master-sep">·</span>
-            <span>마지막 업데이트 <strong id="stockMasterUpdated">—</strong></span>
-          </div>
+      <!-- 마스터 헤더 + 액션 -->
+      <div class="stock-tbl-head">
+        <div class="stock-tbl-title">
+          <span class="stock-tbl-title-name">📦 180도 케이블</span>
+          <span class="stock-tbl-title-meta">
+            플랫폼 <strong id="stockMasterCount">0</strong> ·
+            옵션 <strong id="stockOptionCount">0</strong> ·
+            <span id="stockMasterUpdated">—</span>
+          </span>
         </div>
-        <div class="stock-master-apply master-only">
-          <input type="number" id="stockApplyValue" placeholder="일괄 재고" min="0">
-          <button class="btn-neon btn-pa stock-apply-btn" onclick="applyStockToAll()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
-            전체 적용
+        <div class="stock-tbl-actions">
+          <button class="stock-tbl-btn" id="stockRefreshBtn" onclick="refreshStockTable()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            최신화
+          </button>
+          <button class="stock-tbl-btn master-only" id="stockEditBtn" onclick="toggleStockEdit()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+            <span id="stockEditLabel">수정</span>
+          </button>
+          <button class="stock-tbl-btn stock-tbl-btn-send master-only" id="stockSendBtn" onclick="sendStockChanges()" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            전송 <span id="stockSendCount" class="stock-send-count" hidden>0</span>
           </button>
         </div>
       </div>
 
-      <!-- 플랫폼 그리드 헤더 -->
-      <div class="stock-grid-head">
-        <div class="stock-grid-title">플랫폼별 매핑 <span id="stockPlatformCountLabel" class="stock-grid-count">0</span></div>
-        <div class="stock-grid-actions">
-          <button class="btn po-import master-only" onclick="openAddPlatformForm()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            플랫폼 추가
-          </button>
-        </div>
-      </div>
-
-      <!-- 플랫폼 추가 폼 (토글) -->
-      <div class="stock-add-form" id="stockAddForm" hidden>
-        <div class="stock-add-form-row">
-          <label>플랫폼 <select id="stockAddPlatform">
-            <option value="">선택</option>
-            <option value="스마트스토어">스마트스토어</option>
-            <option value="쿠팡">쿠팡</option>
-            <option value="11번가">11번가</option>
-            <option value="에이블리">에이블리</option>
-            <option value="오늘의집">오늘의집</option>
-            <option value="29CM">29CM</option>
-            <option value="지그재그">지그재그</option>
-            <option value="지그재그-포스티">지그재그-포스티</option>
-            <option value="한섬EQL">한섬EQL</option>
-            <option value="옥션">옥션</option>
-            <option value="G마켓">G마켓</option>
-            <option value="기타">기타 (직접 입력)</option>
-          </select></label>
-          <label>계정/별칭 <input type="text" id="stockAddAccount" placeholder="예: holicmaster (선택)"></label>
-        </div>
-        <div class="stock-add-form-row">
-          <label class="stock-add-form-url">상품 URL <input type="url" id="stockAddUrl" placeholder="https://..."></label>
-        </div>
-        <div class="stock-add-form-row">
-          <label>상품번호 <input type="text" id="stockAddProductNo" placeholder="플랫폼 상품번호 (선택)"></label>
-          <label>현재 재고 <input type="number" id="stockAddInitStock" min="0" placeholder="예: 50 (선택)"></label>
-        </div>
-        <div class="stock-add-form-actions">
-          <button class="stock-add-cancel" onclick="closeAddPlatformForm()">취소</button>
-          <button class="stock-add-save" onclick="saveAddPlatform()">추가</button>
-        </div>
-      </div>
-
-      <!-- 플랫폼 카드 그리드 -->
-      <div class="stock-platforms-grid" id="stockPlatformsGrid">
-        <div class="stock-empty" id="stockEmptyState">
-          <div class="stock-empty-icon">🔗</div>
-          <div class="stock-empty-title">아직 연결된 플랫폼이 없습니다</div>
-          <div class="stock-empty-hint">상단 "플랫폼 추가" 버튼으로 각 쇼핑몰의 180도 케이블 URL을 입력하세요.<br>한 번 등록해두면 매번 다 찾으러 다닐 필요 없이 한 화면에서 관리할 수 있습니다.</div>
-        </div>
+      <!-- 옵션별 재고 표 -->
+      <div class="stock-tbl-wrap">
+        <table class="stock-tbl" id="stockTable">
+          <thead>
+            <tr>
+              <th class="col-plat">플랫폼</th>
+              <th class="col-acct">계정</th>
+              <th class="col-opt">옵션</th>
+              <th class="col-cur">현재</th>
+              <th class="col-stat">상태</th>
+              <th class="col-new">변경할 재고</th>
+              <th class="col-act">콘솔</th>
+            </tr>
+          </thead>
+          <tbody id="stockTableBody">
+            <tr><td colspan="7" class="stock-tbl-empty">로딩 중…</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -2662,7 +2614,7 @@
   }
 
   async function loadStockData(){
-    const grid=document.getElementById('stockPlatformsGrid');
+    const tbody=document.getElementById('stockTableBody');
     try{
       const r=await ghFetch(STOCK_API_URL,{cache:'no-cache'});
       if(r.status===404){
@@ -2673,7 +2625,7 @@
         return;
       }
       if(!r.ok){
-        if(grid) grid.innerHTML=`<div class="stock-empty"><div class="stock-empty-icon">⚠</div><div class="stock-empty-title">불러오기 실패 (HTTP ${r.status})</div><div class="stock-empty-hint">잠시 후 다시 시도해주세요.</div></div>`;
+        if(tbody) tbody.innerHTML=`<tr><td colspan="7" class="stock-tbl-empty">불러오기 실패 (HTTP ${r.status}) — 잠시 후 다시 시도</td></tr>`;
         return;
       }
       const j=await r.json();
@@ -2688,48 +2640,237 @@
       loadPALiveStock();
     }catch(e){
       console.error('loadStockData failed', e);
-      if(grid) grid.innerHTML=`<div class="stock-empty"><div class="stock-empty-icon">⚠</div><div class="stock-empty-title">불러오기 오류</div><div class="stock-empty-hint">${(e&&e.message)||e}</div></div>`;
+      if(tbody) tbody.innerHTML=`<tr><td colspan="7" class="stock-tbl-empty">불러오기 오류 — ${(e&&e.message)||e}</td></tr>`;
     }
   }
 
-  /* PA 라이브 재고 조회 — 등록된 5개 c_sale_cd로 한 번에 검색.
-     결과를 _stockPaLive에 platform.id별로 저장하고 카드 다시 렌더. */
+  /* PA 라이브 — 등록된 5개 c_sale_cd로 옵션 전체 조회.
+     _stockPaLive[platform.id] = { sale_cnt_limit, sale_status, sale_price, options:[...] } */
   async function loadPALiveStock(){
     if(!_stockData) return;
     const paPlatforms=_stockData.platforms.filter(p=>p.type==='pa' && p.c_sale_cd);
-    if(!paPlatforms.length) return;
+    if(!paPlatforms.length){ renderStockTable(); return; }
     try{
-      // /pa/_status로 PA configured 여부 빠르게 체크 — 미구성이면 fail-fast.
       const sta=await paFetch('/_status');
-      if(sta.status!==200) return;
+      if(sta.status!==200){ renderStockTable(); return; }
       const stj=await sta.json();
-      if(!stj.has_token) return;
-      // PA 상품리스트 조회 — 시간 윈도 넓게.
+      if(!stj.has_token){ renderStockTable(); return; }
       const body={start:0,length:50,sdate:'2017-01-01',edate:'2026-12-31',date_type:'wdate',
-                  multi_type:'c_sale_cd', multi_search_word:paPlatforms.map(p=>p.c_sale_cd)};
+                  multi_type:'c_sale_cd', multi_search_word:paPlatforms.map(p=>p.c_sale_cd), view_master:false};
       const r=await paFetch('/api/product/online/list/v1.2',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-      if(!r.ok){ console.warn('PA online list HTTP',r.status); return; }
+      if(!r.ok){ console.warn('PA online list HTTP',r.status); renderStockTable(); return; }
       const d=await r.json();
       const results=d.results||{};
-      // results는 {c_sale_cd: [{shop_cd, sale_cnt_limit, sale_status, options:[{stock_cnt,...}]}]}
       paPlatforms.forEach(p=>{
         const arr=results[p.c_sale_cd]||[];
-        // 슬레이브(실제 쇼핑몰) 엔트리 — shop_cd가 Z000(마스터) 아닌 것
-        const slave=arr.find(x=>x.shop_cd && x.shop_cd!=='Z000');
+        const slave=arr.find(x=>x.shop_cd && x.shop_cd!=='Z000') || arr[0];
         if(slave){
           _stockPaLive[p.id]={
             sale_cnt_limit: slave.sale_cnt_limit,
             sale_status: slave.sale_status,
             sale_price: slave.sale_price,
-            stock_cnt: (slave.options && slave.options[0] && slave.options[0].stock_cnt) || null,
-            sku_cd: (slave.options && slave.options[0] && slave.options[0].sku_cd) || null,
+            options: Array.isArray(slave.options) ? slave.options : [],
           };
         }
       });
-      renderStockView();
+      _stockData._loadedAt = new Date().toISOString();
+      renderStockTable();
     }catch(e){
       console.warn('loadPALiveStock error', e);
+      renderStockTable();
     }
+  }
+
+  /* === 테이블 렌더링 === */
+  let _stockEditMode = false;
+  let _stockPending = {};   // key: "{platformId}::{seq}" → { newValue }
+  let _stockRowResults = {}; // 전송 결과 표시용 (ok/err per row key)
+
+  function _optLabel(o){
+    const parts=[o.opt_name1, o.opt_name2, o.opt_name3].filter(s=>s && s!=='선택안함');
+    return parts.join(' / ') || '(옵션 정보 없음)';
+  }
+  function _rowKey(pid, seq){ return pid+'::'+seq; }
+
+  function renderStockTable(){
+    if(!_stockData) return;
+    const platforms=_stockData.platforms||[];
+    const tbody=document.getElementById('stockTableBody');
+    document.getElementById('stockMasterCount').textContent=platforms.length;
+    document.getElementById('stockMasterUpdated').textContent=_stockData._loadedAt?('최신화 '+_fmtDateShort(_stockData._loadedAt)):'미로딩';
+
+    let totalOptions=0;
+    const rows=[];
+    platforms.forEach(p=>{
+      const live=_stockPaLive[p.id];
+      const isPA=p.type==='pa';
+      const opts=isPA ? (live?.options || []) : [];
+      // 플랫폼 헤더 줄
+      const platHdr=`<tr class="is-platform-head"><td colspan="7">${_esc(p.name)} <span class="acct">${_esc(p.account||'')}</span>${isPA && live? ` · 판매수량 ${live.sale_cnt_limit ?? '-'} · 상태 ${_esc(live.sale_status||'-')}` : (isPA?' · (라이브 로딩…)' : ' · 수동 관리 (PA 미연동)')}</td></tr>`;
+      rows.push(platHdr);
+
+      if(isPA){
+        if(!opts.length){
+          rows.push(`<tr><td colspan="7" class="stock-tbl-empty" style="padding:14px;text-align:left;color:var(--text-3)">옵션 정보 없음 (라이브 로딩 중이거나 옵션 없음)</td></tr>`);
+        } else {
+          totalOptions += opts.length;
+          opts.forEach((o,i)=>{
+            const seq=o.sale_opt_seq ?? i;
+            const key=_rowKey(p.id, seq);
+            const pending=_stockPending[key];
+            const rowResult=_stockRowResults[key];
+            const cur = o.stock_cnt ?? '';
+            const stat=o.opt_status||'';
+            const statCls = stat==='정상' ? 'is-on' : (stat==='품절' ? 'is-out' : 'is-other');
+            const newVal = pending!==undefined ? pending.newValue : '';
+            const inputDisabled = !_stockEditMode;
+            const changedCls = pending!==undefined ? ' is-changed' : '';
+            const consoleHref = p.url ? `href="${_esc(p.url)}" target="_blank" rel="noopener"` : 'aria-disabled="true"';
+            rows.push(`<tr data-key="${_esc(key)}" class="${pending!==undefined?'is-changed':''}">
+              <td class="col-plat">${_esc(p.name)}</td>
+              <td class="col-acct">${_esc(p.account||'')}</td>
+              <td class="col-opt">${_esc(_optLabel(o))}${o.sku_cd?` <span style="color:#15803d;font-size:9.5px">SKU✓</span>`:''}</td>
+              <td class="col-cur">${cur}</td>
+              <td class="col-stat"><span class="stock-status-badge ${statCls}">${_esc(stat||'-')}</span></td>
+              <td class="col-new"><input type="number" min="0" class="stock-new-input${changedCls}" value="${_esc(newVal)}" placeholder="${cur===''?'-':cur}" ${inputDisabled?'disabled':''} oninput="onStockInput('${_esc(p.id)}',${seq},this.value)"></td>
+              <td class="col-act">${rowResult?`<span class="stock-row-result ${rowResult.status}" title="${_esc(rowResult.msg||'')}">${rowResult.status==='ok'?'✓':'!'}</span>`:`<a class="stock-console-link" ${consoleHref}>열기</a>`}</td>
+            </tr>`);
+          });
+        }
+      } else {
+        // 식스샵 — 옵션 없음. 단일 row, 우리 DB의 stock값
+        const cur = (p.stock!==null && p.stock!==undefined && p.stock!=='') ? p.stock : '';
+        const key=_rowKey(p.id,'manual');
+        const pending=_stockPending[key];
+        const rowResult=_stockRowResults[key];
+        const newVal = pending!==undefined ? pending.newValue : '';
+        const inputDisabled = !_stockEditMode;
+        const changedCls = pending!==undefined ? ' is-changed' : '';
+        const consoleHref = p.url ? `href="${_esc(p.url)}" target="_blank" rel="noopener"` : 'aria-disabled="true"';
+        totalOptions += 1;
+        rows.push(`<tr data-key="${_esc(key)}" class="${pending!==undefined?'is-changed':''}">
+          <td class="col-plat">${_esc(p.name)}</td>
+          <td class="col-acct">${_esc(p.account||'-')}</td>
+          <td class="col-opt opt-empty">전체 (옵션 미세팅)</td>
+          <td class="col-cur">${cur}</td>
+          <td class="col-stat"><span class="stock-status-badge is-other">수동</span></td>
+          <td class="col-new"><input type="number" min="0" class="stock-new-input${changedCls}" value="${_esc(newVal)}" placeholder="${cur===''?'-':cur}" ${inputDisabled?'disabled':''} oninput="onStockInput('${_esc(p.id)}','manual',this.value)"></td>
+          <td class="col-act">${rowResult?`<span class="stock-row-result ${rowResult.status}" title="${_esc(rowResult.msg||'')}">${rowResult.status==='ok'?'✓':'!'}</span>`:`<a class="stock-console-link" ${consoleHref}>열기</a>`}</td>
+        </tr>`);
+      }
+    });
+
+    document.getElementById('stockOptionCount').textContent=totalOptions;
+    if(tbody) tbody.innerHTML=rows.join('') || '<tr><td colspan="7" class="stock-tbl-empty">데이터 없음</td></tr>';
+    _updateSendButton();
+  }
+  function renderStockView(){ renderStockTable(); }
+
+  function onStockInput(pid, seq, value){
+    const key=_rowKey(pid, seq);
+    const v=String(value||'').trim();
+    if(v===''){ delete _stockPending[key]; }
+    else { _stockPending[key]={ platformId:pid, seq, newValue:v }; }
+    // input의 시각 상태 토글
+    const input=document.querySelector(`tr[data-key="${key}"] .stock-new-input`);
+    if(input){ input.classList.toggle('is-changed', _stockPending[key]!==undefined); }
+    const tr=document.querySelector(`tr[data-key="${key}"]`);
+    if(tr){ tr.classList.toggle('is-changed', _stockPending[key]!==undefined); }
+    _updateSendButton();
+  }
+
+  function _updateSendButton(){
+    const cnt=Object.keys(_stockPending).length;
+    const btn=document.getElementById('stockSendBtn');
+    const lbl=document.getElementById('stockSendCount');
+    if(!btn) return;
+    btn.disabled = cnt===0 || !_stockEditMode;
+    if(lbl){ lbl.hidden = cnt===0; lbl.textContent=cnt; }
+  }
+
+  async function refreshStockTable(){
+    _stockRowResults={};
+    _stockPending={};
+    const btn=document.getElementById('stockRefreshBtn');
+    if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
+    await loadPALiveStock();
+    if(btn){ btn.disabled=false; btn.style.opacity=''; }
+    toast('최신화 완료','ok');
+  }
+
+  function toggleStockEdit(){
+    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
+    _stockEditMode = !_stockEditMode;
+    const btn=document.getElementById('stockEditBtn');
+    const lbl=document.getElementById('stockEditLabel');
+    if(btn) btn.classList.toggle('is-active', _stockEditMode);
+    if(lbl) lbl.textContent = _stockEditMode ? '편집중' : '수정';
+    if(!_stockEditMode){
+      // 편집 종료 → 변경분 초기화
+      _stockPending={};
+    }
+    renderStockTable();
+  }
+
+  async function sendStockChanges(){
+    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
+    const pending=Object.values(_stockPending);
+    if(!pending.length){ toast('변경된 항목이 없습니다','err'); return; }
+    if(!confirm(`${pending.length}개 옵션의 재고를 전송합니다.\n\nPA 자동 전송: SKU 매칭 안 된 옵션은 변경되지 않을 수 있습니다.\n수동(식스샵)은 우리 DB에만 저장됩니다.\n\n계속할까요?`)) return;
+
+    _stockRowResults={};
+    // 플랫폼별로 그룹화하여 sale-cnt 한 번에 호출
+    const byPlatform={};
+    pending.forEach(it=>{
+      const p=_stockData.platforms.find(x=>x.id===it.platformId);
+      if(!p) return;
+      (byPlatform[p.id] = byPlatform[p.id] || {platform:p, items:[]}).items.push(it);
+    });
+
+    let totalOk=0, totalErr=0;
+    for(const pid of Object.keys(byPlatform)){
+      const {platform, items} = byPlatform[pid];
+      if(platform.type==='pa'){
+        const live=_stockPaLive[pid]||{};
+        // opts 배열: sku_cd가 있는 옵션만 PA가 적용. 없으면 PA가 silently 무시할 수 있음.
+        const opts=items.map(it=>{
+          const opt=(live.options||[]).find(o=>(o.sale_opt_seq ?? -1).toString()===String(it.seq));
+          const n=Number(it.newValue);
+          return {type:'general', sku_cd:opt?.sku_cd||'', stock_cnt:n, status:n>0?'정상':'품절'};
+        }).filter(x=>Number.isFinite(x.stock_cnt));
+        const body={products:[{c_sale_cd:platform.c_sale_cd, shop_cd:platform.shop_cd, shop_id:platform.account, std_ol_yn:'N', opts}]};
+        try{
+          const r=await paFetch('/api/products/sale-cnt',{method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+          const t=await r.text(); let j; try{j=JSON.parse(t);}catch(e){j=t;}
+          const result=Array.isArray(j)?j[0]:j;
+          const ok = r.ok && result?.result!=='실패';
+          items.forEach(it=>{
+            _stockRowResults[_rowKey(pid,it.seq)] = ok ? {status:'ok',msg:'성공'} : {status:'err',msg:result?.message||`HTTP ${r.status}`};
+          });
+          if(ok) totalOk+=items.length; else totalErr+=items.length;
+        }catch(e){
+          items.forEach(it=>{ _stockRowResults[_rowKey(pid,it.seq)]={status:'err',msg:e.message||'통신 오류'}; });
+          totalErr+=items.length;
+        }
+      } else {
+        // 수동 (식스샵) — 우리 DB
+        items.forEach(it=>{
+          const n=Number(it.newValue);
+          if(Number.isFinite(n) && n>=0){
+            platform.stock=n; platform.updatedAt=new Date().toISOString();
+            _stockRowResults[_rowKey(pid,it.seq)]={status:'ok',msg:'저장됨'};
+            totalOk++;
+          } else {
+            _stockRowResults[_rowKey(pid,it.seq)]={status:'err',msg:'숫자 오류'};
+            totalErr++;
+          }
+        });
+        await saveStockData();
+      }
+    }
+    _stockPending={};
+    await loadPALiveStock();
+    toast(`전송 완료: ${totalOk} 성공${totalErr?` · ${totalErr} 실패`:''}`, totalErr?'err':'ok');
   }
 
   async function saveStockData(){
@@ -2759,238 +2900,8 @@
     }
   }
 
-  function renderStockView(){
-    if(!_stockData) return;
-    const platforms=_stockData.platforms||[];
-    document.getElementById('stockMasterName').textContent=_stockData.master?.name||'180도 케이블';
-    document.getElementById('stockMasterCount').textContent=platforms.length;
-    document.getElementById('stockPlatformCountLabel').textContent=platforms.length;
-    // 총 재고 합산 — PA 라이브 우선, 없으면 저장된 값
-    const totalStock=platforms.reduce((sum,p)=>{
-      const live=_stockPaLive[p.id];
-      const v=(live && Number.isFinite(+live.sale_cnt_limit))?+live.sale_cnt_limit:(Number.isFinite(+p.stock)?+p.stock:null);
-      return sum+(v===null?0:v);
-    },0);
-    const anyVal=platforms.some(p=>{
-      const live=_stockPaLive[p.id];
-      return (live && Number.isFinite(+live.sale_cnt_limit)) || Number.isFinite(+p.stock);
-    });
-    document.getElementById('stockMasterTotal').textContent=anyVal?totalStock:'—';
-    document.getElementById('stockMasterUpdated').textContent=_stockData.appliedAt?_fmtDateShort(_stockData.appliedAt):'—';
-
-    const grid=document.getElementById('stockPlatformsGrid');
-    if(!grid) return;
-    grid.innerHTML=platforms.map(p=>_renderPlatformCard(p)).join('');
-  }
-
-  function _renderPlatformCard(p){
-    const isPA=p.type==='pa';
-    const live=_stockPaLive[p.id];
-    const liveCurrent=(live && Number.isFinite(+live.sale_cnt_limit))?live.sale_cnt_limit:null;
-    const liveOption=(live && Number.isFinite(+live.stock_cnt))?live.stock_cnt:null;
-    const skuMatched=!!(live && live.sku_cd);
-    const status=live ? (live.sale_status||'') : '';
-    const stock=(p.stock!==null&&p.stock!==undefined&&p.stock!=='')?p.stock:'';
-    const url=p.url||'';
-    const account=p.account?`<div class="stock-card-account">${_esc(p.account)}</div>`:'';
-    const updated=p.updatedAt?`업데이트 ${_fmtDateShort(p.updatedAt)}`:(isPA?'PA 라이브':'미저장');
-    const openHref=url?`href="${_esc(url)}" target="_blank" rel="noopener"`:'aria-disabled="true"';
-    const typeTag=isPA
-      ? `<span class="stock-card-tag stock-card-tag-pa" title="PlayAuto 라이브 연동">PA</span>`
-      : `<span class="stock-card-tag stock-card-tag-manual" title="자체 관리 (PA 미연동)">수동</span>`;
-    const liveRow=isPA ? `
-      <div class="stock-card-live">
-        <span>현재 ${liveCurrent!==null?`<b>${liveCurrent}</b>`:'<span class="stock-muted">…</span>'}</span>
-        ${liveOption!==null?`<span>옵션 ${liveOption}</span>`:''}
-        ${status?`<span class="stock-status">${_esc(status)}</span>`:''}
-        ${skuMatched?'<span class="stock-sku-ok" title="SKU 매칭됨">SKU✓</span>':'<span class="stock-sku-no" title="SKU 미매칭">SKU✗</span>'}
-      </div>` : '';
-    const fixed=['ss','cm','ab','oh','eql','6s'].includes(p.id);
-    const deleteBtn=fixed ? '' : `<button class="stock-card-delete master-only" onclick="removeStockPlatform('${_esc(p.id)}')" title="삭제" aria-label="삭제">✕</button>`;
-    return `
-      <div class="stock-platform-card${isPA?' is-pa':''}" data-id="${_esc(p.id)}">
-        <div class="stock-card-head">
-          <div>
-            <div class="stock-card-platform">${_esc(p.name||'—')} ${typeTag}</div>
-            ${account}
-          </div>
-          ${deleteBtn}
-        </div>
-        <div class="stock-card-body">
-          ${liveRow}
-          <div class="stock-card-field">
-            <label>셀러콘솔 URL</label>
-            <input type="url" value="${_esc(url)}" onchange="updateStockField('${_esc(p.id)}','url',this.value)" placeholder="https://...">
-          </div>
-          <div class="stock-card-stock-row">
-            <div class="stock-card-field">
-              <label>변경할 재고</label>
-              <input type="number" min="0" id="stockInput_${_esc(p.id)}" placeholder="${liveCurrent!==null?liveCurrent:(stock||'미입력')}">
-            </div>
-            <button class="stock-card-save master-only" onclick="savePlatformStock('${_esc(p.id)}')">저장</button>
-            <a class="stock-card-open" ${openHref}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              콘솔
-            </a>
-          </div>
-          <div class="stock-card-footer">${updated}</div>
-        </div>
-      </div>`;
-  }
-
-  /* 단일 플랫폼 재고 저장 — PA는 sale-cnt API, manual은 우리 DB만 */
-  async function savePlatformStock(id){
-    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
-    if(!_stockData) return;
-    const p=_stockData.platforms.find(x=>x.id===id);
-    if(!p){ toast('플랫폼을 찾을 수 없습니다','err'); return; }
-    const input=document.getElementById('stockInput_'+id);
-    const raw=(input?.value||'').trim();
-    if(raw===''){ toast('변경할 재고 숫자를 입력하세요','err'); return; }
-    const n=Number(raw);
-    if(!Number.isFinite(n) || n<0){ toast('0 이상 숫자를 입력하세요','err'); return; }
-    const now=new Date().toISOString();
-    if(p.type==='pa'){
-      // PA 호출 — sale-cnt: SKU 매칭 안 됐으면 옵션 변경 안 됨. sale_cnt_limit(쇼핑몰 판매수량)만 변경 시도.
-      const live=_stockPaLive[id]||{};
-      const opts=[];
-      if(live.sku_cd){
-        opts.push({type:'general', sku_cd:live.sku_cd, stock_cnt:n, status:n>0?'정상':'품절'});
-      }
-      const body={products:[{c_sale_cd:p.c_sale_cd, shop_cd:p.shop_cd, shop_id:p.account, std_ol_yn:'N', sale_cnt_limit:n, opts}]};
-      if(!confirm(`${p.name}의 판매수량을 ${n}(으)로 변경합니다.\n${live.sku_cd?'SKU 매칭됨 → 옵션도 함께 변경':'⚠ SKU 미매칭 → sale_cnt_limit만 변경 (옵션은 별도 매칭 필요)'}\n진행할까요?`)) return;
-      try{
-        const r=await paFetch('/api/products/sale-cnt',{method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-        const t=await r.text();
-        let j; try{ j=JSON.parse(t);}catch(e){ j=t; }
-        if(!r.ok){ toast(`PA 저장 실패 (HTTP ${r.status})`,'err'); console.error('sale-cnt fail:', j); return; }
-        const result=Array.isArray(j)?j[0]:j;
-        if(result?.result==='실패'){ toast(`실패: ${result.message||'알 수 없는 오류'}`,'err'); return; }
-        p.stock=n; p.updatedAt=now;
-        await saveStockData();
-        await loadPALiveStock();
-        toast(`${p.name} 재고 ${n} 저장 (PA)`, 'ok');
-      }catch(e){ console.error(e); toast('PA 통신 오류','err'); }
-    }else{
-      // manual — 우리 DB만
-      p.stock=n; p.updatedAt=now;
-      const ok=await saveStockData();
-      if(ok){ renderStockView(); toast(`${p.name} 재고 ${n} 저장 (수동)`,'ok'); }
-    }
-  }
-
   function _esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function _fmtDateShort(iso){ try{ const d=new Date(iso); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); const h=String(d.getHours()).padStart(2,'0'); const mi=String(d.getMinutes()).padStart(2,'0'); return `${m}.${day} ${h}:${mi}`; }catch(e){ return iso; } }
-
-  function openAddPlatformForm(){
-    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
-    const f=document.getElementById('stockAddForm'); if(f) f.hidden=false;
-    document.getElementById('stockAddPlatform').value='';
-    document.getElementById('stockAddAccount').value='';
-    document.getElementById('stockAddUrl').value='';
-    document.getElementById('stockAddProductNo').value='';
-    document.getElementById('stockAddInitStock').value='';
-  }
-  function closeAddPlatformForm(){ const f=document.getElementById('stockAddForm'); if(f) f.hidden=true; }
-
-  async function saveAddPlatform(){
-    const name=document.getElementById('stockAddPlatform').value.trim();
-    const account=document.getElementById('stockAddAccount').value.trim();
-    const url=document.getElementById('stockAddUrl').value.trim();
-    const productNo=document.getElementById('stockAddProductNo').value.trim();
-    const stockRaw=document.getElementById('stockAddInitStock').value.trim();
-    if(!name){ toast('플랫폼을 선택하세요','err'); return; }
-    if(!url){ toast('상품 URL을 입력하세요','err'); return; }
-    const entry={
-      id:'p_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
-      name, account, url, productNo,
-      stock: stockRaw===''?null:Number(stockRaw),
-      updatedAt: new Date().toISOString(),
-    };
-    if(!_stockData) _stockData=_emptyStockData();
-    _stockData.platforms.push(entry);
-    const ok=await saveStockData();
-    if(ok){
-      closeAddPlatformForm();
-      renderStockView();
-      toast('플랫폼 추가됨','ok');
-    }else{
-      _stockData.platforms.pop(); // rollback on save failure
-    }
-  }
-
-  async function removeStockPlatform(id){
-    if(!_stockData) return;
-    const idx=_stockData.platforms.findIndex(p=>p.id===id);
-    if(idx<0) return;
-    if(!confirm(`"${_stockData.platforms[idx].name}" 매핑을 삭제할까요?`)) return;
-    const removed=_stockData.platforms.splice(idx,1)[0];
-    const ok=await saveStockData();
-    if(ok){ renderStockView(); toast('삭제됨','ok'); }
-    else{ _stockData.platforms.splice(idx,0,removed); }
-  }
-
-  let _stockFieldSaveTimer=null;
-  function updateStockField(id,field,value){
-    if(!_stockData) return;
-    const p=_stockData.platforms.find(x=>x.id===id);
-    if(!p) return;
-    if(field==='stock'){ p.stock=value===''?null:Number(value); }
-    else{ p[field]=value; }
-    p.updatedAt=new Date().toISOString();
-    // 디바운스 저장 (입력 도중 매번 PUT하지 않도록)
-    clearTimeout(_stockFieldSaveTimer);
-    _stockFieldSaveTimer=setTimeout(async()=>{
-      const ok=await saveStockData();
-      if(ok){ renderStockView(); }
-    }, 900);
-  }
-
-  /* 일괄 적용 — 6개 플랫폼 모두에 같은 재고값 푸시.
-     PA(5개): /api/products/sale-cnt 호출 / manual(식스샵): 우리 DB만 업데이트.
-     SKU 매칭 안 된 PA 카드는 sale_cnt_limit만 변경됨 (옵션 동기화는 SKU 등록+매칭 후). */
-  async function applyStockToAll(){
-    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
-    const raw=document.getElementById('stockApplyValue').value.trim();
-    if(raw===''){ toast('재고 값을 입력하세요','err'); return; }
-    const n=Number(raw);
-    if(!Number.isFinite(n) || n<0){ toast('0 이상 숫자를 입력하세요','err'); return; }
-    if(!_stockData || !_stockData.platforms.length){ toast('등록된 플랫폼이 없습니다','err'); return; }
-    const paList=_stockData.platforms.filter(p=>p.type==='pa');
-    const manList=_stockData.platforms.filter(p=>p.type!=='pa');
-    const skuMatched=paList.filter(p=>_stockPaLive[p.id]?.sku_cd).length;
-    if(!confirm(`${_stockData.platforms.length}개 플랫폼에 재고 ${n}을 일괄 적용합니다.\n\n• PA 자동 푸시: ${paList.length}개 (SKU 매칭 ${skuMatched}/${paList.length})\n• 수동(우리 DB만): ${manList.length}개\n\n계속할까요?`)) return;
-    const now=new Date().toISOString();
-
-    // PA 일괄 — products 배열 한 번에
-    if(paList.length){
-      const products=paList.map(p=>{
-        const live=_stockPaLive[p.id]||{};
-        const opts=live.sku_cd?[{type:'general', sku_cd:live.sku_cd, stock_cnt:n, status:n>0?'정상':'품절'}]:[];
-        return {c_sale_cd:p.c_sale_cd, shop_cd:p.shop_cd, shop_id:p.account, std_ol_yn:'N', sale_cnt_limit:n, opts};
-      });
-      try{
-        const r=await paFetch('/api/products/sale-cnt',{method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({products})});
-        const t=await r.text(); let j; try{j=JSON.parse(t);}catch(e){j=t;}
-        if(!r.ok){ toast(`PA 일괄 실패 (HTTP ${r.status})`,'err'); console.error(j); return; }
-        const arr=Array.isArray(j)?j:[j];
-        const ok=arr.filter(x=>x?.result==='성공').length;
-        const fail=arr.length-ok;
-        if(fail>0) console.warn('PA partial fail:', arr);
-        toast(`PA ${ok}/${arr.length} 성공${fail?` · ${fail} 실패`:''}`, fail?'err':'ok');
-      }catch(e){ console.error(e); toast('PA 일괄 통신 오류','err'); return; }
-    }
-
-    // manual + 메타 업데이트
-    _stockData.platforms.forEach(p=>{ p.stock=n; p.updatedAt=now; });
-    _stockData.appliedAt=now;
-    const ok=await saveStockData();
-    if(ok){
-      document.getElementById('stockApplyValue').value='';
-      await loadPALiveStock();
-      toast(`전체 ${_stockData.platforms.length}개 적용 완료`,'ok');
-    }
-  }
 
   async function initStockView(){
     await loadStockData();
