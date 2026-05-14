@@ -2633,6 +2633,7 @@
         _stockFileSha=null;
         renderStockView();
         loadPALiveStock(); // 비동기 — PA에서 현재 재고 받아옴
+        loadSixshopStock(); // 비동기 — 식스샵 PP 재고마스터 시트 옵션별 재고
         return;
       }
       if(!r.ok){
@@ -2692,6 +2693,70 @@
     }
   }
 
+  /* === 식스샵 (Google Sheets PP 재고마스터) === */
+  let _stockSixshopByOpt = {};    // optKey ("블루/USB-C") → stock_cnt
+  let _stockSixshopLoadedAt = null;
+
+  async function sheetFetch(sheetName, gid){
+    const base = await loadProxyBase();
+    if(!base) throw new Error('proxy unavailable');
+    const qs = new URLSearchParams();
+    if(sheetName) qs.set('sheet', sheetName);
+    if(gid) qs.set('gid', gid);
+    const url = base + '/sheet' + (qs.toString() ? '?'+qs.toString() : '');
+    return fetch(url, { headers: { 'X-Brightbeed-PIN': ghPin() } });
+  }
+
+  function _parseCsv(csv){
+    const rows=[]; let row=[], field='', inQ=false;
+    for(let i=0;i<csv.length;i++){
+      const c=csv[i];
+      if(inQ){
+        if(c==='"'){ if(csv[i+1]==='"'){ field+='"'; i++; } else inQ=false; }
+        else field+=c;
+      } else {
+        if(c==='"') inQ=true;
+        else if(c===','){ row.push(field); field=''; }
+        else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+        else if(c!=='\r') field+=c;
+      }
+    }
+    if(field.length || row.length){ row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  /* PP 재고마스터에서 180 케이블 옵션별 재고 추출.
+     컬럼: A 카테고리, B 상품명, C 옵션, D SKU, E 현재재고, F 판매수량, G 남은재고 */
+  async function loadSixshopStock(){
+    try{
+      const r = await sheetFetch('PP 재고마스터');
+      if(r.status===503){ console.info('sheet not configured (waiting for BRIGHTBEED_SHEET_ID)'); return; }
+      if(!r.ok){ console.warn('sheet HTTP', r.status); return; }
+      const csv = await r.text();
+      const rows = _parseCsv(csv);
+      if(rows.length<2) return;
+      const map={};
+      let matched=0;
+      for(let i=1;i<rows.length;i++){
+        const row = rows[i];
+        const name = (row[1]||'').trim();
+        if(!/180/i.test(name)) continue;  // 180 케이블 상품 행만
+        const opt = (row[2]||'').trim();
+        const stockStr = (row[4]||'').replace(/[,\s]/g,'').trim();
+        const stock = parseInt(stockStr,10);
+        if(!Number.isFinite(stock)) continue;
+        const key = _normalizeOption(opt);
+        if(key){ map[key] = stock; matched++; }
+      }
+      _stockSixshopByOpt = map;
+      _stockSixshopLoadedAt = new Date().toISOString();
+      console.info(`sixshop: ${matched} options loaded from sheet`);
+      renderStockTable();
+    }catch(e){
+      console.warn('loadSixshopStock', e);
+    }
+  }
+
   /* === 테이블 렌더링 === */
   let _stockEditMode = false;
   let _stockPending = {};   // key: "{platformId}::{seq}" → { newValue }
@@ -2710,7 +2775,10 @@
   const _STOCK_COLORS = ['블루','네이비','민트','옐로우','오렌지','퍼플','피치','네온그린'];
   const _STOCK_CABLES = ['Apple 8pin','USB-C','C to C'];
   function _normalizeOption(o){
-    const raw=([o.opt_name1, o.opt_name2, o.opt_name3].filter(s=>s && s!=='선택안함').join(' ')||'').toLowerCase().replace(/\s+/g,' ').trim();
+    let raw;
+    if(typeof o === 'string') raw = o;
+    else raw = ([o.opt_name1, o.opt_name2, o.opt_name3].filter(s=>s && s!=='선택안함').join(' ')||'');
+    raw = raw.toLowerCase().replace(/\s+/g,' ').trim();
     if(!raw) return null;
     // 색상
     let color=null;
@@ -2867,19 +2935,24 @@
   }
 
   function _renderSixshopCell(p, key){
-    const cellKey=_rowKey(p.id, key); // 옵션 키 사용 — pid::"블루/USB-C"
+    const cellKey=_rowKey(p.id, key);
     const pending=_stockPending[cellKey];
     const result=_stockRowResults[cellKey];
-    const sxStock = (p.optStocks && p.optStocks[key]) ?? null;
+    // 1) Sheet 라이브 데이터 우선 (PP 재고마스터), 2) 우리 DB optStocks, 3) -
+    let sxStock = _stockSixshopByOpt[key];
+    if(sxStock===undefined || sxStock===null){
+      sxStock = (p.optStocks && p.optStocks[key]) ?? null;
+    }
     const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
+    const isLive = _stockSixshopByOpt[key]!==undefined;
     if(_stockEditMode){
       const v = pending!==undefined ? pending.newValue : (sxStock!==null?sxStock:'');
-      return `<td class="stock-cell${pending!==undefined?' is-changed':''}">
+      return `<td class="stock-cell${pending!==undefined?' is-changed':''}${isLive?' is-on':''}">
         <input type="number" min="0" class="stock-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" oninput="onSixshopInput('${_esc(key)}',this)">
         ${resultBadge}
       </td>`;
     }
-    return `<td class="stock-cell is-missing"><span class="stock-num">${sxStock!==null?sxStock:'-'}</span>${resultBadge}</td>`;
+    return `<td class="stock-cell${isLive?' is-on':' is-missing'}"><span class="stock-num">${sxStock!==null?sxStock:'-'}</span>${resultBadge}</td>`;
   }
 
   function onSixshopInput(optKey, elOrValue){
@@ -2929,7 +3002,7 @@
     _stockPending={};
     const btn=document.getElementById('stockRefreshBtn');
     if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
-    await loadPALiveStock();
+    await Promise.all([ loadPALiveStock(), loadSixshopStock() ]);
     if(btn){ btn.disabled=false; btn.style.opacity=''; }
     toast('최신화 완료','ok');
   }
