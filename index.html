@@ -388,6 +388,7 @@
   .sw-퍼플{background:#a78bfa}
   .sw-피치{background:#fda4af}
   .sw-네온그린{background:#84cc16}
+  .sw-네온핑크{background:#ec4899}
 
   .stock-tbl-empty{padding:48px 20px;text-align:center;color:var(--text-3);font-size:13px}
   @media(max-width:1024px){
@@ -2722,7 +2723,10 @@
   }
 
   /* PP 재고마스터에서 180 케이블 옵션별 재고 추출.
-     컬럼: A 카테고리, B 상품명, C 옵션, D SKU, E 현재재고, F 판매수량, G 남은재고 */
+     실제 컬럼 (2026-05-14 확인):
+       A 카테고리, B 상품명, C 옵션, D 식스샵 결제완료, E SS 결제완료,
+       F 식스샵 재고 ★, G SS 재고, H 리오더알림
+     옵션 형식: "컬러: 옐로우 / 기종 옵션: USB -> Apple 8pin" */
   async function loadSixshopStock(){
     try{
       const r = await sheetFetch('PP 재고마스터');
@@ -2732,21 +2736,22 @@
       const rows = _parseCsv(csv);
       if(rows.length<2) return;
       const map={};
-      let matched=0;
+      let matched=0, unmatched=0;
       for(let i=1;i<rows.length;i++){
         const row = rows[i];
         const name = (row[1]||'').trim();
-        if(!/180/i.test(name)) continue;  // 180 케이블 상품 행만
+        if(!/180/i.test(name)) continue;
         const opt = (row[2]||'').trim();
-        const stockStr = (row[4]||'').replace(/[,\s]/g,'').trim();
+        const stockStr = (row[5]||'').replace(/[,\s]/g,'').trim();
         const stock = parseInt(stockStr,10);
         if(!Number.isFinite(stock)) continue;
         const key = _normalizeOption(opt);
         if(key){ map[key] = stock; matched++; }
+        else { unmatched++; console.debug('sixshop opt unmatched:', opt); }
       }
       _stockSixshopByOpt = map;
       _stockSixshopLoadedAt = new Date().toISOString();
-      console.info(`sixshop: ${matched} options loaded from sheet`);
+      console.info(`sixshop: ${matched} matched, ${unmatched} unmatched`);
       renderStockTable();
     }catch(e){
       console.warn('loadSixshopStock', e);
@@ -2768,7 +2773,7 @@
      예: "블루 / USB-A to C type" → "블루/USB-C"
          "블루 USB - C type" → "블루/USB-C"  (29CM)
          "블루 USB - C type / 선택안함" → "블루/USB-C"  (에이블리) */
-  const _STOCK_COLORS = ['블루','네이비','민트','옐로우','오렌지','퍼플','피치','네온그린'];
+  const _STOCK_COLORS = ['블루','민트','옐로우','오렌지','퍼플','피치','네온그린','네온핑크'];
   const _STOCK_CABLES = ['Apple 8pin','USB-C','C to C'];
   function _normalizeOption(o){
     let raw;
@@ -2776,21 +2781,18 @@
     else raw = ([o.opt_name1, o.opt_name2, o.opt_name3].filter(s=>s && s!=='선택안함').join(' ')||'');
     raw = raw.toLowerCase().replace(/\s+/g,' ').trim();
     if(!raw) return null;
-    // 색상
+    // 색상 (네온그린, 네온핑크가 그린/핑크보다 먼저)
     let color=null;
     for(const c of _STOCK_COLORS){
       const needle=c.toLowerCase();
       if(raw.includes(needle)){ color=c; break; }
     }
-    // 엘로우 = 옐로우 오타 보정
-    if(!color && raw.includes('엘로우')) color='옐로우';
+    if(!color && raw.includes('엘로우')) color='옐로우'; // 오타 보정
     // 케이블 타입
     let cable=null;
-    // Apple 8pin (가장 명확한 키워드)
+    const ctocCount=(raw.match(/c\s*type/gi)||[]).length;
     if(/apple|8\s*pin/i.test(raw)) cable='Apple 8pin';
-    // C to C: USB가 없으면서 c type → c type / c type to c type / c-c
-    else if(/c\s*type\s*(?:to|-|→|>)?\s*c\s*type/i.test(raw) && !/usb/i.test(raw)) cable='C to C';
-    // USB to C type
+    else if(ctocCount>=2 && !/usb/i.test(raw)) cable='C to C';  // "c type to/->/-/→ c type" (usb 없음)
     else if(/c\s*type/i.test(raw)) cable='USB-C';
     if(!color || !cable) return null;
     return `${color}/${cable}`;
