@@ -339,9 +339,10 @@
   .stock-send-count{display:inline-block;margin-left:2px;padding:0 6px;border-radius:9px;background:rgba(255,255,255,.25);font-size:10px;font-family:var(--mono);font-weight:600}
 
   .stock-tbl-wrap{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);overflow:auto;max-height:calc(100vh - 260px)}
-  .stock-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  /* 표 전체 고딕 + tabular-nums (숫자 정렬 깔끔하게) */
+  .stock-tbl{width:100%;border-collapse:collapse;font-size:12.5px;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;font-feature-settings:'tnum';font-variant-numeric:tabular-nums}
   .stock-tbl thead{position:sticky;top:0;background:var(--bg-2);z-index:2;box-shadow:0 1px 0 var(--line)}
-  .stock-tbl th{padding:10px 8px;text-align:center;font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.04em;border-bottom:1px solid var(--line);font-family:var(--mono);white-space:nowrap}
+  .stock-tbl th{padding:10px 8px;text-align:center;font-size:11.5px;font-weight:600;color:var(--text-2);letter-spacing:.02em;border-bottom:1px solid var(--line);white-space:nowrap}
   .stock-tbl th.col-opt-head{text-align:left;padding-left:14px}
   .stock-tbl th[title]{cursor:help;border-bottom:1px dashed rgba(5,150,105,.4)}
   .stock-tbl th .platform-sub{display:block;margin-top:2px;font-size:9px;font-weight:400;color:var(--text-3);letter-spacing:0;text-transform:none}
@@ -349,8 +350,8 @@
   .stock-tbl td.opt-label{text-align:left;padding-left:14px;font-weight:500;color:var(--text-1);white-space:nowrap;background:var(--bg-1);position:sticky;left:0;z-index:1;border-right:1px solid var(--line);max-width:200px;overflow:hidden;text-overflow:ellipsis}
   .stock-tbl td.col-color{text-align:left;padding:10px 14px;font-weight:600;color:var(--text-0);background:var(--bg-1);border-right:2px solid var(--line);vertical-align:middle;white-space:nowrap;font-size:13px;position:sticky;left:0;z-index:1}
   .stock-tbl td.col-color .stock-color-swatch{width:14px;height:14px;margin-right:8px}
-  .stock-tbl td.col-color .col-color-count{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;background:var(--bg-2);color:var(--text-3);font-size:10px;font-weight:500;font-family:var(--mono)}
-  .stock-tbl td.col-cable{text-align:left;padding-left:14px;color:var(--text-2);font-family:var(--mono);font-size:11px;letter-spacing:.02em;white-space:nowrap}
+  .stock-tbl td.col-color .col-color-count{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;background:var(--bg-2);color:var(--text-3);font-size:10.5px;font-weight:500}
+  .stock-tbl td.col-cable{text-align:left;padding-left:14px;color:var(--text-2);font-size:12px;letter-spacing:.01em;white-space:nowrap}
   .stock-tbl th.col-color-head{text-align:left;padding-left:14px;min-width:110px}
   .stock-tbl th.col-cable-head{text-align:left;padding-left:14px;min-width:100px}
   .stock-tbl tr:hover td{background:rgba(5,150,105,.025)}
@@ -364,9 +365,9 @@
   .stock-cell.is-missing{color:var(--text-3);background:rgba(0,0,0,.015)}
   .stock-cell.is-out .stock-num{color:#b91c1c}
   .stock-cell.is-on .stock-num{color:var(--text-0)}
-  .stock-num{font-family:var(--mono);font-size:13px;font-weight:600;line-height:1.1}
-  .stock-num-sub{display:block;font-size:9px;color:var(--text-3);font-family:var(--mono);margin-top:1px;letter-spacing:.04em}
-  .stock-cell-input{width:64px;padding:5px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg-0);font-size:12px;font-family:var(--mono);text-align:center;color:var(--text-0)}
+  .stock-num{font-size:13.5px;font-weight:600;line-height:1.1}
+  .stock-num-sub{display:block;font-size:10px;color:var(--text-3);margin-top:2px;letter-spacing:.02em}
+  .stock-cell-input{width:68px;padding:5px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg-0);font-size:13px;font-weight:500;text-align:center;color:var(--text-0)}
   .stock-cell-input:focus{outline:none;border-color:var(--neon-pa);box-shadow:0 0 0 2px rgba(5,150,105,.12)}
   .stock-cell-input.is-changed{border-color:#b45309;background:rgba(245,158,11,.06)}
   .stock-cell.is-changed{background:rgba(245,158,11,.05)}
@@ -2855,7 +2856,7 @@
     if(thead){
       const headerCells = [
         '<th class="col-color-head">색상</th>',
-        '<th class="col-cable-head">단자</th>',
+        '<th class="col-cable-head">기종옵션</th>',
         ...paIds.map(id=>{
           const p=platformsById[id];
           const live=_stockPaLive[id];
@@ -2945,14 +2946,16 @@
     const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
     const isLive = _stockSixshopByOpt[key]!==undefined;
     const displayStock = (sxStock===null || sxStock===undefined) ? 0 : sxStock;
+    const isOut = Number(displayStock) === 0;
+    const stateClass = isOut ? 'is-out' : (isLive ? 'is-on' : '');
     if(_stockEditMode){
       const v = pending!==undefined ? pending.newValue : displayStock;
-      return `<td class="stock-cell${pending!==undefined?' is-changed':''}${isLive?' is-on':''}">
+      return `<td class="stock-cell ${stateClass}${pending!==undefined?' is-changed':''}">
         <input type="number" min="0" class="stock-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" oninput="onSixshopInput('${_esc(key)}',this)">
         ${resultBadge}
       </td>`;
     }
-    return `<td class="stock-cell${isLive?' is-on':' is-out'}"><span class="stock-num">${displayStock}</span>${!isLive?'<span class="stock-num-sub">시트 미연결</span>':''}${resultBadge}</td>`;
+    return `<td class="stock-cell ${stateClass}"><span class="stock-num">${displayStock}</span>${!isLive?'<span class="stock-num-sub">시트 미연결</span>':''}${resultBadge}</td>`;
   }
 
   function onSixshopInput(optKey, elOrValue){
@@ -3003,8 +3006,19 @@
     const btn=document.getElementById('stockRefreshBtn');
     if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
     await Promise.all([ loadPALiveStock(), loadSixshopStock() ]);
+    // PA가 첫 호출 race (토큰 막 발급 중)로 비어있으면 한 번 더 시도
+    if(Object.keys(_stockPaLive||{}).length === 0){
+      await new Promise(r=>setTimeout(r,500));
+      await loadPALiveStock();
+    }
+    if(Object.keys(_stockSixshopByOpt||{}).length === 0){
+      await new Promise(r=>setTimeout(r,300));
+      await loadSixshopStock();
+    }
     if(btn){ btn.disabled=false; btn.style.opacity=''; }
-    toast('최신화 완료','ok');
+    const paN=Object.keys(_stockPaLive||{}).length;
+    const sxN=Object.keys(_stockSixshopByOpt||{}).length;
+    toast(`최신화 완료 (PA ${paN}/5 · 식스샵 ${sxN}개 옵션)`, paN===5 && sxN>0 ? 'ok' : 'err');
   }
 
   function toggleStockEdit(){
@@ -3117,6 +3131,14 @@
 
   async function initStockView(){
     await loadStockData();
+    // loadStockData 안의 loadPA/loadSixshop이 fire-and-forget이라 페이지 첫 진입 시 race 가능 — 짧게 보장.
+    setTimeout(async()=>{
+      if(!_stockData) return;
+      const paN=Object.keys(_stockPaLive||{}).length;
+      const sxN=Object.keys(_stockSixshopByOpt||{}).length;
+      if(paN===0) await loadPALiveStock();
+      if(sxN===0) await loadSixshopStock();
+    }, 1500);
   }
   // 기존 코드 호환: 레거시 토큰 정리 (이제 클라이언트가 토큰을 들고 있을 필요 없음)
   try{ localStorage.removeItem('brightbeed_gh_token') }catch(e){}
