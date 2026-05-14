@@ -347,9 +347,18 @@
   .stock-tbl th .platform-sub{display:block;margin-top:2px;font-size:9px;font-weight:400;color:var(--text-3);letter-spacing:0;text-transform:none}
   .stock-tbl td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--text-1);text-align:center}
   .stock-tbl td.opt-label{text-align:left;padding-left:14px;font-weight:500;color:var(--text-1);white-space:nowrap;background:var(--bg-1);position:sticky;left:0;z-index:1;border-right:1px solid var(--line);max-width:200px;overflow:hidden;text-overflow:ellipsis}
+  .stock-tbl td.col-color{text-align:left;padding:10px 14px;font-weight:600;color:var(--text-0);background:var(--bg-1);border-right:2px solid var(--line);vertical-align:middle;white-space:nowrap;font-size:13px;position:sticky;left:0;z-index:1}
+  .stock-tbl td.col-color .stock-color-swatch{width:14px;height:14px;margin-right:8px}
+  .stock-tbl td.col-color .col-color-count{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;background:var(--bg-2);color:var(--text-3);font-size:10px;font-weight:500;font-family:var(--mono)}
+  .stock-tbl td.col-cable{text-align:left;padding-left:14px;color:var(--text-2);font-family:var(--mono);font-size:11px;letter-spacing:.02em;white-space:nowrap}
+  .stock-tbl th.col-color-head{text-align:left;padding-left:14px;min-width:110px}
+  .stock-tbl th.col-cable-head{text-align:left;padding-left:14px;min-width:100px}
   .stock-tbl tr:hover td{background:rgba(5,150,105,.025)}
-  .stock-tbl tr:hover td.opt-label{background:rgba(5,150,105,.04)}
-  .stock-tbl tr.is-color-group-end td{border-bottom:2px solid var(--line-2)}
+  .stock-tbl tr:hover td.col-color{background:rgba(5,150,105,.045)}
+  /* 색상 그룹 사이 강한 파티션 */
+  .stock-tbl tr.is-color-group-end td{border-bottom:3px solid var(--neon-pa);box-shadow:inset 0 -1px 0 rgba(5,150,105,.15)}
+  /* 색상 그룹별 미세한 행 배경 (zebra-by-group) */
+  .stock-tbl tr.color-group:nth-of-type(even of .color-group) td:not(.col-color):not(.col-cable){background:rgba(0,0,0,.012)}
 
   .stock-cell{position:relative;min-width:88px}
   .stock-cell.is-missing{color:var(--text-3);background:rgba(0,0,0,.015)}
@@ -2748,6 +2757,21 @@
   /* PA 플랫폼 표시 순서 + 식스샵 마지막. 6 컬럼. */
   const _STOCK_PA_ORDER=['ss','cm','ab','oh','eql'];
 
+  /* 색상별로 그룹화 — [{color, items:[{key,cable,byPlatform}]}] */
+  function _groupByColor(keys, matrix){
+    const groups=[];
+    let cur=null;
+    keys.forEach(k=>{
+      const [color,cable]=k.split('/');
+      if(!cur || cur.color!==color){
+        cur={color, items:[]};
+        groups.push(cur);
+      }
+      cur.items.push({key:k, cable, byPlatform:matrix[k].byPlatform});
+    });
+    return groups;
+  }
+
   function renderStockTable(){
     if(!_stockData) return;
     const platforms=_stockData.platforms||[];
@@ -2760,11 +2784,12 @@
     const paIds=_STOCK_PA_ORDER.filter(id=>platformsById[id]);
     const sixshop=platformsById['6s'];
 
-    // 헤더 — 플랫폼명만, 계정은 title tooltip
-    const colSpan = 1 + paIds.length + (sixshop?1:0);
+    // 헤더 — 색상 + 단자 두 컬럼 + 플랫폼들
+    const colSpan = 2 + paIds.length + (sixshop?1:0);
     if(thead){
       const headerCells = [
-        '<th class="col-opt-head">옵션</th>',
+        '<th class="col-color-head">색상</th>',
+        '<th class="col-cable-head">단자</th>',
         ...paIds.map(id=>{
           const p=platformsById[id];
           const live=_stockPaLive[id];
@@ -2785,24 +2810,30 @@
       return;
     }
 
+    const groups=_groupByColor(keys, matrix);
     const rows=[];
-    let prevColor=null;
-    keys.forEach(key=>{
-      const [color, cable]=key.split('/');
-      const m=matrix[key];
-      // 색상 그룹 변화 시점에 구분선
-      const groupEnd = prevColor && prevColor!==color ? ' is-color-group-end' : '';
-      prevColor=color;
-      const cells=[`<td class="opt-label"><span class="stock-color-swatch sw-${_esc(color)}"></span>${_esc(color)} <span style="color:var(--text-3);font-family:var(--mono);font-size:11px">· ${_esc(cable)}</span></td>`];
-      paIds.forEach(pid=>{
-        const cell=m.byPlatform[pid];
-        cells.push(_renderPivotCell(pid, cell));
+    groups.forEach((g,gi)=>{
+      const isLastGroup = gi===groups.length-1;
+      g.items.forEach((it,idx)=>{
+        const cells=[];
+        // 색상 셀 — 그룹 첫 행에만 rowspan
+        if(idx===0){
+          cells.push(`<td class="col-color" rowspan="${g.items.length}">
+            <span class="stock-color-swatch sw-${_esc(g.color)}"></span>${_esc(g.color)}
+            <span class="col-color-count">${g.items.length}</span>
+          </td>`);
+        }
+        cells.push(`<td class="col-cable">${_esc(it.cable)}</td>`);
+        paIds.forEach(pid=>{
+          cells.push(_renderPivotCell(pid, it.byPlatform[pid]));
+        });
+        if(sixshop){
+          cells.push(_renderSixshopCell(sixshop, it.key));
+        }
+        const lastInGroup = idx===g.items.length-1;
+        const endCls = lastInGroup && !isLastGroup ? ' is-color-group-end' : '';
+        rows.push(`<tr class="color-group color-group-${_esc(g.color)}${endCls}">${cells.join('')}</tr>`);
       });
-      if(sixshop){
-        // 식스샵 셀 — 현재는 placeholder (PA 미연동). 추후 자동화시 우리 DB에서 옵션별 stock 조회
-        cells.push(_renderSixshopCell(sixshop, key));
-      }
-      rows.push(`<tr class="${groupEnd}">${cells.join('')}</tr>`);
     });
 
     if(tbody) tbody.innerHTML=rows.join('');
