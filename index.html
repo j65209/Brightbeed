@@ -2658,10 +2658,11 @@
     const paPlatforms=_stockData.platforms.filter(p=>p.type==='pa' && p.c_sale_cd);
     if(!paPlatforms.length){ renderStockTable(); return; }
     try{
+      // _status로 configured만 확인 (has_token은 첫 API 호출 시 proxy가 자동 발급하니 무시)
       const sta=await paFetch('/_status');
       if(sta.status!==200){ renderStockTable(); return; }
       const stj=await sta.json();
-      if(!stj.has_token){ renderStockTable(); return; }
+      if(!stj.configured){ renderStockTable(); return; }
       const body={start:0,length:50,sdate:'2017-01-01',edate:'2026-12-31',date_type:'wdate',
                   multi_type:'c_sale_cd', multi_search_word:paPlatforms.map(p=>p.c_sale_cd), view_master:false};
       const r=await paFetch('/api/product/online/list/v1.2',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
