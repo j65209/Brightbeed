@@ -3339,6 +3339,9 @@
       if(typeof renderCs==='function') renderCs();
       if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     }
+    if(id==='viewStock'){
+      if(typeof initStockView==='function') initStockView();
+    }
   }
 
   // showView: history에 push (사용자 클릭 진입). fromHistory=true면 popstate에서 호출된거라 push 생략.
