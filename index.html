@@ -2147,6 +2147,12 @@
         <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
         <span class="lg-res-arrow">→</span>
       </a>
+      <a class="lg-res master-only" href="#stock" id="lgStockSyncLink" onclick="triggerStock(); return false;">
+        <div class="lg-res-eyebrow">🔗 SYNC</div>
+        <div class="lg-res-title">180도 케이블</div>
+        <div class="lg-res-sub">6개 플랫폼 · 한 화면 재고 컨트롤</div>
+        <span class="lg-res-arrow">→</span>
+      </a>
     </div>
 
     <!-- 최근 발주 내역 (홈에서 이동) -->
@@ -2238,19 +2244,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">MD팀<span class="view-title-sub">/ 매출 보고서 · 재고연동</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">MD팀<span class="view-title-sub">/ 매출 보고서</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
-
-      <!-- 재고연동 진입 (180도 케이블 등) -->
-      <div class="lg-resources md-resources">
-        <a class="lg-res master-only" href="#stock" id="mdStockSyncLink" onclick="triggerStock(); return false;">
-          <div class="lg-res-eyebrow">🔗 SYNC</div>
-          <div class="lg-res-title">180도 케이블</div>
-          <div class="lg-res-sub">6개 플랫폼 · 한 화면 재고 컨트롤</div>
-          <span class="lg-res-arrow">→</span>
-        </a>
-      </div>
 
       <!-- 기획전 일정 캘린더 -->
       <div class="po-section md-cal-section">
@@ -2910,12 +2906,13 @@
   function renderStockView(){ renderStockTable(); }
 
   function _renderPivotCell(pid, cell){
-    if(!cell) return `<td class="stock-cell is-missing"><span class="stock-num">-</span></td>`;
+    // 해당 플랫폼에 이 옵션 매칭 없음 → 0 (재고 0과 동일하게 표시)
+    if(!cell) return `<td class="stock-cell is-out"><span class="stock-num">0</span><span class="stock-num-sub">미등록</span></td>`;
     const seq=cell.opt.sale_opt_seq ?? 0;
     const key=_rowKey(pid, seq);
     const pending=_stockPending[key];
     const result=_stockRowResults[key];
-    const stock = (cell.stock!==null && cell.stock!==undefined) ? cell.stock : '';
+    const stock = (cell.stock!==null && cell.stock!==undefined) ? cell.stock : 0;
     const stat = cell.status || '';
     const statClass = stat==='정상' ? 'is-on' : (stat==='품절' ? 'is-out' : '');
     const changedClass = pending!==undefined ? ' is-changed' : '';
@@ -2928,7 +2925,7 @@
       </td>`;
     }
     return `<td class="stock-cell ${statClass}${changedClass}">
-      <span class="stock-num">${stock===''?'-':stock}</span>
+      <span class="stock-num">${stock}</span>
       ${stat ? `<span class="stock-num-sub">${_esc(stat)}</span>` : ''}
       ${resultBadge}
     </td>`;
@@ -2945,14 +2942,15 @@
     }
     const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
     const isLive = _stockSixshopByOpt[key]!==undefined;
+    const displayStock = (sxStock===null || sxStock===undefined) ? 0 : sxStock;
     if(_stockEditMode){
-      const v = pending!==undefined ? pending.newValue : (sxStock!==null?sxStock:'');
+      const v = pending!==undefined ? pending.newValue : displayStock;
       return `<td class="stock-cell${pending!==undefined?' is-changed':''}${isLive?' is-on':''}">
         <input type="number" min="0" class="stock-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" oninput="onSixshopInput('${_esc(key)}',this)">
         ${resultBadge}
       </td>`;
     }
-    return `<td class="stock-cell${isLive?' is-on':' is-missing'}"><span class="stock-num">${sxStock!==null?sxStock:'-'}</span>${resultBadge}</td>`;
+    return `<td class="stock-cell${isLive?' is-on':' is-out'}"><span class="stock-num">${displayStock}</span>${!isLive?'<span class="stock-num-sub">시트 미연결</span>':''}${resultBadge}</td>`;
   }
 
   function onSixshopInput(optKey, elOrValue){
