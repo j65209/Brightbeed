@@ -2782,13 +2782,13 @@
     else raw = ([o.opt_name1, o.opt_name2, o.opt_name3].filter(s=>s && s!=='선택안함').join(' ')||'');
     raw = raw.toLowerCase().replace(/\s+/g,' ').trim();
     if(!raw) return null;
-    // 색상 (네온그린, 네온핑크가 그린/핑크보다 먼저)
+    // 색상 매칭은 공백 무시 — "네온 그린"(오늘의집) / "네온그린"(다른 플랫폼) 둘 다 매칭
+    const rawNoSpace = raw.replace(/\s+/g,'');
     let color=null;
     for(const c of _STOCK_COLORS){
-      const needle=c.toLowerCase();
-      if(raw.includes(needle)){ color=c; break; }
+      if(rawNoSpace.includes(c.toLowerCase())){ color=c; break; }
     }
-    if(!color && raw.includes('엘로우')) color='옐로우'; // 오타 보정
+    if(!color && rawNoSpace.includes('엘로우')) color='옐로우'; // 오타 보정
     // 케이블 타입
     let cable=null;
     const ctocCount=(raw.match(/c\s*type/gi)||[]).length;
