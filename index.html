@@ -2149,7 +2149,7 @@
         <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
         <span class="lg-res-arrow">→</span>
       </a>
-      <a class="lg-res master-only" href="#stock" id="lgStockSyncLink" onclick="triggerStock(); return false;">
+      <a class="lg-res" href="#stock" id="lgStockSyncLink" onclick="triggerStock(); return false;">
         <div class="lg-res-eyebrow">🔗 SYNC</div>
         <div class="lg-res-title">180도 케이블</div>
         <div class="lg-res-sub">6개 플랫폼 · 한 화면 재고 컨트롤</div>
@@ -2356,11 +2356,11 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             최신화
           </button>
-          <button class="stock-tbl-btn master-only" id="stockEditBtn" onclick="toggleStockEdit()">
+          <button class="stock-tbl-btn" id="stockEditBtn" onclick="toggleStockEdit()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
             <span id="stockEditLabel">수정</span>
           </button>
-          <button class="stock-tbl-btn stock-tbl-btn-send master-only" id="stockSendBtn" onclick="sendStockChanges()" disabled>
+          <button class="stock-tbl-btn stock-tbl-btn-send" id="stockSendBtn" onclick="sendStockChanges()" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             전송 <span id="stockSendCount" class="stock-send-count" hidden>0</span>
           </button>
@@ -3030,7 +3030,6 @@
   }
 
   function toggleStockEdit(){
-    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
     _stockEditMode = !_stockEditMode;
     const btn=document.getElementById('stockEditBtn');
     const lbl=document.getElementById('stockEditLabel');
@@ -3041,7 +3040,6 @@
   }
 
   async function sendStockChanges(){
-    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return; }
     const pending=Object.values(_stockPending);
     if(!pending.length){ toast('변경된 항목이 없습니다','err'); return; }
     if(!confirm(`${pending.length}개 옵션의 재고를 전송합니다.\n\nPA 자동 전송: SKU 매칭 안 된 옵션은 변경되지 않을 수 있습니다.\n수동(식스샵)은 우리 DB에만 저장됩니다.\n\n계속할까요?`)) return;
