@@ -1948,22 +1948,24 @@
         <path class="line l-brand"  d="M 540 84 V 110"/>
         <path class="line l-vendor" d="M 885 84 V 110"/>
 
-        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(310)/MD(540)/C/S(770) -->
+        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(375)/MD1팀(485)/MD2팀(595)/C/S(705) -->
         <path class="line l-brand" d="M 540 152 V 200"/>
-        <path class="line l-brand" d="M 310 200 H 770"/>
-        <path class="line l-mkt"   d="M 310 200 V 230"/>
-        <path class="line l-md1"   d="M 540 200 V 230"/>
-        <path class="line l-share" d="M 770 200 V 230"/>
+        <path class="line l-brand" d="M 375 200 H 705"/>
+        <path class="line l-mkt"   d="M 375 200 V 230"/>
+        <path class="line l-md1"   d="M 485 200 V 230"/>
+        <path class="line l-md2"   d="M 595 200 V 230"/>
+        <path class="line l-share" d="M 705 200 V 230"/>
 
-        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(770, 공유)/MD(1000) -->
+        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(705, 공유)/MD(1000) -->
         <path class="line l-vendor" d="M 885 152 V 200"/>
-        <path class="line l-vendor" d="M 770 200 H 1000"/>
+        <path class="line l-vendor" d="M 705 200 H 1000"/>
         <path class="line l-md2"    d="M 1000 200 V 230"/>
 
         <!-- 팀 → 인원 (단일 드롭, 팀 색) -->
-        <path class="line l-mkt"   d="M 310 272 V 305"/>
-        <path class="line l-md1"   d="M 540 272 V 305"/>
-        <path class="line l-share" d="M 770 272 V 305"/>
+        <path class="line l-mkt"   d="M 375 272 V 305"/>
+        <path class="line l-md1"   d="M 485 272 V 305"/>
+        <path class="line l-md2"   d="M 595 272 V 305"/>
+        <path class="line l-share" d="M 705 272 V 305"/>
         <path class="line l-md2"   d="M 1000 272 V 305"/>
 
         <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
@@ -1981,15 +1983,17 @@
         <rect class="b-vendor" x="845" y="110" width="80" height="42" rx="6"/>
         <text class="t-vendor" x="885" y="133">벤더</text>
 
-        <!-- 팀 (마케팅·MD-브랜드·C/S공유·MD-벤더) — 각각 다른 색 -->
-        <rect class="b-mkt"   x="270" y="230" width="80" height="42" rx="6"/>
-        <text class="t-mkt"   x="310" y="253">마케팅</text>
-        <rect class="b-md1"   x="500" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md1"   x="540" y="253">MD1팀</text>
-        <rect class="b-share" x="730" y="230" width="80" height="42" rx="6"/>
-        <text class="t-share" x="770" y="253">C/S</text>
+        <!-- 팀 (마케팅·MD1팀·MD2팀·C/S공유·MD-벤더) — 각각 다른 색 -->
+        <rect class="b-mkt"   x="335" y="230" width="80" height="42" rx="6"/>
+        <text class="t-mkt"   x="375" y="253">마케팅</text>
+        <rect class="b-md1"   x="445" y="230" width="80" height="42" rx="6"/>
+        <text class="t-md1"   x="485" y="253">MD1팀</text>
+        <rect class="b-md2"   x="555" y="230" width="80" height="42" rx="6"/>
+        <text class="t-md2"   x="595" y="253">MD2팀</text>
+        <rect class="b-share" x="665" y="230" width="80" height="42" rx="6"/>
+        <text class="t-share" x="705" y="253">C/S</text>
         <rect class="b-md2"   x="960" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"   x="1000" y="253">MD2팀</text>
+        <text class="t-md2"   x="1000" y="253">MD</text>
 
         <!-- 인원 (텍스트만, 팀 톤 — 같은 팀 직원은 같은 색) -->
         <!-- 물류 -->
@@ -1997,15 +2001,16 @@
         <text class="t-mem m-logi"  x="80"   y="348">전준호</text>
         <text class="t-mem m-logi"  x="80"   y="376">이소영</text>
         <!-- 마케팅 -->
-        <text class="t-mem m-mkt"   x="310"  y="320">서원진</text>
-        <!-- MD-브랜드 -->
-        <text class="t-mem m-md1"   x="540"  y="320">임혜지</text>
+        <text class="t-mem m-mkt"   x="375"  y="320">서원진</text>
+        <!-- MD1팀 (브랜드) -->
+        <text class="t-mem m-md1"   x="485"  y="320">임혜지</text>
+        <!-- MD2팀 (브랜드) -->
+        <text class="t-mem m-md2"   x="595"  y="320">김채원</text>
         <!-- C/S 공유 -->
-        <text class="t-mem m-share" x="770"  y="320">정신혜</text>
-        <!-- MD-벤더 -->
+        <text class="t-mem m-share" x="705"  y="320">정신혜</text>
+        <!-- MD (벤더) -->
         <text class="t-mem m-md2"   x="1000" y="320">조혜인</text>
         <text class="t-mem m-md2"   x="1000" y="348">김완성</text>
-        <text class="t-mem m-md2"   x="1000" y="376">김채원</text>
       </svg>
 
       <!-- 모바일 전용 카드 레이아웃 (≤600px에서 표시, SVG는 숨김) -->
@@ -2025,13 +2030,14 @@
             <div class="om-teams">
               <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">서원진</span></div>
               <div class="om-team om-md1"><span class="om-team-name">MD1팀</span><span class="om-mem">임혜지</span></div>
+              <div class="om-team om-md2"><span class="om-team-name">MD2팀</span><span class="om-mem">김채원</span></div>
               <div class="om-team om-share"><span class="om-team-name">C/S<small>공유</small></span><span class="om-mem">정신혜</span></div>
             </div>
           </div>
           <div class="om-div om-vendor">
             <div class="om-div-name">벤더</div>
             <div class="om-teams">
-              <div class="om-team om-md2"><span class="om-team-name">MD2팀</span><span class="om-mem">조혜인</span><span class="om-mem">김완성</span><span class="om-mem">김채원</span></div>
+              <div class="om-team om-md2"><span class="om-team-name">MD</span><span class="om-mem">조혜인</span><span class="om-mem">김완성</span></div>
             </div>
           </div>
         </div>
@@ -3603,7 +3609,7 @@
     {name:'서원진',dept:'브랜드',team:'마케팅',color:'mkt',hire:'2026-04-06',used:0},
     {name:'임혜지',dept:'브랜드',team:'MD1팀',color:'md1',hire:'2026-05-12'},
     {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share',hire:'2026-05-14'},
-    {name:'조혜인',dept:'벤더',team:'MD2팀',color:'md2',hire:'2025-10-27',used:6.5,history:[
+    {name:'조혜인',dept:'벤더',team:'MD',color:'md2',hire:'2025-10-27',used:6.5,history:[
       {date:'2026-01-02',type:'오후반차'},
       {date:'2026-01-20',type:'연차'},
       {date:'2026-03-03',type:'오후반차'},
@@ -3614,7 +3620,7 @@
       {date:'2026-05-14',type:'오전반차'},
     ]},
     // 김완성 used: 4 → 3.5 (생일반차는 차감 X 정책 적용)
-    {name:'김완성',dept:'벤더',team:'MD2팀',color:'md2',hire:'2026-01-14',used:3.5,history:[
+    {name:'김완성',dept:'벤더',team:'MD',color:'md2',hire:'2026-01-14',used:3.5,history:[
       {date:'2026-03-05',type:'연차'},
       {date:'2026-03-06',type:'연차'},
       {date:'2026-03-31',type:'오전반차'},
@@ -3622,7 +3628,7 @@
       {date:'2026-04-10',type:'생일반차'},
       {date:'2026-04-21',type:'오전반차'},
     ]},
-    {name:'김채원',dept:'벤더',team:'MD2팀',color:'md2',hire:'2026-05-20'},
+    {name:'김채원',dept:'브랜드',team:'MD2팀',color:'md2',hire:'2026-05-20'},
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
