@@ -1311,6 +1311,8 @@
   .leave-form-radio input{accent-color:var(--neon-hr);cursor:pointer}
   .leave-form-radio.bday{color:#9a3412}
   .leave-form-radio.bday input{accent-color:#9d174d}
+  .leave-form-radio.mat{color:#0e7490}
+  .leave-form-radio.mat input{accent-color:#0891b2}
   .leave-form-input:disabled{opacity:.4;cursor:not-allowed;background:var(--bg-1)}
   .leave-form-days{
     font-size:14px;color:#c2410c;font-weight:600;
@@ -1408,6 +1410,9 @@
   }
   .leave-recent-type.t-bday{
     color:#9d174d;border-color:rgba(255,158,207,.4);background:rgba(255,158,207,.06);
+  }
+  .leave-recent-type.t-mat{
+    color:#0e7490;border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.06);
   }
   .leave-recent-empty{
     padding:8px 4px;font-size:11.5px;color:var(--text-3);text-align:center;
@@ -1573,6 +1578,7 @@
   .leave-history-type.t-annual{color:var(--text-1)}
   .leave-history-type.t-half{color:var(--text-2)}
   .leave-history-type.t-bday{color:#9d174d}
+  .leave-history-type.t-mat{color:#0891b2}
   .leave-history-right{display:flex;align-items:center;gap:8px}
   .leave-history-del{
     width:18px;height:18px;border-radius:3px;
@@ -2073,12 +2079,13 @@
           <label class="leave-form-radio"><input type="radio" name="lfType" value="오전반차" onchange="updateLeaveDays()">오전반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
           <label class="leave-form-radio"><input type="radio" name="lfType" value="오후반차" onchange="updateLeaveDays()">오후반차 <span style="color:var(--text-3);font-size:11px">(-0.5)</span></label>
           <label class="leave-form-radio bday"><input type="radio" name="lfType" value="생일반차" onchange="updateLeaveDays()">🎂 생일반차 <span style="color:var(--text-3);font-size:11px">(차감 X)</span></label>
+          <label class="leave-form-radio mat"><input type="radio" name="lfType" value="출산휴가" onchange="updateLeaveDays()">🤱 출산휴가 <span style="color:var(--text-3);font-size:11px">(차감 X)</span></label>
         </div>
 
         <span class="leave-form-label">사용 일수</span>
         <div class="leave-form-days" id="lfDaysOut">— <span class="leave-form-days-sub" id="lfDaysSub"></span></div>
       </div>
-      <div class="leave-form-hint">반차/생일반차는 단일일만 가능 (종료일 자동 비활성화). 생일반차는 모두에게 연 1회 무료로 부여됩니다.</div>
+      <div class="leave-form-hint">반차/생일반차는 단일일만 가능 (종료일 자동 비활성화). 생일반차·출산휴가는 연차 차감이 없습니다.</div>
       <div class="leave-form-actions">
         <button type="button" class="leave-form-btn leave-form-cancel" onclick="closeLeaveForm()">취소</button>
         <button type="submit" class="leave-form-btn leave-form-submit">신청</button>
@@ -3675,7 +3682,7 @@
     if(!h || !h.type) return 0;
     if(h.type==='연차') return Number.isFinite(h.days)?h.days:1;
     if(h.type==='오전반차'||h.type==='오후반차') return 0.5;
-    return 0; // 생일반차
+    return 0; // 생일반차 / 출산휴가
   }
 
   /* used = baseline(override v.used 또는 STAFF.used) − 삭제된 baseline 항목 + 신규 entries 합산.
@@ -3740,7 +3747,7 @@
       </button>
       <div class="leave-history">
         ${history.map(h=>{
-          const cls=h.type==='생일반차'?'t-bday':(h.type==='연차'?'t-annual':'t-half');
+          const cls=h.type==='생일반차'?'t-bday':(h.type==='출산휴가'?'t-mat':(h.type==='연차'?'t-annual':'t-half'));
           const dlabel=_fmtLeaveDateRange(h.date,h.endDate);
           const daySuffix=(h.endDate&&h.endDate!==h.date&&h.days)?` <span style="color:var(--text-3);font-size:11px">${h.days}일</span>`:'';
           let delBtn='';
@@ -3828,7 +3835,7 @@
     wrap.hidden=false;
     if(meta) meta.textContent=`총 ${items.length}건`;
     list.innerHTML=items.map(it=>{
-      const cls=it.type==='생일반차'?'t-bday':(it.type==='연차'?'t-annual':'t-half');
+      const cls=it.type==='생일반차'?'t-bday':(it.type==='출산휴가'?'t-mat':(it.type==='연차'?'t-annual':'t-half'));
       const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
       const typeLabel=it.endDate&&it.endDate!==it.date&&it.days?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
@@ -4112,7 +4119,7 @@
     if(!type||!startStr) return {days:0,err:null};
     if(type==='오전반차'||type==='오후반차') return {days:0.5,err:null};
     if(type==='생일반차') return {days:0,err:null};
-    // 연차 — 종료일 없거나 같으면 1일, 범위면 (end-start+1)
+    // 연차 / 출산휴가 — 종료일 없거나 같으면 1일, 범위면 (end-start+1)
     const end=endStr||startStr;
     const s=new Date(startStr+'T00:00:00');
     const e=new Date(end+'T00:00:00');
@@ -4151,6 +4158,9 @@
       out.innerHTML=`${r.days}일${wd}`;
     } else if(type==='생일반차'){
       out.innerHTML='0일 <span class="leave-form-days-sub">(차감 없음)</span>';
+    } else if(type==='출산휴가'){
+      const wd=r.weekdays!=null&&r.weekdays!==r.days?` <span class="leave-form-days-sub">(주말 포함, 평일 ${r.weekdays}일)</span>`:'';
+      out.innerHTML=`${r.days}일${wd} <span class="leave-form-days-sub">(차감 없음)</span>`;
     } else {
       out.innerHTML='0.5일';
     }
@@ -4203,7 +4213,9 @@
     const range=fmtRange(startDate,endDate);
     const msg=type==='생일반차'
       ? `🎂 ${name} ${range} 생일반차 (차감 없음)`
-      : `✓ ${name} ${range} ${type} (-${delta}일)`;
+      : (type==='출산휴가'
+        ? `🤱 ${name} ${range} 출산휴가 (차감 없음)`
+        : `✓ ${name} ${range} ${type} (-${delta}일)`);
     toast(msg,'ok');
     closeLeaveForm();
     if(submitBtn) submitBtn.disabled=false;
