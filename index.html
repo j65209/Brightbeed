@@ -2399,15 +2399,15 @@
         <div class="po-section-head">
           <div class="po-section-title">공지사항</div>
           <div class="po-section-meta">
-            <button class="btn po-import notice-btn master-only" id="noticeEditBtn" onclick="enterNoticeEdit()">
+            <button class="btn po-import notice-btn" id="noticeEditBtn" onclick="enterNoticeEdit()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
               편집
             </button>
-            <button class="btn po-import notice-btn-save master-only" id="noticeSaveBtn" onclick="saveNoticeEdit()" style="display:none">
+            <button class="btn po-import notice-btn-save" id="noticeSaveBtn" onclick="saveNoticeEdit()" style="display:none">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
               저장
             </button>
-            <button class="po-clear master-only" id="noticeCancelBtn" onclick="cancelNoticeEdit()" style="display:none">취소</button>
+            <button class="po-clear" id="noticeCancelBtn" onclick="cancelNoticeEdit()" style="display:none">취소</button>
           </div>
         </div>
         <div class="notice-toolbar" id="noticeToolbar" style="display:none">
@@ -2432,7 +2432,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg>
           </div>
           <div class="po-empty-text">아직 공지사항이 없습니다</div>
-          <div class="po-empty-sub master-only-text">우측 상단 <b>편집</b> 버튼으로 작성하세요 (마스터 전용)</div>
+          <div class="po-empty-sub">우측 상단 <b>편집</b> 버튼으로 작성하세요</div>
         </div>
         <div class="notice-content" id="noticeContent" contenteditable="false"></div>
       </div>
@@ -5006,17 +5006,19 @@ async function handlePOFiles(files){
       return {sha:j.sha};
     }catch(e){return {error:'fetch'}}
   }
-  async function ghPut(apiUrl, base64Content, message){
+  async function ghPut(apiUrl, base64Content, message, opts){
+    opts=opts||{};
     let shaR=await ghGetSha(apiUrl);
     if(shaR.error==='auth') return {ok:false,reason:'auth'};
     const buildBody=(sha)=>{const b={message,content:base64Content,branch:PO_BRANCH};if(sha)b.sha=sha;return JSON.stringify(b)};
-    let r=await ghFetch(apiUrl,{method:'PUT',headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
+    const putOpts=(sha)=>({method:'PUT',forceMaster:!!opts.forceMaster,headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(sha)});
+    let r=await ghFetch(apiUrl,putOpts(shaR.sha));
     let retries=0;
     while(r.status===409 && retries<2){
       retries++;
       shaR=await ghGetSha(apiUrl);
       if(shaR.error==='auth') return {ok:false,reason:'auth'};
-      r=await ghFetch(apiUrl,{method:'PUT',headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(shaR.sha)});
+      r=await ghFetch(apiUrl,putOpts(shaR.sha));
     }
     if(r.ok) return {ok:true};
     if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
@@ -5847,7 +5849,6 @@ async function handlePOFiles(files){
   }
 
   function enterNoticeEdit(){
-    if(!requireMaster('공지 편집')) return;
     const content=document.getElementById('noticeContent');
     const empty=document.getElementById('noticeEmpty');
     const editBtn=document.getElementById('noticeEditBtn');
@@ -5894,7 +5895,6 @@ async function handlePOFiles(files){
   }
 
   async function saveNoticeEdit(){
-    if(!requireMaster('공지 저장')) return;
     const content=document.getElementById('noticeContent');
     if(!content) return;
     if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
@@ -5903,7 +5903,7 @@ async function handlePOFiles(files){
     const meta={html, updatedAt:Date.now()};
     toast('공지 저장 중...','ok');
     const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta,null,2))));
-    const r=await ghPut(NOTICE_API, b64, `chore: 사내 공지 갱신`);
+    const r=await ghPut(NOTICE_API, b64, `chore: 사내 공지 갱신`, {forceMaster:true});
     if(!r.ok){
       if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
       if(r.reason==='too_large'){toast('공지가 너무 깁니다','err');return}
