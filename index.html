@@ -1985,11 +1985,11 @@
         <rect class="b-mkt"   x="270" y="230" width="80" height="42" rx="6"/>
         <text class="t-mkt"   x="310" y="253">마케팅</text>
         <rect class="b-md1"   x="500" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md1"   x="540" y="253">MD</text>
+        <text class="t-md1"   x="540" y="253">MD1팀</text>
         <rect class="b-share" x="730" y="230" width="80" height="42" rx="6"/>
         <text class="t-share" x="770" y="253">C/S</text>
         <rect class="b-md2"   x="960" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"   x="1000" y="253">MD</text>
+        <text class="t-md2"   x="1000" y="253">MD2팀</text>
 
         <!-- 인원 (텍스트만, 팀 톤 — 같은 팀 직원은 같은 색) -->
         <!-- 물류 -->
@@ -2005,6 +2005,7 @@
         <!-- MD-벤더 -->
         <text class="t-mem m-md2"   x="1000" y="320">조혜인</text>
         <text class="t-mem m-md2"   x="1000" y="348">김완성</text>
+        <text class="t-mem m-md2"   x="1000" y="376">김채원</text>
       </svg>
 
       <!-- 모바일 전용 카드 레이아웃 (≤600px에서 표시, SVG는 숨김) -->
@@ -2023,14 +2024,14 @@
             <div class="om-div-name">브랜드</div>
             <div class="om-teams">
               <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">서원진</span></div>
-              <div class="om-team om-md1"><span class="om-team-name">MD</span><span class="om-mem">임혜지</span></div>
+              <div class="om-team om-md1"><span class="om-team-name">MD1팀</span><span class="om-mem">임혜지</span></div>
               <div class="om-team om-share"><span class="om-team-name">C/S<small>공유</small></span><span class="om-mem">정신혜</span></div>
             </div>
           </div>
           <div class="om-div om-vendor">
             <div class="om-div-name">벤더</div>
             <div class="om-teams">
-              <div class="om-team om-md2"><span class="om-team-name">MD</span><span class="om-mem">조혜인</span><span class="om-mem">김완성</span></div>
+              <div class="om-team om-md2"><span class="om-team-name">MD2팀</span><span class="om-mem">조혜인</span><span class="om-mem">김완성</span><span class="om-mem">김채원</span></div>
             </div>
           </div>
         </div>
@@ -3600,9 +3601,9 @@
       {date:'2026-04-30',type:'연차'},
     ]},
     {name:'서원진',dept:'브랜드',team:'마케팅',color:'mkt',hire:'2026-04-06',used:0},
-    {name:'임혜지',dept:'브랜드',team:'MD',color:'md1',hire:'2026-05-12'},
+    {name:'임혜지',dept:'브랜드',team:'MD1팀',color:'md1',hire:'2026-05-12'},
     {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share',hire:'2026-05-14'},
-    {name:'조혜인',dept:'벤더',team:'MD',color:'md2',hire:'2025-10-27',used:6.5,history:[
+    {name:'조혜인',dept:'벤더',team:'MD2팀',color:'md2',hire:'2025-10-27',used:6.5,history:[
       {date:'2026-01-02',type:'오후반차'},
       {date:'2026-01-20',type:'연차'},
       {date:'2026-03-03',type:'오후반차'},
@@ -3613,7 +3614,7 @@
       {date:'2026-05-14',type:'오전반차'},
     ]},
     // 김완성 used: 4 → 3.5 (생일반차는 차감 X 정책 적용)
-    {name:'김완성',dept:'벤더',team:'MD',color:'md2',hire:'2026-01-14',used:3.5,history:[
+    {name:'김완성',dept:'벤더',team:'MD2팀',color:'md2',hire:'2026-01-14',used:3.5,history:[
       {date:'2026-03-05',type:'연차'},
       {date:'2026-03-06',type:'연차'},
       {date:'2026-03-31',type:'오전반차'},
@@ -3621,6 +3622,7 @@
       {date:'2026-04-10',type:'생일반차'},
       {date:'2026-04-21',type:'오전반차'},
     ]},
+    {name:'김채원',dept:'벤더',team:'MD2팀',color:'md2',hire:'2026-05-20'},
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
@@ -3633,8 +3635,7 @@
 
   /* 회계연도(매년 1/1 초기화) 기준 발생 연차 자동 계산
      카운트 시작 = max(올해 1/1, 입사일) — 작년 발생분은 누적 안 함
-     · 1년 미만 직원(올해 1/1 시점에 입사한지 1년 안 된 경우):
-       그 시작일부터 만근 개월수
+     · 1년 미만 직원: 시작 달=1, 매월 +1 (캘린더 월 기준)
      · 1년 이상 직원: 매년 1/1에 15 + (근속연수 - 1) 일괄 부여 */
   function calculateLeaveTotal(hire,today){
     if(!hire) return null;
@@ -3656,11 +3657,10 @@
         : yearStart.getFullYear()-h.getFullYear()-1;
       return 15+(years-1);
     }
-    // 1년 미만: 회계연도 초기화 적용 — max(1/1, 입사일)부터 만근 카운트
+    // 1년 미만: 캘린더 월 카운트 — 시작 달=1, 다음 달=2, … (만근 X)
     const start=h>yearStart?h:yearStart;
-    let months=(t.getFullYear()-start.getFullYear())*12+(t.getMonth()-start.getMonth());
-    if(t.getDate()<start.getDate()) months--;
-    if(months<0) months=0;
+    let months=(t.getFullYear()-start.getFullYear())*12+(t.getMonth()-start.getMonth())+1;
+    if(months<1) months=1;
     return months;
   }
 
@@ -3706,11 +3706,13 @@
       if(Number.isFinite(auto)) total=auto;
     }
     const used=_computeLeaveUsed(s,v);
+    // total은 있는데 used 미설정 시 0으로 간주 (미입력 표시 방지)
+    const usedEff=(used===null&&total!==null)?0:used;
     // 편집 모드에선 baseline만 표시 (master가 override 직접 설정)
-    const usedDisplay=editing?(Number.isFinite(v?.used)?v.used:(Number.isFinite(s.used)?s.used:'')):used;
-    const hasFull=total!==null&&used!==null;
-    const remain=hasFull?(total-used):null;
-    const pct=hasFull&&total>0?Math.min(100,Math.round((used/total)*100)):0;
+    const usedDisplay=editing?(Number.isFinite(v?.used)?v.used:(Number.isFinite(s.used)?s.used:'')):usedEff;
+    const hasFull=total!==null&&usedEff!==null;
+    const remain=hasFull?(total-usedEff):null;
+    const pct=hasFull&&total>0?Math.min(100,Math.round((usedEff/total)*100)):0;
     const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
     const ceNum=editing?'contenteditable="true" inputmode="numeric" spellcheck="false"':'';
     const ceTxt=editing?'contenteditable="true" spellcheck="false"':'';
@@ -3875,9 +3877,10 @@
       if(Number.isFinite(auto)) total=auto;
     }
     const used=_computeLeaveUsed(s,v);
-    const hasFull=total!==null&&used!==null;
-    const remain=hasFull?(total-used):null;
-    const pct=hasFull&&total>0?Math.min(100,Math.round((used/total)*100)):0;
+    const usedEff=(used===null&&total!==null)?0:used;
+    const hasFull=total!==null&&usedEff!==null;
+    const remain=hasFull?(total-usedEff):null;
+    const pct=hasFull&&total>0?Math.min(100,Math.round((usedEff/total)*100)):0;
     const isEmpty=used===null&&total===null;
     card.classList.toggle('leave-empty',isEmpty);
     card.querySelector('.leave-remain').textContent=remain!==null?remain:'—';
