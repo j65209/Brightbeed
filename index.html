@@ -530,17 +530,72 @@
   /* ETA pill 아래 "N일 남음/지남/오늘" 보조 텍스트 */
   .eta-sub{
     display:block;
-    margin-top:5px;
-    font-size:12px;
-    font-weight:600;
+    width:fit-content;
+    margin:7px auto 0;
+    padding:3px 11px;
+    font-size:12.5px;
+    font-weight:700;
     font-family:var(--mono);
-    color:#854d0e;
-    text-shadow:0 0 6px rgba(255,216,102,.35);
+    color:#7c2d12;
+    background:rgba(234,88,12,.13);
+    border:1px solid rgba(234,88,12,.42);
+    border-radius:11px;
     letter-spacing:.02em;
+    white-space:nowrap;
+    text-shadow:0 0 6px rgba(255,216,102,.35);
   }
-  .eta-sub.eta-sub-soon{color:#c2410c;text-shadow:0 0 8px rgba(255,184,77,.45)}
-  .eta-sub.eta-sub-today{color:var(--neon);text-shadow:0 0 8px rgba(255,46,147,.45)}
-  .eta-sub.eta-sub-late{color:var(--danger);text-shadow:0 0 6px rgba(217,102,102,.4)}
+  .eta-sub.eta-sub-soon{
+    color:#ffffff;
+    background:linear-gradient(135deg,#ea580c 0%,#dc2626 100%);
+    border-color:rgba(220,38,38,.55);
+    box-shadow:0 0 14px rgba(234,88,12,.55);
+    text-shadow:0 0 8px rgba(255,255,255,.4);
+    font-size:13px;
+    animation:eta-soon-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes eta-soon-pulse{
+    0%,100%{box-shadow:0 0 14px rgba(234,88,12,.55)}
+    50%{box-shadow:0 0 22px rgba(234,88,12,.9)}
+  }
+  .eta-sub.eta-sub-today{
+    color:#ffffff;
+    background:linear-gradient(135deg,#ff2e93 0%,#ff6b35 100%);
+    border-color:rgba(255,46,147,.55);
+    box-shadow:0 0 14px rgba(255,46,147,.6);
+    text-shadow:0 0 6px rgba(255,255,255,.45);
+    font-size:13px;
+  }
+  .eta-sub.eta-sub-late{
+    color:#9ca3af;
+    background:transparent;
+    border:1px dashed #d1d5db;
+    text-shadow:none;
+    font-weight:500;
+    font-size:11px;
+    opacity:.8;
+    animation:none;
+  }
+
+  /* 지난 발주 행 — 흐릿하게 (hover 시 잠깐 진하게) */
+  .po-table tr.po-row-past td{
+    opacity:.5;
+    transition:opacity .18s;
+  }
+  .po-table tr.po-row-past:hover td{
+    opacity:.95;
+  }
+  .po-table tr.po-row-past .eta-pill{
+    background:rgba(150,150,150,.06);
+    border-color:rgba(150,150,150,.35);
+    color:#9ca3af;
+    text-shadow:none;
+    box-shadow:none;
+  }
+  .po-table tr.po-row-past td.col-qty{
+    color:#9ca3af;
+    text-shadow:none;
+    font-weight:600;
+  }
 
   /* 정렬 select */
   .po-sort{
@@ -3099,21 +3154,60 @@
           totalErr+=items.length;
         }
       } else {
-        // 식스샵 — 옵션별로 우리 DB에 저장 (TODO: 셀러콘솔 자동화 추가시 여기에 push)
+        // 식스샵 — 옵션별 GHA workflow_dispatch (sixshop-collector update-stock.yml)
+        // 1) 우리 DB 즉시 갱신, 2) GHA에서 Playwright 실행해 식스샵 admin 실제 변경 (~3분)
         if(!platform.optStocks || typeof platform.optStocks!=='object') platform.optStocks={};
+        const updatesForGha=[];
         items.forEach(it=>{
           const n=Number(it.newValue);
-          const optKey = it.seq; // 식스샵 seq = 옵션 정규화 key (예: "블루/USB-C")
-          if(Number.isFinite(n) && n>=0){
-            platform.optStocks[optKey]=n;
-            platform.updatedAt=new Date().toISOString();
-            _stockRowResults[_rowKey(pid,optKey)]={status:'ok',msg:'저장됨'};
-            totalOk++;
-          } else {
+          const optKey = it.seq;
+          if(!Number.isFinite(n) || n<0){
             _stockRowResults[_rowKey(pid,optKey)]={status:'err',msg:'숫자 오류'};
             totalErr++;
+            return;
           }
+          const [color, cable] = optKey.split('/');
+          if(!color || !cable){
+            _stockRowResults[_rowKey(pid,optKey)]={status:'err',msg:'옵션 키 파싱 실패'};
+            totalErr++;
+            return;
+          }
+          updatesForGha.push({color, cable, setStock:n});
+          platform.optStocks[optKey]=n;
+          platform.updatedAt=new Date().toISOString();
         });
+        if(updatesForGha.length>0){
+          try{
+            const r=await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-stock.yml/dispatches',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                ref:'main',
+                inputs:{
+                  product_term:'180° Fast Charging Cable (8color)',
+                  updates:JSON.stringify(updatesForGha),
+                },
+              }),
+            });
+            const ok=r.ok || r.status===204;
+            items.forEach(it=>{
+              const k=_rowKey(pid,it.seq);
+              if(_stockRowResults[k]?.status==='err') return;
+              _stockRowResults[k] = ok
+                ? {status:'ok',msg:'GHA 트리거됨 (~3분 후 반영)'}
+                : {status:'err',msg:`GHA dispatch HTTP ${r.status}`};
+              if(ok) totalOk++; else totalErr++;
+            });
+          }catch(e){
+            console.error('GHA dispatch failed:',e);
+            items.forEach(it=>{
+              const k=_rowKey(pid,it.seq);
+              if(_stockRowResults[k]?.status==='err') return;
+              _stockRowResults[k]={status:'err',msg:'GHA 통신 오류'};
+              totalErr++;
+            });
+          }
+        }
         await saveStockData();
       }
     }
@@ -4676,8 +4770,9 @@
     const editing=document.body.classList.contains('po-edit-mode');
     tbody.innerHTML=view.map(it=>{
       const combined=it.combined||(it.product&&it.option&&it.product!==it.option?`${it.product} / ${it.option}`:(it.product||it.option||''));
-      const groupCls=`po-row-g${dateGroups[it.date||'_']%4}`;
       const subInfo=etaSubInfo(it.eta);
+      const isPast=subInfo&&subInfo.cls==='eta-sub-late';
+      const groupCls=`po-row-g${dateGroups[it.date||'_']%4}${isPast?' po-row-past':''}`;
       const etaCell=it.eta
         ? `<span class="eta-pill">${escapeHTML(it.eta)}</span>${subInfo?`<span class="eta-sub ${subInfo.cls}">${escapeHTML(subInfo.text)}</span>`:''}`
         : `<span class="eta-pill eta-empty">미정</span>`;
