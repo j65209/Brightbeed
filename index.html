@@ -527,7 +527,7 @@
     text-shadow:0 0 8px rgba(255,46,147,.4);
     box-shadow:0 0 0 1px rgba(255,46,147,.12) inset, 0 0 14px rgba(255,46,147,.22)
   }
-  /* ETA pill 아래 "N일 남음/지남/오늘" 보조 텍스트 */
+  /* ETA pill 아래 "N일 남음/지남/오늘" 보조 텍스트 — 비비드 팔레트 */
   .eta-sub{
     display:block;
     width:fit-content;
@@ -536,39 +536,46 @@
     font-size:12.5px;
     font-weight:700;
     font-family:var(--mono);
-    color:#7c2d12;
-    background:rgba(234,88,12,.13);
-    border:1px solid rgba(234,88,12,.42);
+    color:#ffffff;
+    background:linear-gradient(135deg,#06b6d4 0%,#3b82f6 100%);
+    border:1px solid rgba(6,182,212,.6);
     border-radius:11px;
     letter-spacing:.02em;
     white-space:nowrap;
-    text-shadow:0 0 6px rgba(255,216,102,.35);
+    box-shadow:0 0 12px rgba(6,182,212,.45);
+    text-shadow:0 0 6px rgba(255,255,255,.35);
   }
   .eta-sub.eta-sub-soon{
-    color:#ffffff;
-    background:linear-gradient(135deg,#ea580c 0%,#dc2626 100%);
-    border-color:rgba(220,38,38,.55);
-    box-shadow:0 0 14px rgba(234,88,12,.55);
-    text-shadow:0 0 8px rgba(255,255,255,.4);
+    background:linear-gradient(135deg,#ec4899 0%,#a855f7 100%);
+    border-color:rgba(236,72,153,.6);
+    box-shadow:0 0 14px rgba(236,72,153,.6);
+    text-shadow:0 0 8px rgba(255,255,255,.45);
     font-size:13px;
-    animation:eta-soon-pulse 1.8s ease-in-out infinite;
+    animation:eta-soon-pulse 1.6s ease-in-out infinite;
   }
   @keyframes eta-soon-pulse{
-    0%,100%{box-shadow:0 0 14px rgba(234,88,12,.55)}
-    50%{box-shadow:0 0 22px rgba(234,88,12,.9)}
+    0%,100%{box-shadow:0 0 14px rgba(236,72,153,.55), 0 0 0 0 rgba(168,85,247,.4)}
+    50%{box-shadow:0 0 24px rgba(236,72,153,.95), 0 0 0 4px rgba(168,85,247,.18)}
   }
   .eta-sub.eta-sub-today{
-    color:#ffffff;
-    background:linear-gradient(135deg,#ff2e93 0%,#ff6b35 100%);
-    border-color:rgba(255,46,147,.55);
-    box-shadow:0 0 14px rgba(255,46,147,.6);
-    text-shadow:0 0 6px rgba(255,255,255,.45);
+    color:#0a1f0a;
+    background:linear-gradient(135deg,#facc15 0%,#84cc16 100%);
+    border-color:rgba(132,204,22,.65);
+    box-shadow:0 0 16px rgba(250,204,21,.65);
+    text-shadow:0 0 6px rgba(255,255,255,.5);
     font-size:13px;
+    font-weight:800;
+    animation:eta-today-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes eta-today-pulse{
+    0%,100%{box-shadow:0 0 16px rgba(250,204,21,.6)}
+    50%{box-shadow:0 0 26px rgba(250,204,21,.95)}
   }
   .eta-sub.eta-sub-late{
     color:#9ca3af;
     background:transparent;
     border:1px dashed #d1d5db;
+    box-shadow:none;
     text-shadow:none;
     font-weight:500;
     font-size:11px;
