@@ -945,9 +945,9 @@
   .seeding-group-head{padding:10px 14px;background:rgba(255,255,255,.035);font-size:12px;font-weight:600;color:#f3c5d4;letter-spacing:.02em;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px}
   .seeding-group-code{font-family:var(--mono);font-size:10px;color:var(--text-3);padding:2px 6px;background:rgba(255,255,255,.05);border-radius:4px}
   .seeding-rows{display:flex;flex-direction:column}
-  .seeding-row{display:grid;grid-template-columns:28px minmax(120px,1fr) auto auto auto auto;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.04);transition:background .12s}
+  .seeding-row{display:grid;grid-template-columns:28px minmax(120px,1fr) auto auto auto;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.04);transition:background .12s;cursor:pointer}
   .seeding-row:first-child{border-top:none}
-  .seeding-row:hover{background:rgba(255,255,255,.025)}
+  .seeding-row:hover{background:rgba(255,255,255,.04)}
   .seeding-swatch{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.3)}
   .seeding-name{font-size:13px;font-weight:500;color:var(--text-1)}
   .seeding-fabric{display:block;font-size:10px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
@@ -963,7 +963,9 @@
   .seeding-log-btn.has-log{color:#fcd34d;border-color:rgba(252,211,77,.3)}
   body.role-viewer .seeding-send{display:none}
   /* 시딩 모달 */
-  .seeding-modal,.seeding-log-modal,.seeding-stock-modal{width:480px;max-width:92vw}
+  .seeding-modal{width:560px;max-width:92vw}
+  .seeding-log-modal,.seeding-stock-modal{width:480px;max-width:92vw}
+  .seeding-memo-area{min-height:120px;line-height:1.5;resize:vertical;font-family:inherit}
   .seeding-modal-sub{font-size:12px;color:var(--text-3);margin:-6px 0 12px}
   .seeding-req{color:#fda4af}
   .seeding-size-radios{display:flex;gap:10px}
@@ -988,9 +990,10 @@
   .seeding-stock-input input{width:48px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:12px;text-align:center}
   @media (max-width:700px){
     .seeding-row{grid-template-columns:24px minmax(80px,1fr) auto auto;gap:8px;padding:8px 10px}
-    .seeding-row .seeding-qty-l,.seeding-row .seeding-log-btn{display:none}
+    .seeding-row .seeding-qty-l{display:none}
     .seeding-name{font-size:12px}
     .seeding-qty{min-width:60px;padding:3px 8px}
+    .seeding-log-btn{font-size:10px;padding:3px 6px}
   }
 
   /* 기획전 호버 툴팁 */
@@ -2687,8 +2690,8 @@
       </div>
     </div>
     <div class="md-event-field md-event-field-memo">
-      <label class="md-event-label">메모 (선택)</label>
-      <input class="modal-input md-event-input" id="seedingMemo" type="text" maxlength="80" placeholder="예: 컨텐츠 6/1 업로드, 반품 무관">
+      <label class="md-event-label">메모</label>
+      <textarea class="modal-input md-event-memo seeding-memo-area" id="seedingMemo" rows="5" maxlength="500" placeholder="예: 컨텐츠 일정, 반품 여부, 사이즈 추가 가능 여부, 인플루언서 채널/URL, 콘셉트 가이드 등 자유롭게 기록"></textarea>
     </div>
     <div class="modal-actions md-event-actions">
       <span class="md-event-actions-spacer"></span>
@@ -7013,19 +7016,24 @@ async function handlePOFiles(files){
         const clsM=remM===0?'is-out':(remM<=1&&stockM>0?'is-low':'');
         const clsL=remL===0?'is-out':(remL<=1&&stockL>0?'is-low':'');
         const logN=(it.log||[]).length;
-        const fab=it.fabric?`<span class="seeding-fabric">${_seedEsc(it.fabric)}</span>`:'';
-        html += `<div class="seeding-row" data-id="${_seedEsc(it.id)}">
+        html += `<div class="seeding-row" data-id="${_seedEsc(it.id)}" onclick="seedingRowClick('${_seedEsc(it.id)}')">
           <span class="seeding-swatch" style="background:${_seedEsc(it.swatch||'#888')}" title="${_seedEsc(it.color)}"></span>
-          <div><div class="seeding-name">${_seedEsc(it.color)}</div>${fab}</div>
+          <div class="seeding-name">${_seedEsc(it.color)}</div>
           <div class="seeding-qty seeding-qty-m ${clsM}"><span class="seeding-size-label">M</span><span class="seeding-rem">${remM}</span><span class="seeding-of">/${stockM}</span></div>
           <div class="seeding-qty seeding-qty-l ${clsL}"><span class="seeding-size-label">L</span><span class="seeding-rem">${remL}</span><span class="seeding-of">/${stockL}</span></div>
-          <button type="button" class="btn po-import seeding-send" onclick="seedingOpenSend('${_seedEsc(it.id)}')">발송</button>
-          <button type="button" class="seeding-log-btn ${logN?'has-log':''}" onclick="seedingOpenLog('${_seedEsc(it.id)}')">이력 ${logN}건</button>
+          <button type="button" class="seeding-log-btn ${logN?'has-log':''}" onclick="event.stopPropagation();seedingOpenLog('${_seedEsc(it.id)}')">이력 ${logN}건</button>
         </div>`;
       });
       html += `</div></div>`;
     }
     wrap.innerHTML=html;
+  }
+
+  /* ===== 행 클릭: master → 발송 모달, viewer → 이력 모달 ===== */
+  function seedingRowClick(id){
+    const role=localStorage.getItem('brightbeed_role');
+    if(role==='master') seedingOpenSend(id);
+    else seedingOpenLog(id);
   }
 
   /* ===== 발송 모달 ===== */
@@ -7203,6 +7211,7 @@ async function handlePOFiles(files){
 
   window.seedingOpenSend=seedingOpenSend;
   window.seedingOpenLog=seedingOpenLog;
+  window.seedingRowClick=seedingRowClick;
   window.seedingOpenStockEdit=seedingOpenStockEdit;
   window.seedingUndo=seedingUndo;
   window.syncSeedingFromRemote=syncSeedingFromRemote;
