@@ -935,6 +935,64 @@
     letter-spacing:.02em;text-align:right;
   }
 
+  /* ===== 시딩 재고 ===== */
+  .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px}
+  .seeding-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em}
+  .seeding-add-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
+  .seeding-body{display:flex;flex-direction:column;gap:14px;margin-top:6px}
+  .seeding-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
+  .seeding-group{border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.02);overflow:hidden}
+  .seeding-group-head{padding:10px 14px;background:rgba(255,255,255,.035);font-size:12px;font-weight:600;color:#f3c5d4;letter-spacing:.02em;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px}
+  .seeding-group-code{font-family:var(--mono);font-size:10px;color:var(--text-3);padding:2px 6px;background:rgba(255,255,255,.05);border-radius:4px}
+  .seeding-rows{display:flex;flex-direction:column}
+  .seeding-row{display:grid;grid-template-columns:28px minmax(120px,1fr) auto auto auto auto;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.04);transition:background .12s}
+  .seeding-row:first-child{border-top:none}
+  .seeding-row:hover{background:rgba(255,255,255,.025)}
+  .seeding-swatch{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.3)}
+  .seeding-name{font-size:13px;font-weight:500;color:var(--text-1)}
+  .seeding-fabric{display:block;font-size:10px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
+  .seeding-qty{display:flex;align-items:baseline;gap:4px;font-family:var(--mono);padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.04);min-width:74px;justify-content:center}
+  .seeding-qty.is-out{background:rgba(225,29,72,.12);color:#fda4af}
+  .seeding-qty.is-low{background:rgba(245,158,11,.12);color:#fcd34d}
+  .seeding-size-label{font-size:10px;color:var(--text-3);font-weight:600}
+  .seeding-rem{font-size:14px;font-weight:700}
+  .seeding-of{font-size:10px;color:var(--text-3)}
+  .seeding-send{padding:5px 12px !important;font-size:11px !important;min-height:28px !important;cursor:pointer}
+  .seeding-log-btn{background:none;border:1px solid rgba(255,255,255,.1);color:var(--text-2);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .12s;font-family:inherit}
+  .seeding-log-btn:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2);color:var(--text-1)}
+  .seeding-log-btn.has-log{color:#fcd34d;border-color:rgba(252,211,77,.3)}
+  body.role-viewer .seeding-send{display:none}
+  /* 시딩 모달 */
+  .seeding-modal,.seeding-log-modal,.seeding-stock-modal{width:480px;max-width:92vw}
+  .seeding-modal-sub{font-size:12px;color:var(--text-3);margin:-6px 0 12px}
+  .seeding-req{color:#fda4af}
+  .seeding-size-radios{display:flex;gap:10px}
+  .seeding-size-opt{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:12px;flex:1;justify-content:center}
+  .seeding-size-opt:has(input:checked){background:rgba(255,107,53,.12);border-color:rgba(255,107,53,.45);color:#ffb088}
+  .seeding-log-body{max-height:50vh;overflow:auto;margin:8px 0 16px;border:1px solid rgba(255,255,255,.06);border-radius:8px}
+  .seeding-log-row{display:grid;grid-template-columns:90px 1fr 60px auto auto;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+  .seeding-log-row:last-child{border-bottom:none}
+  .seeding-log-date{color:var(--text-3);font-family:var(--mono);font-size:11px}
+  .seeding-log-to{color:var(--text-1);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seeding-log-size{font-family:var(--mono);font-size:11px;color:#ffb088;text-align:center}
+  .seeding-log-memo{color:var(--text-3);font-size:11px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+  .seeding-log-undo{background:none;border:1px solid rgba(225,29,72,.3);color:#fda4af;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:inherit}
+  .seeding-log-undo:hover{background:rgba(225,29,72,.12)}
+  .seeding-log-empty{padding:32px;text-align:center;color:var(--text-3);font-size:12px}
+  .seeding-stock-body{max-height:54vh;overflow:auto;margin:8px 0 16px;display:flex;flex-direction:column;gap:6px}
+  .seeding-stock-row{display:grid;grid-template-columns:24px 1fr 80px 80px;gap:10px;align-items:center;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,.025)}
+  .seeding-stock-row .seeding-swatch{width:20px;height:20px}
+  .seeding-stock-name{font-size:12px;color:var(--text-1)}
+  .seeding-stock-input{display:flex;align-items:center;gap:4px}
+  .seeding-stock-input span{font-size:10px;color:var(--text-3);font-weight:600}
+  .seeding-stock-input input{width:48px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:12px;text-align:center}
+  @media (max-width:700px){
+    .seeding-row{grid-template-columns:24px minmax(80px,1fr) auto auto;gap:8px;padding:8px 10px}
+    .seeding-row .seeding-qty-l,.seeding-row .seeding-log-btn{display:none}
+    .seeding-name{font-size:12px}
+    .seeding-qty{min-width:60px;padding:3px 8px}
+  }
+
   /* 기획전 호버 툴팁 */
   .md-cal-tooltip{
     --evcolor:#e11d48;
@@ -2358,6 +2416,22 @@
         </div>
       </div>
 
+      <!-- 시딩 재고 -->
+      <div class="po-section seeding-section">
+        <div class="po-section-head">
+          <div class="po-section-title">시딩 재고 <span class="seeding-sub">AkoiHaus 슬리퍼</span></div>
+          <div class="po-section-meta">
+            <span id="seedingUpdatedTag" class="sales-updated-tag"></span>
+            <button class="btn po-import seeding-add-btn master-only" type="button" onclick="seedingOpenStockEdit()" title="보유 수량 조정">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4z"/></svg>
+              보유 조정
+            </button>
+          </div>
+        </div>
+        <div class="seeding-body" id="seedingBody"></div>
+        <div class="md-cal-hint">컬러칩 옆 [발송] 버튼으로 시딩 기록 · [이력] 클릭 → 지난 발송 확인/취소 · 다른 사용자 화면도 약 1분 안에 자동 반영</div>
+      </div>
+
       <div class="po-section">
         <div class="po-section-head">
           <div class="po-section-title">매출 보고서 PPT</div>
@@ -2566,6 +2640,65 @@
       <span class="md-event-actions-spacer"></span>
       <button class="modal-btn" id="mdEventCancelBtn">취소</button>
       <button class="modal-btn modal-btn-primary" id="mdEventSaveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 시딩 발송 모달 -->
+<div class="modal-bg" id="seedingModal">
+  <div class="modal seeding-modal">
+    <div class="modal-title" id="seedingModalTitle">발송 기록</div>
+    <div class="seeding-modal-sub" id="seedingModalSub"></div>
+    <div class="md-event-field">
+      <label class="md-event-label">받는 사람 <span class="seeding-req">*</span></label>
+      <input class="modal-input md-event-input" id="seedingTo" type="text" maxlength="40" placeholder="예: 헬로키티 / @account_name / 브랜드명" autocomplete="off">
+    </div>
+    <div class="md-event-row">
+      <div class="md-event-field">
+        <label class="md-event-label">사이즈</label>
+        <div class="seeding-size-radios">
+          <label class="seeding-size-opt"><input type="radio" name="seedingSize" value="M" checked> M · 260mm</label>
+          <label class="seeding-size-opt"><input type="radio" name="seedingSize" value="L"> L · 290mm</label>
+        </div>
+      </div>
+      <div class="md-event-field">
+        <label class="md-event-label">수량 (족)</label>
+        <input class="modal-input md-event-input" id="seedingQty" type="number" min="1" value="1">
+      </div>
+    </div>
+    <div class="md-event-field md-event-field-memo">
+      <label class="md-event-label">메모 (선택)</label>
+      <input class="modal-input md-event-input" id="seedingMemo" type="text" maxlength="80" placeholder="예: 컨텐츠 6/1 업로드, 반품 무관">
+    </div>
+    <div class="modal-actions md-event-actions">
+      <span class="md-event-actions-spacer"></span>
+      <button class="modal-btn" id="seedingCancelBtn">취소</button>
+      <button class="modal-btn modal-btn-primary master-only" id="seedingSendBtn">발송 기록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 시딩 이력 모달 -->
+<div class="modal-bg" id="seedingLogModal">
+  <div class="modal seeding-log-modal">
+    <div class="modal-title" id="seedingLogTitle">발송 이력</div>
+    <div class="seeding-log-body" id="seedingLogBody"></div>
+    <div class="modal-actions md-event-actions">
+      <span class="md-event-actions-spacer"></span>
+      <button class="modal-btn" id="seedingLogCloseBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 시딩 보유 조정 모달 -->
+<div class="modal-bg" id="seedingStockModal">
+  <div class="modal seeding-stock-modal">
+    <div class="modal-title">보유 수량 조정</div>
+    <div class="seeding-stock-body" id="seedingStockBody"></div>
+    <div class="modal-actions md-event-actions">
+      <span class="md-event-actions-spacer"></span>
+      <button class="modal-btn" id="seedingStockCancelBtn">취소</button>
+      <button class="modal-btn modal-btn-primary master-only" id="seedingStockSaveBtn">저장</button>
     </div>
   </div>
 </div>
@@ -3586,6 +3719,8 @@
       if(typeof renderSalesArchive==='function') renderSalesArchive();
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
       if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
+      if(typeof renderSeeding==='function') renderSeeding();
+      if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
     }
     if(id==='viewNotice'){
       if(typeof renderNotice==='function') renderNotice();
@@ -4445,13 +4580,14 @@
     if(status) status.textContent=`동기화 완료 · ${t}`;
     if(last) last.textContent=t;
 
-    // 매출 PPT + 공지사항 + 연차 + MD 기획전도 함께 동기화
+    // 매출 PPT + 공지사항 + 연차 + MD 기획전 + 시딩도 함께 동기화
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
+    if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -4474,13 +4610,14 @@
         if(last) last.textContent = t;
       }
     }
-    // 매출 PPT + 공지사항 + 연차 + MD 기획전도 함께 폴링
+    // 매출 PPT + 공지사항 + 연차 + MD 기획전 + 시딩도 함께 폴링
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
+    if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
   }
 
   function startPolling(){
@@ -6760,6 +6897,296 @@ async function handlePOFiles(files){
 
   _mdCal.events=loadMdEvents();
   renderMdCal();
+
+  /* ===== 시딩 재고 ===== */
+  const SEEDING_KEY='brightbeed_seeding';
+  const SEEDING_PATH='data/seeding.json';
+  const SEEDING_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${SEEDING_PATH}`;
+  const SEEDING_API=`https://api.github.com/repos/${PO_REPO}/contents/${SEEDING_PATH}`;
+
+  let _seeding={items:[], updatedAt:0};
+  let _seeding_lastHash=null;
+  let _seeding_actionItem=null;
+  let _seeding_logItem=null;
+
+  function _seedEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+  function loadSeeding(){
+    try{
+      const j=JSON.parse(localStorage.getItem(SEEDING_KEY)||'null');
+      if(j && Array.isArray(j.items)) return j;
+    }catch(e){}
+    return {items:[], updatedAt:0};
+  }
+  function saveSeedingLocal(data){
+    const j=JSON.stringify(data);
+    localStorage.setItem(SEEDING_KEY, j);
+    _seeding_lastHash=j;
+    _seeding=data;
+  }
+
+  async function fetchSeedingFromRemote(){
+    try{
+      const r=await fetch(`${SEEDING_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {empty:true};
+      if(!r.ok) return null;
+      const data=await r.json();
+      if(data && Array.isArray(data.items)) return data;
+      return {empty:true};
+    }catch(e){return null}
+  }
+
+  async function syncSeedingFromRemote(){
+    const remote=await fetchSeedingFromRemote();
+    if(remote===null) return;
+    if(remote.empty){
+      if(loadSeeding().items.length){saveSeedingLocal({items:[], updatedAt:0}); renderSeeding();}
+      else{_seeding_lastHash='null'}
+      return;
+    }
+    const json=JSON.stringify(remote);
+    if(json===_seeding_lastHash) return;
+    _seeding_lastHash=json;
+    localStorage.setItem(SEEDING_KEY, json);
+    _seeding=remote;
+    renderSeeding();
+    renderSeedingUpdatedTag();
+  }
+
+  function renderSeedingUpdatedTag(){
+    const tag=document.getElementById('seedingUpdatedTag');
+    if(!tag) return;
+    if(!_seeding.updatedAt){tag.textContent=''; return}
+    const d=new Date(_seeding.updatedAt);
+    const t=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    tag.textContent=`갱신 ${t}`;
+  }
+
+  function renderSeeding(){
+    const wrap=document.getElementById('seedingBody');
+    if(!wrap) return;
+    const items=_seeding.items||[];
+    if(!items.length){
+      wrap.innerHTML='<div class="seeding-empty">시딩 데이터를 불러오는 중...</div>';
+      return;
+    }
+    const groups=new Map();
+    items.forEach(it=>{
+      const k=`${it.styleCode}|${it.style}`;
+      if(!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(it);
+    });
+    let html='';
+    for(const [k, arr] of groups){
+      const [code, name]=k.split('|');
+      html += `<div class="seeding-group">
+        <div class="seeding-group-head"><span class="seeding-group-code">Style ${_seedEsc(code)}</span>${_seedEsc(name)}</div>
+        <div class="seeding-rows">`;
+      arr.forEach(it=>{
+        const stockM=(it.stock&&it.stock.M)||0, stockL=(it.stock&&it.stock.L)||0;
+        const sentM=(it.sent&&it.sent.M)||0, sentL=(it.sent&&it.sent.L)||0;
+        const remM=Math.max(0, stockM-sentM), remL=Math.max(0, stockL-sentL);
+        const clsM=remM===0?'is-out':(remM<=1&&stockM>0?'is-low':'');
+        const clsL=remL===0?'is-out':(remL<=1&&stockL>0?'is-low':'');
+        const logN=(it.log||[]).length;
+        const fab=it.fabric?`<span class="seeding-fabric">${_seedEsc(it.fabric)}</span>`:'';
+        html += `<div class="seeding-row" data-id="${_seedEsc(it.id)}">
+          <span class="seeding-swatch" style="background:${_seedEsc(it.swatch||'#888')}" title="${_seedEsc(it.color)}"></span>
+          <div><div class="seeding-name">${_seedEsc(it.color)}</div>${fab}</div>
+          <div class="seeding-qty seeding-qty-m ${clsM}"><span class="seeding-size-label">M</span><span class="seeding-rem">${remM}</span><span class="seeding-of">/${stockM}</span></div>
+          <div class="seeding-qty seeding-qty-l ${clsL}"><span class="seeding-size-label">L</span><span class="seeding-rem">${remL}</span><span class="seeding-of">/${stockL}</span></div>
+          <button type="button" class="btn po-import seeding-send" onclick="seedingOpenSend('${_seedEsc(it.id)}')">발송</button>
+          <button type="button" class="seeding-log-btn ${logN?'has-log':''}" onclick="seedingOpenLog('${_seedEsc(it.id)}')">이력 ${logN}건</button>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+    wrap.innerHTML=html;
+  }
+
+  /* ===== 발송 모달 ===== */
+  function seedingOpenSend(id){
+    const item=(_seeding.items||[]).find(x=>x.id===id);
+    if(!item) return;
+    _seeding_actionItem=item;
+    const stockM=(item.stock&&item.stock.M)||0, sentM=(item.sent&&item.sent.M)||0;
+    const stockL=(item.stock&&item.stock.L)||0, sentL=(item.sent&&item.sent.L)||0;
+    document.getElementById('seedingModalTitle').textContent=`발송: Style ${item.styleCode} · ${item.color}`;
+    document.getElementById('seedingModalSub').textContent=`잔여 M ${Math.max(0,stockM-sentM)}/${stockM}, L ${Math.max(0,stockL-sentL)}/${stockL}`;
+    document.getElementById('seedingTo').value='';
+    document.getElementById('seedingQty').value='1';
+    document.getElementById('seedingMemo').value='';
+    document.querySelectorAll('input[name=seedingSize]').forEach(r=>{r.checked=(r.value==='M')});
+    document.getElementById('seedingModal').classList.add('show');
+    setTimeout(()=>document.getElementById('seedingTo').focus(), 50);
+  }
+  function seedingCloseSend(){
+    _seeding_actionItem=null;
+    document.getElementById('seedingModal').classList.remove('show');
+  }
+
+  async function seedingSubmitSend(){
+    if(!_seeding_actionItem) return;
+    const to=document.getElementById('seedingTo').value.trim();
+    const sizeEl=document.querySelector('input[name=seedingSize]:checked');
+    const size=sizeEl?sizeEl.value:'M';
+    const qty=parseInt(document.getElementById('seedingQty').value||'1',10);
+    const memo=document.getElementById('seedingMemo').value.trim();
+    if(!to){toast('받는 사람을 입력하세요','err');return}
+    if(!qty || qty<1){toast('수량은 1 이상이어야 합니다','err');return}
+    const it=_seeding_actionItem;
+    const stock=((it.stock||{})[size])||0;
+    const sent=((it.sent||{})[size])||0;
+    if(sent+qty > stock){toast(`잔여 ${stock-sent}족 초과 (요청 ${qty})`,'err');return}
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+
+    const items=(_seeding.items||[]).map(x=>{
+      if(x.id !== it.id) return x;
+      const nx={...x};
+      nx.stock={...(x.stock||{})};
+      nx.sent={...(x.sent||{}), [size]:((x.sent&&x.sent[size])||0)+qty};
+      nx.log=[...(x.log||[]), {id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`, ts:Date.now(), to, size, qty, memo}];
+      return nx;
+    });
+    await _seedingPersist({items, updatedAt:Date.now()}, `chore: 시딩 발송 (${it.color} ${size} ×${qty} → ${to})`);
+    seedingCloseSend();
+  }
+
+  /* ===== 이력 모달 ===== */
+  function seedingOpenLog(id){
+    const item=(_seeding.items||[]).find(x=>x.id===id);
+    if(!item) return;
+    _seeding_logItem=item;
+    document.getElementById('seedingLogTitle').textContent=`발송 이력 — ${item.color}`;
+    const body=document.getElementById('seedingLogBody');
+    const log=(item.log||[]).slice().sort((a,b)=>b.ts-a.ts);
+    if(!log.length){
+      body.innerHTML='<div class="seeding-log-empty">아직 발송 내역이 없습니다</div>';
+    }else{
+      body.innerHTML=log.map(L=>{
+        const d=new Date(L.ts);
+        const dt=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        return `<div class="seeding-log-row">
+          <span class="seeding-log-date">${dt}</span>
+          <span class="seeding-log-to">${_seedEsc(L.to)}</span>
+          <span class="seeding-log-size">${_seedEsc(L.size)}×${L.qty}</span>
+          <span class="seeding-log-memo" title="${_seedEsc(L.memo||'')}">${_seedEsc(L.memo||'')}</span>
+          <button type="button" class="seeding-log-undo master-only" onclick="seedingUndo('${_seedEsc(L.id)}')">취소</button>
+        </div>`;
+      }).join('');
+    }
+    document.getElementById('seedingLogModal').classList.add('show');
+  }
+  function seedingCloseLog(){
+    _seeding_logItem=null;
+    document.getElementById('seedingLogModal').classList.remove('show');
+  }
+
+  async function seedingUndo(logId){
+    if(!_seeding_logItem) return;
+    const it=_seeding_logItem;
+    const L=(it.log||[]).find(x=>x.id===logId);
+    if(!L) return;
+    if(!confirm(`${L.to} ${L.size}×${L.qty} 발송을 취소할까요?`)) return;
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+    const items=(_seeding.items||[]).map(x=>{
+      if(x.id !== it.id) return x;
+      const nx={...x};
+      nx.sent={...(x.sent||{}), [L.size]:Math.max(0,((x.sent&&x.sent[L.size])||0)-L.qty)};
+      nx.log=(x.log||[]).filter(y=>y.id!==L.id);
+      return nx;
+    });
+    await _seedingPersist({items, updatedAt:Date.now()}, `chore: 시딩 발송 취소 (${it.color} ${L.size} ×${L.qty} ← ${L.to})`);
+    // 모달 열려있으면 다시 그리기
+    if(document.getElementById('seedingLogModal').classList.contains('show')){
+      const refreshed=(_seeding.items||[]).find(x=>x.id===it.id);
+      if(refreshed) seedingOpenLog(refreshed.id);
+      else seedingCloseLog();
+    }
+  }
+
+  /* ===== 보유 수량 조정 모달 ===== */
+  function seedingOpenStockEdit(){
+    const items=_seeding.items||[];
+    const body=document.getElementById('seedingStockBody');
+    body.innerHTML=items.map(it=>{
+      const sm=(it.stock&&it.stock.M)||0, sl=(it.stock&&it.stock.L)||0;
+      return `<div class="seeding-stock-row">
+        <span class="seeding-swatch" style="background:${_seedEsc(it.swatch||'#888')}"></span>
+        <span class="seeding-stock-name">${_seedEsc(it.color)} <span style="color:var(--text-3);font-size:10px">· ${_seedEsc(it.style)}</span></span>
+        <div class="seeding-stock-input"><span>M</span><input type="number" min="0" value="${sm}" data-id="${_seedEsc(it.id)}" data-size="M"></div>
+        <div class="seeding-stock-input"><span>L</span><input type="number" min="0" value="${sl}" data-id="${_seedEsc(it.id)}" data-size="L"></div>
+      </div>`;
+    }).join('');
+    document.getElementById('seedingStockModal').classList.add('show');
+  }
+  function seedingCloseStock(){
+    document.getElementById('seedingStockModal').classList.remove('show');
+  }
+  async function seedingSubmitStock(){
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+    const inputs=document.querySelectorAll('#seedingStockBody input');
+    const stockMap={};
+    inputs.forEach(inp=>{
+      const id=inp.dataset.id, size=inp.dataset.size;
+      const v=Math.max(0, parseInt(inp.value||'0',10)||0);
+      if(!stockMap[id]) stockMap[id]={};
+      stockMap[id][size]=v;
+    });
+    const items=(_seeding.items||[]).map(x=>{
+      const ns=stockMap[x.id];
+      if(!ns) return x;
+      const sentM=(x.sent&&x.sent.M)||0, sentL=(x.sent&&x.sent.L)||0;
+      if(ns.M < sentM || ns.L < sentL){
+        // 보유 수량을 발송 완료보다 적게 못 설정
+        toast(`${x.color}: 발송 완료보다 낮게 설정 불가`,'err');
+        throw new Error('stock-lt-sent');
+      }
+      return {...x, stock:{M:ns.M, L:ns.L}};
+    });
+    try{
+      await _seedingPersist({items, updatedAt:Date.now()}, 'chore: 시딩 보유 수량 조정');
+      seedingCloseStock();
+    }catch(e){
+      if(e.message!=='stock-lt-sent') toast('저장 실패','err');
+    }
+  }
+
+  async function _seedingPersist(data, msg){
+    toast('시딩 저장 중...','ok');
+    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    const r=await ghPut(SEEDING_API, b64, msg);
+    if(!r.ok){
+      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
+      if(r.reason==='too_large'){toast('데이터가 너무 큽니다','err');return}
+      toast(`저장 실패: ${r.reason||'unknown'}`,'err');
+      return;
+    }
+    saveSeedingLocal(data);
+    renderSeeding();
+    renderSeedingUpdatedTag();
+    toast('✓ 저장 완료','ok');
+  }
+
+  document.getElementById('seedingCancelBtn')?.addEventListener('click', seedingCloseSend);
+  document.getElementById('seedingSendBtn')?.addEventListener('click', seedingSubmitSend);
+  document.getElementById('seedingLogCloseBtn')?.addEventListener('click', seedingCloseLog);
+  document.getElementById('seedingStockCancelBtn')?.addEventListener('click', seedingCloseStock);
+  document.getElementById('seedingStockSaveBtn')?.addEventListener('click', seedingSubmitStock);
+  document.getElementById('seedingModal')?.addEventListener('click', (e)=>{if(e.target.id==='seedingModal') seedingCloseSend()});
+  document.getElementById('seedingLogModal')?.addEventListener('click', (e)=>{if(e.target.id==='seedingLogModal') seedingCloseLog()});
+  document.getElementById('seedingStockModal')?.addEventListener('click', (e)=>{if(e.target.id==='seedingStockModal') seedingCloseStock()});
+
+  window.seedingOpenSend=seedingOpenSend;
+  window.seedingOpenLog=seedingOpenLog;
+  window.seedingOpenStockEdit=seedingOpenStockEdit;
+  window.seedingUndo=seedingUndo;
+  window.syncSeedingFromRemote=syncSeedingFromRemote;
+  window.renderSeeding=renderSeeding;
+
+  _seeding=loadSeeding();
+  renderSeeding();
+  renderSeedingUpdatedTag();
 
   init();
 </script>
