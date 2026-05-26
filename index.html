@@ -935,55 +935,57 @@
     letter-spacing:.02em;text-align:right;
   }
 
-  /* ===== 시딩 재고 — 비비드 배색 (여성=핑크 / 남성=시안) ===== */
-  .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px;color:#fde68a}
-  .seeding-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em;font-style:italic}
+  /* ===== 시딩 재고 — 비비드 배색 v2 (시안 + 마젠타 / 라이트 메모) ===== */
+  .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px;color:#22d3ee;text-shadow:0 0 14px rgba(34,211,238,.32)}
+  .seeding-sub{font-size:11px;font-weight:500;color:#a5b4fc;letter-spacing:.02em;font-style:italic}
   .seeding-add-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
   .seeding-body{display:flex;flex-direction:column;gap:14px;margin-top:6px}
   .seeding-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
-  .seeding-group{border:1px solid rgba(252,211,77,.18);border-radius:12px;background:linear-gradient(180deg,rgba(252,211,77,.04),rgba(255,255,255,.015));overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.22)}
-  .seeding-group-head{padding:11px 14px;background:linear-gradient(90deg,rgba(252,211,77,.12),rgba(252,211,77,.04));font-size:12.5px;font-weight:700;color:#fde047;letter-spacing:.04em;border-bottom:1px solid rgba(252,211,77,.18);display:flex;align-items:center;gap:10px;text-shadow:0 1px 6px rgba(252,211,77,.18)}
-  .seeding-group-code{font-family:var(--mono);font-size:10px;color:#fbbf24;padding:2px 8px;background:rgba(252,211,77,.14);border:1px solid rgba(252,211,77,.25);border-radius:4px;font-weight:600;letter-spacing:.05em}
+  /* 그룹 카드 — 시안 강조 */
+  .seeding-group{border:1px solid rgba(34,211,238,.24);border-radius:13px;background:linear-gradient(180deg,rgba(34,211,238,.05),rgba(168,85,247,.025));overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.04)}
+  .seeding-group-head{padding:12px 16px;background:linear-gradient(90deg,rgba(34,211,238,.22),rgba(168,85,247,.10));font-size:14px;font-weight:800;color:#ffffff;letter-spacing:.03em;border-bottom:1px solid rgba(34,211,238,.28);display:flex;align-items:center;gap:10px;text-shadow:0 0 12px rgba(34,211,238,.45),0 1px 3px rgba(0,0,0,.6)}
+  .seeding-group-code{font-family:var(--mono);font-size:10.5px;color:#22d3ee;padding:3px 9px;background:rgba(34,211,238,.18);border:1px solid rgba(34,211,238,.40);border-radius:5px;font-weight:700;letter-spacing:.06em;text-shadow:none}
   .seeding-rows{display:flex;flex-direction:column}
-  .seeding-row{display:flex;flex-direction:column;gap:8px;padding:14px;border-top:1px solid rgba(255,255,255,.05);transition:background .12s;cursor:pointer}
+  .seeding-row{display:flex;flex-direction:column;gap:10px;padding:14px;border-top:1px solid rgba(255,255,255,.05);transition:background .12s;cursor:pointer}
   .seeding-row:first-child{border-top:none}
-  .seeding-row:hover{background:rgba(255,255,255,.03)}
+  .seeding-row:hover{background:rgba(34,211,238,.04)}
   .seeding-row-head{display:grid;grid-template-columns:28px minmax(110px,1fr) auto auto auto auto;align-items:center;gap:12px}
-  .seeding-name{font-size:14px;font-weight:700;color:#fafafa;letter-spacing:.01em}
-  /* 여성=핑크 / 남성=시안 — 사이즈 별 색 */
-  .seeding-qty-m{color:#f9a8d4;background:rgba(249,168,212,.10);border:1px solid rgba(249,168,212,.20)}
-  .seeding-qty-l{color:#7dd3fc;background:rgba(125,211,252,.10);border:1px solid rgba(125,211,252,.20)}
-  .seeding-qty{display:flex;align-items:baseline;gap:5px;font-family:var(--mono);padding:5px 11px;border-radius:7px;min-width:78px;justify-content:center;transition:transform .1s}
-  .seeding-qty:hover{transform:translateY(-1px)}
-  .seeding-qty.is-out{background:rgba(239,68,68,.16) !important;border-color:rgba(239,68,68,.42) !important;color:#fca5a5 !important;box-shadow:inset 0 0 0 1px rgba(239,68,68,.15)}
-  .seeding-qty.is-low{background:rgba(245,158,11,.16) !important;border-color:rgba(245,158,11,.42) !important;color:#fcd34d !important}
-  .seeding-size-label{font-size:10px;font-weight:700;letter-spacing:.03em;opacity:.85}
+  /* 컬러명 — 흰색 + weight 800 + 글로우 */
+  .seeding-name{font-size:15.5px;font-weight:800;color:#ffffff;letter-spacing:.02em;text-shadow:0 1px 3px rgba(0,0,0,.55),0 0 8px rgba(255,255,255,.08)}
+  /* 여성=핑크 / 남성=시안 */
+  .seeding-qty-m{color:#f9a8d4;background:rgba(249,168,212,.10);border:1px solid rgba(249,168,212,.22)}
+  .seeding-qty-l{color:#7dd3fc;background:rgba(125,211,252,.10);border:1px solid rgba(125,211,252,.22)}
+  .seeding-qty{display:flex;align-items:baseline;gap:5px;font-family:var(--mono);padding:5px 11px;border-radius:7px;min-width:78px;justify-content:center;transition:transform .1s,box-shadow .1s}
+  .seeding-qty:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .seeding-qty.is-out{background:rgba(244,63,94,.18) !important;border-color:rgba(244,63,94,.50) !important;color:#fda4af !important;box-shadow:inset 0 0 0 1px rgba(244,63,94,.20),0 0 12px rgba(244,63,94,.18)}
+  .seeding-qty.is-low{background:rgba(250,204,21,.18) !important;border-color:rgba(250,204,21,.50) !important;color:#fde047 !important}
+  .seeding-size-label{font-size:10px;font-weight:800;letter-spacing:.04em;opacity:.95}
   .seeding-qty-m .seeding-size-label{color:#f472b6}
   .seeding-qty-l .seeding-size-label{color:#38bdf8}
   .seeding-rem{font-size:15px;font-weight:800}
   .seeding-of{font-size:10px;opacity:.65;font-weight:500}
-  /* 출고 버튼 — 비비드 오렌지 */
-  .seeding-send-btn{padding:6px 14px;font-size:11.5px;font-weight:700;letter-spacing:.04em;background:linear-gradient(135deg,#ff7e3d,#ff6b35);color:#fff;border:1px solid rgba(255,107,53,.55);border-radius:6px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(255,107,53,.32),inset 0 1px 0 rgba(255,255,255,.18);transition:all .15s}
-  .seeding-send-btn:hover{filter:brightness(1.08);box-shadow:0 3px 12px rgba(255,107,53,.5),inset 0 1px 0 rgba(255,255,255,.22);transform:translateY(-1px)}
+  /* 출고 버튼 — 비비드 마젠타→퍼플 그라데이션 (오렌지 대체) */
+  .seeding-send-btn{padding:6px 14px;font-size:11.5px;font-weight:800;letter-spacing:.05em;background:linear-gradient(135deg,#e879f9 0%,#a855f7 100%);color:#ffffff;border:1px solid rgba(168,85,247,.65);border-radius:6px;cursor:pointer;font-family:inherit;box-shadow:0 2px 10px rgba(168,85,247,.40),inset 0 1px 0 rgba(255,255,255,.25);transition:all .15s;text-shadow:0 1px 2px rgba(91,33,182,.5)}
+  .seeding-send-btn:hover{filter:brightness(1.10);box-shadow:0 4px 16px rgba(168,85,247,.60),inset 0 1px 0 rgba(255,255,255,.32);transform:translateY(-1px)}
   .seeding-send-btn:active{transform:translateY(0)}
-  /* 이력 버튼 — 보조, has-log일 때 노랑 강조 */
-  .seeding-log-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:var(--text-2);padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .12s;font-family:inherit;font-weight:500}
-  .seeding-log-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.24);color:#fff}
-  .seeding-log-btn.has-log{color:#fde047;border-color:rgba(253,224,71,.42);background:rgba(253,224,71,.08);font-weight:600;box-shadow:0 1px 4px rgba(253,224,71,.18)}
-  .seeding-log-btn.has-log:hover{background:rgba(253,224,71,.14);border-color:rgba(253,224,71,.6)}
+  /* 이력 버튼 — 보조, has-log일 때 라임 강조 */
+  .seeding-log-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);color:var(--text-2);padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .12s;font-family:inherit;font-weight:600}
+  .seeding-log-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28);color:#fff}
+  .seeding-log-btn.has-log{color:#bef264;border-color:rgba(190,242,100,.45);background:rgba(190,242,100,.10);font-weight:700;box-shadow:0 1px 6px rgba(190,242,100,.22)}
+  .seeding-log-btn.has-log:hover{background:rgba(190,242,100,.18);border-color:rgba(190,242,100,.65)}
   /* 시딩 액션은 viewer도 사용 가능 — UI 게이트 없음 (PUT은 forceMaster로 master PIN 강제) */
-  /* 메모 textarea */
-  .seeding-note{width:100%;min-height:48px;max-height:200px;padding:9px 11px;background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.08);border-radius:7px;color:#f5f5f5;font-family:inherit;font-size:12.5px;line-height:1.55;resize:vertical;transition:border-color .12s,background .12s,box-shadow .12s}
-  .seeding-note:hover{background:rgba(0,0,0,.38);border-color:rgba(255,255,255,.14)}
-  .seeding-note:focus{outline:none;border-color:#ff7e3d;background:rgba(0,0,0,.45);box-shadow:0 0 0 3px rgba(255,107,53,.14)}
-  .seeding-note::placeholder{color:#7c7c7c;font-style:italic}
-  .seeding-note-status{font-size:10px;font-family:var(--mono);padding:0 2px;height:12px;letter-spacing:.04em;font-weight:600}
+  /* 메모 textarea — 라이트 그레이 + 다크 텍스트 (시각적 분리) */
+  .seeding-note{width:100%;min-height:52px;max-height:220px;padding:10px 12px;background:#e2e8f0;border:1px solid #94a3b8;border-radius:8px;color:#0f172a;font-family:inherit;font-size:13px;font-weight:500;line-height:1.55;resize:vertical;transition:border-color .12s,background .12s,box-shadow .12s}
+  .seeding-note:hover{background:#cbd5e1;border-color:#64748b}
+  .seeding-note:focus{outline:none;border-color:#06b6d4;background:#f1f5f9;box-shadow:0 0 0 3px rgba(34,211,238,.28),0 0 14px rgba(34,211,238,.18)}
+  .seeding-note::placeholder{color:#64748b;font-style:italic;font-weight:400}
+  .seeding-note-status{font-size:10px;font-family:var(--mono);padding:0 2px;height:12px;letter-spacing:.05em;font-weight:700}
   .seeding-note-status.is-saving{color:#fbbf24}
-  .seeding-note-status.is-saved{color:#86efac}
-  .seeding-note-status.is-error{color:#f87171}
+  .seeding-note-status.is-saved{color:#a3e635}
+  .seeding-note-status.is-error{color:#fb7185}
   /* 메모는 viewer도 편집 가능 */
   /* 캘린더 chip */
-  .seeding-cal-chip{font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .seeding-cal-chip{font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.22),0 0 6px rgba(0,0,0,.15)}
   .seeding-swatch{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.3)}
   .seeding-name{font-size:13px;font-weight:500;color:var(--text-1)}
   .seeding-fabric{display:block;font-size:10px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
