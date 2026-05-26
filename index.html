@@ -7165,23 +7165,21 @@ async function handlePOFiles(files){
       if(!stockMap[id]) stockMap[id]={};
       stockMap[id][size]=v;
     });
+    // 사전 검증: 발송 완료보다 낮은 값이 있는지
+    for(const x of (_seeding.items||[])){
+      const ns=stockMap[x.id];
+      if(!ns) continue;
+      const sentM=(x.sent&&x.sent.M)||0, sentL=(x.sent&&x.sent.L)||0;
+      if(ns.M<sentM){ toast(`${x.color}: M 보유(${ns.M}) < 발송완료(${sentM})`,'err'); return; }
+      if(ns.L<sentL){ toast(`${x.color}: L 보유(${ns.L}) < 발송완료(${sentL})`,'err'); return; }
+    }
     const items=(_seeding.items||[]).map(x=>{
       const ns=stockMap[x.id];
       if(!ns) return x;
-      const sentM=(x.sent&&x.sent.M)||0, sentL=(x.sent&&x.sent.L)||0;
-      if(ns.M < sentM || ns.L < sentL){
-        // 보유 수량을 발송 완료보다 적게 못 설정
-        toast(`${x.color}: 발송 완료보다 낮게 설정 불가`,'err');
-        throw new Error('stock-lt-sent');
-      }
       return {...x, stock:{M:ns.M, L:ns.L}};
     });
-    try{
-      await _seedingPersist({items, updatedAt:Date.now()}, 'chore: 시딩 보유 수량 조정');
-      seedingCloseStock();
-    }catch(e){
-      if(e.message!=='stock-lt-sent') toast('저장 실패','err');
-    }
+    await _seedingPersist({items, updatedAt:Date.now()}, 'chore: 시딩 보유 수량 조정');
+    seedingCloseStock();
   }
 
   async function _seedingPersist(data, msg){
