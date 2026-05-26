@@ -935,29 +935,55 @@
     letter-spacing:.02em;text-align:right;
   }
 
-  /* ===== 시딩 재고 ===== */
-  .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px}
-  .seeding-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em}
+  /* ===== 시딩 재고 — 비비드 배색 (여성=핑크 / 남성=시안) ===== */
+  .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px;color:#fde68a}
+  .seeding-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em;font-style:italic}
   .seeding-add-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
   .seeding-body{display:flex;flex-direction:column;gap:14px;margin-top:6px}
   .seeding-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
-  .seeding-group{border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.02);overflow:hidden}
-  .seeding-group-head{padding:10px 14px;background:rgba(255,255,255,.035);font-size:12px;font-weight:600;color:#f3c5d4;letter-spacing:.02em;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px}
-  .seeding-group-code{font-family:var(--mono);font-size:10px;color:var(--text-3);padding:2px 6px;background:rgba(255,255,255,.05);border-radius:4px}
+  .seeding-group{border:1px solid rgba(252,211,77,.18);border-radius:12px;background:linear-gradient(180deg,rgba(252,211,77,.04),rgba(255,255,255,.015));overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+  .seeding-group-head{padding:11px 14px;background:linear-gradient(90deg,rgba(252,211,77,.12),rgba(252,211,77,.04));font-size:12.5px;font-weight:700;color:#fde047;letter-spacing:.04em;border-bottom:1px solid rgba(252,211,77,.18);display:flex;align-items:center;gap:10px;text-shadow:0 1px 6px rgba(252,211,77,.18)}
+  .seeding-group-code{font-family:var(--mono);font-size:10px;color:#fbbf24;padding:2px 8px;background:rgba(252,211,77,.14);border:1px solid rgba(252,211,77,.25);border-radius:4px;font-weight:600;letter-spacing:.05em}
   .seeding-rows{display:flex;flex-direction:column}
-  .seeding-row{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.04);transition:background .12s;cursor:pointer}
+  .seeding-row{display:flex;flex-direction:column;gap:8px;padding:14px;border-top:1px solid rgba(255,255,255,.05);transition:background .12s;cursor:pointer}
   .seeding-row:first-child{border-top:none}
-  .seeding-row:hover{background:rgba(255,255,255,.025)}
-  .seeding-row-head{display:grid;grid-template-columns:28px minmax(120px,1fr) auto auto auto;align-items:center;gap:14px}
-  .seeding-note{width:100%;min-height:48px;max-height:200px;padding:8px 10px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:6px;color:var(--text-1);font-family:inherit;font-size:12px;line-height:1.5;resize:vertical;transition:border-color .12s,background .12s}
-  .seeding-note:hover{background:rgba(0,0,0,.32)}
-  .seeding-note:focus{outline:none;border-color:rgba(255,107,53,.4);background:rgba(0,0,0,.4)}
-  .seeding-note::placeholder{color:var(--text-3);font-style:italic}
-  .seeding-note-status{font-size:10px;color:var(--text-3);font-family:var(--mono);padding:0 2px;height:12px}
-  .seeding-note-status.is-saving{color:#fcd34d}
+  .seeding-row:hover{background:rgba(255,255,255,.03)}
+  .seeding-row-head{display:grid;grid-template-columns:28px minmax(110px,1fr) auto auto auto auto;align-items:center;gap:12px}
+  .seeding-name{font-size:14px;font-weight:700;color:#fafafa;letter-spacing:.01em}
+  /* 여성=핑크 / 남성=시안 — 사이즈 별 색 */
+  .seeding-qty-m{color:#f9a8d4;background:rgba(249,168,212,.10);border:1px solid rgba(249,168,212,.20)}
+  .seeding-qty-l{color:#7dd3fc;background:rgba(125,211,252,.10);border:1px solid rgba(125,211,252,.20)}
+  .seeding-qty{display:flex;align-items:baseline;gap:5px;font-family:var(--mono);padding:5px 11px;border-radius:7px;min-width:78px;justify-content:center;transition:transform .1s}
+  .seeding-qty:hover{transform:translateY(-1px)}
+  .seeding-qty.is-out{background:rgba(239,68,68,.16) !important;border-color:rgba(239,68,68,.42) !important;color:#fca5a5 !important;box-shadow:inset 0 0 0 1px rgba(239,68,68,.15)}
+  .seeding-qty.is-low{background:rgba(245,158,11,.16) !important;border-color:rgba(245,158,11,.42) !important;color:#fcd34d !important}
+  .seeding-size-label{font-size:10px;font-weight:700;letter-spacing:.03em;opacity:.85}
+  .seeding-qty-m .seeding-size-label{color:#f472b6}
+  .seeding-qty-l .seeding-size-label{color:#38bdf8}
+  .seeding-rem{font-size:15px;font-weight:800}
+  .seeding-of{font-size:10px;opacity:.65;font-weight:500}
+  /* 출고 버튼 — 비비드 오렌지 */
+  .seeding-send-btn{padding:6px 14px;font-size:11.5px;font-weight:700;letter-spacing:.04em;background:linear-gradient(135deg,#ff7e3d,#ff6b35);color:#fff;border:1px solid rgba(255,107,53,.55);border-radius:6px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(255,107,53,.32),inset 0 1px 0 rgba(255,255,255,.18);transition:all .15s}
+  .seeding-send-btn:hover{filter:brightness(1.08);box-shadow:0 3px 12px rgba(255,107,53,.5),inset 0 1px 0 rgba(255,255,255,.22);transform:translateY(-1px)}
+  .seeding-send-btn:active{transform:translateY(0)}
+  /* 이력 버튼 — 보조, has-log일 때 노랑 강조 */
+  .seeding-log-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:var(--text-2);padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .12s;font-family:inherit;font-weight:500}
+  .seeding-log-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.24);color:#fff}
+  .seeding-log-btn.has-log{color:#fde047;border-color:rgba(253,224,71,.42);background:rgba(253,224,71,.08);font-weight:600;box-shadow:0 1px 4px rgba(253,224,71,.18)}
+  .seeding-log-btn.has-log:hover{background:rgba(253,224,71,.14);border-color:rgba(253,224,71,.6)}
+  body.role-viewer .seeding-send-btn{display:none}
+  /* 메모 textarea */
+  .seeding-note{width:100%;min-height:48px;max-height:200px;padding:9px 11px;background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.08);border-radius:7px;color:#f5f5f5;font-family:inherit;font-size:12.5px;line-height:1.55;resize:vertical;transition:border-color .12s,background .12s,box-shadow .12s}
+  .seeding-note:hover{background:rgba(0,0,0,.38);border-color:rgba(255,255,255,.14)}
+  .seeding-note:focus{outline:none;border-color:#ff7e3d;background:rgba(0,0,0,.45);box-shadow:0 0 0 3px rgba(255,107,53,.14)}
+  .seeding-note::placeholder{color:#7c7c7c;font-style:italic}
+  .seeding-note-status{font-size:10px;font-family:var(--mono);padding:0 2px;height:12px;letter-spacing:.04em;font-weight:600}
+  .seeding-note-status.is-saving{color:#fbbf24}
   .seeding-note-status.is-saved{color:#86efac}
-  .seeding-note-status.is-error{color:#fda4af}
+  .seeding-note-status.is-error{color:#f87171}
   body.role-viewer .seeding-note{pointer-events:none;opacity:.85}
+  /* 캘린더 chip */
+  .seeding-cal-chip{font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.18)}
   .seeding-swatch{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.3)}
   .seeding-name{font-size:13px;font-weight:500;color:var(--text-1)}
   .seeding-fabric{display:block;font-size:10px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
@@ -979,33 +1005,51 @@
   .seeding-modal-sub{font-size:12px;color:var(--text-3);margin:-6px 0 12px}
   .seeding-req{color:#fda4af}
   .seeding-size-radios{display:flex;gap:10px}
-  .seeding-size-opt{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:12px;flex:1;justify-content:center}
-  .seeding-size-opt:has(input:checked){background:rgba(255,107,53,.12);border-color:rgba(255,107,53,.45);color:#ffb088}
+  .seeding-size-opt{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;flex:1;justify-content:center;transition:all .12s}
+  .seeding-size-opt:nth-child(1){color:#f9a8d4}
+  .seeding-size-opt:nth-child(2){color:#7dd3fc}
+  .seeding-size-opt:nth-child(1):has(input:checked){background:rgba(249,168,212,.16);border-color:rgba(249,168,212,.55);color:#fbcfe8;box-shadow:0 2px 8px rgba(249,168,212,.18)}
+  .seeding-size-opt:nth-child(2):has(input:checked){background:rgba(125,211,252,.16);border-color:rgba(125,211,252,.55);color:#bae6fd;box-shadow:0 2px 8px rgba(125,211,252,.18)}
   .seeding-log-body{max-height:50vh;overflow:auto;margin:8px 0 16px;border:1px solid rgba(255,255,255,.06);border-radius:8px}
-  .seeding-log-row{display:grid;grid-template-columns:90px 1fr 70px auto;grid-template-areas:"date to size undo" "extra extra extra extra";gap:6px 10px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+  .seeding-log-row{display:grid;grid-template-columns:90px 1fr 70px auto;grid-template-areas:"date to size undo" "extra extra extra extra";gap:6px 10px;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;transition:background .1s}
+  .seeding-log-row:hover{background:rgba(255,255,255,.02)}
   .seeding-log-row:last-child{border-bottom:none}
-  .seeding-log-date{grid-area:date;color:var(--text-3);font-family:var(--mono);font-size:11px}
-  .seeding-log-to{grid-area:to;color:var(--text-1);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .seeding-log-size{grid-area:size;font-size:11px;color:#ffb088;text-align:center}
-  .seeding-log-extra{grid-area:extra;display:flex;gap:10px;flex-wrap:wrap;padding-left:2px}
-  .seeding-log-rd{color:#fcd34d;font-family:var(--mono);font-size:11px}
-  .seeding-log-memo{color:var(--text-3);font-size:11px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+  .seeding-log-date{grid-area:date;color:#a3a3a3;font-family:var(--mono);font-size:11px;font-weight:500}
+  .seeding-log-to{grid-area:to;color:#fafafa;font-weight:700;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seeding-log-size{grid-area:size;font-size:11px;font-weight:700;text-align:center;padding:2px 6px;border-radius:4px}
+  .seeding-log-size.is-female{color:#fbcfe8;background:rgba(249,168,212,.14);border:1px solid rgba(249,168,212,.25)}
+  .seeding-log-size.is-male{color:#bae6fd;background:rgba(125,211,252,.14);border:1px solid rgba(125,211,252,.25)}
+  .seeding-log-extra{grid-area:extra;display:flex;gap:10px;flex-wrap:wrap;padding-left:2px;align-items:center}
+  .seeding-log-rd{color:#fde047;background:rgba(253,224,71,.12);border:1px solid rgba(253,224,71,.28);font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px}
+  .seeding-log-memo{color:#cbd5e1;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px}
   .seeding-log-undo{grid-area:undo;background:none;border:1px solid rgba(225,29,72,.3);color:#fda4af;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:inherit}
   .seeding-log-undo:hover{background:rgba(225,29,72,.12)}
   .seeding-log-empty{padding:32px;text-align:center;color:var(--text-3);font-size:12px}
   .seeding-stock-body{max-height:54vh;overflow:auto;margin:8px 0 16px;display:flex;flex-direction:column;gap:6px}
-  .seeding-stock-row{display:grid;grid-template-columns:24px 1fr 80px 80px;gap:10px;align-items:center;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,.025)}
+  .seeding-stock-row{display:grid;grid-template-columns:24px 1fr 90px 90px;gap:10px;align-items:center;padding:7px 10px;border-radius:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04)}
+  .seeding-stock-row:hover{background:rgba(255,255,255,.05)}
   .seeding-stock-row .seeding-swatch{width:20px;height:20px}
-  .seeding-stock-name{font-size:12px;color:var(--text-1)}
-  .seeding-stock-input{display:flex;align-items:center;gap:4px}
-  .seeding-stock-input span{font-size:10px;color:var(--text-3);font-weight:600}
-  .seeding-stock-input input{width:48px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:12px;text-align:center}
+  .seeding-stock-name{font-size:12px;color:#fafafa;font-weight:600}
+  .seeding-stock-input{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+  .seeding-stock-input span{font-size:10px;font-weight:700;letter-spacing:.04em}
+  .seeding-stock-input:nth-of-type(1) span{color:#f472b6}
+  .seeding-stock-input:nth-of-type(2) span{color:#38bdf8}
+  .seeding-stock-input input{width:52px;padding:5px 6px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);border-radius:5px;color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;text-align:center;transition:border-color .12s}
+  .seeding-stock-input:nth-of-type(1) input:focus{outline:none;border-color:#f472b6;box-shadow:0 0 0 2px rgba(244,114,182,.18)}
+  .seeding-stock-input:nth-of-type(2) input:focus{outline:none;border-color:#38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.18)}
   @media (max-width:700px){
-    .seeding-row{grid-template-columns:24px minmax(80px,1fr) auto auto;gap:8px;padding:8px 10px}
-    .seeding-row .seeding-qty-l{display:none}
-    .seeding-name{font-size:12px}
-    .seeding-qty{min-width:60px;padding:3px 8px}
-    .seeding-log-btn{font-size:10px;padding:3px 6px}
+    .seeding-row{padding:10px 10px}
+    .seeding-row-head{grid-template-columns:22px minmax(80px,1fr) auto auto auto;gap:7px}
+    .seeding-row-head .seeding-log-btn{display:none}
+    .seeding-name{font-size:13px}
+    .seeding-qty{min-width:58px;padding:4px 7px}
+    .seeding-rem{font-size:13px}
+    .seeding-send-btn{padding:5px 10px;font-size:11px}
+    .seeding-note{font-size:12px;min-height:42px}
+  }
+  @media (max-width:480px){
+    .seeding-row-head{grid-template-columns:20px minmax(60px,1fr) auto auto}
+    .seeding-row-head .seeding-qty-l{display:none}
   }
 
   /* 기획전 호버 툴팁 */
@@ -7069,6 +7113,7 @@ async function handlePOFiles(files){
             <div class="seeding-name">${_seedEsc(it.color)}</div>
             <div class="seeding-qty seeding-qty-m ${clsM}" title="여성용 미듐 (260mm)"><span class="seeding-size-label">여성</span><span class="seeding-rem">${remM}</span><span class="seeding-of">/${stockM}</span></div>
             <div class="seeding-qty seeding-qty-l ${clsL}" title="남성용 라지 (290mm)"><span class="seeding-size-label">남성</span><span class="seeding-rem">${remL}</span><span class="seeding-of">/${stockL}</span></div>
+            <button type="button" class="seeding-send-btn master-only" onclick="event.stopPropagation();seedingOpenSend('${_seedEsc(it.id)}')" title="시딩 출고 기록">출고</button>
             <button type="button" class="seeding-log-btn ${logN?'has-log':''}" onclick="event.stopPropagation();seedingOpenLog('${_seedEsc(it.id)}')">이력 ${logN}건</button>
           </div>
           <textarea class="seeding-note" data-id="${_seedEsc(it.id)}" rows="2" maxlength="600" placeholder="비고 — 컬러별 메모를 입력하면 자동 저장됩니다 (실시간 공유)" onclick="event.stopPropagation()" oninput="seedingNoteInput(this)" onblur="seedingNoteBlur(this)">${_seedEsc(note)}</textarea>
@@ -7080,11 +7125,9 @@ async function handlePOFiles(files){
     wrap.innerHTML=html;
   }
 
-  /* ===== 행 클릭: master → 발송 모달, viewer → 이력 모달 ===== */
+  /* ===== 행 클릭: 모두 이력 모달 (발송은 명시적 [출고] 버튼으로) ===== */
   function seedingRowClick(id){
-    const role=localStorage.getItem('brightbeed_role');
-    if(role==='master') seedingOpenSend(id);
-    else seedingOpenLog(id);
+    seedingOpenLog(id);
   }
 
   /* ===== 메모 인라인 자동 저장 (debounce 800ms) ===== */
@@ -7215,7 +7258,7 @@ async function handlePOFiles(files){
         return `<div class="seeding-log-row">
           <span class="seeding-log-date">${dt}</span>
           <span class="seeding-log-to">${_seedEsc(L.to)}</span>
-          <span class="seeding-log-size">${sizeKr} ×${L.qty}</span>
+          <span class="seeding-log-size is-${L.size==='L'?'male':'female'}">${sizeKr} ×${L.qty}</span>
           ${memoLine}
           <button type="button" class="seeding-log-undo master-only" onclick="seedingUndo('${_seedEsc(L.id)}')">취소</button>
         </div>`;
