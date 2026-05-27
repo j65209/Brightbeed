@@ -1200,6 +1200,178 @@
   /* 각 모듈별 accent 색 (호버 시 옅게 발광) */
   .sub-module.m-notice  {--m-color:#ec4899;--m-border:rgba(236,72,153,.4)}
   .sub-module.m-notice  .sub-module-icon{color:#ec4899}
+  .sub-module.m-namegen {--m-color:#6366f1;--m-border:rgba(99,102,241,.4)}
+  .sub-module.m-namegen .sub-module-icon{color:#6366f1}
+  .sub-module.m-namegen .sub-module-tag{color:#6366f1;border-color:rgba(99,102,241,.45);border-style:solid}
+
+  /* ============ 제품명 생성기 (Namegen) ============ */
+  .ng-wrap{display:flex;flex-direction:column;gap:18px;max-width:1100px;margin:0 auto}
+  .ng-panel{
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px 22px;
+  }
+  .ng-panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:14px;margin-bottom:14px;flex-wrap:wrap;
+  }
+  .ng-panel-title{
+    font-size:13px;font-weight:600;color:var(--text-1);
+    display:flex;align-items:center;gap:8px;
+  }
+  .ng-panel-title::before{
+    content:'';width:6px;height:6px;border-radius:50%;
+    background:#6366f1;box-shadow:0 0 8px rgba(99,102,241,.6);
+  }
+  .ng-panel-meta{
+    font-size:11px;font-family:var(--mono);
+    color:var(--text-3);letter-spacing:.04em;
+  }
+  .ng-panel-meta b{color:#6366f1;font-weight:600}
+
+  .ng-controls{
+    display:grid;
+    grid-template-columns:auto 1fr auto auto;
+    gap:12px;align-items:end;
+  }
+  @media(max-width:720px){
+    .ng-controls{grid-template-columns:1fr 1fr;gap:10px}
+    .ng-controls .ng-ctl-generate{grid-column:1/-1}
+  }
+  .ng-ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .ng-ctl-label{
+    font-size:11px;font-family:var(--mono);
+    color:var(--text-3);letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .ng-num-wrap{
+    display:flex;align-items:stretch;
+    border:1px solid var(--line);
+    border-radius:6px;overflow:hidden;
+    background:var(--bg-2);
+  }
+  .ng-num-wrap input{
+    width:74px;background:transparent;border:none;
+    padding:9px 10px;font-size:14px;font-family:var(--mono);
+    font-weight:600;color:var(--text-0);text-align:center;outline:none;
+    -moz-appearance:textfield;
+  }
+  .ng-num-wrap input::-webkit-outer-spin-button,
+  .ng-num-wrap input::-webkit-inner-spin-button{
+    -webkit-appearance:none;margin:0;
+  }
+  .ng-num-btn{
+    width:30px;display:flex;align-items:center;justify-content:center;
+    color:var(--text-2);background:var(--bg-1);font-size:15px;
+    border-left:1px solid var(--line);transition:all .12s;
+  }
+  .ng-num-btn:first-child{border-left:none;border-right:1px solid var(--line)}
+  .ng-num-btn:hover{background:var(--bg-3);color:#6366f1}
+
+  .ng-format-group{
+    display:flex;background:var(--bg-2);
+    border:1px solid var(--line);border-radius:6px;
+    padding:3px;gap:2px;
+  }
+  .ng-format-btn{
+    padding:7px 12px;font-size:12px;font-weight:500;
+    color:var(--text-2);border-radius:4px;transition:all .12s;
+    white-space:nowrap;
+  }
+  .ng-format-btn:hover{color:var(--text-0);background:var(--bg-1)}
+  .ng-format-btn.active{
+    background:var(--bg-1);color:#6366f1;font-weight:600;
+    box-shadow:0 1px 2px rgba(0,0,0,.06);
+  }
+
+  .ng-generate-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 22px;font-size:13.5px;font-weight:600;
+    background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);
+    color:#fff;border-radius:6px;transition:all .15s;
+    box-shadow:0 2px 8px rgba(99,102,241,.3);
+    letter-spacing:.01em;white-space:nowrap;
+  }
+  .ng-generate-btn:hover{
+    filter:brightness(1.08);
+    box-shadow:0 4px 14px rgba(99,102,241,.45);
+    transform:translateY(-1px);
+  }
+  .ng-generate-btn svg{width:14px;height:14px}
+
+  .ng-result-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin-bottom:14px;flex-wrap:wrap;
+  }
+  .ng-result-count{
+    font-size:12px;color:var(--text-3);font-family:var(--mono);
+    letter-spacing:.02em;
+  }
+  .ng-result-count b{color:var(--text-0);font-weight:600}
+  .ng-result-actions{display:flex;gap:8px}
+  .ng-action-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 12px;font-size:12px;font-weight:500;
+    color:var(--text-1);background:var(--bg-2);
+    border:1px solid var(--line);border-radius:5px;
+    transition:all .12s;
+  }
+  .ng-action-btn:hover{
+    color:#6366f1;border-color:rgba(99,102,241,.4);
+    background:var(--bg-1);
+  }
+  .ng-action-btn svg{width:12px;height:12px}
+
+  .ng-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:8px;
+  }
+  .ng-item{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:8px;padding:11px 14px;
+    background:var(--bg-2);border:1px solid var(--line);
+    border-radius:6px;transition:all .12s;
+    position:relative;overflow:hidden;
+  }
+  .ng-item:hover{
+    border-color:rgba(99,102,241,.45);
+    background:var(--bg-1);
+    transform:translateY(-1px);
+    box-shadow:0 2px 8px rgba(99,102,241,.08);
+  }
+  .ng-item.copied{
+    border-color:#15803d;
+    background:rgba(21,128,61,.06);
+  }
+  .ng-item-name{
+    font-size:14.5px;font-weight:600;color:var(--text-0);
+    letter-spacing:-.005em;font-family:var(--mono);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    flex:1;min-width:0;
+  }
+  .ng-item-len{
+    font-size:10px;color:var(--text-3);font-family:var(--mono);
+    flex-shrink:0;
+  }
+  .ng-item-copy{
+    display:flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:4px;
+    color:var(--text-3);transition:all .12s;flex-shrink:0;
+  }
+  .ng-item-copy:hover{background:var(--bg-3);color:#6366f1}
+  .ng-item-copy svg{width:13px;height:13px}
+  .ng-item.copied .ng-item-copy{color:#15803d}
+
+  .ng-empty{
+    text-align:center;padding:48px 24px;
+    color:var(--text-3);font-size:13px;
+    background:var(--bg-2);border-radius:6px;
+    border:1px dashed var(--line-2);
+  }
+  .ng-empty-icon{font-size:32px;opacity:.4;margin-bottom:10px}
+  .ng-empty-hint{font-size:11px;font-family:var(--mono);margin-top:6px;letter-spacing:.04em}
 
   /* 모듈 placeholder 영역 (각 뷰 본문) */
   .placeholder-area{
@@ -2119,6 +2291,12 @@
           <div class="sub-module-sub">공지 · 일정 · 업무 안내</div>
           <div class="sub-module-tag">준비 중</div>
         </div>
+        <div class="sub-module m-namegen" onclick="triggerNamegen()">
+          <div class="sub-module-icon">🌍</div>
+          <div class="sub-module-title">제품명 생성기</div>
+          <div class="sub-module-sub">전세계 도시 · 마을 · 건물명</div>
+          <div class="sub-module-tag">TOOL</div>
+        </div>
       </div>
     </div>
 
@@ -2687,6 +2865,76 @@
           <div class="po-empty-sub">우측 상단 <b>편집</b> 버튼으로 작성하세요</div>
         </div>
         <div class="notice-content" id="noticeContent" contenteditable="false"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 제품명 생성기 ============ -->
+  <div class="view" id="viewNamegen" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">제품명 생성기<span class="view-title-sub">/ 전세계 도시 · 마을 · 건물</span></h1>
+    </div>
+
+    <div class="ng-wrap">
+      <!-- 컨트롤 패널 -->
+      <div class="ng-panel">
+        <div class="ng-panel-head">
+          <div class="ng-panel-title">후보 생성</div>
+          <div class="ng-panel-meta">DB <b id="ngDbCount">—</b>개 · 10글자 미만</div>
+        </div>
+        <div class="ng-controls">
+          <div class="ng-ctl">
+            <div class="ng-ctl-label">개수</div>
+            <div class="ng-num-wrap">
+              <button class="ng-num-btn" type="button" onclick="ngNumStep(-1)" aria-label="감소">−</button>
+              <input id="ngCount" type="number" min="1" max="100" value="15" inputmode="numeric">
+              <button class="ng-num-btn" type="button" onclick="ngNumStep(1)" aria-label="증가">+</button>
+            </div>
+          </div>
+          <div class="ng-ctl">
+            <div class="ng-ctl-label">표기 형식</div>
+            <div class="ng-format-group" id="ngFormatGroup">
+              <button class="ng-format-btn active" data-fmt="title" type="button">Capital</button>
+              <button class="ng-format-btn" data-fmt="upper" type="button">UPPER</button>
+              <button class="ng-format-btn" data-fmt="lower" type="button">lower</button>
+            </div>
+          </div>
+          <div class="ng-ctl ng-ctl-generate">
+            <div class="ng-ctl-label">&nbsp;</div>
+            <button class="ng-generate-btn" type="button" onclick="ngGenerate()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><polyline points="21 3 21 8 16 8"/></svg>
+              <span id="ngGenLabel">15개 추출</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 결과 패널 -->
+      <div class="ng-panel">
+        <div class="ng-result-head">
+          <div class="ng-panel-title">추출 결과 <span class="ng-result-count" id="ngResultCount" style="margin-left:8px"></span></div>
+          <div class="ng-result-actions">
+            <button class="ng-action-btn" type="button" onclick="ngCopyAll()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              전체 복사
+            </button>
+            <button class="ng-action-btn" type="button" onclick="ngGenerate()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><polyline points="21 3 21 8 16 8"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><polyline points="3 21 3 16 8 16"/></svg>
+              다시 추출
+            </button>
+          </div>
+        </div>
+        <div id="ngList">
+          <div class="ng-empty">
+            <div class="ng-empty-icon">🎲</div>
+            <div>개수와 형식을 선택하고 <b>추출</b> 버튼을 눌러주세요</div>
+            <div class="ng-empty-hint">CLICK GENERATE</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -3808,8 +4056,8 @@
   window.triggerERP=triggerERP;
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMd2','viewStock'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMd2','viewStock','viewNamegen'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewNamegen:'namegen'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -3850,6 +4098,9 @@
     if(id==='viewStock'){
       if(typeof initStockView==='function') initStockView();
     }
+    if(id==='viewNamegen'){
+      if(typeof initNamegenView==='function') initNamegenView();
+    }
   }
 
   // showView: history에 push (사용자 클릭 진입). fromHistory=true면 popstate에서 호출된거라 push 생략.
@@ -3875,6 +4126,7 @@
   function triggerMd(){ showView('viewMd'); }
   function triggerMd2(){ showView('viewMd2'); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
+  function triggerNamegen(){ showView('viewNamegen'); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
     const cur=history.state&&history.state.view;
@@ -3948,6 +4200,7 @@
   window.triggerCs=triggerCs;
   window.triggerMd=triggerMd;
   window.triggerMd2=triggerMd2;
+  window.triggerNamegen=triggerNamegen;
   window.goHome=goHome;
   window.openLgResource=openLgResource;
 
@@ -7505,6 +7758,221 @@ async function handlePOFiles(files){
   renderSeeding();
   renderSeedingUpdatedTag();
   renderSeedingCal();
+
+  /* ============ 제품명 생성기 (Namegen) ============
+     전세계 도시 · 마을 · 건물명 풀(10글자 미만). 브랜드명은 제외.
+     RAW 리스트는 콤마 구분 문자열로 작성 → trim, dedupe, length<10 필터.
+  */
+  (function(){
+    const RAW_NAMES = (
+      // 유럽 — 프랑스
+      'Paris,Lyon,Nice,Cannes,Reims,Tours,Rouen,Brest,Metz,Dijon,Nimes,Arles,Caen,Calais,Cognac,Annecy,Avignon,Honfleur,Vichy,Orleans,Biarritz,Bayonne,Nancy,Mulhouse,Troyes,Pau,Vannes,Lorient,Cholet,Antibes,Sete,Beziers,Limoges,Quimper,Ajaccio,Bastia,Menton,Grasse,Sarlat,Albi,Niort,Blois,Bourges,Belfort,Chinon,Cluny,Macon,Roanne,Vence,Hyeres,Aubigny,Auxerre,Chambery,Perpignan,Toulon,Annemasse,Cassis,Eze,Chartres,Etretat,Deauville,Trouville,Saumur,Senlis,Provins,Sancerre,'+
+      // 유럽 — 독일
+      'Berlin,Munich,Hamburg,Cologne,Dresden,Leipzig,Bremen,Erfurt,Mainz,Trier,Bonn,Essen,Aachen,Lubeck,Kassel,Ulm,Halle,Jena,Goslar,Fulda,Worms,Speyer,Freiburg,Konstanz,Passau,Schwerin,Rostock,Potsdam,Wismar,Bamberg,Coburg,Weimar,Hanau,Gorlitz,Bayreuth,Augsburg,Tubingen,Marburg,Giessen,Siegen,Hagen,Bocholt,Krefeld,Wurzburg,Bochum,Kiel,Hof,Erlangen,Gera,Stendal,Quedlinburg,Eisenach,Naumburg,Greifswald,Wernigerode,Meissen,Pirna,Garmisch,'+
+      // 유럽 — 이탈리아
+      'Rome,Milan,Venice,Verona,Pisa,Siena,Como,Bari,Lucca,Trento,Padua,Modena,Parma,Genoa,Turin,Capri,Naples,Bologna,Salerno,Sorrento,Lecce,Trieste,Ancona,Brescia,Pescara,Ravenna,Cagliari,Trapani,Catania,Messina,Rimini,Ferrara,Mantova,Vicenza,Cremona,Cortona,Asolo,Spoleto,Pienza,Orvieto,Assisi,Perugia,Urbino,Gubbio,Tropea,Matera,Lipari,Ravello,Amalfi,Positano,Taormina,Cefalu,Anacapri,Procida,Ischia,Portofino,Bergamo,Treviso,Udine,Belluno,Aosta,Foggia,Catanzaro,Crotone,Vibo,Enna,'+
+      // 유럽 — 스페인 · 포르투갈
+      'Madrid,Toledo,Seville,Granada,Cordoba,Ronda,Cadiz,Burgos,Cuenca,Avila,Segovia,Murcia,Vigo,Gijon,Mijas,Nerja,Olot,Soria,Tarifa,Bilbao,Logrono,Pamplona,Zamora,Lleida,Girona,Almeria,Marbella,Alicante,Valencia,Oviedo,Albacete,Caceres,Badajoz,Huelva,Jaen,Castellon,Tarragona,Cartagena,Mallorca,Ibiza,Menorca,Galicia,Lugo,Sitges,Salou,Cuenca,Trujillo,Cazorla,Aranjuez,Estepona,Lisbon,Porto,Faro,Sintra,Braga,Evora,Albufeira,Lagos,Coimbra,Aveiro,Cascais,Estoril,Tavira,Olhao,Ericeira,Nazare,Obidos,Tomar,Funchal,Madeira,Azores,Setubal,Viseu,Guarda,Beja,Elvas,Mafra,'+
+      // 유럽 — 영국 · 아일랜드 · 스코틀랜드
+      'London,Oxford,York,Bath,Leeds,Hull,Derby,Ely,Truro,Wells,Brighton,Bristol,Norwich,Dover,Reading,Exeter,Chester,Lincoln,Durham,Carlisle,Bangor,Plymouth,Newport,Cardiff,Swansea,Newquay,Salisbury,Coventry,Stratford,Dublin,Cork,Galway,Limerick,Sligo,Tralee,Ennis,Kenmare,Killarney,Dingle,Athlone,Wexford,Westport,Kilkenny,Belfast,Newry,Larne,Derry,Glasgow,Stirling,Perth,Dundee,Oban,Skye,Iona,Aviemore,Pitlochry,Inverness,Falkirk,Conwy,Tenby,Ludlow,Rye,Whitby,Padstow,Polperro,Falmouth,Penzance,Tintagel,Stowe,Lyme,Henley,Windsor,Eton,Tewkesbury,Cirencester,'+
+      // 유럽 — 북유럽
+      'Vienna,Salzburg,Graz,Linz,Innsbruck,Bregenz,Wels,Steyr,Hallstatt,Prague,Brno,Plzen,Olomouc,Ostrava,Liberec,Tabor,Telc,Krakow,Warsaw,Gdansk,Poznan,Wroclaw,Lodz,Lublin,Sopot,Kielce,Torun,Zakopane,Katowice,Szczecin,Gdynia,Olsztyn,Rzeszow,Opole,Tarnow,Plock,Budapest,Eger,Pecs,Szeged,Debrecen,Szolnok,Sopron,Veszprem,Tokaj,Visegrad,Esztergom,Miskolc,Amsterdam,Utrecht,Leiden,Delft,Haarlem,Eindhoven,Breda,Gouda,Tilburg,Arnhem,Nijmegen,Groningen,Volendam,Edam,Alkmaar,Almere,Apeldoorn,Brussels,Bruges,Ghent,Antwerp,Liege,Namur,Mons,Ypres,Mechelen,Leuven,Spa,Dinant,Tongeren,Ostende,Tournai,Hasselt,Genk,Aalst,Roeselare,Zurich,Geneva,Basel,Bern,Lucerne,Lugano,Davos,Zermatt,Aarau,Sion,Vevey,Montreux,Locarno,Ascona,Verbier,Wengen,Thun,Brienz,Gstaad,Murren,Saas Fee,Andermatt,Engelberg,Oslo,Bergen,Tromso,Stavanger,Trondheim,Lofoten,Alesund,Narvik,Voss,Geilo,Roros,Bodo,Vadso,Drammen,Skien,Larvik,Kongsberg,Sandnes,Hamar,Lillehammer,Stockholm,Goteborg,Malmo,Uppsala,Lund,Visby,Kiruna,Lulea,Umea,Vasteras,Linkoping,Orebro,Boras,Falun,Kalmar,Halmstad,Karlstad,Sigtuna,Marstrand,Ystad,Helsinki,Espoo,Turku,Tampere,Oulu,Vaasa,Lahti,Kuopio,Porvoo,Joensuu,Mikkeli,Imatra,Hanko,Kemi,Tornio,Pori,Rauma,Salo,Rovaniemi,Naantali,Aarhus,Odense,Aalborg,Esbjerg,Roskilde,Skagen,Helsingor,Ribe,Tonder,Vejle,Horsens,Randers,Kolding,Reykjavik,Akureyri,Selfoss,Vik,Husavik,Borgarnes,Hofn,Isafjordur,Egilsstadir,'+
+      // 유럽 — 발칸 · 동유럽 · 그리스
+      'Athens,Thebes,Delphi,Patras,Volos,Kavala,Larisa,Sparta,Corfu,Crete,Rhodes,Lesvos,Naxos,Paros,Milos,Hydra,Spetses,Mykonos,Kos,Lefkada,Skiathos,Skopelos,Zakynthos,Tinos,Sifnos,Ios,Symi,Chios,Samos,Meteora,Nafplio,Kalamata,Olympia,Heraklion,Chania,Rethymno,Ioannina,Trikala,Komotini,Xanthi,Drama,Veria,Edessa,Florina,Kastoria,Pella,Tiryns,Mystras,Galaxidi,Pylos,Methoni,Vathy,Plaka,Aegina,Istanbul,Ankara,Izmir,Bursa,Konya,Adana,Antalya,Mersin,Trabzon,Edirne,Kayseri,Marmaris,Bodrum,Fethiye,Goreme,Urgup,Avanos,Pamukkale,Sirince,Cesme,Kas,Kalkan,Olympos,Datca,Alanya,Side,Belek,Olu Deniz,Cirali,Kemer,Ayvalik,Foca,Selcuk,Belgrade,Sofia,Skopje,Sarajevo,Zagreb,Split,Pula,Rijeka,Dubrovnik,Plitvice,Hvar,Rovinj,Zadar,Sibenik,Korcula,Trogir,Opatija,Brac,Mostar,Tirana,Berat,Sarande,Kotor,Budva,Bar,Cetinje,Ulcinj,Niksic,Ljubljana,Bled,Piran,Maribor,Koper,Celje,Ptuj,Kranj,Bohinj,Postojna,Velenje,Riga,Vilnius,Tallinn,Tartu,Kaunas,Klaipeda,Parnu,Narva,Trakai,Sigulda,Liepaja,Cesis,Kuldiga,Saaremaa,Hiiumaa,Minsk,Brest,Grodno,Mogilev,Vitebsk,Gomel,Pinsk,Polotsk,Lida,Nesvizh,Mir,Chisinau,Tiraspol,Balti,Cahul,Comrat,Soroca,Orhei,Ungheni,Edinet,Riscani,Bucharest,Brasov,Sibiu,Cluj,Timisoara,Constanta,Iasi,Sinaia,Bran,Mamaia,Oradea,Galati,Pitesti,Ploiesti,Suceava,Tulcea,Targu Jiu,Vatra,Plovdiv,Varna,Burgas,Ruse,Stara,Pleven,Veliko,Bansko,Nesebar,Sozopol,Gabrovo,Kazanlak,Shumen,Pomorie,Vidin,Lovech,Sliven,Yambol,Valletta,Mdina,Sliema,Mosta,Birgu,Marsa,Rabat,Gozo,Comino,Floriana,Nicosia,Limassol,Paphos,Larnaca,Kyrenia,Polis,Protaras,Ayia Napa,'+
+      // 러시아 · 우크라이나
+      'Moscow,Sochi,Kazan,Samara,Tula,Tver,Ufa,Omsk,Tomsk,Yakutsk,Suzdal,Vologda,Pskov,Murmansk,Saratov,Kostroma,Ryazan,Kursk,Sergiev,Rostov,Voronezh,Adler,Smolensk,Kaluga,Ivanovo,Lipetsk,Orel,Belgorod,Bryansk,Anapa,Tobolsk,Irkutsk,Perm,Ulan Ude,Kemerovo,Barnaul,Penza,Tambov,Kostroma,Kiev,Lviv,Odessa,Kharkiv,Yalta,Donetsk,Dnipro,Vinnytsia,Poltava,Lutsk,Rivne,Ternopil,Cherkasy,Sumy,Chernihiv,Zhytomyr,Uman,Mukachevo,Truskavets,Yaremche,Kamianets,'+
+      // 아시아 — 일본
+      'Tokyo,Kyoto,Osaka,Nara,Kobe,Sapporo,Fukuoka,Sendai,Nagoya,Otaru,Nikko,Kanazawa,Hakone,Beppu,Aomori,Akita,Niigata,Matsuyama,Hiroshima,Yokohama,Kamakura,Atami,Izumo,Kurashiki,Takayama,Matsumoto,Karuizawa,Yufuin,Kusatsu,Nagano,Hakata,Naha,Ishigaki,Miyajima,Onomichi,Tottori,Matsue,Tsumago,Yamagata,Yamaguchi,Kushiro,Hakodate,Kagoshima,Kumamoto,Tsushima,Saga,Oita,Toba,Ise,Oga,Iya,Kinosaki,Uji,Magome,Shirakawa,Gokayama,Inuyama,Gujo,Mishima,Atami,Ito,Shimoda,Izu,Enoshima,Yokosuka,Odawara,Asahikawa,Furano,Biei,Noboribetsu,Tomakomai,Wakkanai,Rishiri,Iwate,Hirosaki,Towada,Morioka,Yonezawa,Aizu,Nasu,Kawagoe,Narita,Mito,Tsukuba,Atago,Kawaguchi,Hakushu,Hokuto,Iiyama,Ueda,Suzuka,Toyota,Gifu,Ena,Magome,Tsumago,Echizen,Tsuruga,Wakasa,Sabae,Tojinbo,Eiheiji,Mihama,Obama,Fukui,'+
+      // 아시아 — 한국
+      'Seoul,Busan,Daegu,Incheon,Gwangju,Daejeon,Ulsan,Jeju,Sokcho,Gangneung,Gyeongju,Andong,Yeosu,Suncheon,Tongyeong,Mokpo,Pohang,Chuncheon,Jeonju,Yongin,Hadong,Boseong,Damyang,Jinju,Gimhae,Wonju,Asan,Cheonan,Iksan,Gimje,Buan,Hampyeong,Yeongam,Goheung,Geoje,Namhae,Sancheong,Hamyang,Geumsan,Boryeong,Seosan,Taean,Hongcheon,Yangyang,Inje,Goseong,Cheorwon,Imsil,Wando,Jindo,'+
+      // 아시아 — 중국 · 대만
+      'Beijing,Shanghai,Chengdu,Xian,Lhasa,Guilin,Suzhou,Wuhan,Dalian,Qingdao,Xiamen,Kunming,Lijiang,Sanya,Hangzhou,Macau,Harbin,Tianjin,Nanjing,Wuxi,Yangshuo,Dali,Tongli,Pingyao,Datong,Luoyang,Kaifeng,Ningbo,Wenzhou,Foshan,Zhuhai,Xining,Lanzhou,Yinchuan,Hohhot,Urumqi,Kashgar,Turpan,Shaoxing,Wuyuan,Hongcun,Xidi,Tunxi,Huangshan,Jiuhuashan,Putuo,Emei,Leshan,Jiuzhai,Huanglong,Zhangjiajie,Fenghuang,Yangzhou,Taipei,Tainan,Taichung,Hsinchu,Kaohsiung,Hualien,Jiufen,Taroko,Kenting,Yilan,Chiayi,Keelung,Pingtung,Magong,Lukang,Beigang,Sun Moon,Alishan,Wulai,Jinguashi,Tamsui,Sanxia,'+
+      // 동남아시아
+      'Bangkok,Phuket,Krabi,Pattaya,Pai,Sukhothai,Ayutthaya,Lampang,Lopburi,Trang,Hatyai,Rayong,Surin,Loei,Phrae,Nan,Khonkaen,Hua Hin,Koh Samui,Koh Tao,Koh Lanta,Khao Lak,Mae Sai,Mae Hong,Phang Nga,Chiangmai,Chiangrai,Mae Sot,Chumphon,Ranong,Satun,Pak Bara,Hin Kong,Surin,Kanchana,Hanoi,Saigon,Hue,Hoian,Dalat,Sapa,Nhatrang,Danang,Halong,Vungtau,Cantho,Mytho,Vinh,Tamky,Pleiku,Conson,Ninhbinh,Mai Chau,Phu Quoc,Hue,Sa Pa,Da Lat,Cat Ba,Mui Ne,Ha Long,Vientiane,Pakse,Thakhek,Vangvieng,Phonsavan,Sayaboury,Champasak,Oudomxay,Muang Sai,Don Det,Don Khong,Yangon,Mandalay,Bagan,Inle,Pyay,Bago,Hpa-An,Hsipaw,Sittwe,Pathein,Taunggyi,Kalaw,Pyin Oo,Mrauk U,Loikaw,Ngapali,Singapore,Sentosa,Jurong,Tampines,Bedok,Pasir,Yishun,Hougang,Bishan,Punggol,Serangoon,Kallang,Bukit,Clementi,Manila,Cebu,Davao,Boracay,Bohol,Palawan,Baguio,Vigan,Donsol,Siargao,Iloilo,Bacolod,Tacloban,Cagayan,Tagaytay,Subic,Banaue,Sagada,Coron,El Nido,Camiguin,Bicol,Batanes,Jakarta,Bali,Bandung,Ubud,Lombok,Surabaya,Medan,Yogya,Jogja,Bromo,Komodo,Flores,Sumba,Toba,Solo,Malang,Padang,Manado,Sumatra,Tanjung,Makassar,Semarang,Cilacap,Cirebon,Jimbaran,Sanur,Kuta,Seminyak,Canggu,Amed,Lovina,Gili,Penang,Malacca,Ipoh,Sabah,Borneo,Langkawi,Kuching,Tioman,Cameron,Genting,Melaka,Johor,Sarawak,Sandakan,Kuantan,Tawau,Miri,Kelantan,Pahang,Perlis,Sepang,Kinabalu,Mulu,Niah,Sipadan,Mabul,Redang,Perhentian,'+
+      // 남아시아
+      'Delhi,Mumbai,Jaipur,Agra,Goa,Kerala,Cochin,Mysore,Pune,Surat,Patna,Shimla,Manali,Pushkar,Udaipur,Varanasi,Hampi,Kolkata,Lucknow,Indore,Bhopal,Nagpur,Kanpur,Ludhiana,Vadodara,Thane,Ranchi,Madurai,Jodhpur,Ajmer,Amritsar,Rishikesh,Haridwar,Gangtok,Munnar,Ooty,Khajuraho,Orchha,Tirupati,Chennai,Lonavala,Auli,Spiti,Nainital,Calangute,Anjuna,Vagator,Kasol,Mcleod,Bhutan,Leh,Kargil,Sonamarg,Pahalgam,Gulmarg,Yumthang,Tawang,Bhuj,Mandvi,Diu,Daman,Sangla,Kalpa,Ladakh,Coorg,Hampi,Murudeshwar,Gokarna,Dharamsala,Mcleod,Kasol,Jibhi,Kheer,Manali,Bir,Shoja,Pragpur,Anandpur,Dalhousie,Khajjiar,Kullu,Naggar,Tirthan,Kalpa,Sangla,Chitkul,Reckong,Nako,Tabo,Dhankar,Kibber,Komic,Hikkim,Langza,Kaza,Kathmandu,Pokhara,Lukla,Bhaktapur,Patan,Lumbini,Nagarkot,Chitwan,Bandipur,Tansen,Birgunj,Janakpur,Dharan,Itahari,Hetauda,Tatopani,Manang,Mustang,Jomsom,Kagbeni,Marpha,Tukuche,Larjung,Ghorepani,Tadapani,Colombo,Kandy,Galle,Ella,Mirissa,Negombo,Hikkaduwa,Sigiriya,Dambulla,Jaffna,Matara,Tangalle,Unawatuna,Bentota,Yala,Wilpattu,Habarana,Nuwara,Pinnawala,Mihintale,Karachi,Lahore,Multan,Quetta,Peshawar,Hyderabad,Sialkot,Gilgit,Skardu,Hunza,Murree,Naran,Kaghan,Swat,Chitral,Sukkur,Sahiwal,Mardan,Bahawalpur,Faisalabad,Dhaka,Sylhet,Khulna,Rajshahi,Bogra,Comilla,Jessore,Rangpur,Saidpur,Cox,Srimangal,Paharpur,Kuakata,Saint Martin,'+
+      // 중동
+      'Dubai,Doha,Riyadh,Muscat,Manama,Aden,Mecca,Medina,Jeddah,Sharjah,Ajman,Fujairah,Sohar,Salalah,Nizwa,Sur,Aqaba,Amman,Petra,Madaba,Jerash,Wadi Rum,Hebron,Acre,Eilat,Haifa,Nazareth,Tiberias,Jericho,Ramallah,Beirut,Byblos,Tripoli,Sidon,Tyre,Baalbek,Jounieh,Zahle,Anjar,Batroun,Bsharri,Damascus,Aleppo,Palmyra,Latakia,Homs,Hama,Tartus,Bosra,Idlib,Daraa,Krak,Maaloula,Tehran,Isfahan,Shiraz,Yazd,Tabriz,Mashhad,Kashan,Qom,Kerman,Ahvaz,Hamadan,Ardabil,Bandar,Qeshm,Bushehr,Sari,Rasht,Zanjan,Sanandaj,Urmia,Persepolis,Susa,Kashan,Maku,Tabas,Bam,Yasuj,Kish,Ramsar,Babolsar,Masuleh,Garmsar,Baku,Tbilisi,Yerevan,Batumi,Kutaisi,Mtskheta,Sighnaghi,Gori,Telavi,Borjomi,Mestia,Ushguli,Vardzia,Ganja,Sumqayit,Quba,Sheki,Lankaran,Khinalug,Lahij,Ivanovka,Dilijan,Tatev,Goris,Sevan,Lori,Vanadzor,'+
+      // 중앙아시아
+      'Tashkent,Samarkand,Bukhara,Khiva,Almaty,Astana,Bishkek,Osh,Ashgabat,Dushanbe,Karakol,Naryn,Talas,Penjikent,Termez,Nukus,Andijan,Fergana,Kokand,Margilan,Issyk Kul,Cholpon,Khorog,Murghab,Iskanderkul,Khujand,Konye,Mary,Dashoguz,Nokhur,Darvaza,Yangiabad,Shakhrisabz,'+
+      // 아프가니스탄
+      'Kabul,Herat,Kandahar,Mazar,Bamiyan,Kunduz,Jalalabad,Ghazni,Charikar,Maimana,Aybak,Faizabad,Pul-e,Lashkar,Taloqan,Qalat,Asadabad,Mehtarlam,Baghlan,Sheberghan,'+
+      // 아프리카 — 북아프리카
+      'Cairo,Luxor,Aswan,Giza,Dahab,Hurghada,Sharm,Siwa,Marsa,Asyut,Tanta,Mansoura,Suez,Damietta,Edfu,Esna,Kom Ombo,Philae,Saqqara,Dahshur,Memphis,Abydos,Nuweiba,Taba,Rosetta,Faiyum,Bawiti,Marrakech,Fez,Tangier,Rabat,Agadir,Essaouira,Meknes,Tetouan,Asilah,Volubilis,Ifrane,Erfoud,Merzouga,Taroudant,Mhamid,Zagora,Tafraoute,Larache,Nador,Oujda,Safi,Settat,Tiznit,Beni,Tinghir,Midelt,Azrou,Imouzzer,Bouznika,Tan-Tan,Goulmima,Ouirgane,Imlil,Sefrou,Khenifra,Saidia,Tunis,Carthage,Sousse,Mahdia,Djerba,Sfax,Bizerte,Kairouan,Tozeur,Tabarka,Nabeul,Hammamet,Gabes,Gafsa,Kebili,Tataouine,Mednine,Zarzis,Beja,Jendouba,Matmata,Douz,Tunis,Chebika,Tamerza,Algiers,Oran,Tlemcen,Annaba,Setif,Batna,Bejaia,Tipaza,Ghardaia,Saida,Ouargla,Biskra,Skikda,Djelfa,Boumerdes,Adrar,Hassi,Tindouf,Beni Ounif,Tipasa,Tripoli,Benghazi,Sabha,Misrata,Sirte,Tobruk,Zawiya,Derna,Ghadames,Cyrene,Brak,Kufra,Tajura,Murzuk,Sebha,Tarhuna,Awbari,Khartoum,Omdurman,Kassala,Nyala,Gedaref,Atbara,Dongola,Sennar,Kosti,El Obeid,Karima,Meroe,Suakin,'+
+      // 아프리카 — 동·중·남아프리카
+      'Lalibela,Gondar,Axum,Harar,Mekele,Awasa,Adama,Jimma,Bahir,Sodo,Dessie,Nazret,Hawassa,Asmara,Massawa,Keren,Mendefera,Tessenei,Assab,Djibouti,Berbera,Tadjoura,Hargeisa,Bosaso,Galkayo,Kismayo,Marka,Baidoa,Burao,Las Anod,Nairobi,Mombasa,Kisumu,Eldoret,Lamu,Malindi,Naivasha,Nakuru,Diani,Watamu,Meru,Nyeri,Kakamega,Kericho,Garissa,Isiolo,Lodwar,Marsabit,Voi,Kisii,Nanyuki,Kitale,Kilifi,Nyahururu,Maralal,Magadi,Kampala,Entebbe,Jinja,Mbale,Gulu,Mbarara,Masaka,Tororo,Soroti,Lira,Kabale,Hoima,Kasese,Arua,Iganga,Mukono,Mityana,Kayunga,Kibale,Bwindi,Ssese,Zanzibar,Arusha,Moshi,Mwanza,Dodoma,Tanga,Mbeya,Iringa,Bagamoyo,Pemba,Mahale,Selous,Tarangire,Ruaha,Mafia,Manyara,Katavi,Saadani,Kigoma,Singida,Mtwara,Lindi,Songea,Kigali,Goma,Bukavu,Butare,Gisenyi,Kibuye,Ruhengeri,Cyangugu,Kibungo,Gitarama,Musanze,Nyungwe,Akagera,Huye,Kinshasa,Matadi,Kolwezi,Likasi,Boma,Bandundu,Kasai,Tshikapa,Kindu,Bunia,Uvira,Lubumbashi,Kisangani,Mbandaka,Kabinda,Buta,Watsa,Luanda,Lobito,Huambo,Benguela,Lubango,Namibe,Cabinda,Malanje,Soyo,Uige,Saurimo,Kuito,Cuito,Menongue,Sumbe,Ondjiva,Caxito,Mbanza,Lucapa,Maputo,Beira,Tofo,Pemba,Nampula,Quelimane,Inhambane,Chimoio,Tete,Xai-Xai,Nacala,Lichinga,Cuamba,Bilene,Macia,Maxixe,Chokwe,Lusaka,Kitwe,Ndola,Kabwe,Choma,Chipata,Mongu,Mansa,Solwezi,Kasama,Mufulira,Luanshya,Mazabuka,Mbala,Sesheke,Kafue,Kaoma,Harare,Bulawayo,Mutare,Gweru,Kwekwe,Masvingo,Chinhoyi,Nyanga,Hwange,Kariba,Bindura,Gokwe,Chiredzi,Chivhu,Kadoma,Norton,Marondera,Karoi,Mvuma,Plumtree,Gaborone,Maun,Kasane,Lobatse,Mochudi,Palapye,Mahalapye,Serowe,Selebi,Ghanzi,Tsabong,Kanye,Tonota,Shakawe,Kang,Letlhakane,Hukuntsi,Windhoek,Walvis,Luderitz,Tsumeb,Gobabis,Rundu,Katima,Henties,Outjo,Mariental,Okahandja,Karasburg,Karibib,Usakos,Aus,Etosha,Pretoria,Sandton,Soweto,Knysna,Hermanus,Polokwane,Nelspruit,Kimberley,Plett,Hartenbos,Aliwal,Clarens,Hluhluwe,Mtunzini,Underberg,Kokstad,Howick,Pinetown,Westville,Margate,Manguzi,Pongola,Vryheid,Reitz,Frankfort,Parys,Kuruman,Upington,Springbok,Kakamas,Calvinia,Ceres,Saldanha,Lambert,Velddrif,Simons,Houtbay,Kommetjie,Paarl,Tulbagh,Worcester,Robertson,Montagu,Barrydale,Arniston,Gansbaai,Stanford,Caledon,Greyton,Vredendal,Brits,Mokopane,Vaalwater,Lephalale,Makhado,Musina,Tzaneen,Hazyview,Sabie,Graskop,Marloth,Kruger,Madikwe,Mahikeng,Zeerust,Vryburg,Maseru,Mbabane,Manzini,Lobamba,Big Bend,Hluti,Siteki,Mhlume,Antananarivo,Tana,Tamatave,Tulear,Antsiranana,Mahajanga,Fianarantsoa,Morondava,Nosy Be,Toliara,'+
+      // 아프리카 — 서아프리카
+      'Lagos,Abuja,Kano,Ibadan,Benin,Enugu,Calabar,Jos,Owerri,Ilorin,Sokoto,Yola,Bauchi,Gombe,Akure,Asaba,Onitsha,Aba,Uyo,Warri,Accra,Kumasi,Tamale,Cape Coast,Takoradi,Tema,Ho,Bolgatanga,Sunyani,Koforidua,Wa,Damongo,Axim,Busua,Anomabo,Elmina,Saltpond,Aburi,Abidjan,Bouake,Korhogo,Daloa,San Pedro,Man,Gagnoa,Bondoukou,Divo,Yamoussoukro,Bamako,Timbuktu,Mopti,Djenne,Segou,Kayes,Sikasso,Koulikoro,Gao,Bandiagara,Hombori,Mopti,Dakar,Saint Louis,Thies,Mbour,Ziguinchor,Kaolack,Tambacounda,Diourbel,Louga,Touba,Cap Skirring,Sokone,Toubacouta,Pikine,Kolda,Conakry,Kankan,Boke,Kindia,Labe,Nzerekore,Mamou,Faranah,Siguiri,Macenta,Forecariah,Pita,Dalaba,Kissidougou,Freetown,Bo,Kenema,Makeni,Magburaka,Koidu,Lunsar,Port Loko,Pendembu,Pujehun,Bonthe,Kabala,Kambia,Moyamba,Monrovia,Buchanan,Gbarnga,Greenville,Voinjama,Robertsport,Sanniquellie,Zwedru,Kakata,Harper,Ganta,Tubmanburg,Nouakchott,Atar,Nouadhibou,Rosso,Kaedi,Zouerat,Tidjikja,Selibaby,Aleg,Akjoujt,Kiffa,Nema,Tichit,Chinguetti,Niamey,Agadez,Zinder,Maradi,Tahoua,Dosso,Tillaberi,Diffa,Birni,Arlit,Tessaoua,Madaoua,Iferouane,Lome,Aneho,Kara,Kpalime,Sokode,Atakpame,Bassar,Dapaong,Tsevie,Niamtougou,Vogan,Kante,Sotouboua,Cotonou,Porto Novo,Ouidah,Parakou,Abomey,Natitingou,Kandi,Bohicon,Lokossa,Djougou,Save,Tanguieta,Grand Popo,Bopa,Possotome,'+
+      // 미주 — 미국
+      'Boston,Chicago,Miami,Seattle,Denver,Dallas,Austin,Houston,Atlanta,Phoenix,Memphis,Nashville,Orlando,Tampa,Reno,Salem,Aspen,Boulder,Boise,Tucson,Tulsa,Fargo,Helena,Juneau,Cody,Tahoe,Albany,Buffalo,Newark,Trenton,Camden,Mystic,Ithaca,Yonkers,Newport,Hartford,Lowell,Worcester,Sedona,Bisbee,Taos,Detroit,Portland,Spokane,Tacoma,Eugene,Bend,Hood,Yakima,Olympia,Anchorage,Honolulu,Maui,Kauai,Oahu,Hilo,Kona,Lanai,Molokai,Niihau,Kahului,Wailea,Hanalei,Vail,Telluride,Durango,Pueblo,Greeley,Loveland,Estes,Steamboat,Moab,Provo,Logan,Ogden,Cedar,Saint,Layton,Bryce,Zion,Arches,Roswell,Carlsbad,Gallup,Silver,Raton,Clovis,Tempe,Mesa,Yuma,Flagstaff,Prescott,Jerome,Globe,Vegas,Carson,Henderson,Sparks,Pahrump,Ely,Tonopah,Mesquite,Fallon,Astoria,Tillamook,Coos,Klamath,Roseburg,Pierre,Sioux,Rapid,Aberdeen,Brookings,Mitchell,Yankton,Huron,Madison,Bismarck,Minot,Williston,Dickinson,Devils,Grafton,Wahpeton,Valley,Jamestown,Topeka,Wichita,Lawrence,Manhattan,Hutchinson,Salina,Dodge,Garden,Liberal,Pratt,Omaha,Lincoln,Bellevue,Kearney,Norfolk,Grand,North,Hastings,Beatrice,Scottsbluff,Boise,Lewiston,Pocatello,Idaho,Caldwell,Nampa,Twin,Sun,Stanley,Salmon,Pierre,Mitchell,Brookings,Vermillion,Madison,Lead,Sturgis,Deadwood,Belle,Fort,Hot Springs,Custer,Hill City,Casper,Laramie,Sheridan,Gillette,Jackson,Cody,Powell,Riverton,Buffalo,Newcastle,Sundance,Lander,Pinedale,Saratoga,Yellowstone,Teton,Bozeman,Missoula,Butte,Billings,Kalispell,Whitefish,Choteau,Livingston,Glacier,Helena,Big Sky,Red Lodge,Madison,Madison,Athens,Macon,Augusta,Savannah,Athens,Albany,Valdosta,Tifton,Brunswick,Jekyll,Tybee,Statesboro,Dahlonega,Helen,Madison,Athens,Athens,Asheville,Wilmington,Raleigh,Durham,Greensboro,Charlotte,Boone,Banner,Bryson,Brevard,Sylva,Cherokee,Highlands,Tryon,Outer Banks,Manteo,Edenton,Bath,New Bern,Beaufort,Atlantic,Greenville,Wilmington,Topsail,Calabash,Sunset,Holden,Oak Island,Ocracoke,Salem,Stowe,Bennington,Burlington,Montpelier,Woodstock,Manchester,Killington,Stratton,Smugglers,Waitsfield,Waterbury,Ludlow,Brattleboro,Newport,Concord,Hanover,Lebanon,Keene,Portsmouth,Hampton,Lincoln,Jackson,Conway,Lake Placid,Saranac,Tupper,Lake George,Cooperstown,Saratoga,Niagara,Catskills,Hudson,Kingston,Saugerties,Woodstock,Phoenicia,Tannersville,Hunter,Windham,Cobleskill,Cherry,Carmel,Mahopac,Brewster,Pawling,Beacon,Cold Spring,Garrison,Cornwall,Highland,Newburgh,Goshen,Monroe,Tuxedo,Hyde Park,Rhinebeck,Red Hook,Hudson,'+
+      // 미주 — 캐나다
+      'Toronto,Montreal,Vancouver,Calgary,Ottawa,Quebec,Halifax,Victoria,Banff,Jasper,Whistler,Tofino,Tobermory,Niagara,Edmonton,Regina,Saskatoon,Winnipeg,London,Windsor,Kingston,Sudbury,Barrie,Brampton,Hamilton,Gatineau,Sherbrooke,Saguenay,Trois,Moncton,Saint John,Fredericton,Sydney,Yellowknife,Whitehorse,Iqaluit,Inuvik,Dawson,Sault,Thunder,Timmins,Cornwall,Brockville,Belleville,Peterborough,Orillia,Owen,Goderich,Stratford,Niagara on the Lake,Cobourg,Port Hope,Cornwall,Kenora,Drumheller,Lake Louise,Canmore,Kananaskis,Yoho,Kootenay,Revelstoke,Nelson,Kelowna,Penticton,Tofino,Ucluelet,Squamish,Nanaimo,Saanich,Sidney,Cowichan,Galiano,Salt Spring,Pender,Hornby,Quadra,Cortes,Sointula,Telegraph Cove,Port Hardy,Bella Coola,Prince Rupert,Smithers,Hazelton,Skagit,Stewart,Atlin,Haines,Glacier Bay,Skagway,Wrangell,Petersburg,Sitka,Ketchikan,Cordova,Valdez,Seward,Homer,Talkeetna,Fairbanks,Nome,Barrow,'+
+      // 미주 — 중남미
+      'Cancun,Tulum,Oaxaca,Merida,Puebla,Taxco,Cabo,Loreto,Acapulco,Mazatlan,Veracruz,Monterrey,Tijuana,Cuernavaca,Toluca,Pachuca,Morelia,Saltillo,Durango,Hermosillo,Mexicali,Ensenada,Culiacan,Tapachula,Campeche,Chetumal,Cozumel,Holbox,Bacalar,Sayulita,Valladolid,Izamal,Palenque,Bacalar,Mitla,Cholula,Xilitla,Tepoztlan,Tequila,Patzcuaro,Real,Bernal,Pena,Atotonilco,Comonfort,Dolores,Tequisquiapan,Cuatro,Havana,Trinidad,Varadero,Holguin,Cienfuegos,Camaguey,Vinales,Baracoa,Matanzas,Santiago,Pinar,Sancti,Bayamo,Gibara,Cayo,Soroa,Kingston,Negril,Ocho,Mandeville,Spanish,Lucea,Falmouth,Black,Treasure,Discovery,Port Antonio,Runaway Bay,Frenchman,Boscobel,Trelawny,Nassau,Andros,Bimini,Eleuthera,Exuma,Abaco,Long Island,Cat Island,Inagua,Acklins,Andros,Crooked,Mayaguana,Berry,San Salvador,Bridgetown,Speightstown,Holetown,Oistins,Bathsheba,Hastings,Saint James,Saint John,Castries,Soufriere,Gros,Vieux Fort,Anse,Rodney,Marigot,Choiseul,Laborie,Dennery,Roseau,Portsmouth,Marigot,Castle,Pottersville,Mahaut,Trafalgar,Calibishie,Wesley,Panama,Boquete,Bocas,David,Colon,Coiba,Chiriqui,Penonome,Aguadulce,Pedasi,Las Tablas,Volcan,Cerro Punta,Anton,Portobelo,San Blas,Darien,San Jose,Liberia,Tamarindo,Heredia,Cartago,Quepos,Limon,Monteverde,Arenal,Tortuguero,Drake,Uvita,Dominical,Samara,Nosara,Avellanas,Conchal,Coco,Hermosa,Jaco,Managua,Granada,Leon,Esteli,Bluefields,Masaya,Rivas,Boaco,Jinotega,Matagalpa,Ometepe,Corn,San Juan,Tegucigalpa,Roatan,Utila,Copan,Comayagua,Choluteca,Trujillo,Tela,Ceiba,Yoro,Gracias,Lago,Bogota,Cali,Cartagena,Medellin,Salento,Manizales,Pereira,Popayan,Pasto,Ibague,Tunja,Villavicencio,Cucuta,Montería,Mompox,Barichara,Villa de Leyva,Honda,Buga,Caracas,Maracaibo,Merida,Margarita,Valencia,Barquisimeto,Cumana,Maturin,Coro,Maracay,Canaima,Choroni,Macuro,Quito,Guayaquil,Cuenca,Banos,Otavalo,Manta,Salinas,Loja,Riobamba,Latacunga,Mindo,Vilcabamba,Montañita,Puerto Lopez,Tena,Misahualli,Lima,Cusco,Arequipa,Trujillo,Iquitos,Puno,Nazca,Paracas,Pisco,Mancora,Huaraz,Tarapoto,Chiclayo,Piura,Tacna,Ica,Ayacucho,Cajamarca,Huancayo,Tumbes,Chachapoyas,Ollantaytambo,Pisac,Maras,Chivay,Colca,Puerto Maldonado,La Paz,Sucre,Potosi,Uyuni,Tarija,Oruro,Trinidad,Cobija,Riberalta,Tupiza,Copacabana,Sorata,Coroico,Rurrenabaque,Tiwanaku,Samaipata,Vallegrande,Concepcion,Santiago,Valparaiso,Pucon,Iquique,Antofagasta,Calama,Arica,Talca,Chillan,Temuco,Vina,Coquimbo,Serena,Castro,Ancud,Frutillar,Villarrica,Curico,Copiapo,Vallenar,La Ligua,Pichilemu,Algarrobo,Punta Arenas,Puerto Natales,Torres,Chiloe,Quemchi,Cucao,Hornopiren,Futaleufu,Cordoba,Mendoza,Bariloche,Salta,Ushuaia,Rosario,Tucuman,Iguazu,Cafayate,Calafate,Purmamarca,Tilcara,Humahuaca,Jujuy,Cachi,Resistencia,Posadas,Tafi,Catamarca,La Rioja,San Juan,San Luis,Neuquen,Junin,Trelew,Madryn,Bahia Blanca,Tandil,Pinamar,Necochea,Carlos Paz,Mina Clavero,Capilla,Asuncion,Encarnacion,Ciudad,Filadelfia,Pilar,Coronel,Caaguazu,Itapua,Caazapa,Areguá,Yaguarón,San Bernardino,Caacupé,Trinidad,Jesús,Montevideo,Punta,Colonia,Salto,Paysandu,Rivera,Tacuarembo,Maldonado,Florida,Cabo Polonio,Punta del Diablo,Piriapolis,La Paloma,Atlantida,Brasilia,Rio,Sao Paulo,Salvador,Recife,Fortaleza,Manaus,Belem,Natal,Curitiba,Olinda,Paraty,Buzios,Ilha,Trancoso,Itacare,Lencois,Maragogi,Pipa,Jericoacoara,Vitoria,Aracaju,Maceio,Teresina,Goiania,Cuiaba,Palmas,Boipeba,Morro,Arraial,Atins,Pirenópolis,Tiradentes,Mariana,Diamantina,Sao Luis,Alter,Caraiva,Cumuruxatiba,Itaunas,Bonito,Pantanal,Chapada,Cayenne,Kourou,Sinnamary,Iracoubo,Mana,Macouria,Apatou,Camopi,Awala,Roura,Regina,'+
+      // 오세아니아
+      'Sydney,Melbourne,Brisbane,Perth,Adelaide,Canberra,Darwin,Hobart,Cairns,Byron,Broome,Townsville,Geelong,Wollongong,Newcastle,Mackay,Bunbury,Albany,Ballarat,Bendigo,Toowoomba,Mandurah,Hervey,Gladstone,Tamworth,Wagga,Launceston,Coffs,Bundaberg,Esperance,Margaret,Augusta,Denmark,Walpole,Pemberton,Manjimup,Karratha,Carnarvon,Geraldton,Kalbarri,Exmouth,Coral Bay,Monkey Mia,Denham,Cervantes,Lancelin,Yallingup,Dunsborough,Busselton,Mundaring,Auckland,Wellington,Christchurch,Queenstown,Dunedin,Hamilton,Tauranga,Rotorua,Napier,Wanaka,Nelson,Picton,Kaikoura,Taupo,Gisborne,Whangarei,New Plymouth,Invercargill,Whakatane,Greymouth,Hokitika,Franz,Fox,Twizel,Tekapo,Hanmer,Akaroa,Methven,Methven,Russell,Paihia,Kerikeri,Whitianga,Coromandel,Hahei,Tairua,Pauanui,Whitianga,Suva,Nadi,Nausori,Lautoka,Labasa,Levuka,Sigatoka,Korovou,Ba,Savusavu,Taveuni,Apia,Salelologa,Mulifanua,Savaii,Lalomanu,Aleipata,Apolima,Manono,Saleimoa,Falelatai,Honiara,Auki,Gizo,Kira Kira,Tulagi,Munda,Lata,Buala,Tigoa,Taro,Port Vila,Luganville,Norsup,Lakatoro,Sola,Lenakel,Saratamata,Isangel,Longana,Lamap,Noumea,Bourail,Koumac,Poindimie,Hienghene,Thio,Yate,Ouvea,Lifou,Mare,Papeete,Bora Bora,Moorea,Huahine,Raiatea,Tahaa,Maupiti,Tetiaroa,Tikehau,Rangiroa,Avarua,Aitutaki,Atiu,Mauke,Mitiaro,Rarotonga,Penrhyn,Rakahanga,Pukapuka,Manihiki,Pago,Tafuna,Aoloau,Fagatogo,Leone,Vatia,Aua,Faleniu,Vailoatai,Hagatna,Dededo,Tamuning,Yigo,Mongmong,Barrigada,Mangilao,Inarajan,Merizo,Talofofo,Saipan,Tinian,Rota,Aguigan,Pagan,Anatahan,Sarigan,Alamagan,Guguan,Funafuti,Yaren,Ngerulmud,Majuro,Palikir,Koror,Babeldaob,'+
+      // 유명 건축물 · 랜드마크 (10글자 미만)
+      'Louvre,Pantheon,Acropolis,Kremlin,Hermitage,Vatican,Sorbonne,Reichstag,Topkapi,Belvedere,Pergamon,Alhambra,Escorial,Chambord,Eiffel,Madeleine,Invalides,Vincennes,Vendome,Concorde,Trocadero,Tuileries,Pompidou,Petronas,Atlantis,Aladdin,Sahara,Mirage,Bellagio,Wynn,Aria,Caesars,Excalibur,Hagia,Galata,Pera,Beyazit,Eyup,Senso,Meiji,Yasaka,Kinkaku,Ginkaku,Heian,Kiyomizu,Todaiji,Horyuji,Toji,Daigo,Ryoanji,Fushimi,Inari,Namsan,Bukhan,Wat Pho,Wat Arun,Angkor,Bayon,Ta Prohm,Borobudur,Tanah Lot,Taj Mahal,Red Fort,Lotus,Gateway,Charminar,Amber,Mehrangarh,Jaisalmer,Schloss,Burg,Doge,Uffizi,Brera,Prado,Reina,Marina,Sentosa,Marina Bay,Atomium,Manneken,Grand Place,Atlasov,Petra,Karnak,Sphinx,Pyramids,Olduvai,Tsodilo,Lalibela,Stonehenge,Tintagel,Caernarfon,Edinburgh,Pendennis,St Michael,Mont St Michel,Cluny,Carcassonne,Vezere,Lascaux,Versailles,Schönbrunn'
+    ).split(',');
+
+    // 정규화 + 필터 (10글자 미만) + 중복 제거
+    const seen = new Set();
+    const NAMES = [];
+    RAW_NAMES.forEach(raw => {
+      const s = (raw||'').trim();
+      if(!s || s.length >= 10) return;
+      const key = s.toLowerCase();
+      if(seen.has(key)) return;
+      seen.add(key);
+      NAMES.push(s);
+    });
+
+    let currentFormat = 'title'; // title | upper | lower
+    let currentResults = [];
+
+    function applyFmt(s){
+      if(currentFormat==='upper') return s.toUpperCase();
+      if(currentFormat==='lower') return s.toLowerCase();
+      // title: 단어별 첫 글자 대문자
+      return s.toLowerCase().replace(/(^|\s|-|')([a-zA-Z])/g,(_,sep,ch)=>sep+ch.toUpperCase());
+    }
+
+    function pickRandom(n){
+      const pool = NAMES.slice();
+      const out = [];
+      n = Math.min(n, pool.length);
+      for(let i=0; i<n; i++){
+        const idx = Math.floor(Math.random()*pool.length);
+        out.push(pool.splice(idx,1)[0]);
+      }
+      return out;
+    }
+
+    function escHtml(s){
+      return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+
+    function renderResults(){
+      const el = document.getElementById('ngList');
+      const countEl = document.getElementById('ngResultCount');
+      if(!el) return;
+      if(!currentResults.length){
+        el.innerHTML = '<div class="ng-empty"><div class="ng-empty-icon">🎲</div><div>개수와 형식을 선택하고 <b>추출</b> 버튼을 눌러주세요</div><div class="ng-empty-hint">CLICK GENERATE</div></div>';
+        if(countEl) countEl.textContent = '';
+        return;
+      }
+      const html = currentResults.map((name,i)=>{
+        const display = applyFmt(name);
+        return '<div class="ng-item" data-idx="'+i+'">'+
+          '<span class="ng-item-name">'+escHtml(display)+'</span>'+
+          '<span class="ng-item-len">'+name.length+'</span>'+
+          '<button class="ng-item-copy" type="button" onclick="ngCopyOne('+i+',this)" aria-label="복사">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'+
+          '</button></div>';
+      }).join('');
+      el.innerHTML = '<div class="ng-list">'+html+'</div>';
+      if(countEl) countEl.textContent = '('+currentResults.length+'개)';
+    }
+
+    function copyText(s){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(s);
+      }
+      return new Promise((res,rej)=>{
+        const ta=document.createElement('textarea');
+        ta.value=s; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');res();}catch(e){rej(e);}
+        finally{document.body.removeChild(ta);}
+      });
+    }
+
+    function ngGenerate(){
+      const input = document.getElementById('ngCount');
+      if(!input) return;
+      let n = parseInt(input.value,10) || 15;
+      if(n<1) n=1;
+      if(n>100) n=100;
+      input.value=n;
+      const lab = document.getElementById('ngGenLabel');
+      if(lab) lab.textContent = n+'개 추출';
+      currentResults = pickRandom(n);
+      renderResults();
+    }
+
+    function ngNumStep(delta){
+      const input = document.getElementById('ngCount');
+      if(!input) return;
+      let n = parseInt(input.value,10) || 15;
+      n = Math.max(1, Math.min(100, n+delta));
+      input.value=n;
+      const lab = document.getElementById('ngGenLabel');
+      if(lab) lab.textContent = n+'개 추출';
+    }
+
+    function ngCopyOne(idx, btn){
+      const name = currentResults[idx];
+      if(!name) return;
+      const text = applyFmt(name);
+      copyText(text).then(()=>{
+        const item = btn && btn.closest('.ng-item');
+        if(item){
+          item.classList.add('copied');
+          setTimeout(()=>item.classList.remove('copied'),1200);
+        }
+        toast('✓ "'+text+'" 복사됨','ok');
+      }).catch(()=>toast('복사 실패','err'));
+    }
+
+    function ngCopyAll(){
+      if(!currentResults.length){
+        toast('먼저 추출해주세요','err');
+        return;
+      }
+      const text = currentResults.map(applyFmt).join('\n');
+      copyText(text).then(()=>{
+        toast('✓ '+currentResults.length+'개 모두 복사됨','ok');
+      }).catch(()=>toast('복사 실패','err'));
+    }
+
+    function setFormat(f){
+      if(!['title','upper','lower'].includes(f)) return;
+      currentFormat = f;
+      document.querySelectorAll('#ngFormatGroup .ng-format-btn').forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.fmt===f);
+      });
+      if(currentResults.length) renderResults();
+    }
+
+    let initialized = false;
+    function initNamegenView(){
+      const dbEl = document.getElementById('ngDbCount');
+      if(dbEl) dbEl.textContent = NAMES.length;
+      if(initialized) return;
+      initialized = true;
+      document.querySelectorAll('#ngFormatGroup .ng-format-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>setFormat(btn.dataset.fmt));
+      });
+      const countInput = document.getElementById('ngCount');
+      if(countInput){
+        countInput.addEventListener('input',()=>{
+          const v = parseInt(countInput.value,10) || 15;
+          const lab = document.getElementById('ngGenLabel');
+          if(lab) lab.textContent = v+'개 추출';
+        });
+        countInput.addEventListener('keydown',e=>{
+          if(e.key==='Enter'){ e.preventDefault(); ngGenerate(); }
+        });
+      }
+    }
+
+    // 전역 노출
+    window.initNamegenView = initNamegenView;
+    window.ngGenerate = ngGenerate;
+    window.ngNumStep = ngNumStep;
+    window.ngCopyOne = ngCopyOne;
+    window.ngCopyAll = ngCopyAll;
+  })();
 
   init();
 </script>
