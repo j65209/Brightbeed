@@ -1142,12 +1142,43 @@
   .view[hidden]{display:none}
 
   /* HQ 홈 보조 모듈 그리드 (메인 hero 아래) */
-  .sub-modules-section{margin:20px 0 40px}
+  .sub-modules-section{
+    margin:24px auto 40px;
+    max-width:1020px;
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 22px 22px;
+    position:relative;
+  }
+  .sub-modules-section::before{
+    /* 폴더 탭 느낌 — 좌측 상단의 작은 액센트 라인 */
+    content:'';position:absolute;
+    top:-1px;left:24px;width:64px;height:2px;
+    background:linear-gradient(90deg,#6366f1 0%,#ec4899 100%);
+    border-radius:2px;
+  }
   .sub-modules-eyebrow{
-    font-size:11px;font-family:var(--mono);
-    color:var(--text-3);letter-spacing:.18em;
+    display:flex;align-items:center;gap:10px;
+    font-size:12px;font-family:var(--mono);
+    color:var(--text-1);letter-spacing:.10em;
     text-transform:uppercase;
-    text-align:center;margin-bottom:14px;
+    margin-bottom:14px;
+    padding-bottom:12px;
+    border-bottom:1px dashed var(--line);
+  }
+  .sub-modules-eyebrow .folder-icon{font-size:14px;letter-spacing:0}
+  .sub-modules-eyebrow .folder-label{font-weight:600;color:var(--text-0)}
+  .sub-modules-eyebrow .folder-meta{
+    margin-left:auto;
+    text-transform:none;
+    font-size:11px;letter-spacing:.04em;
+    color:var(--text-3);font-weight:500;
+  }
+  .sub-modules-eyebrow .folder-meta b{color:var(--text-1);font-weight:600}
+  @media(max-width:600px){
+    .sub-modules-section{padding:14px 14px 16px;margin:20px auto 32px}
+    .sub-modules-eyebrow{font-size:11px;letter-spacing:.08em}
   }
   .sub-modules{
     display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
@@ -2281,9 +2312,13 @@
       </section>
     </div>
 
-    <!-- 보조 모듈 (디자인만, 데이터/소스는 추후) -->
+    <!-- 업무용 툴 (폴더 스타일) -->
     <div class="sub-modules-section">
-      <div class="sub-modules-eyebrow">기타 모듈</div>
+      <div class="sub-modules-eyebrow">
+        <span class="folder-icon">📂</span>
+        <span class="folder-label">업무용 툴</span>
+        <span class="folder-meta"><b id="subModulesCount">—</b> 도구</span>
+      </div>
       <div class="sub-modules">
         <div class="sub-module m-notice" onclick="triggerNotice()">
           <div class="sub-module-icon">📌</div>
@@ -7974,6 +8009,14 @@ async function handlePOFiles(files){
     window.ngNumStep = ngNumStep;
     window.ngCopyOne = ngCopyOne;
     window.ngCopyAll = ngCopyAll;
+  })();
+
+  /* 업무용 툴 폴더 — 카드 개수 자동 카운트 */
+  (function(){
+    const el = document.getElementById('subModulesCount');
+    if(!el) return;
+    const n = document.querySelectorAll('.sub-modules .sub-module').length;
+    el.textContent = n;
   })();
 
   init();
