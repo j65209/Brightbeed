@@ -2900,6 +2900,7 @@
             <div class="ng-format-group" id="ngFormatGroup">
               <button class="ng-format-btn active" data-fmt="upper" type="button">대문자</button>
               <button class="ng-format-btn" data-fmt="lower" type="button">소문자</button>
+              <button class="ng-format-btn" data-fmt="title" type="button">대소문자</button>
             </div>
           </div>
           <div class="ng-ctl ng-ctl-generate">
@@ -7826,11 +7827,15 @@ async function handlePOFiles(files){
       NAMES.push(s);
     });
 
-    let currentFormat = 'upper'; // upper | lower
+    let currentFormat = 'upper'; // upper | lower | title
     let currentResults = [];
 
     function applyFmt(s){
       if(currentFormat==='lower') return s.toLowerCase();
+      if(currentFormat==='title'){
+        // 단어별 첫 글자만 대문자, 나머지는 소문자
+        return s.toLowerCase().replace(/(^|\s|-|')([a-zA-Z])/g,(_,sep,ch)=>sep+ch.toUpperCase());
+      }
       return s.toUpperCase();
     }
 
@@ -7933,7 +7938,7 @@ async function handlePOFiles(files){
     }
 
     function setFormat(f){
-      if(!['upper','lower'].includes(f)) return;
+      if(!['upper','lower','title'].includes(f)) return;
       currentFormat = f;
       document.querySelectorAll('#ngFormatGroup .ng-format-btn').forEach(btn=>{
         btn.classList.toggle('active', btn.dataset.fmt===f);
