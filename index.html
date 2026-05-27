@@ -2898,9 +2898,8 @@
           <div class="ng-ctl">
             <div class="ng-ctl-label">표기 형식</div>
             <div class="ng-format-group" id="ngFormatGroup">
-              <button class="ng-format-btn active" data-fmt="title" type="button">Capital</button>
-              <button class="ng-format-btn" data-fmt="upper" type="button">UPPER</button>
-              <button class="ng-format-btn" data-fmt="lower" type="button">lower</button>
+              <button class="ng-format-btn active" data-fmt="upper" type="button">대문자</button>
+              <button class="ng-format-btn" data-fmt="lower" type="button">소문자</button>
             </div>
           </div>
           <div class="ng-ctl ng-ctl-generate">
@@ -7827,14 +7826,12 @@ async function handlePOFiles(files){
       NAMES.push(s);
     });
 
-    let currentFormat = 'title'; // title | upper | lower
+    let currentFormat = 'upper'; // upper | lower
     let currentResults = [];
 
     function applyFmt(s){
-      if(currentFormat==='upper') return s.toUpperCase();
       if(currentFormat==='lower') return s.toLowerCase();
-      // title: 단어별 첫 글자 대문자
-      return s.toLowerCase().replace(/(^|\s|-|')([a-zA-Z])/g,(_,sep,ch)=>sep+ch.toUpperCase());
+      return s.toUpperCase();
     }
 
     function pickRandom(n){
@@ -7936,7 +7933,7 @@ async function handlePOFiles(files){
     }
 
     function setFormat(f){
-      if(!['title','upper','lower'].includes(f)) return;
+      if(!['upper','lower'].includes(f)) return;
       currentFormat = f;
       document.querySelectorAll('#ngFormatGroup .ng-format-btn').forEach(btn=>{
         btn.classList.toggle('active', btn.dataset.fmt===f);
