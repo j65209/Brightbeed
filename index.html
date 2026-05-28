@@ -1040,7 +1040,7 @@
   .seeding-stock-input:nth-of-type(1) input:focus{outline:none;border-color:#f472b6;box-shadow:0 0 0 2px rgba(244,114,182,.18)}
   .seeding-stock-input:nth-of-type(2) input:focus{outline:none;border-color:#38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.18)}
   @media (max-width:700px){
-    .seeding-row{padding:10px 10px}
+    .seeding-row{padding:10px 10px;gap:8px}
     .seeding-row-head{grid-template-columns:22px minmax(80px,1fr) auto auto auto;gap:7px}
     .seeding-row-head .seeding-log-btn{display:none}
     .seeding-name{font-size:13px}
@@ -1049,9 +1049,29 @@
     .seeding-send-btn{padding:5px 10px;font-size:11px}
     .seeding-note{font-size:12px;min-height:42px}
   }
+  /* ≤480px: 한 줄에 컬러/수량/버튼 다 넣으면 좁아져서 2단으로 분리
+     줄1: swatch + 컬러명 + 출고버튼
+     줄2: 여성 qty + 남성 qty (수량 둘 다 보존) */
   @media (max-width:480px){
-    .seeding-row-head{grid-template-columns:20px minmax(60px,1fr) auto auto}
-    .seeding-row-head .seeding-qty-l{display:none}
+    .seeding-row-head{
+      grid-template-columns:22px 1fr auto;
+      grid-template-areas:
+        "swatch name send"
+        "qtym   qtyl qtyl";
+      gap:8px 8px;
+      row-gap:8px;
+    }
+    .seeding-row-head .seeding-swatch{grid-area:swatch;width:20px;height:20px}
+    .seeding-row-head .seeding-name{grid-area:name;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+    .seeding-row-head .seeding-send-btn{grid-area:send;padding:5px 12px;font-size:11px;white-space:nowrap}
+    .seeding-row-head .seeding-qty-m{grid-area:qtym;justify-self:stretch;min-width:0}
+    .seeding-row-head .seeding-qty-l{grid-area:qtyl;justify-self:stretch;min-width:0;display:flex}
+    .seeding-qty{padding:5px 8px;min-width:0}
+    .seeding-note{font-size:12px;min-height:40px;padding:8px 10px}
+  }
+  @media (max-width:340px){
+    .seeding-row-head .seeding-send-btn{padding:4px 9px;font-size:10.5px}
+    .seeding-name{font-size:12.5px}
   }
 
   /* 기획전 호버 툴팁 */
@@ -1123,18 +1143,31 @@
 
   @media(max-width:600px){
     .md-cal-head{padding:10px 12px}
-    .md-cal-meta{gap:8px;width:100%;justify-content:space-between}
+    .md-cal-meta{gap:8px;width:100%;justify-content:space-between;flex-wrap:wrap}
+    .md-cal-nav{flex-wrap:wrap}
     .md-cal-body{padding:8px 6px 10px}
     .md-cal-monthlabel{min-width:72px;font-size:12px}
     .btn-md-cal-nav{height:24px;font-size:11px}
     .btn-md-cal-nav.md-cal-nav-arrow{font-size:14px;min-width:24px}
-    .md-cal-cell{min-height:62px;padding:3px 0 4px;gap:1px}
+    .md-cal-cell{min-height:62px;padding:3px 0 4px;gap:1px;min-width:0}
     .md-cal-daynum{font-size:10px;height:15px;line-height:15px;padding:0 4px}
-    .md-cal-event{height:13px;line-height:13px;font-size:9px;padding:0 4px}
+    .md-cal-event{height:13px;line-height:13px;font-size:9px;padding:0 3px}
     .md-cal-event-ph{height:13px}
     .md-cal-more{font-size:9px;padding:0 4px;line-height:12px}
     .md-cal-wd{font-size:9.5px;padding:3px 0}
-    .md-cal-hint{font-size:10px}
+    .md-cal-hint{font-size:10px;text-align:left}
+    .md-cal-add{padding:5px 10px;font-size:11px}
+    .md-cal-add svg{width:12px;height:12px}
+  }
+  /* ≤420px: 매우 좁은 화면 — 일정 칩은 작아도 한 줄에 2개 정도는 보여야 */
+  @media (max-width:420px){
+    .md-cal-body{padding:6px 4px 8px}
+    .md-cal-cell{min-height:54px}
+    .md-cal-daynum{font-size:9.5px;height:14px;line-height:14px;padding:0 3px}
+    .md-cal-event{height:12px;line-height:12px;font-size:8.5px;padding:0 2px;letter-spacing:0}
+    .md-cal-event-ph{height:12px}
+    .md-cal-more{font-size:8.5px;padding:0 3px;line-height:11px}
+    .md-cal-wd{font-size:9px;padding:2px 0}
   }
 
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
@@ -1269,6 +1302,35 @@
   @media(max-width:720px){
     .ng-controls{grid-template-columns:1fr 1fr;gap:10px}
     .ng-controls .ng-ctl-generate{grid-column:1/-1}
+  }
+  @media(max-width:600px){
+    .ng-wrap{gap:14px}
+    .ng-panel{padding:14px 14px 16px}
+    .ng-panel-head{margin-bottom:12px;gap:8px}
+    .ng-panel-title{font-size:12.5px}
+    .ng-panel-meta{font-size:10.5px}
+    .ng-num-wrap input{width:56px;padding:8px 6px;font-size:13px}
+    .ng-num-btn{width:28px;font-size:14px}
+    .ng-format-group{padding:2px;gap:1px;width:100%}
+    .ng-format-btn{flex:1;padding:7px 6px;font-size:11.5px;min-width:0;text-align:center}
+    .ng-generate-btn{width:100%;padding:11px 16px;font-size:13px}
+    .ng-result-head{margin-bottom:10px;gap:8px}
+    .ng-result-count{font-size:11px}
+    .ng-action-btn{padding:6px 10px;font-size:11px}
+    .ng-list{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+    .ng-item{padding:9px 11px;gap:6px}
+    .ng-item-name{font-size:13px}
+    .ng-item-len{font-size:9.5px}
+    .ng-item-copy{width:22px;height:22px}
+    .ng-item-copy svg{width:12px;height:12px}
+    .ng-empty{padding:36px 16px;font-size:12px}
+    .ng-empty-icon{font-size:28px}
+  }
+  @media(max-width:400px){
+    .ng-controls{grid-template-columns:1fr;gap:8px}
+    .ng-list{grid-template-columns:1fr 1fr;gap:6px}
+    .ng-item{padding:8px 10px}
+    .ng-item-name{font-size:12.5px}
   }
   .ng-ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
   .ng-ctl-label{
@@ -1512,10 +1574,10 @@
   body.role-viewer .role-badge{display:inline-flex}
 
   /* 서브페이지 헤더 (← 홈 + 타이틀) */
-  .view-head{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
-  .btn-back{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:var(--bg-1);border-radius:var(--radius);font-size:12px;color:var(--text-2);cursor:pointer;transition:all .15s}
+  .view-head{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .btn-back{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:var(--bg-1);border-radius:var(--radius);font-size:12px;color:var(--text-2);cursor:pointer;transition:all .15s;flex-shrink:0}
   .btn-back:hover{color:var(--text-0);border-color:var(--line-2);background:var(--bg-2)}
-  .view-title{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .view-title{font-size:18px;font-weight:600;letter-spacing:-.01em;min-width:0;word-break:keep-all}
   .view-title .view-title-sub{font-weight:500;color:var(--text-3);margin-left:8px;font-size:14px}
 
   /* ===== 조직도 (SVG) ===== */
