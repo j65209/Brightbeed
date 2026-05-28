@@ -1143,8 +1143,10 @@
 
   @media(max-width:600px){
     .md-cal-head{padding:10px 12px}
-    .md-cal-meta{gap:8px;width:100%;justify-content:space-between;flex-wrap:wrap}
-    .md-cal-nav{flex-wrap:wrap}
+    /* 좌측 네비 그룹과 우측 "일정 추가" 버튼이 한 줄에 자연스럽게 붙고,
+       공간이 모자라면 wrap되도록 — space-between은 중간에 빈 공간이 크게 생겨서 제거 */
+    .md-cal-meta{gap:8px;width:100%;justify-content:flex-start;flex-wrap:wrap}
+    .md-cal-nav{flex-wrap:nowrap}
     .md-cal-body{padding:8px 6px 10px}
     .md-cal-monthlabel{min-width:72px;font-size:12px}
     .btn-md-cal-nav{height:24px;font-size:11px}
