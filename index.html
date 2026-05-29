@@ -4401,8 +4401,8 @@
   /* used = baseline(override v.used 또는 STAFF.used) − 삭제된 baseline 항목 + 신규 entries 합산.
      STAFF.history는 이미 STAFF.used baseline에 반영되어 있으므로 중복 합산 X */
   function _computeLeaveUsed(s, v){
-    const baseline=Number.isFinite(v?.used)?v.used:(Number.isFinite(s?.used)?s.used:null);
-    if(baseline===null) return null;
+    const hasBaseline=Number.isFinite(v?.used)||Number.isFinite(s?.used);
+    const baseline=Number.isFinite(v?.used)?v.used:(Number.isFinite(s?.used)?s.used:0);
     // baseline에서 삭제 표시된 항목 days 차감
     const deletes=Array.isArray(v?.baselineDeletes)?v.baselineDeletes:[];
     let baselineDelta=0;
@@ -4420,6 +4420,8 @@
       if(!h||!h.submittedAt) continue;
       extra += _itemUsedDays(h);
     }
+    // baseline도 없고 신규 entry도 없을 때만 '미입력' 상태 (null) 반환
+    if(!hasBaseline && newEntries.length===0) return null;
     return baseline - baselineDelta + extra;
   }
 
