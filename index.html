@@ -941,14 +941,21 @@
   .seeding-add-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
   .seeding-body{display:flex;flex-direction:column;gap:14px;margin-top:6px}
   .seeding-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
-  /* 그룹 카드 — 시안 강조 */
-  .seeding-group{border:1px solid rgba(34,211,238,.24);border-radius:13px;background:linear-gradient(180deg,rgba(34,211,238,.05),rgba(168,85,247,.025));overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.04)}
-  .seeding-group-head{padding:12px 16px;background:linear-gradient(90deg,rgba(34,211,238,.22),rgba(168,85,247,.10));font-size:14px;font-weight:800;color:#ffffff;letter-spacing:.03em;border-bottom:1px solid rgba(34,211,238,.28);display:flex;align-items:center;gap:10px;text-shadow:0 0 12px rgba(34,211,238,.45),0 1px 3px rgba(0,0,0,.6)}
-  .seeding-group-code{font-family:var(--mono);font-size:10.5px;color:#22d3ee;padding:3px 9px;background:rgba(34,211,238,.18);border:1px solid rgba(34,211,238,.40);border-radius:5px;font-weight:700;letter-spacing:.06em;text-shadow:none}
+  /* 그룹 카드 — 스타일별 팔레트 (--seed-acc1/--seed-acc2 CSS 변수로 제어) */
+  .seeding-group{--seed-acc1:34,211,238;--seed-acc2:168,85,247;border:1px solid rgba(var(--seed-acc1),.24);border-radius:13px;background:linear-gradient(180deg,rgba(var(--seed-acc1),.05),rgba(var(--seed-acc2),.025));overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.04)}
+  .seeding-group-head{padding:12px 16px;background:linear-gradient(90deg,rgba(var(--seed-acc1),.22),rgba(var(--seed-acc2),.10));font-size:14px;font-weight:800;color:#ffffff;letter-spacing:.03em;border-bottom:1px solid rgba(var(--seed-acc1),.28);display:flex;align-items:center;gap:10px;text-shadow:0 0 12px rgba(var(--seed-acc1),.45),0 1px 3px rgba(0,0,0,.6)}
+  .seeding-group-code{font-family:var(--mono);font-size:10.5px;color:rgb(var(--seed-acc1));padding:3px 9px;background:rgba(var(--seed-acc1),.18);border:1px solid rgba(var(--seed-acc1),.40);border-radius:5px;font-weight:700;letter-spacing:.06em;text-shadow:none}
+  /* 스타일별 컬러 팔레트 (6종 순환) */
+  .seeding-group.pal-0{--seed-acc1:34,211,238;--seed-acc2:168,85,247}   /* 시안·퍼플 */
+  .seeding-group.pal-1{--seed-acc1:244,114,182;--seed-acc2:232,121,249} /* 핑크·마젠타 */
+  .seeding-group.pal-2{--seed-acc1:52,211,153;--seed-acc2:163,230,53}   /* 에메랄드·라임 */
+  .seeding-group.pal-3{--seed-acc1:251,191,36;--seed-acc2:251,146,60}   /* 앰버·오렌지 */
+  .seeding-group.pal-4{--seed-acc1:96,165,250;--seed-acc2:129,140,248}  /* 블루·인디고 */
+  .seeding-group.pal-5{--seed-acc1:251,113,133;--seed-acc2:248,113,113} /* 로즈·레드 */
   .seeding-rows{display:flex;flex-direction:column}
   .seeding-row{display:flex;flex-direction:column;gap:10px;padding:14px;border-top:1px solid rgba(255,255,255,.05);transition:background .12s;cursor:pointer}
   .seeding-row:first-child{border-top:none}
-  .seeding-row:hover{background:rgba(34,211,238,.04)}
+  .seeding-row:hover{background:rgba(var(--seed-acc1),.04)}
   .seeding-row-head{display:grid;grid-template-columns:28px minmax(110px,1fr) auto auto auto auto;align-items:center;gap:12px}
   /* 컬러명 — 흰색 + weight 800 + 글로우 */
   .seeding-name{font-size:15.5px;font-weight:800;color:#ffffff;letter-spacing:.02em;text-shadow:0 1px 3px rgba(0,0,0,.55),0 0 8px rgba(255,255,255,.08)}
@@ -7414,6 +7421,11 @@ async function handlePOFiles(files){
       else{_seeding_lastHash='null'}
       return;
     }
+    // CDN 캐시가 stale인 동안 방금 저장한 로컬 노트/수량이 덮어쓰여지지 않도록
+    // 로컬 updatedAt이 더 최근이면 무시 (마지막 저장 후 60s 가드)
+    const localTs=(_seeding && _seeding.updatedAt)||0;
+    const remoteTs=remote.updatedAt||0;
+    if(localTs && remoteTs < localTs) return;
     const json=JSON.stringify(remote);
     if(json===_seeding_lastHash) return;
     _seeding_lastHash=json;
@@ -7448,9 +7460,12 @@ async function handlePOFiles(files){
       groups.get(k).push(it);
     });
     let html='';
+    let _palIdx=0;
     for(const [k, arr] of groups){
       const [code, name]=k.split('|');
-      html += `<div class="seeding-group">
+      const palClass=`pal-${_palIdx % 6}`;
+      _palIdx++;
+      html += `<div class="seeding-group ${palClass}">
         <div class="seeding-group-head"><span class="seeding-group-code">Style ${_seedEsc(code)}</span>${_seedEsc(name)}</div>
         <div class="seeding-rows">`;
       arr.forEach(it=>{
