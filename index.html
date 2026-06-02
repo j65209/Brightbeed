@@ -981,18 +981,20 @@
   .seeding-log-btn.has-log{color:#bef264;border-color:rgba(190,242,100,.45);background:rgba(190,242,100,.10);font-weight:700;box-shadow:0 1px 6px rgba(190,242,100,.22)}
   .seeding-log-btn.has-log:hover{background:rgba(190,242,100,.18);border-color:rgba(190,242,100,.65)}
   /* 시딩 액션은 viewer도 사용 가능 — UI 게이트 없음 (PUT은 forceMaster로 master PIN 강제) */
-  /* 메모 textarea — 라이트 그레이 + 다크 텍스트 (시각적 분리) */
-  .seeding-note{width:100%;min-height:52px;max-height:220px;padding:10px 12px;background:#e2e8f0;border:1px solid #94a3b8;border-radius:8px;color:#0f172a;font-family:inherit;font-size:13px;font-weight:500;line-height:1.55;resize:vertical;transition:border-color .12s,background .12s,box-shadow .12s}
-  .seeding-note:hover{background:#cbd5e1;border-color:#64748b}
-  .seeding-note:focus{outline:none;border-color:#06b6d4;background:#f1f5f9;box-shadow:0 0 0 3px rgba(34,211,238,.28),0 0 14px rgba(34,211,238,.18)}
-  .seeding-note::placeholder{color:#64748b;font-style:italic;font-weight:400}
-  .seeding-note-status{font-size:10px;font-family:var(--mono);padding:0 2px;height:12px;letter-spacing:.05em;font-weight:700}
-  .seeding-note-status.is-saving{color:#fbbf24}
-  .seeding-note-status.is-saved{color:#a3e635}
-  .seeding-note-status.is-error{color:#fb7185}
-  /* 메모는 viewer도 편집 가능 */
-  /* 캘린더 chip */
+  /* 행 인라인 출고 내역 — 비고 textarea 대체 */
+  .seeding-loglist{display:flex;flex-wrap:wrap;gap:6px 8px;padding:2px 1px 1px;align-items:center}
+  .seeding-loglist.is-empty{color:var(--text-3);font-size:11.5px;font-style:italic;padding:3px 2px}
+  .seeding-li-item{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);font-size:11.5px;line-height:1.3}
+  .seeding-li-date{color:#9aa4b2;font-family:var(--mono);font-size:10.5px;font-weight:600}
+  .seeding-li-to{color:var(--text-1);font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seeding-li-sz{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px}
+  .seeding-li-sz.is-female{color:#fbcfe8;background:rgba(249,168,212,.14);border:1px solid rgba(249,168,212,.25)}
+  .seeding-li-sz.is-male{color:#bae6fd;background:rgba(125,211,252,.14);border:1px solid rgba(125,211,252,.25)}
+  .seeding-li-rd{color:#fcd34d;font-size:10px;font-weight:700;font-family:var(--mono)}
+  .seeding-li-more{color:var(--text-2);font-size:11px;font-weight:600;opacity:.85}
+  /* 캘린더 chip — 출고(솔리드) / 반납(아웃라인으로 구분) */
   .seeding-cal-chip{font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.22),0 0 6px rgba(0,0,0,.15)}
+  .seeding-cal-chip.is-return{box-shadow:inset 0 0 0 2px rgba(255,255,255,.6);opacity:.95}
   .seeding-swatch{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.3)}
   .seeding-name{font-size:13px;font-weight:500;color:var(--text-1)}
   .seeding-fabric{display:block;font-size:10px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
@@ -1054,7 +1056,6 @@
     .seeding-qty{min-width:58px;padding:4px 7px}
     .seeding-rem{font-size:13px}
     .seeding-send-btn{padding:5px 10px;font-size:11px}
-    .seeding-note{font-size:12px;min-height:42px}
   }
   /* ≤480px: 한 줄에 컬러/수량/버튼 다 넣으면 좁아져서 2단으로 분리
      줄1: swatch + 컬러명 + 출고버튼
@@ -1074,7 +1075,6 @@
     .seeding-row-head .seeding-qty-m{grid-area:qtym;justify-self:stretch;min-width:0}
     .seeding-row-head .seeding-qty-l{grid-area:qtyl;justify-self:stretch;min-width:0;display:flex}
     .seeding-qty{padding:5px 8px;min-width:0}
-    .seeding-note{font-size:12px;min-height:40px;padding:8px 10px}
   }
   @media (max-width:340px){
     .seeding-row-head .seeding-send-btn{padding:4px 9px;font-size:10.5px}
@@ -2840,13 +2840,13 @@
           </div>
         </div>
         <div class="seeding-body" id="seedingBody"></div>
-        <div class="md-cal-hint">행 클릭 → 발송 모달 / 이력 모달 · 메모는 자동 저장 · 다른 사용자 화면도 약 1분 안에 자동 반영</div>
+        <div class="md-cal-hint">행 클릭 → 발송 이력 · [출고] 버튼으로 발송 기록 · 다른 사용자 화면도 약 1분 안에 자동 반영</div>
       </div>
 
       <!-- 시딩 반납 캘린더 -->
       <div class="po-section md-cal-section">
         <div class="po-section-head md-cal-head">
-          <div class="po-section-title">시딩 반납 캘린더 <span class="seeding-sub">발송 시 반납일 입력하면 자동 표시</span></div>
+          <div class="po-section-title">시딩 출고·반납 캘린더 <span class="seeding-sub">출고일 + 반납 예정일 자동 표시</span></div>
           <div class="po-section-meta md-cal-meta">
             <div class="md-cal-nav">
               <button type="button" class="btn-md-cal-nav" onclick="seedingCalNavToday()">오늘</button>
@@ -2867,7 +2867,7 @@
             <div class="md-cal-wd md-cal-sat">토</div>
           </div>
           <div class="md-cal-grid" id="seedingCalGrid"></div>
-          <div class="md-cal-hint">반납 예정일 chip 클릭 → 해당 컬러 이력 모달 열림</div>
+          <div class="md-cal-hint">출고·반납 chip 클릭 → 해당 컬러 이력 모달 열림</div>
         </div>
       </div>
     </div>
@@ -7447,6 +7447,28 @@ async function handlePOFiles(files){
     tag.textContent=`갱신 ${t}`;
   }
 
+  /* 행마다 그 컬러의 출고 내역 인라인 요약 (최신순, 최대 4건 + 나머지 표시) */
+  function _seedingInlineLog(it){
+    const log=(it.log||[]).slice().sort((a,b)=>b.ts-a.ts);
+    if(!log.length){
+      return '<div class="seeding-loglist is-empty">아직 출고 내역 없음</div>';
+    }
+    const MAX=4;
+    const rows=log.slice(0,MAX).map(L=>{
+      const d=new Date(L.ts);
+      const dt=`${d.getMonth()+1}/${d.getDate()}`;
+      const sizeKr=L.size==='M'?'여성':'남성';
+      const rd=L.returnDate?`<span class="seeding-li-rd" title="반납 예정 ${_seedEsc(L.returnDate)}">↩ ${_seedEsc(String(L.returnDate).slice(5))}</span>`:'';
+      return `<span class="seeding-li-item">
+        <span class="seeding-li-date">${dt}</span>
+        <span class="seeding-li-to">${_seedEsc(L.to)}</span>
+        <span class="seeding-li-sz is-${L.size==='L'?'male':'female'}">${sizeKr}×${L.qty}</span>${rd}
+      </span>`;
+    }).join('');
+    const more=log.length>MAX?`<span class="seeding-li-more">외 ${log.length-MAX}건 →</span>`:'';
+    return `<div class="seeding-loglist">${rows}${more}</div>`;
+  }
+
   function renderSeeding(){
     const wrap=document.getElementById('seedingBody');
     if(!wrap) return;
@@ -7477,7 +7499,6 @@ async function handlePOFiles(files){
         const clsM=remM===0?'is-out':(remM<=1&&stockM>0?'is-low':'');
         const clsL=remL===0?'is-out':(remL<=1&&stockL>0?'is-low':'');
         const logN=(it.log||[]).length;
-        const note=it.note||'';
         html += `<div class="seeding-row" data-id="${_seedEsc(it.id)}" onclick="seedingRowClick('${_seedEsc(it.id)}')">
           <div class="seeding-row-head">
             <span class="seeding-swatch" style="background:${_seedEsc(it.swatch||'#888')}" title="${_seedEsc(it.color)}"></span>
@@ -7487,8 +7508,7 @@ async function handlePOFiles(files){
             <button type="button" class="seeding-send-btn" onclick="event.stopPropagation();seedingOpenSend('${_seedEsc(it.id)}')" title="시딩 출고 기록">출고</button>
             <button type="button" class="seeding-log-btn ${logN?'has-log':''}" onclick="event.stopPropagation();seedingOpenLog('${_seedEsc(it.id)}')">이력 ${logN}건</button>
           </div>
-          <textarea class="seeding-note" data-id="${_seedEsc(it.id)}" rows="2" maxlength="600" placeholder="비고 — 컬러별 메모를 입력하면 자동 저장됩니다 (실시간 공유)" onclick="event.stopPropagation()" oninput="seedingNoteInput(this)" onblur="seedingNoteBlur(this)">${_seedEsc(note)}</textarea>
-          <div class="seeding-note-status" data-id="${_seedEsc(it.id)}"></div>
+          ${_seedingInlineLog(it)}
         </div>`;
       });
       html += `</div></div>`;
@@ -7501,61 +7521,7 @@ async function handlePOFiles(files){
     seedingOpenLog(id);
   }
 
-  /* ===== 메모 인라인 자동 저장 (debounce 800ms) ===== */
-  const _seedingNoteTimers={};
-  function _setNoteStatus(id, cls, text){
-    const el=document.querySelector(`.seeding-note-status[data-id="${id}"]`);
-    if(!el) return;
-    el.className='seeding-note-status '+(cls||'');
-    el.textContent=text||'';
-  }
-  function seedingNoteInput(el){
-    const id=el.dataset.id;
-    if(_seedingNoteTimers[id]) clearTimeout(_seedingNoteTimers[id]);
-    _setNoteStatus(id,'is-saving','입력 중…');
-    _seedingNoteTimers[id]=setTimeout(()=>seedingSaveNote(id, el.value), 800);
-  }
-  function seedingNoteBlur(el){
-    const id=el.dataset.id;
-    if(_seedingNoteTimers[id]){
-      clearTimeout(_seedingNoteTimers[id]);
-      delete _seedingNoteTimers[id];
-      seedingSaveNote(id, el.value);
-    }
-  }
-  async function seedingSaveNote(id, val){
-    delete _seedingNoteTimers[id];
-    const cur=(_seeding.items||[]).find(x=>x.id===id);
-    if(cur && (cur.note||'')===val){ _setNoteStatus(id,'is-saved','✓ 저장됨'); return; }
-    if(!(await ensureGhToken())){ _setNoteStatus(id,'is-error','프록시 연결 실패'); return; }
-    _setNoteStatus(id,'is-saving','저장 중…');
-    const items=(_seeding.items||[]).map(x=>x.id===id?{...x, note:val}:x);
-    const data={items, updatedAt:Date.now()};
-    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-    const r=await ghPut(SEEDING_API, b64, `chore: 시딩 메모 저장 (${cur?cur.color:id})`, {forceMaster:true});
-    if(!r.ok){ _setNoteStatus(id,'is-error',`저장 실패: ${r.reason||'unknown'}`); return; }
-    saveSeedingLocal(data);
-    renderSeedingUpdatedTag();
-    _setNoteStatus(id,'is-saved','✓ 저장됨');
-    setTimeout(()=>{ const el=document.querySelector(`.seeding-note-status[data-id="${id}"]`); if(el && el.textContent==='✓ 저장됨') el.textContent=''; }, 2000);
-  }
-
-  /* 포커스된 textarea의 입력 상태를 보존하면서 전체 재렌더 */
-  function _seedingSafeRender(){
-    const focused=document.activeElement;
-    const isNote=focused && focused.classList && focused.classList.contains('seeding-note');
-    if(!isNote){ renderSeeding(); return; }
-    const fId=focused.dataset.id;
-    const fVal=focused.value;
-    const fSel0=focused.selectionStart, fSel1=focused.selectionEnd;
-    renderSeeding();
-    const newEl=document.querySelector(`textarea.seeding-note[data-id="${fId}"]`);
-    if(newEl){
-      newEl.value=fVal;
-      newEl.focus();
-      try{ newEl.setSelectionRange(fSel0||0, fSel1||0); }catch(e){}
-    }
-  }
+  function _seedingSafeRender(){ renderSeeding(); }
 
   /* ===== 발송 모달 ===== */
   function seedingOpenSend(id){
@@ -7739,8 +7705,6 @@ async function handlePOFiles(files){
   window.seedingOpenSend=seedingOpenSend;
   window.seedingOpenLog=seedingOpenLog;
   window.seedingRowClick=seedingRowClick;
-  window.seedingNoteInput=seedingNoteInput;
-  window.seedingNoteBlur=seedingNoteBlur;
   window.seedingOpenStockEdit=seedingOpenStockEdit;
   window.seedingUndo=seedingUndo;
   window.syncSeedingFromRemote=syncSeedingFromRemote;
@@ -7759,11 +7723,8 @@ async function handlePOFiles(files){
     const out=[];
     (_seeding.items||[]).forEach(it=>{
       (it.log||[]).forEach(L=>{
-        if(!L.returnDate) return;
-        out.push({
-          id:`${it.id}__${L.id}`,
+        const base={
           itemId:it.id,
-          date:L.returnDate,
           color:it.color,
           swatch:it.swatch||'#888',
           to:L.to,
@@ -7771,7 +7732,15 @@ async function handlePOFiles(files){
           sizeKr:L.size==='M'?'여성':'남성',
           qty:L.qty,
           memo:L.memo||''
-        });
+        };
+        // 출고(발송)일 — 발송 시각 기준
+        if(L.ts){
+          out.push({...base, id:`${it.id}__${L.id}__out`, type:'send', date:_sCalIso(new Date(L.ts))});
+        }
+        // 반납 예정일 — 입력된 경우만
+        if(L.returnDate){
+          out.push({...base, id:`${it.id}__${L.id}__ret`, type:'return', date:L.returnDate});
+        }
       });
     });
     return out;
@@ -7836,11 +7805,13 @@ async function handlePOFiles(files){
       const visible=evs.slice(0, MAX_VISIBLE);
       visible.forEach(ev=>{
         const chip=document.createElement('div');
-        chip.className='md-cal-event is-left-cap is-right-cap seeding-cal-chip';
+        const isSend=ev.type==='send';
+        const tag=isSend?'출고':'반납';
+        chip.className='md-cal-event is-left-cap is-right-cap seeding-cal-chip '+(isSend?'is-send':'is-return');
         chip.style.background=ev.swatch;
         chip.style.color=_seedingChipTextColor(ev.swatch);
-        chip.textContent=`${ev.color} · ${ev.sizeKr}×${ev.qty} ${ev.to}`;
-        chip.title=`반납 ${iso} — ${ev.color} ${ev.sizeKr} ×${ev.qty} → ${ev.to}${ev.memo?`\n${ev.memo}`:''}`;
+        chip.textContent=`${tag} ${ev.color} ${ev.sizeKr}×${ev.qty} ${ev.to}`;
+        chip.title=`${tag} ${iso} — ${ev.color} ${ev.sizeKr} ×${ev.qty} → ${ev.to}${ev.memo?`\n${ev.memo}`:''}`;
         chip.addEventListener('click', (e)=>{e.stopPropagation(); seedingOpenLog(ev.itemId);});
         evsEl.appendChild(chip);
       });
