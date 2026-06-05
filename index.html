@@ -1595,6 +1595,31 @@
   }
   .lg-res-bottom:hover{border-color:rgba(180,108,255,.45);background:var(--bg-2);box-shadow:0 0 18px rgba(180,108,255,.10)}
 
+  /* ===== 식스에이 뷰 ===== */
+  .sixa-head{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 14px;border-bottom:1px solid var(--line);margin-bottom:16px}
+  .sixa-meta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .sixa-platform{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--text-0)}
+  .sixa-count{font-size:13px;color:var(--text-2);font-family:var(--mono)}
+  .sixa-count strong{font-size:16px;color:#22d3ee;font-weight:800;margin-right:4px}
+  .sixa-group{margin-bottom:22px;background:var(--bg-1);border:1px solid rgba(34,211,238,.22);border-radius:10px;overflow:hidden}
+  .sixa-group-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(180deg,rgba(34,211,238,.08),rgba(34,211,238,.02));border-bottom:1px solid rgba(34,211,238,.18)}
+  .sixa-group-name{font-size:14px;font-weight:700;color:var(--text-0);letter-spacing:.01em}
+  .sixa-group-count{font-family:var(--mono);font-size:11px;color:#22d3ee;background:rgba(34,211,238,.12);padding:2px 9px;border-radius:9px;font-weight:700}
+  .sixa-table{width:100%;border-collapse:collapse;font-size:13px}
+  .sixa-table th{padding:8px 14px;text-align:left;color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--line);background:var(--bg-0)}
+  .sixa-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+  .sixa-table tr:last-child td{border-bottom:none}
+  .sixa-table tr:hover td{background:rgba(34,211,238,.03)}
+  .sixa-name{font-weight:600;color:var(--text-0)}
+  .sixa-price{font-family:var(--mono);color:var(--text-2);width:90px;text-align:right}
+  .sixa-stock{font-family:var(--mono);text-align:right;width:70px}
+  .sixa-stock.is-on .stock-num{color:#22c55e;font-weight:700}
+  .sixa-stock.is-low .stock-num{color:#f59e0b;font-weight:700}
+  .sixa-stock.is-out .stock-num{color:#ef4444;font-weight:700}
+  .sixa-act{width:90px;text-align:right}
+  .sixa-link{font-size:11px;color:#22d3ee;text-decoration:none;font-family:var(--mono);padding:4px 10px;border:1px solid rgba(34,211,238,.32);border-radius:5px;transition:all .15s}
+  .sixa-link:hover{background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.55)}
+
   /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
   *::-webkit-scrollbar{width:10px;height:10px}
   *::-webkit-scrollbar-track{background:transparent}
@@ -2717,7 +2742,12 @@
           <span class="lg-brand-meta">SIX A</span>
         </div>
         <div class="lg-brand-body">
-          <div class="lg-brand-empty">SKU 동기화 준비 중<br><span class="lg-brand-empty-sub">PA 등록 후 6채널 sync 추가 예정</span></div>
+          <a class="lg-res lg-res-inside" href="#sixA" onclick="openSixA(); return false;">
+            <div class="lg-res-eyebrow">🛒 SHOP</div>
+            <div class="lg-res-title">식스샵 SKU</div>
+            <div class="lg-res-sub">판매중 + 재고있음 · 카테고리별 정리</div>
+            <span class="lg-res-arrow">→</span>
+          </a>
         </div>
       </div>
 
@@ -3032,6 +3062,32 @@
           </tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ 식스에이 SKU (식스샵 6thanother 단독) ============ -->
+  <div class="view" id="viewSixA" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">식스에이<span class="view-title-sub">/ 식스샵 단독 SKU</span><span id="sixAUpdatedTag" class="sales-updated-tag"></span></h1>
+    </div>
+
+    <div class="po-wrap">
+      <div class="sixa-head">
+        <div class="sixa-meta">
+          <span class="sixa-platform"><span class="lg-brand-dot" style="background:#22d3ee;box-shadow:0 0 12px rgba(34,211,238,.7)"></span> 6thanother.sixshop.com</span>
+          <span class="sixa-count"><strong id="sixACount">—</strong> SKU (판매중 + 재고있음)</span>
+          <button class="stock-tbl-btn" id="sixARefreshBtn" onclick="loadSixA()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            최신화
+          </button>
+        </div>
+      </div>
+
+      <div id="sixABody"></div>
     </div>
   </div>
 
@@ -4644,6 +4700,55 @@
   function triggerMd(){ showView('viewMd'); }
   function triggerMd2(){ showView('viewMd2'); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
+
+  /* ===== 식스에이 (6thanother 식스샵 단독) — 70+ SKU 카탈로그 ===== */
+  let _sixAData = null;
+  function openSixA(){ showView('viewSixA'); loadSixA(); }
+  async function loadSixA(){
+    const body=document.getElementById('sixABody');
+    const tag=document.getElementById('sixAUpdatedTag');
+    if(body && !_sixAData) body.innerHTML='<div class="po-empty"><div class="po-empty-text">로딩 중…</div></div>';
+    try{
+      const r=await fetch('data/sixA-products.json?t='+Date.now());
+      if(!r.ok){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">로드 실패 (HTTP '+r.status+')</div></div>'; return; }
+      _sixAData=await r.json();
+      if(tag) tag.textContent='최신화 '+_fmtDateShort(_sixAData.lastUpdated);
+      renderSixA();
+    }catch(e){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">오류: '+_esc(e.message)+'</div></div>'; }
+  }
+  function renderSixA(){
+    if(!_sixAData) return;
+    const products=_sixAData.products||[];
+    document.getElementById('sixACount').textContent=products.length;
+    const base=_sixAData.shopBaseUrl;
+    // 카테고리별 그룹화 (Necklace > Bracelet > Ring > Keychain > SmartTok > HairPin > 기타)
+    const CAT_ORDER=['Necklace','Bracelet','Ring','Keychain','SmartTok','HairPin'];
+    const CAT_LABEL={Necklace:'🔗 Necklace',Bracelet:'⭕ Bracelet',Ring:'💍 Ring',Keychain:'🗝 Keychain',SmartTok:'📱 Smart Tok',HairPin:'🎀 Hair Pin'};
+    const grouped={};
+    for(const p of products){ (grouped[p.cat||'기타']=grouped[p.cat||'기타']||[]).push(p); }
+    const cats=[...CAT_ORDER.filter(c=>grouped[c]), ...Object.keys(grouped).filter(c=>!CAT_ORDER.includes(c))];
+    const html=cats.map(cat=>{
+      const items=grouped[cat]||[];
+      const rows=items.map(p=>{
+        const url=p.id?`${base}/${p.id}`:'';
+        const stockCls=p.stock<=10?'is-out':(p.stock<=30?'is-low':'is-on');
+        return `<tr>
+          <td class="sixa-name">${_esc(p.name)}</td>
+          <td class="sixa-price">${_esc(p.price||'-')}</td>
+          <td class="sixa-stock ${stockCls}"><span class="stock-num">${p.stock}</span></td>
+          <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">편집 ↗</a>`:''}</td>
+        </tr>`;
+      }).join('');
+      return `<div class="sixa-group">
+        <div class="sixa-group-head"><span class="sixa-group-name">${CAT_LABEL[cat]||cat}</span><span class="sixa-group-count">${items.length}</span></div>
+        <table class="sixa-table">
+          <thead><tr><th>상품명</th><th>가격</th><th>재고</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join('');
+    document.getElementById('sixABody').innerHTML=html;
+  }
   function triggerNamegen(){ showView('viewNamegen'); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
