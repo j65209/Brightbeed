@@ -382,6 +382,16 @@
   .stock-cell.stock-cell-master .stock-num-sub{font-size:9.5px;letter-spacing:.02em;color:#92400e;opacity:.7}
   .stock-cell.stock-cell-master .stock-cell-input{border-color:#d97706;background:#fffbeb;color:#92400e;font-weight:700}
   .stock-cell.stock-cell-master .stock-cell-input:focus{border-color:#b45309;box-shadow:0 0 0 2px rgba(217,119,6,.22)}
+  /* 🔒 단종 lock 버튼 + lock된 셀 회색 처리 */
+  .stock-lock-btn{position:absolute;top:2px;left:2px;border:none;background:transparent;cursor:pointer;font-size:11px;padding:1px 3px;border-radius:3px;opacity:.45;transition:opacity .15s;line-height:1}
+  .stock-lock-btn:hover{opacity:1;background:rgba(0,0,0,.06)}
+  .stock-lock-btn.is-on{opacity:1;background:rgba(120,113,108,.18);color:#57534e}
+  .stock-cell.stock-cell-master.is-locked{background:rgba(120,113,108,.12);border-left-color:rgba(120,113,108,.5);border-right-color:rgba(120,113,108,.5)}
+  .stock-cell.stock-cell-master.is-locked .stock-num{color:#78716c;text-decoration:line-through;font-weight:600}
+  .stock-cell.stock-cell-master.is-locked .stock-num-sub{color:#57534e;font-weight:700;opacity:1}
+  /* lock된 행 전체에 옅은 회색 — 시각적으로 단종 명확 */
+  tr.is-row-locked > td:not(.stock-cell-master){background:rgba(120,113,108,.04);color:#78716c}
+  tr.is-row-locked .stock-num{opacity:.6}
 
   .stock-status-badge{display:inline-block;padding:1px 7px;border-radius:9px;font-size:10px;font-family:var(--mono);font-weight:600}
   .stock-status-badge.is-on{background:rgba(34,197,94,.12);color:#15803d}
@@ -3267,6 +3277,9 @@
   // sku_cd → { real_stock, depot_no, prod_no }  — SKU 마스터 재고 (PA의 통합SKU 재고).
   // 한 칸만 만지면 PA가 5플랫폼 슬레이브에 자동 sync. sale-cnt PATCH 대신 stock/manage PUT 사용.
   let _stockMasterBySku = {};
+  // 🔒 단종 lock — sku_cd → {reason, createdAt}. cron이 매 5분 슬레이브 status='품절' 강제 유지.
+  let _stockLocks = {};
+  let _stockLocksSha = null;
 
   // 2026-05-14 등록된 5개 PA 온라인상품 + 식스샵(PA 없음) 초기 시드.
   // 사용자가 추가/삭제 가능하지만 PA 5개는 이 매핑이 진입점.
@@ -3320,6 +3333,7 @@
       renderStockView();
       loadPALiveStock().then(loadMasterStock);
       loadSixshopStock();
+      loadStockLocks();
     }catch(e){
       console.error('loadStockData failed', e);
       if(tbody) tbody.innerHTML=`<tr><td colspan="7" class="stock-tbl-empty">불러오기 오류 — ${(e&&e.message)||e}</td></tr>`;
@@ -3362,6 +3376,47 @@
       console.warn('loadPALiveStock error', e);
       renderStockTable();
     }
+  }
+
+  /* 단종 lock JSON 로드 — Contents API (CDN 캐시 회피). */
+  async function loadStockLocks(){
+    try{
+      const r=await ghFetch('https://api.github.com/repos/j65209/Brightbeed/contents/data/stock-locks.json',{cache:'no-cache'});
+      if(r.status===404){ _stockLocks={}; _stockLocksSha=null; return; }
+      if(!r.ok) return;
+      const j=await r.json();
+      _stockLocksSha=j.sha;
+      const decoded=atob((j.content||'').replace(/\n/g,''));
+      const utf8=decodeURIComponent(escape(decoded));
+      const parsed=JSON.parse(utf8||'{}');
+      _stockLocks=parsed.locks||{};
+    }catch(e){ console.warn('loadStockLocks', e); }
+  }
+
+  /* 단종 lock 토글 — 클릭 시 즉시 GitHub PUT + 다음 5분 cron이 자동 enforce. */
+  async function toggleStockLock(skuCd){
+    const locked = !!_stockLocks[skuCd];
+    const action = locked ? '단종 해제' : '단종 lock';
+    const msg = locked
+      ? `${skuCd}\n\n단종 lock을 해제할까요?\n해제 후엔 마스터 재고가 들어오면 다시 판매됩니다.`
+      : `${skuCd}\n\n영구 단종 lock 처리할까요?\n5분 내 5채널 자동 품절 + 신규주문 자동 보류.\n반품 들어와도 절대 안 팔림.`;
+    if(!confirm(msg)) return;
+    if(locked){ delete _stockLocks[skuCd]; }
+    else { _stockLocks[skuCd]={reason:'대시보드에서 단종 마킹', createdAt:new Date().toISOString()}; }
+    const payload={version:1, description:'영구 단종 lock된 SKU 리스트. enforce_stock_locks.py cron이 매 5분 슬레이브 status=\'품절\' 강제 유지 + 진행중 주문 자동 보류.', locks:_stockLocks};
+    const body={message:`stock-locks: ${action} ${skuCd}`,
+                content: btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))),
+                branch:'main'};
+    if(_stockLocksSha) body.sha=_stockLocksSha;
+    try{
+      const r=await ghFetch('https://api.github.com/repos/j65209/Brightbeed/contents/data/stock-locks.json',
+        {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      if(!r.ok){ toast(`${action} 실패 (HTTP ${r.status})`,'err'); await loadStockLocks(); renderStockTable(); return; }
+      const j=await r.json();
+      if(j.content?.sha) _stockLocksSha=j.content.sha;
+      toast(`✓ ${action} 완료 — 5분 내 자동 enforce`,'ok');
+      renderStockTable();
+    }catch(e){ toast(`${action} 오류: ${e.message}`,'err'); }
   }
 
   /* PA SKU 마스터 재고 로드 — 24개 SKU의 real_stock + depot_no 조회.
@@ -3606,7 +3661,8 @@
         }
         const lastInGroup = idx===g.items.length-1;
         const endCls = lastInGroup && !isLastGroup ? ' is-color-group-end' : '';
-        rows.push(`<tr class="color-group color-group-${_esc(g.color)}${endCls}">${cells.join('')}</tr>`);
+        const lockCls = (firstSku && _stockLocks[firstSku]) ? ' is-row-locked' : '';
+        rows.push(`<tr class="color-group color-group-${_esc(g.color)}${endCls}${lockCls}">${cells.join('')}</tr>`);
       });
     });
 
@@ -3615,8 +3671,8 @@
   }
   function renderStockView(){ renderStockTable(); }
 
-  /* 마스터 SKU 셀 — PA 통합SKU 실재고 표시·편집. 입력값 = 절댓값(이 수량으로 맞춤).
-     변경 시 sendStockChanges가 stock/manage PUT (delta 계산해서 출고/입고 호출). */
+  /* 마스터 SKU 셀 — PA 통합SKU 실재고 표시·편집 + 🔒 단종 lock 토글.
+     lock 시 cron(5분)이 슬레이브 status='품절' 강제 유지. 반품 들어와도 안 팔림. */
   function _renderMasterCell(skuCd){
     if(!skuCd) return `<td class="stock-cell stock-cell-master is-out"><span class="stock-num">—</span><span class="stock-num-sub">미매핑</span></td>`;
     const m = _stockMasterBySku[skuCd];
@@ -3626,13 +3682,16 @@
     const result=_stockRowResults[key];
     const current = Number(m.real_stock)||0;
     const isOut = current===0;
-    const stateClass = isOut ? 'is-out' : '';
+    const isLocked = !!_stockLocks[skuCd];
+    const stateClass = isLocked ? 'is-locked' : (isOut ? 'is-out' : '');
     const changedClass = pending!==undefined ? ' is-changed' : '';
     const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
-    if(_stockEditMode){
+    const lockBtn = `<button type="button" class="stock-lock-btn ${isLocked?'is-on':''}" onclick="event.stopPropagation();toggleStockLock('${_esc(skuCd)}')" title="${isLocked?'🔒 단종 lock 중 — 클릭해 해제':'영구 단종 lock (반품 와도 안 팔림)'}">${isLocked?'🔒':'🔓'}</button>`;
+    if(_stockEditMode && !isLocked){
       const v = pending!==undefined ? pending.newValue : current;
       return `<td class="stock-cell stock-cell-master ${stateClass}${changedClass}">
         <input type="number" min="0" class="stock-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" oninput="onMasterInput('${_esc(skuCd)}',this)" title="이 SKU 통합 실재고를 이 값으로 설정 (5플랫폼 자동 동기화)">
+        ${lockBtn}
         ${resultBadge}
       </td>`;
     }
@@ -3640,7 +3699,8 @@
       <span class="stock-num">${current}</span>
       ${pending!==undefined
         ? `<span class="stock-num-sub" style="color:#b45309;font-weight:600">→ ${_esc(pending.newValue)}</span>`
-        : (isOut ? '<span class="stock-num-sub">품절</span>' : '<span class="stock-num-sub">6채널</span>')}
+        : (isLocked ? '<span class="stock-num-sub">🔒 단종</span>' : (isOut ? '<span class="stock-num-sub">품절</span>' : '<span class="stock-num-sub">6채널</span>'))}
+      ${lockBtn}
       ${resultBadge}
     </td>`;
   }
