@@ -3706,11 +3706,14 @@
         ${resultBadge}
       </td>`;
     }
+    // 식스샵 sub-label: pending > 시트 미연결 > 품절(0) > 정상
+    const sxSubLabel = pending!==undefined
+      ? `<span class="stock-num-sub" style="color:#b45309;font-weight:600">→ ${_esc(pending.newValue)}</span>`
+      : (!isLive ? '<span class="stock-num-sub">시트 미연결</span>'
+        : (isOut ? '<span class="stock-num-sub">품절</span>' : '<span class="stock-num-sub">정상</span>'));
     return `<td class="stock-cell ${stateClass}${pending!==undefined?' is-changed':''}">
       <span class="stock-num">${displayStock}</span>
-      ${pending!==undefined
-        ? `<span class="stock-num-sub" style="color:#b45309;font-weight:600">→ ${_esc(pending.newValue)}</span>`
-        : (!isLive ? '<span class="stock-num-sub">시트 미연결</span>' : '')}
+      ${sxSubLabel}
       ${resultBadge}
     </td>`;
   }
