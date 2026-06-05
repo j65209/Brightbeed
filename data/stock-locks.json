@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "description": "영구 단종 lock된 SKU 리스트. enforce_stock_locks.py cron이 매 5분 슬레이브 status='품절' 강제 유지 + 진행중 주문 자동 보류. PA가 반품으로 마스터 입고해도 안 팔림.",
+  "locks": {
+    "CABLE180_NEONGREEN_USBC": {
+      "reason": "재고 0 (5/14 SKU 등록 초기재고 미매칭 누락)",
+      "createdAt": "2026-06-05T20:30:00+09:00"
+    },
+    "CABLE180_NEONGREEN_CC": {
+      "reason": "재고 0",
+      "createdAt": "2026-06-05T20:30:00+09:00"
+    },
+    "CABLE180_PURPLE_CC": {
+      "reason": "재고 0 (오늘 20:00 반품 +12 자동 입고)",
+      "createdAt": "2026-06-05T20:30:00+09:00"
+    },
+    "CABLE180_PEACH_CC": {
+      "reason": "재고 0 (오늘 20:00 반품 +8 자동 입고)",
+      "createdAt": "2026-06-05T20:30:00+09:00"
+    }
+  }
+}
