@@ -3728,11 +3728,14 @@
       const {platform, items} = byPlatform[pid];
       if(platform.type==='pa'){
         const live=_stockPaLive[pid]||{};
-        // opts 배열: sku_cd가 있는 옵션만 PA가 적용. 없으면 PA가 silently 무시할 수 있음.
+        // sale_opt_seq를 1순위 식별자로 (SKU 통합매핑 해제 후에도 슬레이브 단위로 정확히 박힘).
+        // sku_cd는 있을 때만 같이 보내 — 매핑 살아있는 옵션은 SKU 마스터에도 동시 반영.
         const opts=items.map(it=>{
           const opt=(live.options||[]).find(o=>(o.sale_opt_seq ?? -1).toString()===String(it.seq));
           const n=Number(it.newValue);
-          return {type:'general', sku_cd:opt?.sku_cd||'', stock_cnt:n, status:n>0?'정상':'품절'};
+          const row={type:'general', sale_opt_seq:opt?.sale_opt_seq ?? Number(it.seq), stock_cnt:n, status:n>0?'정상':'품절'};
+          if(opt?.sku_cd) row.sku_cd=opt.sku_cd;
+          return row;
         }).filter(x=>Number.isFinite(x.stock_cnt));
         const body={products:[{c_sale_cd:platform.c_sale_cd, shop_cd:platform.shop_cd, shop_id:platform.account, std_ol_yn:'N', opts}]};
         try{
