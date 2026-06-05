@@ -1619,6 +1619,15 @@
   .sixa-act{width:90px;text-align:right}
   .sixa-link{font-size:11px;color:#22d3ee;text-decoration:none;font-family:var(--mono);padding:4px 10px;border:1px solid rgba(34,211,238,.32);border-radius:5px;transition:all .15s}
   .sixa-link:hover{background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.55)}
+  /* 식스에이 재고 input (편집 모드) */
+  .sixa-input{width:72px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:var(--bg-0);font-size:13px;font-weight:600;text-align:center;color:var(--text-0);font-family:var(--mono)}
+  .sixa-input:focus{outline:none;border-color:#22d3ee;box-shadow:0 0 0 2px rgba(34,211,238,.15)}
+  .sixa-input.is-changed{border-color:#b45309;background:rgba(245,158,11,.06);color:#92400e}
+  .sixa-stock .row-result{position:absolute;top:2px;right:2px;font-size:9px;padding:0 4px;border-radius:3px;line-height:1.4}
+  .sixa-stock .row-result.ok{background:rgba(34,197,94,.18);color:#15803d}
+  .sixa-stock .row-result.err{background:rgba(225,29,72,.15);color:#b91c1c}
+  .sixa-stock{position:relative}
+  .sixa-stock .stock-num-sub{font-size:10px;font-family:var(--mono);margin-left:4px}
 
   /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
   *::-webkit-scrollbar{width:10px;height:10px}
@@ -3083,6 +3092,11 @@
           <button class="stock-tbl-btn" id="sixARefreshBtn" onclick="loadSixA()" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             최신화
+          </button>
+          <button class="stock-tbl-btn" id="sixAEditBtn" onclick="toggleSixAEdit()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+            <span id="sixAEditLabel">재고 수정</span>
+            <span id="sixAEditCount" class="stock-send-count" hidden>0</span>
           </button>
         </div>
       </div>
@@ -4701,9 +4715,60 @@
   function triggerMd2(){ showView('viewMd2'); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
 
-  /* ===== 식스에이 (6thanother 식스샵 단독) — 70+ SKU 카탈로그 ===== */
+  /* ===== 식스에이 (6thanother 식스샵 단독) — 70+ SKU 카탈로그 + 재고 수정 ===== */
   let _sixAData = null;
+  let _sixAPending = {}; // id → newStock
+  let _sixAEditMode = false;
+  let _sixAResults = {}; // id → {status,msg}
   function openSixA(){ showView('viewSixA'); loadSixA(); }
+  function toggleSixAEdit(){
+    if(_sixAEditMode && Object.keys(_sixAPending).length>0){
+      sendSixAChanges();
+      return;
+    }
+    _sixAEditMode = !_sixAEditMode;
+    renderSixA();
+  }
+  function onSixAInput(id, el){
+    const v = String(el.value||'').trim();
+    if(v==='') delete _sixAPending[id];
+    else _sixAPending[id] = Number(v);
+    el.classList.toggle('is-changed', _sixAPending[id]!==undefined);
+    const cnt = Object.keys(_sixAPending).length;
+    const lbl = document.getElementById('sixAEditCount');
+    if(lbl){ lbl.hidden = cnt===0; lbl.textContent = cnt; }
+  }
+  async function sendSixAChanges(){
+    const pending = Object.entries(_sixAPending);
+    if(pending.length===0){ toast('변경된 항목이 없습니다','err'); return; }
+    const updates = pending.map(([id, setStock])=>{
+      const p = (_sixAData?.products||[]).find(p=>p.id===id);
+      return {id, name:p?.name||id, setStock};
+    });
+    if(!confirm(`${updates.length}개 SKU 재고를 식스샵 admin에 전송합니다.\n\n• GHA workflow_dispatch (update-six6-stock.yml)\n• Playwright가 admin에 자동 로그인 → 각 상품 페이지 진입 → 재고 변경 + 저장\n• ~${Math.max(2, updates.length*5)}초 (SKU당 ~5초)\n\n진행할까요?`)) return;
+    try{
+      const r=await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-six6-stock.yml/dispatches',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ref:'main', inputs:{updates: JSON.stringify(updates)}}),
+      });
+      const ok = r.ok || r.status===204;
+      if(ok){
+        toast(`✓ GHA 트리거됨 — ${updates.length}건 (~${Math.max(2, updates.length*5)}초 후 식스샵 admin 반영)`, 'ok');
+        // 로컬 데이터 낙관적 업데이트
+        updates.forEach(u=>{
+          const p = (_sixAData?.products||[]).find(p=>p.id===u.id);
+          if(p) p.stock = u.setStock;
+          _sixAResults[u.id] = {status:'ok', msg:`→ ${u.setStock}`};
+        });
+        _sixAPending = {};
+        _sixAEditMode = false;
+        renderSixA();
+      } else {
+        toast(`GHA dispatch 실패 (HTTP ${r.status})`, 'err');
+      }
+    }catch(e){ toast('GHA 통신 오류: '+e.message,'err'); }
+  }
   async function loadSixA(){
     const body=document.getElementById('sixABody');
     const tag=document.getElementById('sixAUpdatedTag');
@@ -4721,7 +4786,15 @@
     const products=_sixAData.products||[];
     document.getElementById('sixACount').textContent=products.length;
     const base=_sixAData.shopBaseUrl;
-    // 카테고리별 그룹화 (Necklace > Bracelet > Ring > Keychain > SmartTok > HairPin > 기타)
+    // 편집 토글 버튼 UI 업데이트
+    const editBtn=document.getElementById('sixAEditBtn');
+    const editLbl=document.getElementById('sixAEditLabel');
+    const editCnt=document.getElementById('sixAEditCount');
+    if(editBtn) editBtn.classList.toggle('is-active', _sixAEditMode);
+    if(editLbl) editLbl.textContent = _sixAEditMode ? '저장' : '재고 수정';
+    const cnt = Object.keys(_sixAPending).length;
+    if(editCnt){ editCnt.hidden = cnt===0; editCnt.textContent = cnt; }
+    // 카테고리별 그룹화
     const CAT_ORDER=['Necklace','Bracelet','Ring','Keychain','SmartTok','HairPin'];
     const CAT_LABEL={Necklace:'🔗 Necklace',Bracelet:'⭕ Bracelet',Ring:'💍 Ring',Keychain:'🗝 Keychain',SmartTok:'📱 Smart Tok',HairPin:'🎀 Hair Pin'};
     const grouped={};
@@ -4731,12 +4804,25 @@
       const items=grouped[cat]||[];
       const rows=items.map(p=>{
         const url=p.id?`${base}/${p.id}`:'';
+        const pendingVal = _sixAPending[p.id];
+        const hasPending = pendingVal!==undefined;
         const stockCls=p.stock<=10?'is-out':(p.stock<=30?'is-low':'is-on');
+        const result=_sixAResults[p.id];
+        const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
+        const stockCell = _sixAEditMode
+          ? `<td class="sixa-stock ${stockCls}">
+              <input type="number" min="0" class="sixa-input${hasPending?' is-changed':''}" value="${hasPending?pendingVal:p.stock}" oninput="onSixAInput('${_esc(p.id)}',this)">
+              ${resultBadge}
+            </td>`
+          : `<td class="sixa-stock ${stockCls}">
+              <span class="stock-num">${p.stock}</span>${hasPending?`<span class="stock-num-sub" style="color:#b45309">→ ${pendingVal}</span>`:''}
+              ${resultBadge}
+            </td>`;
         return `<tr>
           <td class="sixa-name">${_esc(p.name)}</td>
           <td class="sixa-price">${_esc(p.price||'-')}</td>
-          <td class="sixa-stock ${stockCls}"><span class="stock-num">${p.stock}</span></td>
-          <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">편집 ↗</a>`:''}</td>
+          ${stockCell}
+          <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
         </tr>`;
       }).join('');
       return `<div class="sixa-group">
