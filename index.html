@@ -1521,6 +1521,80 @@
   }
   .lg-res:hover .lg-res-arrow{color:var(--neon-lg);transform:translateX(2px)}
 
+  /* ===== 브랜드별 SKU 폴더 (식스에이 / 프로덕트피알 / 클리어타입) ===== */
+  .lg-brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+  @media (max-width:1024px){.lg-brand-grid{grid-template-columns:1fr}}
+  .lg-brand{
+    --brand-color:148,163,184;
+    display:flex;flex-direction:column;
+    background:var(--bg-1);
+    border:1px solid rgba(var(--brand-color),.35);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(var(--brand-color),.08);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .lg-brand:hover{
+    border-color:rgba(var(--brand-color),.6);
+    box-shadow:0 6px 22px rgba(var(--brand-color),.18),inset 0 1px 0 rgba(var(--brand-color),.12);
+  }
+  /* 브랜드별 컬러 */
+  .lg-brand-six6{--brand-color:34,211,238}   /* 시안 — 식스에이 */
+  .lg-brand-pp  {--brand-color:251,146,60}   /* 오렌지 — 프로덕트피알 (메인) */
+  .lg-brand-ct  {--brand-color:34,197,94}    /* 그린 — 클리어타입 */
+  .lg-brand-head{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 18px;
+    background:linear-gradient(180deg,rgba(var(--brand-color),.16),rgba(var(--brand-color),.06));
+    border-bottom:1px solid rgba(var(--brand-color),.28);
+  }
+  .lg-brand-dot{
+    display:inline-block;width:10px;height:10px;border-radius:50%;
+    background:rgb(var(--brand-color));
+    box-shadow:0 0 12px rgba(var(--brand-color),.7);
+  }
+  .lg-brand-name{
+    font-size:16px;font-weight:800;color:var(--text-0);
+    letter-spacing:.01em;
+  }
+  .lg-brand-meta{
+    margin-left:auto;font-size:10.5px;font-family:var(--mono);
+    letter-spacing:.18em;color:rgba(var(--brand-color),.85);font-weight:700;
+  }
+  .lg-brand-body{padding:14px;display:flex;flex-direction:column;gap:10px;min-height:120px}
+  .lg-brand-empty{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--text-3);font-size:13px;text-align:center;line-height:1.5;
+    border:1px dashed rgba(var(--brand-color),.25);border-radius:8px;
+    padding:18px 10px;background:rgba(var(--brand-color),.03);
+  }
+  .lg-brand-empty-sub{font-size:11px;color:var(--text-3);opacity:.7;font-family:var(--mono);letter-spacing:.02em}
+  /* 폴더 내부 카드 — 컴팩트 */
+  .lg-res-inside{
+    padding:14px 16px 12px;
+    background:var(--bg-0);
+    border:1px solid rgba(var(--brand-color),.32);
+    border-radius:8px;
+  }
+  .lg-res-inside:hover{
+    background:var(--bg-2);
+    border-color:rgba(var(--brand-color),.6);
+    box-shadow:0 0 18px rgba(var(--brand-color),.18);
+    transform:translateY(-1px);
+  }
+  .lg-res-inside .lg-res-eyebrow{color:rgb(var(--brand-color));text-shadow:0 0 10px rgba(var(--brand-color),.4)}
+  .lg-res-inside:hover .lg-res-arrow{color:rgb(var(--brand-color))}
+
+  /* 브랜드 재고 시트 — 최하단 */
+  .lg-bottom-resources{margin-top:8px;margin-bottom:24px}
+  .lg-res-bottom{
+    display:flex;flex-direction:column;gap:6px;
+    padding:14px 22px 12px;background:var(--bg-1);
+    border:1px solid var(--line);border-radius:8px;
+    transition:all .15s;text-decoration:none;color:inherit;position:relative;cursor:pointer;
+  }
+  .lg-res-bottom:hover{border-color:rgba(180,108,255,.45);background:var(--bg-2);box-shadow:0 0 18px rgba(180,108,255,.10)}
+
   /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
   *::-webkit-scrollbar{width:10px;height:10px}
   *::-webkit-scrollbar-track{background:transparent}
@@ -2634,18 +2708,53 @@
       <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주·재고 관리</span></h1>
     </div>
 
-    <!-- 외부 자료 -->
-    <div class="lg-resources">
-      <a class="lg-res" href="#" id="lgStockLink" onclick="return openLgResource('stock', event)">
+    <!-- 브랜드별 SKU 폴더 (상위) -->
+    <div class="lg-brand-grid">
+      <div class="lg-brand lg-brand-six6">
+        <div class="lg-brand-head">
+          <span class="lg-brand-dot"></span>
+          <span class="lg-brand-name">식스에이</span>
+          <span class="lg-brand-meta">SIX A</span>
+        </div>
+        <div class="lg-brand-body">
+          <div class="lg-brand-empty">SKU 동기화 준비 중<br><span class="lg-brand-empty-sub">PA 등록 후 6채널 sync 추가 예정</span></div>
+        </div>
+      </div>
+
+      <div class="lg-brand lg-brand-pp">
+        <div class="lg-brand-head">
+          <span class="lg-brand-dot"></span>
+          <span class="lg-brand-name">프로덕트피알</span>
+          <span class="lg-brand-meta">PRODUCT PR</span>
+        </div>
+        <div class="lg-brand-body">
+          <a class="lg-res lg-res-inside" href="#stock" id="lgStockSyncLink" onclick="triggerStock(); return false;">
+            <div class="lg-res-eyebrow">🔗 SYNC</div>
+            <div class="lg-res-title">180도 케이블</div>
+            <div class="lg-res-sub">6채널 통합 · 24 SKU · 🔒 단종 lock</div>
+            <span class="lg-res-arrow">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="lg-brand lg-brand-ct">
+        <div class="lg-brand-head">
+          <span class="lg-brand-dot"></span>
+          <span class="lg-brand-name">클리어타입</span>
+          <span class="lg-brand-meta">CLEAR TYPE</span>
+        </div>
+        <div class="lg-brand-body">
+          <div class="lg-brand-empty">SKU 동기화 준비 중<br><span class="lg-brand-empty-sub">PA 등록 후 6채널 sync 추가 예정</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 브랜드 재고 시트 (최하단) -->
+    <div class="lg-bottom-resources">
+      <a class="lg-res lg-res-bottom" id="lgStockLink" onclick="return openLgResource('stock', event)">
         <div class="lg-res-eyebrow">📦 STOCK</div>
         <div class="lg-res-title">브랜드 재고</div>
         <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
-        <span class="lg-res-arrow">→</span>
-      </a>
-      <a class="lg-res" href="#stock" id="lgStockSyncLink" onclick="triggerStock(); return false;">
-        <div class="lg-res-eyebrow">🔗 SYNC</div>
-        <div class="lg-res-title">180도 케이블</div>
-        <div class="lg-res-sub">6개 플랫폼 · 한 화면 재고 컨트롤</div>
         <span class="lg-res-arrow">→</span>
       </a>
     </div>
