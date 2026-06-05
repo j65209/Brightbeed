@@ -3840,9 +3840,12 @@
       const body={ stocks:[{ sku_cd:it.skuCd, depot_no:m.depot_no }], set:'실재고', type, count };
       try{
         const r=await paFetch('/api/stock/manage/v1.2',{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-        const t=await r.text(); let j; try{j=JSON.parse(t);}catch(e){j={result:'실패',message:t};}
+        const t=await r.text(); let j; try{j=JSON.parse(t);}catch(e){j={result:'실패',messages:[t]};}
         const ok = r.ok && j.result==='성공';
-        _stockRowResults[key] = ok ? {status:'ok',msg:`PA ${type} ${count}`} : {status:'err',msg:j.message||`HTTP ${r.status}`};
+        // PA 에러 메시지는 j.messages[0] 또는 j.message. e1999 = 출고예정 막힘이 가장 흔함.
+        let errMsg = (j.messages && j.messages[0]) || j.message || `HTTP ${r.status}`;
+        if(j.error_code==='e1999') errMsg = '진행중 주문이 있어 그 수량 이하로는 못 내림 (PA 콘솔에서 보류/취소 처리 후 재시도)';
+        _stockRowResults[key] = ok ? {status:'ok',msg:`PA ${type} ${count}`} : {status:'err',msg:errMsg};
         if(ok){
           m.real_stock = target;
           totalOk++;
@@ -3920,8 +3923,9 @@
           const t=await r.text(); let j; try{j=JSON.parse(t);}catch(e){j=t;}
           const result=Array.isArray(j)?j[0]:j;
           const ok = r.ok && result?.result!=='실패';
+          const errMsg = (result?.messages && result.messages[0]) || result?.message || `HTTP ${r.status}`;
           items.forEach(it=>{
-            _stockRowResults[_rowKey(pid,it.seq)] = ok ? {status:'ok',msg:'성공'} : {status:'err',msg:result?.message||`HTTP ${r.status}`};
+            _stockRowResults[_rowKey(pid,it.seq)] = ok ? {status:'ok',msg:'성공'} : {status:'err',msg:errMsg};
           });
           if(ok) totalOk+=items.length; else totalErr+=items.length;
         }catch(e){
