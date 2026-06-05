@@ -374,6 +374,14 @@
   .stock-cell .row-result{position:absolute;top:2px;right:2px;font-size:9px;padding:0 4px;border-radius:3px;line-height:1.4}
   .stock-cell .row-result.ok{background:rgba(34,197,94,.18);color:#15803d}
   .stock-cell .row-result.err{background:rgba(225,29,72,.15);color:#b91c1c}
+  /* ⭐ 마스터 SKU 셀 — 골드 강조 (한 칸 = 5플랫폼 sync) */
+  .stock-tbl th.col-master-head{background:linear-gradient(180deg,rgba(245,158,11,.18),rgba(245,158,11,.08));color:#92400e;font-weight:800;border-left:2px solid rgba(245,158,11,.5);border-right:2px solid rgba(245,158,11,.5);min-width:96px}
+  .stock-cell.stock-cell-master{background:rgba(245,158,11,.04);border-left:2px solid rgba(245,158,11,.35);border-right:2px solid rgba(245,158,11,.35);font-weight:700}
+  .stock-cell.stock-cell-master .stock-num{font-size:15px;color:#b45309}
+  .stock-cell.stock-cell-master.is-out .stock-num{color:#b91c1c}
+  .stock-cell.stock-cell-master .stock-num-sub{font-size:9.5px;letter-spacing:.02em;color:#92400e;opacity:.7}
+  .stock-cell.stock-cell-master .stock-cell-input{border-color:#d97706;background:#fffbeb;color:#92400e;font-weight:700}
+  .stock-cell.stock-cell-master .stock-cell-input:focus{border-color:#b45309;box-shadow:0 0 0 2px rgba(217,119,6,.22)}
 
   .stock-status-badge{display:inline-block;padding:1px 7px;border-radius:9px;font-size:10px;font-family:var(--mono);font-weight:600}
   .stock-status-badge.is-on{background:rgba(34,197,94,.12);color:#15803d}
@@ -3256,6 +3264,9 @@
   let _stockData = null;     // 최신 로드된 상태
   let _stockFileSha = null;  // GitHub Contents API의 ETag 대용 (PUT 시 필요)
   let _stockPaLive = {};     // PA에서 라이브 가져온 현재 재고 — key: platform.id, value: {sale_cnt_limit, stock_cnt, status}
+  // sku_cd → { real_stock, depot_no, prod_no }  — SKU 마스터 재고 (PA의 통합SKU 재고).
+  // 한 칸만 만지면 PA가 5플랫폼 슬레이브에 자동 sync. sale-cnt PATCH 대신 stock/manage PUT 사용.
+  let _stockMasterBySku = {};
 
   // 2026-05-14 등록된 5개 PA 온라인상품 + 식스샵(PA 없음) 초기 시드.
   // 사용자가 추가/삭제 가능하지만 PA 5개는 이 매핑이 진입점.
@@ -3290,7 +3301,7 @@
         _stockData=_emptyStockData();
         _stockFileSha=null;
         renderStockView();
-        loadPALiveStock(); // 비동기 — PA에서 현재 재고 받아옴
+        loadPALiveStock().then(loadMasterStock); // PA 라이브 후 SKU 마스터 재고
         loadSixshopStock(); // 비동기 — 식스샵 PP 재고마스터 시트 옵션별 재고
         return;
       }
@@ -3307,7 +3318,8 @@
       _stockData=Object.assign(_emptyStockData(), parsed);
       if(!Array.isArray(_stockData.platforms) || _stockData.platforms.length===0) _stockData.platforms=_seedPlatforms();
       renderStockView();
-      loadPALiveStock();
+      loadPALiveStock().then(loadMasterStock);
+      loadSixshopStock();
     }catch(e){
       console.error('loadStockData failed', e);
       if(tbody) tbody.innerHTML=`<tr><td colspan="7" class="stock-tbl-empty">불러오기 오류 — ${(e&&e.message)||e}</td></tr>`;
@@ -3350,6 +3362,36 @@
       console.warn('loadPALiveStock error', e);
       renderStockTable();
     }
+  }
+
+  /* PA SKU 마스터 재고 로드 — 24개 SKU의 real_stock + depot_no 조회.
+     슬레이브 옵션의 sku_cd로 그룹화된 통합재고. 한 칸 수정 = 5플랫폼 자동 sync. */
+  async function loadMasterStock(){
+    try{
+      // 슬레이브 옵션에서 등장한 sku_cd 모두 수집
+      const skuSet=new Set();
+      Object.values(_stockPaLive).forEach(live=>{
+        (live.options||[]).forEach(o=>{ if(o.sku_cd) skuSet.add(o.sku_cd); });
+      });
+      if(skuSet.size===0) return;
+      // POST /api/stock/list/v1.2 — sku_cd 배열로 한 번에 조회
+      const body={start:0, limit:Math.max(100, skuSet.size*2), search_key:'sku_cd',
+                  search_word:Array.from(skuSet), search_type:'exact',
+                  sdate:'2017-01-01', edate:'2030-12-31', date_type:'wdate'};
+      const r=await paFetch('/api/stock/list/v1.2',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      if(!r.ok){ console.warn('loadMasterStock HTTP',r.status); return; }
+      const d=await r.json();
+      const map={};
+      (d.results||[]).forEach(it=>{
+        const depots=it.options?.[0]?.depots || it.depots || [];
+        const main=depots.find(x=>x.depot_no) || depots[0];
+        if(it.sku_cd && main){
+          map[it.sku_cd] = { real_stock: main.real_stock ?? 0, depot_no: main.depot_no, prod_no: it.prod_no };
+        }
+      });
+      _stockMasterBySku = map;
+      renderStockTable();
+    }catch(e){ console.warn('loadMasterStock', e); }
   }
 
   /* === 식스샵 (Google Sheets PP 재고마스터) === */
@@ -3512,12 +3554,13 @@
     const paIds=_STOCK_PA_ORDER.filter(id=>platformsById[id]);
     const sixshop=platformsById['6s'];
 
-    // 헤더 — 색상 + 단자 두 컬럼 + 플랫폼들
-    const colSpan = 2 + paIds.length + (sixshop?1:0);
+    // 헤더 — 색상 + 단자 + 마스터(통합SKU) + 플랫폼들 + 식스샵
+    const colSpan = 3 + paIds.length + (sixshop?1:0);
     if(thead){
       const headerCells = [
         '<th class="col-color-head">색상</th>',
         '<th class="col-cable-head">기종옵션</th>',
+        '<th class="col-master-head" title="PA SKU 통합 실재고 — 한 칸 수정 = 5플랫폼 자동 sync">⭐ 마스터</th>',
         ...paIds.map(id=>{
           const p=platformsById[id];
           const live=_stockPaLive[id];
@@ -3552,6 +3595,9 @@
           </td>`);
         }
         cells.push(`<td class="col-cable">${_esc(it.cable)}</td>`);
+        // 마스터 SKU 셀 — 첫 번째 슬레이브에서 sku_cd 추출 (모두 동일)
+        const firstSku = Object.values(it.byPlatform).find(c=>c?.opt?.sku_cd)?.opt?.sku_cd || '';
+        cells.push(_renderMasterCell(firstSku));
         paIds.forEach(pid=>{
           cells.push(_renderPivotCell(pid, it.byPlatform[pid]));
         });
@@ -3568,6 +3614,47 @@
     _updateSendButton();
   }
   function renderStockView(){ renderStockTable(); }
+
+  /* 마스터 SKU 셀 — PA 통합SKU 실재고 표시·편집. 입력값 = 절댓값(이 수량으로 맞춤).
+     변경 시 sendStockChanges가 stock/manage PUT (delta 계산해서 출고/입고 호출). */
+  function _renderMasterCell(skuCd){
+    if(!skuCd) return `<td class="stock-cell stock-cell-master is-out"><span class="stock-num">—</span><span class="stock-num-sub">미매핑</span></td>`;
+    const m = _stockMasterBySku[skuCd];
+    if(!m) return `<td class="stock-cell stock-cell-master"><span class="stock-num">…</span><span class="stock-num-sub">로딩</span></td>`;
+    const key = 'master::'+skuCd;
+    const pending=_stockPending[key];
+    const result=_stockRowResults[key];
+    const current = Number(m.real_stock)||0;
+    const isOut = current===0;
+    const stateClass = isOut ? 'is-out' : '';
+    const changedClass = pending!==undefined ? ' is-changed' : '';
+    const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
+    if(_stockEditMode){
+      const v = pending!==undefined ? pending.newValue : current;
+      return `<td class="stock-cell stock-cell-master ${stateClass}${changedClass}">
+        <input type="number" min="0" class="stock-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" oninput="onMasterInput('${_esc(skuCd)}',this)" title="이 SKU 통합 실재고를 이 값으로 설정 (5플랫폼 자동 동기화)">
+        ${resultBadge}
+      </td>`;
+    }
+    return `<td class="stock-cell stock-cell-master ${stateClass}${changedClass}">
+      <span class="stock-num">${current}</span>
+      ${pending!==undefined
+        ? `<span class="stock-num-sub" style="color:#b45309;font-weight:600">→ ${_esc(pending.newValue)}</span>`
+        : (isOut ? '<span class="stock-num-sub">품절</span>' : '<span class="stock-num-sub">통합</span>')}
+      ${resultBadge}
+    </td>`;
+  }
+
+  function onMasterInput(skuCd, el){
+    const key='master::'+skuCd;
+    const v=String(el.value||'').trim();
+    if(v==='') delete _stockPending[key];
+    else _stockPending[key]={ isMaster:true, skuCd, newValue:v };
+    el.classList.toggle('is-changed', _stockPending[key]!==undefined);
+    const td=el.closest('td');
+    if(td) td.classList.toggle('is-changed', _stockPending[key]!==undefined);
+    _updateSendButton();
+  }
 
   function _renderPivotCell(pid, cell){
     // 해당 플랫폼에 이 옵션 매칭 없음 → 0 (재고 0과 동일하게 표시)
@@ -3673,7 +3760,7 @@
     _stockPending={};
     const btn=document.getElementById('stockRefreshBtn');
     if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
-    await Promise.all([ loadPALiveStock(), loadSixshopStock() ]);
+    await Promise.all([ loadPALiveStock().then(loadMasterStock), loadSixshopStock() ]);
     // PA가 첫 호출 race (토큰 막 발급 중)로 비어있으면 한 번 더 시도
     if(Object.keys(_stockPaLive||{}).length === 0){
       await new Promise(r=>setTimeout(r,500));
@@ -3712,18 +3799,60 @@
   async function sendStockChanges(){
     const pending=Object.values(_stockPending);
     if(!pending.length){ toast('변경된 항목이 없습니다','err'); return; }
-    if(!confirm(`${pending.length}개 옵션의 재고를 저장하고 플랫폼에 전송합니다.\n\n• PA 5개 플랫폼: 자동 전송 (SKU 미매칭 옵션은 sale_cnt_limit만 적용)\n• 식스샵: 우리 DB 저장 (셀러콘솔 자동 push는 별도 인프라 필요)\n\n진행할까요?`)) return;
+    const masterPending = pending.filter(it=>it.isMaster);
+    const slavePending = pending.filter(it=>!it.isMaster);
+    const msg = [
+      `${pending.length}개 변경분 전송:`,
+      masterPending.length ? `• 마스터 SKU ${masterPending.length}건 → PA 통합재고 직접 조정 (5플랫폼 자동 sync)` : '',
+      slavePending.length ? `• 슬레이브 ${slavePending.length}건 → 플랫폼별 sale-cnt PATCH` : '',
+      '진행할까요?'
+    ].filter(Boolean).join('\n');
+    if(!confirm(msg)) return;
 
     _stockRowResults={};
-    // 플랫폼별로 그룹화하여 sale-cnt 한 번에 호출
+    let totalOk=0, totalErr=0;
+
+    // 1) 마스터 SKU 처리 — stock/manage PUT (delta 계산: newValue - current)
+    for(const it of masterPending){
+      const key='master::'+it.skuCd;
+      const m=_stockMasterBySku[it.skuCd];
+      if(!m){
+        _stockRowResults[key]={status:'err',msg:'마스터 SKU 정보 없음'};
+        totalErr++; continue;
+      }
+      const target=Number(it.newValue);
+      const current=Number(m.real_stock)||0;
+      if(!Number.isFinite(target) || target<0){
+        _stockRowResults[key]={status:'err',msg:'숫자 오류'};
+        totalErr++; continue;
+      }
+      const delta = target - current;
+      if(delta===0){
+        _stockRowResults[key]={status:'ok',msg:'변경 없음'};
+        totalOk++; continue;
+      }
+      const type = delta < 0 ? '출고' : '입고';
+      const count = Math.abs(delta);
+      const body={ stocks:[{ sku_cd:it.skuCd, depot_no:m.depot_no }], set:'실재고', type, count };
+      try{
+        const r=await paFetch('/api/stock/manage/v1.2',{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+        const t=await r.text(); let j; try{j=JSON.parse(t);}catch(e){j={result:'실패',message:t};}
+        const ok = r.ok && j.result==='성공';
+        _stockRowResults[key] = ok ? {status:'ok',msg:`${type} ${count}`} : {status:'err',msg:j.message||`HTTP ${r.status}`};
+        if(ok){ m.real_stock = target; totalOk++; } else totalErr++;
+      }catch(e){
+        _stockRowResults[key]={status:'err',msg:e.message||'통신 오류'};
+        totalErr++;
+      }
+    }
+
+    // 2) 슬레이브 처리 — 기존 sale-cnt PATCH 로직
     const byPlatform={};
-    pending.forEach(it=>{
+    slavePending.forEach(it=>{
       const p=_stockData.platforms.find(x=>x.id===it.platformId);
       if(!p) return;
       (byPlatform[p.id] = byPlatform[p.id] || {platform:p, items:[]}).items.push(it);
     });
-
-    let totalOk=0, totalErr=0;
     for(const pid of Object.keys(byPlatform)){
       const {platform, items} = byPlatform[pid];
       if(platform.type==='pa'){
@@ -3817,6 +3946,7 @@
     if(editBtn) editBtn.classList.remove('is-active');
     if(editLbl) editLbl.textContent='수정';
     await loadPALiveStock();
+    await loadMasterStock();
     await loadSixshopStock();
     toast(`전송 완료: ${totalOk} 성공${totalErr?` · ${totalErr} 실패`:''}`, totalErr?'err':'ok');
   }
