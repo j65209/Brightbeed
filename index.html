@@ -3997,7 +3997,7 @@
   }
 
   async function saveStockData(){
-    if(localStorage.getItem(ROLE_KEY)!=='master'){ toast('마스터 권한이 필요합니다','err'); return false; }
+    // 180 케이블 재고는 누구나 수정 가능 (viewer 포함). 프록시 화이트리스트로 PUT 자체 허용.
     if(!_stockData) return false;
     const body={
       message:`stock-cables: update ${new Date().toISOString()}`,
