@@ -3882,6 +3882,8 @@
           const j=await r.json(); const res=Array.isArray(j)?j[0]:j;
           if(res?.result==='성공') slaveOk++;
         }catch(e){ console.warn(`fallback slave ${p.name} ${skuCd}`, e); }
+        // PA rate limit (429) 회피 — 슬레이브간 300ms 간격
+        await new Promise(r=>setTimeout(r,300));
       }
 
       // 2) 그 SKU 진행중 주문 자동 보류 (bundle 단위)
