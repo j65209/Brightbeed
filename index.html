@@ -1605,6 +1605,7 @@
   .sixa-group-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(180deg,rgba(34,211,238,.08),rgba(34,211,238,.02));border-bottom:1px solid rgba(34,211,238,.18)}
   .sixa-group-name{font-size:14px;font-weight:700;color:var(--text-0);letter-spacing:.01em}
   .sixa-group-count{font-family:var(--mono);font-size:11px;color:#22d3ee;background:rgba(34,211,238,.12);padding:2px 9px;border-radius:9px;font-weight:700}
+  .sixa-group-ably-tag{display:inline-flex;align-items:center;font-family:var(--mono);font-size:10.5px;font-weight:700;color:#ec4899;background:rgba(236,72,153,.12);padding:2px 8px;border-radius:8px;margin-left:8px;letter-spacing:.03em}
   .sixa-table{width:100%;border-collapse:collapse;font-size:13px}
   .sixa-table th{padding:8px 14px;text-align:left;color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--line);background:var(--bg-0)}
   .sixa-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
@@ -5241,8 +5242,25 @@
         <table class="sixa-table">${_tableHead}<tbody>${flat.map(x=>x.html).join('')}</tbody></table>
       </div>`;
     } else {
+      // 에이블리 등록 여부 — parent master_sku 또는 옵션 master_sku 중 하나라도 _sixAPaLive.ab에 있으면 true
+      const _isAblyLive = (p) => {
+        if(!p.master_sku) return false;
+        if((_sixAPaLive.ab||{})[p.master_sku]) return true;
+        if(Array.isArray(p.options)){
+          for(const o of p.options){ if(o.master_sku && (_sixAPaLive.ab||{})[o.master_sku]) return true; }
+        }
+        return false;
+      };
       html = cats.map(cat=>{
-        const items=grouped[cat]||[];
+        const items=(grouped[cat]||[]).slice();
+        // 에이블리 판매중 상위로 몰기 (within-category sort)
+        items.sort((a,b)=>{
+          const aAb = _isAblyLive(a) ? 0 : 1;
+          const bAb = _isAblyLive(b) ? 0 : 1;
+          if(aAb !== bAb) return aAb - bAb;
+          return (a.name||'').localeCompare(b.name||'');
+        });
+        const ablyCount = items.filter(_isAblyLive).length;
         const rows=items.map(p=>{
           const url=p.id?`${base}/${p.id}`:'';
           const hasOptions = Array.isArray(p.options) && p.options.length>0;
@@ -5251,8 +5269,9 @@
           }
           return _singleRow(p, url);
         }).join('');
+        const ablyTag = ablyCount>0 ? `<span class="sixa-group-ably-tag" title="에이블리 판매중 ${ablyCount}개 상위">에이블리 ${ablyCount}</span>` : '';
         return `<div class="sixa-group">
-          <div class="sixa-group-head"><span class="sixa-group-name">${CAT_LABEL[cat]||cat}</span><span class="sixa-group-count">${items.length}</span></div>
+          <div class="sixa-group-head"><span class="sixa-group-name">${CAT_LABEL[cat]||cat}</span>${ablyTag}<span class="sixa-group-count">${items.length}</span></div>
           <table class="sixa-table">${_tableHead}<tbody>${rows}</tbody></table>
         </div>`;
       }).join('');
