@@ -1664,8 +1664,8 @@
   .sxa-sync-ok{color:#22c55e !important;font-weight:600}
   .sxa-sync-mismatch{color:#f59e0b !important;font-weight:600}
   /* PA 미매칭(=미등록) — 칸 자체를 안 그림 (배경/보더/내용 전부 제거) */
-  .sixa-cell.sixa-cell-hidden{background:transparent !important;border-left:none !important;border-right:none !important;padding:0;width:0}
-  .sixa-cell.sixa-cell-hidden *{display:none}
+  .sixa-table td.sixa-cell.sixa-cell-hidden{background:transparent !important;border:none !important;padding:0;width:64px}
+  .sixa-table td.sixa-cell.sixa-cell-hidden *{display:none}
   /* 정렬 필터 — 식스샵 재고 내림차순 토글 */
   .sixa-sort{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);font-family:var(--mono)}
   .sixa-sort select{background:var(--bg-0);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:5px;cursor:pointer}
@@ -5028,6 +5028,8 @@
     if(!_sixAData) return;
     const products=_sixAData.products||[];
     document.getElementById('sixACount').textContent=products.length;
+    const sortSel=document.getElementById('sixASortSel');
+    if(sortSel && sortSel.value!==_sixASortMode) sortSel.value=_sixASortMode;
     const base=_sixAData.shopBaseUrl;
     // 편집 토글 버튼 UI 업데이트
     const editBtn=document.getElementById('sixAEditBtn');
@@ -5073,11 +5075,11 @@
         ${_badge(key)}
       </td>`;
     };
-    // 지그재그 셀 — 식스샵에서 자동 동기화. read-only + sync 매칭 상태만 표시. 미등록은 빈 셀.
+    // 지그재그 셀 — 식스샵에서 자동 동기화. read-only + sync 매칭 상태만 표시. 미등록은 칸 자체 hidden.
     const _zzCell = (masterSku, sxStock) => {
       const live = (_sixAPaLive.zz||{})[masterSku||''];
       if(!masterSku || !live){
-        return `<td class="sixa-cell sixa-cell-lock sixa-cell-unmatched"><span class="stock-num">—</span><span class="stock-num-sub">미등록</span></td>`;
+        return `<td class="sixa-cell sixa-cell-hidden"></td>`;
       }
       const zzStock = Number(live.stock)||0;
       const sx = Number(sxStock)||0;
@@ -5110,57 +5112,84 @@
         ${_badge(key)}
       </td>`;
     };
-    const html=cats.map(cat=>{
-      const items=grouped[cat]||[];
-      const rows=items.map(p=>{
-        const url=p.id?`${base}/${p.id}`:'';
+    // 단일 상품 / 옵션 row 각각을 그리는 helper — 정렬·그룹 모드 양쪽에서 재사용.
+    const _parentRow = (p, url) => {
+      const totalStock = p.options.reduce((a,o)=>a+(Number(o.stock)||0),0);
+      return `<tr class="sixa-parent">
+        <td class="sixa-name">${_esc(p.name)}<span class="sixa-parent-tag">옵션 ${p.options.length}</span></td>
+        <td class="sixa-cell sixa-cell-hidden"></td>
+        <td class="sixa-cell is-mute"><span class="stock-num-mute">${totalStock}</span></td>
+        <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
+      </tr>`;
+    };
+    const _optRow = (p, o) => {
+      const sxKey = `${p.id}::${o.optionNo}`;
+      const masterSku = o.master_sku||'';
+      const showParentName = _sixASortMode==='sxDesc';
+      const nameCell = showParentName
+        ? `<td class="sixa-name">${_esc(p.name)} <span class="stock-num-sub" style="color:var(--text-3);font-weight:500">└ ${_esc(o.label||'')}</span></td>`
+        : `<td class="sixa-name">└ ${_esc(o.label||'')}</td>`;
+      return `<tr class="sixa-opt-row">
+        ${nameCell}
+        ${_chCell('ab', masterSku)}
+        ${_sxCell(o.stock, sxKey)}
+        <td class="sixa-act"></td>
+      </tr>`;
+    };
+    const _singleRow = (p, url) => {
+      const stockVal = Number(p.stock)||0;
+      const masterSku = p.master_sku||'';
+      return `<tr>
+        <td class="sixa-name">${_esc(p.name)}</td>
+        ${_chCell('ab', masterSku)}
+        ${_sxCell(stockVal, p.id)}
+        <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
+      </tr>`;
+    };
+    const _tableHead = `<thead><tr>
+      <th>상품명</th>
+      <th class="sixa-col-ch">에이블리</th>
+      <th class="sixa-col-ch">식스샵</th>
+      <th></th>
+    </tr></thead>`;
+
+    let html;
+    if(_sixASortMode === 'sxDesc'){
+      // flat 모드 — 모든 옵션·단일상품을 하나의 row로 펼쳐서 식스샵 재고 내림차순.
+      const flat = [];
+      for(const p of products){
+        const url = p.id?`${base}/${p.id}`:'';
         const hasOptions = Array.isArray(p.options) && p.options.length>0;
         if(hasOptions){
-          const totalStock = p.options.reduce((a,o)=>a+(Number(o.stock)||0),0);
-          const parentRow = `<tr class="sixa-parent">
-            <td class="sixa-name">${_esc(p.name)}<span class="sixa-parent-tag">옵션 ${p.options.length}</span></td>
-            <td class="sixa-price">${_esc(p.price||'-')}</td>
-            <td class="sixa-cell is-mute"><span class="stock-num">—</span></td>
-            <td class="sixa-cell is-mute"><span class="stock-num-mute">${totalStock}</span></td>
-            <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
-          </tr>`;
-          const optRows = p.options.map(o=>{
-            const sxKey = `${p.id}::${o.optionNo}`;
-            const masterSku = o.master_sku||'';
-            return `<tr class="sixa-opt-row">
-              <td class="sixa-name">└ ${_esc(o.label||'')}</td>
-              <td class="sixa-price">—</td>
-              ${_chCell('ab', masterSku)}
-              ${_sxCell(o.stock, sxKey)}
-              <td class="sixa-act"></td>
-            </tr>`;
-          }).join('');
-          return parentRow + optRows;
+          for(const o of p.options){
+            flat.push({ kind:'opt', sx:Number(o.stock)||0, html:_optRow(p, o) });
+          }
+        } else {
+          flat.push({ kind:'single', sx:Number(p.stock)||0, html:_singleRow(p, url) });
         }
-        // 옵션 없는 단일 상품
-        const stockVal = Number(p.stock)||0;
-        const masterSku = p.master_sku||'';
-        return `<tr>
-          <td class="sixa-name">${_esc(p.name)}</td>
-          <td class="sixa-price">${_esc(p.price||'-')}</td>
-          ${_chCell('ab', masterSku)}
-          ${_sxCell(stockVal, p.id)}
-          <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
-        </tr>`;
-      }).join('');
-      return `<div class="sixa-group">
-        <div class="sixa-group-head"><span class="sixa-group-name">${CAT_LABEL[cat]||cat}</span><span class="sixa-group-count">${items.length}</span></div>
-        <table class="sixa-table">
-          <thead><tr>
-            <th>상품명</th><th>가격</th>
-            <th class="sixa-col-ch">에이블리</th>
-            <th class="sixa-col-ch">식스샵</th>
-            <th></th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
+      }
+      flat.sort((a,b)=> b.sx - a.sx);
+      html = `<div class="sixa-group">
+        <div class="sixa-group-head"><span class="sixa-group-name">식스샵 재고 내림차순</span><span class="sixa-group-count">${flat.length}</span></div>
+        <table class="sixa-table">${_tableHead}<tbody>${flat.map(x=>x.html).join('')}</tbody></table>
       </div>`;
-    }).join('');
+    } else {
+      html = cats.map(cat=>{
+        const items=grouped[cat]||[];
+        const rows=items.map(p=>{
+          const url=p.id?`${base}/${p.id}`:'';
+          const hasOptions = Array.isArray(p.options) && p.options.length>0;
+          if(hasOptions){
+            return _parentRow(p, url) + p.options.map(o=>_optRow(p, o)).join('');
+          }
+          return _singleRow(p, url);
+        }).join('');
+        return `<div class="sixa-group">
+          <div class="sixa-group-head"><span class="sixa-group-name">${CAT_LABEL[cat]||cat}</span><span class="sixa-group-count">${items.length}</span></div>
+          <table class="sixa-table">${_tableHead}<tbody>${rows}</tbody></table>
+        </div>`;
+      }).join('');
+    }
     const body=document.getElementById('sixABody');
     body.innerHTML=html;
     if(_sixAEditMode){
