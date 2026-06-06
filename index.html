@@ -4837,32 +4837,48 @@
       }catch(e){ markResult(m.key, false, e.message); }
     }
 
-    // 2) 채널 — PA /api/products/sale-cnt PATCH (ol_shop_no + sale_opt_seq별)
-    // ol_shop_no별로 묶어서 한 번에 PATCH (180케이블 패턴)
-    const byOlShop = {};
+    // 2) 채널 — PA /api/products/sale-cnt PATCH (새 스펙 v2 — products[].opts[] 구조)
+    // PA v2: { products:[{c_sale_cd, shop_cd, shop_id, opts:[{sale_opt_seq, sku_cd, stock_cnt, sale_cnt_limit}]}] }
+    // sku_cd가 슬레이브에 비어있으면 master_sku를 박아 넣어 PA가 마스터 매칭하도록 유도.
+    const byProd = {};
     channels.forEach(c=>{
       const live = (_sixAPaLive[c.channelId]||{})[c.master_sku];
       if(!live){ markResult(c.key, false, 'PA live 없음'); return; }
-      const ol = live.ol_shop_no;
-      (byOlShop[ol]=byOlShop[ol]||{ ol, items:[] }).items.push({
+      const k = `${live.shop_cd}|${live.shop_id}|${live.c_sale_cd}`;
+      (byProd[k] = byProd[k] || { meta: {c_sale_cd: live.c_sale_cd, shop_cd: live.shop_cd, shop_id: live.shop_id}, items: [] }).items.push({
         key: c.key, sale_opt_seq: live.sale_opt_seq, setStock: c.setStock,
-        masterSku: c.master_sku, channelId: c.channelId,
+        sku_cd: live.sku_cd || c.master_sku, masterSku: c.master_sku, channelId: c.channelId,
       });
     });
-    for(const ol of Object.keys(byOlShop)){
-      const grp = byOlShop[ol];
+    for(const k of Object.keys(byProd)){
+      const grp = byProd[k];
       try{
-        const body = { ol_shop_no: Number(ol),
-                       options: grp.items.map(it=>({ sale_opt_seq: it.sale_opt_seq, sale_cnt_limit: it.setStock })) };
+        const body = { products: [{
+          c_sale_cd: grp.meta.c_sale_cd,
+          shop_cd: grp.meta.shop_cd,
+          shop_id: grp.meta.shop_id,
+          opts: grp.items.map(it=>({
+            sale_opt_seq: it.sale_opt_seq,
+            sku_cd: it.sku_cd,
+            stock_cnt: it.setStock,
+            sale_cnt_limit: it.setStock,
+          })),
+        }] };
         const r = await paFetch('/api/products/sale-cnt',{method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-        const ok = r.ok || r.status===204;
+        let respJson = null; try { respJson = await r.clone().json(); } catch(_) {}
+        // PA는 HTTP 200을 반환해도 body에서 error_code 또는 result:실패 가능. 둘 다 검사.
+        const errCode = respJson && respJson.error_code;
+        const resultRow = Array.isArray(respJson) ? respJson[0] : null;
+        const resultFailMsg = resultRow && /실패|fail/i.test(resultRow.result||'') ? (resultRow.message || resultRow.result) : null;
+        const ok = !errCode && !resultFailMsg && (r.ok || r.status===204);
         grp.items.forEach(it=>{
           if(ok){
             const live = (_sixAPaLive[it.channelId]||{})[it.masterSku];
-            if(live) live.stock = it.setStock;
+            if(live){ live.stock = it.setStock; live.sku_cd = it.sku_cd; }
             markResult(it.key, true, `→ ${it.setStock}`);
           } else {
-            markResult(it.key, false, `PA ${r.status}`);
+            const detail = resultFailMsg || (errCode ? `${errCode}: ${(respJson.messages||[])[0]||''}` : `PA ${r.status}`);
+            markResult(it.key, false, detail.slice(0,60));
           }
         });
       }catch(e){
@@ -4985,6 +5001,11 @@
         live[chId][masterSku] = {
           sale_opt_seq: firstOpt.sale_opt_seq,
           ol_shop_no: slave.ol_shop_no,
+          c_sale_cd: slave.c_sale_cd,
+          shop_cd: slave.shop_cd,
+          shop_id: slave.shop_id,
+          sku_cd: firstOpt.sku_cd || '',
+          opt_stock_cnt: Number(firstOpt.stock_cnt ?? 0) || 0,
           stock,
           status: slave.sale_status || '',
           slave_name: slave.shop_sale_name,
