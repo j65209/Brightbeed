@@ -5008,6 +5008,9 @@
         if(sn.replace(/\s|-/g,'')==='openring') return 'SIXA_OPEN_RING';
         return null;
       };
+      // catalog의 parent master_sku → product 매핑 (옵션 단위 매칭에 사용)
+      const productByParentSku = {};
+      (_sixAData.products||[]).forEach(p=>{ productByParentSku[p.master_sku] = p; });
       const live = { ab:{} };
       const matchedSlaves = [];
       const unmatchedSlaves = [];
@@ -5015,12 +5018,12 @@
         const chId = 'ab';
         const masterSku = _match(slave.shop_sale_name);
         if(!masterSku){ unmatchedSlaves.push(slave.shop_sale_name); return; }
-        // 옵션 합산 또는 sale_cnt_limit (단일 옵션은 같은 값)
         const opts = Array.isArray(slave.options) ? slave.options : [];
-        const stock = opts.length>0
+        const sumStock = opts.length>0
           ? opts.reduce((a,o)=>a + (Number(o.stock_cnt ?? o.sale_cnt_limit ?? 0)||0), 0)
           : Number(slave.sale_cnt_limit ?? 0)||0;
         const firstOpt = opts[0] || {};
+        // parent SKU에는 옵션 합계
         live[chId][masterSku] = {
           sale_opt_seq: firstOpt.sale_opt_seq,
           ol_shop_no: slave.ol_shop_no,
@@ -5029,10 +5032,30 @@
           shop_id: slave.shop_id,
           sku_cd: firstOpt.sku_cd || '',
           opt_stock_cnt: Number(firstOpt.stock_cnt ?? 0) || 0,
-          stock,
+          stock: sumStock,
           status: slave.sale_status || '',
           slave_name: slave.shop_sale_name,
         };
+        // 카탈로그 product에 옵션이 있고 슬레이브 옵션 개수가 같으면 옵션 단위 매칭 (인덱스 순)
+        const cat = productByParentSku[masterSku];
+        if(cat && Array.isArray(cat.options) && cat.options.length>0 && opts.length>=cat.options.length){
+          cat.options.forEach((co, idx)=>{
+            if(!co.master_sku) return;
+            const so = opts[idx] || {};
+            live[chId][co.master_sku] = {
+              sale_opt_seq: so.sale_opt_seq,
+              ol_shop_no: slave.ol_shop_no,
+              c_sale_cd: slave.c_sale_cd,
+              shop_cd: slave.shop_cd,
+              shop_id: slave.shop_id,
+              sku_cd: so.sku_cd || firstOpt.sku_cd || '',
+              opt_stock_cnt: Number(so.stock_cnt ?? 0)||0,
+              stock: Number(so.stock_cnt ?? so.sale_cnt_limit ?? 0)||0,
+              status: slave.sale_status || '',
+              slave_name: slave.shop_sale_name,
+            };
+          });
+        }
         matchedSlaves.push({ ch:chId, masterSku, name: slave.shop_sale_name });
       });
       _sixAPaLive = live;
