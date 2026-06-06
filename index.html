@@ -4644,8 +4644,8 @@
   window.triggerERP=triggerERP;
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMd2','viewStock','viewNamegen'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewNamegen:'namegen'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMd2','viewStock','viewSixA','viewNamegen'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewSixA:'sixA',viewNamegen:'namegen'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
