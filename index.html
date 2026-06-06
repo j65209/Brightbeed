@@ -4966,10 +4966,15 @@
       const NOISE = /\b(silver925|silver\s*925|실버\s*925|surgical|써지컬|씨지컬)\b/gi;
       const CATEGORY_WORDS = new Set(['open','ring','necklace','bracelet','bangle','keychain','hair','pin','smart','tok']);
       const GENERIC = new Set(['open ring','necklace','bracelet','bangle','ring','keychain','hair pin','smart tok']);
+      // 슬레이브 이름에 키릴/한자/특수 변형으로 박힌 모델명을 영문으로 정규화.
+      const SLAVE_ALIAS = [
+        [/урай/gi, 'ypan'],   // [☀Sun] Урай → ypan Necklace
+      ];
       const _norm = (s) => {
         s = String(s||'').replace(/\[[^\]]*\]/g,' ').replace(/\(([^)]+)\)/g, ' $1 ').replace(NOISE,' ');
-        // 영문 색상 변형 통일 — grey → gray
+        // 색상/모델명 표기 변형 통일
         s = s.replace(/\bgrey\b/gi, 'gray');
+        for(const [re, en] of SLAVE_ALIAS) s = s.replace(re, en);
         s = s.replace(/[^a-zA-Z0-9 ]/g,' ').toLowerCase().replace(/\s+/g,' ').trim();
         return s;
       };
