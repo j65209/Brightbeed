@@ -1,9 +1,9 @@
 {
-  "version": 4,
+  "version": 5,
   "brand": "식스에이",
   "platform": "식스샵 (6thanother)",
-  "description": "식스에이 = 식스샵(6thanother) 단독 판매 SKU. 판매중 85개 (옵션상품 6개 포함, 재고 0 포함). admin DOM 직접 추출 v4 (2026-06-06).",
-  "lastUpdated": "2026-06-06T15:44:14.476+09:00",
+  "description": "식스에이 = 식스샵(6thanother) 단독 판매 SKU. 판매중지 제외 98개 (판매중 85 + 품절 13, 옵션상품 6개 포함). admin DOM 직접 추출 v5 (2026-06-06).",
+  "lastUpdated": "2026-06-06T15:47:14.497+09:00",
   "shopBaseUrl": "https://www.sixshop.com/_shop/editShopProduct/6thanother",
   "products": [
     {
@@ -11,6 +11,7 @@
       "name": "Alvastra Necklace (black)",
       "stock": null,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_ALVASTRA_NECKLACE_BLACK",
       "options": [
         {
@@ -32,6 +33,7 @@
       "name": "Alvastra Necklace (gray)",
       "stock": null,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_ALVASTRA_NECKLACE_GRAY",
       "options": [
         {
@@ -53,19 +55,20 @@
       "name": "AZROU Necklace",
       "stock": null,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_AZROU_NECKLACE",
       "options": [
         {
           "optionNo": "40992842",
           "label": "색상: 화이트",
           "stock": 19,
-          "master_sku": "SIXA_AZROU_NECKLACE_"
+          "master_sku": "SIXA_AZROU_NECKLACE_OPT1"
         },
         {
           "optionNo": "40992841",
           "label": "색상: 멀티",
           "stock": 7,
-          "master_sku": "SIXA_AZROU_NECKLACE_"
+          "master_sku": "SIXA_AZROU_NECKLACE_OPT2"
         }
       ]
     },
@@ -74,6 +77,7 @@
       "name": "B-Flower Necklace",
       "stock": null,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_B_FLOWER_NECKLACE",
       "options": [
         {
@@ -95,6 +99,7 @@
       "name": "BORA BORA Necklace",
       "stock": 39,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_BORA_BORA_NECKLACE",
       "options": []
     },
@@ -103,6 +108,7 @@
       "name": "BOSASO Necklace",
       "stock": 48,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_BOSASO_NECKLACE",
       "options": []
     },
@@ -111,7 +117,17 @@
       "name": "BRYSON Necklace",
       "stock": 47,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_BRYSON_NECKLACE",
+      "options": []
+    },
+    {
+      "id": "8324741",
+      "name": "Chainlink Necklace",
+      "stock": 0,
+      "cat": "Necklace",
+      "status": "품절",
+      "master_sku": "SIXA_CHAINLINK_NECKLACE",
       "options": []
     },
     {
@@ -119,6 +135,7 @@
       "name": "Crucifix Necklace",
       "stock": 714,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_CRUCIFIX_NECKLACE",
       "options": []
     },
@@ -127,6 +144,7 @@
       "name": "Cygnet Necklace",
       "stock": 44,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_CYGNET_NECKLACE",
       "options": []
     },
@@ -135,6 +153,7 @@
       "name": "DTwistH Necklace",
       "stock": 15,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_DTWISTH_NECKLACE",
       "options": []
     },
@@ -143,6 +162,7 @@
       "name": "DXCROS Necklace",
       "stock": 162,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_DXCROS_NECKLACE",
       "options": []
     },
@@ -151,6 +171,7 @@
       "name": "GRANADA Necklace",
       "stock": 44,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_GRANADA_NECKLACE",
       "options": []
     },
@@ -159,6 +180,7 @@
       "name": "Guapi Necklace",
       "stock": 45,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_GUAPI_NECKLACE",
       "options": []
     },
@@ -167,6 +189,7 @@
       "name": "Hollowstar Necklace",
       "stock": 164,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_HOLLOWSTAR_NECKLACE",
       "options": []
     },
@@ -175,6 +198,7 @@
       "name": "LARVIK Necklace",
       "stock": 41,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_LARVIK_NECKLACE",
       "options": []
     },
@@ -183,6 +207,7 @@
       "name": "MACENTA Necklace",
       "stock": 40,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_MACENTA_NECKLACE",
       "options": []
     },
@@ -191,6 +216,7 @@
       "name": "Marquise Necklace",
       "stock": 0,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_MARQUISE_NECKLACE",
       "options": []
     },
@@ -199,6 +225,7 @@
       "name": "NARITA Necklace",
       "stock": 49,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_NARITA_NECKLACE",
       "options": []
     },
@@ -207,6 +234,7 @@
       "name": "PAZ Necklace",
       "stock": 77,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_PAZ_NECKLACE",
       "options": []
     },
@@ -215,6 +243,7 @@
       "name": "Polaris Necklace",
       "stock": 31,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_POLARIS_NECKLACE",
       "options": []
     },
@@ -223,7 +252,17 @@
       "name": "RichardKokser Necklace",
       "stock": 0,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_RICHARDKOKSER_NECKLACE",
+      "options": []
+    },
+    {
+      "id": "8040618",
+      "name": "Safety Pin Necklace",
+      "stock": 0,
+      "cat": "Necklace",
+      "status": "품절",
+      "master_sku": "SIXA_SAFETY_PIN_NECKLACE",
       "options": []
     },
     {
@@ -231,6 +270,7 @@
       "name": "SAMARA Necklace",
       "stock": 47,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_SAMARA_NECKLACE",
       "options": []
     },
@@ -239,6 +279,7 @@
       "name": "SpikeEdge Necklace",
       "stock": 9,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_SPIKEEDGE_NECKLACE",
       "options": []
     },
@@ -247,6 +288,7 @@
       "name": "Thynne Necklace",
       "stock": 83,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_THYNNE_NECKLACE",
       "options": []
     },
@@ -255,6 +297,7 @@
       "name": "Tiny Cross Necklace",
       "stock": 0,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_TINY_CROSS_NECKLACE",
       "options": []
     },
@@ -263,6 +306,7 @@
       "name": "UBUD Necklace",
       "stock": 47,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_UBUD_NECKLACE",
       "options": []
     },
@@ -271,6 +315,7 @@
       "name": "VIGO Necklace",
       "stock": 46,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_VIGO_NECKLACE",
       "options": []
     },
@@ -279,6 +324,7 @@
       "name": "VLNG Necklace",
       "stock": 426,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_VLNG_NECKLACE",
       "options": []
     },
@@ -287,6 +333,7 @@
       "name": "Volume Star Necklace",
       "stock": 10,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_VOLUME_STAR_NECKLACE",
       "options": []
     },
@@ -295,6 +342,7 @@
       "name": "XXITTY Necklace",
       "stock": 0,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_XXITTY_NECKLACE",
       "options": []
     },
@@ -303,6 +351,7 @@
       "name": "YOKNIS 9921 Necklace",
       "stock": 0,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_YOKNIS_9921_NECKLACE",
       "options": []
     },
@@ -311,6 +360,7 @@
       "name": "YONEZAWA Necklace",
       "stock": 44,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_YONEZAWA_NECKLACE",
       "options": []
     },
@@ -319,7 +369,17 @@
       "name": "ypan Necklace",
       "stock": 295,
       "cat": "Necklace",
+      "status": "판매 중",
       "master_sku": "SIXA_YPAN_NECKLACE",
+      "options": []
+    },
+    {
+      "id": "7916951",
+      "name": "2PT Bracelet",
+      "stock": 2,
+      "cat": "Bracelet",
+      "status": "품절",
+      "master_sku": "SIXA_2PT_BRACELET",
       "options": []
     },
     {
@@ -327,6 +387,7 @@
       "name": "Azraq 9 Bracelet",
       "stock": 58,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_AZRAQ_9_BRACELET",
       "options": []
     },
@@ -335,6 +396,7 @@
       "name": "DiceC Bracelet",
       "stock": 69,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_DICEC_BRACELET",
       "options": []
     },
@@ -343,7 +405,17 @@
       "name": "HDTWIST Bangle",
       "stock": 87,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_HDTWIST_BANGLE",
+      "options": []
+    },
+    {
+      "id": "7478041",
+      "name": "Kipawa Bracelet",
+      "stock": 7,
+      "cat": "Bracelet",
+      "status": "품절",
+      "master_sku": "SIXA_KIPAWA_BRACELET",
       "options": []
     },
     {
@@ -351,6 +423,7 @@
       "name": "Krossdrop Bracelet",
       "stock": 96,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_KROSSDROP_BRACELET",
       "options": []
     },
@@ -359,6 +432,7 @@
       "name": "Link Bracelet",
       "stock": 10,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_LINK_BRACELET",
       "options": []
     },
@@ -367,6 +441,7 @@
       "name": "M'banza-Kongo Bracelet",
       "stock": 145,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_M_BANZA_KONGO_BRACELET",
       "options": []
     },
@@ -375,6 +450,7 @@
       "name": "Marian Bracelet",
       "stock": 126,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_MARIAN_BRACELET",
       "options": []
     },
@@ -383,6 +459,7 @@
       "name": "Ovar Bracelet",
       "stock": 2,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_OVAR_BRACELET",
       "options": []
     },
@@ -391,6 +468,7 @@
       "name": "SFTWIST Bangle",
       "stock": 18,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_SFTWIST_BANGLE",
       "options": []
     },
@@ -399,6 +477,7 @@
       "name": "Tanquary Bracelet",
       "stock": 0,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_TANQUARY_BRACELET",
       "options": []
     },
@@ -407,6 +486,7 @@
       "name": "Turrawulla Bracelet",
       "stock": 46,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_TURRAWULLA_BRACELET",
       "options": []
     },
@@ -415,6 +495,7 @@
       "name": "Two-ball Bangle",
       "stock": 138,
       "cat": "Bracelet",
+      "status": "판매 중",
       "master_sku": "SIXA_TWO_BALL_BANGLE",
       "options": []
     },
@@ -423,7 +504,17 @@
       "name": "[SILVER925] - Open Ring",
       "stock": 156,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_OPEN_RING",
+      "options": []
+    },
+    {
+      "id": "7385131",
+      "name": "[SILVER925] + Open Ring",
+      "stock": 1,
+      "cat": "Ring",
+      "status": "품절",
+      "master_sku": "SIXA_OPEN_RING_PLUS",
       "options": []
     },
     {
@@ -431,6 +522,7 @@
       "name": "[SILVER925] A Rua Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_A_RUA_OPEN_RING",
       "options": []
     },
@@ -439,6 +531,7 @@
       "name": "[SILVER925] Anefok Open Ring",
       "stock": 142,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_ANEFOK_OPEN_RING",
       "options": []
     },
@@ -447,7 +540,17 @@
       "name": "[SILVER925] Astrell Open Ring",
       "stock": 25,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_ASTRELL_OPEN_RING",
+      "options": []
+    },
+    {
+      "id": "8749403",
+      "name": "[SILVER925] Azure Open Ring",
+      "stock": 0,
+      "cat": "Ring",
+      "status": "품절",
+      "master_sku": "SIXA_AZURE_OPEN_RING",
       "options": []
     },
     {
@@ -455,6 +558,7 @@
       "name": "[SILVER925] Blanchet Open Ring",
       "stock": 56,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_BLANCHET_OPEN_RING",
       "options": []
     },
@@ -463,6 +567,7 @@
       "name": "[SILVER925] Broken Open Ring",
       "stock": 13,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_BROKEN_OPEN_RING",
       "options": []
     },
@@ -471,6 +576,7 @@
       "name": "[SILVER925] Caro Open Ring",
       "stock": 167,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CARO_OPEN_RING",
       "options": []
     },
@@ -479,6 +585,7 @@
       "name": "[SILVER925] CBelt Open Ring",
       "stock": 39,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CBELT_OPEN_RING",
       "options": []
     },
@@ -487,6 +594,7 @@
       "name": "[SILVER925] CH.alban Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CH_ALBAN_OPEN_RING",
       "options": []
     },
@@ -495,6 +603,7 @@
       "name": "[SILVER925] Clapb Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CLAPB_OPEN_RING",
       "options": []
     },
@@ -503,6 +612,7 @@
       "name": "[SILVER925] Cone Guyeong Open Ring (black)",
       "stock": 9768,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CONE_GUYEONG_OPEN_RING_BLACK",
       "options": []
     },
@@ -511,6 +621,7 @@
       "name": "[SILVER925] Cone Guyeong Open Ring (gold)",
       "stock": 9804,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CONE_GUYEONG_OPEN_RING_GOLD",
       "options": []
     },
@@ -519,6 +630,7 @@
       "name": "[SILVER925] Cone Guyeong Open Ring (silver)",
       "stock": 9008,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CONE_GUYEONG_OPEN_RING_SILVER",
       "options": []
     },
@@ -527,6 +639,7 @@
       "name": "[SILVER925] Crimson Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CRIMSON_OPEN_RING",
       "options": []
     },
@@ -535,7 +648,17 @@
       "name": "[SILVER925] Crisa Open Ring",
       "stock": 26,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CRISA_OPEN_RING",
+      "options": []
+    },
+    {
+      "id": "6446737",
+      "name": "[SILVER925] Cross Open Ring",
+      "stock": 0,
+      "cat": "Ring",
+      "status": "품절",
+      "master_sku": "SIXA_CROSS_OPEN_RING",
       "options": []
     },
     {
@@ -543,7 +666,17 @@
       "name": "[SILVER925] Crown Open Ring",
       "stock": 18,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_CROWN_OPEN_RING",
+      "options": []
+    },
+    {
+      "id": "6446734",
+      "name": "[SILVER925] Cstic Open Ring",
+      "stock": 0,
+      "cat": "Ring",
+      "status": "품절",
+      "master_sku": "SIXA_CSTIC_OPEN_RING",
       "options": []
     },
     {
@@ -551,6 +684,7 @@
       "name": "[SILVER925] Dotty Open Ring",
       "stock": 16,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_DOTTY_OPEN_RING",
       "options": []
     },
@@ -559,6 +693,7 @@
       "name": "[SILVER925] Eramam Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_ERAMAM_OPEN_RING",
       "options": []
     },
@@ -567,7 +702,26 @@
       "name": "[SILVER925] FISHStar Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_FISHSTAR_OPEN_RING",
+      "options": []
+    },
+    {
+      "id": "8120758",
+      "name": "[SILVER925] Flowy Open Ring",
+      "stock": 1,
+      "cat": "Ring",
+      "status": "품절",
+      "master_sku": "SIXA_FLOWY_OPEN_RING",
+      "options": []
+    },
+    {
+      "id": "6654880",
+      "name": "[SILVER925] FW Open Ring",
+      "stock": 0,
+      "cat": "Ring",
+      "status": "품절",
+      "master_sku": "SIXA_FW_OPEN_RING",
       "options": []
     },
     {
@@ -575,6 +729,7 @@
       "name": "[SILVER925] Geos Open Ring",
       "stock": 275,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_GEOS_OPEN_RING",
       "options": []
     },
@@ -583,6 +738,7 @@
       "name": "[SILVER925] Glacier Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_GLACIER_OPEN_RING",
       "options": []
     },
@@ -591,6 +747,7 @@
       "name": "[SILVER925] Guyeong Open Ring v3.0 (black)",
       "stock": 9046,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_GUYEONG_OPEN_RING_V3_0_BLACK",
       "options": []
     },
@@ -599,6 +756,7 @@
       "name": "[SILVER925] Guyeong Open Ring v3.0 (silver)",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_GUYEONG_OPEN_RING_V3_0_SILVER",
       "options": []
     },
@@ -607,6 +765,7 @@
       "name": "[SILVER925] Hold Open Ring",
       "stock": 13,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_HOLD_OPEN_RING",
       "options": []
     },
@@ -615,6 +774,7 @@
       "name": "[SILVER925] Kouro Open Ring",
       "stock": 470,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_KOURO_OPEN_RING",
       "options": []
     },
@@ -623,6 +783,7 @@
       "name": "[SILVER925] Melt Open Ring",
       "stock": 72,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_MELT_OPEN_RING",
       "options": []
     },
@@ -631,6 +792,7 @@
       "name": "[SILVER925] Mustafakemalpaşa Ring",
       "stock": null,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_MUSTAFAKEMALPASA_RING",
       "options": [
         {
@@ -658,6 +820,7 @@
       "name": "[SILVER925] Psychotherapeutische Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_PSYCHOTHERAPEUTISCHE_OPEN_RING",
       "options": []
     },
@@ -666,6 +829,7 @@
       "name": "[SILVER925] Reign Open Ring",
       "stock": 48,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_REIGN_OPEN_RING",
       "options": []
     },
@@ -674,6 +838,7 @@
       "name": "[SILVER925] SHIP Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_SHIP_OPEN_RING",
       "options": []
     },
@@ -682,7 +847,17 @@
       "name": "[SILVER925] Starly Open Ring",
       "stock": 0,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_STARLY_OPEN_RING",
+      "options": []
+    },
+    {
+      "id": "8749741",
+      "name": "[SILVER925] Vearl Open Ring",
+      "stock": 0,
+      "cat": "Ring",
+      "status": "품절",
+      "master_sku": "SIXA_VEARL_OPEN_RING",
       "options": []
     },
     {
@@ -690,6 +865,7 @@
       "name": "[SILVER925] Wloom Open Ring",
       "stock": 13,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_WLOOM_OPEN_RING",
       "options": []
     },
@@ -698,6 +874,7 @@
       "name": "[SILVER925] Yampa Open Ring",
       "stock": 21,
       "cat": "Ring",
+      "status": "판매 중",
       "master_sku": "SIXA_YAMPA_OPEN_RING",
       "options": []
     },
@@ -706,6 +883,7 @@
       "name": "Foot Nail Clipper Keychain",
       "stock": 16,
       "cat": "Keychain",
+      "status": "판매 중",
       "master_sku": "SIXA_FOOT_NAIL_CLIPPER_KEYCHAIN",
       "options": []
     },
@@ -714,6 +892,7 @@
       "name": "Hand Nail Clipper Keychain",
       "stock": 473,
       "cat": "Keychain",
+      "status": "판매 중",
       "master_sku": "SIXA_HAND_NAIL_CLIPPER_KEYCHAIN",
       "options": []
     },
@@ -722,7 +901,26 @@
       "name": "P Keychain",
       "stock": 121,
       "cat": "Keychain",
+      "status": "판매 중",
       "master_sku": "SIXA_P_KEYCHAIN",
+      "options": []
+    },
+    {
+      "id": "6258608",
+      "name": "Panará Keychain",
+      "stock": 0,
+      "cat": "Keychain",
+      "status": "품절",
+      "master_sku": "SIXA_PANARA_KEYCHAIN",
+      "options": []
+    },
+    {
+      "id": "8191661",
+      "name": "Tangle Keychain",
+      "stock": 2,
+      "cat": "Keychain",
+      "status": "품절",
+      "master_sku": "SIXA_TANGLE_KEYCHAIN",
       "options": []
     },
     {
@@ -730,6 +928,7 @@
       "name": "8-Ball Smart Tok",
       "stock": 4,
       "cat": "SmartTok",
+      "status": "판매 중",
       "master_sku": "SIXA_8_BALL_SMART_TOK",
       "options": []
     },
@@ -738,6 +937,7 @@
       "name": "Guseol Cat Smart Tok",
       "stock": 60,
       "cat": "SmartTok",
+      "status": "판매 중",
       "master_sku": "SIXA_GUSEOL_CAT_SMART_TOK",
       "options": []
     },
@@ -746,49 +946,50 @@
       "name": "CCCp Hair pin (7color)",
       "stock": null,
       "cat": "HairPin",
+      "status": "판매 중",
       "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR",
       "options": [
         {
           "optionNo": "33896752",
           "label": "컬러: 핑크",
           "stock": 263,
-          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_"
+          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_PINK"
         },
         {
           "optionNo": "33896751",
           "label": "컬러: 스카이블루",
           "stock": 291,
-          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_"
+          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_SKYBLUE"
         },
         {
           "optionNo": "33896745",
           "label": "컬러: 아이보리",
           "stock": 394,
-          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_"
+          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_IVORY"
         },
         {
           "optionNo": "33896735",
           "label": "컬러: 레오파드",
           "stock": 138,
-          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_"
+          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_LEOPARD"
         },
         {
           "optionNo": "31655576",
           "label": "컬러: 블랙",
           "stock": 483,
-          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_"
+          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_BLACK"
         },
         {
           "optionNo": "31655575",
           "label": "컬러: 클리어",
           "stock": 756,
-          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_"
+          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_CLEAR"
         },
         {
           "optionNo": "31655574",
           "label": "컬러: 레드",
           "stock": 409,
-          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_"
+          "master_sku": "SIXA_CCCP_HAIR_PIN_7COLOR_RED"
         }
       ]
     },
@@ -797,6 +998,7 @@
       "name": "Ballnk Braecelt",
       "stock": 1,
       "cat": "Misc",
+      "status": "판매 중",
       "master_sku": "SIXA_BALLNK_BRAECELT",
       "options": []
     }
