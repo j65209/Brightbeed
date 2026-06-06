@@ -2824,8 +2824,8 @@
           <span class="lg-brand-meta">CLEAR TYPE</span>
         </div>
         <div class="lg-brand-body">
-          <a class="lg-res lg-res-inside lg-res-soon" href="#" onclick="toast('클리어타입 재고 통합관리 준비 중','err'); return false;">
-            <div class="lg-res-eyebrow">🛠 SOON</div>
+          <a class="lg-res lg-res-inside" href="#cleartype" onclick="openCleartype(); return false;">
+            <div class="lg-res-eyebrow">🔗 SYNC</div>
             <div class="lg-res-title">재고 통합관리</div>
             <span class="lg-res-arrow">→</span>
           </a>
@@ -3153,6 +3153,43 @@
       </div>
 
       <div id="sixABody"></div>
+    </div>
+  </div>
+
+  <!-- ============ 클리어타입 SKU (식스샵 cleartype 단독) ============ -->
+  <div class="view" id="viewCleartype" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">클리어타입<span class="view-title-sub">/ 식스샵 단독 SKU</span><span id="ctUpdatedTag" class="sales-updated-tag"></span></h1>
+    </div>
+
+    <div class="po-wrap">
+      <div class="sixa-head">
+        <div class="sixa-meta">
+          <span class="sixa-platform"><span class="lg-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span> cleartype.sixshop.com</span>
+          <span class="sixa-count"><strong id="ctCount">—</strong> SKU</span>
+          <label class="sixa-sort">정렬
+            <select id="ctSortSel" onchange="onCleartypeSortChange(this.value)">
+              <option value="default">상태/카테고리/이름</option>
+              <option value="sxDesc">식스샵 재고 ↓</option>
+            </select>
+          </label>
+          <button class="stock-tbl-btn" id="ctRefreshBtn" onclick="refreshCleartype()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            최신화
+          </button>
+          <button class="stock-tbl-btn" id="ctEditBtn" onclick="toggleCleartypeEdit()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+            <span id="ctEditLabel">재고 수정</span>
+            <span id="ctEditCount" class="stock-send-count" hidden>0</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="ctBody"></div>
     </div>
   </div>
 
@@ -4692,8 +4729,8 @@
   window.triggerERP=triggerERP;
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMd2','viewStock','viewSixA','viewNamegen'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewSixA:'sixA',viewNamegen:'namegen'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMd2','viewStock','viewSixA','viewCleartype','viewNamegen'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -5344,6 +5381,257 @@
     const lbl = document.getElementById('sixAEditCount');
     if(lbl){ lbl.hidden = cnt===0; lbl.textContent = cnt; }
   }
+
+  /* ===== 클리어타입 — 식스샵(cleartype) SKU 카탈로그 + 옵션별 재고 수정 (식스에이 패턴 단순화 — PA 채널 없음) ===== */
+  let _ctData = null;
+  // pending key 스키마:
+  //   단일상품:  productId
+  //   옵션상품:  "productId::optionNo"
+  let _ctPending = {};
+  let _ctEditMode = false;
+  let _ctResults = {};
+  let _ctSortMode = 'default';
+  function openCleartype(){ showView('viewCleartype'); loadCleartype(); }
+  function _ctPendingKey(id, optionNo){ return optionNo ? `${id}::${optionNo}` : id; }
+  function onCleartypeSortChange(mode){ _ctSortMode = mode || 'default'; renderCleartype(); }
+  function toggleCleartypeEdit(){
+    if(_ctEditMode && Object.keys(_ctPending).length>0){
+      sendCleartypeChanges();
+      return;
+    }
+    _ctEditMode = !_ctEditMode;
+    renderCleartype();
+  }
+  async function refreshCleartype(){
+    // GHA list-cleartype-skus.yml dispatch — 그러면 03~05분 후 cleartype-products.json 갱신됨.
+    if(!confirm('식스샵 admin에서 클리어타입 SKU 카탈로그를 재수집합니다.\n약 3~5분 소요. 진행할까요?')) return;
+    try{
+      const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/list-cleartype-skus.yml/dispatches',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ref:'main'}),
+      });
+      if(r.ok || r.status===204){
+        toast('✓ 갱신 트리거 완료 — 약 3~5분 후 자동 반영','ok');
+        setTimeout(()=>loadCleartype(), 4*60*1000);
+      } else {
+        toast(`갱신 트리거 실패: ${r.status}`,'err');
+      }
+    }catch(e){ toast('갱신 트리거 오류: '+e.message,'err'); }
+  }
+  async function loadCleartype(){
+    const body=document.getElementById('ctBody');
+    const tag=document.getElementById('ctUpdatedTag');
+    if(body && !_ctData) body.innerHTML='<div class="po-empty"><div class="po-empty-text">로딩 중…</div></div>';
+    try{
+      const r=await fetch('data/cleartype-products.json?t='+Date.now());
+      if(!r.ok){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">로드 실패 (HTTP '+r.status+')</div></div>'; return; }
+      _ctData=await r.json();
+      if(tag) tag.textContent = _ctData.lastUpdated ? '최신화 '+_fmtDateShort(_ctData.lastUpdated) : '⚠ 첫 최신화 필요';
+      renderCleartype();
+    }catch(e){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">오류: '+_esc(e.message)+'</div></div>'; }
+  }
+  async function sendCleartypeChanges(){
+    const entries = Object.entries(_ctPending);
+    if(entries.length===0){ toast('변경된 항목이 없습니다','err'); return; }
+    const updates = entries.map(([key,v])=>{
+      const p = (_ctData?.products||[]).find(p=>p.id===v.id);
+      const u = { id:v.id, name:p?.name||v.id, setStock:v.setStock };
+      if(v.optionNo){ u.optionNo = v.optionNo; u.optionLabel = v.optionLabel||''; }
+      return u;
+    });
+    if(!confirm(`클리어타입 식스샵 재고 ${updates.length}건을 전송합니다.\nGHA Playwright 워크플로(약 2~4분) 실행됩니다.\n진행할까요?`)) return;
+    try{
+      const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-cleartype-stock.yml/dispatches',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ref:'main', inputs:{updates: JSON.stringify(updates)}}),
+      });
+      const ok = r.ok || r.status===204;
+      entries.forEach(([key,v])=>{
+        _ctResults[key] = { status: ok?'ok':'err', msg: ok?`GHA → ${v.setStock} (~3분)`:`GHA ${r.status}` };
+        // optimistic 로컬 업데이트
+        if(ok){
+          const p = (_ctData?.products||[]).find(p=>p.id===v.id);
+          if(p){
+            if(v.optionNo){ const opt = (p.options||[]).find(o=>o.optionNo===v.optionNo); if(opt) opt.stock = v.setStock; }
+            else { p.stock = v.setStock; }
+          }
+        }
+      });
+      toast(ok?`✓ 전송 완료 — ${updates.length}건`:`전송 실패: ${r.status}`, ok?'ok':'err');
+    }catch(e){
+      entries.forEach(([key])=>{ _ctResults[key] = { status:'err', msg:e.message }; });
+      toast('전송 오류: '+e.message,'err');
+    }
+    _ctPending = {};
+    _ctEditMode = false;
+    renderCleartype();
+  }
+  function renderCleartype(){
+    if(!_ctData) return;
+    const products=_ctData.products||[];
+    const countEl = document.getElementById('ctCount');
+    if(countEl) countEl.textContent = products.length;
+    const sortSel=document.getElementById('ctSortSel');
+    if(sortSel && sortSel.value!==_ctSortMode) sortSel.value=_ctSortMode;
+    const base=_ctData.shopBaseUrl;
+
+    // 편집 토글 버튼 UI
+    const editBtn=document.getElementById('ctEditBtn');
+    const editLbl=document.getElementById('ctEditLabel');
+    const editCnt=document.getElementById('ctEditCount');
+    if(editBtn) editBtn.classList.toggle('is-active', _ctEditMode);
+    if(editLbl) editLbl.textContent = _ctEditMode ? '저장' : '재고 수정';
+    const cnt = Object.keys(_ctPending).length;
+    if(editCnt){ editCnt.hidden = cnt===0; editCnt.textContent = cnt; }
+
+    if(products.length===0){
+      const body=document.getElementById('ctBody');
+      if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">아직 SKU 데이터가 없습니다. 우측 상단 「최신화」를 눌러 식스샵에서 수집하세요.</div></div>';
+      return;
+    }
+
+    const _stockCls = s => (s<=0?'is-out':(s<=10?'is-low':'is-on'));
+    const _badge = key => {
+      const r = _ctResults[key];
+      return r ? `<span class="row-result ${r.status}" title="${_esc(r.msg||'')}">${r.status==='ok'?'✓':'!'}</span>` : '';
+    };
+    const _sxCell = (stockVal, key) => {
+      const cur = Number(stockVal)||0;
+      const cls = _stockCls(cur);
+      const pending = _ctPending[key];
+      const changedCls = pending!==undefined ? ' is-changed' : '';
+      if(_ctEditMode){
+        const v = pending!==undefined ? pending.setStock : cur;
+        return `<td class="sixa-cell ${cls}${changedCls}">
+          <input type="number" min="0" class="sixa-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" data-key="${_esc(key)}">
+          ${_badge(key)}
+        </td>`;
+      }
+      return `<td class="sixa-cell ${cls}${changedCls}">
+        <span class="stock-num">${cur}</span>
+        ${pending!==undefined ? `<span class="stock-num-sub" style="color:#b45309">→ ${_esc(pending.setStock)}</span>` : ''}
+        ${_badge(key)}
+      </td>`;
+    };
+    const _parentRow = (p, url) => {
+      const totalStock = p.options.reduce((a,o)=>a+(Number(o.stock)||0),0);
+      const statusBadge = p.status && p.status.replace(/\s+/g,'')!=='판매중'
+        ? `<span class="sixa-parent-tag" style="background:#7f1d1d;color:#fecaca">${_esc(p.status)}</span>` : '';
+      return `<tr class="sixa-parent">
+        <td class="sixa-name">${_esc(p.name)}${statusBadge}<span class="sixa-parent-tag">옵션 ${p.options.length}</span></td>
+        <td class="sixa-cell is-mute"><span class="stock-num-mute">${totalStock}</span></td>
+        <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
+      </tr>`;
+    };
+    const _optRow = (p, o) => {
+      const sxKey = `${p.id}::${o.optionNo}`;
+      const showParentName = _ctSortMode==='sxDesc';
+      const nameCell = showParentName
+        ? `<td class="sixa-name">${_esc(p.name)} <span class="stock-num-sub" style="color:var(--text-3);font-weight:500">└ ${_esc(o.label||'')}</span></td>`
+        : `<td class="sixa-name">└ ${_esc(o.label||'')}</td>`;
+      return `<tr class="sixa-opt-row">
+        ${nameCell}
+        ${_sxCell(o.stock, sxKey)}
+        <td class="sixa-act"></td>
+      </tr>`;
+    };
+    const _singleRow = (p, url) => {
+      const stockVal = Number(p.stock)||0;
+      const statusBadge = p.status && p.status.replace(/\s+/g,'')!=='판매중'
+        ? `<span class="sixa-parent-tag" style="background:#7f1d1d;color:#fecaca;margin-left:6px">${_esc(p.status)}</span>` : '';
+      return `<tr>
+        <td class="sixa-name">${_esc(p.name)}${statusBadge}</td>
+        ${_sxCell(stockVal, p.id)}
+        <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
+      </tr>`;
+    };
+    const _tableHead = `<thead><tr>
+      <th>상품명</th>
+      <th class="sixa-col-ch">식스샵</th>
+      <th></th>
+    </tr></thead>`;
+
+    let html;
+    if(_ctSortMode === 'sxDesc'){
+      const flat = [];
+      for(const p of products){
+        const url = p.id?`${base}/${p.id}`:'';
+        const hasOptions = Array.isArray(p.options) && p.options.length>0;
+        if(hasOptions){
+          for(const o of p.options){
+            flat.push({ sx:Number(o.stock)||0, html:_optRow(p, o) });
+          }
+        } else {
+          flat.push({ sx:Number(p.stock)||0, html:_singleRow(p, url) });
+        }
+      }
+      flat.sort((a,b)=> b.sx - a.sx);
+      html = `<div class="sixa-group">
+        <div class="sixa-group-head"><span class="sixa-group-name">식스샵 재고 내림차순</span><span class="sixa-group-count">${flat.length}</span></div>
+        <table class="sixa-table">${_tableHead}<tbody>${flat.map(x=>x.html).join('')}</tbody></table>
+      </div>`;
+    } else {
+      // default: 카테고리별 그룹화 + 그룹 내 상태(판매중 우선)/이름 순
+      const grouped={};
+      for(const p of products){ (grouped[p.cat||'기타']=grouped[p.cat||'기타']||[]).push(p); }
+      const cats=Object.keys(grouped).sort();
+      const statusNorm = s => String(s||'').replace(/\s+/g,'');
+      html = cats.map(cat=>{
+        const items=grouped[cat].slice();
+        items.sort((a,b)=>{
+          const aOn = statusNorm(a.status)==='판매중' ? 0 : 1;
+          const bOn = statusNorm(b.status)==='판매중' ? 0 : 1;
+          if(aOn !== bOn) return aOn - bOn;
+          return (a.name||'').localeCompare(b.name||'');
+        });
+        const rows=items.map(p=>{
+          const url=p.id?`${base}/${p.id}`:'';
+          const hasOptions = Array.isArray(p.options) && p.options.length>0;
+          if(hasOptions){
+            return _parentRow(p, url) + p.options.map(o=>_optRow(p, o)).join('');
+          }
+          return _singleRow(p, url);
+        }).join('');
+        return `<div class="sixa-group">
+          <div class="sixa-group-head"><span class="sixa-group-name">${_esc(cat)}</span><span class="sixa-group-count">${items.length}</span></div>
+          <table class="sixa-table">${_tableHead}<tbody>${rows}</tbody></table>
+        </div>`;
+      }).join('');
+    }
+    const body=document.getElementById('ctBody');
+    body.innerHTML=html;
+    if(_ctEditMode){
+      body.querySelectorAll('input.sixa-cell-input[data-key]').forEach(el=>{
+        const key = el.getAttribute('data-key')||'';
+        el.addEventListener('input', ()=> onCleartypeCellInput(key, el));
+      });
+    }
+  }
+  function onCleartypeCellInput(key, el){
+    const v = String(el.value||'').trim();
+    if(v===''){ delete _ctPending[key]; }
+    else {
+      const setStock = Number(v);
+      let entry;
+      if(key.indexOf('::')>-1){
+        const sep = key.indexOf('::');
+        const id = key.slice(0,sep), optionNo = key.slice(sep+2);
+        const p = (_ctData?.products||[]).find(p=>p.id===id);
+        const o = p?.options?.find(o=>o.optionNo===optionNo);
+        entry = { id, optionNo, optionLabel:o?.label||'', setStock };
+      } else {
+        entry = { id:key, setStock };
+      }
+      _ctPending[key] = entry;
+    }
+    el.classList.toggle('is-changed', _ctPending[key]!==undefined);
+    const td=el.closest('td');
+    if(td) td.classList.toggle('is-changed', _ctPending[key]!==undefined);
+    const cnt = Object.keys(_ctPending).length;
+    const lbl = document.getElementById('ctEditCount');
+    if(lbl){ lbl.hidden = cnt===0; lbl.textContent = cnt; }
+  }
+
   function triggerNamegen(){ showView('viewNamegen'); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
