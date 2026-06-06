@@ -4932,9 +4932,9 @@
         if(n<50) break;
       }
       const EXCLUDED = new Set(['brightbeed','brightbeed@gmail.com','holicmaster']);
-      // 식스에이 별칭 슬레이브만 (6thanother@gmail.com + P016/P018)
+      // 식스에이 별칭 슬레이브만 (6thanother@gmail.com + P016 에이블리). 지그재그는 식스샵 자동 동기화라 제외.
       const sixASlaves = flat.filter(s=>
-        s.shop_id==='6thanother@gmail.com' && (s.shop_cd==='P016' || s.shop_cd==='P018') && !EXCLUDED.has(s.shop_id)
+        s.shop_id==='6thanother@gmail.com' && s.shop_cd==='P016' && !EXCLUDED.has(s.shop_id)
       );
       // 매칭 후보 카탈로그 (master_sku, cleanName)
       const NOISE = /\b(silver925|silver\s*925|실버\s*925)\b/gi;
@@ -4961,11 +4961,11 @@
         if(sn.replace(/\s|-/g,'')==='openring') return 'SIXA_OPEN_RING';
         return null;
       };
-      const live = { ab:{}, zz:{} };
+      const live = { ab:{} };
       const matchedSlaves = [];
       const unmatchedSlaves = [];
       sixASlaves.forEach(slave=>{
-        const chId = slave.shop_cd==='P016' ? 'ab' : 'zz';
+        const chId = 'ab';
         const masterSku = _match(slave.shop_sale_name);
         if(!masterSku){ unmatchedSlaves.push(slave.shop_sale_name); return; }
         // 옵션 합산 또는 sale_cnt_limit (단일 옵션은 같은 값)
@@ -5113,7 +5113,6 @@
             <td class="sixa-name">${_esc(p.name)}<span class="sixa-parent-tag">옵션 ${p.options.length}</span></td>
             <td class="sixa-price">${_esc(p.price||'-')}</td>
             <td class="sixa-cell is-mute"><span class="stock-num">—</span></td>
-            <td class="sixa-cell is-mute"><span class="stock-num">—</span></td>
             <td class="sixa-cell is-mute"><span class="stock-num-mute">${totalStock}</span></td>
             <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
           </tr>`;
@@ -5124,7 +5123,6 @@
               <td class="sixa-name">└ ${_esc(o.label||'')}</td>
               <td class="sixa-price">—</td>
               ${_chCell('ab', masterSku)}
-              ${_zzCell(masterSku, o.stock)}
               ${_sxCell(o.stock, sxKey)}
               <td class="sixa-act"></td>
             </tr>`;
@@ -5138,7 +5136,6 @@
           <td class="sixa-name">${_esc(p.name)}</td>
           <td class="sixa-price">${_esc(p.price||'-')}</td>
           ${_chCell('ab', masterSku)}
-          ${_zzCell(masterSku, stockVal)}
           ${_sxCell(stockVal, p.id)}
           <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
         </tr>`;
@@ -5149,7 +5146,6 @@
           <thead><tr>
             <th>상품명</th><th>가격</th>
             <th class="sixa-col-ch">에이블리</th>
-            <th class="sixa-col-ch">지그재그</th>
             <th class="sixa-col-ch">식스샵</th>
             <th></th>
           </tr></thead>
