@@ -1663,6 +1663,10 @@
   .sixa-cell.sixa-cell-lock .stock-num-sub{font-size:9.5px}
   .sxa-sync-ok{color:#22c55e !important;font-weight:600}
   .sxa-sync-mismatch{color:#f59e0b !important;font-weight:600}
+  /* PA 미매칭(=미등록) — 입력 불가, 시각적으로 비활성 */
+  .sixa-cell.sixa-cell-unmatched{background:repeating-linear-gradient(45deg,rgba(255,255,255,.018),rgba(255,255,255,.018) 6px,transparent 6px,transparent 12px);opacity:.55}
+  .sixa-cell.sixa-cell-unmatched .stock-num{color:var(--text-3) !important;font-weight:500}
+  .sixa-cell.sixa-cell-unmatched .stock-num-sub{color:var(--text-3) !important;font-size:9.5px;opacity:.8}
 
   /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
   *::-webkit-scrollbar{width:10px;height:10px}
@@ -4998,16 +5002,14 @@
       const r = _sixAResults[key];
       return r ? `<span class="row-result ${r.status}" title="${_esc(r.msg||'')}">${r.status==='ok'?'✓':'!'}</span>` : '';
     };
-    // 에이블리 셀 — master_sku로 매핑된 슬레이브 옵션 stock. 편집 가능.
+    // 에이블리 셀 — PA에 매칭된 슬레이브만 stock 표시 + 편집 가능. 미매칭은 "—" 빈 셀.
     const _chCell = (chId, masterSku) => {
       const key = `ch:${chId}:${masterSku||''}`;
       const pending = _sixAPending[key];
       const live = (_sixAPaLive[chId]||{})[masterSku||''];
-      if(!masterSku){
-        return `<td class="sixa-cell is-mute"><span class="stock-num">—</span><span class="stock-num-sub">미매핑</span></td>`;
-      }
-      if(!live){
-        return `<td class="sixa-cell is-mute"><span class="stock-num">0</span><span class="stock-num-sub">미등록</span></td>`;
+      // 매칭 안 됨 (PA 슬레이브 옵션에 이 master_sku가 없음) → 셀 자체 비활성, 재고 표시 없음
+      if(!masterSku || !live){
+        return `<td class="sixa-cell sixa-cell-unmatched"><span class="stock-num">—</span><span class="stock-num-sub">미등록</span></td>`;
       }
       const stock = Number(live.stock)||0;
       const cls = stock<=0 ? 'is-out' : (stock<=10 ? 'is-low' : 'is-on');
@@ -5025,14 +5027,11 @@
         ${_badge(key)}
       </td>`;
     };
-    // 지그재그 셀 — 식스샵에서 자동 동기화되므로 read-only. 식스샵 stock과 비교해 sync 매칭 상태만 표시.
+    // 지그재그 셀 — 식스샵에서 자동 동기화. read-only + sync 매칭 상태만 표시. 미등록은 빈 셀.
     const _zzCell = (masterSku, sxStock) => {
       const live = (_sixAPaLive.zz||{})[masterSku||''];
-      if(!masterSku){
-        return `<td class="sixa-cell sixa-cell-lock is-mute"><span class="stock-num">—</span><span class="stock-num-sub">🔒 미매핑</span></td>`;
-      }
-      if(!live){
-        return `<td class="sixa-cell sixa-cell-lock is-mute"><span class="stock-num">—</span><span class="stock-num-sub">🔒 미등록</span></td>`;
+      if(!masterSku || !live){
+        return `<td class="sixa-cell sixa-cell-lock sixa-cell-unmatched"><span class="stock-num">—</span><span class="stock-num-sub">미등록</span></td>`;
       }
       const zzStock = Number(live.stock)||0;
       const sx = Number(sxStock)||0;
