@@ -4960,11 +4960,16 @@
       const sixASlaves = flat.filter(s=>
         s.shop_id==='6thanother@gmail.com' && s.shop_cd==='P016' && !EXCLUDED.has(s.shop_id)
       );
-      // 매칭 후보 카탈로그 (master_sku, cleanName)
-      const NOISE = /\b(silver925|silver\s*925|실버\s*925)\b/gi;
+      // 매칭 후보 카탈로그 (master_sku, modelWords)
+      // 카테고리 단어(ring/necklace 등)는 슬레이브에 한글 카테고리("오픈 링/네크리스")만 있을 때
+      // 매칭 실패의 원인. 모델명(고유 영문)만 기준으로 fuzzy 비교하도록 변경.
+      const NOISE = /\b(silver925|silver\s*925|실버\s*925|surgical|써지컬|씨지컬)\b/gi;
+      const CATEGORY_WORDS = new Set(['open','ring','necklace','bracelet','bangle','keychain','hair','pin','smart','tok']);
       const GENERIC = new Set(['open ring','necklace','bracelet','bangle','ring','keychain','hair pin','smart tok']);
       const _norm = (s) => {
         s = String(s||'').replace(/\[[^\]]*\]/g,' ').replace(/\(([^)]+)\)/g, ' $1 ').replace(NOISE,' ');
+        // 영문 색상 변형 통일 — grey → gray
+        s = s.replace(/\bgrey\b/gi, 'gray');
         s = s.replace(/[^a-zA-Z0-9 ]/g,' ').toLowerCase().replace(/\s+/g,' ').trim();
         return s;
       };
@@ -4972,14 +4977,27 @@
       (_sixAData.products||[]).forEach(p=>{
         const cn = _norm(p.name);
         if(!cn) return;
-        candidates.push({ master_sku:p.master_sku, cn, words:cn.split(' '), isGeneric:GENERIC.has(cn) });
+        const allWords = cn.split(' ');
+        const modelWords = allWords.filter(w=> w.length>=2 && !CATEGORY_WORDS.has(w));
+        candidates.push({
+          master_sku:p.master_sku, cn,
+          words: allWords,
+          modelWords: modelWords.length ? modelWords : allWords,
+          isGeneric: GENERIC.has(cn),
+        });
       });
-      candidates.sort((a,b)=> (a.isGeneric?1:0) - (b.isGeneric?1:0) || b.words.length - a.words.length || b.cn.length - a.cn.length);
+      candidates.sort((a,b)=> (a.isGeneric?1:0) - (b.isGeneric?1:0) || b.modelWords.length - a.modelWords.length || b.cn.length - a.cn.length);
       const _match = (slaveName) => {
         const sn = _norm(slaveName);
+        // 1순위: 모든 영문 단어가 슬레이브에 있음 (가장 엄격)
         for(const c of candidates){
           if(c.isGeneric) continue;
           if(c.words.every(w=> sn.indexOf(w)>=0)) return c.master_sku;
+        }
+        // 2순위: 모델명만 모두 일치 (슬레이브가 한글 카테고리 "오픈 링/네크리스"만 가질 때)
+        for(const c of candidates){
+          if(c.isGeneric) continue;
+          if(c.modelWords.every(w=> sn.indexOf(w)>=0)) return c.master_sku;
         }
         // generic fallback — slave가 "- Open Ring" 등 거의 빈 형태일 때만
         if(sn.replace(/\s|-/g,'')==='openring') return 'SIXA_OPEN_RING';
