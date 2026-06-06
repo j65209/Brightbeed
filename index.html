@@ -1599,13 +1599,13 @@
   .sixa-head{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 14px;border-bottom:1px solid var(--line);margin-bottom:16px}
   .sixa-meta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
   .sixa-platform{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--text-0)}
-  .sixa-count{font-size:13px;color:var(--text-2);font-family:var(--mono)}
+  .sixa-count{font-size:13px;color:var(--text-2);font-family:var(--sans);font-variant-numeric:tabular-nums}
   .sixa-count strong{font-size:16px;color:#22d3ee;font-weight:800;margin-right:4px}
   .sixa-group{margin-bottom:22px;background:var(--bg-1);border:1px solid rgba(34,211,238,.22);border-radius:10px;overflow:hidden}
   .sixa-group-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(180deg,rgba(34,211,238,.08),rgba(34,211,238,.02));border-bottom:1px solid rgba(34,211,238,.18)}
   .sixa-group-name{font-size:14px;font-weight:700;color:var(--text-0);letter-spacing:.01em}
-  .sixa-group-count{font-family:var(--mono);font-size:11px;color:#22d3ee;background:rgba(34,211,238,.12);padding:2px 9px;border-radius:9px;font-weight:700}
-  .sixa-group-ably-tag{display:inline-flex;align-items:center;font-family:var(--mono);font-size:10.5px;font-weight:700;color:#ec4899;background:rgba(236,72,153,.12);padding:2px 8px;border-radius:8px;margin-left:8px;letter-spacing:.03em}
+  .sixa-group-count{font-family:var(--sans);font-variant-numeric:tabular-nums;;font-size:11px;color:#22d3ee;background:rgba(34,211,238,.12);padding:2px 9px;border-radius:9px;font-weight:700}
+  .sixa-group-ably-tag{display:inline-flex;align-items:center;font-family:var(--sans);font-variant-numeric:tabular-nums;;font-size:10.5px;font-weight:700;color:#ec4899;background:rgba(236,72,153,.12);padding:2px 8px;border-radius:8px;margin-left:8px;letter-spacing:.03em}
   .sixa-table{width:100%;border-collapse:collapse;font-size:13px}
   .sixa-table th{padding:8px 14px;text-align:left;color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--line);background:var(--bg-0)}
   .sixa-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
@@ -1613,35 +1613,35 @@
   .sixa-table tr:hover td{background:rgba(34,211,238,.03)}
   .sixa-name{font-weight:600;color:var(--text-0)}
   .sixa-price{font-family:var(--mono);color:var(--text-2);width:90px;text-align:right}
-  .sixa-stock{font-family:var(--mono);text-align:right;width:70px}
+  .sixa-stock{font-family:var(--sans);text-align:right;width:70px;font-variant-numeric:tabular-nums}
   .sixa-stock.is-on .stock-num{color:#22c55e;font-weight:700}
   .sixa-stock.is-low .stock-num{color:#f59e0b;font-weight:700}
   .sixa-stock.is-out .stock-num{color:#ef4444;font-weight:700}
   .sixa-act{width:90px;text-align:right}
-  .sixa-link{font-size:11px;color:#22d3ee;text-decoration:none;font-family:var(--mono);padding:4px 10px;border:1px solid rgba(34,211,238,.32);border-radius:5px;transition:all .15s}
+  .sixa-link{font-size:11px;color:#22d3ee;text-decoration:none;font-family:var(--sans);padding:4px 10px;border:1px solid rgba(34,211,238,.32);border-radius:5px;transition:all .15s}
   .sixa-link:hover{background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.55)}
   /* 식스에이 재고 input (편집 모드) */
-  .sixa-input{width:72px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:var(--bg-0);font-size:13px;font-weight:600;text-align:center;color:var(--text-0);font-family:var(--mono)}
+  .sixa-input{width:72px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:var(--bg-0);font-size:13px;font-weight:600;text-align:center;color:var(--text-0);font-family:var(--sans);font-variant-numeric:tabular-nums}
   .sixa-input:focus{outline:none;border-color:#22d3ee;box-shadow:0 0 0 2px rgba(34,211,238,.15)}
   .sixa-input.is-changed{border-color:#b45309;background:rgba(245,158,11,.06);color:#92400e}
   .sixa-stock .row-result{position:absolute;top:2px;right:2px;font-size:9px;padding:0 4px;border-radius:3px;line-height:1.4}
   .sixa-stock .row-result.ok{background:rgba(34,197,94,.18);color:#15803d}
   .sixa-stock .row-result.err{background:rgba(225,29,72,.15);color:#b91c1c}
   .sixa-stock{position:relative}
-  .sixa-stock .stock-num-sub{font-size:10px;font-family:var(--mono);margin-left:4px}
+  .sixa-stock .stock-num-sub{font-size:10px;font-family:var(--sans);margin-left:4px}
   /* 옵션 상품 — 부모 행 + 옵션 행 */
   .sixa-parent td{background:linear-gradient(180deg,rgba(34,211,238,.045),rgba(34,211,238,.012));border-bottom:1px solid rgba(34,211,238,.10)}
-  .sixa-parent-tag{display:inline-block;font-size:9.5px;color:#22d3ee;background:rgba(34,211,238,.14);padding:1px 7px;border-radius:8px;font-family:var(--mono);font-weight:700;margin-left:8px;letter-spacing:.04em;vertical-align:middle}
+  .sixa-parent-tag{display:inline-block;font-size:9.5px;color:#22d3ee;background:rgba(34,211,238,.14);padding:1px 7px;border-radius:8px;font-family:var(--sans);font-variant-numeric:tabular-nums;;font-weight:700;margin-left:8px;letter-spacing:.04em;vertical-align:middle}
   .sixa-opt-row td{padding-top:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.025)}
   .sixa-opt-row .sixa-name{padding-left:32px;font-size:12px;color:var(--text-2);font-weight:500}
   .sixa-opt-row .sixa-price{color:var(--text-3);font-size:11px}
-  .sixa-parent .stock-num-mute{font-family:var(--mono);font-size:12px;color:var(--text-2);font-weight:600}
+  .sixa-parent .stock-num-mute{font-family:var(--sans);font-size:12px;color:var(--text-2);font-weight:600;font-variant-numeric:tabular-nums}
   .sixa-parent .stock-num-mute::before{content:"∑ ";color:var(--text-3);opacity:.55;font-weight:500}
 
   /* ===== 식스에이 — PA 통합 채널 컬럼 (마스터 + 에이블리 + 지그재그 + 식스샵) ===== */
   .sixa-table th.sixa-col-master{color:#d4af37;letter-spacing:.04em}
   .sixa-table th.sixa-col-ch{font-size:11px;color:var(--text-3)}
-  .sixa-cell{position:relative;font-family:var(--mono);text-align:right;width:64px;padding:8px 10px}
+  .sixa-cell{position:relative;font-family:var(--sans);text-align:right;width:64px;padding:8px 10px;font-variant-numeric:tabular-nums}
   .sixa-cell .stock-num{font-weight:700}
   .sixa-cell .stock-num-sub{display:block;font-size:9.5px;font-weight:500;color:var(--text-3);margin-top:2px}
   .sixa-cell.is-on .stock-num{color:#22c55e}
@@ -1652,7 +1652,7 @@
   .sixa-cell.is-master{background:linear-gradient(180deg,rgba(212,175,55,.06),rgba(212,175,55,.02));border-left:1px solid rgba(212,175,55,.20);border-right:1px solid rgba(212,175,55,.20)}
   .sixa-cell.is-master .stock-num{color:#d4af37}
   .sixa-cell.is-changed{background:rgba(245,158,11,.10)}
-  .sixa-cell-input{width:54px;padding:4px 5px;border:1px solid var(--line);border-radius:4px;background:var(--bg-0);font-size:12px;font-weight:600;text-align:center;color:var(--text-0);font-family:var(--mono)}
+  .sixa-cell-input{width:54px;padding:4px 5px;border:1px solid var(--line);border-radius:4px;background:var(--bg-0);font-size:12px;font-weight:600;text-align:center;color:var(--text-0);font-family:var(--sans);font-variant-numeric:tabular-nums}
   .sixa-cell-input:focus{outline:none;border-color:#22d3ee;box-shadow:0 0 0 2px rgba(34,211,238,.15)}
   .sixa-cell-input.is-changed{border-color:#b45309;background:rgba(245,158,11,.06);color:#92400e}
   .sixa-cell.is-master .sixa-cell-input{border-color:rgba(212,175,55,.55)}
@@ -1668,8 +1668,8 @@
   .sixa-table td.sixa-cell.sixa-cell-hidden{background:transparent !important;border:none !important;padding:0;width:64px}
   .sixa-table td.sixa-cell.sixa-cell-hidden *{display:none}
   /* 정렬 필터 — 식스샵 재고 내림차순 토글 */
-  .sixa-sort{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);font-family:var(--mono)}
-  .sixa-sort select{background:var(--bg-0);border:1px solid var(--line);color:var(--text-0);font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:5px;cursor:pointer}
+  .sixa-sort{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);font-family:var(--sans)}
+  .sixa-sort select{background:var(--bg-0);border:1px solid var(--line);color:var(--text-0);font-family:var(--sans);font-size:12px;padding:4px 8px;border-radius:5px;cursor:pointer}
   .sixa-sort select:focus{outline:none;border-color:#22d3ee}
 
   /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
@@ -5258,13 +5258,28 @@
         }
         return false;
       };
+      // 품절 여부 — 식스샵 OR 에이블리 둘 중 하나라도 품절이면 품절로 분류
+      const _isOOS = (p) => {
+        const sxOOS = (p.options && p.options.length>0)
+          ? p.options.every(o => Number(o.stock||0) === 0)
+          : Number(p.stock||0) === 0;
+        let abOOS = false;
+        const abP = (_sixAPaLive.ab||{})[p.master_sku];
+        const optsLive = (p.options||[]).map(o=>(_sixAPaLive.ab||{})[o.master_sku]).filter(Boolean);
+        if(optsLive.length>0) abOOS = optsLive.every(l => Number(l.stock||0) === 0);
+        else if(abP) abOOS = Number(abP.stock||0) === 0;
+        return sxOOS || abOOS;
+      };
       html = cats.map(cat=>{
         const items=(grouped[cat]||[]).slice();
-        // 에이블리 판매중 상위로 몰기 (within-category sort)
+        // 정렬 우선순위: 에이블리 판매중 → 품절 아님 → 이름순
         items.sort((a,b)=>{
           const aAb = _isAblyLive(a) ? 0 : 1;
           const bAb = _isAblyLive(b) ? 0 : 1;
           if(aAb !== bAb) return aAb - bAb;
+          const aOOS = _isOOS(a) ? 1 : 0;
+          const bOOS = _isOOS(b) ? 1 : 0;
+          if(aOOS !== bOOS) return aOOS - bOOS;
           return (a.name||'').localeCompare(b.name||'');
         });
         const ablyCount = items.filter(_isAblyLive).length;
