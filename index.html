@@ -4911,8 +4911,8 @@
     }catch(e){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">오류: '+_esc(e.message)+'</div></div>'; }
   }
 
-  /* PA 에이블리(P016)/지그재그(P018) 별칭 슬레이브 옵션 fetch.
-     기존 brightbeed/holicmaster 180도 슬레이브 제외 — 식스에이 별칭 계정만. */
+  /* PA 에이블리(P016)/지그재그(P018) 별칭 슬레이브 fetch + 식스에이 카탈로그와 fuzzy 매칭.
+     slave에 sku_cd 안 박혀 있어도 slave 상품명 ↔ 식스에이 영문명 substring 매칭. */
   async function loadSixAPa(){
     if(!_sixAData) return;
     try{
@@ -4920,34 +4920,72 @@
       if(sta.status!==200) return;
       const stj=await sta.json();
       if(!stj.configured) return;
-      const body={ start:0, length:200, date_type:'wdate',
-                   sdate:'2017-01-01', edate:'2030-12-31',
-                   multi_type:'shop_cd', multi_search_word:['P016','P018'],
-                   view_master:false };
-      const r=await paFetch('/api/product/online/list/v1.2',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-      if(!r.ok) return;
-      const d=await r.json();
-      const EXCLUDED = new Set(['brightbeed','brightbeed@gmail.com','holicmaster']);
-      const live = { ab:{}, zz:{} };
+      // multi_type 검색이 우리 토큰에서 무응답이라 전체 paging.
       const flat = [];
-      Object.values(d.results||{}).forEach(arr=>arr.forEach(s=>flat.push(s)));
-      flat.forEach(slave=>{
-        if(EXCLUDED.has(slave.shop_id)) return;
-        const chId = slave.shop_cd==='P016' ? 'ab' : (slave.shop_cd==='P018' ? 'zz' : null);
-        if(!chId) return;
-        (slave.options||[]).forEach(opt=>{
-          const sku = opt.sku_cd;
-          if(!sku || !sku.startsWith('SIXA_')) return;
-          live[chId][sku] = {
-            sale_opt_seq: opt.sale_opt_seq,
-            ol_shop_no: slave.ol_shop_no,
-            stock: opt.sale_cnt_limit ?? 0,
-            status: opt.sale_status || '',
-            slave_name: slave.shop_sale_name,
-          };
-        });
+      for(let start=0; start<3000; start+=100){
+        const r=await paFetch('/api/product/online/list/v1.2',{method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ start, length:100, date_type:'wdate', sdate:'2017-01-01', edate:'2030-12-31', view_master:false })});
+        if(!r.ok) break;
+        const d=await r.json();
+        let n=0;
+        Object.values(d.results||{}).forEach(arr=>arr.forEach(s=>{ flat.push(s); n++; }));
+        if(n<50) break;
+      }
+      const EXCLUDED = new Set(['brightbeed','brightbeed@gmail.com','holicmaster']);
+      // 식스에이 별칭 슬레이브만 (6thanother@gmail.com + P016/P018)
+      const sixASlaves = flat.filter(s=>
+        s.shop_id==='6thanother@gmail.com' && (s.shop_cd==='P016' || s.shop_cd==='P018') && !EXCLUDED.has(s.shop_id)
+      );
+      // 매칭 후보 카탈로그 (master_sku, cleanName)
+      const NOISE = /\b(silver925|silver\s*925|실버\s*925)\b/gi;
+      const GENERIC = new Set(['open ring','necklace','bracelet','bangle','ring','keychain','hair pin','smart tok']);
+      const _norm = (s) => {
+        s = String(s||'').replace(/\[[^\]]*\]/g,' ').replace(/\(([^)]+)\)/g, ' $1 ').replace(NOISE,' ');
+        s = s.replace(/[^a-zA-Z0-9 ]/g,' ').toLowerCase().replace(/\s+/g,' ').trim();
+        return s;
+      };
+      const candidates = [];
+      (_sixAData.products||[]).forEach(p=>{
+        const cn = _norm(p.name);
+        if(!cn) return;
+        candidates.push({ master_sku:p.master_sku, cn, words:cn.split(' '), isGeneric:GENERIC.has(cn) });
+      });
+      candidates.sort((a,b)=> (a.isGeneric?1:0) - (b.isGeneric?1:0) || b.words.length - a.words.length || b.cn.length - a.cn.length);
+      const _match = (slaveName) => {
+        const sn = _norm(slaveName);
+        for(const c of candidates){
+          if(c.isGeneric) continue;
+          if(c.words.every(w=> sn.indexOf(w)>=0)) return c.master_sku;
+        }
+        // generic fallback — slave가 "- Open Ring" 등 거의 빈 형태일 때만
+        if(sn.replace(/\s|-/g,'')==='openring') return 'SIXA_OPEN_RING';
+        return null;
+      };
+      const live = { ab:{}, zz:{} };
+      const matchedSlaves = [];
+      const unmatchedSlaves = [];
+      sixASlaves.forEach(slave=>{
+        const chId = slave.shop_cd==='P016' ? 'ab' : 'zz';
+        const masterSku = _match(slave.shop_sale_name);
+        if(!masterSku){ unmatchedSlaves.push(slave.shop_sale_name); return; }
+        // 옵션 합산 또는 sale_cnt_limit (단일 옵션은 같은 값)
+        const opts = Array.isArray(slave.options) ? slave.options : [];
+        const stock = opts.length>0
+          ? opts.reduce((a,o)=>a + (Number(o.stock_cnt ?? o.sale_cnt_limit ?? 0)||0), 0)
+          : Number(slave.sale_cnt_limit ?? 0)||0;
+        const firstOpt = opts[0] || {};
+        live[chId][masterSku] = {
+          sale_opt_seq: firstOpt.sale_opt_seq,
+          ol_shop_no: slave.ol_shop_no,
+          stock,
+          status: slave.sale_status || '',
+          slave_name: slave.shop_sale_name,
+        };
+        matchedSlaves.push({ ch:chId, masterSku, name: slave.shop_sale_name });
       });
       _sixAPaLive = live;
+      console.log(`[sixA PA] slaves=${sixASlaves.length}, matched=${matchedSlaves.length}, unmatched=${unmatchedSlaves.length}`);
+      if(unmatchedSlaves.length) console.log('  unmatched:', unmatchedSlaves);
       renderSixA();
     }catch(e){ console.warn('loadSixAPa', e); }
   }
