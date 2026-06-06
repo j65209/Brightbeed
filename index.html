@@ -1658,6 +1658,11 @@
   .sixa-cell .row-result{position:absolute;top:2px;right:2px;font-size:9px;padding:0 4px;border-radius:3px;line-height:1.4}
   .sixa-cell .row-result.ok{background:rgba(34,197,94,.18);color:#15803d}
   .sixa-cell .row-result.err{background:rgba(225,29,72,.15);color:#b91c1c}
+  /* 지그재그 — 식스샵 자동 동기화라 read-only */
+  .sixa-cell.sixa-cell-lock{background:linear-gradient(180deg,rgba(120,120,120,.06),rgba(120,120,120,.01));border-left:1px dashed rgba(255,255,255,.06)}
+  .sixa-cell.sixa-cell-lock .stock-num-sub{font-size:9.5px}
+  .sxa-sync-ok{color:#22c55e !important;font-weight:600}
+  .sxa-sync-mismatch{color:#f59e0b !important;font-weight:600}
 
   /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
   *::-webkit-scrollbar{width:10px;height:10px}
@@ -4993,7 +4998,7 @@
       const r = _sixAResults[key];
       return r ? `<span class="row-result ${r.status}" title="${_esc(r.msg||'')}">${r.status==='ok'?'✓':'!'}</span>` : '';
     };
-    // PA 채널 셀 (에이블리/지그재그) — master_sku로 매핑된 슬레이브 옵션 stock.
+    // 에이블리 셀 — master_sku로 매핑된 슬레이브 옵션 stock. 편집 가능.
     const _chCell = (chId, masterSku) => {
       const key = `ch:${chId}:${masterSku||''}`;
       const pending = _sixAPending[key];
@@ -5018,6 +5023,27 @@
         <span class="stock-num">${stock}</span>
         ${pending!==undefined ? `<span class="stock-num-sub" style="color:#b45309">→ ${_esc(pending.setStock)}</span>` : `<span class="stock-num-sub">${_esc(live.status||(stock<=0?'품절':'정상'))}</span>`}
         ${_badge(key)}
+      </td>`;
+    };
+    // 지그재그 셀 — 식스샵에서 자동 동기화되므로 read-only. 식스샵 stock과 비교해 sync 매칭 상태만 표시.
+    const _zzCell = (masterSku, sxStock) => {
+      const live = (_sixAPaLive.zz||{})[masterSku||''];
+      if(!masterSku){
+        return `<td class="sixa-cell sixa-cell-lock is-mute"><span class="stock-num">—</span><span class="stock-num-sub">🔒 미매핑</span></td>`;
+      }
+      if(!live){
+        return `<td class="sixa-cell sixa-cell-lock is-mute"><span class="stock-num">—</span><span class="stock-num-sub">🔒 미등록</span></td>`;
+      }
+      const zzStock = Number(live.stock)||0;
+      const sx = Number(sxStock)||0;
+      const inSync = zzStock === sx;
+      const cls = zzStock<=0 ? 'is-out' : (zzStock<=10 ? 'is-low' : 'is-on');
+      const syncLabel = inSync
+        ? `<span class="stock-num-sub sxa-sync-ok">🔒 ✓ sync</span>`
+        : `<span class="stock-num-sub sxa-sync-mismatch" title="식스샵 ${sx} vs 지그재그 ${zzStock}">🔒 ⚠ 식스샵 ${sx}</span>`;
+      return `<td class="sixa-cell sixa-cell-lock ${cls}">
+        <span class="stock-num">${zzStock}</span>
+        ${syncLabel}
       </td>`;
     };
     // 식스샵 셀 — 기존 sixA-products.json의 stock(옵션없음) 또는 options[].stock(옵션있음).
@@ -5061,7 +5087,7 @@
               <td class="sixa-name">└ ${_esc(o.label||'')}</td>
               <td class="sixa-price">—</td>
               ${_chCell('ab', masterSku)}
-              ${_chCell('zz', masterSku)}
+              ${_zzCell(masterSku, o.stock)}
               ${_sxCell(o.stock, sxKey)}
               <td class="sixa-act"></td>
             </tr>`;
@@ -5075,7 +5101,7 @@
           <td class="sixa-name">${_esc(p.name)}</td>
           <td class="sixa-price">${_esc(p.price||'-')}</td>
           ${_chCell('ab', masterSku)}
-          ${_chCell('zz', masterSku)}
+          ${_zzCell(masterSku, stockVal)}
           ${_sxCell(stockVal, p.id)}
           <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
         </tr>`;
