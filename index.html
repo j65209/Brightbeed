@@ -1628,6 +1628,14 @@
   .sixa-stock .row-result.err{background:rgba(225,29,72,.15);color:#b91c1c}
   .sixa-stock{position:relative}
   .sixa-stock .stock-num-sub{font-size:10px;font-family:var(--mono);margin-left:4px}
+  /* 옵션 상품 — 부모 행 + 옵션 행 */
+  .sixa-parent td{background:linear-gradient(180deg,rgba(34,211,238,.045),rgba(34,211,238,.012));border-bottom:1px solid rgba(34,211,238,.10)}
+  .sixa-parent-tag{display:inline-block;font-size:9.5px;color:#22d3ee;background:rgba(34,211,238,.14);padding:1px 7px;border-radius:8px;font-family:var(--mono);font-weight:700;margin-left:8px;letter-spacing:.04em;vertical-align:middle}
+  .sixa-opt-row td{padding-top:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.025)}
+  .sixa-opt-row .sixa-name{padding-left:32px;font-size:12px;color:var(--text-2);font-weight:500}
+  .sixa-opt-row .sixa-price{color:var(--text-3);font-size:11px}
+  .sixa-parent .stock-num-mute{font-family:var(--mono);font-size:12px;color:var(--text-2);font-weight:600}
+  .sixa-parent .stock-num-mute::before{content:"∑ ";color:var(--text-3);opacity:.55;font-weight:500}
 
   /* ===== 스크롤바 다크 테마 (모든 스크롤 영역) ===== */
   *::-webkit-scrollbar{width:10px;height:10px}
@@ -4715,12 +4723,15 @@
   function triggerMd2(){ showView('viewMd2'); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
 
-  /* ===== 식스에이 (6thanother 식스샵 단독) — 70+ SKU 카탈로그 + 재고 수정 ===== */
+  /* ===== 식스에이 (6thanother 식스샵 단독) — SKU 카탈로그 + 옵션별 재고 수정 ===== */
   let _sixAData = null;
-  let _sixAPending = {}; // id → newStock
+  // pending key = productId(옵션없음) 또는 "productId::optionNo"(옵션있음).
+  // value = {id, setStock, optionNo?, optionLabel?}
+  let _sixAPending = {};
   let _sixAEditMode = false;
-  let _sixAResults = {}; // id → {status,msg}
+  let _sixAResults = {}; // 같은 key → {status,msg}
   function openSixA(){ showView('viewSixA'); loadSixA(); }
+  function _sixAPendingKey(id, optionNo){ return optionNo ? `${id}::${optionNo}` : id; }
   function toggleSixAEdit(){
     if(_sixAEditMode && Object.keys(_sixAPending).length>0){
       sendSixAChanges();
@@ -4729,23 +4740,32 @@
     _sixAEditMode = !_sixAEditMode;
     renderSixA();
   }
-  function onSixAInput(id, el){
+  function onSixAInput(id, el, optionNo, optionLabel){
     const v = String(el.value||'').trim();
-    if(v==='') delete _sixAPending[id];
-    else _sixAPending[id] = Number(v);
-    el.classList.toggle('is-changed', _sixAPending[id]!==undefined);
+    const key = _sixAPendingKey(id, optionNo);
+    if(v==='') delete _sixAPending[key];
+    else {
+      const entry = { id, setStock: Number(v) };
+      if(optionNo){ entry.optionNo = optionNo; entry.optionLabel = optionLabel||''; }
+      _sixAPending[key] = entry;
+    }
+    el.classList.toggle('is-changed', _sixAPending[key]!==undefined);
     const cnt = Object.keys(_sixAPending).length;
     const lbl = document.getElementById('sixAEditCount');
     if(lbl){ lbl.hidden = cnt===0; lbl.textContent = cnt; }
   }
   async function sendSixAChanges(){
-    const pending = Object.entries(_sixAPending);
+    const pending = Object.values(_sixAPending);
     if(pending.length===0){ toast('변경된 항목이 없습니다','err'); return; }
-    const updates = pending.map(([id, setStock])=>{
-      const p = (_sixAData?.products||[]).find(p=>p.id===id);
-      return {id, name:p?.name||id, setStock};
+    const updates = pending.map(v=>{
+      const p = (_sixAData?.products||[]).find(p=>p.id===v.id);
+      const u = { id:v.id, name:p?.name||v.id, setStock:v.setStock };
+      if(v.optionNo){ u.optionNo = v.optionNo; u.optionLabel = v.optionLabel||''; }
+      return u;
     });
-    if(!confirm(`${updates.length}개 SKU 재고를 식스샵 admin에 전송합니다.\n\n• GHA workflow_dispatch (update-six6-stock.yml)\n• Playwright가 admin에 자동 로그인 → 각 상품 페이지 진입 → 재고 변경 + 저장\n• ~${Math.max(2, updates.length*5)}초 (SKU당 ~5초)\n\n진행할까요?`)) return;
+    const optCount = updates.filter(u=>u.optionNo).length;
+    const summary = `${updates.length}개 변경 (단일 ${updates.length-optCount} / 옵션 ${optCount})`;
+    if(!confirm(`${summary}을(를) 식스샵 admin에 전송합니다.\n\n• GHA workflow_dispatch (update-six6-stock.yml)\n• Playwright가 admin 로그인 → 각 상품 페이지 진입 → 재고 변경 + 저장\n• ~${Math.max(3, updates.length*5)}초\n\n진행할까요?`)) return;
     try{
       const r=await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-six6-stock.yml/dispatches',{
         method:'POST',
@@ -4754,12 +4774,18 @@
       });
       const ok = r.ok || r.status===204;
       if(ok){
-        toast(`✓ GHA 트리거됨 — ${updates.length}건 (~${Math.max(2, updates.length*5)}초 후 식스샵 admin 반영)`, 'ok');
-        // 로컬 데이터 낙관적 업데이트
+        toast(`✓ GHA 트리거됨 — ${summary} (~${Math.max(3, updates.length*5)}초 후 식스샵 admin 반영)`, 'ok');
+        // 로컬 낙관적 업데이트
         updates.forEach(u=>{
           const p = (_sixAData?.products||[]).find(p=>p.id===u.id);
-          if(p) p.stock = u.setStock;
-          _sixAResults[u.id] = {status:'ok', msg:`→ ${u.setStock}`};
+          if(!p) return;
+          if(u.optionNo){
+            const opt = (p.options||[]).find(o=>o.optionNo===u.optionNo);
+            if(opt) opt.stock = u.setStock;
+          } else {
+            p.stock = u.setStock;
+          }
+          _sixAResults[_sixAPendingKey(u.id, u.optionNo)] = {status:'ok', msg:`→ ${u.setStock}`};
         });
         _sixAPending = {};
         _sixAEditMode = false;
@@ -4800,28 +4826,54 @@
     const grouped={};
     for(const p of products){ (grouped[p.cat||'기타']=grouped[p.cat||'기타']||[]).push(p); }
     const cats=[...CAT_ORDER.filter(c=>grouped[c]), ...Object.keys(grouped).filter(c=>!CAT_ORDER.includes(c))];
+    const _stockCls = s => (s<=10?'is-out':(s<=30?'is-low':'is-on'));
+    const _resultBadge = key => {
+      const r = _sixAResults[key];
+      return r ? `<span class="row-result ${r.status}" title="${_esc(r.msg||'')}">${r.status==='ok'?'✓':'!'}</span>` : '';
+    };
+    const _stockCell = (val, key, cls) => {
+      const pending = _sixAPending[key];
+      const hasPending = pending!==undefined;
+      return _sixAEditMode
+        ? `<td class="sixa-stock ${cls}">
+            <input type="number" min="0" class="sixa-input${hasPending?' is-changed':''}" value="${hasPending?pending.setStock:val}" data-key="${_esc(key)}">
+            ${_resultBadge(key)}
+          </td>`
+        : `<td class="sixa-stock ${cls}">
+            <span class="stock-num">${val}</span>${hasPending?`<span class="stock-num-sub" style="color:#b45309">→ ${pending.setStock}</span>`:''}
+            ${_resultBadge(key)}
+          </td>`;
+    };
     const html=cats.map(cat=>{
       const items=grouped[cat]||[];
       const rows=items.map(p=>{
         const url=p.id?`${base}/${p.id}`:'';
-        const pendingVal = _sixAPending[p.id];
-        const hasPending = pendingVal!==undefined;
-        const stockCls=p.stock<=10?'is-out':(p.stock<=30?'is-low':'is-on');
-        const result=_sixAResults[p.id];
-        const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
-        const stockCell = _sixAEditMode
-          ? `<td class="sixa-stock ${stockCls}">
-              <input type="number" min="0" class="sixa-input${hasPending?' is-changed':''}" value="${hasPending?pendingVal:p.stock}" oninput="onSixAInput('${_esc(p.id)}',this)">
-              ${resultBadge}
-            </td>`
-          : `<td class="sixa-stock ${stockCls}">
-              <span class="stock-num">${p.stock}</span>${hasPending?`<span class="stock-num-sub" style="color:#b45309">→ ${pendingVal}</span>`:''}
-              ${resultBadge}
-            </td>`;
+        const hasOptions = Array.isArray(p.options) && p.options.length>0;
+        if(hasOptions){
+          const totalStock = p.options.reduce((a,o)=>a+(Number(o.stock)||0),0);
+          const parentRow = `<tr class="sixa-parent">
+            <td class="sixa-name">${_esc(p.name)}<span class="sixa-parent-tag">옵션 ${p.options.length}</span></td>
+            <td class="sixa-price">${_esc(p.price||'-')}</td>
+            <td class="sixa-stock"><span class="stock-num-mute">${totalStock}</span></td>
+            <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
+          </tr>`;
+          const optRows = p.options.map(o=>{
+            const key = `${p.id}::${o.optionNo}`;
+            return `<tr class="sixa-opt-row">
+              <td class="sixa-name">└ ${_esc(o.label||'')}</td>
+              <td class="sixa-price">—</td>
+              ${_stockCell(o.stock, key, _stockCls(Number(o.stock)||0))}
+              <td class="sixa-act"></td>
+            </tr>`;
+          }).join('');
+          return parentRow + optRows;
+        }
+        // 옵션 없는 단일 상품
+        const stockVal = Number(p.stock)||0;
         return `<tr>
           <td class="sixa-name">${_esc(p.name)}</td>
           <td class="sixa-price">${_esc(p.price||'-')}</td>
-          ${stockCell}
+          ${_stockCell(stockVal, p.id, _stockCls(stockVal))}
           <td class="sixa-act">${url?`<a class="sixa-link" href="${url}" target="_blank" rel="noopener" title="식스샵 admin에서 편집">↗</a>`:''}</td>
         </tr>`;
       }).join('');
@@ -4833,7 +4885,24 @@
         </table>
       </div>`;
     }).join('');
-    document.getElementById('sixABody').innerHTML=html;
+    const body=document.getElementById('sixABody');
+    body.innerHTML=html;
+    // input event 바인딩 — data-key/data-* 속성으로 onSixAInput 호출 (HTML 안에서 옵션 라벨 따옴표 escape 문제 회피)
+    if(_sixAEditMode){
+      body.querySelectorAll('input.sixa-input[data-key]').forEach(el=>{
+        const key = el.getAttribute('data-key')||'';
+        const sep = key.indexOf('::');
+        const id = sep===-1 ? key : key.slice(0,sep);
+        const optionNo = sep===-1 ? '' : key.slice(sep+2);
+        let optionLabel = '';
+        if(optionNo){
+          const p = (_sixAData?.products||[]).find(p=>p.id===id);
+          const o = p?.options?.find(o=>o.optionNo===optionNo);
+          optionLabel = o?.label||'';
+        }
+        el.addEventListener('input', ()=> onSixAInput(id, el, optionNo||undefined, optionLabel||undefined));
+      });
+    }
   }
   function triggerNamegen(){ showView('viewNamegen'); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
