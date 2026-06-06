@@ -4897,8 +4897,8 @@
       _sixAData=await r.json();
       if(tag) tag.textContent='최신화 '+_fmtDateShort(_sixAData.lastUpdated);
       renderSixA();
-      // 비동기 — PA 슬레이브 옵션 + 마스터 재고 fetch. 데이터 들어오면 부분 re-render.
-      loadSixAPa().then(loadSixAMaster);
+      // 비동기 — PA 슬레이브 옵션 fetch. 데이터 들어오면 부분 re-render.
+      loadSixAPa();
     }catch(e){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">오류: '+_esc(e.message)+'</div></div>'; }
   }
 
@@ -4993,35 +4993,6 @@
       const r = _sixAResults[key];
       return r ? `<span class="row-result ${r.status}" title="${_esc(r.msg||'')}">${r.status==='ok'?'✓':'!'}</span>` : '';
     };
-    // 마스터 셀 (⭐) — PA 통합재고. master_sku 없으면 미매핑.
-    const _masterCell = (masterSku) => {
-      if(!masterSku) return `<td class="sixa-cell is-master is-mute"><span class="stock-num">—</span><span class="stock-num-sub">미매핑</span></td>`;
-      const key = 'master::'+masterSku;
-      const pending = _sixAPending[key];
-      const m = _sixAMasterBySku[masterSku];
-      if(!m){
-        // 로딩 또는 PA 미등록
-        if(_sixAEditMode){
-          return `<td class="sixa-cell is-master is-mute"><span class="stock-num">—</span><span class="stock-num-sub">PA 미등록</span>${_badge(key)}</td>`;
-        }
-        return `<td class="sixa-cell is-master is-mute"><span class="stock-num">—</span><span class="stock-num-sub">PA 미등록</span>${_badge(key)}</td>`;
-      }
-      const cur = Number(m.real_stock)||0;
-      const cls = cur===0 ? 'is-out' : 'is-on';
-      const changedCls = pending!==undefined ? ' is-changed' : '';
-      if(_sixAEditMode){
-        const v = pending!==undefined ? pending.setStock : cur;
-        return `<td class="sixa-cell is-master ${cls}${changedCls}">
-          <input type="number" min="0" class="sixa-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" data-key="${_esc(key)}">
-          ${_badge(key)}
-        </td>`;
-      }
-      return `<td class="sixa-cell is-master ${cls}${changedCls}">
-        <span class="stock-num">${cur}</span>
-        ${pending!==undefined ? `<span class="stock-num-sub" style="color:#b45309">→ ${_esc(pending.setStock)}</span>` : `<span class="stock-num-sub">3채널</span>`}
-        ${_badge(key)}
-      </td>`;
-    };
     // PA 채널 셀 (에이블리/지그재그) — master_sku로 매핑된 슬레이브 옵션 stock.
     const _chCell = (chId, masterSku) => {
       const key = `ch:${chId}:${masterSku||''}`;
@@ -5078,7 +5049,6 @@
           const parentRow = `<tr class="sixa-parent">
             <td class="sixa-name">${_esc(p.name)}<span class="sixa-parent-tag">옵션 ${p.options.length}</span></td>
             <td class="sixa-price">${_esc(p.price||'-')}</td>
-            <td class="sixa-cell is-master is-mute"><span class="stock-num">—</span><span class="stock-num-sub">옵션별</span></td>
             <td class="sixa-cell is-mute"><span class="stock-num">—</span></td>
             <td class="sixa-cell is-mute"><span class="stock-num">—</span></td>
             <td class="sixa-cell is-mute"><span class="stock-num-mute">${totalStock}</span></td>
@@ -5090,7 +5060,6 @@
             return `<tr class="sixa-opt-row">
               <td class="sixa-name">└ ${_esc(o.label||'')}</td>
               <td class="sixa-price">—</td>
-              ${_masterCell(masterSku)}
               ${_chCell('ab', masterSku)}
               ${_chCell('zz', masterSku)}
               ${_sxCell(o.stock, sxKey)}
@@ -5105,7 +5074,6 @@
         return `<tr>
           <td class="sixa-name">${_esc(p.name)}</td>
           <td class="sixa-price">${_esc(p.price||'-')}</td>
-          ${_masterCell(masterSku)}
           ${_chCell('ab', masterSku)}
           ${_chCell('zz', masterSku)}
           ${_sxCell(stockVal, p.id)}
@@ -5117,7 +5085,6 @@
         <table class="sixa-table">
           <thead><tr>
             <th>상품명</th><th>가격</th>
-            <th class="sixa-col-master">⭐ 마스터</th>
             <th class="sixa-col-ch">에이블리</th>
             <th class="sixa-col-ch">지그재그</th>
             <th class="sixa-col-ch">식스샵</th>
