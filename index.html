@@ -4971,6 +4971,10 @@
       const SLAVE_ALIAS = [
         [/урай/gi, 'ypan'],   // [☀Sun] Урай → ypan Necklace
       ];
+      // 진열 OFF(미진열) 슬레이브 — PA Open API엔 진열 여부 필드 없어 사장님 의도 기반 키워드 차단.
+      const SLAVE_BLACKLIST = [
+        /MD\s*소장템/i, /엠디\s*소장템/i,
+      ];
       const _norm = (s) => {
         s = String(s||'').replace(/\[[^\]]*\]/g,' ').replace(/\(([^)]+)\)/g, ' $1 ').replace(NOISE,' ');
         // 색상/모델명 표기 변형 통일
@@ -5017,8 +5021,11 @@
       const unmatchedSlaves = [];
       sixASlaves.forEach(slave=>{
         const chId = 'ab';
-        const masterSku = _match(slave.shop_sale_name);
-        if(!masterSku){ unmatchedSlaves.push(slave.shop_sale_name); return; }
+        // 미진열 슬레이브는 매칭 후보에서 제외 (사장님 의도 기반 키워드).
+        const slaveName = slave.shop_sale_name || '';
+        if(SLAVE_BLACKLIST.some(re=>re.test(slaveName))){ return; }
+        const masterSku = _match(slaveName);
+        if(!masterSku){ unmatchedSlaves.push(slaveName); return; }
         const opts = Array.isArray(slave.options) ? slave.options : [];
         const sumStock = opts.length>0
           ? opts.reduce((a,o)=>a + (Number(o.stock_cnt ?? o.sale_cnt_limit ?? 0)||0), 0)
