@@ -4291,6 +4291,68 @@
       }
     }
 
+    // 1-C) PA 5슬레이브 자동 sync — 마스터 PUT 성공한 sku를 같은 값으로 5채널 옵션에도 PATCH.
+    // PA "마스터 한 칸 = 5채널 동시" 광고대로 안 됨 — /stock/manage가 master.real_stock만 갱신,
+    // slave option stock_cnt는 그대로 → 채널엔 옛 값. 슬레이브 PATCH로 수정대기 만들어야 스케줄러가 push.
+    const masterSuccesses = masterPending.filter(it => {
+      const k = 'master::' + it.skuCd;
+      const r = _stockRowResults[k];
+      if (!r || r.status !== 'ok') return false;
+      if (r.msg === '변경 없음') return false;
+      return true;
+    });
+    if (masterSuccesses.length > 0) {
+      // 사용자가 직접 편집한 슬레이브(slavePending)는 user 편집이 우선 — 자동 sync에서 제외
+      const slaveEditedKeys = new Set(slavePending.map(it => `${it.platformId}::${it.seq}`));
+      const paPlatforms = _stockData.platforms.filter(p => p.type === 'pa' && p.c_sale_cd);
+      const autoSync = {}; // skuCd → { ok: [platform names], err: [] }
+      for (const p of paPlatforms) {
+        const live = _stockPaLive[p.id];
+        if (!live || !Array.isArray(live.options)) continue;
+        const opts = [];
+        for (const ms of masterSuccesses) {
+          const target = Number(ms.newValue);
+          if (!Number.isFinite(target) || target < 0) continue;
+          const opt = live.options.find(o => o.sku_cd === ms.skuCd);
+          if (!opt) continue;
+          const seq = opt.sale_opt_seq;
+          if (seq != null && slaveEditedKeys.has(`${p.id}::${seq}`)) continue;
+          opts.push({type:'general', sale_opt_seq: seq ?? -1, stock_cnt: target, status: target > 0 ? '정상' : '품절', sku_cd: ms.skuCd});
+        }
+        if (opts.length === 0) continue;
+        const body = {products:[{c_sale_cd: p.c_sale_cd, shop_cd: p.shop_cd, shop_id: p.account, std_ol_yn:'N', opts}]};
+        try {
+          const r = await paFetch('/api/products/sale-cnt', {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+          const t = await r.text(); let j; try { j = JSON.parse(t); } catch(e) { j = t; }
+          const result = Array.isArray(j) ? j[0] : j;
+          const ok = r.ok && result?.result !== '실패';
+          opts.forEach(op => {
+            if (!autoSync[op.sku_cd]) autoSync[op.sku_cd] = {ok:[], err:[]};
+            (ok ? autoSync[op.sku_cd].ok : autoSync[op.sku_cd].err).push(p.name);
+          });
+          if (!ok) console.warn(`PA 자동sync ${p.name} 실패`, result);
+        } catch (e) {
+          opts.forEach(op => {
+            if (!autoSync[op.sku_cd]) autoSync[op.sku_cd] = {ok:[], err:[]};
+            autoSync[op.sku_cd].err.push(p.name);
+          });
+          console.warn(`PA 자동sync ${p.name} 통신오류`, e);
+        }
+      }
+      // 마스터 결과 메시지에 자동 sync 요약 append
+      for (const ms of masterSuccesses) {
+        const sum = autoSync[ms.skuCd];
+        if (!sum) continue;
+        const k = 'master::' + ms.skuCd;
+        const prev = _stockRowResults[k];
+        if (!prev) continue;
+        let suffix = '';
+        if (sum.ok.length) suffix += ` · PA슬레이브 ${sum.ok.length}✓`;
+        if (sum.err.length) suffix += ` · ${sum.err.length}✗`;
+        if (suffix) _stockRowResults[k] = {status: prev.status, msg: prev.msg + suffix};
+      }
+    }
+
     // 2) 슬레이브 처리 — 기존 sale-cnt PATCH 로직
     const byPlatform={};
     slavePending.forEach(it=>{
