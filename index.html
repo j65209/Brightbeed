@@ -4263,6 +4263,7 @@
       try{
         const r=await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-stock.yml/dispatches',{
           method:'POST',
+          forceMaster:true, // workflow_dispatch는 프록시가 master PIN 요구 (viewer도 식스샵 재고 수정 가능해야 함)
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({
             ref:'main',
@@ -4353,6 +4354,7 @@
           try{
             const r=await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-stock.yml/dispatches',{
               method:'POST',
+              forceMaster:true, // workflow_dispatch는 프록시가 master PIN 요구 (viewer도 식스샵 재고 수정 가능해야 함)
               headers:{'Content-Type':'application/json'},
               body:JSON.stringify({
                 ref:'main',
@@ -4934,7 +4936,7 @@
       });
       try{
         const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-six6-stock.yml/dispatches',{
-          method:'POST', headers:{'Content-Type':'application/json'},
+          method:'POST', forceMaster:true, headers:{'Content-Type':'application/json'},
           body:JSON.stringify({ref:'main', inputs:{updates: JSON.stringify(updates)}}),
         });
         const ok = r.ok || r.status===204;
@@ -5407,7 +5409,7 @@
     if(!confirm('식스샵 admin에서 클리어타입 SKU 카탈로그를 재수집합니다.\n약 3~5분 소요. 진행할까요?')) return;
     try{
       const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/list-cleartype-skus.yml/dispatches',{
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', forceMaster:true, headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ref:'main'}),
       });
       if(r.ok || r.status===204){
@@ -5442,7 +5444,7 @@
     if(!confirm(`클리어타입 식스샵 재고 ${updates.length}건을 전송합니다.\nGHA Playwright 워크플로(약 2~4분) 실행됩니다.\n진행할까요?`)) return;
     try{
       const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-cleartype-stock.yml/dispatches',{
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', forceMaster:true, headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ref:'main', inputs:{updates: JSON.stringify(updates)}}),
       });
       const ok = r.ok || r.status===204;
