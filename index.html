@@ -4325,7 +4325,9 @@
           const r = await paFetch('/api/products/sale-cnt', {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
           const t = await r.text(); let j; try { j = JSON.parse(t); } catch(e) { j = t; }
           const result = Array.isArray(j) ? j[0] : j;
-          const ok = r.ok && result?.result !== '실패';
+          // PA가 "변경사항이 없습니다"를 result:'실패' + 해당 message로 응답 — 슬레이브 값이 이미 같음 → 우리 입장에선 ok
+          const noChange = result?.message && /변경사항이 없/.test(result.message);
+          const ok = (r.ok && result?.result !== '실패') || noChange;
           opts.forEach(op => {
             if (!autoSync[op.sku_cd]) autoSync[op.sku_cd] = {ok:[], err:[]};
             (ok ? autoSync[op.sku_cd].ok : autoSync[op.sku_cd].err).push(p.name);
