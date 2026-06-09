@@ -2646,7 +2646,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           <span id="mdBtnLabel">MD팀 1</span>
         </button>
-        <div class="hero-hint">매출 보고서 · 기획전 일정</div>
+        <div class="hero-hint">기획전 일정 · 이벤트</div>
       </section>
 
       <section class="hero hero-md">
@@ -3088,51 +3088,7 @@
         </div>
       </div>
 
-      <div class="po-section">
-        <div class="po-section-head">
-          <div class="po-section-title">매출 보고서 PPT</div>
-          <div class="po-section-meta">
-            <span id="salesPptMeta" class="sales-file-meta">파일 없음</span>
-            <button class="btn po-import sales-import master-only" onclick="document.getElementById('salesPptInput').click()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              PPT 업로드
-            </button>
-            <input type="file" id="salesPptInput" accept=".pptx,.ppt" style="display:none" onchange="handleSalesPpt(this.files[0])">
-            <button class="po-clear master-only" id="salesPptClearBtn" onclick="clearSalesPpt()" style="display:none">비우기</button>
-          </div>
-        </div>
-        <div class="po-empty" id="salesPptEmpty">
-          <div class="po-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h6"/></svg>
-          </div>
-          <div class="po-empty-text">아직 매출 보고서가 없습니다</div>
-          <div class="po-empty-sub">.pptx / .ppt 파일을 업로드하면 자동으로 PDF로 변환되어 슬라이드 이미지로 표시됩니다 (변환 약 1-2분).</div>
-        </div>
-        <div id="salesPptContent" style="display:none">
-          <div class="sales-ppt-viewer-wrap" id="salesPptViewerWrap">
-            <div class="sales-pdf-stage" id="salesPdfStage" hidden>
-              <canvas id="salesPdfCanvas" class="sales-pdf-canvas"></canvas>
-              <button type="button" class="sales-pdf-nav sales-pdf-prev" id="salesPdfPrev" onclick="salesPdfPrev()" aria-label="이전 슬라이드">‹</button>
-              <button type="button" class="sales-pdf-nav sales-pdf-next" id="salesPdfNext" onclick="salesPdfNext()" aria-label="다음 슬라이드">›</button>
-              <button type="button" class="sales-pdf-fs" id="salesPptFullscreen" onclick="toggleSalesFullscreen()" aria-label="전체화면 (F)" title="전체화면 (F)">⛶</button>
-              <div class="sales-pdf-counter" id="salesPdfCounter">1 / 1</div>
-              <div class="sales-pdf-loading" id="salesPdfLoading" hidden>로딩 중...</div>
-            </div>
-            <div class="sales-pdf-legacy" id="salesPdfLegacy" hidden>
-              <div class="sales-pdf-legacy-msg" id="salesPdfLegacyMsg">⏳ PDF 변환 중...<br><small>GitHub Actions에서 PPT를 PDF로 변환하고 있어요 (약 1-2분). 자동 새로고침 됩니다.</small></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 매출 보고서 아카이브 (월/일 별 누적 리스트) -->
-        <div class="sales-archive" id="salesArchive" hidden>
-          <div class="sales-archive-head">
-            <span class="sales-archive-title">📅 보고서 내역</span>
-            <span class="sales-archive-meta" id="salesArchiveMeta"></span>
-          </div>
-          <div class="sales-archive-list" id="salesArchiveList"></div>
-        </div>
-      </div>
+      <!-- 매출 보고서 PPT 섹션 제거됨 (2026-06-09 사장님 요청 — 자동 cron 종료 + 칸 삭제) -->
     </div>
   </div>
 
