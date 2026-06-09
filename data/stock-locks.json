@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "영구 단종 lock된 SKU 리스트. enforce_stock_locks.py cron이 매 5분 슬레이브 status='품절' 강제 유지 + 진행중 주문 자동 보류.",
+  "description": "단종 lock 리스트. 2026-06-09 18:50 옛 시스템 비활성화 직전 6 SKU 남음 (MINT_USBC 제거 — 사장님 재판매 의도). brightbeed-stock 새 시스템의 sku.is_discontinued로 마이그레이션 완료.",
   "locks": {
     "CABLE180_PURPLE_CC": {
       "reason": "대시보드에서 단종 마킹",
@@ -21,10 +21,6 @@
     "CABLE180_NEONPINK_CC": {
       "reason": "대시보드에서 단종 마킹",
       "createdAt": "2026-06-09T03:51:13.699Z"
-    },
-    "CABLE180_MINT_USBC": {
-      "reason": "대시보드에서 단종 마킹",
-      "createdAt": "2026-06-09T03:51:19.533Z"
     },
     "CABLE180_PEACH_USBC": {
       "reason": "대시보드에서 단종 마킹",
