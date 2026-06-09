@@ -3147,58 +3147,23 @@
     </div>
   </div>
 
-  <!-- ============ 재고연동 (180도 케이블 통합 관리) ============ -->
+  <!-- ============ 재고연동 (Brightbeed Stock 새 앱 임베드) ============ -->
+  <!-- 2026-06-09 기존 매트릭스 코드 제거 + brightbeed-stock.vercel.app iframe 임베드.
+       옛 PA stock 로직 / refreshStockTable / toggleStockEdit 등 호출 안 됨 (dead code, JS는 남아있음). -->
   <div class="view" id="viewStock" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">재고연동<span class="view-title-sub">/ 180도 케이블 통합 관리</span><span id="stockUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">재고연동<span class="view-title-sub">/ 180° 케이블 · ⭐ Brightbeed Stock</span></h1>
     </div>
-
-    <!-- ⚠️ 이 화면은 사용 중지 — 모든 재고 작업은 새 앱에서 -->
-    <div style="background:linear-gradient(90deg,#c9a05d,#e2c283);color:#0b0d12;padding:14px 18px;margin:0 12px 12px;border-radius:8px;font-weight:600;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 4px 16px rgba(201,160,93,0.25)">
-      <span>⚠️ 이 화면은 <b>사용 중지</b>됐어요. 마스터·식스샵·PA 채널 동기화는 모두 새 앱에서. 옛 화면에서 수정 시 새 앱과 충돌 발생.</span>
-      <a href="https://brightbeed-stock.vercel.app" target="_blank" rel="noopener" style="background:#0b0d12;color:#c9a05d;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700">⭐ Brightbeed Stock 열기 →</a>
-    </div>
-
-    <div class="po-wrap">
-      <!-- 마스터 헤더 + 액션 -->
-      <div class="stock-tbl-head">
-        <div class="stock-tbl-title">
-          <span class="stock-tbl-title-name">📦 180도 케이블</span>
-          <span class="stock-tbl-title-meta">
-            플랫폼 <strong id="stockMasterCount">0</strong> ·
-            옵션 <strong id="stockOptionCount">0</strong> ·
-            <span id="stockMasterUpdated">—</span>
-          </span>
-        </div>
-        <div class="stock-tbl-actions">
-          <button class="stock-tbl-btn" id="stockRefreshBtn" onclick="refreshStockTable()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            최신화
-          </button>
-          <button class="stock-tbl-btn" id="stockEditBtn" onclick="toggleStockEdit()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-            <span id="stockEditLabel">수정</span>
-            <span id="stockEditCount" class="stock-send-count" hidden>0</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 옵션 × 플랫폼 pivot 표 (가로: 한 행 = 한 옵션, 모든 플랫폼 실재고 한눈에) -->
-      <div class="stock-tbl-wrap">
-        <table class="stock-tbl stock-tbl-pivot" id="stockTable">
-          <thead id="stockTableHead">
-            <!-- JS에서 동적 렌더 -->
-          </thead>
-          <tbody id="stockTableBody">
-            <tr><td colspan="8" class="stock-tbl-empty">로딩 중…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <iframe
+      src="https://brightbeed-stock.vercel.app"
+      title="Brightbeed Stock"
+      allow="clipboard-read; clipboard-write; fullscreen"
+      style="display:block;width:100%;height:calc(100vh - 60px);border:0;background:#0b0d12"
+    ></iframe>
   </div>
 
   <!-- ============ 식스에이 SKU (식스샵 6thanother 단독) ============ -->
