@@ -4938,7 +4938,7 @@
     const channels = entries.filter(([,v])=>v.kind==='channel').map(([k,v])=>({key:k,...v}));
     const sixshops = entries.filter(([,v])=>v.kind==='sixshop').map(([k,v])=>({key:k,...v}));
     const summary = `총 ${entries.length}건 — 마스터 ${masters.length} / 채널 ${channels.length} / 식스샵 ${sixshops.length}`;
-    if(!confirm(`${summary}을(를) 전송합니다.\n\n• 마스터: PA /api/stock/manage (3채널 자동 sync)\n• 채널: PA /api/products/sale-cnt (해당 슬레이브 옵션만)\n• 식스샵: GHA update-six6-stock (Playwright admin)\n\n진행할까요?`)) return;
+    if(!confirm(`${summary}을(를) 전송합니다.\n\n• 마스터: PA /api/stock/manage (3채널 자동 sync)\n• 채널: PA /api/products/sale-cnt (해당 슬레이브 옵션만)\n• 식스샵: proxy /sx/update-six6-stock (Playwright admin, ~30-60초)\n\n진행할까요?`)) return;
 
     const results = { ok:0, err:0 };
     const markResult = (key, ok, msg)=>{ _sixAResults[key]={status:ok?'ok':'err', msg}; ok?results.ok++:results.err++; };
@@ -5013,7 +5013,8 @@
       }
     }
 
-    // 3) 식스샵 — GHA workflow_dispatch (한 번에)
+    // 3) 식스샵 — proxy /sx/update-six6-stock (직접 Playwright, ~30-60초)
+    //    180° 케이블과 동일 패턴: GHA 우회 → 즉시 push + per-row 성공/실패 반환
     if(sixshops.length>0){
       const updates = sixshops.map(s=>{
         const p = (_sixAData?.products||[]).find(p=>p.id===s.id);
@@ -5022,23 +5023,43 @@
         return u;
       });
       try{
-        const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-six6-stock.yml/dispatches',{
+        toast(`식스샵 동기화 중... (~30-60초, ${updates.length}개 상품)`, 'ok');
+        const r = await sxFetch('/update-six6-stock', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ref:'main', inputs:{updates: JSON.stringify(updates)}}),
+          body:JSON.stringify({ updates }),
         });
-        const ok = r.ok || r.status===204;
-        sixshops.forEach((s,i)=>{
-          if(ok){
-            const p = (_sixAData?.products||[]).find(p=>p.id===s.id);
-            if(p){
-              if(s.optionNo){ const opt = (p.options||[]).find(o=>o.optionNo===s.optionNo); if(opt) opt.stock = s.setStock; }
-              else { p.stock = s.setStock; }
+        // 응답: [{id, name, setStock, status, message, optionNo?}] (배열) 또는 {ok, stdout, stderr} (실패 fallback)
+        let resArr = null;
+        try { resArr = await r.json(); } catch(_){ resArr = null; }
+        if(Array.isArray(resArr)){
+          // key 매칭: id + optionNo 조합으로 sixshops[i].key 찾기
+          const resByKey = {};
+          resArr.forEach(res=>{
+            const k = res.optionNo ? `${res.id}::${res.optionNo}` : String(res.id);
+            resByKey[k] = res;
+          });
+          sixshops.forEach(s=>{
+            const k = s.optionNo ? `${s.id}::${s.optionNo}` : String(s.id);
+            const res = resByKey[k];
+            if(!res){ markResult(s.key, false, '결과 없음'); return; }
+            if(res.status === 'ok'){
+              const p = (_sixAData?.products||[]).find(p=>p.id===s.id);
+              if(p){
+                if(s.optionNo){ const opt = (p.options||[]).find(o=>o.optionNo===s.optionNo); if(opt) opt.stock = s.setStock; }
+                else { p.stock = s.setStock; }
+              }
+              markResult(s.key, true, res.message || `→ ${s.setStock}`);
+            } else if(res.status === 'skip'){
+              markResult(s.key, false, `skip — ${res.message||''}`.slice(0,80));
+            } else {
+              markResult(s.key, false, (res.message||'식스샵 실패').slice(0,80));
             }
-            markResult(s.key, true, `GHA → ${s.setStock} (~3분)`);
-          } else {
-            markResult(s.key, false, `GHA ${r.status}`);
-          }
-        });
+          });
+        } else {
+          // 마커 못 찾았거나 spawn 실패 — 전체 실패 처리
+          const detail = (resArr && resArr.stderr) || (resArr && resArr.error) || `proxy ${r.status}`;
+          sixshops.forEach(s=> markResult(s.key, false, String(detail).slice(0,80)));
+        }
       }catch(e){ sixshops.forEach(s=> markResult(s.key, false, e.message)); }
     }
 
