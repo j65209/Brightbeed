@@ -3876,12 +3876,13 @@
     const paIds=_STOCK_PA_ORDER.filter(id=>platformsById[id]);
     const sixshop=platformsById['6s'];
 
-    // 헤더 — 색상 + 단자 + 플랫폼들 + 식스샵 (플랫폼별 수동 입력 모드)
-    const colSpan = 2 + paIds.length + (sixshop?1:0);
+    // 헤더 — 색상 + 단자 + ⭐ 마스터 + 플랫폼들 + 식스샵
+    const colSpan = 3 + paIds.length + (sixshop?1:0);
     if(thead){
       const headerCells = [
         '<th class="col-color-head">색상</th>',
         '<th class="col-cable-head">기종옵션</th>',
+        '<th class="col-master-head" title="⭐ 통합SKU 실재고 — 수량 입력 시 PA 5채널 슬레이브 stock 자동 동기화">⭐ 마스터 SKU</th>',
         ...paIds.map(id=>{
           const p=platformsById[id];
           const live=_stockPaLive[id];
@@ -3917,6 +3918,7 @@
         }
         cells.push(`<td class="col-cable">${_esc(it.cable)}</td>`);
         const firstSku = Object.values(it.byPlatform).find(c=>c?.opt?.sku_cd)?.opt?.sku_cd || '';
+        cells.push(_renderMasterCell(firstSku));
         paIds.forEach(pid=>{
           cells.push(_renderPivotCell(pid, it.byPlatform[pid]));
         });
