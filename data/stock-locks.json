@@ -1,5 +1,10 @@
 {
   "version": 1,
-  "description": "단종 lock 리스트 (현재 비어 있음). 2026-06-09 4개 SKU 모두 해제 — 6/5 등록분은 실재고 회복(NEONGREEN_USBC 578개 등)으로 근거 무효. cron(enforce_stock_locks.py)도 _disabled로 이동되어 lock의 자동 강제 효과 없음.",
-  "locks": {}
+  "description": "영구 단종 lock된 SKU 리스트. enforce_stock_locks.py cron이 매 5분 슬레이브 status='품절' 강제 유지 + 진행중 주문 자동 보류.",
+  "locks": {
+    "CABLE180_MINT_CC": {
+      "reason": "대시보드에서 단종 마킹",
+      "createdAt": "2026-06-09T03:50:55.415Z"
+    }
+  }
 }
