@@ -4306,6 +4306,30 @@
     renderStockTable();
   }
 
+  /* 마스터 0 → PA가 진행중 주문 잔재로 e1999 거부할 때 fallback.
+     5채널 슬레이브만 stock_cnt=0, status='품절'로 PATCH → 채널 노출 즉시 차단.
+     출고보류는 호출하지 않음 (진행중 주문 처리는 PA 콘솔에서 사장님이 직접). */
+  async function _forceSlavesOutOfStock(skuCd){
+    const platforms = (_stockData?.platforms||[]).filter(p=>p.type==='pa');
+    let slaveOk = 0;
+    for(const p of platforms){
+      const live = _stockPaLive[p.id];
+      if(!live) continue;
+      const opt = (live.options||[]).find(o=>o.sku_cd===skuCd);
+      if(!opt) continue;
+      if(opt.opt_status==='품절' && Number(opt.stock_cnt||0)===0){ slaveOk++; continue; }
+      const body = {products:[{c_sale_cd:p.c_sale_cd, shop_cd:p.shop_cd, shop_id:p.account, std_ol_yn:'N',
+        opts:[{type:'general', sale_opt_seq:opt.sale_opt_seq, sku_cd:skuCd, stock_cnt:0, status:'품절'}]}]};
+      try{
+        const r=await paFetch('/api/products/sale-cnt',{method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+        const j=await r.json(); const res=Array.isArray(j)?j[0]:j;
+        if(res?.result==='성공' || /변경사항이 없/.test(res?.message||'')) slaveOk++;
+      }catch(e){ console.warn(`slave block ${p.name} ${skuCd}`, e); }
+      await new Promise(r=>setTimeout(r,300));
+    }
+    return {ok: slaveOk>0, slaveOk, total: platforms.length};
+  }
+
   async function sendStockChanges(){
     const pending=Object.values(_stockPending);
     if(!pending.length){ toast('변경된 항목이 없습니다','err'); return; }
@@ -4362,8 +4386,19 @@
             sixshopUpdates.push({ skuCd:it.skuCd, color:SKU_COLOR[mm[1]], cable:SKU_CABLE[mm[2]], setStock:target });
           }
         } else if(j.error_code==='e1999' && target===0){
+          // PA가 진행중 주문 잔재로 마스터 0 거부 — 5채널 슬레이브만 강제 차단 (출고보류는 안 함)
+          const fb = await _forceSlavesOutOfStock(it.skuCd);
           totalErr++;
-          _stockRowResults[key] = {status:'err',msg:'PA가 마스터 0 거부 (출고예정 잔재 있음) — PA 콘솔에서 직접 처리'};
+          _stockRowResults[key] = fb.ok
+            ? {status:'err', msg:`PA 마스터 0 거부(진행중 주문) · 5채널 강제 품절 ${fb.slaveOk}/${fb.total}곳 ✓ — 진행중 주문은 PA 콘솔에서 처리 후 재시도`}
+            : {status:'err', msg:'PA 마스터 0 거부 + 5채널 차단도 실패 — PA 콘솔에서 직접 처리'};
+          // 식스샵도 0 push (PA가 마스터 거부했어도 채널 차단 의도는 분명)
+          const SKU_COLOR={BLUE:'블루',MINT:'민트',YELLOW:'옐로우',ORANGE:'오렌지',PURPLE:'퍼플',PEACH:'피치',NEONGREEN:'네온그린',NEONPINK:'네온핑크'};
+          const SKU_CABLE={'8PIN':'Apple 8pin','USBC':'USB-C','CC':'C to C'};
+          const mm=/^CABLE180_([A-Z]+)_(8PIN|USBC|CC)$/.exec(it.skuCd);
+          if(mm && SKU_COLOR[mm[1]] && SKU_CABLE[mm[2]]){
+            sixshopUpdates.push({ skuCd:it.skuCd, color:SKU_COLOR[mm[1]], cable:SKU_CABLE[mm[2]], setStock:0 });
+          }
         } else {
           totalErr++;
           _stockRowResults[key] = {status:'err',msg:errMsg};
