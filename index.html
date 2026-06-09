@@ -998,7 +998,7 @@
   .seeding-log-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28);color:#fff}
   .seeding-log-btn.has-log{color:#bef264;border-color:rgba(190,242,100,.45);background:rgba(190,242,100,.10);font-weight:700;box-shadow:0 1px 6px rgba(190,242,100,.22)}
   .seeding-log-btn.has-log:hover{background:rgba(190,242,100,.18);border-color:rgba(190,242,100,.65)}
-  /* 시딩 액션은 viewer도 사용 가능 — UI 게이트 없음 (PUT은 forceMaster로 master PIN 강제) */
+  /* 시딩 액션은 viewer도 사용 가능 — UI 게이트 없음 (seeding.json은 프록시 VIEWER_WRITABLE_PATHS에 등록) */
   /* 행 인라인 출고 내역 — 비고 textarea 대체 */
   .seeding-loglist{display:flex;flex-wrap:wrap;gap:6px 8px;padding:2px 1px 1px;align-items:center}
   .seeding-loglist.is-empty{color:var(--text-3);font-size:11.5px;font-style:italic;padding:3px 2px}
@@ -9309,7 +9309,7 @@ async function handlePOFiles(files){
   async function _seedingPersist(data, msg){
     toast('시딩 저장 중...','ok');
     const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-    const r=await ghPut(SEEDING_API, b64, msg, {forceMaster:true});
+    const r=await ghPut(SEEDING_API, b64, msg);
     if(!r.ok){
       if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
       if(r.reason==='too_large'){toast('데이터가 너무 큽니다','err');return}
