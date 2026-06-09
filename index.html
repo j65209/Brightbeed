@@ -4206,19 +4206,10 @@
     const displayStock = (sxStock===null || sxStock===undefined) ? 0 : sxStock;
     const isOut = Number(displayStock) === 0;
     const stateClass = isOut ? 'is-out' : (isLive ? 'is-on' : '');
-    if(_stockEditMode){
-      const v = pending!==undefined ? pending.newValue : displayStock;
-      return `<td class="stock-cell ${stateClass}${pending!==undefined?' is-changed':''}">
-        <input type="number" min="0" class="stock-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" oninput="onSixshopInput('${_esc(key)}',this)">
-        ${resultBadge}
-      </td>`;
-    }
-    // 식스샵 sub-label: pending > 시트 미연결 > 품절(0) > 정상
-    const sxSubLabel = pending!==undefined
-      ? `<span class="stock-num-sub" style="color:#b45309;font-weight:600">→ ${_esc(pending.newValue)}</span>`
-      : (!isLive ? '<span class="stock-num-sub">시트 미연결</span>'
-        : (isOut ? '<span class="stock-num-sub">품절</span>' : '<span class="stock-num-sub">정상</span>'));
-    return `<td class="stock-cell ${stateClass}${pending!==undefined?' is-changed':''}">
+    // 식스샵은 항상 read-only — 자동화 불안정 (식스샵 어드민 페이지 자동화 기반). 사장님이 식스샵 어드민에서 직접 수정.
+    const sxSubLabel = !isLive ? '<span class="stock-num-sub">시트 미연결</span>'
+      : (isOut ? '<span class="stock-num-sub">품절</span>' : '<span class="stock-num-sub">📖 모니터링</span>');
+    return `<td class="stock-cell stock-cell-readonly ${stateClass}" title="식스샵은 모니터링 전용. 수정은 식스샵 어드민에서 직접.">
       <span class="stock-num">${displayStock}</span>
       ${sxSubLabel}
       ${resultBadge}
@@ -4337,7 +4328,7 @@
     const slavePending = pending.filter(it=>!it.isMaster);
     const msg = [
       `${pending.length}개 변경분 전송:`,
-      masterPending.length ? `• 마스터 SKU ${masterPending.length}건 → PA 5플랫폼 즉시 + 식스샵 GHA(~3분)` : '',
+      masterPending.length ? `• 마스터 SKU ${masterPending.length}건 → PA 5플랫폼 즉시 (식스샵은 모니터링 전용, 사장님이 식스샵 어드민에서 직접 수정)` : '',
       slavePending.length ? `• 슬레이브 ${slavePending.length}건 → 플랫폼별 sale-cnt PATCH` : '',
       '진행할까요?'
     ].filter(Boolean).join('\n');
@@ -4347,7 +4338,7 @@
     let totalOk=0, totalErr=0;
 
     // 1-A) 마스터 SKU PA 처리 — stock/manage PUT (delta 계산: newValue - current)
-    const sixshopUpdates = [];
+    // 식스샵 GHA push는 제거됨 (자동화 불안정 — 어드민 페이지 자동화 기반이라 페이지네이션/세션 문제로 깨짐). 식스샵은 모니터링 전용. 사장님이 식스샵 어드민에서 직접 수정.
     for(const it of masterPending){
       const key='master::'+it.skuCd;
       const m=_stockMasterBySku[it.skuCd];
@@ -4378,13 +4369,6 @@
           m.real_stock = target;
           totalOk++;
           _stockRowResults[key] = {status:'ok',msg:`PA ${type} ${count}`};
-          // PA 성공 → 식스샵도 같은 절댓값으로 동기화 (GHA dispatch 한 번에 묶음)
-          const SKU_COLOR={BLUE:'블루',MINT:'민트',YELLOW:'옐로우',ORANGE:'오렌지',PURPLE:'퍼플',PEACH:'피치',NEONGREEN:'네온그린',NEONPINK:'네온핑크'};
-          const SKU_CABLE={'8PIN':'Apple 8pin','USBC':'USB-C','CC':'C to C'};
-          const mm=/^CABLE180_([A-Z]+)_(8PIN|USBC|CC)$/.exec(it.skuCd);
-          if(mm && SKU_COLOR[mm[1]] && SKU_CABLE[mm[2]]){
-            sixshopUpdates.push({ skuCd:it.skuCd, color:SKU_COLOR[mm[1]], cable:SKU_CABLE[mm[2]], setStock:target });
-          }
         } else if(j.error_code==='e1999' && target===0){
           // PA가 진행중 주문 잔재로 마스터 0 거부 — 5채널 슬레이브만 강제 차단 (출고보류는 안 함)
           const fb = await _forceSlavesOutOfStock(it.skuCd);
@@ -4392,13 +4376,6 @@
           _stockRowResults[key] = fb.ok
             ? {status:'err', msg:`PA 마스터 0 거부(진행중 주문) · 5채널 강제 품절 ${fb.slaveOk}/${fb.total}곳 ✓ — 진행중 주문은 PA 콘솔에서 처리 후 재시도`}
             : {status:'err', msg:'PA 마스터 0 거부 + 5채널 차단도 실패 — PA 콘솔에서 직접 처리'};
-          // 식스샵도 0 push (PA가 마스터 거부했어도 채널 차단 의도는 분명)
-          const SKU_COLOR={BLUE:'블루',MINT:'민트',YELLOW:'옐로우',ORANGE:'오렌지',PURPLE:'퍼플',PEACH:'피치',NEONGREEN:'네온그린',NEONPINK:'네온핑크'};
-          const SKU_CABLE={'8PIN':'Apple 8pin','USBC':'USB-C','CC':'C to C'};
-          const mm=/^CABLE180_([A-Z]+)_(8PIN|USBC|CC)$/.exec(it.skuCd);
-          if(mm && SKU_COLOR[mm[1]] && SKU_CABLE[mm[2]]){
-            sixshopUpdates.push({ skuCd:it.skuCd, color:SKU_COLOR[mm[1]], cable:SKU_CABLE[mm[2]], setStock:0 });
-          }
         } else {
           totalErr++;
           _stockRowResults[key] = {status:'err',msg:errMsg};
@@ -4409,38 +4386,7 @@
       }
     }
 
-    // 1-B) 식스샵 GHA dispatch — PA 성공한 마스터들을 한 번에 묶어서 트리거
-    if(sixshopUpdates.length>0){
-      try{
-        const r=await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-stock.yml/dispatches',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            ref:'main',
-            inputs:{
-              product_term:'180° Fast Charging Cable (8color)',
-              updates:JSON.stringify(sixshopUpdates.map(u=>({color:u.color, cable:u.cable, setStock:u.setStock}))),
-            },
-          }),
-        });
-        const ok=r.ok || r.status===204;
-        sixshopUpdates.forEach(u=>{
-          const key='master::'+u.skuCd;
-          const prev=_stockRowResults[key];
-          if(prev?.status==='ok'){
-            _stockRowResults[key]={status:'ok', msg:`${prev.msg} · 식스샵${ok?'✓':'✗'}`};
-          }
-        });
-        if(!ok) console.warn('식스샵 GHA dispatch HTTP', r.status);
-      }catch(e){
-        console.warn('식스샵 GHA dispatch 실패', e);
-        sixshopUpdates.forEach(u=>{
-          const key='master::'+u.skuCd;
-          const prev=_stockRowResults[key];
-          if(prev?.status==='ok') _stockRowResults[key]={status:'ok', msg:`${prev.msg} · 식스샵✗`};
-        });
-      }
-    }
+    // 1-B) 식스샵 GHA dispatch는 제거됨 — 식스샵 자동화는 read-only 모니터링만 함. 사장님이 식스샵 어드민에서 직접 수정.
 
     // 1-C) PA 5슬레이브 자동 sync — 마스터 PUT 성공한 sku를 같은 값으로 5채널 옵션에도 PATCH.
     // PA "마스터 한 칸 = 5채널 동시" 광고대로 안 됨 — /stock/manage가 master.real_stock만 갱신,
@@ -4541,61 +4487,13 @@
           totalErr+=items.length;
         }
       } else {
-        // 식스샵 — 옵션별 GHA workflow_dispatch (sixshop-collector update-stock.yml)
-        // 1) 우리 DB 즉시 갱신, 2) GHA에서 Playwright 실행해 식스샵 admin 실제 변경 (~3분)
-        if(!platform.optStocks || typeof platform.optStocks!=='object') platform.optStocks={};
-        const updatesForGha=[];
+        // 식스샵은 모니터링 전용 — 어드민 페이지 자동화가 불안정해서 push 경로 제거됨.
+        // 식스샵 셀이 read-only로 렌더링되어 _stockPending에 식스샵 항목 들어올 일 자체가 없음.
+        // 만에 하나 들어오면 안전하게 skip 처리.
         items.forEach(it=>{
-          const n=Number(it.newValue);
-          const optKey = it.seq;
-          if(!Number.isFinite(n) || n<0){
-            _stockRowResults[_rowKey(pid,optKey)]={status:'err',msg:'숫자 오류'};
-            totalErr++;
-            return;
-          }
-          const [color, cable] = optKey.split('/');
-          if(!color || !cable){
-            _stockRowResults[_rowKey(pid,optKey)]={status:'err',msg:'옵션 키 파싱 실패'};
-            totalErr++;
-            return;
-          }
-          updatesForGha.push({color, cable, setStock:n});
-          platform.optStocks[optKey]=n;
-          platform.updatedAt=new Date().toISOString();
+          _stockRowResults[_rowKey(pid,it.seq)] = {status:'err', msg:'식스샵은 모니터링 전용 — 식스샵 어드민에서 직접 수정'};
+          totalErr++;
         });
-        if(updatesForGha.length>0){
-          try{
-            const r=await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-stock.yml/dispatches',{
-              method:'POST',
-              headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({
-                ref:'main',
-                inputs:{
-                  product_term:'180° Fast Charging Cable (8color)',
-                  updates:JSON.stringify(updatesForGha),
-                },
-              }),
-            });
-            const ok=r.ok || r.status===204;
-            items.forEach(it=>{
-              const k=_rowKey(pid,it.seq);
-              if(_stockRowResults[k]?.status==='err') return;
-              _stockRowResults[k] = ok
-                ? {status:'ok',msg:'GHA 트리거됨 (~3분 후 반영)'}
-                : {status:'err',msg:`GHA dispatch HTTP ${r.status}`};
-              if(ok) totalOk++; else totalErr++;
-            });
-          }catch(e){
-            console.error('GHA dispatch failed:',e);
-            items.forEach(it=>{
-              const k=_rowKey(pid,it.seq);
-              if(_stockRowResults[k]?.status==='err') return;
-              _stockRowResults[k]={status:'err',msg:'GHA 통신 오류'};
-              totalErr++;
-            });
-          }
-        }
-        await saveStockData();
       }
     }
     _stockPending={};
