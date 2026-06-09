@@ -1,22 +1,5 @@
 {
   "version": 1,
-  "description": "영구 단종 lock된 SKU 리스트. enforce_stock_locks.py cron이 매 5분 슬레이브 status='품절' 강제 유지 + 진행중 주문 자동 보류. PA가 반품으로 마스터 입고해도 안 팔림.",
-  "locks": {
-    "CABLE180_NEONGREEN_USBC": {
-      "reason": "재고 0 (5/14 SKU 등록 초기재고 미매칭 누락)",
-      "createdAt": "2026-06-05T20:30:00+09:00"
-    },
-    "CABLE180_NEONGREEN_CC": {
-      "reason": "재고 0",
-      "createdAt": "2026-06-05T20:30:00+09:00"
-    },
-    "CABLE180_PURPLE_CC": {
-      "reason": "재고 0 (오늘 20:00 반품 +12 자동 입고)",
-      "createdAt": "2026-06-05T20:30:00+09:00"
-    },
-    "CABLE180_PEACH_CC": {
-      "reason": "재고 0 (오늘 20:00 반품 +8 자동 입고)",
-      "createdAt": "2026-06-05T20:30:00+09:00"
-    }
-  }
+  "description": "단종 lock 리스트 (현재 비어 있음). 2026-06-09 4개 SKU 모두 해제 — 6/5 등록분은 실재고 회복(NEONGREEN_USBC 578개 등)으로 근거 무효. cron(enforce_stock_locks.py)도 _disabled로 이동되어 lock의 자동 강제 효과 없음.",
+  "locks": {}
 }

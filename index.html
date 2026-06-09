@@ -3953,7 +3953,7 @@
     const changedClass = pending!==undefined ? ' is-changed' : '';
     const resultBadge = result ? `<span class="row-result ${result.status}" title="${_esc(result.msg||'')}">${result.status==='ok'?'✓':'!'}</span>` : '';
     const lockBtn = `<button type="button" class="stock-lock-btn ${isLocked?'is-on':''}" onclick="event.stopPropagation();toggleStockLock('${_esc(skuCd)}')" title="${isLocked?'🔒 단종 lock 중 — 클릭해 해제':'영구 단종 lock (반품 와도 안 팔림)'}">${isLocked?'🔒':'🔓'}</button>`;
-    if(_stockEditMode && !isLocked){
+    if(_stockEditMode){
       const v = pending!==undefined ? pending.newValue : current;
       return `<td class="stock-cell stock-cell-master ${stateClass}${changedClass}">
         <input type="number" min="0" class="stock-cell-input${pending!==undefined?' is-changed':''}" value="${_esc(v)}" oninput="onMasterInput('${_esc(skuCd)}',this)" title="이 SKU 통합 실재고를 이 값으로 설정 (5플랫폼 자동 동기화)">
