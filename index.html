@@ -210,7 +210,7 @@
   .btn.spin svg{animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* 히어로 카드 — ERP/인사팀/물류팀 3개 나란히 */
+  /* 히어로 카드 — 인사팀/물류팀/브랜드별 재고관리 3개 나란히 */
   .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
   .hero{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:36px 20px 30px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;text-align:center}
   .hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--neon);letter-spacing:.22em;text-transform:uppercase;margin-bottom:18px;text-shadow:0 0 12px var(--neon-glow)}
@@ -301,6 +301,26 @@
       0 0 0 1px rgba(34,211,238,.55),
       0 0 32px rgba(34,211,238,.65),
       0 0 96px rgba(8,145,178,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 히어로 — 브랜드별 재고관리 (에메랄드/그린) */
+  .hero.hero-bs .hero-eyebrow{color:#10b981;text-shadow:0 0 12px var(--neon-pa-glow)}
+  .btn-neon.btn-bs{
+    background:linear-gradient(135deg,var(--neon-pa) 0%,var(--neon-pa-2) 100%);
+    color:#ffffff;
+    border-color:rgba(5,150,105,.5);
+    box-shadow:
+      0 0 0 1px rgba(5,150,105,.35),
+      0 0 24px rgba(5,150,105,.45),
+      0 0 64px rgba(4,120,87,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-bs:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(5,150,105,.55),
+      0 0 32px rgba(5,150,105,.65),
+      0 0 96px rgba(4,120,87,.4),
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
@@ -2599,7 +2619,7 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
-    <!-- 팀 카드: ERP / 인사팀 / 물류팀 -->
+    <!-- 팀 카드 1행: 인사팀 / 물류팀 / 브랜드별 재고관리 -->
     <div class="hero-row">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
@@ -2616,11 +2636,20 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
           <span id="lgBtnLabel">물류팀</span>
         </button>
-        <div class="hero-hint">최근 발주내역 · 브랜드재고</div>
+        <div class="hero-hint">최근 발주내역</div>
+      </section>
+
+      <section class="hero hero-bs">
+        <div class="hero-eyebrow">STOCK</div>
+        <button class="btn-neon btn-bs" id="bsBtn" onclick="triggerBrandStock()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span id="bsBtnLabel">브랜드별 재고관리</span>
+        </button>
+        <div class="hero-hint">식스에이 · 프로덕트피알 · 클리어타입</div>
       </section>
     </div>
 
-    <!-- 팀 카드 2행: CS / MD팀 1 / MD팀 2 -->
+    <!-- 팀 카드 2행: CS / MD팀 -->
     <div class="hero-row">
       <section class="hero hero-cs">
         <div class="hero-eyebrow">CS</div>
@@ -2632,21 +2661,12 @@
       </section>
 
       <section class="hero hero-md">
-        <div class="hero-eyebrow">MD 1</div>
+        <div class="hero-eyebrow">MD</div>
         <button class="btn-neon btn-md" id="mdBtn" onclick="triggerMd()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <span id="mdBtnLabel">MD팀 1</span>
+          <span id="mdBtnLabel">MD팀</span>
         </button>
-        <div class="hero-hint">기획전 일정 · 이벤트</div>
-      </section>
-
-      <section class="hero hero-md">
-        <div class="hero-eyebrow">MD 2</div>
-        <button class="btn-neon btn-md" id="mdBtn2" onclick="triggerMd2()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-4V3H8v4H4l8 9 8-9z"/><path d="M4 19h16"/></svg>
-          <span id="mdBtn2Label">MD팀 2</span>
-        </button>
-        <div class="hero-hint">시딩 재고 · 샘플 관리</div>
+        <div class="hero-hint">기획전 일정 · 시딩 재고</div>
       </section>
     </div>
 
@@ -2886,14 +2906,14 @@
     </div>
   </div><!-- /viewHr -->
 
-  <!-- ============ 물류팀 뷰: 발주·재고 관리 ============ -->
-  <div class="view" id="viewLg" hidden>
+  <!-- ============ 브랜드별 재고관리 뷰 (홈 → 직접 진입) ============ -->
+  <div class="view" id="viewBrandStock" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주·재고 관리</span></h1>
+      <h1 class="view-title">브랜드별 재고관리<span class="view-title-sub">/ 식스에이 · 프로덕트피알 · 클리어타입</span></h1>
     </div>
 
     <!-- 브랜드별 SKU 폴더 (상위) -->
@@ -2952,6 +2972,17 @@
         <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
         <span class="lg-res-arrow">→</span>
       </a>
+    </div>
+  </div><!-- /viewBrandStock -->
+
+  <!-- ============ 물류팀 뷰: 발주 관리 ============ -->
+  <div class="view" id="viewLg" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주 관리</span></h1>
     </div>
 
     <!-- 최근 발주 내역 (홈에서 이동) -->
@@ -3036,14 +3067,14 @@
     </div>
   </div>
 
-  <!-- ============ MD팀 (매출 보고서 포함) ============ -->
+  <!-- ============ MD팀 (기획전 일정 + 시딩 재고 통합) ============ -->
   <div class="view" id="viewMd" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">MD팀 1<span class="view-title-sub">/ 매출 · 기획전</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전 · 시딩 재고</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
 
@@ -3079,20 +3110,7 @@
         </div>
       </div>
 
-      <!-- 매출 보고서 PPT 섹션 제거됨 (2026-06-09 사장님 요청 — 자동 cron 종료 + 칸 삭제) -->
-    </div>
-  </div>
-
-  <!-- ============ MD팀 2 — 시딩 재고 ============ -->
-  <div class="view" id="viewMd2" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">MD팀 2<span class="view-title-sub">/ 시딩 재고</span></h1>
-    </div>
-    <div class="po-wrap">
+      <!-- 시딩 재고 -->
       <div class="po-section seeding-section">
         <div class="po-section-head">
           <div class="po-section-title">시딩 재고 <span class="seeding-sub">AkoiHaus 슬리퍼</span></div>
@@ -3135,6 +3153,7 @@
           <div class="md-cal-hint">출고·반납 chip 클릭 → 해당 컬러 이력 모달 열림</div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -3427,7 +3446,7 @@
 <div class="modal-bg" id="tokenModal">
   <div class="modal">
     <div class="modal-title" id="tokenModalTitle">GitHub 토큰 입력</div>
-    <div class="modal-sub" id="tokenModalSub">ERP 워크플로우 트리거에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.</div>
+    <div class="modal-sub" id="tokenModalSub">발주 내역 · 재고 동기화에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.</div>
     <div class="modal-help" id="tokenModalHelp">
       <b>발급 방법</b><br>
       1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 접속<br>
@@ -3582,7 +3601,7 @@
       const proxyUrl=url.replace(/^https:\/\/api\.github\.com/, base+'/gh');
       const headers=Object.assign({},opts.headers||{});
       delete headers.Authorization;
-      // forceMaster: viewer 역할이어도 master PIN으로 호출 (ERP 트리거 등 일부 공용 액션용)
+      // forceMaster: viewer 역할이어도 master PIN으로 호출 (일부 공용 액션용)
       headers['X-Brightbeed-PIN']=opts.forceMaster ? PIN_MASTER : ghPin();
       const fwd=Object.assign({},opts,{headers});
       delete fwd.forceMaster;
@@ -4729,14 +4748,9 @@
     };
   });
 
-  /* ===== ERP 트리거 ===== */
-  const ERP_REPO='j65209/sixshop-collector';
-  const ERP_WORKFLOW='collect.yml';
-  const ERP_REF='main';
+  /* ===== 토큰 모달 ===== */
   const TOKEN_KEY='brightbeed_gh_token';
 
-  const erpBtn=document.getElementById('erpBtn');
-  const erpLabel=document.getElementById('erpBtnLabel');
   const tokenModal=document.getElementById('tokenModal');
   const tokenInput=document.getElementById('tokenInput');
 
@@ -4751,14 +4765,14 @@
   const MODAL_PRESETS={
     github:{
       title:'GitHub 토큰 입력',
-      sub:'ERP 트리거 + 발주 내역 동기화에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.',
+      sub:'발주 내역 · 재고 동기화에 필요합니다. 토큰은 이 브라우저(localStorage)에만 저장됩니다.',
       help:`<b>발급 방법</b><br>
         1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 접속<br>
         2. Repository access → <b>Only select</b>:<br>
            &nbsp;&nbsp;☑ <b>j65209/sixshop-collector</b><br>
            &nbsp;&nbsp;☑ <b>j65209/Brightbeed</b><br>
         3. Permissions → Repository permissions:<br>
-           &nbsp;&nbsp;• <b>Actions: Read and write</b> (ERP 트리거)<br>
+           &nbsp;&nbsp;• <b>Actions: Read and write</b><br>
            &nbsp;&nbsp;• <b>Contents: Read and write</b> (발주 내역 동기화)<br>
         4. Generate token → 복사 → 아래 입력`,
       placeholder:'github_pat_...',
@@ -4805,80 +4819,9 @@
     });
   }
 
-  async function triggerERP(){
-    erpBtn.disabled=true;
-    erpBtn.classList.add('spin');
-    erpLabel.textContent='트리거 중...';
-
-    try{
-      const r=await ghFetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/dispatches`,{
-        method:'POST',
-        forceMaster:true,
-        headers:{
-          'Accept':'application/vnd.github+json',
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify({ref:ERP_REF})
-      });
-
-      if(r.status===204){
-        erpLabel.textContent='✓ 시작됨';
-        toast('ERP 워크플로우 시작 · 약 2~3분 소요','ok');
-        document.getElementById('syncStatus').textContent='ERP 동기화 중...';
-        pollRun();
-      }else if(r.status===401||r.status===403){
-        toast('서버 프록시 인증 실패 — PIN 확인','err');
-        erpLabel.textContent='ERP 최신화';
-        erpBtn.disabled=false;
-        erpBtn.classList.remove('spin');
-        return;
-      }else{
-        const t=await r.text();
-        toast(`실패 (${r.status}): ${t.slice(0,100)}`,'err');
-      }
-    }catch(e){
-      toast(`네트워크 오류: ${e.message}`,'err');
-    }
-
-    setTimeout(()=>{
-      erpBtn.disabled=false;
-      erpBtn.classList.remove('spin');
-      erpLabel.textContent='ERP 최신화';
-    },3500);
-  }
-
-  async function pollRun(){
-    const start=Date.now();
-    const maxWait=6*60*1000;
-    while(Date.now()-start<maxWait){
-      await new Promise(r=>setTimeout(r,15000));
-      try{
-        const r=await ghFetch(`https://api.github.com/repos/${ERP_REPO}/actions/workflows/${ERP_WORKFLOW}/runs?per_page=1`,{
-          headers:{'Accept':'application/vnd.github+json'}
-        });
-        if(!r.ok)continue;
-        const j=await r.json();
-        const run=j.workflow_runs&&j.workflow_runs[0];
-        if(!run)continue;
-        if(run.status==='completed'){
-          if(run.conclusion==='success'){
-            document.getElementById('syncStatus').textContent='ERP 동기화 완료 · 방금 전';
-            toast('✓ ERP 동기화 완료','ok');
-          }else{
-            document.getElementById('syncStatus').textContent=`ERP 실패 · ${run.conclusion}`;
-            toast(`✗ 워크플로우 ${run.conclusion}`,'err');
-          }
-          return;
-        }
-      }catch(e){}
-    }
-  }
-
-  window.triggerERP=triggerERP;
-
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMd2','viewStock','viewSixA','viewCleartype','viewNamegen'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewBrandStock','viewNotice','viewCs','viewMd','viewStock','viewSixA','viewCleartype','viewNamegen'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewBrandStock:'brandstock',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -4901,8 +4844,6 @@
       if(typeof renderSalesArchive==='function') renderSalesArchive();
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
       if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
-    }
-    if(id==='viewMd2'){
       if(typeof renderSeeding==='function') renderSeeding();
       if(typeof renderSeedingCal==='function') renderSeedingCal();
       if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
@@ -4942,10 +4883,10 @@
 
   function triggerHR(){ showView('viewHr'); }
   function triggerLogistics(){ showView('viewLg'); }
+  function triggerBrandStock(){ showView('viewBrandStock'); }
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
-  function triggerMd2(){ showView('viewMd2'); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
 
   /* ===== 식스에이 — SKU 카탈로그 + PA 통합(에이블리/지그재그) + 식스샵 옵션별 재고 수정 ===== */
@@ -5850,10 +5791,10 @@
   }
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
+  window.triggerBrandStock=triggerBrandStock;
   window.triggerNotice=triggerNotice;
   window.triggerCs=triggerCs;
   window.triggerMd=triggerMd;
-  window.triggerMd2=triggerMd2;
   window.triggerNamegen=triggerNamegen;
   window.goHome=goHome;
   window.openLgResource=openLgResource;
