@@ -1480,6 +1480,126 @@
   .ng-empty-icon{font-size:32px;opacity:.4;margin-bottom:10px}
   .ng-empty-hint{font-size:11px;font-family:var(--mono);margin-top:6px;letter-spacing:.04em}
 
+  /* ====== 풀네임 빌더 ====== */
+  .ng-builder-panel{
+    background:linear-gradient(180deg,var(--bg-1) 0%,var(--bg-2) 100%);
+    border:1px solid var(--line);
+  }
+  .ng-builder-title::before{
+    background:#f59e0b;
+    box-shadow:0 0 8px rgba(245,158,11,.6);
+  }
+  .ng-builder-grid{
+    display:grid;grid-template-columns:1.4fr 1fr;gap:12px;
+    margin-bottom:12px;
+  }
+  @media(max-width:600px){.ng-builder-grid{grid-template-columns:1fr}}
+  .ng-builder-input{
+    width:100%;background:var(--bg-2);
+    border:1px solid var(--line);border-radius:6px;
+    padding:10px 12px;font-size:14px;font-weight:600;
+    font-family:var(--mono);color:var(--text-0);
+    letter-spacing:.01em;outline:none;transition:all .12s;
+  }
+  .ng-builder-input::placeholder{color:var(--text-3);font-weight:400;letter-spacing:0}
+  .ng-builder-input:focus{
+    border-color:#f59e0b;
+    box-shadow:0 0 0 3px rgba(245,158,11,.15);
+    background:var(--bg-1);
+  }
+  .ng-builder-chips{
+    display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;
+  }
+  .ng-builder-chip{
+    padding:6px 11px;font-size:11.5px;font-weight:500;
+    color:var(--text-2);background:var(--bg-2);
+    border:1px solid var(--line);border-radius:999px;
+    font-family:var(--mono);letter-spacing:.01em;
+    transition:all .12s;cursor:pointer;
+  }
+  .ng-builder-chip:hover{
+    color:#f59e0b;border-color:rgba(245,158,11,.45);
+    background:var(--bg-1);
+  }
+  .ng-builder-chip.active{
+    color:#f59e0b;border-color:rgba(245,158,11,.6);
+    background:rgba(245,158,11,.08);font-weight:600;
+    box-shadow:inset 0 0 0 1px rgba(245,158,11,.25);
+  }
+  .ng-builder-outputs{
+    display:flex;flex-direction:column;gap:10px;margin-bottom:10px;
+  }
+  .ng-builder-output{
+    background:var(--bg-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 14px 12px;
+    border-left:3px solid var(--brand-color,#6366f1);
+  }
+  .ng-builder-six6{--brand-color:#22d3ee}
+  .ng-builder-ct  {--brand-color:#22c55e}
+  .ng-builder-head{
+    display:flex;align-items:center;gap:8px;margin-bottom:6px;
+    flex-wrap:wrap;
+  }
+  .ng-builder-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--brand-color);
+    box-shadow:0 0 8px var(--brand-color);
+    flex-shrink:0;
+  }
+  .ng-builder-brand{
+    font-size:12px;font-weight:600;color:var(--text-1);
+    letter-spacing:.01em;
+  }
+  .ng-builder-tmpl{
+    font-size:10.5px;color:var(--text-3);
+    letter-spacing:.02em;margin-left:auto;
+  }
+  @media(max-width:600px){
+    .ng-builder-tmpl{margin-left:0;width:100%;font-size:10px}
+  }
+  .ng-builder-row{
+    display:flex;align-items:center;gap:10px;
+  }
+  .ng-builder-result{
+    flex:1;min-width:0;
+    font-size:15px;font-weight:600;color:var(--text-0);
+    font-family:var(--mono);letter-spacing:-.005em;
+    background:var(--bg-1);border:1px solid var(--line);
+    border-radius:5px;padding:9px 12px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    user-select:all;
+  }
+  .ng-builder-copy{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:8px 12px;font-size:11.5px;font-weight:600;
+    color:var(--text-1);background:var(--bg-1);
+    border:1px solid var(--line);border-radius:5px;
+    font-family:var(--mono);transition:all .12s;
+    flex-shrink:0;cursor:pointer;
+  }
+  .ng-builder-copy:hover{
+    color:var(--brand-color,#f59e0b);
+    border-color:var(--brand-color,#f59e0b);
+  }
+  .ng-builder-copy.copied{
+    color:#15803d;border-color:#15803d;
+    background:rgba(21,128,61,.06);
+  }
+  .ng-builder-copy svg{width:12px;height:12px}
+  .ng-builder-hint{
+    font-size:11px;color:var(--text-3);
+    font-family:var(--mono);letter-spacing:.02em;
+    padding-top:8px;border-top:1px dashed var(--line);
+    margin-top:2px;
+  }
+  /* 도시 결과 카드 → 빌더로 채워넣기 클릭 가능 표시 */
+  .ng-item.ng-item-fill{cursor:pointer}
+  .ng-item.ng-item-fill:hover .ng-item-name{color:#f59e0b}
+  .ng-item.filled{
+    border-color:rgba(245,158,11,.55) !important;
+    background:rgba(245,158,11,.06) !important;
+  }
+
   /* 모듈 placeholder 영역 (각 뷰 본문) */
   .placeholder-area{
     text-align:center;padding:72px 24px;
@@ -2556,7 +2676,7 @@
         <div class="sub-module m-namegen" onclick="triggerNamegen()">
           <div class="sub-module-icon">🌍</div>
           <div class="sub-module-title">제품명 생성기</div>
-          <div class="sub-module-sub">전세계 도시 · 마을 · 건물명</div>
+          <div class="sub-module-sub">도시명 추출 + 식스에이 · 클리어타입 풀네임 빌더</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
       </div>
@@ -3258,6 +3378,67 @@
     </div>
 
     <div class="ng-wrap">
+      <!-- 풀네임 빌더 패널 -->
+      <div class="ng-panel ng-builder-panel">
+        <div class="ng-panel-head">
+          <div class="ng-panel-title ng-builder-title">풀네임 빌더</div>
+          <div class="ng-panel-meta">제품명 + 카테고리 → 식스에이 · 클리어타입 동시 생성</div>
+        </div>
+        <div class="ng-builder-grid">
+          <div class="ng-ctl">
+            <div class="ng-ctl-label">제품명</div>
+            <input id="ngBuilderName" class="ng-builder-input" type="text" placeholder="예: BARCELONA" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="ng-ctl">
+            <div class="ng-ctl-label">카테고리</div>
+            <input id="ngBuilderType" class="ng-builder-input" type="text" value="Open Ring" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="ng-builder-chips" id="ngBuilderChips">
+          <button type="button" class="ng-builder-chip active" data-type="Open Ring">Open Ring</button>
+          <button type="button" class="ng-builder-chip" data-type="Ring">Ring</button>
+          <button type="button" class="ng-builder-chip" data-type="Hoop">Hoop</button>
+          <button type="button" class="ng-builder-chip" data-type="Earring">Earring</button>
+          <button type="button" class="ng-builder-chip" data-type="Necklace">Necklace</button>
+          <button type="button" class="ng-builder-chip" data-type="Bracelet">Bracelet</button>
+          <button type="button" class="ng-builder-chip" data-type="Bangle">Bangle</button>
+          <button type="button" class="ng-builder-chip" data-type="Pendant">Pendant</button>
+          <button type="button" class="ng-builder-chip" data-type="Anklet">Anklet</button>
+          <button type="button" class="ng-builder-chip" data-type="Chain">Chain</button>
+        </div>
+        <div class="ng-builder-outputs">
+          <div class="ng-builder-output ng-builder-six6">
+            <div class="ng-builder-head">
+              <span class="ng-builder-dot"></span>
+              <span class="ng-builder-brand">식스에이</span>
+              <span class="ng-builder-tmpl mono">[SILVER925] {제품명} {카테고리}</span>
+            </div>
+            <div class="ng-builder-row">
+              <div class="ng-builder-result" id="ngBuilderOutSixA">[SILVER925] BARCELONA Open Ring</div>
+              <button type="button" class="ng-builder-copy" onclick="ngBuilderCopy('sixA', this)" aria-label="복사">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>복사</span>
+              </button>
+            </div>
+          </div>
+          <div class="ng-builder-output ng-builder-ct">
+            <div class="ng-builder-head">
+              <span class="ng-builder-dot"></span>
+              <span class="ng-builder-brand">클리어타입</span>
+              <span class="ng-builder-tmpl mono">"{제품명}" 925 {카테고리}</span>
+            </div>
+            <div class="ng-builder-row">
+              <div class="ng-builder-result" id="ngBuilderOutCt">"BARCELONA" 925 Open Ring</div>
+              <button type="button" class="ng-builder-copy" onclick="ngBuilderCopy('ct', this)" aria-label="복사">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>복사</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="ng-builder-hint">아래에서 도시명을 추출한 뒤 카드를 클릭하면 제품명 칸에 자동으로 채워집니다.</div>
+      </div>
+
       <!-- 컨트롤 패널 -->
       <div class="ng-panel">
         <div class="ng-panel-head">
@@ -9351,10 +9532,10 @@ async function handlePOFiles(files){
       }
       const html = currentResults.map((name,i)=>{
         const display = applyFmt(name);
-        return '<div class="ng-item" data-idx="'+i+'">'+
+        return '<div class="ng-item ng-item-fill" data-idx="'+i+'" onclick="ngFillBuilder('+i+',this,event)" title="빌더에 채우기">'+
           '<span class="ng-item-name">'+escHtml(display)+'</span>'+
           '<span class="ng-item-len">'+name.length+'</span>'+
-          '<button class="ng-item-copy" type="button" onclick="ngCopyOne('+i+',this)" aria-label="복사">'+
+          '<button class="ng-item-copy" type="button" onclick="ngCopyOne('+i+',this);event.stopPropagation();" aria-label="복사">'+
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'+
           '</button></div>';
       }).join('');
@@ -9454,12 +9635,105 @@ async function handlePOFiles(files){
       }
     }
 
+    // ====== 풀네임 빌더 ======
+    function ngBuilderFormat(brand, rawName, type){
+      const name = (rawName||'').trim();
+      const t = (type||'').trim() || 'Open Ring';
+      if(brand==='sixA') return '[SILVER925] ' + (name || '(제품명 입력)') + ' ' + t;
+      if(brand==='ct')   return '"' + (name || '(제품명 입력)') + '" 925 ' + t;
+      return '';
+    }
+    function ngBuilderUpdate(){
+      const nameEl = document.getElementById('ngBuilderName');
+      const typeEl = document.getElementById('ngBuilderType');
+      const outA   = document.getElementById('ngBuilderOutSixA');
+      const outC   = document.getElementById('ngBuilderOutCt');
+      if(!nameEl || !typeEl || !outA || !outC) return;
+      const name = nameEl.value || '';
+      const type = typeEl.value || 'Open Ring';
+      outA.textContent = ngBuilderFormat('sixA', name, type);
+      outC.textContent = ngBuilderFormat('ct',   name, type);
+      // 현재 카테고리에 맞는 chip만 active 표시
+      document.querySelectorAll('#ngBuilderChips .ng-builder-chip').forEach(b=>{
+        b.classList.toggle('active', (b.dataset.type||'').toLowerCase() === type.trim().toLowerCase());
+      });
+    }
+    function ngBuilderCopy(brand, btn){
+      const nameEl = document.getElementById('ngBuilderName');
+      const typeEl = document.getElementById('ngBuilderType');
+      if(!nameEl || !typeEl) return;
+      const name = (nameEl.value||'').trim();
+      if(!name){
+        toast('제품명을 입력하거나 아래 도시명을 클릭하세요','err');
+        nameEl.focus();
+        return;
+      }
+      const text = ngBuilderFormat(brand, name, typeEl.value);
+      copyText(text).then(()=>{
+        if(btn){
+          btn.classList.add('copied');
+          setTimeout(()=>btn.classList.remove('copied'),1200);
+        }
+        toast('✓ "'+text+'" 복사됨','ok');
+      }).catch(()=>toast('복사 실패','err'));
+    }
+    function ngFillBuilder(idx, cardEl, ev){
+      // 복사 버튼 클릭은 상위로 전파되지 않게 처리되어 있음
+      const name = currentResults[idx];
+      if(!name) return;
+      const display = applyFmt(name);
+      const nameEl = document.getElementById('ngBuilderName');
+      if(nameEl){
+        nameEl.value = display;
+        ngBuilderUpdate();
+      }
+      if(cardEl){
+        document.querySelectorAll('#ngList .ng-item.filled').forEach(el=>el.classList.remove('filled'));
+        cardEl.classList.add('filled');
+      }
+      // 빌더로 스크롤
+      const panel = document.querySelector('.ng-builder-panel');
+      if(panel && typeof panel.scrollIntoView==='function'){
+        panel.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+      toast('✓ "'+display+'" 빌더에 채움','ok');
+    }
+    function initNgBuilder(){
+      const nameEl = document.getElementById('ngBuilderName');
+      const typeEl = document.getElementById('ngBuilderType');
+      if(nameEl && !nameEl._wired){
+        nameEl._wired = true;
+        nameEl.addEventListener('input', ngBuilderUpdate);
+      }
+      if(typeEl && !typeEl._wired){
+        typeEl._wired = true;
+        typeEl.addEventListener('input', ngBuilderUpdate);
+      }
+      document.querySelectorAll('#ngBuilderChips .ng-builder-chip').forEach(btn=>{
+        if(btn._wired) return;
+        btn._wired = true;
+        btn.addEventListener('click', ()=>{
+          const t = btn.dataset.type || 'Open Ring';
+          if(typeEl){ typeEl.value = t; }
+          ngBuilderUpdate();
+        });
+      });
+      ngBuilderUpdate();
+    }
+
     // 전역 노출
-    window.initNamegenView = initNamegenView;
+    window.initNamegenView = (function(orig){
+      return function(){
+        if(typeof orig==='function') orig();
+        initNgBuilder();
+      };
+    })(initNamegenView);
     window.ngGenerate = ngGenerate;
     window.ngNumStep = ngNumStep;
     window.ngCopyOne = ngCopyOne;
     window.ngCopyAll = ngCopyAll;
+    window.ngBuilderCopy = ngBuilderCopy;
+    window.ngFillBuilder = ngFillBuilder;
   })();
 
   /* 업무용 툴 폴더 — 카드 개수 자동 카운트 */
