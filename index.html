@@ -4445,12 +4445,11 @@
     // 1-C) PA 5슬레이브 자동 sync — 마스터 PUT 성공한 sku를 같은 값으로 5채널 옵션에도 PATCH.
     // PA "마스터 한 칸 = 5채널 동시" 광고대로 안 됨 — /stock/manage가 master.real_stock만 갱신,
     // slave option stock_cnt는 그대로 → 채널엔 옛 값. 슬레이브 PATCH로 수정대기 만들어야 스케줄러가 push.
+    // 마스터 PUT ok면 자동 sync 대상에 포함 — '변경 없음' 케이스도 포함해서 슬레이브 잔재(이전 품절/0 박혀있는 상태) 항상 정리.
     const masterSuccesses = masterPending.filter(it => {
       const k = 'master::' + it.skuCd;
       const r = _stockRowResults[k];
-      if (!r || r.status !== 'ok') return false;
-      if (r.msg === '변경 없음') return false;
-      return true;
+      return r && r.status === 'ok';
     });
     if (masterSuccesses.length > 0) {
       // 사용자가 직접 편집한 슬레이브(slavePending)는 user 편집이 우선 — 자동 sync에서 제외
