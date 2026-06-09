@@ -4123,59 +4123,6 @@
     renderStockTable();
   }
 
-  /* 마스터 0이 PA에서 e1999로 거부됐을 때 — 손해 차단 fallback.
-     1) 그 SKU에 해당하는 5플랫폼 슬레이브 옵션 모두 stock_cnt=0 + status='품절' 강제 PATCH
-        → 신규 주문 즉시 차단
-     2) 그 SKU의 진행중 주문(결제완료/신규주문/출고대기) 전체 자동 출고보류
-        → 이미 들어온 주문 출고 차단 (사장님이 부분취소 결정할 동안 안전망) */
-  async function _forceOutOfStockFallback(skuCd){
-    try{
-      // 1) 5플랫폼 슬레이브 status='품절' 강제
-      const platforms = (_stockData?.platforms||[]).filter(p=>p.type==='pa');
-      let slaveOk = 0;
-      for(const p of platforms){
-        const live = _stockPaLive[p.id];
-        if(!live) continue;
-        const opt = (live.options||[]).find(o=>o.sku_cd===skuCd);
-        if(!opt) continue;
-        if(opt.opt_status==='품절') { slaveOk++; continue; } // 이미 품절
-        const body = {products:[{c_sale_cd:p.c_sale_cd, shop_cd:p.shop_cd, shop_id:p.account, std_ol_yn:'N',
-          opts:[{type:'general', sale_opt_seq:opt.sale_opt_seq, sku_cd:skuCd, stock_cnt:0, status:'품절'}]}]};
-        try{
-          const r=await paFetch('/api/products/sale-cnt',{method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-          const j=await r.json(); const res=Array.isArray(j)?j[0]:j;
-          if(res?.result==='성공') slaveOk++;
-        }catch(e){ console.warn(`fallback slave ${p.name} ${skuCd}`, e); }
-        // PA rate limit (429) 회피 — 슬레이브간 300ms 간격
-        await new Promise(r=>setTimeout(r,300));
-      }
-
-      // 2) 그 SKU 진행중 주문 자동 보류 (bundle 단위)
-      const ordersBody = {start:0, length:200, date_type:'wdate',
-        sdate:'2025-01-01', edate:new Date().toISOString().slice(0,10),
-        status:['결제완료','신규주문','출고대기','출고보류'],
-        search_key:'sku_cd', search_word:skuCd, search_type:'exact', orderby:'wdate desc'};
-      const r2 = await paFetch('/api/orders',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(ordersBody)});
-      const d2 = await r2.json();
-      const bundles = [...new Set((d2.results||[]).map(o=>o.bundle_no).filter(Boolean))];
-      let heldCount = 0;
-      // 이미 출고보류 상태 제외 - 신규/결제완료/출고대기만 보류 처리
-      const toHold = (d2.results||[]).filter(o=>o.ord_status!=='출고보류');
-      const toHoldBundles = [...new Set(toHold.map(o=>o.bundle_no).filter(Boolean))];
-      if(toHoldBundles.length>0){
-        try{
-          const r3 = await paFetch('/api/order/hold',{method:'PUT', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({bundle_codes:toHoldBundles, holdReason:`${skuCd} 품절 — Brightbeed 자동 차단`, status:'출고보류'})});
-          const j3 = await r3.json();
-          if(j3.results==='성공') heldCount = toHold.length;
-        }catch(e){ console.warn(`fallback hold ${skuCd}`, e); }
-      }
-      return {ok: slaveOk>0, heldCount, slaveOk, totalSlaves: platforms.length};
-    }catch(e){
-      return {ok:false, err:e.message||'fallback 오류'};
-    }
-  }
-
   async function sendStockChanges(){
     const pending=Object.values(_stockPending);
     if(!pending.length){ toast('변경된 항목이 없습니다','err'); return; }
@@ -4232,22 +4179,8 @@
             sixshopUpdates.push({ skuCd:it.skuCd, color:SKU_COLOR[mm[1]], cable:SKU_CABLE[mm[2]], setStock:target });
           }
         } else if(j.error_code==='e1999' && target===0){
-          // ⭐ FALLBACK: 출고예정 때문에 마스터 0 거부 → 슬레이브 5채널 강제 품절 + 진행중 주문 자동 보류
-          const fb = await _forceOutOfStockFallback(it.skuCd);
-          if(fb.ok){
-            totalOk++;
-            _stockRowResults[key] = {status:'ok',msg:`마스터 보류 (PA가 거부) · 5채널 품절 ✓ · 신규주문 ${fb.heldCount}건 자동보류 ✓`};
-            // 식스샵도 0 push
-            const SKU_COLOR={BLUE:'블루',MINT:'민트',YELLOW:'옐로우',ORANGE:'오렌지',PURPLE:'퍼플',PEACH:'피치',NEONGREEN:'네온그린',NEONPINK:'네온핑크'};
-            const SKU_CABLE={'8PIN':'Apple 8pin','USBC':'USB-C','CC':'C to C'};
-            const mm=/^CABLE180_([A-Z]+)_(8PIN|USBC|CC)$/.exec(it.skuCd);
-            if(mm && SKU_COLOR[mm[1]] && SKU_CABLE[mm[2]]){
-              sixshopUpdates.push({ skuCd:it.skuCd, color:SKU_COLOR[mm[1]], cable:SKU_CABLE[mm[2]], setStock:0 });
-            }
-          } else {
-            totalErr++;
-            _stockRowResults[key] = {status:'err',msg:`자동 차단 실패: ${fb.err}`};
-          }
+          totalErr++;
+          _stockRowResults[key] = {status:'err',msg:'PA가 마스터 0 거부 (출고예정 잔재 있음) — PA 콘솔에서 직접 처리'};
         } else {
           totalErr++;
           _stockRowResults[key] = {status:'err',msg:errMsg};
