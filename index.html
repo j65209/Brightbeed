@@ -63,6 +63,10 @@
     --neon-md:#e11d48;
     --neon-md-2:#9f1239;
     --neon-md-glow:rgba(225,29,72,.4);
+    /* 벤더 — 비비드 티얼 (조직도 벤더와 구분되는 신선 톤) */
+    --neon-vendor:#0d9488;
+    --neon-vendor-2:#0f766e;
+    --neon-vendor-glow:rgba(13,148,136,.4);
     /* 재고연동(PlayAuto) — 비비드 에메랄드 (재고·sync) */
     --neon-pa:#059669;
     --neon-pa-2:#047857;
@@ -341,6 +345,26 @@
       0 0 0 1px rgba(225,29,72,.55),
       0 0 32px rgba(225,29,72,.65),
       0 0 96px rgba(190,24,93,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 히어로 — 벤더팀 (티얼) */
+  .hero.hero-vendor .hero-eyebrow{color:#14b8a6;text-shadow:0 0 12px var(--neon-vendor-glow)}
+  .btn-neon.btn-vendor{
+    background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
+    color:#ffffff;
+    border-color:rgba(13,148,136,.5);
+    box-shadow:
+      0 0 0 1px rgba(13,148,136,.35),
+      0 0 24px rgba(13,148,136,.45),
+      0 0 64px rgba(15,118,110,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-vendor:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(13,148,136,.55),
+      0 0 32px rgba(13,148,136,.65),
+      0 0 96px rgba(15,118,110,.4),
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
@@ -2668,6 +2692,15 @@
         </button>
         <div class="hero-hint">기획전 일정 · 시딩 재고</div>
       </section>
+
+      <section class="hero hero-vendor">
+        <div class="hero-eyebrow">VENDOR</div>
+        <button class="btn-neon btn-vendor" id="vendorBtn" onclick="triggerVendor()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span id="vendorBtnLabel">벤더팀</span>
+        </button>
+        <div class="hero-hint">조혜인 · 김완성 · 벤더 MD</div>
+      </section>
     </div>
 
     <!-- 업무용 툴 (폴더 스타일) -->
@@ -2675,7 +2708,7 @@
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📂</span>
         <span class="folder-label">업무용 툴</span>
-        <span class="folder-meta"><b class="folder-count">—</b> 도구</span>
+        <span class="folder-meta"><b id="subModulesCount">—</b> 도구</span>
       </div>
       <div class="sub-modules">
         <div class="sub-module m-notice" onclick="triggerNotice()">
@@ -2691,16 +2724,6 @@
           <div class="sub-module-tag">TOOL</div>
         </div>
       </div>
-    </div>
-
-    <!-- 벤더 (폴더 스타일) -->
-    <div class="sub-modules-section">
-      <div class="sub-modules-eyebrow">
-        <span class="folder-icon">📂</span>
-        <span class="folder-label">벤더</span>
-        <span class="folder-meta"><b class="folder-count">—</b> 항목</span>
-      </div>
-      <div class="sub-modules"></div>
     </div>
 
   </div><!-- /viewHome -->
@@ -3164,6 +3187,28 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ============ 벤더팀 (placeholder) ============ -->
+  <div class="view" id="viewVendor" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">벤더팀<span class="view-title-sub">/ 준비 중</span></h1>
+    </div>
+    <div class="po-wrap">
+      <div class="po-section">
+        <div class="po-empty">
+          <div class="po-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <div class="po-empty-text">벤더팀 페이지 준비 중</div>
+          <div class="po-empty-sub">구성·도구는 추후 채워질 예정</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -4812,8 +4857,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewBrandStock','viewNotice','viewCs','viewMd','viewStock','viewSixA','viewCleartype','viewNamegen'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewBrandStock:'brandstock',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewBrandStock','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewBrandStock:'brandstock',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -4879,6 +4924,7 @@
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
+  function triggerVendor(){ showView('viewVendor'); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
 
   /* 식스에이 JS 블록 제거 (2026-06-09) — brightbeed-stock /sixA (Supabase sixa.*) 로 이전. */
@@ -9059,13 +9105,12 @@ async function handlePOFiles(files){
     window.ngFillBuilder = ngFillBuilder;
   })();
 
-  /* 폴더 스타일 섹션 — 카드 개수 자동 카운트 (폴더별 스코프) */
+  /* 업무용 툴 폴더 — 카드 개수 자동 카운트 */
   (function(){
-    document.querySelectorAll('.sub-modules-section').forEach(section => {
-      const countEl = section.querySelector('.folder-count');
-      if(!countEl) return;
-      countEl.textContent = section.querySelectorAll('.sub-module').length;
-    });
+    const el = document.getElementById('subModulesCount');
+    if(!el) return;
+    const n = document.querySelectorAll('.sub-modules .sub-module').length;
+    el.textContent = n;
   })();
 
   init();
