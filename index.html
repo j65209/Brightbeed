@@ -1709,18 +1709,6 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     user-select:all;
   }
-  /* 목걸이 뷰는 모노 대신 본문 sans-serif (영문 "Necklace" 가독성) */
-  #viewNamegenNeck .ng-builder-result,
-  #viewNamegenNeck .ng-builder-tmpl,
-  #viewNamegenNeck .ng-builder-input,
-  #viewNamegenNeck .ng-item-name,
-  #viewNamegenNeck .ng-item-len,
-  #viewNamegenNeck #ngnStart,
-  #viewNamegenNeck #ngnCount{
-    font-family:var(--sans);
-    font-variant-numeric:tabular-nums;
-    letter-spacing:-.01em;
-  }
   .ng-builder-copy{
     display:inline-flex;align-items:center;gap:5px;
     padding:8px 12px;font-size:11.5px;font-weight:600;
@@ -2831,12 +2819,6 @@
           <div class="sub-module-sub">도시명 추출 + 식스에이 · 클리어타입 풀네임 빌더</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
-        <div class="sub-module m-namegen" onclick="triggerNamegenNeck()">
-          <div class="sub-module-icon">📿</div>
-          <div class="sub-module-title">제품명 생성기 (목걸이)</div>
-          <div class="sub-module-sub">일련번호 0000 Necklace 형식 일괄 생성</div>
-          <div class="sub-module-tag">TOOL</div>
-        </div>
       </div>
     </div>
 
@@ -3613,132 +3595,6 @@
     </div>
   </div>
 
-  <!-- ============ 제품명 생성기 (목걸이) ============ -->
-  <div class="view" id="viewNamegenNeck" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">제품명 생성기 (목걸이)<span class="view-title-sub">/ 일련번호 0000 Necklace</span></h1>
-    </div>
-
-    <div class="ng-wrap">
-      <!-- 풀네임 빌더 패널 -->
-      <div class="ng-panel ng-builder-panel">
-        <div class="ng-panel-head">
-          <div class="ng-panel-title ng-builder-title">풀네임 빌더</div>
-          <div class="ng-panel-meta">일련번호 + Necklace → 식스에이 · 클리어타입 동시 생성</div>
-        </div>
-        <div class="ng-builder-grid">
-          <div class="ng-ctl">
-            <div class="ng-ctl-label">일련번호 (4자리)</div>
-            <input id="ngnBuilderName" class="ng-builder-input mono" type="text" placeholder="예: 0000" autocomplete="off" spellcheck="false" inputmode="numeric" maxlength="4">
-          </div>
-          <div class="ng-ctl">
-            <div class="ng-ctl-label">카테고리 (고정)</div>
-            <input class="ng-builder-input" type="text" value="Necklace" readonly tabindex="-1" style="background:rgba(0,0,0,.04);cursor:default">
-          </div>
-        </div>
-        <div class="ng-builder-outputs">
-          <div class="ng-builder-output ng-builder-six6">
-            <div class="ng-builder-head">
-              <span class="ng-builder-dot"></span>
-              <span class="ng-builder-brand">식스에이</span>
-              <span class="ng-builder-tmpl mono">[SILVER925] {일련번호} Necklace</span>
-            </div>
-            <div class="ng-builder-row">
-              <div class="ng-builder-result" id="ngnBuilderOutSixA">[SILVER925] 0000 Necklace</div>
-              <button type="button" class="ng-builder-copy" onclick="ngnBuilderCopy('sixA', this)" aria-label="복사">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                <span>복사</span>
-              </button>
-            </div>
-          </div>
-          <div class="ng-builder-output ng-builder-ct">
-            <div class="ng-builder-head">
-              <span class="ng-builder-dot"></span>
-              <span class="ng-builder-brand">클리어타입</span>
-              <span class="ng-builder-tmpl mono">"{일련번호}" 925 Necklace</span>
-            </div>
-            <div class="ng-builder-row">
-              <div class="ng-builder-result" id="ngnBuilderOutCt">"0000" 925 Necklace</div>
-              <button type="button" class="ng-builder-copy" onclick="ngnBuilderCopy('ct', this)" aria-label="복사">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                <span>복사</span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="ng-builder-hint">아래에서 일련번호를 생성한 뒤 카드를 클릭하면 빌더에 자동으로 채워집니다.</div>
-      </div>
-
-      <!-- 컨트롤 패널 -->
-      <div class="ng-panel">
-        <div class="ng-panel-head">
-          <div class="ng-panel-title">일련번호 생성</div>
-          <div class="ng-panel-meta">시작 번호부터 순차 (0000 ~ 9999)</div>
-        </div>
-        <div class="ng-controls">
-          <div class="ng-ctl">
-            <div class="ng-ctl-label">시작 번호</div>
-            <div class="ng-num-wrap">
-              <button class="ng-num-btn" type="button" onclick="ngnStartStep(-1)" aria-label="감소">−</button>
-              <input id="ngnStart" type="number" min="0" max="9999" value="0" inputmode="numeric" class="mono">
-              <button class="ng-num-btn" type="button" onclick="ngnStartStep(1)" aria-label="증가">+</button>
-            </div>
-          </div>
-          <div class="ng-ctl">
-            <div class="ng-ctl-label">개수</div>
-            <div class="ng-num-wrap">
-              <button class="ng-num-btn" type="button" onclick="ngnCountStep(-1)" aria-label="감소">−</button>
-              <input id="ngnCount" type="number" min="1" max="100" value="15" inputmode="numeric">
-              <button class="ng-num-btn" type="button" onclick="ngnCountStep(1)" aria-label="증가">+</button>
-            </div>
-          </div>
-          <div class="ng-ctl ng-ctl-generate">
-            <div class="ng-ctl-label">&nbsp;</div>
-            <button class="ng-generate-btn" type="button" onclick="ngnGenerate()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><polyline points="21 3 21 8 16 8"/></svg>
-              <span id="ngnGenLabel">15개 생성</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 결과 패널 -->
-      <div class="ng-panel">
-        <div class="ng-result-head">
-          <div class="ng-panel-title">생성 결과 <span class="ng-result-count" id="ngnResultCount" style="margin-left:8px"></span></div>
-          <div class="ng-result-actions">
-            <button class="ng-action-btn" type="button" onclick="ngnCopyAll('number')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              번호만 복사
-            </button>
-            <button class="ng-action-btn" type="button" onclick="ngnCopyAll('sixA')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              식스에이 풀네임
-            </button>
-            <button class="ng-action-btn" type="button" onclick="ngnCopyAll('ct')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              클리어타입 풀네임
-            </button>
-            <button class="ng-action-btn" type="button" onclick="ngnGenerate()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><polyline points="21 3 21 8 16 8"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><polyline points="3 21 3 16 8 16"/></svg>
-              다시 생성
-            </button>
-          </div>
-        </div>
-        <div id="ngnList">
-          <div class="ng-empty">
-            <div class="ng-empty-icon">📿</div>
-            <div>시작 번호와 개수를 선택하고 <b>생성</b> 버튼을 눌러주세요</div>
-            <div class="ng-empty-hint">CLICK GENERATE</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   </main>
 
   <footer class="footer">
@@ -5125,8 +4981,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewBrandStock','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen','viewNamegenNeck'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewBrandStock:'brandstock',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen',viewNamegenNeck:'namegen-neck'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewBrandStock','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewBrandStock:'brandstock',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -5173,9 +5029,6 @@
     }
     if(id==='viewNamegen'){
       if(typeof initNamegenView==='function') initNamegenView();
-    }
-    if(id==='viewNamegenNeck'){
-      if(typeof initNamegenNeckView==='function') initNamegenNeckView();
     }
   }
 
@@ -5459,7 +5312,6 @@
   }
 
   function triggerNamegen(){ showView('viewNamegen'); }
-  function triggerNamegenNeck(){ showView('viewNamegenNeck'); }
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
     const cur=history.state&&history.state.view;
@@ -5534,7 +5386,6 @@
   window.triggerCs=triggerCs;
   window.triggerMd=triggerMd;
   window.triggerNamegen=triggerNamegen;
-  window.triggerNamegenNeck=triggerNamegenNeck;
   window.goHome=goHome;
   window.openLgResource=openLgResource;
 
@@ -9382,218 +9233,6 @@ async function handlePOFiles(files){
     window.ngCopyAll = ngCopyAll;
     window.ngBuilderCopy = ngBuilderCopy;
     window.ngFillBuilder = ngFillBuilder;
-  })();
-
-  /* ============ 제품명 생성기 — 목걸이 버전 (Namegen Neck) ============
-     일련번호 NNNN + Necklace 고정. 0000~9999 순차 생성.
-  */
-  (function(){
-    let currentResults = [];
-
-    function pad4(n){ return String(Math.max(0,Math.min(9999,n|0))).padStart(4,'0'); }
-
-    function fmtSixA(num){ return '[SILVER925] ' + num + ' Necklace'; }
-    function fmtCt(num){   return '"' + num + '" 925 Necklace'; }
-
-    function escHtml(s){
-      return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-    }
-
-    function copyText(s){
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        return navigator.clipboard.writeText(s);
-      }
-      return new Promise((res,rej)=>{
-        const ta=document.createElement('textarea');
-        ta.value=s; ta.style.position='fixed'; ta.style.opacity='0';
-        document.body.appendChild(ta); ta.select();
-        try{document.execCommand('copy');res();}catch(e){rej(e);}
-        finally{document.body.removeChild(ta);}
-      });
-    }
-
-    function renderResults(){
-      const el = document.getElementById('ngnList');
-      const countEl = document.getElementById('ngnResultCount');
-      if(!el) return;
-      if(!currentResults.length){
-        el.innerHTML = '<div class="ng-empty"><div class="ng-empty-icon">📿</div><div>시작 번호와 개수를 선택하고 <b>생성</b> 버튼을 눌러주세요</div><div class="ng-empty-hint">CLICK GENERATE</div></div>';
-        if(countEl) countEl.textContent = '';
-        return;
-      }
-      const html = currentResults.map((num,i)=>{
-        const fullSixA = fmtSixA(num);
-        return '<div class="ng-item ng-item-fill" data-idx="'+i+'" onclick="ngnFillBuilder('+i+',this,event)" title="빌더에 채우기">'+
-          '<span class="ng-item-name mono">'+escHtml(num)+' <span style="opacity:.55;font-weight:400">Necklace</span></span>'+
-          '<span class="ng-item-len">#'+(i+1)+'</span>'+
-          '<button class="ng-item-copy" type="button" onclick="ngnCopyOne('+i+',this);event.stopPropagation();" aria-label="복사" title="'+escHtml(fullSixA)+' 복사">'+
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'+
-          '</button></div>';
-      }).join('');
-      el.innerHTML = '<div class="ng-list">'+html+'</div>';
-      if(countEl) countEl.textContent = '('+currentResults.length+'개)';
-    }
-
-    function ngnGenerate(){
-      const startEl = document.getElementById('ngnStart');
-      const countEl = document.getElementById('ngnCount');
-      if(!startEl || !countEl) return;
-      let start = parseInt(startEl.value,10); if(isNaN(start)) start=0;
-      let n = parseInt(countEl.value,10) || 15;
-      if(start<0) start=0; if(start>9999) start=9999;
-      if(n<1) n=1; if(n>100) n=100;
-      // 9999를 넘지 않도록 cap
-      if(start + n - 1 > 9999) n = 9999 - start + 1;
-      startEl.value = start;
-      countEl.value = n;
-      const lab = document.getElementById('ngnGenLabel');
-      if(lab) lab.textContent = n+'개 생성';
-      currentResults = [];
-      for(let i=0;i<n;i++) currentResults.push(pad4(start+i));
-      renderResults();
-    }
-
-    function ngnStartStep(delta){
-      const el = document.getElementById('ngnStart');
-      if(!el) return;
-      let n = parseInt(el.value,10); if(isNaN(n)) n=0;
-      n = Math.max(0, Math.min(9999, n+delta));
-      el.value = n;
-    }
-    function ngnCountStep(delta){
-      const el = document.getElementById('ngnCount');
-      if(!el) return;
-      let n = parseInt(el.value,10) || 15;
-      n = Math.max(1, Math.min(100, n+delta));
-      el.value = n;
-      const lab = document.getElementById('ngnGenLabel');
-      if(lab) lab.textContent = n+'개 생성';
-    }
-
-    function ngnCopyOne(idx, btn){
-      const num = currentResults[idx];
-      if(num==null) return;
-      // 단건 복사는 식스에이 풀네임 기본
-      const text = fmtSixA(num);
-      copyText(text).then(()=>{
-        const item = btn && btn.closest('.ng-item');
-        if(item){
-          item.classList.add('copied');
-          setTimeout(()=>item.classList.remove('copied'),1200);
-        }
-        toast('✓ "'+text+'" 복사됨','ok');
-      }).catch(()=>toast('복사 실패','err'));
-    }
-
-    function ngnCopyAll(mode){
-      if(!currentResults.length){
-        toast('먼저 생성해주세요','err');
-        return;
-      }
-      let lines, label;
-      if(mode==='sixA'){ lines = currentResults.map(fmtSixA); label='식스에이 풀네임'; }
-      else if(mode==='ct'){ lines = currentResults.map(fmtCt); label='클리어타입 풀네임'; }
-      else { lines = currentResults.map(n=>n+' Necklace'); label='번호'; }
-      copyText(lines.join('\n')).then(()=>{
-        toast('✓ '+currentResults.length+'개 ['+label+'] 복사됨','ok');
-      }).catch(()=>toast('복사 실패','err'));
-    }
-
-    // ====== 풀네임 빌더 ======
-    function ngnBuilderRaw(){
-      const el = document.getElementById('ngnBuilderName');
-      if(!el) return '0000';
-      const v = (el.value||'').trim();
-      if(!v) return '';
-      // 숫자만 추출 → 4자리 zero-pad (입력 중에는 원본 유지)
-      const digits = v.replace(/\D/g,'');
-      if(!digits) return v;
-      if(digits.length>=4) return digits.slice(0,4);
-      return digits.padStart(4,'0');
-    }
-    function ngnBuilderUpdate(){
-      const outA = document.getElementById('ngnBuilderOutSixA');
-      const outC = document.getElementById('ngnBuilderOutCt');
-      if(!outA || !outC) return;
-      const num = ngnBuilderRaw() || '0000';
-      outA.textContent = fmtSixA(num);
-      outC.textContent = fmtCt(num);
-    }
-    function ngnBuilderCopy(brand, btn){
-      const num = ngnBuilderRaw();
-      if(!num){
-        toast('일련번호를 입력하거나 아래에서 카드를 선택하세요','err');
-        const el = document.getElementById('ngnBuilderName');
-        if(el) el.focus();
-        return;
-      }
-      const text = brand==='sixA' ? fmtSixA(num) : fmtCt(num);
-      copyText(text).then(()=>{
-        if(btn){
-          btn.classList.add('copied');
-          setTimeout(()=>btn.classList.remove('copied'),1200);
-        }
-        toast('✓ "'+text+'" 복사됨','ok');
-      }).catch(()=>toast('복사 실패','err'));
-    }
-    function ngnFillBuilder(idx, cardEl){
-      const num = currentResults[idx];
-      if(num==null) return;
-      const el = document.getElementById('ngnBuilderName');
-      if(el){ el.value = num; ngnBuilderUpdate(); }
-      if(cardEl){
-        document.querySelectorAll('#ngnList .ng-item.filled').forEach(e=>e.classList.remove('filled'));
-        cardEl.classList.add('filled');
-      }
-      const panel = document.querySelector('#viewNamegenNeck .ng-builder-panel');
-      if(panel && typeof panel.scrollIntoView==='function'){
-        panel.scrollIntoView({behavior:'smooth', block:'start'});
-      }
-      toast('✓ "'+num+' Necklace" 빌더에 채움','ok');
-    }
-
-    let initialized = false;
-    function initNamegenNeckView(){
-      if(initialized) return;
-      initialized = true;
-      const nameEl = document.getElementById('ngnBuilderName');
-      if(nameEl){
-        nameEl.addEventListener('input', ngnBuilderUpdate);
-        nameEl.addEventListener('blur', ()=>{
-          // blur 시 4자리 정규화
-          const v = (nameEl.value||'').replace(/\D/g,'');
-          if(v) nameEl.value = v.padStart(4,'0').slice(0,4);
-          ngnBuilderUpdate();
-        });
-      }
-      const startEl = document.getElementById('ngnStart');
-      const countEl = document.getElementById('ngnCount');
-      if(countEl){
-        countEl.addEventListener('input',()=>{
-          const v = parseInt(countEl.value,10) || 15;
-          const lab = document.getElementById('ngnGenLabel');
-          if(lab) lab.textContent = v+'개 생성';
-        });
-        countEl.addEventListener('keydown',e=>{
-          if(e.key==='Enter'){ e.preventDefault(); ngnGenerate(); }
-        });
-      }
-      if(startEl){
-        startEl.addEventListener('keydown',e=>{
-          if(e.key==='Enter'){ e.preventDefault(); ngnGenerate(); }
-        });
-      }
-      ngnBuilderUpdate();
-    }
-
-    window.initNamegenNeckView = initNamegenNeckView;
-    window.ngnGenerate = ngnGenerate;
-    window.ngnStartStep = ngnStartStep;
-    window.ngnCountStep = ngnCountStep;
-    window.ngnCopyOne = ngnCopyOne;
-    window.ngnCopyAll = ngnCopyAll;
-    window.ngnBuilderCopy = ngnBuilderCopy;
-    window.ngnFillBuilder = ngnFillBuilder;
   })();
 
   /* 업무용 툴 폴더 — 카드 개수 자동 카운트 */
