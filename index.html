@@ -63,10 +63,10 @@
     --neon-md:#e11d48;
     --neon-md-2:#9f1239;
     --neon-md-glow:rgba(225,29,72,.4);
-    /* 벤더 — 비비드 티얼 (조직도 벤더와 구분되는 신선 톤) */
-    --neon-vendor:#0d9488;
-    --neon-vendor-2:#0f766e;
-    --neon-vendor-glow:rgba(13,148,136,.4);
+    /* 벤더 — 딥 인디고 (LG 바이올렛·BS 에메랄드와 명확히 분리) */
+    --neon-vendor:#4f46e5;
+    --neon-vendor-2:#3730a3;
+    --neon-vendor-glow:rgba(79,70,229,.4);
     /* 재고연동(PlayAuto) — 비비드 에메랄드 (재고·sync) */
     --neon-pa:#059669;
     --neon-pa-2:#047857;
@@ -348,23 +348,23 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
-  /* 히어로 — 벤더팀 (티얼) */
-  .hero.hero-vendor .hero-eyebrow{color:#14b8a6;text-shadow:0 0 12px var(--neon-vendor-glow)}
+  /* 히어로 — 벤더팀 (인디고) */
+  .hero.hero-vendor .hero-eyebrow{color:#6366f1;text-shadow:0 0 12px var(--neon-vendor-glow)}
   .btn-neon.btn-vendor{
     background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
     color:#ffffff;
-    border-color:rgba(13,148,136,.5);
+    border-color:rgba(79,70,229,.5);
     box-shadow:
-      0 0 0 1px rgba(13,148,136,.35),
-      0 0 24px rgba(13,148,136,.45),
-      0 0 64px rgba(15,118,110,.28),
+      0 0 0 1px rgba(79,70,229,.35),
+      0 0 24px rgba(79,70,229,.45),
+      0 0 64px rgba(55,48,163,.28),
       inset 0 1px 0 rgba(255,255,255,.35);
   }
   .btn-neon.btn-vendor:hover:not(:disabled){
     box-shadow:
-      0 0 0 1px rgba(13,148,136,.55),
-      0 0 32px rgba(13,148,136,.65),
-      0 0 96px rgba(15,118,110,.4),
+      0 0 0 1px rgba(79,70,229,.55),
+      0 0 32px rgba(79,70,229,.65),
+      0 0 96px rgba(55,48,163,.4),
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
@@ -997,10 +997,10 @@
     letter-spacing:.02em;text-align:right;
   }
 
-  /* 공구 캘린더 (벤더팀) — 티얼 이벤트 칩 + 인라인 상태 */
+  /* 공구 캘린더 (벤더팀) — 인디고 이벤트 칩 + 인라인 상태 */
   .md-cal-event.gc-cal-event{
     background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
-    color:#fff;border:1px solid rgba(13,148,136,.45);
+    color:#fff;border:1px solid rgba(79,70,229,.45);
   }
   .po-section-meta-inline{
     font-family:var(--mono);font-size:11px;color:var(--text-3);
@@ -1015,7 +1015,7 @@
     background:var(--bg-1);border:1px solid var(--line-1);
     border-radius:8px;overflow:hidden;transition:border-color .15s;
   }
-  .vm-month[open]{border-color:rgba(13,148,136,.45)}
+  .vm-month[open]{border-color:rgba(79,70,229,.45)}
   .vm-month-head{
     display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:12px 16px;cursor:pointer;user-select:none;list-style:none;
@@ -1037,7 +1037,7 @@
     letter-spacing:.01em;white-space:nowrap;
   }
   .vm-pill-cnt{color:var(--text-3)}
-  .vm-pill-sales{color:#0f766e;background:rgba(13,148,136,.10)}
+  .vm-pill-sales{color:#4338ca;background:rgba(79,70,229,.10)}
   .vm-pill-margin{color:#b45309;background:rgba(245,158,11,.10)}
   .vm-month-body{padding:0 16px 16px;overflow-x:auto}
   .vm-table{
