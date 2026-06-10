@@ -75,7 +75,8 @@
     --warn:#b45309;
     --danger:#b91c1c;
     --radius:6px;
-    --mono:'JetBrains Mono',ui-monospace,monospace;
+    /* 영문 가독성을 위해 mono → sans 폰트로 통일 (2026-06-10). 숫자 정렬은 font-variant-numeric:tabular-nums 로 처리. */
+    --mono:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     --sans:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -183,6 +184,8 @@
   /* 푸터 */
   .footer{padding:20px 32px;border-top:1px solid var(--line);font-size:12px;color:var(--text-3);display:flex;justify-content:space-between}
   .footer .mono{font-family:var(--mono)}
+  /* .mono 클래스: 이제 폰트는 sans지만 숫자 정렬만 tabular 유지 */
+  .mono{font-variant-numeric:tabular-nums}
 
   /* 토큰 모달 */
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:60;backdrop-filter:blur(4px)}
