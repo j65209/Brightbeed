@@ -2675,7 +2675,7 @@
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📂</span>
         <span class="folder-label">업무용 툴</span>
-        <span class="folder-meta"><b id="subModulesCount">—</b> 도구</span>
+        <span class="folder-meta"><b class="folder-count">—</b> 도구</span>
       </div>
       <div class="sub-modules">
         <div class="sub-module m-notice" onclick="triggerNotice()">
@@ -2691,6 +2691,16 @@
           <div class="sub-module-tag">TOOL</div>
         </div>
       </div>
+    </div>
+
+    <!-- 벤더 (폴더 스타일) -->
+    <div class="sub-modules-section">
+      <div class="sub-modules-eyebrow">
+        <span class="folder-icon">📂</span>
+        <span class="folder-label">벤더</span>
+        <span class="folder-meta"><b class="folder-count">—</b> 항목</span>
+      </div>
+      <div class="sub-modules"></div>
     </div>
 
   </div><!-- /viewHome -->
@@ -9049,12 +9059,13 @@ async function handlePOFiles(files){
     window.ngFillBuilder = ngFillBuilder;
   })();
 
-  /* 업무용 툴 폴더 — 카드 개수 자동 카운트 */
+  /* 폴더 스타일 섹션 — 카드 개수 자동 카운트 (폴더별 스코프) */
   (function(){
-    const el = document.getElementById('subModulesCount');
-    if(!el) return;
-    const n = document.querySelectorAll('.sub-modules .sub-module').length;
-    el.textContent = n;
+    document.querySelectorAll('.sub-modules-section').forEach(section => {
+      const countEl = section.querySelector('.folder-count');
+      if(!countEl) return;
+      countEl.textContent = section.querySelectorAll('.sub-module').length;
+    });
   })();
 
   init();
