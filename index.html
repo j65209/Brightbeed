@@ -1074,8 +1074,13 @@
   .vm-table td.num{font-weight:500;color:var(--text-0)}
   .vm-table tbody tr:last-child td{border-bottom:none}
   .vm-table tbody tr:hover{background:var(--bg-2)}
-  .vm-table .vm-product{font-weight:500;color:var(--text-0)}
+  .vm-table .vm-product{font-weight:600;color:var(--text-0)}
   .vm-table .vm-seller{color:var(--text-2)}
+  /* 같은 제품+셀러 옵션 변형 — 위 행과 살짝 붙어 보이게, 그룹 시작 행만 위쪽 보더 진하게 */
+  .vm-table tbody tr td{border-top:none}
+  .vm-table tbody tr.vm-group-start td{border-top:1px solid var(--line-1)}
+  .vm-table tbody tr:first-child td{border-top:none}
+  .vm-dash{color:var(--text-3);font-weight:400;opacity:.6}
   .vm-empty{padding:24px;text-align:center;color:var(--text-3);font-size:12px}
   @media(max-width:600px){
     .vm-list{padding:10px 10px 12px}
@@ -9602,6 +9607,28 @@ async function handlePOFiles(files){
       if(m.items.length===0){
         body.innerHTML='<div class="vm-empty">진행 내역 없음</div>';
       } else {
+        // 같은 제품+셀러 옵션 변형은 시트처럼 첫 행에만 표시하고 이후 행은 비워서 시각적 그룹화
+        let lastKey='';
+        const dash='<span class="vm-dash">—</span>';
+        const numCell=v=>{const t=(v||'').trim(); return t?_vmEsc(t):dash;};
+        const rowsHTML=m.items.map(it=>{
+          const key=`${it.product}${it.seller}`;
+          const isNewGroup=key!==lastKey;
+          lastKey=key;
+          const prodCell=isNewGroup?_vmEsc(it.product):'';
+          const sellerCell=isNewGroup?_vmEsc(it.seller):'';
+          return `<tr${isNewGroup?' class="vm-group-start"':''}>
+              <td class="vm-product">${prodCell}</td>
+              <td class="vm-seller">${sellerCell}</td>
+              <td class="num">${numCell(it.qty)}</td>
+              <td class="num">${numCell(it.price)}</td>
+              <td class="num">${numCell(it.marginUnit)}</td>
+              <td class="num">${numCell(it.margin)}</td>
+              <td class="num">${numCell(it.sales)}</td>
+              <td>${(it.channel||'').trim()?_vmEsc(it.channel):dash}</td>
+              <td>${(it.settle||'').trim()?_vmEsc(it.settle):dash}</td>
+            </tr>`;
+        }).join('');
         body.innerHTML=`
           <table class="vm-table">
             <thead><tr>
@@ -9610,19 +9637,7 @@ async function handlePOFiles(files){
               <th class="num">마진단가</th><th class="num">마진</th>
               <th class="num">매출</th><th>결제창</th><th>정산</th>
             </tr></thead>
-            <tbody>${m.items.map(it=>`
-              <tr>
-                <td class="vm-product">${_vmEsc(it.product)}</td>
-                <td class="vm-seller">${_vmEsc(it.seller)}</td>
-                <td class="num">${_vmEsc(it.qty)}</td>
-                <td class="num">${_vmEsc(it.price)}</td>
-                <td class="num">${_vmEsc(it.marginUnit)}</td>
-                <td class="num">${_vmEsc(it.margin)}</td>
-                <td class="num">${_vmEsc(it.sales)}</td>
-                <td>${_vmEsc(it.channel)}</td>
-                <td>${_vmEsc(it.settle)}</td>
-              </tr>`).join('')}
-            </tbody>
+            <tbody>${rowsHTML}</tbody>
           </table>`;
       }
       det.appendChild(body);
