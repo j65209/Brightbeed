@@ -3569,7 +3569,7 @@
             <div class="ng-builder-head">
               <span class="ng-builder-dot"></span>
               <span class="ng-builder-brand">클리어타입</span>
-              <span class="ng-builder-tmpl mono">"{제품명}" 925 {카테고리}</span>
+              <span class="ng-builder-tmpl mono" id="ngBuilderTmplCt">"{제품명}" 925 {카테고리}</span>
             </div>
             <div class="ng-builder-row">
               <div class="ng-builder-result" id="ngBuilderOutCt">"BARCELONA" 925 Open Ring</div>
@@ -9186,7 +9186,12 @@ async function handlePOFiles(files){
       const name = (rawName||'').trim();
       const t = (type||'').trim() || 'Open Ring';
       if(brand==='sixA') return '[SILVER925] ' + (name || '(제품명 입력)') + ' ' + t;
-      if(brand==='ct')   return '"' + (name || '(제품명 입력)') + '" 925 ' + t;
+      if(brand==='ct'){
+        // 반지(Ring/Open Ring)만 따옴표 유지, 그 외 카테고리는 따옴표 없이
+        const isRing = /\b(open\s+)?ring\b/i.test(t);
+        const n = name || '(제품명 입력)';
+        return isRing ? '"' + n + '" 925 ' + t : n + ' 925 ' + t;
+      }
       return '';
     }
     function ngBuilderUpdate(){
@@ -9199,6 +9204,12 @@ async function handlePOFiles(files){
       const type = typeEl.value || 'Open Ring';
       outA.textContent = ngBuilderFormat('sixA', name, type);
       outC.textContent = ngBuilderFormat('ct',   name, type);
+      // 클리어타입 템플릿 힌트도 카테고리에 따라 동기화 (반지만 따옴표)
+      const tmplCt = document.getElementById('ngBuilderTmplCt');
+      if(tmplCt){
+        const isRing = /\b(open\s+)?ring\b/i.test(type);
+        tmplCt.textContent = isRing ? '"{제품명}" 925 {카테고리}' : '{제품명} 925 {카테고리}';
+      }
       // 현재 카테고리에 맞는 chip만 active 표시
       document.querySelectorAll('#ngBuilderChips .ng-builder-chip').forEach(b=>{
         b.classList.toggle('active', (b.dataset.type||'').toLowerCase() === type.trim().toLowerCase());
