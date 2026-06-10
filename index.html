@@ -9493,28 +9493,35 @@ async function handlePOFiles(files){
   }
 
   function vMarginParse(text){
+    // 시트 구조: 한 월의 영역은 "총매출금액" 행으로 닫힘 (색칠된 정산 행).
+    // "X월" 라벨은 영역 안 어느 위치든 있을 수 있고 영역 시작이 아님.
+    // → 영역 = 두 총매출 사이의 모든 데이터. 영역 안에서 만난 "X월" 라벨이 그 영역의 월.
     const rows=_vmCSVParse(text);
     const out=[];
-    let cur=null;
+    let cur=_vmEmptySection();
     for(let i=1; i<rows.length; i++){
       const r=rows[i];
-      const month=(r[0]||'').trim();
-      const totalLabel=(r[7]||'').trim();
-      const mMatch=month.match(/^(\d+)월$/);
+      const monthLbl=(r[0]||'').trim();
+      const totalLbl=(r[7]||'').trim();
+      const mMatch=monthLbl.match(/^(\d+)월$/);
+
       if(mMatch){
-        if(cur) out.push(cur);
-        cur={month, monthNum:parseInt(mMatch[1],10), items:[], totalMargin:'', totalSales:''};
+        cur.month=monthLbl;
+        cur.monthNum=parseInt(mMatch[1],10);
+        // 라벨 행도 그 자체로 첫 진행건일 수 있으니 아래 item-row 분기로 흘림
       }
-      if(totalLabel==='총매출금액'){
-        if(cur){
-          cur.totalMargin=(r[6]||'').trim();
-          cur.totalSales=(r[8]||'').trim();
-        }
+
+      if(totalLbl==='총매출금액'){
+        cur.totalMargin=(r[6]||'').trim();
+        cur.totalSales=(r[8]||'').trim();
+        if(cur.month && cur.items.length) out.push(cur);
+        cur=_vmEmptySection();
         continue;
       }
+
       // item row — 1~9번 컬럼 중 하나라도 값 있으면 포함.
-      // 시트는 같은 제품/셀러의 옵션 변형 행에 제품·셀러 칸을 비워둠 → 위에서 fill-forward.
-      if(cur && r.slice(1,10).some(c=>(c||'').trim())){
+      // 같은 제품/셀러의 옵션 변형 행은 제품·셀러 칸이 비어있으니 영역 내에서 fill-forward.
+      if(r.slice(1,10).some(c=>(c||'').trim())){
         const prod=(r[1]||'').trim();
         const sel=(r[2]||'').trim();
         if(prod) cur._lastProduct=prod;
@@ -9532,8 +9539,11 @@ async function handlePOFiles(files){
         });
       }
     }
-    if(cur) out.push(cur);
+    // 마지막 영역에 총매출이 없으면 무시 (정산 안 된 미완료 데이터)
     return out;
+  }
+  function _vmEmptySection(){
+    return {month:'',monthNum:0,items:[],totalMargin:'',totalSales:''};
   }
 
   async function vMarginLoad(force){
