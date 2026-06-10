@@ -1008,6 +1008,64 @@
   }
   .po-section-meta-inline.is-err{color:#b91c1c}
 
+  /* 공구 진행 내역 (벤더팀) — 월별 accordion */
+  .vm-section{margin-top:18px}
+  .vm-list{display:flex;flex-direction:column;gap:10px;padding:14px 18px 16px}
+  .vm-month{
+    background:var(--bg-1);border:1px solid var(--line-1);
+    border-radius:8px;overflow:hidden;transition:border-color .15s;
+  }
+  .vm-month[open]{border-color:rgba(13,148,136,.45)}
+  .vm-month-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px 16px;cursor:pointer;user-select:none;list-style:none;
+  }
+  .vm-month-head::-webkit-details-marker{display:none}
+  .vm-month-name{
+    font-weight:600;font-size:14px;color:var(--text-0);
+    display:flex;align-items:center;gap:8px;
+  }
+  .vm-month-name::before{
+    content:'▸';font-size:10px;color:var(--text-3);
+    transition:transform .15s;display:inline-block;
+  }
+  .vm-month[open] .vm-month-name::before{transform:rotate(90deg)}
+  .vm-month-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .vm-month-pill{
+    font-family:var(--mono);font-size:11px;padding:3px 9px;
+    border-radius:11px;background:var(--bg-2);color:var(--text-2);
+    letter-spacing:.01em;white-space:nowrap;
+  }
+  .vm-pill-cnt{color:var(--text-3)}
+  .vm-pill-sales{color:#0f766e;background:rgba(13,148,136,.10)}
+  .vm-pill-margin{color:#b45309;background:rgba(245,158,11,.10)}
+  .vm-month-body{padding:0 16px 16px;overflow-x:auto}
+  .vm-table{
+    width:100%;border-collapse:collapse;
+    font-size:12px;font-family:var(--sans);min-width:760px;
+  }
+  .vm-table th,.vm-table td{
+    padding:7px 10px;text-align:left;
+    border-bottom:1px solid var(--line-1);vertical-align:top;
+  }
+  .vm-table thead th{
+    font-weight:600;color:var(--text-2);background:var(--bg-2);
+    font-size:11px;letter-spacing:.02em;position:sticky;top:0;
+  }
+  .vm-table td.num,.vm-table th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .vm-table tbody tr:last-child td{border-bottom:none}
+  .vm-table tbody tr:hover{background:var(--bg-2)}
+  .vm-table .vm-product{font-weight:500;color:var(--text-0)}
+  .vm-table .vm-seller{color:var(--text-2)}
+  .vm-empty{padding:24px;text-align:center;color:var(--text-3);font-size:12px}
+  @media(max-width:600px){
+    .vm-list{padding:10px 10px 12px}
+    .vm-month-head{padding:10px 12px;flex-wrap:wrap}
+    .vm-month-pill{font-size:10px;padding:2px 7px}
+    .vm-table{font-size:11px}
+    .vm-table th,.vm-table td{padding:5px 7px}
+  }
+
   /* ===== 시딩 재고 — 비비드 배색 v2 (시안 + 마젠타 / 라이트 메모) ===== */
   .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px;color:#22d3ee;text-shadow:0 0 14px rgba(34,211,238,.32)}
   .seeding-sub{font-size:11px;font-weight:500;color:#a5b4fc;letter-spacing:.02em;font-style:italic}
@@ -3237,6 +3295,17 @@
           <div class="md-cal-grid" id="gcCalGrid"></div>
         </div>
       </div>
+
+      <!-- 공구 진행 내역 (월별 accordion — 현재월 펼침) -->
+      <div class="po-section vm-section">
+        <div class="po-section-head">
+          <div class="po-section-title">공구 진행 내역 <span class="po-section-meta-inline" id="vMarginStatus">불러오는 중…</span></div>
+          <div class="po-section-meta">
+            <button type="button" class="btn-md-cal-nav" onclick="vMarginRefresh()" title="새로고침">↻</button>
+          </div>
+        </div>
+        <div id="vMarginList" class="vm-list"></div>
+      </div>
     </div>
   </div>
 
@@ -4925,6 +4994,8 @@
     if(id==='viewVendor'){
       if(typeof gcCalEnsureLoaded==='function') gcCalEnsureLoaded();
       if(typeof renderGcCal==='function') renderGcCal();
+      if(typeof vMarginEnsureLoaded==='function') vMarginEnsureLoaded();
+      if(typeof renderVMargin==='function') renderVMargin();
     }
     if(id==='viewStock'){
       if(typeof initStockView==='function') initStockView();
@@ -9365,6 +9436,170 @@ async function handlePOFiles(files){
   window.gcCalRefresh=gcCalRefresh;
   window.gcCalEnsureLoaded=gcCalEnsureLoaded;
   window.renderGcCal=renderGcCal;
+
+  /* ===== 벤더팀 — 공구 진행 내역 (조혜인 시트 "공구진행 마진" 탭, /vendor-margin 프록시) ===== */
+  const _vMargin={months:[],loaded:false,loading:false,error:null};
+
+  function _vmCSVParse(text){
+    // RFC 4180 simple CSV parser
+    const rows=[];
+    let row=[],cur='',inQ=false;
+    const s=String(text||'');
+    for(let i=0;i<s.length;i++){
+      const c=s[i];
+      if(inQ){
+        if(c==='"'){
+          if(s[i+1]==='"'){cur+='"'; i++;}
+          else inQ=false;
+        } else cur+=c;
+      } else {
+        if(c==='"') inQ=true;
+        else if(c===','){row.push(cur); cur='';}
+        else if(c==='\n'){row.push(cur); rows.push(row); row=[]; cur='';}
+        else if(c==='\r'){/* skip */}
+        else cur+=c;
+      }
+    }
+    if(cur.length>0||row.length>0){row.push(cur); rows.push(row);}
+    return rows;
+  }
+
+  function _vmEsc(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function vMarginParse(text){
+    const rows=_vmCSVParse(text);
+    const out=[];
+    let cur=null;
+    for(let i=1; i<rows.length; i++){
+      const r=rows[i];
+      const month=(r[0]||'').trim();
+      const totalLabel=(r[7]||'').trim();
+      const mMatch=month.match(/^(\d+)월$/);
+      if(mMatch){
+        if(cur) out.push(cur);
+        cur={month, monthNum:parseInt(mMatch[1],10), items:[], totalMargin:'', totalSales:''};
+      }
+      if(totalLabel==='총매출금액'){
+        if(cur){
+          cur.totalMargin=(r[6]||'').trim();
+          cur.totalSales=(r[8]||'').trim();
+        }
+        continue;
+      }
+      // item row — 1~9번 컬럼 중 하나라도 값 있으면 포함
+      if(cur && r.slice(1,10).some(c=>(c||'').trim())){
+        cur.items.push({
+          product:(r[1]||'').trim(),
+          seller:(r[2]||'').trim(),
+          qty:(r[3]||'').trim(),
+          price:(r[4]||'').trim(),
+          marginUnit:(r[5]||'').trim(),
+          margin:(r[6]||'').trim(),
+          channel:(r[7]||'').trim(),
+          sales:(r[8]||'').trim(),
+          settle:(r[9]||'').trim(),
+        });
+      }
+    }
+    if(cur) out.push(cur);
+    return out;
+  }
+
+  async function vMarginLoad(force){
+    if(_vMargin.loading) return;
+    if(_vMargin.loaded&&!force) return;
+    _vMargin.loading=true; _vMargin.error=null;
+    renderVMargin();
+    try{
+      const base=await loadProxyBase();
+      if(!base) throw new Error('proxy unavailable');
+      const r=await fetch(`${base}/vendor-margin?cb=${Date.now()}`,{headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const text=await r.text();
+      _vMargin.months=vMarginParse(text);
+      _vMargin.loaded=true;
+    }catch(e){
+      console.error('vMarginLoad failed',e);
+      _vMargin.error=String(e&&e.message||e);
+    }finally{
+      _vMargin.loading=false;
+      renderVMargin();
+    }
+  }
+  function vMarginEnsureLoaded(){ if(!_vMargin.loaded&&!_vMargin.loading) vMarginLoad(); }
+  function vMarginRefresh(){ vMarginLoad(true); }
+
+  function renderVMargin(){
+    const wrap=document.getElementById('vMarginList');
+    if(!wrap) return;
+    const status=document.getElementById('vMarginStatus');
+    if(status){
+      status.classList.remove('is-err');
+      if(_vMargin.loading) status.textContent='불러오는 중…';
+      else if(_vMargin.error){status.textContent='⚠ 로드 실패'; status.classList.add('is-err');}
+      else status.textContent=_vMargin.months.length?`${_vMargin.months.length}개월`:'데이터 없음';
+    }
+    if(!_vMargin.loaded){ wrap.innerHTML=''; return; }
+
+    const curMonth=new Date().getMonth()+1;
+    // 최근월 상단으로 정렬
+    const sorted=[..._vMargin.months].sort((a,b)=>b.monthNum-a.monthNum);
+
+    wrap.innerHTML='';
+    sorted.forEach(m=>{
+      const det=document.createElement('details');
+      det.className='vm-month';
+      if(m.monthNum===curMonth) det.open=true;
+
+      const sum=document.createElement('summary');
+      sum.className='vm-month-head';
+      sum.innerHTML=`
+        <span class="vm-month-name">${_vmEsc(m.month)}</span>
+        <span class="vm-month-meta">
+          <span class="vm-month-pill vm-pill-cnt">${m.items.length}건</span>
+          <span class="vm-month-pill vm-pill-sales">매출 ${_vmEsc(m.totalSales||'—')}</span>
+          <span class="vm-month-pill vm-pill-margin">마진 ${_vmEsc(m.totalMargin||'—')}</span>
+        </span>`;
+      det.appendChild(sum);
+
+      const body=document.createElement('div');
+      body.className='vm-month-body';
+      if(m.items.length===0){
+        body.innerHTML='<div class="vm-empty">진행 내역 없음</div>';
+      } else {
+        body.innerHTML=`
+          <table class="vm-table">
+            <thead><tr>
+              <th>제품</th><th>셀러</th>
+              <th class="num">수량</th><th class="num">판매가</th>
+              <th class="num">마진단가</th><th class="num">마진</th>
+              <th class="num">매출</th><th>결제창</th><th>정산</th>
+            </tr></thead>
+            <tbody>${m.items.map(it=>`
+              <tr>
+                <td class="vm-product">${_vmEsc(it.product)}</td>
+                <td class="vm-seller">${_vmEsc(it.seller)}</td>
+                <td class="num">${_vmEsc(it.qty)}</td>
+                <td class="num">${_vmEsc(it.price)}</td>
+                <td class="num">${_vmEsc(it.marginUnit)}</td>
+                <td class="num">${_vmEsc(it.margin)}</td>
+                <td class="num">${_vmEsc(it.sales)}</td>
+                <td>${_vmEsc(it.channel)}</td>
+                <td>${_vmEsc(it.settle)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
+      det.appendChild(body);
+      wrap.appendChild(det);
+    });
+  }
+
+  window.vMarginRefresh=vMarginRefresh;
+  window.vMarginEnsureLoaded=vMarginEnsureLoaded;
+  window.renderVMargin=renderVMargin;
 
   init();
 </script>
