@@ -1706,6 +1706,18 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     user-select:all;
   }
+  /* 목걸이 뷰는 모노 대신 본문 sans-serif (영문 "Necklace" 가독성) */
+  #viewNamegenNeck .ng-builder-result,
+  #viewNamegenNeck .ng-builder-tmpl,
+  #viewNamegenNeck .ng-builder-input,
+  #viewNamegenNeck .ng-item-name,
+  #viewNamegenNeck .ng-item-len,
+  #viewNamegenNeck #ngnStart,
+  #viewNamegenNeck #ngnCount{
+    font-family:var(--sans);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-.01em;
+  }
   .ng-builder-copy{
     display:inline-flex;align-items:center;gap:5px;
     padding:8px 12px;font-size:11.5px;font-weight:600;
