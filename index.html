@@ -1666,6 +1666,43 @@
     background:rgba(245,158,11,.08);font-weight:600;
     box-shadow:inset 0 0 0 1px rgba(245,158,11,.25);
   }
+  /* 일련번호 빠른 채움 행 */
+  .ng-seq-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+    margin-bottom:14px;padding:8px 10px;
+    background:var(--bg-2);border:1px solid var(--line);border-radius:7px;
+  }
+  .ng-seq-label{font-size:11.5px;font-weight:600;color:var(--text-2);margin-right:4px}
+  .ng-seq-sep{font-size:11px;color:var(--text-3)}
+  .ng-seq-input{
+    width:64px;padding:5px 8px;font-size:12px;font-weight:600;
+    text-align:center;color:var(--text-0);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:5px;
+    font-variant-numeric:tabular-nums;outline:none;
+  }
+  .ng-seq-input:focus{border-color:rgba(245,158,11,.6)}
+  .ng-seq-input::-webkit-inner-spin-button,.ng-seq-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .ng-seq-gen{
+    padding:5px 12px;font-size:11.5px;font-weight:600;
+    color:#fff;background:#f59e0b;border-radius:5px;
+    transition:background .12s;
+  }
+  .ng-seq-gen:hover{background:#d97706}
+  .ng-seq-chips{
+    display:flex;flex-wrap:wrap;gap:4px;flex:1;min-width:100%;
+  }
+  .ng-seq-chips:empty{display:none}
+  .ng-seq-chip{
+    padding:4px 9px;font-size:11.5px;font-weight:600;
+    color:var(--text-1);background:var(--bg-1);
+    border:1px solid var(--line);border-radius:4px;
+    font-variant-numeric:tabular-nums;
+    transition:all .12s;cursor:pointer;
+  }
+  .ng-seq-chip:hover{
+    color:#f59e0b;border-color:rgba(245,158,11,.45);
+    background:rgba(245,158,11,.06);
+  }
   .ng-builder-outputs{
     display:flex;flex-direction:column;gap:10px;margin-bottom:10px;
   }
@@ -3503,6 +3540,15 @@
           <button type="button" class="ng-builder-chip" data-type="Pendant">Pendant</button>
           <button type="button" class="ng-builder-chip" data-type="Anklet">Anklet</button>
           <button type="button" class="ng-builder-chip" data-type="Chain">Chain</button>
+        </div>
+        <!-- 일련번호 빠른 채움 (0000 형식) -->
+        <div class="ng-seq-row">
+          <span class="ng-seq-label">🔢 일련번호</span>
+          <input id="ngSeqStart" class="ng-seq-input" type="number" min="0" max="9999" value="0" inputmode="numeric" title="시작 번호">
+          <span class="ng-seq-sep">×</span>
+          <input id="ngSeqCount" class="ng-seq-input" type="number" min="1" max="20" value="10" inputmode="numeric" title="개수">
+          <button type="button" class="ng-seq-gen" onclick="ngSeqGen()">생성</button>
+          <div class="ng-seq-chips" id="ngSeqChips"></div>
         </div>
         <div class="ng-builder-outputs">
           <div class="ng-builder-output ng-builder-six6">
@@ -9228,6 +9274,37 @@ async function handlePOFiles(files){
         initNgBuilder();
       };
     })(initNamegenView);
+    // ====== 일련번호 빠른 채움 (0000 형식) ======
+    function ngSeqGen(){
+      const startEl = document.getElementById('ngSeqStart');
+      const countEl = document.getElementById('ngSeqCount');
+      const chipsEl = document.getElementById('ngSeqChips');
+      if(!startEl || !countEl || !chipsEl) return;
+      let s = parseInt(startEl.value,10); if(isNaN(s)) s=0;
+      let n = parseInt(countEl.value,10) || 10;
+      s = Math.max(0, Math.min(9999, s));
+      n = Math.max(1, Math.min(20, n));
+      if(s + n - 1 > 9999) n = 9999 - s + 1;
+      startEl.value = s; countEl.value = n;
+      const html = [];
+      for(let i=0;i<n;i++){
+        const num = String(s+i).padStart(4,'0');
+        html.push('<button type="button" class="ng-seq-chip" onclick="ngSeqPick(\''+num+'\')">'+num+'</button>');
+      }
+      chipsEl.innerHTML = html.join('');
+    }
+    function ngSeqPick(num){
+      const nameEl = document.getElementById('ngBuilderName');
+      if(!nameEl) return;
+      nameEl.value = num;
+      nameEl.dispatchEvent(new Event('input',{bubbles:true}));
+      // 후보 리스트 filled 표시 초기화 (다른 데서 채워졌던 거)
+      document.querySelectorAll('#ngList .ng-item.filled').forEach(el=>el.classList.remove('filled'));
+      toast('✓ "'+num+'" 빌더에 채움','ok');
+    }
+    window.ngSeqGen = ngSeqGen;
+    window.ngSeqPick = ngSeqPick;
+
     window.ngGenerate = ngGenerate;
     window.ngNumStep = ngNumStep;
     window.ngCopyOne = ngCopyOne;
