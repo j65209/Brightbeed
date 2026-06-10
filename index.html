@@ -997,6 +997,17 @@
     letter-spacing:.02em;text-align:right;
   }
 
+  /* 공구 캘린더 (벤더팀) — 티얼 이벤트 칩 + 인라인 상태 */
+  .md-cal-event.gc-cal-event{
+    background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
+    color:#fff;border:1px solid rgba(13,148,136,.45);
+  }
+  .po-section-meta-inline{
+    font-family:var(--mono);font-size:11px;color:var(--text-3);
+    font-weight:500;letter-spacing:.02em;margin-left:8px;
+  }
+  .po-section-meta-inline.is-err{color:#b91c1c}
+
   /* ===== 시딩 재고 — 비비드 배색 v2 (시안 + 마젠타 / 라이트 메모) ===== */
   .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px;color:#22d3ee;text-shadow:0 0 14px rgba(34,211,238,.32)}
   .seeding-sub{font-size:11px;font-weight:500;color:#a5b4fc;letter-spacing:.02em;font-style:italic}
@@ -3190,23 +3201,40 @@
     </div>
   </div>
 
-  <!-- ============ 벤더팀 (placeholder) ============ -->
+  <!-- ============ 벤더팀 (공구 일정) ============ -->
   <div class="view" id="viewVendor" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">벤더팀<span class="view-title-sub">/ 준비 중</span></h1>
+      <h1 class="view-title">벤더팀<span class="view-title-sub">/ 공구 일정</span></h1>
     </div>
     <div class="po-wrap">
-      <div class="po-section">
-        <div class="po-empty">
-          <div class="po-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      <div class="po-section md-cal-section">
+        <div class="po-section-head md-cal-head">
+          <div class="po-section-title">공구 일정 <span class="po-section-meta-inline" id="gcCalStatus">불러오는 중…</span></div>
+          <div class="po-section-meta md-cal-meta">
+            <div class="md-cal-nav">
+              <button type="button" class="btn-md-cal-nav" onclick="gcCalNavToday()" title="오늘">오늘</button>
+              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="gcCalNavPrev()" aria-label="이전 달">‹</button>
+              <span class="md-cal-monthlabel" id="gcCalMonthLabel">—</span>
+              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="gcCalNavNext()" aria-label="다음 달">›</button>
+            </div>
+            <button type="button" class="btn-md-cal-nav" onclick="gcCalRefresh()" title="새로고침">↻</button>
           </div>
-          <div class="po-empty-text">벤더팀 페이지 준비 중</div>
-          <div class="po-empty-sub">구성·도구는 추후 채워질 예정</div>
+        </div>
+        <div class="md-cal-body">
+          <div class="md-cal-weekdays">
+            <div class="md-cal-wd md-cal-sun">일</div>
+            <div class="md-cal-wd">월</div>
+            <div class="md-cal-wd">화</div>
+            <div class="md-cal-wd">수</div>
+            <div class="md-cal-wd">목</div>
+            <div class="md-cal-wd">금</div>
+            <div class="md-cal-wd md-cal-sat">토</div>
+          </div>
+          <div class="md-cal-grid" id="gcCalGrid"></div>
         </div>
       </div>
     </div>
@@ -4893,6 +4921,10 @@
     if(id==='viewCs'){
       if(typeof renderCs==='function') renderCs();
       if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
+    }
+    if(id==='viewVendor'){
+      if(typeof gcCalEnsureLoaded==='function') gcCalEnsureLoaded();
+      if(typeof renderGcCal==='function') renderGcCal();
     }
     if(id==='viewStock'){
       if(typeof initStockView==='function') initStockView();
@@ -9112,6 +9144,227 @@ async function handlePOFiles(files){
     const n = document.querySelectorAll('.sub-modules .sub-module').length;
     el.textContent = n;
   })();
+
+  /* ===== 벤더팀 — 공구 일정 캘린더 (brightbeed@gmail.com 공개 iCal, /cal 프록시) ===== */
+  const _gcCal = (()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth(),events:[],loaded:false,loading:false,error:null};})();
+
+  function _gcIso(d){
+    const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dd}`;
+  }
+  function _gcParseDate(s){
+    const m=String(s||'').match(/^(\d{4})(\d{2})(\d{2})/);
+    return m?`${m[1]}-${m[2]}-${m[3]}`:null;
+  }
+  function gcParseICS(text){
+    // RFC 5545 line unfolding (continuation lines start with space/tab)
+    const unfolded=String(text||'').replace(/\r?\n[ \t]/g,'');
+    const lines=unfolded.split(/\r?\n/);
+    const all=[];
+    let cur=null;
+    for(const line of lines){
+      if(line==='BEGIN:VEVENT'){cur={endExclusive:false}; continue;}
+      if(line==='END:VEVENT'){
+        if(cur&&cur.title&&cur.start) all.push(cur);
+        cur=null; continue;
+      }
+      if(!cur) continue;
+      if(line.startsWith('SUMMARY')){
+        const m=line.match(/^SUMMARY[^:]*:(.*)$/);
+        if(m){
+          cur.title=m[1].replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\n/gi,' ').replace(/\\\\/g,'\\').trim();
+        }
+      } else if(line.startsWith('DTSTART')){
+        const v=line.split(':').pop();
+        const d=_gcParseDate(v);
+        if(d) cur.start=d;
+      } else if(line.startsWith('DTEND')){
+        const v=line.split(':').pop();
+        const d=_gcParseDate(v);
+        if(d) cur.end=d;
+        if(line.includes('VALUE=DATE')) cur.endExclusive=true;
+      } else if(line.startsWith('UID:')){
+        cur.uid=line.slice(4);
+      }
+    }
+    // 공구 이벤트만 (공구], 공구 ], 공구) 등)
+    return all.filter(ev=>/^공구\s*[\]\)]/.test(ev.title)).map(ev=>{
+      let endIso=ev.end||ev.start;
+      if(ev.end&&ev.endExclusive){
+        // 종일 이벤트의 DTEND는 exclusive — 하루 빼서 inclusive로
+        const d=new Date(ev.end+'T00:00:00');
+        d.setDate(d.getDate()-1);
+        const out=_gcIso(d);
+        if(out>=ev.start) endIso=out; else endIso=ev.start;
+      }
+      const display=ev.title.replace(/^공구\s*[\]\)]\s*/,'').trim();
+      return {start:ev.start,end:endIso,title:ev.title,display,uid:ev.uid};
+    });
+  }
+
+  async function gcCalLoad(force){
+    if(_gcCal.loading) return;
+    if(_gcCal.loaded&&!force) return;
+    _gcCal.loading=true; _gcCal.error=null;
+    renderGcCal();
+    try{
+      const base=await loadProxyBase();
+      if(!base) throw new Error('proxy unavailable');
+      const r=await fetch(`${base}/cal?cb=${Date.now()}`,{headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const text=await r.text();
+      _gcCal.events=gcParseICS(text);
+      _gcCal.loaded=true;
+    }catch(e){
+      console.error('gcCalLoad failed',e);
+      _gcCal.error=String(e&&e.message||e);
+    }finally{
+      _gcCal.loading=false;
+      renderGcCal();
+    }
+  }
+  function gcCalEnsureLoaded(){ if(!_gcCal.loaded&&!_gcCal.loading) gcCalLoad(); }
+  function gcCalRefresh(){ gcCalLoad(true); }
+  function gcCalNavPrev(){ _gcCal.month--; if(_gcCal.month<0){_gcCal.month=11; _gcCal.year--;} renderGcCal(); }
+  function gcCalNavNext(){ _gcCal.month++; if(_gcCal.month>11){_gcCal.month=0; _gcCal.year++;} renderGcCal(); }
+  function gcCalNavToday(){ const n=new Date(); _gcCal.year=n.getFullYear(); _gcCal.month=n.getMonth(); renderGcCal(); }
+
+  function renderGcCal(){
+    const grid=document.getElementById('gcCalGrid');
+    if(!grid) return;
+    const label=document.getElementById('gcCalMonthLabel');
+    if(label) label.textContent=`${_gcCal.year}.${String(_gcCal.month+1).padStart(2,'0')}`;
+    const statusEl=document.getElementById('gcCalStatus');
+    if(statusEl){
+      statusEl.classList.remove('is-err');
+      if(_gcCal.loading) statusEl.textContent='불러오는 중…';
+      else if(_gcCal.error){ statusEl.textContent='⚠ 로드 실패'; statusEl.classList.add('is-err'); }
+      else{
+        const ym=`${_gcCal.year}-${String(_gcCal.month+1).padStart(2,'0')}`;
+        const cnt=(_gcCal.events||[]).filter(ev=>{
+          const sMo=ev.start.slice(0,7), eMo=(ev.end||ev.start).slice(0,7);
+          return sMo<=ym && eMo>=ym;
+        }).length;
+        statusEl.textContent=`${cnt}건`;
+      }
+    }
+
+    const firstDay=new Date(_gcCal.year,_gcCal.month,1);
+    const startWd=firstDay.getDay();
+    const monthLast=new Date(_gcCal.year,_gcCal.month+1,0).getDate();
+    const prevMonthLast=new Date(_gcCal.year,_gcCal.month,0).getDate();
+    const todayIso=_gcIso(new Date());
+
+    const cells=[];
+    for(let i=startWd-1;i>=0;i--) cells.push({date:new Date(_gcCal.year,_gcCal.month-1,prevMonthLast-i),isOut:true});
+    for(let d=1;d<=monthLast;d++) cells.push({date:new Date(_gcCal.year,_gcCal.month,d),isOut:false});
+    while(cells.length<42){
+      const lc=cells[cells.length-1].date;
+      cells.push({date:new Date(lc.getFullYear(),lc.getMonth(),lc.getDate()+1),isOut:true});
+    }
+
+    grid.innerHTML='';
+    const MAX_LANES=3;
+
+    for(let wi=0; wi<6; wi++){
+      const week=cells.slice(wi*7,wi*7+7);
+      const weekStartIso=_gcIso(week[0].date);
+      const weekEndIso=_gcIso(week[6].date);
+
+      const weekEvs=(_gcCal.events||[]).filter(ev=>{
+        const e=ev.end||ev.start;
+        return ev.start<=weekEndIso && e>=weekStartIso;
+      });
+      weekEvs.sort((a,b)=>{
+        if(a.start!==b.start) return a.start<b.start?-1:1;
+        const aE=a.end||a.start, bE=b.end||b.start;
+        if(aE!==bE) return aE>bE?-1:1;
+        return (a.display||'').localeCompare(b.display||'');
+      });
+
+      const lanes=[];
+      const evLane=new Map();
+      weekEvs.forEach(ev=>{
+        const s=ev.start<weekStartIso ? weekStartIso : ev.start;
+        const e=(ev.end||ev.start)>weekEndIso ? weekEndIso : (ev.end||ev.start);
+        let li=-1;
+        for(let i=0;i<lanes.length;i++){
+          if(lanes[i].every(seg=>seg.end<s||seg.start>e)){li=i; break;}
+        }
+        if(li<0){lanes.push([{start:s,end:e}]); li=lanes.length-1;}
+        else{lanes[li].push({start:s,end:e});}
+        evLane.set(ev,li);
+      });
+
+      week.forEach(cell=>{
+        const iso=_gcIso(cell.date);
+        const wd=cell.date.getDay();
+        const cellEl=document.createElement('div');
+        cellEl.className='md-cal-cell';
+        if(cell.isOut) cellEl.classList.add('is-out');
+        if(iso===todayIso) cellEl.classList.add('is-today');
+        if(wd===0) cellEl.classList.add('is-sun');
+        if(wd===6) cellEl.classList.add('is-sat');
+
+        const numEl=document.createElement('div');
+        numEl.className='md-cal-daynum';
+        numEl.textContent=cell.date.getDate();
+        cellEl.appendChild(numEl);
+
+        const eventsEl=document.createElement('div');
+        eventsEl.className='md-cal-events';
+
+        const cellEvs=weekEvs.filter(ev=>{
+          const evS=ev.start<weekStartIso ? weekStartIso : ev.start;
+          const evE=(ev.end||ev.start)>weekEndIso ? weekEndIso : (ev.end||ev.start);
+          return iso>=evS && iso<=evE;
+        });
+
+        const laneSlots=new Array(MAX_LANES).fill(null);
+        let extras=0;
+        cellEvs.forEach(ev=>{
+          const li=evLane.get(ev);
+          if(li<MAX_LANES) laneSlots[li]=ev;
+          else extras++;
+        });
+        laneSlots.forEach(ev=>{
+          if(!ev){
+            const ph=document.createElement('div');
+            ph.className='md-cal-event-ph';
+            eventsEl.appendChild(ph);
+          } else {
+            const segStart=ev.start<weekStartIso ? weekStartIso : ev.start;
+            const segEnd=(ev.end||ev.start)>weekEndIso ? weekEndIso : (ev.end||ev.start);
+            const isStart=iso===segStart;
+            const isEnd=iso===segEnd;
+            const evEl=document.createElement('div');
+            evEl.className='md-cal-event gc-cal-event';
+            if(isStart) evEl.classList.add('is-left-cap');
+            if(isEnd) evEl.classList.add('is-right-cap');
+            evEl.title=ev.title;
+            evEl.textContent=isStart?ev.display:'';
+            eventsEl.appendChild(evEl);
+          }
+        });
+        if(extras>0){
+          const more=document.createElement('div');
+          more.className='md-cal-more';
+          more.textContent=`+${extras}`;
+          eventsEl.appendChild(more);
+        }
+
+        cellEl.appendChild(eventsEl);
+        grid.appendChild(cellEl);
+      });
+    }
+  }
+
+  window.gcCalNavPrev=gcCalNavPrev;
+  window.gcCalNavNext=gcCalNavNext;
+  window.gcCalNavToday=gcCalNavToday;
+  window.gcCalRefresh=gcCalRefresh;
+  window.gcCalEnsureLoaded=gcCalEnsureLoaded;
+  window.renderGcCal=renderGcCal;
 
   init();
 </script>
