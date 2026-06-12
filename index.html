@@ -5547,7 +5547,7 @@
           const daySuffix=(h.endDate&&h.endDate!==h.date&&h.days)?` <span style="color:var(--text-3);font-size:11px">${h.days}일</span>`:'';
           let delBtn='';
           if(h._id){
-            delBtn=`<button class="leave-history-del master-only" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(h._id)}','${escapeHTML(s.name)}','${escapeHTML(dlabel)}','${escapeHTML(h.type||'')}')">×</button>`;
+            delBtn=`<button class="leave-history-del" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(h._id)}','${escapeHTML(s.name)}','${escapeHTML(dlabel)}','${escapeHTML(h.type||'')}')">×</button>`;
           } else if(h._baseline){
             delBtn=`<button class="leave-history-del master-only" type="button" title="사용 내역 삭제" onclick="deleteBaselineLeave('${escapeHTML(s.name)}','${escapeHTML(h.date||'')}','${escapeHTML(h.type||'')}','${escapeHTML(dlabel)}')">×</button>`;
           }
@@ -5634,7 +5634,7 @@
       const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
       const typeLabel=it.endDate&&it.endDate!==it.date&&it.days?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
-      const delBtn=it._id?`<button class="leave-recent-del master-only" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(it._id)}', '${escapeHTML(it.name)}', '${escapeHTML(dlabel)}', '${escapeHTML(it.type)}')">×</button>`:'';
+      const delBtn=it._id?`<button class="leave-recent-del" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(it._id)}', '${escapeHTML(it.name)}', '${escapeHTML(dlabel)}', '${escapeHTML(it.type)}')">×</button>`:'';
       return `<div class="leave-recent-item">
         <span class="leave-recent-when">${escapeHTML(when)}</span>
         <span class="leave-recent-name">${escapeHTML(it.name)}</span>
@@ -6997,10 +6997,10 @@ async function handlePOFiles(files){
     }catch(e){return {ok:false}}
   }
 
-  /* 최근 신청 내역에서 × 클릭 시 호출 — confirm 후 Supabase에서 삭제 */
+  /* 최근 신청 내역에서 × 클릭 시 호출 — confirm 후 Supabase에서 삭제
+     · 뷰어도 본인이 잘못 제출한 신청을 취소할 수 있도록 마스터 권한 체크 제거 */
   async function deleteLeaveEntry(id, name, dateLabel, type){
     if(!id) return;
-    if(!requireMaster('연차 신청 취소')) return;
     const ok=confirm(`'${name} · ${dateLabel} ${type}' 신청을 취소할까요?\n취소하면 사용 일수도 자동으로 복구됩니다.`);
     if(!ok) return;
     const r=await sbDeleteLeaveEntry(id);
