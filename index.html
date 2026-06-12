@@ -4768,6 +4768,9 @@
     if(typeof initHistoryFromHash==='function') initHistoryFromHash();
     syncFromRemote();
     startPolling();
+    // 벤더 데이터 백그라운드 첫 로드 — 사용자가 벤더 뷰에 들어오지 않아도 폴링이 즉시 살아남
+    if(typeof gcCalEnsureLoaded==='function') gcCalEnsureLoaded();
+    if(typeof vMarginEnsureLoaded==='function') vMarginEnsureLoaded();
   }
   function showLock(){app.classList.remove('show');lock.classList.add('show');setTimeout(()=>pin.focus(),50)}
 
@@ -6155,11 +6158,22 @@
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
     if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
-    // 벤더사 시트(공구 진행 내역) — 첫 로드 후 30분마다 자동 재요청 (탭이 hidden일 땐 폴링 자체가 멈춤)
-    if(typeof vMarginLoad==='function' && typeof _vMargin!=='undefined' && _vMargin.loaded && !_vMargin.loading){
-      const last=_vMargin._loadedAt||0;
-      if(Date.now()-last >= 30*60*1000){
+    // 벤더사 데이터 자동 갱신 — 성공 후 30분 게이트 / 실패 후 5분 재시도 (탭이 hidden일 땐 폴링 자체가 멈춤)
+    const VENDOR_OK_MS=30*60*1000, VENDOR_RETRY_MS=5*60*1000;
+    if(typeof vMarginLoad==='function' && typeof _vMargin!=='undefined' && !_vMargin.loading){
+      const last=_vMargin._loadedAt||_vMargin._lastTryAt||0;
+      const gate=_vMargin.loaded?VENDOR_OK_MS:VENDOR_RETRY_MS;
+      if(Date.now()-last >= gate){
+        _vMargin._lastTryAt=Date.now();
         vMarginLoad(true).catch(()=>{});
+      }
+    }
+    if(typeof gcCalLoad==='function' && typeof _gcCal!=='undefined' && !_gcCal.loading){
+      const last=_gcCal._loadedAt||_gcCal._lastTryAt||0;
+      const gate=_gcCal.loaded?VENDOR_OK_MS:VENDOR_RETRY_MS;
+      if(Date.now()-last >= gate){
+        _gcCal._lastTryAt=Date.now();
+        gcCalLoad(true).catch(()=>{});
       }
     }
   }
@@ -9312,6 +9326,7 @@ async function handlePOFiles(files){
       const text=await r.text();
       _gcCal.events=gcParseICS(text);
       _gcCal.loaded=true;
+      _gcCal._loadedAt=Date.now();
     }catch(e){
       console.error('gcCalLoad failed',e);
       _gcCal.error=String(e&&e.message||e);
@@ -9342,7 +9357,8 @@ async function handlePOFiles(files){
           const sMo=ev.start.slice(0,7), eMo=(ev.end||ev.start).slice(0,7);
           return sMo<=ym && eMo>=ym;
         }).length;
-        statusEl.textContent=`${cnt}건`;
+        const t=(typeof _vendorFmtTime==='function')?_vendorFmtTime(_gcCal._loadedAt):'';
+        statusEl.textContent=t?`${cnt}건 · ${t} 갱신`:`${cnt}건`;
       }
     }
 
@@ -9572,6 +9588,11 @@ async function handlePOFiles(files){
   }
   function vMarginEnsureLoaded(){ if(!_vMargin.loaded&&!_vMargin.loading) vMarginLoad(); }
   function vMarginRefresh(){ vMarginLoad(true); }
+  function _vendorFmtTime(ts){
+    if(!ts) return '';
+    const d=new Date(ts);
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
 
   function renderVMargin(){
     const wrap=document.getElementById('vMarginList');
@@ -9581,7 +9602,11 @@ async function handlePOFiles(files){
       status.classList.remove('is-err');
       if(_vMargin.loading) status.textContent='불러오는 중…';
       else if(_vMargin.error){status.textContent='⚠ 로드 실패'; status.classList.add('is-err');}
-      else status.textContent=_vMargin.months.length?`${_vMargin.months.length}개월`:'데이터 없음';
+      else{
+        const base=_vMargin.months.length?`${_vMargin.months.length}개월`:'데이터 없음';
+        const t=_vendorFmtTime(_vMargin._loadedAt);
+        status.textContent=t?`${base} · ${t} 갱신`:base;
+      }
     }
     if(!_vMargin.loaded){ wrap.innerHTML=''; return; }
 
