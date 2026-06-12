@@ -2830,7 +2830,7 @@
         <path class="line l-brand"  d="M 540 84 V 110"/>
         <path class="line l-vendor" d="M 885 84 V 110"/>
 
-        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(375)/MD2팀(485)/C/S(595) -->
+        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(375)/MD팀(485)/C/S(595) -->
         <path class="line l-brand" d="M 540 152 V 200"/>
         <path class="line l-brand" d="M 375 200 H 595"/>
         <path class="line l-mkt"   d="M 375 200 V 230"/>
@@ -2863,11 +2863,11 @@
         <rect class="b-vendor" x="845" y="110" width="80" height="42" rx="6"/>
         <text class="t-vendor" x="885" y="133">벤더</text>
 
-        <!-- 팀 (마케팅·MD2팀·C/S공유·MD-벤더) — 각각 다른 색 -->
+        <!-- 팀 (마케팅·MD팀·C/S공유·MD-벤더) — 각각 다른 색 -->
         <rect class="b-mkt"   x="335" y="230" width="80" height="42" rx="6"/>
         <text class="t-mkt"   x="375" y="253">마케팅</text>
         <rect class="b-md2"   x="445" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"   x="485" y="253">MD2팀</text>
+        <text class="t-md2"   x="485" y="253">MD팀</text>
         <rect class="b-share" x="555" y="230" width="80" height="42" rx="6"/>
         <text class="t-share" x="595" y="253">C/S</text>
         <rect class="b-md2"   x="960" y="230" width="80" height="42" rx="6"/>
@@ -2880,7 +2880,7 @@
         <text class="t-mem m-logi"  x="80"   y="376">이소영</text>
         <!-- 마케팅 -->
         <text class="t-mem m-mkt"   x="375"  y="320">서원진</text>
-        <!-- MD2팀 (브랜드) -->
+        <!-- MD팀 (브랜드) -->
         <text class="t-mem m-md2"   x="485"  y="320">김채원</text>
         <!-- C/S 공유 -->
         <text class="t-mem m-share" x="595"  y="320">정신혜</text>
@@ -2905,7 +2905,7 @@
             <div class="om-div-name">브랜드</div>
             <div class="om-teams">
               <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">서원진</span></div>
-              <div class="om-team om-md2"><span class="om-team-name">MD2팀</span><span class="om-mem">김채원</span></div>
+              <div class="om-team om-md2"><span class="om-team-name">MD팀</span><span class="om-mem">김채원</span></div>
               <div class="om-team om-share"><span class="om-team-name">C/S<small>공유</small></span><span class="om-mem">정신혜</span></div>
             </div>
           </div>
@@ -5406,7 +5406,7 @@
       {date:'2026-04-10',type:'생일반차'},
       {date:'2026-04-21',type:'오전반차'},
     ]},
-    {name:'김채원',dept:'브랜드',team:'MD2팀',color:'md2',hire:'2026-05-20'},
+    {name:'김채원',dept:'브랜드',team:'MD팀',color:'md2',hire:'2026-05-20'},
   ];
   const LEAVE_KEY='brightbeed_leave_v1';
   function loadLeaveData(){try{return JSON.parse(localStorage.getItem(LEAVE_KEY)||'{}')}catch(e){return {}}}
