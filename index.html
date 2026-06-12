@@ -6155,6 +6155,13 @@
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
     if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
+    // 벤더사 시트(공구 진행 내역) — 첫 로드 후 30분마다 자동 재요청 (탭이 hidden일 땐 폴링 자체가 멈춤)
+    if(typeof vMarginLoad==='function' && typeof _vMargin!=='undefined' && _vMargin.loaded && !_vMargin.loading){
+      const last=_vMargin._loadedAt||0;
+      if(Date.now()-last >= 30*60*1000){
+        vMarginLoad(true).catch(()=>{});
+      }
+    }
   }
 
   function startPolling(){
@@ -9554,6 +9561,7 @@ async function handlePOFiles(files){
       const text=await r.text();
       _vMargin.months=vMarginParse(text);
       _vMargin.loaded=true;
+      _vMargin._loadedAt=Date.now();
     }catch(e){
       console.error('vMarginLoad failed',e);
       _vMargin.error=String(e&&e.message||e);
