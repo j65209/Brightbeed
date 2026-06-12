@@ -2039,11 +2039,6 @@
   .org-svg .t-mkt{fill:#be185d;font-weight:600;font-size:14px}
   .org-svg .l-mkt{stroke:rgba(255,107,181,.5)}
 
-  /* MD-브랜드 — 시안 */
-  .org-svg .b-md1{fill:rgba(6,216,255,.08);stroke:rgba(6,216,255,.55);stroke-width:1}
-  .org-svg .t-md1{fill:#0284c7;font-weight:600;font-size:14px}
-  .org-svg .l-md1{stroke:rgba(6,216,255,.5)}
-
   /* MD-벤더 — 코랄 */
   .org-svg .b-md2{fill:rgba(255,140,112,.08);stroke:rgba(255,140,112,.55);stroke-width:1}
   .org-svg .t-md2{fill:#b91c1c;font-weight:600;font-size:14px}
@@ -2053,7 +2048,6 @@
   .org-svg .t-mem{font-weight:500;font-size:13px;letter-spacing:.01em}
   .org-svg .t-mem.m-logi  {fill:#9a3412}
   .org-svg .t-mem.m-mkt   {fill:#9d174d}
-  .org-svg .t-mem.m-md1   {fill:#0369a1}
   .org-svg .t-mem.m-share {fill:#854d0e}
   .org-svg .t-mem.m-md2   {fill:#991b1b}
 
@@ -2123,8 +2117,6 @@
   .om-div.om-brand  .om-div-name{color:#0d9488;border-bottom-color:rgba(255,46,147,.25)}
   .om-div.om-brand  .om-team.om-mkt   .om-team-name{color:#be185d;background:rgba(255,107,181,.10);border:1px solid rgba(255,107,181,.30)}
   .om-div.om-brand  .om-team.om-mkt   .om-mem{color:#9d174d;border-color:rgba(255,107,181,.30);background:rgba(255,107,181,.06)}
-  .om-div.om-brand  .om-team.om-md1   .om-team-name{color:#0284c7;background:rgba(6,216,255,.10);border:1px solid rgba(6,216,255,.30)}
-  .om-div.om-brand  .om-team.om-md1   .om-mem{color:#0369a1;border-color:rgba(6,216,255,.30);background:rgba(6,216,255,.06)}
   .om-div.om-brand  .om-team.om-share .om-team-name{color:#854d0e;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.30)}
   .om-div.om-brand  .om-team.om-share .om-mem{color:#854d0e;border-color:rgba(212,175,55,.30);background:rgba(212,175,55,.06)}
 
@@ -2409,12 +2401,6 @@
   .leave-card.l-mkt    .leave-name{color:#9d174d}
   .leave-card.l-mkt    .leave-bar-fill{background:linear-gradient(90deg,#be185d,#ff4d8e)}
   .leave-card.l-mkt    .leave-remain{color:#be185d}
-
-  /* MD-브랜드 — 시안 */
-  .leave-card.l-md1    {border-color:rgba(6,216,255,.28)}
-  .leave-card.l-md1    .leave-name{color:#0369a1}
-  .leave-card.l-md1    .leave-bar-fill{background:linear-gradient(90deg,#0284c7,#0bb7ff)}
-  .leave-card.l-md1    .leave-remain{color:#0284c7}
 
   /* MD-벤더 — 코랄 */
   .leave-card.l-md2    {border-color:rgba(255,140,112,.28)}
@@ -2844,30 +2830,28 @@
         <path class="line l-brand"  d="M 540 84 V 110"/>
         <path class="line l-vendor" d="M 885 84 V 110"/>
 
-        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(375)/MD1팀(485)/MD2팀(595)/C/S(705) -->
+        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(375)/MD2팀(485)/C/S(595) -->
         <path class="line l-brand" d="M 540 152 V 200"/>
-        <path class="line l-brand" d="M 375 200 H 705"/>
+        <path class="line l-brand" d="M 375 200 H 595"/>
         <path class="line l-mkt"   d="M 375 200 V 230"/>
-        <path class="line l-md1"   d="M 485 200 V 230"/>
-        <path class="line l-md2"   d="M 595 200 V 230"/>
-        <path class="line l-share" d="M 705 200 V 230"/>
+        <path class="line l-md2"   d="M 485 200 V 230"/>
+        <path class="line l-share" d="M 595 200 V 230"/>
 
-        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(705, 공유)/MD(1000) -->
+        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(595, 공유)/MD(1000) -->
         <path class="line l-vendor" d="M 885 152 V 200"/>
-        <path class="line l-vendor" d="M 705 200 H 1000"/>
+        <path class="line l-vendor" d="M 595 200 H 1000"/>
         <path class="line l-md2"    d="M 1000 200 V 230"/>
 
         <!-- 팀 → 인원 (단일 드롭, 팀 색) -->
         <path class="line l-mkt"   d="M 375 272 V 305"/>
-        <path class="line l-md1"   d="M 485 272 V 305"/>
-        <path class="line l-md2"   d="M 595 272 V 305"/>
-        <path class="line l-share" d="M 705 272 V 305"/>
+        <path class="line l-md2"   d="M 485 272 V 305"/>
+        <path class="line l-share" d="M 595 272 V 305"/>
         <path class="line l-md2"   d="M 1000 272 V 305"/>
 
         <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
         <path class="line l-logi" d="M 80 152 V 305"/>
 
-        <!-- 루트 — 시각 중심(x=540)에 맞춤. 브랜드·MD-브랜드·임혜지와 동일 수직선 -->
+        <!-- 루트 — 시각 중심(x=540)에 맞춤. 본부 라인의 시각 중심 -->
         <rect class="b-root" x="435" y="10" width="210" height="42" rx="8"/>
         <text class="t-root" x="540" y="33">(주)브라이트비드</text>
 
@@ -2879,15 +2863,13 @@
         <rect class="b-vendor" x="845" y="110" width="80" height="42" rx="6"/>
         <text class="t-vendor" x="885" y="133">벤더</text>
 
-        <!-- 팀 (마케팅·MD1팀·MD2팀·C/S공유·MD-벤더) — 각각 다른 색 -->
+        <!-- 팀 (마케팅·MD2팀·C/S공유·MD-벤더) — 각각 다른 색 -->
         <rect class="b-mkt"   x="335" y="230" width="80" height="42" rx="6"/>
         <text class="t-mkt"   x="375" y="253">마케팅</text>
-        <rect class="b-md1"   x="445" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md1"   x="485" y="253">MD1팀</text>
-        <rect class="b-md2"   x="555" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"   x="595" y="253">MD2팀</text>
-        <rect class="b-share" x="665" y="230" width="80" height="42" rx="6"/>
-        <text class="t-share" x="705" y="253">C/S</text>
+        <rect class="b-md2"   x="445" y="230" width="80" height="42" rx="6"/>
+        <text class="t-md2"   x="485" y="253">MD2팀</text>
+        <rect class="b-share" x="555" y="230" width="80" height="42" rx="6"/>
+        <text class="t-share" x="595" y="253">C/S</text>
         <rect class="b-md2"   x="960" y="230" width="80" height="42" rx="6"/>
         <text class="t-md2"   x="1000" y="253">MD</text>
 
@@ -2898,12 +2880,10 @@
         <text class="t-mem m-logi"  x="80"   y="376">이소영</text>
         <!-- 마케팅 -->
         <text class="t-mem m-mkt"   x="375"  y="320">서원진</text>
-        <!-- MD1팀 (브랜드) -->
-        <text class="t-mem m-md1"   x="485"  y="320">임혜지</text>
         <!-- MD2팀 (브랜드) -->
-        <text class="t-mem m-md2"   x="595"  y="320">김채원</text>
+        <text class="t-mem m-md2"   x="485"  y="320">김채원</text>
         <!-- C/S 공유 -->
-        <text class="t-mem m-share" x="705"  y="320">정신혜</text>
+        <text class="t-mem m-share" x="595"  y="320">정신혜</text>
         <!-- MD (벤더) -->
         <text class="t-mem m-md2"   x="1000" y="320">조혜인</text>
         <text class="t-mem m-md2"   x="1000" y="348">김완성</text>
@@ -2925,7 +2905,6 @@
             <div class="om-div-name">브랜드</div>
             <div class="om-teams">
               <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">서원진</span></div>
-              <div class="om-team om-md1"><span class="om-team-name">MD1팀</span><span class="om-mem">임혜지</span></div>
               <div class="om-team om-md2"><span class="om-team-name">MD2팀</span><span class="om-mem">김채원</span></div>
               <div class="om-team om-share"><span class="om-team-name">C/S<small>공유</small></span><span class="om-mem">정신혜</span></div>
             </div>
@@ -5407,7 +5386,6 @@
       {date:'2026-04-30',type:'연차'},
     ]},
     {name:'서원진',dept:'브랜드',team:'마케팅',color:'mkt',hire:'2026-04-06',used:0},
-    {name:'임혜지',dept:'브랜드',team:'MD1팀',color:'md1',hire:'2026-05-12'},
     {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share',hire:'2026-05-14'},
     {name:'조혜인',dept:'벤더',team:'MD',color:'md2',hire:'2025-10-27',used:6.5,history:[
       {date:'2026-01-02',type:'오후반차'},
