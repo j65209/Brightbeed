@@ -1178,8 +1178,19 @@
   .seeding-log-extra{grid-area:extra;display:flex;gap:10px;flex-wrap:wrap;padding-left:2px;align-items:center}
   .seeding-log-rd{color:#fde047;background:rgba(253,224,71,.12);border:1px solid rgba(253,224,71,.28);font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px}
   .seeding-log-memo{color:#cbd5e1;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px}
-  .seeding-log-undo{grid-area:undo;background:none;border:1px solid rgba(225,29,72,.3);color:#fda4af;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:inherit}
-  .seeding-log-undo:hover{background:rgba(225,29,72,.12)}
+  .seeding-log-actions{grid-area:undo;display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
+  .seeding-log-undo{background:#e5e7eb;border:1px solid #9ca3af;color:#111827;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .seeding-log-undo:hover{background:#d1d5db}
+  .seeding-log-return{background:#34d399;border:1px solid #059669;color:#111827;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .12s}
+  .seeding-log-return:hover{background:#10b981}
+  .seeding-log-returned-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:4px;background:#a7f3d0;border:1px solid #059669;color:#111827;font-size:11px;font-weight:800;white-space:nowrap}
+  .seeding-log-row.is-returned{background:rgba(52,211,153,.06)}
+  .seeding-log-row.is-returned .seeding-log-to,
+  .seeding-log-row.is-returned .seeding-log-size,
+  .seeding-log-row.is-returned .seeding-log-date{opacity:.7}
+  .seeding-li-item.is-returned{opacity:.55;text-decoration:line-through;text-decoration-color:rgba(255,255,255,.7);text-decoration-thickness:1.5px}
+  .seeding-li-returned{display:inline-block;color:#34d399;font-size:11px;font-weight:800;margin-left:2px}
+  .seeding-cal-chip.is-return.is-done{opacity:.55;text-decoration:line-through;text-decoration-color:rgba(255,255,255,.85)}
   .seeding-log-empty{padding:32px;text-align:center;color:var(--text-3);font-size:12px}
   .seeding-stock-body{max-height:54vh;overflow:auto;margin:8px 0 16px;display:flex;flex-direction:column;gap:6px}
   .seeding-stock-row{display:grid;grid-template-columns:24px 1fr 90px 90px;gap:10px;align-items:center;padding:7px 10px;border-radius:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04)}
@@ -8537,11 +8548,13 @@ async function handlePOFiles(files){
       const d=new Date(L.ts);
       const dt=`${d.getMonth()+1}/${d.getDate()}`;
       const sizeKr=L.size==='M'?'여성':'남성';
-      const rd=L.returnDate?`<span class="seeding-li-rd" title="반납 예정 ${_seedEsc(L.returnDate)}">↩ ${_seedEsc(String(L.returnDate).slice(5))}</span>`:'';
-      return `<span class="seeding-li-item">
+      const isReturned=!!L.returnedAt;
+      const rd=L.returnDate&&!isReturned?`<span class="seeding-li-rd" title="반납 예정 ${_seedEsc(L.returnDate)}">↩ ${_seedEsc(String(L.returnDate).slice(5))}</span>`:'';
+      const retMark=isReturned?`<span class="seeding-li-returned" title="반납 완료">✓</span>`:'';
+      return `<span class="seeding-li-item${isReturned?' is-returned':''}">
         <span class="seeding-li-date">${dt}</span>
         <span class="seeding-li-to">${_seedEsc(L.to)}</span>
-        <span class="seeding-li-sz is-${L.size==='L'?'male':'female'}">${sizeKr}×${L.qty}</span>${rd}
+        <span class="seeding-li-sz is-${L.size==='L'?'male':'female'}">${sizeKr}×${L.qty}</span>${rd}${retMark}
       </span>`;
     }).join('');
     const more=log.length>MAX?`<span class="seeding-li-more">외 ${log.length-MAX}건 →</span>`:'';
@@ -8669,14 +8682,28 @@ async function handlePOFiles(files){
         const d=new Date(L.ts);
         const dt=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
         const sizeKr=L.size==='M'?'여성':'남성';
+        const isReturned=!!L.returnedAt;
         const rd=L.returnDate?`<span class="seeding-log-rd" title="반납 예정">📅 ${_seedEsc(L.returnDate)}</span>`:'';
-        const memoLine=(L.memo||rd)?`<div class="seeding-log-extra">${rd}${L.memo?`<span class="seeding-log-memo" title="${_seedEsc(L.memo)}">${_seedEsc(L.memo)}</span>`:''}</div>`:'';
-        return `<div class="seeding-log-row">
+        let returnedTag='';
+        if(isReturned){
+          const rdt=new Date(L.returnedAt);
+          const rstr=`${rdt.getMonth()+1}/${rdt.getDate()}`;
+          returnedTag=`<span class="seeding-log-rd" title="반납 완료" style="color:#111827;background:#a7f3d0;border-color:#059669">✓ 반납완료 ${rstr}</span>`;
+        }
+        const extraInner=`${returnedTag}${rd}${L.memo?`<span class="seeding-log-memo" title="${_seedEsc(L.memo)}">${_seedEsc(L.memo)}</span>`:''}`;
+        const memoLine=extraInner?`<div class="seeding-log-extra">${extraInner}</div>`:'';
+        const returnBtn=isReturned
+          ? `<span class="seeding-log-returned-tag" title="반납 처리됨">✓ 반납됨</span>`
+          : `<button type="button" class="seeding-log-return" onclick="seedingReturn('${_seedEsc(L.id)}')" title="반납 처리 — 재고 복구">반납</button>`;
+        return `<div class="seeding-log-row${isReturned?' is-returned':''}">
           <span class="seeding-log-date">${dt}</span>
           <span class="seeding-log-to">${_seedEsc(L.to)}</span>
           <span class="seeding-log-size is-${L.size==='L'?'male':'female'}">${sizeKr} ×${L.qty}</span>
           ${memoLine}
-          <button type="button" class="seeding-log-undo" onclick="seedingUndo('${_seedEsc(L.id)}')">취소</button>
+          <div class="seeding-log-actions">
+            ${returnBtn}
+            <button type="button" class="seeding-log-undo" onclick="seedingUndo('${_seedEsc(L.id)}')">취소</button>
+          </div>
         </div>`;
       }).join('');
     }
@@ -8692,17 +8719,53 @@ async function handlePOFiles(files){
     const it=_seeding_logItem;
     const L=(it.log||[]).find(x=>x.id===logId);
     if(!L) return;
-    if(!confirm(`${L.to} ${L.size}×${L.qty} 발송을 취소할까요?`)) return;
+    const alreadyReturned=!!L.returnedAt;
+    const confirmMsg=alreadyReturned
+      ? `${L.to} ${L.size}×${L.qty} 이력을 삭제할까요? (이미 반납 처리됨 — 재고는 그대로)`
+      : `${L.to} ${L.size}×${L.qty} 발송을 취소할까요?`;
+    if(!confirm(confirmMsg)) return;
     if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
     const items=(_seeding.items||[]).map(x=>{
       if(x.id !== it.id) return x;
       const nx={...x};
-      nx.sent={...(x.sent||{}), [L.size]:Math.max(0,((x.sent&&x.sent[L.size])||0)-L.qty)};
+      // 이미 반납 처리된 항목은 sent가 이미 복구되어 있으므로 다시 감소시키지 않음
+      if(alreadyReturned){
+        nx.sent={...(x.sent||{})};
+      }else{
+        nx.sent={...(x.sent||{}), [L.size]:Math.max(0,((x.sent&&x.sent[L.size])||0)-L.qty)};
+      }
       nx.log=(x.log||[]).filter(y=>y.id!==L.id);
       return nx;
     });
-    await _seedingPersist({items, updatedAt:Date.now()}, `chore: 시딩 발송 취소 (${it.color} ${L.size} ×${L.qty} ← ${L.to})`);
+    const msg=alreadyReturned
+      ? `chore: 시딩 이력 삭제 (${it.color} ${L.size} ×${L.qty} ← ${L.to})`
+      : `chore: 시딩 발송 취소 (${it.color} ${L.size} ×${L.qty} ← ${L.to})`;
+    await _seedingPersist({items, updatedAt:Date.now()}, msg);
     // 모달 열려있으면 다시 그리기
+    if(document.getElementById('seedingLogModal').classList.contains('show')){
+      const refreshed=(_seeding.items||[]).find(x=>x.id===it.id);
+      if(refreshed) seedingOpenLog(refreshed.id);
+      else seedingCloseLog();
+    }
+  }
+
+  async function seedingReturn(logId){
+    if(!_seeding_logItem) return;
+    const it=_seeding_logItem;
+    const L=(it.log||[]).find(x=>x.id===logId);
+    if(!L) return;
+    if(L.returnedAt){toast('이미 반납 처리된 항목입니다','err');return}
+    if(!confirm(`${L.to} ${L.size}×${L.qty} 반납 처리할까요? (재고 복구)`)) return;
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+    const now=Date.now();
+    const items=(_seeding.items||[]).map(x=>{
+      if(x.id !== it.id) return x;
+      const nx={...x};
+      nx.sent={...(x.sent||{}), [L.size]:Math.max(0,((x.sent&&x.sent[L.size])||0)-L.qty)};
+      nx.log=(x.log||[]).map(y=>y.id===L.id?{...y, returnedAt:now}:y);
+      return nx;
+    });
+    await _seedingPersist({items, updatedAt:now}, `chore: 시딩 반납 (${it.color} ${L.size} ×${L.qty} ← ${L.to})`);
     if(document.getElementById('seedingLogModal').classList.contains('show')){
       const refreshed=(_seeding.items||[]).find(x=>x.id===it.id);
       if(refreshed) seedingOpenLog(refreshed.id);
@@ -8786,6 +8849,7 @@ async function handlePOFiles(files){
   window.seedingRowClick=seedingRowClick;
   window.seedingOpenStockEdit=seedingOpenStockEdit;
   window.seedingUndo=seedingUndo;
+  window.seedingReturn=seedingReturn;
   window.syncSeedingFromRemote=syncSeedingFromRemote;
   window.renderSeeding=renderSeeding;
 
@@ -8810,7 +8874,8 @@ async function handlePOFiles(files){
           size:L.size,
           sizeKr:L.size==='M'?'여성':'남성',
           qty:L.qty,
-          memo:L.memo||''
+          memo:L.memo||'',
+          returnedAt:L.returnedAt||0
         };
         // 출고(발송)일 — 발송 시각 기준
         if(L.ts){
@@ -8818,7 +8883,14 @@ async function handlePOFiles(files){
         }
         // 반납 예정일 — 입력된 경우만
         if(L.returnDate){
-          out.push({...base, id:`${it.id}__${L.id}__ret`, type:'return', date:L.returnDate});
+          out.push({...base, id:`${it.id}__${L.id}__ret`, type:'return', date:L.returnDate, done:!!L.returnedAt});
+        }
+        // 실제 반납일 — 반납 처리된 경우만 (예정일과 다른 경우)
+        if(L.returnedAt){
+          const actualDate=_sCalIso(new Date(L.returnedAt));
+          if(actualDate !== L.returnDate){
+            out.push({...base, id:`${it.id}__${L.id}__retdone`, type:'return', date:actualDate, done:true});
+          }
         }
       });
     });
@@ -8885,8 +8957,9 @@ async function handlePOFiles(files){
       visible.forEach(ev=>{
         const chip=document.createElement('div');
         const isSend=ev.type==='send';
-        const tag=isSend?'출고':'반납';
-        chip.className='md-cal-event is-left-cap is-right-cap seeding-cal-chip '+(isSend?'is-send':'is-return');
+        const isDone=!!ev.done;
+        const tag=isSend?'출고':(isDone?'반납완료':'반납');
+        chip.className='md-cal-event is-left-cap is-right-cap seeding-cal-chip '+(isSend?'is-send':'is-return')+(isDone?' is-done':'');
         chip.style.background=ev.swatch;
         chip.style.color=_seedingChipTextColor(ev.swatch);
         chip.textContent=`${tag} ${ev.color} ${ev.sizeKr}×${ev.qty} ${ev.to}`;
