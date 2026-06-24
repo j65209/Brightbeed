@@ -9233,10 +9233,18 @@
     const rows=_vmCSVParse(text);
     const out=[];
     let cur=_vmEmptySection();
+    // 총매출 행 감지: 제품/셀러/수량(1~3) 다 비어있고 마진합(6) 또는 매출합(8)에 값이 있으면 closing.
+    // 시트 운영자가 "총매출금액" 라벨을 깜빡 누락해도 정상 마감되게 robust 처리.
+    const _isClosingRow = (r) => {
+      const lbl=(r[7]||'').trim();
+      if(lbl==='총매출금액') return true;
+      const noItem = !(r[1]||'').trim() && !(r[2]||'').trim() && !(r[3]||'').trim();
+      const hasTotal = !!((r[6]||'').trim()) || !!((r[8]||'').trim());
+      return noItem && hasTotal;
+    };
     for(let i=0; i<rows.length; i++){
       const r=rows[i];
       const monthLbl=(r[0]||'').trim();
-      const totalLbl=(r[7]||'').trim();
       const mMatch=monthLbl.match(/^(\d+)월$/);
 
       if(mMatch){
@@ -9245,7 +9253,7 @@
         // 라벨 행도 그 자체로 첫 진행건일 수 있으니 아래 item-row 분기로 흘림
       }
 
-      if(totalLbl==='총매출금액'){
+      if(_isClosingRow(r)){
         cur.totalMargin=(r[6]||'').trim();
         cur.totalSales=(r[8]||'').trim();
         cur.pending=false;
