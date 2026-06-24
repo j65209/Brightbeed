@@ -6350,8 +6350,9 @@
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
     if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
-    // 벤더사 데이터 자동 갱신 — 성공 후 30분 게이트 / 실패 후 5분 재시도 (탭이 hidden일 땐 폴링 자체가 멈춤)
-    const VENDOR_OK_MS=30*60*1000, VENDOR_RETRY_MS=5*60*1000;
+    // 벤더사 데이터 자동 갱신 — 성공 후 10분 게이트 / 실패 후 5분 재시도 (탭이 hidden일 땐 폴링 자체가 멈춤)
+    // 시트는 서버 launchd 가 10분마다 fetch → 프록시 파일 캐시. 대시보드도 같은 주기로 폴링.
+    const VENDOR_OK_MS=10*60*1000, VENDOR_RETRY_MS=5*60*1000;
     if(typeof vMarginLoad==='function' && typeof _vMargin!=='undefined' && !_vMargin.loading){
       const last=_vMargin._loadedAt||_vMargin._lastTryAt||0;
       const gate=_vMargin.loaded?VENDOR_OK_MS:VENDOR_RETRY_MS;
