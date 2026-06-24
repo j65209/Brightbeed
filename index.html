@@ -615,6 +615,13 @@
   .kd-search::placeholder{color:var(--text-3)}
 
   #kdUpdated{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-right:12px}
+  #kdUpdated.kd-error{
+    color:#dc2626;font-weight:600;
+    padding:3px 8px;border-radius:4px;
+    background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);
+    cursor:help
+  }
+  #kdUpdated.kd-error::before{content:"⚠️ "}
   .kd-refresh-btn{
     display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
     background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
@@ -6173,6 +6180,11 @@
     try{ data=await fetchKDOrders(opts); }catch(e){ data=null; }
     if(!data || !Array.isArray(data.orders)){
       if(cnt) cnt.textContent='연결 실패';
+      if(updTag){
+        updTag.classList.add('kd-error');
+        updTag.textContent='프록시 연결 실패';
+        updTag.title='서버 프록시 또는 Cloudflare 터널 응답 없음';
+      }
       if(empty){
         empty.style.display='block';
         const t=empty.querySelector('.po-empty-text');
@@ -6186,12 +6198,27 @@
     // 발주 품목 없는 신청서는 표시 안 함 (콰이디에어에서 취소/빈 신청서 등)
     const orders=(data.orders||[]).filter(o => Array.isArray(o.items) && o.items.length > 0);
     // dedup-check: same data → skip rerender for cheaper polling
-    const hash = JSON.stringify({n:orders.length, t:data.fetched_at, first:orders[0]&&orders[0].ord_no});
+    const hash = JSON.stringify({n:orders.length, t:data.fetched_at, first:orders[0]&&orders[0].ord_no, err:data._error&&data._error.ts});
     const tsTxt = (()=>{
-      const ts=new Date((data.fetched_at||0)*1000);
+      if(!data.fetched_at) return '없음';
+      const ts=new Date(data.fetched_at*1000);
       return `${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
     })();
-    if(updTag) updTag.textContent=`최근 갱신 ${tsTxt}`;
+    if(updTag){
+      if(data._error){
+        // 마지막 fetch 실패 — 마지막 성공 시각 + 에러 메시지 (툴팁 full)
+        const errTs=new Date((data._error.ts||0)*1000);
+        const eh=`${String(errTs.getHours()).padStart(2,'0')}:${String(errTs.getMinutes()).padStart(2,'0')}`;
+        const msg=(data._error.error||'알 수 없는 오류').slice(0,80);
+        updTag.classList.add('kd-error');
+        updTag.textContent=`갱신 실패 ${eh} · 마지막 성공 ${tsTxt}`;
+        updTag.title=`${eh} 갱신 실패\n${msg}\n마지막 성공: ${tsTxt}`;
+      }else{
+        updTag.classList.remove('kd-error');
+        updTag.textContent=`최근 갱신 ${tsTxt}`;
+        updTag.title='';
+      }
+    }
     if(cnt) cnt.textContent=`${orders.length}건`;
     if(hash===_kdLastHash && !opts.force){
       return;
