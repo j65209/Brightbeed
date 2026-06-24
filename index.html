@@ -631,6 +631,106 @@
   .kd-refresh-btn:hover{background:var(--bg-3)}
   .kd-refresh-btn:disabled{opacity:.5;cursor:default}
 
+  /* ===== 콰이디에어 리스트 — 모바일 (≤720px) 카드 레이아웃 ===== */
+  @media (max-width: 720px){
+    .po-wrap{max-width:100%;padding:0 8px}
+    .po-section-head{
+      flex-wrap:wrap;gap:10px;padding:12px 14px
+    }
+    .po-section-title{flex:1 1 auto;font-size:13px}
+    .po-section-meta{
+      flex:1 1 100%;
+      flex-wrap:wrap;gap:8px;justify-content:flex-start;
+      font-size:11px
+    }
+    .kd-search{
+      flex:1 1 100%;width:100%;margin-right:0;margin-bottom:0;
+      box-sizing:border-box;font-size:13px
+    }
+    .kd-refresh-btn{margin-left:auto;padding:6px 11px;font-size:11px}
+    #kdUpdated{margin-right:0;flex:0 0 auto}
+    #poCount{flex:0 0 auto}
+
+    /* 테이블 → 카드 변환 */
+    .kd-table{display:block;border-collapse:separate;table-layout:auto}
+    .kd-table thead{display:none}
+    .kd-table tbody{display:block;padding:6px 10px 14px}
+    .kd-table tr.kd-row{
+      display:grid;
+      grid-template-columns:96px 1fr 1fr;
+      grid-template-rows:auto auto auto auto;
+      gap:8px 12px;
+      padding:12px;
+      margin:0 0 10px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff !important;
+    }
+    .kd-table tr.kd-row td{
+      background:transparent !important;
+      border:none !important;
+      padding:0;
+      text-align:left;
+      white-space:normal;
+      overflow:visible;
+      font-size:13px;
+      line-height:1.4
+    }
+    .kd-table tr.kd-row .col-img{
+      grid-column:1; grid-row:1 / span 2;
+      align-self:start
+    }
+    .kd-table tr.kd-row .col-ord{
+      grid-column:2 / span 2; grid-row:1;
+      padding-left:0;font-family:var(--mono)
+    }
+    .kd-table tr.kd-row .col-price{
+      grid-column:2; grid-row:2;
+      font-weight:700;color:var(--text-1);font-family:var(--mono);
+      align-self:end
+    }
+    .kd-table tr.kd-row .col-qty{
+      grid-column:3; grid-row:2;
+      text-align:right;align-self:end;
+      color:var(--neon);font-weight:700;font-size:15px;font-family:var(--sans);
+      text-shadow:0 0 12px rgba(255,46,147,.25)
+    }
+    .kd-table tr.kd-row .col-memo{
+      grid-column:1 / -1; grid-row:3;
+      padding:8px 0 0;
+      border-top:1px dashed var(--line);
+      font-size:12.5px;color:var(--text-1)
+    }
+    .kd-memo-text{-webkit-line-clamp:3;line-clamp:3}
+    .kd-table tr.kd-row .col-link{
+      grid-column:1 / -1; grid-row:4;
+      padding:0;text-align:right
+    }
+    .kd-link{padding:6px 14px;font-size:12px}
+
+    /* 모바일 썸네일 작게 + hover zoom 비활성 */
+    .kd-thumb{width:96px;height:96px;border-radius:8px}
+    .kd-thumb-wrap{cursor:default}
+    .kd-thumb-wrap:hover .kd-thumb{filter:none}
+    .kd-thumb-zoom{display:none !important}
+
+    /* 신청서번호 헤더 — 모바일에서 줄바꿈 자연스럽게 */
+    .kd-ord{font-size:13px}
+    .kd-ord-meta{font-size:10px;margin-top:2px}
+    .kd-status{margin-top:4px;padding:2px 6px;font-size:10px}
+  }
+
+  /* 더 작은 화면 (≤420px) — 카드 단순화 */
+  @media (max-width: 420px){
+    .kd-table tr.kd-row{
+      grid-template-columns:80px 1fr 1fr;
+      padding:10px;gap:6px 10px
+    }
+    .kd-thumb{width:80px;height:80px}
+    .po-section-title{font-size:12.5px}
+    .kd-section-sub{font-size:10px;padding:1px 5px}
+  }
+
   /* 발주일 그룹별 행 배경 (4단계 미세 톤 cycling) */
   .po-table tr.po-row-g0 td{background:#ffffff}
   .po-table tr.po-row-g1 td{background:#fdfaf0}
