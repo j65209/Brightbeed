@@ -2385,6 +2385,18 @@
   .leave-remain{font-size:18px;font-weight:700;letter-spacing:-.01em}
   .leave-remain-unit{font-size:11px;color:var(--text-2);font-weight:500;margin-left:2px}
   .leave-total{font-size:11px;color:var(--text-3)}
+  /* 사이클 라벨 — dept 줄에 인라인 배지 */
+  .leave-cycle-tag{display:inline-block;padding:1px 7px;margin-left:2px;border-radius:9px;background:rgba(120,113,108,.14);color:var(--text-1);font-size:10px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;letter-spacing:.01em}
+  /* 마이너스(0일초과) — 진한 빨강 강조 */
+  .leave-remain.is-over{color:#b91c1c !important}
+  .leave-remain-unit.is-over{color:#b91c1c !important;font-weight:700}
+  .leave-card .leave-remain.is-over,
+  .leave-card.l-logi .leave-remain.is-over,
+  .leave-card.l-brand .leave-remain.is-over,
+  .leave-card.l-share .leave-remain.is-over,
+  .leave-card.l-vendor .leave-remain.is-over,
+  .leave-card.l-mkt .leave-remain.is-over,
+  .leave-card.l-md2 .leave-remain.is-over{color:#b91c1c}
 
   /* 부서 색조 */
   .leave-card.l-logi   {border-color:rgba(255,179,71,.25)}
@@ -2988,7 +3000,7 @@
       <div class="leave-policy-section">
         <div class="leave-policy-section-title"><span class="num">2.</span>연차 소멸 안내</div>
         <div class="leave-policy-body">
-          <em>발생 연도 내 사용 원칙</em>: 연차는 발생일 연도 내 유효하며, 이후에는 사용 촉진 제도에 따라 자동 소멸됩니다. (미사용 시 소멸 전 적극 사용 권장)
+          본인이 부여받은 연차 수량은 연차 발생 후 1년 안에 모두 사용 해주셔야 합니다.
         </div>
       </div>
 
@@ -5260,35 +5272,42 @@
     _leave_lastHash=j;
   }
 
-  /* 회계연도(매년 1/1 초기화) 기준 발생 연차 자동 계산
-     카운트 시작 = max(올해 1/1, 입사일) — 작년 발생분은 누적 안 함
-     · 1년 미만 직원: 시작 달=1, 매월 +1 (캘린더 월 기준)
-     · 1년 이상 직원: 매년 1/1에 15 + (근속연수 - 1) 일괄 부여 */
-  function calculateLeaveTotal(hire,today){
+  /* 입사일 기준 1년 단위 사이클 — 매 anniversary마다 새 cycle 시작 (이전 미사용 폐기).
+     · 1년 미만 (cycle 0): 입사 후 만 1개월마다 +1일 (만월 카운트)
+     · N년차 (N>=1): 14 + N (1년차=15, 2년차=16, 3년차=17, …)
+     반환: {cycleIndex, label, cycleStart, cycleEnd, total} | null */
+  function cycleInfo(hire, today){
     if(!hire) return null;
-    const t=today||new Date();
-    const m=String(hire).match(/(\d{4})\D?(\d{1,2})\D?(\d{1,2})/);
+    const t = today || new Date();
+    const m = String(hire).match(/(\d{4})\D?(\d{1,2})\D?(\d{1,2})/);
     if(!m) return null;
-    const h=new Date(+m[1],+m[2]-1,+m[3]);
+    const h = new Date(+m[1], +m[2]-1, +m[3]);
     if(isNaN(h.getTime())) return null;
-    if(h>t) return 0; // 미래 입사 (아직 미입사)
-    const yearStart=new Date(t.getFullYear(),0,1);
-    // 올해 1/1 시점에 이미 만 1년 이상 근속했는지
-    const oneYearAfterHire=new Date(h.getFullYear()+1,h.getMonth(),h.getDate());
-    if(oneYearAfterHire<=yearStart){
-      // yearStart 시점의 만 근속연수 — 입사 anniversary가 yearStart 이전이면 단순 차이,
-      // 이후면 -1 (예: 2025-10-20 입사, 2027-01-01엔 만 1년만 지난 상태)
-      const annivThisYear=new Date(yearStart.getFullYear(),h.getMonth(),h.getDate());
-      const years=annivThisYear<=yearStart
-        ? yearStart.getFullYear()-h.getFullYear()
-        : yearStart.getFullYear()-h.getFullYear()-1;
-      return 15+(years-1);
+    if(h > t) return {cycleIndex:-1, label:'미입사', cycleStart:h, cycleEnd:null, total:0};
+
+    // 만 근속 연수 (입사 anniversary 기준)
+    let years = t.getFullYear() - h.getFullYear();
+    const annivThisYear = new Date(t.getFullYear(), h.getMonth(), h.getDate());
+    if(annivThisYear > t) years -= 1;
+
+    if(years < 1){
+      // 1년 미만 cycle — 만월 카운트
+      const cycleStart = h;
+      const cycleEnd = new Date(h.getFullYear()+1, h.getMonth(), h.getDate());
+      let months = (t.getFullYear()-h.getFullYear())*12 + (t.getMonth()-h.getMonth());
+      if(t.getDate() < h.getDate()) months -= 1;
+      if(months < 0) months = 0;
+      return {cycleIndex:0, label:'1년 미만', cycleStart, cycleEnd, total:months};
     }
-    // 1년 미만: 캘린더 월 카운트 — 시작 달=1, 다음 달=2, … (만근 X)
-    const start=h>yearStart?h:yearStart;
-    let months=(t.getFullYear()-start.getFullYear())*12+(t.getMonth()-start.getMonth())+1;
-    if(months<1) months=1;
-    return months;
+    // N년차 cycle
+    const cycleStart = new Date(h.getFullYear()+years, h.getMonth(), h.getDate());
+    const cycleEnd = new Date(h.getFullYear()+years+1, h.getMonth(), h.getDate());
+    return {cycleIndex:years, label:`${years}년차`, cycleStart, cycleEnd, total:14+years};
+  }
+  /* 옛 호출부 호환 — total만 반환 */
+  function calculateLeaveTotal(hire, today){
+    const c = cycleInfo(hire, today);
+    return c ? c.total : null;
   }
 
   /* 사용 내역 항목 하나의 차감 일수 */
@@ -5299,56 +5318,105 @@
     return 0; // 생일반차 / 출산휴가
   }
 
-  /* used = baseline(override v.used 또는 STAFF.used) − 삭제된 baseline 항목 + 신규 entries 합산.
-     STAFF.history는 이미 STAFF.used baseline에 반영되어 있으므로 중복 합산 X */
-  function _computeLeaveUsed(s, v){
-    const hasBaseline=Number.isFinite(v?.used)||Number.isFinite(s?.used);
-    const baseline=Number.isFinite(v?.used)?v.used:(Number.isFinite(s?.used)?s.used:0);
-    // baseline에서 삭제 표시된 항목 days 차감
-    const deletes=Array.isArray(v?.baselineDeletes)?v.baselineDeletes:[];
-    let baselineDelta=0;
-    if(deletes.length){
-      const bhist=Array.isArray(s?.history)?s.history:[];
-      for(const del of deletes){
-        const h=bhist.find(x=>x.date===del.date && x.type===del.type);
-        if(h) baselineDelta += _itemUsedDays(h);
-        else if(Number.isFinite(del.days)) baselineDelta += del.days;
+  /* cycle 기반 used 계산.
+     · cycle 0 (1년 미만): 기존 baseline 로직 — v.used(override) 우선, 없으면 s.used(baseline 누적값).
+       STAFF.history는 이미 s.used에 반영된 것으로 가정 (중복 합산 X). + newEntries(submittedAt).
+     · cycle 1+ (N년차): baseline 무시 (cycle 시작 시 0). cycle 안의 STAFF.history + newEntries만 합산.
+       사장님이 cycle 넘어간 직원 override.used를 그대로 두면 그 값을 cycle 안의 추가 baseline으로 사용. */
+  function _computeCycleUsed(s, v, cycle){
+    if(!cycle || cycle.cycleIndex < 0) return null;
+    const cs = cycle.cycleStart, ce = cycle.cycleEnd;
+    const inCycle = d => {
+      if(!d) return false;
+      const m = String(d).match(/(\d{4})\D?(\d{1,2})\D?(\d{1,2})/);
+      if(!m) return false;
+      const dd = new Date(+m[1], +m[2]-1, +m[3]);
+      if(isNaN(dd.getTime())) return false;
+      if(dd < cs) return false;
+      if(ce && dd >= ce) return false;
+      return true;
+    };
+
+    if(cycle.cycleIndex === 0){
+      // cycle 0 — 기존 baseline 로직 그대로
+      const hasBaseline = Number.isFinite(v?.used) || Number.isFinite(s?.used);
+      const baseline = Number.isFinite(v?.used) ? v.used : (Number.isFinite(s?.used) ? s.used : 0);
+      const deletes = Array.isArray(v?.baselineDeletes) ? v.baselineDeletes : [];
+      let baselineDelta = 0;
+      if(deletes.length){
+        const bhist = Array.isArray(s?.history) ? s.history : [];
+        for(const del of deletes){
+          const h = bhist.find(x => x.date===del.date && x.type===del.type);
+          if(h) baselineDelta += _itemUsedDays(h);
+          else if(Number.isFinite(del.days)) baselineDelta += del.days;
+        }
       }
+      const newEntries = Array.isArray(v?.history) ? v.history : [];
+      let extra = 0;
+      for(const h of newEntries){
+        if(!h || !h.submittedAt) continue;
+        extra += _itemUsedDays(h);
+      }
+      if(!hasBaseline && newEntries.length === 0) return null;
+      return baseline - baselineDelta + extra;
     }
-    const newEntries=Array.isArray(v?.history)?v.history:[];
-    let extra=0;
+
+    // cycle 1+ — cycle 안의 history만 합산 (이전 cycle 사용은 폐기)
+    const deletes = Array.isArray(v?.baselineDeletes) ? v.baselineDeletes : [];
+    const delSet = new Set(deletes.map(d => `${d.date}|${d.type}`));
+    let used = 0;
+    let counted = 0;
+    const bhist = Array.isArray(s?.history) ? s.history : [];
+    for(const h of bhist){
+      if(!inCycle(h.date)) continue;
+      if(delSet.has(`${h.date}|${h.type}`)) continue;
+      used += _itemUsedDays(h);
+      counted++;
+    }
+    const newEntries = Array.isArray(v?.history) ? v.history : [];
     for(const h of newEntries){
-      if(!h||!h.submittedAt) continue;
-      extra += _itemUsedDays(h);
+      if(!h || !h.submittedAt) continue;
+      if(!inCycle(h.date)) continue;
+      used += _itemUsedDays(h);
+      counted++;
     }
-    // baseline도 없고 신규 entry도 없을 때만 '미입력' 상태 (null) 반환
-    if(!hasBaseline && newEntries.length===0) return null;
-    return baseline - baselineDelta + extra;
+    if(Number.isFinite(v?.used)){
+      used += v.used;
+      counted++;
+    }
+    if(counted === 0) return null;
+    return used;
   }
 
   function leaveCardHTML(s,v,editing){
-    // leaveData(v) 우선 → STAFF default → 입사일 기반 자동 계산
+    // leaveData(v) 우선 → STAFF default → 입사일 기반 cycle 자동 계산
     const hire =v?.hire||s.hire||'';
+    const cycle = cycleInfo(hire);
     let total=Number.isFinite(v?.total)?v.total:(Number.isFinite(s.total)?s.total:null);
-    if(total===null){
-      const auto=calculateLeaveTotal(hire);
-      if(Number.isFinite(auto)) total=auto;
+    if(total===null && cycle && cycle.cycleIndex>=0){
+      total=cycle.total;
     }
-    const used=_computeLeaveUsed(s,v);
+    const used=_computeCycleUsed(s,v,cycle);
     // total은 있는데 used 미설정 시 0으로 간주 (미입력 표시 방지)
     const usedEff=(used===null&&total!==null)?0:used;
     // 편집 모드에선 baseline만 표시 (master가 override 직접 설정)
     const usedDisplay=editing?(Number.isFinite(v?.used)?v.used:(Number.isFinite(s.used)?s.used:'')):usedEff;
     const hasFull=total!==null&&usedEff!==null;
     const remain=hasFull?(total-usedEff):null;
-    const pct=hasFull&&total>0?Math.min(100,Math.round((usedEff/total)*100)):0;
+    const pct=hasFull&&total>0?Math.min(100,Math.round((Math.max(0,usedEff)/total)*100)):0;
     const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
+    const cycleLabel = cycle && cycle.cycleIndex>=0 ? cycle.label : (cycle && cycle.cycleIndex<0 ? '미입사' : '');
+    const subFull = cycleLabel ? `${sub} · <span class="leave-cycle-tag">${escapeHTML(cycleLabel)}</span>` : sub;
     const ceNum=editing?'contenteditable="true" inputmode="numeric" spellcheck="false"':'';
     const ceTxt=editing?'contenteditable="true" spellcheck="false"':'';
     const showHire=editing||hire;
     const hireHtml=showHire?`<span class="leave-hire" data-field="hire" ${ceTxt}>${escapeHTML(hire)}</span>`:'';
     // 어떤 정보든 있으면 정상 색 카드, 둘 다 없을 때만 leave-empty (회색 톤)
     const isEmpty=used===null&&total===null;
+    // 남음 표시 — 마이너스면 "N일초과", 양수면 "N일 남음"
+    const remainTextValue = remain===null ? '—' : (remain<0 ? `-${Math.abs(remain)}` : remain);
+    const remainUnitText = remain===null ? ' 미입력' : (remain<0 ? '일초과' : '일 남음');
+    const remainClass = remain!==null && remain<0 ? ' is-over' : '';
     // 사용 내역 — STAFF baseline(deletes 제외) + leaveData(v) 추가분 병합 후 날짜 정렬
     const baselineDeletes=Array.isArray(v?.baselineDeletes)?v.baselineDeletes:[];
     const _delSet=new Set(baselineDeletes.map(d=>`${d.date}|${d.type}`));
@@ -5382,10 +5450,10 @@
           <span class="leave-name">${escapeHTML(s.name)}</span>
           ${hireHtml}
         </div>
-        <div class="leave-dept">${escapeHTML(sub)}</div>
+        <div class="leave-dept">${subFull}</div>
         <div class="leave-bar"><div class="leave-bar-fill" style="width:${pct}%"></div></div>
         <div class="leave-stats">
-          <div><span class="leave-remain">${remain!==null?remain:'—'}</span><span class="leave-remain-unit">${remain!==null?'일 남음':' 미입력'}</span></div>
+          <div><span class="leave-remain${remainClass}">${remainTextValue}</span><span class="leave-remain-unit${remainClass}">${remainUnitText}</span></div>
           <div class="leave-edit-row">
             <span class="leave-used" data-field="used" ${ceNum}>${usedDisplay??''}</span>
             <span>/</span>
@@ -5500,20 +5568,30 @@
     const name=card.dataset.staff;
     const s=STAFF.find(x=>x.name===name)||{};
     const hire=v?.hire||s.hire||'';
+    const cycle = cycleInfo(hire);
     let total=Number.isFinite(v?.total)?v.total:(Number.isFinite(s.total)?s.total:null);
-    if(total===null){
-      const auto=calculateLeaveTotal(hire);
-      if(Number.isFinite(auto)) total=auto;
+    if(total===null && cycle && cycle.cycleIndex>=0){
+      total=cycle.total;
     }
-    const used=_computeLeaveUsed(s,v);
+    const used=_computeCycleUsed(s,v,cycle);
     const usedEff=(used===null&&total!==null)?0:used;
     const hasFull=total!==null&&usedEff!==null;
     const remain=hasFull?(total-usedEff):null;
-    const pct=hasFull&&total>0?Math.min(100,Math.round((usedEff/total)*100)):0;
+    const pct=hasFull&&total>0?Math.min(100,Math.round((Math.max(0,usedEff)/total)*100)):0;
     const isEmpty=used===null&&total===null;
     card.classList.toggle('leave-empty',isEmpty);
-    card.querySelector('.leave-remain').textContent=remain!==null?remain:'—';
-    card.querySelector('.leave-remain-unit').textContent=remain!==null?'일 남음':' 미입력';
+    const remainEl=card.querySelector('.leave-remain');
+    const unitEl=card.querySelector('.leave-remain-unit');
+    if(remain===null){
+      remainEl.textContent='—'; unitEl.textContent=' 미입력';
+      remainEl.classList.remove('is-over'); unitEl.classList.remove('is-over');
+    } else if(remain<0){
+      remainEl.textContent=`-${Math.abs(remain)}`; unitEl.textContent='일초과';
+      remainEl.classList.add('is-over'); unitEl.classList.add('is-over');
+    } else {
+      remainEl.textContent=remain; unitEl.textContent='일 남음';
+      remainEl.classList.remove('is-over'); unitEl.classList.remove('is-over');
+    }
     card.querySelector('.leave-bar-fill').style.width=pct+'%';
   }
   function toggleLeaveEdit(){
