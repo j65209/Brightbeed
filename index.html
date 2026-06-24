@@ -657,7 +657,7 @@
     .kd-table tbody{display:block;padding:6px 10px 14px}
     .kd-table tr.kd-row{
       display:grid;
-      grid-template-columns:96px 1fr 1fr;
+      grid-template-columns:192px minmax(0,1fr) minmax(0,1fr);
       grid-template-rows:auto auto auto auto;
       gap:8px 12px;
       padding:12px;
@@ -684,22 +684,28 @@
       grid-column:2 / span 2; grid-row:1;
       padding-left:0;font-family:var(--mono)
     }
+    /* 단가 + 수량 — 모바일에서 크고 굵게 (사장님 요청). nowrap 으로 줄바꿈 방지 */
     .kd-table tr.kd-row .col-price{
       grid-column:2; grid-row:2;
-      font-weight:700;color:var(--text-1);font-family:var(--mono);
+      font-weight:800;color:var(--text-0);font-family:var(--sans);
+      font-size:22px;letter-spacing:-.02em;
+      white-space:nowrap;
       align-self:end
     }
     .kd-table tr.kd-row .col-qty{
       grid-column:3; grid-row:2;
-      text-align:right;align-self:end;
-      color:var(--neon);font-weight:700;font-size:15px;font-family:var(--sans);
-      text-shadow:0 0 12px rgba(255,46,147,.25)
+      text-align:right;align-self:end;white-space:nowrap;
+      color:var(--neon);font-weight:800;font-size:22px;
+      font-family:var(--sans);letter-spacing:-.01em;
+      text-shadow:0 0 14px rgba(255,46,147,.3)
     }
+    .kd-table tr.kd-row .col-qty .qty-unit{font-size:.55em;margin-left:2px}
+    /* 메모 작게 (사장님 요청) */
     .kd-table tr.kd-row .col-memo{
       grid-column:1 / -1; grid-row:3;
       padding:8px 0 0;
       border-top:1px dashed var(--line);
-      font-size:12.5px;color:var(--text-1)
+      font-size:11px;color:var(--text-2);line-height:1.4
     }
     .kd-memo-text{-webkit-line-clamp:3;line-clamp:3}
     .kd-table tr.kd-row .col-link{
@@ -708,8 +714,8 @@
     }
     .kd-link{padding:6px 14px;font-size:12px}
 
-    /* 모바일 썸네일 작게 + hover zoom 비활성 */
-    .kd-thumb{width:96px;height:96px;border-radius:8px}
+    /* 모바일 썸네일 2배 (96 → 192) + hover zoom 비활성 */
+    .kd-thumb{width:192px;height:192px;border-radius:10px}
     .kd-thumb-wrap{cursor:default}
     .kd-thumb-wrap:hover .kd-thumb{filter:none}
     .kd-thumb-zoom{display:none !important}
@@ -720,13 +726,14 @@
     .kd-status{margin-top:4px;padding:2px 6px;font-size:10px}
   }
 
-  /* 더 작은 화면 (≤420px) — 카드 단순화 */
+  /* 더 작은 화면 (≤420px) — 이미지는 그대로 192px 유지, 여백/단가 폰트만 살짝 축소 */
   @media (max-width: 420px){
     .kd-table tr.kd-row{
-      grid-template-columns:80px 1fr 1fr;
+      grid-template-columns:192px 1fr 1fr;
       padding:10px;gap:6px 10px
     }
-    .kd-thumb{width:80px;height:80px}
+    .kd-table tr.kd-row .col-price{font-size:19px}
+    .kd-table tr.kd-row .col-qty{font-size:19px}
     .po-section-title{font-size:12.5px}
     .kd-section-sub{font-size:10px;padding:1px 5px}
   }
