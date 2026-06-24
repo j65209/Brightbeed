@@ -6213,8 +6213,9 @@
           <td colspan="6" class="col-noitem">— 발주 품목 없음 —</td>
         </tr>`;
       }
+      // alicdn 등 중국 CDN이 Referer 검사로 hotlink 차단 → referrerpolicy=no-referrer 로 우회
       const imgCell=r.image_url
-        ? `<img class="kd-thumb" loading="lazy" src="${escapeHTML(r.image_url)}" alt="" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\\'kd-no-img\\'>×</span>')">`
+        ? `<img class="kd-thumb" loading="lazy" referrerpolicy="no-referrer" src="${escapeHTML(r.image_url)}" alt="" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\\'kd-no-img\\'>×</span>')">`
         : '<span class="kd-no-img">—</span>';
       const urlCell=r.product_url
         ? `<a class="kd-link" href="${escapeHTML(r.product_url)}" target="_blank" rel="noopener" title="${escapeHTML(r.product_url)}">열기</a>`
