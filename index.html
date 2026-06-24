@@ -1175,6 +1175,74 @@
   }
   .vm-month-pending .vm-pill-sales{color:#9d174d;background:rgba(236,72,153,.10)}
   .vm-month-pending .vm-pill-margin{color:#a21caf;background:rgba(168,85,247,.10)}
+
+  /* ===== 셀러 누적 순위 TOP 5 ===== */
+  .vsr-section{margin-top:14px}
+  .vsr-total-note{
+    font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em
+  }
+  .vsr-list{
+    display:grid;grid-template-columns:repeat(5, 1fr);
+    gap:10px;padding:14px 18px 18px
+  }
+  .vsr-empty{
+    grid-column:1/-1;padding:30px 12px;text-align:center;
+    color:var(--text-3);font-size:13px
+  }
+  .vsr-card{
+    position:relative;
+    background:var(--bg-1);border:1px solid var(--line);
+    border-radius:12px;padding:14px 14px 12px;
+    display:flex;flex-direction:column;gap:8px;
+    transition:transform .15s,box-shadow .15s;
+    overflow:hidden
+  }
+  .vsr-card::before{
+    content:"";position:absolute;inset:0;border-radius:12px;
+    background:linear-gradient(135deg,var(--vsr-glow,transparent) 0%,transparent 55%);
+    opacity:.7;pointer-events:none
+  }
+  .vsr-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.08)}
+  .vsr-rank-row{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+  .vsr-rank{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--sans);font-weight:800;font-size:14px;
+    color:#fff;flex-shrink:0;
+    background:linear-gradient(135deg,#94a3b8,#64748b);
+    box-shadow:0 2px 6px rgba(0,0,0,.15)
+  }
+  .vsr-rank-1{background:linear-gradient(135deg,#fbbf24,#d97706);box-shadow:0 2px 12px rgba(251,191,36,.55)}
+  .vsr-rank-2{background:linear-gradient(135deg,#e5e7eb,#9ca3af);color:#1f2937}
+  .vsr-rank-3{background:linear-gradient(135deg,#fb923c,#c2410c)}
+  .vsr-seller{
+    font-family:var(--sans);font-weight:700;font-size:14px;color:var(--text-0);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;
+    letter-spacing:-.01em
+  }
+  .vsr-sales{
+    font-family:var(--sans);font-weight:800;font-size:18px;color:#4338ca;
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+    position:relative;z-index:1
+  }
+  .vsr-sub{
+    display:flex;justify-content:space-between;gap:8px;
+    font-family:var(--sans);font-size:11.5px;color:var(--text-2);
+    border-top:1px dashed var(--line);padding-top:8px;
+    position:relative;z-index:1
+  }
+  .vsr-sub-label{opacity:.7;margin-right:3px}
+  .vsr-sub-val{font-weight:700;color:var(--text-1);font-variant-numeric:tabular-nums}
+  .vsr-card-1{--vsr-glow:rgba(251,191,36,.15);border-color:rgba(251,191,36,.4)}
+  .vsr-card-2{--vsr-glow:rgba(156,163,175,.12);border-color:rgba(156,163,175,.4)}
+  .vsr-card-3{--vsr-glow:rgba(251,146,60,.15);border-color:rgba(251,146,60,.4)}
+  @media(max-width:900px){
+    .vsr-list{grid-template-columns:repeat(2, 1fr)}
+  }
+  @media(max-width:520px){
+    .vsr-list{grid-template-columns:1fr}
+    .vsr-sales{font-size:16px}
+  }
   @media(max-width:600px){
     .vm-month-name{font-size:15px}
     .vm-pill-label{font-size:10px}
@@ -3361,7 +3429,18 @@
         </div>
       </div>
 
-      <!-- 공구 진행 내역 (월별 accordion — 현재월 펼침) -->
+      <!-- 셀러 누적 순위 TOP 5 -->
+      <div class="po-section vm-section vsr-section">
+        <div class="po-section-head">
+          <div class="po-section-title">셀러 누적 순위 <span class="po-section-meta-inline">매출 기준 TOP 5</span></div>
+          <div class="po-section-meta">
+            <span id="vsrTotalNote" class="vsr-total-note"></span>
+          </div>
+        </div>
+        <div id="vendorSellerRank" class="vsr-list"></div>
+      </div>
+
+      <!-- 공구 진행 내역 (월별 accordion — 현재월±1 펼침, 2개월 이상 갭은 접음) -->
       <div class="po-section vm-section">
         <div class="po-section-head">
           <div class="po-section-title">공구 진행 내역 <span class="po-section-meta-inline" id="vMarginStatus">불러오는 중…</span></div>
@@ -9324,6 +9403,61 @@
     return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   }
 
+  function renderVendorSellerRank(months, krwParse, krwFmt){
+    const wrap=document.getElementById('vendorSellerRank');
+    const note=document.getElementById('vsrTotalNote');
+    if(!wrap) return;
+    // 모든 월의 모든 item 을 한 곳에 합치고 셀러 키로 그룹화.
+    const agg={}; // seller → {sales, margin, qty}
+    let totalItems=0;
+    (months||[]).forEach(m=>{
+      (m.items||[]).forEach(it=>{
+        const seller=(it.seller||'').trim();
+        if(!seller) return;
+        const s=krwParse(it.sales);
+        const mg=krwParse(it.margin);
+        const q=Number(String(it.qty||'').replace(/[^\d.-]/g,''))||0;
+        if(!agg[seller]) agg[seller]={sales:0,margin:0,qty:0,count:0};
+        agg[seller].sales += s;
+        agg[seller].margin += mg;
+        agg[seller].qty += q;
+        agg[seller].count += 1;
+        totalItems++;
+      });
+    });
+    const ranked=Object.entries(agg)
+      .map(([seller,v])=>({seller, ...v}))
+      .filter(r=>r.sales>0)
+      .sort((a,b)=>b.sales-a.sales)
+      .slice(0,5);
+    if(note){
+      const monthCount=(months||[]).length;
+      note.textContent = monthCount
+        ? `${monthCount}개월 · 총 ${totalItems}건 집계`
+        : '';
+    }
+    if(ranked.length===0){
+      wrap.innerHTML='<div class="vsr-empty">셀러 데이터가 아직 없습니다</div>';
+      return;
+    }
+    wrap.innerHTML=ranked.map((r,i)=>{
+      const rk=i+1;
+      const cls=rk<=3?` vsr-card-${rk}`:'';
+      const rcls=rk<=3?` vsr-rank-${rk}`:'';
+      return `<div class="vsr-card${cls}">
+        <div class="vsr-rank-row">
+          <span class="vsr-rank${rcls}">${rk}</span>
+          <span class="vsr-seller" title="${_vmEsc(r.seller)}">${_vmEsc(r.seller)}</span>
+        </div>
+        <div class="vsr-sales">${_vmEsc(krwFmt(r.sales))}</div>
+        <div class="vsr-sub">
+          <span><span class="vsr-sub-label">마진</span><span class="vsr-sub-val">${_vmEsc(krwFmt(r.margin))}</span></span>
+          <span><span class="vsr-sub-label">수량</span><span class="vsr-sub-val">${r.qty.toLocaleString('ko-KR')}</span></span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
   function renderVMargin(){
     const wrap=document.getElementById('vMarginList');
     if(!wrap) return;
@@ -9350,13 +9484,22 @@
     const _krwParse=s=>{const n=Number(String(s||'').replace(/[^\d.-]/g,'')); return isFinite(n)?n:0;};
     const _krwFmt=n=>n?`₩${n.toLocaleString('ko-KR')}`:'—';
 
+    // 셀러 누적 순위 렌더 (모든 월 합산)
+    renderVendorSellerRank(_vMargin.months, _krwParse, _krwFmt);
+
+    // 이번달 ±1 월은 자동 펼침, 그 외는 접음 (연도 경계 고려: 12-1 거리 1)
+    const curMonth=new Date().getMonth()+1;
+    const monthGap=(m)=>{
+      const d=Math.abs(m-curMonth);
+      return Math.min(d, 12-d); // 12-1 거리 1
+    };
+
     wrap.innerHTML='';
-    // 첫 번째 카드(가장 최근/진행 월) 자동 펼치기
-    let firstOpened=false;
     sorted.forEach(m=>{
       const det=document.createElement('details');
       det.className='vm-month'+(m.pending?' vm-month-pending':'');
-      if(!firstOpened){ det.open=true; firstOpened=true; }
+      // pending(진행 중) 월은 항상 펼침. 그 외엔 이번달과 1개월 이내일 때만 펼침.
+      if(m.pending || monthGap(m.monthNum) <= 1) det.open=true;
 
       // 진행 월은 총매출/총마진이 시트에 없을 수 있어 클라이언트에서 합산 보조
       const calcMargin = m.items.reduce((s,it)=>s+_krwParse(it.margin),0);
