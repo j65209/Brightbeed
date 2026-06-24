@@ -1156,6 +1156,25 @@
   .vm-pill-cnt .vm-pill-value{font-size:15px}
   .vm-pill-sales{color:#4338ca;background:rgba(79,70,229,.10)}
   .vm-pill-margin{color:#b45309;background:rgba(245,158,11,.10)}
+  /* 진행 중인 월(시트에 총매출금액 행이 아직 없음) — 강조 */
+  .vm-month.vm-month-pending{
+    border-color:rgba(236,72,153,.5);
+    background:linear-gradient(135deg,rgba(236,72,153,.04),rgba(168,85,247,.04))
+  }
+  .vm-month.vm-month-pending[open]{border-color:rgba(236,72,153,.7)}
+  .vm-pending-badge{
+    display:inline-block;margin-left:6px;padding:3px 9px;border-radius:11px;
+    font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.02em;
+    color:#fff;background:linear-gradient(135deg,#ec4899,#a855f7);
+    box-shadow:0 0 10px rgba(236,72,153,.4);
+    animation:vm-pending-pulse 2s ease-in-out infinite
+  }
+  @keyframes vm-pending-pulse{
+    0%,100%{box-shadow:0 0 8px rgba(236,72,153,.35)}
+    50%{box-shadow:0 0 18px rgba(236,72,153,.75)}
+  }
+  .vm-month-pending .vm-pill-sales{color:#9d174d;background:rgba(236,72,153,.10)}
+  .vm-month-pending .vm-pill-margin{color:#a21caf;background:rgba(168,85,247,.10)}
   @media(max-width:600px){
     .vm-month-name{font-size:15px}
     .vm-pill-label{font-size:10px}
@@ -9207,12 +9226,13 @@
 
   function vMarginParse(text){
     // 시트 구조: 한 월의 영역은 "총매출금액" 행으로 닫힘 (색칠된 정산 행).
-    // "X월" 라벨은 영역 안 어느 위치든 있을 수 있고 영역 시작이 아님.
-    // → 영역 = 두 총매출 사이의 모든 데이터. 영역 안에서 만난 "X월" 라벨이 그 영역의 월.
+    // "X월" 라벨은 보통 영역 첫 행 column A. 마지막 영역(현재 진행 월)은 총매출금액 행이
+    // 아직 없을 수 있음 → loop 끝나고 cur 에 item 이 남아있으면 pending 으로 push.
+    // 시트엔 헤더 행이 없으므로 i=0 부터 처리.
     const rows=_vmCSVParse(text);
     const out=[];
     let cur=_vmEmptySection();
-    for(let i=1; i<rows.length; i++){
+    for(let i=0; i<rows.length; i++){
       const r=rows[i];
       const monthLbl=(r[0]||'').trim();
       const totalLbl=(r[7]||'').trim();
@@ -9227,6 +9247,7 @@
       if(totalLbl==='총매출금액'){
         cur.totalMargin=(r[6]||'').trim();
         cur.totalSales=(r[8]||'').trim();
+        cur.pending=false;
         if(cur.month && cur.items.length) out.push(cur);
         cur=_vmEmptySection();
         continue;
@@ -9249,14 +9270,19 @@
           channel:(r[7]||'').trim(),
           sales:(r[8]||'').trim(),
           settle:(r[9]||'').trim(),
+          note:(r[10]||'').trim(),
         });
       }
     }
-    // 마지막 영역에 총매출이 없으면 무시 (정산 안 된 미완료 데이터)
+    // 마지막 영역에 총매출이 없으면 = 진행 중인 월. pending 으로 표시해서 보여줌.
+    if(cur.month && cur.items.length){
+      cur.pending=true;
+      out.push(cur);
+    }
     return out;
   }
   function _vmEmptySection(){
-    return {month:'',monthNum:0,items:[],totalMargin:'',totalSales:''};
+    return {month:'',monthNum:0,items:[],totalMargin:'',totalSales:'',pending:false};
   }
 
   async function vMarginLoad(force){
@@ -9305,32 +9331,46 @@
     }
     if(!_vMargin.loaded){ wrap.innerHTML=''; return; }
 
-    const curMonth=new Date().getMonth()+1;
-    // 최근월 상단으로 정렬
-    const sorted=[..._vMargin.months].sort((a,b)=>b.monthNum-a.monthNum);
+    // 최근월 상단으로 정렬 — pending(정산 전, 진행 월) 항상 맨 위
+    const sorted=[..._vMargin.months].sort((a,b)=>{
+      if(a.pending!==b.pending) return a.pending?-1:1;
+      return b.monthNum-a.monthNum;
+    });
+
+    // 매출/마진 합계 계산 (시트에 총매출금액 행이 없는 진행 월용)
+    const _krwParse=s=>{const n=Number(String(s||'').replace(/[^\d.-]/g,'')); return isFinite(n)?n:0;};
+    const _krwFmt=n=>n?`₩${n.toLocaleString('ko-KR')}`:'—';
 
     wrap.innerHTML='';
+    // 첫 번째 카드(가장 최근/진행 월) 자동 펼치기
+    let firstOpened=false;
     sorted.forEach(m=>{
       const det=document.createElement('details');
-      det.className='vm-month';
-      if(m.monthNum===curMonth) det.open=true;
+      det.className='vm-month'+(m.pending?' vm-month-pending':'');
+      if(!firstOpened){ det.open=true; firstOpened=true; }
+
+      // 진행 월은 총매출/총마진이 시트에 없을 수 있어 클라이언트에서 합산 보조
+      const calcMargin = m.items.reduce((s,it)=>s+_krwParse(it.margin),0);
+      const calcSales  = m.items.reduce((s,it)=>s+_krwParse(it.sales),0);
+      const showSales  = m.totalSales || _krwFmt(calcSales);
+      const showMargin = m.totalMargin || _krwFmt(calcMargin);
 
       const sum=document.createElement('summary');
       sum.className='vm-month-head';
       sum.innerHTML=`
-        <span class="vm-month-name">${_vmEsc(m.month)}</span>
+        <span class="vm-month-name">${_vmEsc(m.month)}${m.pending?'<span class="vm-pending-badge">진행 중</span>':''}</span>
         <span class="vm-month-meta">
           <span class="vm-month-pill vm-pill-cnt">
             <span class="vm-pill-label">건수</span>
             <span class="vm-pill-value">${m.items.length}</span>
           </span>
           <span class="vm-month-pill vm-pill-sales">
-            <span class="vm-pill-label">매출</span>
-            <span class="vm-pill-value">${_vmEsc(m.totalSales||'—')}</span>
+            <span class="vm-pill-label">${m.pending?'매출(잠정)':'매출'}</span>
+            <span class="vm-pill-value">${_vmEsc(showSales)}</span>
           </span>
           <span class="vm-month-pill vm-pill-margin">
-            <span class="vm-pill-label">마진</span>
-            <span class="vm-pill-value">${_vmEsc(m.totalMargin||'—')}</span>
+            <span class="vm-pill-label">${m.pending?'마진(잠정)':'마진'}</span>
+            <span class="vm-pill-value">${_vmEsc(showMargin)}</span>
           </span>
         </span>`;
       det.appendChild(sum);
