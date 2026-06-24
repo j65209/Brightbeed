@@ -6107,6 +6107,11 @@
   window.toggleLeaveEdit=toggleLeaveEdit;
   window.updateLeaveDays=updateLeaveDays;
 
+  /* HTML escape — 다른 섹션(연차/CS/공지/매출/세일즈 등)에서도 사용. */
+  function escapeHTML(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
   /* ===== 발주 내역 — 콰이디에어 실시간 (구 PO 업로드 흐름 대체) =====
      - 서버 Mac scripts/kuaidiair_fetcher.py 가 콰이디에어 로그인 + 신청서 스크래핑.
      - 프록시 /kd/orders 가 캐시 JSON 서빙 (10분 stale → 백그라운드 refresh).
