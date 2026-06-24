@@ -495,7 +495,7 @@
   .sec-actions{display:flex;gap:8px;margin-top:24px;justify-content:center;flex-wrap:wrap}
 
   /* 발주 내역 — 가운데 컨테이너 */
-  .po-wrap{max-width:880px;margin:0 auto}
+  .po-wrap{max-width:1120px;margin:0 auto}
   .po-section{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
   .po-section-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line)}
   .po-section-title{font-size:14px;font-weight:600}
@@ -527,6 +527,73 @@
   .po-table th.col-memo{width:21%}
   .po-table th.col-qty{width:14%}
   .po-table th.col-act{width:4%}
+
+  /* ===== 콰이디에어 발주 내역 (kd-table) — po-table 위에 override ===== */
+  .kd-section-sub{
+    font-size:11px;font-weight:500;color:var(--text-3);
+    margin-left:8px;padding:2px 8px;border-radius:4px;
+    background:rgba(255,46,147,.08);border:1px solid rgba(255,46,147,.25);
+    letter-spacing:.02em;vertical-align:middle
+  }
+  .kd-table th.col-ord{width:14%}
+  .kd-table th.col-img{width:9%}
+  .kd-table th.col-name{width:13%}
+  .kd-table th.col-price{width:8%}
+  .kd-table th.col-qty{width:9%}
+  .kd-table th.col-memo{width:39%}
+  .kd-table th.col-link{width:8%}
+  .kd-table td.col-ord{
+    font-family:var(--mono);text-align:left;padding-left:14px;vertical-align:top
+  }
+  .kd-ord{font-size:13px;font-weight:700;color:var(--text-0);letter-spacing:.02em}
+  .kd-ord-meta{font-size:10.5px;color:var(--text-3);margin-top:3px;font-family:var(--mono);letter-spacing:.03em}
+  .kd-status{
+    display:inline-block;margin-top:6px;padding:2px 8px;border-radius:4px;
+    font-size:10.5px;font-weight:600;letter-spacing:.04em;white-space:nowrap;font-family:var(--sans)
+  }
+  .kd-st-cancel{background:rgba(239,68,68,.12);color:#dc2626;border:1px solid rgba(239,68,68,.4)}
+  .kd-st-done{background:rgba(16,185,129,.12);color:#059669;border:1px solid rgba(16,185,129,.4)}
+  .kd-st-full{background:rgba(6,182,212,.12);color:#0891b2;border:1px solid rgba(6,182,212,.4)}
+  .kd-st-part{background:rgba(245,158,11,.12);color:#d97706;border:1px solid rgba(245,158,11,.4)}
+  .kd-st-other{background:rgba(107,114,128,.12);color:var(--text-2);border:1px solid rgba(107,114,128,.3)}
+  .kd-table td.col-img{padding:8px 4px}
+  .kd-thumb{
+    width:60px;height:60px;object-fit:cover;border-radius:6px;
+    border:1px solid var(--line);background:#fff;display:inline-block;vertical-align:middle
+  }
+  .kd-no-img{color:var(--text-3);font-size:18px}
+  .kd-table td.col-name{
+    font-size:12.5px;color:var(--text-1);font-weight:500;white-space:normal;line-height:1.4
+  }
+  .kd-table td.col-price{
+    font-family:var(--mono);font-size:12.5px;color:var(--text-1);font-weight:600
+  }
+  .kd-table td.col-memo{
+    font-size:12.5px;color:var(--text-1);text-align:left;
+    white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45;
+    padding-left:14px;padding-right:14px
+  }
+  .kd-table td.col-link{padding:14px 4px}
+  .kd-link{
+    display:inline-block;padding:4px 10px;border-radius:4px;
+    background:rgba(255,46,147,.08);color:var(--neon);
+    font-size:11px;font-weight:600;text-decoration:none;
+    border:1px solid rgba(255,46,147,.3)
+  }
+  .kd-link:hover{background:rgba(255,46,147,.18)}
+  .kd-table tr.kd-row-empty td.col-noitem{
+    color:var(--text-3);font-style:italic;font-size:12px;
+    background:rgba(0,0,0,.02);text-align:left;padding-left:18px
+  }
+  #kdUpdated{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-right:12px}
+  .kd-refresh-btn{
+    display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+    background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
+    font-size:12px;color:var(--text-1);cursor:pointer;
+    transition:background .15s;margin-left:10px
+  }
+  .kd-refresh-btn:hover{background:var(--bg-3)}
+  .kd-refresh-btn:disabled{opacity:.5;cursor:default}
 
   /* 발주일 그룹별 행 배경 (4단계 미세 톤 cycling) */
   .po-table tr.po-row-g0 td{background:#ffffff}
@@ -3038,45 +3105,37 @@
       <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주 관리</span></h1>
     </div>
 
-    <!-- 최근 발주 내역 (홈에서 이동) -->
+    <!-- 최근 발주 내역 — 콰이디에어 실시간 -->
     <div class="po-wrap">
       <div class="po-section">
         <div class="po-section-head">
-          <div class="po-section-title">최근 발주 내역</div>
+          <div class="po-section-title">최근 발주 내역 <span class="kd-section-sub">콰이디에어 실시간</span></div>
           <div class="po-section-meta">
-            <select class="po-sort" id="poSort" onchange="onSortChange(this.value)">
-              <option value="default">기본순 (최신 추가)</option>
-              <option value="date-desc">발주일 ↓ 최신순</option>
-              <option value="date-asc">발주일 ↑ 오래된순</option>
-              <option value="eta-asc">입고예정일 ↑ 빠른순</option>
-              <option value="eta-desc">입고예정일 ↓ 늦은순</option>
-            </select>
+            <span id="kdUpdated"></span>
             <span id="poCount">0건</span>
-            <button class="btn po-import master-only" id="importBtn" onclick="document.getElementById('poImageInput').click()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              발주서 가져오기
+            <button class="kd-refresh-btn" id="kdRefreshBtn" onclick="refreshKDOrders()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              새로고침
             </button>
-            <input type="file" id="poImageInput" accept=".xlsx,.xls,image/*" multiple style="display:none" onchange="handlePOFiles(this.files)">
-            <button class="po-clear master-only" id="poClearBtn" onclick="clearAllPO()" style="display:none">전체 비우기</button>
-            <button class="po-edit master-only" id="poEditBtn" onclick="togglePOEdit()" style="display:none">수정</button>
           </div>
         </div>
         <div id="poEmpty" class="po-empty">
           <div class="po-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           </div>
-          <div class="po-empty-text">아직 발주 내역이 없습니다</div>
-          <div class="po-empty-sub">위 <b>발주서 가져오기</b> 버튼으로 <b>엑셀(.xlsx)</b> 또는 이미지를 업로드하면 자동 분석됩니다</div>
+          <div class="po-empty-text">콰이디에어 데이터 불러오는 중...</div>
+          <div class="po-empty-sub">서버가 콰이디에어에서 최근 발주를 받아오고 있습니다</div>
         </div>
-        <table class="po-table" id="poTable" style="display:none">
+        <table class="po-table kd-table" id="poTable" style="display:none">
           <thead>
             <tr>
-              <th class="col-date">발주일</th>
-              <th class="col-eta">입고예정일</th>
-              <th class="col-name">제품 및 옵션명</th>
-              <th class="col-memo">메모</th>
+              <th class="col-ord">신청서번호</th>
+              <th class="col-img">이미지</th>
+              <th class="col-name">제품</th>
+              <th class="col-price">단가</th>
               <th class="col-qty">수량</th>
-              <th class="col-act"></th>
+              <th class="col-memo">상품메모</th>
+              <th class="col-link">상품</th>
             </tr>
           </thead>
           <tbody id="poBody"></tbody>
@@ -4723,16 +4782,6 @@
     toast('서버 연결 갱신 중...','ok');
     const base=await loadProxyBase(true);
     if(!base){ toast('서버 프록시 URL을 읽지 못했습니다 (tunnel.json)','err'); return; }
-    const local = JSON.parse(localStorage.getItem(PO_KEY)||'[]');
-    if(local.length > 0 && isMaster()){
-      const result = await pushPOToRemote(local);
-      if(result.ok){
-        _po_lastHash = JSON.stringify(local);
-        toast(`✓ ${local.length}건 GitHub 업로드 완료`,'ok');
-      }else if(result.reason!=='notoken'){
-        toast(`업로드 실패 (${result.reason})`,'err');
-      }
-    }
     await syncFromRemote();
   };
 
@@ -4835,6 +4884,9 @@
       renderLeaveStatus();
       if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     }
+    if(id==='viewLg'){
+      if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{});
+    }
     if(id==='viewMd'){
       if(typeof renderMdCal==='function') renderMdCal();
       if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
@@ -4887,7 +4939,7 @@
   }
 
   function triggerHR(){ showView('viewHr'); if(typeof autoArchiveCycles==='function') autoArchiveCycles(); }
-  function triggerLogistics(){ showView('viewLg'); }
+  function triggerLogistics(){ showView('viewLg'); if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{}); }
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
@@ -6055,117 +6107,147 @@
   window.toggleLeaveEdit=toggleLeaveEdit;
   window.updateLeaveDays=updateLeaveDays;
 
-  /* ===== 발주서 이미지 분석 ===== */
-  const ANTHROPIC_KEY='brightbeed_anthropic_key';
-  const PO_KEY='brightbeed_po_list';
-  const ANTHROPIC_MODEL='claude-sonnet-4-6';
-
-  /* ===== 발주 내역 GitHub 동기화 (다른 사람도 같은 데이터 보이게) ===== */
+  /* ===== 발주 내역 — 콰이디에어 실시간 (구 PO 업로드 흐름 대체) =====
+     - 서버 Mac scripts/kuaidiair_fetcher.py 가 콰이디에어 로그인 + 신청서 스크래핑.
+     - 프록시 /kd/orders 가 캐시 JSON 서빙 (10분 stale → 백그라운드 refresh).
+     - 권한: viewer GET 가능. 새로고침 버튼은 ?refresh=1 로 강제.
+     - PO_REPO/PO_BRANCH 는 그대로 유지 — PPT/공지/CS/세일즈 등에서 공유. */
   const PO_REPO='j65209/Brightbeed';
-  const PO_PATH='data/po-list.json';
   const PO_BRANCH='main';
-  const PO_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${PO_PATH}`;
-  const PO_API=`https://api.github.com/repos/${PO_REPO}/contents/${PO_PATH}`;
 
-  async function fetchPOFromRemote(){
+  async function fetchKDOrders(opts){
+    opts=opts||{};
+    const base=await loadProxyBase();
+    if(!base) throw new Error('proxy unavailable');
+    const sep = opts.refresh ? '?refresh=1&' : '?';
+    const url = base+'/kd/orders'+sep+'cb='+Date.now();
+    const r=await fetch(url, {headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
+    if(!r.ok) return null;
+    return await r.json();
+  }
+
+  let _kdLastHash='';
+  async function renderKDOrders(opts){
+    opts=opts||{};
+    const tbody=document.getElementById('poBody');
+    const tbl=document.getElementById('poTable');
+    const empty=document.getElementById('poEmpty');
+    const cnt=document.getElementById('poCount');
+    const updTag=document.getElementById('kdUpdated');
+    if(!tbody||!tbl||!empty) return;
+    let data=null;
+    try{ data=await fetchKDOrders(opts); }catch(e){ data=null; }
+    if(!data || !Array.isArray(data.orders)){
+      if(cnt) cnt.textContent='연결 실패';
+      if(empty){
+        empty.style.display='block';
+        const t=empty.querySelector('.po-empty-text');
+        const s=empty.querySelector('.po-empty-sub');
+        if(t) t.textContent='콰이디에어 서버 연결 실패';
+        if(s) s.textContent='서버 프록시 또는 콰이디에어 자격증명을 확인하세요';
+      }
+      tbl.style.display='none';
+      return;
+    }
+    const orders=data.orders;
+    // dedup-check: same data → skip rerender for cheaper polling
+    const hash = JSON.stringify({n:orders.length, t:data.fetched_at, first:orders[0]&&orders[0].ord_no});
+    const tsTxt = (()=>{
+      const ts=new Date((data.fetched_at||0)*1000);
+      return `${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
+    })();
+    if(updTag) updTag.textContent=`최근 갱신 ${tsTxt}`;
+    if(cnt) cnt.textContent=`${orders.length}건`;
+    if(hash===_kdLastHash && !opts.force){
+      return;
+    }
+    _kdLastHash=hash;
+    // Flatten — each item is a row, with row-span style group coloring per ord_no
+    const rows=[];
+    for(const o of orders){
+      if(!o.items || o.items.length===0){
+        rows.push({_empty:true, ord_no:o.ord_no, date:o.order_date||'', status:o.status||'', serial:o.serial});
+        continue;
+      }
+      for(const it of o.items){
+        rows.push({...it, ord_no:o.ord_no, date:o.order_date||'', status:o.status||'', serial:o.serial});
+      }
+    }
+    if(rows.length===0){
+      tbl.style.display='none';
+      empty.style.display='block';
+      const t=empty.querySelector('.po-empty-text');
+      const s=empty.querySelector('.po-empty-sub');
+      if(t) t.textContent='최근 발주가 없습니다';
+      if(s) s.textContent='콰이디에어에서 새 신청서가 들어오면 여기 표시됩니다';
+      return;
+    }
+    tbl.style.display='';
+    empty.style.display='none';
+    // 신청서별 그룹 토닝 (g0~g3 cycling)
+    const ordTone={};
+    let nextTone=0;
+    for(const r of rows){
+      if(!(r.ord_no in ordTone)){ ordTone[r.ord_no]=nextTone; nextTone=(nextTone+1)%4; }
+    }
+    let lastOrd='';
+    tbody.innerHTML=rows.map(r=>{
+      const isFirst=r.ord_no!==lastOrd;
+      lastOrd=r.ord_no;
+      const groupCls=`po-row-g${ordTone[r.ord_no]||0}`;
+      const stMap={'취소':'kd-st-cancel','출고완료':'kd-st-done','전체입고':'kd-st-full','부분입고':'kd-st-part'};
+      const statusCls=stMap[r.status]||'kd-st-other';
+      const ordCell = isFirst
+        ? `<div class="kd-ord">${escapeHTML(r.ord_no)}</div>
+           <div class="kd-ord-meta">${escapeHTML(r.date)} · #${r.serial}</div>
+           ${r.status?`<div class="kd-status ${statusCls}">${escapeHTML(r.status)}</div>`:''}`
+        : '';
+      if(r._empty){
+        return `<tr class="${groupCls} kd-row-empty">
+          <td class="col-ord">${ordCell}</td>
+          <td colspan="6" class="col-noitem">— 발주 품목 없음 —</td>
+        </tr>`;
+      }
+      const imgCell=r.image_url
+        ? `<img class="kd-thumb" loading="lazy" src="${escapeHTML(r.image_url)}" alt="" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\\'kd-no-img\\'>×</span>')">`
+        : '<span class="kd-no-img">—</span>';
+      const urlCell=r.product_url
+        ? `<a class="kd-link" href="${escapeHTML(r.product_url)}" target="_blank" rel="noopener" title="${escapeHTML(r.product_url)}">열기</a>`
+        : '';
+      const name=(r.name_cn||r.name_en||'').trim();
+      return `<tr class="${groupCls} kd-row">
+        <td class="col-ord">${ordCell}</td>
+        <td class="col-img">${imgCell}</td>
+        <td class="col-name">${escapeHTML(name)}</td>
+        <td class="col-price">¥${escapeHTML(r.price_cny||'0')}</td>
+        <td class="col-qty">${escapeHTML(r.qty||'0')}<span class="qty-unit">개</span></td>
+        <td class="col-memo">${escapeHTML(r.memo||'')}</td>
+        <td class="col-link">${urlCell}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function refreshKDOrders(){
+    const btn=document.getElementById('kdRefreshBtn');
+    if(btn) btn.disabled=true;
     try{
-      const r=await fetch(`${PO_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
-      if(r.status===404) return [];
-      if(!r.ok) return null;
-      const data=await r.json();
-      return Array.isArray(data)?data:[];
-    }catch(e){return null}
+      await renderKDOrders({refresh:true, force:true});
+    }finally{
+      // 백엔드 fetcher가 백그라운드에서 실행되기 때문에 잠시 후 한 번 더 갱신
+      setTimeout(()=>{ renderKDOrders().catch(()=>{}); if(btn) btn.disabled=false; }, 4000);
+    }
   }
 
-  async function pushPOToRemote(list){
-    async function getSha(){
-      try{
-        const r=await ghFetch(`${PO_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
-          headers:{'Accept':'application/vnd.github+json'},
-          cache:'no-cache'
-        });
-        if(r.status===401||r.status===403) return {error:'auth'};
-        if(r.status===404) return {sha:null};
-        if(!r.ok) return {error:`http_${r.status}`};
-        const j=await r.json();
-        return {sha:j.sha};
-      }catch(e){ return {error:'fetch'} }
-    }
-
-    async function doPut(sha){
-      const content=btoa(unescape(encodeURIComponent(JSON.stringify(list,null,2))));
-      const body={message:`chore: 발주 내역 갱신 (${list.length}건)`,content,branch:PO_BRANCH};
-      if(sha) body.sha=sha;
-      return ghFetch(PO_API,{
-        method:'PUT',
-        headers:{
-          'Accept':'application/vnd.github+json',
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify(body)
-      });
-    }
-
-    let shaResult=await getSha();
-    if(shaResult.error==='auth') return {ok:false,reason:'auth'};
-
-    let r=await doPut(shaResult.sha);
-
-    // 409 Conflict (sha 불일치) → sha 다시 받아서 retry. 최대 2회 재시도.
-    let retries=0;
-    while(r.status===409 && retries<2){
-      retries++;
-      shaResult=await getSha();
-      if(shaResult.error==='auth') return {ok:false,reason:'auth'};
-      r=await doPut(shaResult.sha);
-    }
-
-    if(r.ok) return {ok:true};
-    if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
-    return {ok:false,reason:`http_${r.status}`};
-  }
-
+  /* ===== 통합 동기화 — 콰이디에어 렌더 + 다른 섹션(매출/공지/연차/MD/시딩) sync 트리거 ===== */
   async function syncFromRemote(){
     const status=document.getElementById('syncStatus');
     if(status) status.textContent='동기화 중...';
-    const remote=await fetchPOFromRemote();
-    if(remote===null){
-      if(status) status.textContent='동기화 실패';
-      return;
-    }
-    const local=JSON.parse(localStorage.getItem(PO_KEY)||'[]');
+    await renderKDOrders().catch(()=>{});
     const now=new Date();
     const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    const last=document.getElementById('lastSync');
-
-    // 마이그레이션: remote 비어있고 local에 데이터 있으면 local을 push (master 권한 필요)
-    if(remote.length===0 && local.length>0){
-      let result = isMaster()
-        ? await pushPOToRemote(local)
-        : {ok:false,reason:'viewer'};
-
-      if(result.ok){
-        _po_lastHash = JSON.stringify(local);
-        renderPOList();
-        if(status) status.textContent=`초기 동기화 완료 · ${t}`;
-        if(last) last.textContent=t;
-        toast(`✓ 로컬 데이터 ${local.length}건 GitHub 업로드 완료`,'ok');
-        return;
-      }
-      // push 실패 → local 유지
-      renderPOList();
-      if(status) status.textContent='로컬 전용 (동기화 안 됨)';
-      return;
-    }
-
-    // 일반: remote → local 덮어쓰기
-    localStorage.setItem(PO_KEY,JSON.stringify(remote));
-    _po_lastHash = JSON.stringify(remote);
-    renderPOList();
     if(status) status.textContent=`동기화 완료 · ${t}`;
+    const last=document.getElementById('lastSync');
     if(last) last.textContent=t;
-
-    // 매출 PPT + 공지사항 + 연차 + MD 기획전 + 시딩도 함께 동기화
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
@@ -6176,26 +6258,12 @@
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
-  let _po_lastHash = null;
   let _po_pollTimer = null;
 
   async function pollPO(){
-    const remote = await fetchPOFromRemote();
-    if(remote !== null){
-      const hash = JSON.stringify(remote);
-      if(hash !== _po_lastHash){
-        _po_lastHash = hash;
-        localStorage.setItem(PO_KEY, JSON.stringify(remote));
-        renderPOList();
-        const status = document.getElementById('syncStatus');
-        const now = new Date();
-        const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-        if(status) status.textContent = `동기화 완료 · ${t}`;
-        const last = document.getElementById('lastSync');
-        if(last) last.textContent = t;
-      }
-    }
-    // 매출 PPT + 공지사항 + 연차 + MD 기획전 + 시딩도 함께 폴링
+    // 콰이디에어 신청서 — 부드러운 폴링 (hash 동일이면 rerender 안 함)
+    await renderKDOrders().catch(()=>{});
+    // 매출/공지/연차/MD/시딩
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
@@ -6231,7 +6299,6 @@
     if(_po_pollTimer){ clearInterval(_po_pollTimer); _po_pollTimer = null; }
   }
 
-  // 탭 활성화 시 즉시 동기화 (다른 기기에서 다 와있는 변경 즉시 반영)
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible'){
       pollPO();
@@ -6239,598 +6306,13 @@
     }
   });
 
-  async function pushAfterChange(list){
-    const result=await pushPOToRemote(list);
-    if(!result.ok){
-      if(result.reason==='auth'){
-        toast('서버 프록시 인증 실패 — master PIN 확인','err');
-      }else{
-        toast(`GitHub 동기화 실패 (${result.reason})`,'err');
-      }
-      return;
-    }
-
-    if(result.ok){
-      const status=document.getElementById('syncStatus');
-      const now=new Date();
-      const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-      if(status) status.textContent=`동기화 완료 · ${t}`;
-    }
-  }
-
   window.syncFromRemote=syncFromRemote;
+  window.renderKDOrders=renderKDOrders;
+  window.refreshKDOrders=refreshKDOrders;
 
-  function loadPOList(){
-    try{return JSON.parse(localStorage.getItem(PO_KEY)||'[]')}catch(e){return []}
-  }
-  function savePOList(list){
-    const json = JSON.stringify(list);
-    localStorage.setItem(PO_KEY, json);
-    _po_lastHash = json; // 자기가 저장한 데이터는 폴링에서 변경 감지 안 하게
-    pushAfterChange(list).catch(e=>console.warn('sync error:',e));
-  }
+  // 초기 렌더 — 페이지 로드 직후 KD 데이터 가져옴
+  renderKDOrders().catch(()=>{});
 
-  function escapeHTML(s){
-    return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
-  /* 한자(중국어) 제거 — CJK Unified Ideographs */
-  function stripChinese(s){
-    return String(s||'')
-      .replace(/[一-鿿㐀-䶿豈-﫿]+/g,'')
-      .replace(/\s+/g,' ')
-      .replace(/^[\/\s,.\-·、，。]+|[\/\s,.\-·、，。]+$/g,'')
-      .trim();
-  }
-
-  /* 발주서 시간 단위 변환 (일수로) */
-  function unitToDays(n,unit){
-    switch(unit){
-      case '일': return n;
-      case '주': return n*7;
-      case '개월': case '달': return n*30;
-      default: return 0;
-    }
-  }
-
-  /* 메모에서 현물 + 소요일(단일/범위, 접두 없어도 OK) + 도착(N일/바로/즉시/당일/단독) 정보만 추출. 그 외 잡담은 버림 */
-  function extractDeliveryMemo(memo){
-    let text=String(memo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
-    const found=[];
-    if(/현물/.test(text)) found.push('현물');
-    const UNIT='(?:일|주|개월|달)';
-    const ARRIVE='(?:\\s*(?:후|뒤|만에|내|이내))?\\s*도착';
-    // 범위형 — "5~7일 소요" / "5~7일 도착" / 접두·접미 없는 "30-35일"
-    const rangeRes=[
-      new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}`,'g'),
-      new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}\\s*소요`,'g'),
-      new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}${ARRIVE}`,'g'),
-      new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*\\d+\\s*${UNIT}`,'g'),
-    ];
-    for(const p of rangeRes){
-      const ms=text.match(p)||[];
-      for(const m of ms) found.push(m.trim());
-      text=text.replace(p,' ');
-    }
-    // 단일형 — "9일 소요" / "9일 도착" / "9일후도착" / 접두·접미 없는 "9일"
-    const singleRes=[
-      new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}`,'g'),
-      new RegExp(`\\d+\\s*${UNIT}\\s*소요`,'g'),
-      new RegExp(`\\d+\\s*${UNIT}${ARRIVE}`,'g'),
-      new RegExp(`\\d+\\s*${UNIT}`,'g'),
-    ];
-    for(const p of singleRes){
-      const ms=text.match(p)||[];
-      for(const m of ms) found.push(m.trim());
-      text=text.replace(p,' ');
-    }
-    // 바로/즉시/당일 도착
-    const fastMs=text.match(/(?:바로|즉시|당일)\s*도착/g)||[];
-    for(const m of fastMs) found.push(m.trim());
-    text=text.replace(/(?:바로|즉시|당일)\s*도착/g,' ');
-    // 단독 "도착"
-    if(/도착/.test(text)) found.push('도착');
-    return [...new Set(found)].join(' · ');
-  }
-
-  /* 발주일 + raw memo로 입고예정일 계산. 범위는 상한 기준 (보수적). 현물/바로도착/단독 도착은 0일. */
-  function calculateETA(orderIso,rawMemo){
-    if(!orderIso) return '';
-    let text=String(rawMemo||'').replace(/[\r\n]/g,' ').replace(/\s+/g,' ');
-    let maxDays=-1;
-    if(/현물/.test(text)) maxDays=0;
-    const UNIT='(?:일|주|개월|달)';
-    const ARRIVE='(?:\\s*(?:후|뒤|만에|내|이내))?\\s*도착';
-    // 범위 (소요 + 도착 + 접두·접미 없음)
-    const rangeRe1=new RegExp(`소요일?[:\\s]*\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})`,'g');
-    const rangeRe2=new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})\\s*소요`,'g');
-    const rangeRe3=new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})${ARRIVE}`,'g');
-    const rangeRe4=new RegExp(`\\d+\\s*${UNIT}?\\s*[~\\-에서부터]+\\s*(\\d+)\\s*(${UNIT})`,'g');
-    let m;
-    while((m=rangeRe1.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    while((m=rangeRe2.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    while((m=rangeRe3.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    text=text.replace(rangeRe1,' ').replace(rangeRe2,' ').replace(rangeRe3,' ');
-    while((m=rangeRe4.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    text=text.replace(rangeRe4,' ');
-    // 단일 (소요 + 도착 + 접두·접미 없음)
-    const singleRe1=new RegExp(`소요일?[:\\s]*(\\d+)\\s*(${UNIT})`,'g');
-    const singleRe2=new RegExp(`(\\d+)\\s*(${UNIT})\\s*소요`,'g');
-    const singleRe3=new RegExp(`(\\d+)\\s*(${UNIT})${ARRIVE}`,'g');
-    const singleRe4=new RegExp(`(\\d+)\\s*(${UNIT})`,'g');
-    while((m=singleRe1.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    while((m=singleRe2.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    while((m=singleRe3.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    text=text.replace(singleRe1,' ').replace(singleRe2,' ').replace(singleRe3,' ');
-    while((m=singleRe4.exec(text))) maxDays=Math.max(maxDays,unitToDays(parseInt(m[1],10),m[2]));
-    text=text.replace(singleRe4,' ');
-    // 바로/즉시/당일 도착 → 0일
-    if(/(?:바로|즉시|당일)\s*도착/.test(text)) maxDays=Math.max(maxDays,0);
-    text=text.replace(/(?:바로|즉시|당일)\s*도착/g,' ');
-    // 단독 "도착" → 0일
-    if(/도착/.test(text)) maxDays=Math.max(maxDays,0);
-    if(maxDays<0) return '';
-    if(maxDays===0) return '현물';
-    const [Y,M,D]=orderIso.split('-').map(Number);
-    const eta=new Date(Y,M-1,D);
-    eta.setDate(eta.getDate()+maxDays);
-    return `${eta.getMonth()+1}/${eta.getDate()}`;
-  }
-
-  /* 제품명 + 옵션명 합쳐서 한 컬럼 표시. 같은 값이면 한 번만, 다르면 슬래시로 결합 */
-  function combineProductOption(product,option){
-    const p=stripChinese(product||'');
-    const o=stripChinese(option||'');
-    if(!p) return o;
-    if(!o) return p;
-    if(p===o) return p;
-    return `${p} / ${o}`;
-  }
-
-  /* 파일명에서 발주일 추출. display ("5/7") + iso ("2026-05-07") 둘 다 반환 */
-  function parseDateFromFilename(filename){
-    const base=String(filename||'').replace(/\.(xlsx|xls|xlsm|jpg|jpeg|png|gif|webp)$/i,'');
-    let m=base.match(/(?:^|[^\d])(\d{2})(\d{2})(\d{2})(?:[^\d]|$)/);
-    if(m){
-      const yy=m[1],mm=m[2],dd=m[3];
-      return {display:`${parseInt(mm,10)}/${parseInt(dd,10)}`,iso:`20${yy}-${mm}-${dd}`};
-    }
-    m=base.match(/(\d{1,2})[.\-_](\d{1,2})/);
-    if(m){
-      const yr=new Date().getFullYear();
-      const mm=String(parseInt(m[1],10)).padStart(2,'0');
-      const dd=String(parseInt(m[2],10)).padStart(2,'0');
-      return {display:`${parseInt(m[1],10)}/${parseInt(m[2],10)}`,iso:`${yr}-${mm}-${dd}`};
-    }
-    return {display:'',iso:''};
-  }
-
-  /* 병합 셀을 풀어서 모든 셀에 값 복제 (sheet_to_json은 좌상단만 채우므로) */
-  function expandMergedCells(ws){
-    if(!ws['!merges']) return;
-    for(const m of ws['!merges']){
-      const top=ws[XLSX.utils.encode_cell(m.s)];
-      if(!top) continue;
-      for(let r=m.s.r;r<=m.e.r;r++){
-        for(let c=m.s.c;c<=m.e.c;c++){
-          if(r===m.s.r&&c===m.s.c) continue;
-          const addr=XLSX.utils.encode_cell({r,c});
-          if(!ws[addr]||ws[addr].v===undefined||ws[addr].v===''){
-            ws[addr]={t:top.t,v:top.v,w:top.w};
-          }
-        }
-      }
-    }
-  }
-
-  function formatQty(n){
-    const v=Number(n)||0;
-    return v.toLocaleString('ko-KR');
-  }
-
-  /* "M/D" → 비교 가능한 정수 (이번 해 기준 일수). 발주일/ETA 정렬에 사용 */
-  function mdToOrderable(s){
-    const m=String(s||'').match(/^(\d{1,2})\/(\d{1,2})$/);
-    if(!m) return null;
-    return parseInt(m[1],10)*100 + parseInt(m[2],10);
-  }
-  function etaToOrderable(s){
-    if(!s) return null;
-    if(s==='현물') return -1;
-    return mdToOrderable(s);
-  }
-
-  /* eta 텍스트("M/D" 또는 "현물") → today 대비 보조 문구 + 강조 클래스 */
-  function etaSubInfo(eta){
-    if(!eta||eta==='현물') return null;
-    const m=String(eta).match(/^(\d{1,2})\/(\d{1,2})$/);
-    if(!m) return null;
-    const mm=parseInt(m[1],10), dd=parseInt(m[2],10);
-    const today=new Date();
-    today.setHours(0,0,0,0);
-    let target=new Date(today.getFullYear(),mm-1,dd);
-    const diff=Math.round((target-today)/86400000);
-    // 너무 먼 과거(다음 해로 추정) / 너무 먼 미래(작년 데이터)
-    if(diff<-180) target=new Date(today.getFullYear()+1,mm-1,dd);
-    else if(diff>270) target=new Date(today.getFullYear()-1,mm-1,dd);
-    const days=Math.round((target-today)/86400000);
-    if(days===0) return {text:'오늘 도착',cls:'eta-sub-today'};
-    if(days>0) return {text:`${days}일 남음`,cls:days<=7?'eta-sub-soon':''};
-    return {text:`${-days}일 지남`,cls:'eta-sub-late'};
-  }
-
-  /* 정렬 상태 */
-  let _sortMode='default'; // default | date-asc | date-desc | eta-asc | eta-desc
-  function onSortChange(v){
-    _sortMode=v||'default';
-    renderPOList();
-  }
-  window.onSortChange=onSortChange;
-
-  function applySorted(indexed){
-    if(_sortMode==='default') return indexed;
-    const [key,dir]=_sortMode.split('-');
-    const sign=dir==='asc'?1:-1;
-    const keyFn=key==='date'?(it=>mdToOrderable(it.date)):(it=>etaToOrderable(it.eta));
-    return indexed.slice().sort((a,b)=>{
-      const av=keyFn(a), bv=keyFn(b);
-      if(av==null && bv==null) return 0;
-      if(av==null) return 1;   // 값 없는 건 항상 뒤로
-      if(bv==null) return -1;
-      return sign*(av-bv);
-    });
-  }
-
-  function renderPOList(){
-    const list=loadPOList();
-    const tbody=document.getElementById('poBody');
-    const tbl=document.getElementById('poTable');
-    const empty=document.getElementById('poEmpty');
-    const cnt=document.getElementById('poCount');
-    const clr=document.getElementById('poClearBtn');
-
-    cnt.textContent=`${list.length}건`;
-    const editBtn=document.getElementById('poEditBtn');
-    if(list.length===0){
-      tbl.style.display='none';
-      empty.style.display='block';
-      clr.style.display='none';
-      if(editBtn) editBtn.style.display='none';
-      return;
-    }
-    tbl.style.display='';
-    empty.style.display='none';
-    clr.style.display='inline-block';
-    if(editBtn) editBtn.style.display='inline-block';
-
-    // 원본 인덱스 보존 (정렬해도 삭제는 원본 list에서)
-    const indexed=list.map((it,i)=>({...it,_origIdx:i}));
-    const view=applySorted(indexed);
-
-    // 발주일별 그룹 번호 매핑 — 정렬 후의 등장 순서대로
-    const dateGroups={};
-    let nextGroup=0;
-    for(const it of view){
-      const d=it.date||'_';
-      if(!(d in dateGroups)) dateGroups[d]=nextGroup++;
-    }
-    const editing=document.body.classList.contains('po-edit-mode');
-    tbody.innerHTML=view.map(it=>{
-      const combined=it.combined||(it.product&&it.option&&it.product!==it.option?`${it.product} / ${it.option}`:(it.product||it.option||''));
-      const subInfo=etaSubInfo(it.eta);
-      const isPast=subInfo&&subInfo.cls==='eta-sub-late';
-      const groupCls=`po-row-g${dateGroups[it.date||'_']%4}${isPast?' po-row-past':''}`;
-      const etaCell=it.eta
-        ? `<span class="eta-pill">${escapeHTML(it.eta)}</span>${subInfo?`<span class="eta-sub ${subInfo.cls}">${escapeHTML(subInfo.text)}</span>`:''}`
-        : `<span class="eta-pill eta-empty">미정</span>`;
-      const ce=editing?'contenteditable="true" spellcheck="false"':'';
-      return `
-      <tr class="${groupCls}" data-orig-idx="${it._origIdx}">
-        <td class="col-date">${escapeHTML(it.date||'')}</td>
-        <td class="col-eta">${etaCell}</td>
-        <td class="col-name" data-field="combined" ${ce}>${escapeHTML(combined)}</td>
-        <td class="col-memo" data-field="memo" ${ce}>${escapeHTML(it.memo||'')}</td>
-        <td class="col-qty">${formatQty(it.qty)}<span class="qty-unit">개</span></td>
-        <td class="col-act"><button class="po-row-del" onclick="deletePORow(${it._origIdx})" title="삭제" aria-label="삭제">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button></td>
-      </tr>`;
-    }).join('');
-  }
-
-  function deletePORow(idx){
-    if(!requireMaster('삭제'))return;
-    const list=loadPOList();
-    list.splice(idx,1);
-    savePOList(list);
-    renderPOList();
-  }
-  function clearAllPO(){
-    if(!requireMaster('전체 비우기'))return;
-    if(!confirm('전체 발주 내역을 비우시겠습니까?'))return;
-    savePOList([]);
-    renderPOList();
-  }
-  function togglePOEdit(){
-    if(!requireMaster('수정'))return;
-    const editing=document.body.classList.toggle('po-edit-mode');
-    const btn=document.getElementById('poEditBtn');
-    if(btn) btn.textContent=editing?'완료':'수정';
-    renderPOList(); // contenteditable 토글 위해 재렌더
-  }
-  // 인라인 셀 수정 — blur 시점에 저장 (capture 단계로 td blur 잡기)
-  document.addEventListener('focusout',e=>{
-    const td=e.target.closest?.('#poBody td.col-name, #poBody td.col-memo');
-    if(!td) return;
-    if(!document.body.classList.contains('po-edit-mode')) return;
-    if(!isMaster()) return;
-    const tr=td.closest('tr');
-    const idx=Number(tr.dataset.origIdx);
-    const field=td.dataset.field;
-    const newVal=td.textContent.replace(/ /g,' ').trim();
-    const list=loadPOList();
-    if(!list[idx]) return;
-    if(field==='combined'){
-      if((list[idx].combined||'')===newVal) return;
-      list[idx].combined=newVal;
-      list[idx].product=newVal;
-      list[idx].option='';
-    }else if(field==='memo'){
-      if((list[idx].memo||'')===newVal) return;
-      list[idx].memo=newVal;
-    }
-    savePOList(list);
-  });
-  // Enter 키로 셀 편집 종료 (줄바꿈 방지 + blur)
-  document.addEventListener('keydown',e=>{
-    if(e.key!=='Enter') return;
-    const td=e.target.closest?.('#poBody td.col-name, #poBody td.col-memo');
-    if(!td) return;
-    if(!document.body.classList.contains('po-edit-mode')) return;
-    e.preventDefault();
-    td.blur();
-  });
-  function appendPOItems(items){
-    if(!requireMaster('발주서 추가'))return;
-    const list=loadPOList();
-    items.forEach(it=>list.unshift(it));
-    savePOList(list);
-    renderPOList();
-  }
-
-  function fileToBase64(file){
-    return new Promise((resolve,reject)=>{
-      const r=new FileReader();
-      r.onload=()=>{
-        const result=r.result;
-        const idx=result.indexOf('base64,');
-        resolve({media_type:file.type,data:result.slice(idx+7)});
-      };
-      r.onerror=reject;
-      r.readAsDataURL(file);
-    });
-  }
-
-  async function analyzeImage(file,key){
-    const img=await fileToBase64(file);
-    const systemPrompt=`당신은 발주서 이미지를 분석해 표 형태로 추출하는 도우미입니다. 이미지에서 각 발주 항목을 다음 4개 필드로 추출하세요:
-- product: 제품명 (한글옵션명 컬럼의 한국어 표기. 한자/영문이 섞여 있으면 한국어 부분만)
-- option: 옵션명 (한글옵션명 컬럼에서 product 외에 옵션 정보가 있으면 그 부분. 보통 product와 동일. ※ '1688옵션명' 컬럼은 무시)
-- memo: 메모/소요일 컬럼에 적힌 소요일·납기·검수 등 부가 안내. 발주서 상단에 '전체 적용' 안내문이 있으면 모든 행에 공통으로 적어주세요 (예: "전체: 강하게 네고 / 3주 소요").
-- qty: 수량 (숫자)
-
-규칙:
-- 응답은 반드시 JSON 배열만. 다른 설명·마크다운 금지.
-- '한글옵션명' 컬럼만 보고 product/option 채우기. '1688옵션명' 컬럼이 있으면 완전히 무시.
-- 정보 없는 필드는 빈 문자열 ""
-- 수량은 숫자(정수). 모르면 0
-- 품목이 여러 행이면 모두 추출
-- 상단의 공통 안내문(소요일/네고 안내 등)은 모든 행 memo에 동일하게 prepend`;
-
-    const userText=`이 발주서 이미지에서 모든 발주 항목을 추출해 JSON 배열로 반환하세요. 형식:
-[{"product":"...","option":"...","memo":"...","qty":0}, ...]`;
-
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':key,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:ANTHROPIC_MODEL,
-        max_tokens:2048,
-        system:systemPrompt,
-        messages:[{
-          role:'user',
-          content:[
-            {type:'image',source:{type:'base64',media_type:img.media_type,data:img.data}},
-            {type:'text',text:userText}
-          ]
-        }]
-      })
-    });
-
-    if(!r.ok){
-      const errText=await r.text();
-      throw new Error(`API ${r.status}: ${errText.slice(0,200)}`);
-    }
-    const j=await r.json();
-    const text=j.content?.[0]?.text||'';
-    // JSON 추출 (마크다운 코드펜스 등 대비)
-    const m=text.match(/\[[\s\S]*\]/);
-    if(!m) throw new Error('JSON 배열을 찾지 못했습니다: '+text.slice(0,150));
-    const items=JSON.parse(m[0]);
-    const dateInfo=parseDateFromFilename(file.name);
-    return items.map(it=>{
-      const memoRaw=String(it.memo||'');
-      return {
-        date:dateInfo.display,
-        combined:combineProductOption(String(it.product||''),String(it.option||'')),
-        memo:extractDeliveryMemo(memoRaw),
-        eta:calculateETA(dateInfo.iso,memoRaw),
-        qty:Number(it.qty)||0
-      };
-    }).filter(it=>it.combined||it.qty>0);
-  }
-
-/* xlsx 파싱 — 무료, 클라이언트 사이드 */
-  function readXLSXFile(file){
-    return new Promise((resolve,reject)=>{
-      const r=new FileReader();
-      r.onload=()=>{
-        try{
-          const wb=XLSX.read(new Uint8Array(r.result),{type:'array',cellMerges:true});
-          resolve(wb);
-        }catch(e){reject(e)}
-      };
-      r.onerror=()=>reject(new Error('파일 읽기 실패'));
-      r.readAsArrayBuffer(file);
-    });
-  }
-
-  async function analyzeXLSX(file){
-    const wb=await readXLSXFile(file);
-    const items=[];
-    const dateInfo=parseDateFromFilename(file.name);
-    const norm=s=>String(s||'').replace(/\s/g,'').toLowerCase();
-
-    // v2 양식 엑셀은 동일 데이터를 구버전("제품 및 옵션명") + 신버전("한글옵션명") 시트 두 벌로 들고 있어
-    // 양쪽 다 파싱하면 중복됨 → "한글옵션명"이 있는 시트가 있으면 그 시트들만 처리. 없으면 전체 처리(레거시).
-    const sheetsWithKor=wb.SheetNames.filter(sn=>{
-      const ws=wb.Sheets[sn];
-      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-      for(let i=0;i<Math.min(20,data.length);i++){
-        if((data[i]||[]).map(norm).some(c=>c==='한글옵션명')) return true;
-      }
-      return false;
-    });
-    const targetSheets = sheetsWithKor.length>0 ? sheetsWithKor : wb.SheetNames;
-
-    for(const sn of targetSheets){
-      const ws=wb.Sheets[sn];
-      expandMergedCells(ws);
-      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-      if(data.length<2) continue;
-
-      // 헤더 행 찾기 — 수량 + (제품/상품/품명/품목/옵션 어디든 등장) 또는 메모면 헤더로 인정
-      let headerIdx=-1;
-      for(let i=0;i<Math.min(20,data.length);i++){
-        const row=data[i].map(norm);
-        const hasQty=row.some(c=>/수량$/.test(c)||c==='개수');
-        if(!hasQty) continue;
-        const hasProd=row.some(c=>/제품|상품|품명|품목|옵션/.test(c));
-        const hasMemo=row.some(c=>c==='메모'||c==='비고'||c==='소요일');
-        if(hasProd||hasMemo){headerIdx=i;break}
-      }
-      if(headerIdx<0) continue;
-
-      const header=data[headerIdx].map(c=>norm(c));
-      const idxNo=header.findIndex(h=>/^번호$|^no\.?$/.test(h));
-      // 결합형 "제품(명) 및 옵션(명)" / "한글옵션명" 컬럼이 있으면 product=option=같은 인덱스. 1688옵션명은 무시.
-      const idxCombined=header.findIndex(h=>/^제품명?및옵션명?$|^상품명?및옵션명?$|^제품옵션명$|^한글옵션명$/.test(h));
-      const idxProduct=idxCombined>=0
-        ? idxCombined
-        : header.findIndex(h=>/^제품명?$|^상품명?$|^품명$|^품목$/.test(h));
-      const idxOption=idxCombined>=0
-        ? idxCombined
-        : header.findIndex(h=>/^옵션$|^옵션명$/.test(h));
-      const idxMemo=header.findIndex(h=>/^메모$|^비고$|^소요일$/.test(h));
-      const idxQty=header.findIndex(h=>/수량$|^개수$/.test(h));
-      if(idxQty<0) continue;
-
-      for(let i=headerIdx+1;i<data.length;i++){
-        const r=data[i];
-        // 합계/소계 행 제외
-        const noCell=String(r[idxNo>=0?idxNo:0]||'').trim();
-        if(/^(합계|소계|총합|총계|합산|total)$/i.test(noCell)) continue;
-
-        const productRaw=idxProduct>=0?String(r[idxProduct]||'').trim():'';
-        const optionRaw=idxOption>=0?String(r[idxOption]||'').trim():'';
-        const memoRaw=idxMemo>=0?String(r[idxMemo]||'').trim():'';
-        const qty=Number(r[idxQty])||0;
-
-        // 제품명/옵션명 둘 다 비어있는 줄 (요약/푸터) 제외, 수량 0 제외
-        if(!productRaw&&!optionRaw) continue;
-        if(qty<=0) continue;
-
-        items.push({
-          date:dateInfo.display,
-          combined:combineProductOption(productRaw,optionRaw),
-          memo:extractDeliveryMemo(memoRaw),
-          eta:calculateETA(dateInfo.iso,memoRaw),
-          qty
-        });
-      }
-    }
-    return items;
-  }
-
-async function handlePOFiles(files){
-    if(!files||files.length===0)return;
-
-    const xlsxFiles=[], imgFiles=[];
-    for(const f of files){
-      const ext=f.name.toLowerCase();
-      if(ext.endsWith('.xlsx')||ext.endsWith('.xls')) xlsxFiles.push(f);
-      else if(f.type.startsWith('image/')) imgFiles.push(f);
-      else toast(`${f.name}: 지원하지 않는 형식`,'err');
-    }
-
-    // xlsx — API 키 불필요, 무료
-    for(const file of xlsxFiles){
-      toast(`${file.name} 파싱 중...`,'ok');
-      try{
-        const items=await analyzeXLSX(file);
-        if(items.length===0){
-          toast(`${file.name}: 옵션명/메모/수량 헤더를 찾지 못했습니다`,'err');
-        }else{
-          appendPOItems(items);
-          toast(`✓ ${file.name}: ${items.length}개 항목 추가 (무료)`,'ok');
-        }
-      }catch(e){
-        toast(`${file.name} 실패: ${e.message.slice(0,100)}`,'err');
-      }
-    }
-
-    // 이미지 — API 키 필요, 유료
-    if(imgFiles.length>0){
-      let key=localStorage.getItem(ANTHROPIC_KEY);
-      if(!key){
-        key=await askToken('anthropic');
-        if(!key){document.getElementById('poImageInput').value='';return}
-        localStorage.setItem(ANTHROPIC_KEY,key);
-      }
-      for(const file of imgFiles){
-        toast(`${file.name} AI 분석 중...`,'ok');
-        try{
-          const items=await analyzeImage(file,key);
-          if(items.length===0){
-            toast(`${file.name}: 추출된 항목 없음`,'err');
-          }else{
-            appendPOItems(items);
-            toast(`✓ ${file.name}: ${items.length}개 항목 추가`,'ok');
-          }
-        }catch(e){
-          if(/401|invalid_api_key|authentication/i.test(e.message)){
-            localStorage.removeItem(ANTHROPIC_KEY);
-            toast('API 키가 유효하지 않습니다. 다시 입력해주세요.','err');
-            break;
-          }
-          toast(`${file.name} 실패: ${e.message.slice(0,100)}`,'err');
-        }
-      }
-    }
-
-    document.getElementById('poImageInput').value='';
-  }
-
-  window.handlePOFiles=handlePOFiles;
-  window.deletePORow=deletePORow;
-  window.clearAllPO=clearAllPO;
-
-  renderPOList();
 
   /* ===================================================== */
   /* ============ 매출 보고서 PPT (업로드 + GitHub 동기화) ============ */
