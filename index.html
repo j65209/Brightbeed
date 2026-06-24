@@ -2736,8 +2736,8 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
-    <!-- 팀 카드 1행: 인사팀 / 물류팀 / 브랜드별 재고관리 -->
-    <div class="hero-row">
+    <!-- 팀 카드 1행: 인사팀 / 물류팀 -->
+    <div class="hero-row" style="grid-template-columns:repeat(2,1fr)">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
         <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
@@ -2754,15 +2754,6 @@
           <span id="lgBtnLabel">물류팀</span>
         </button>
         <div class="hero-hint">최근 발주내역</div>
-      </section>
-
-      <section class="hero hero-bs">
-        <div class="hero-eyebrow">STOCK</div>
-        <button class="btn-neon btn-bs" id="bsBtn" onclick="triggerBrandStock()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          <span id="bsBtnLabel">브랜드별 재고관리</span>
-        </button>
-        <div class="hero-hint">식스에이 · 프로덕트피알 · 클리어타입</div>
       </section>
     </div>
 
@@ -3024,75 +3015,6 @@
       <div class="leave-grid" id="leaveGrid"></div>
     </div>
   </div><!-- /viewHr -->
-
-  <!-- ============ 브랜드별 재고관리 뷰 (홈 → 직접 진입) ============ -->
-  <div class="view" id="viewBrandStock" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">브랜드별 재고관리<span class="view-title-sub">/ 식스에이 · 프로덕트피알 · 클리어타입</span></h1>
-    </div>
-
-    <!-- 브랜드별 SKU 폴더 (상위) -->
-    <div class="lg-brand-grid">
-      <div class="lg-brand lg-brand-six6">
-        <div class="lg-brand-head">
-          <span class="lg-brand-dot"></span>
-          <span class="lg-brand-name">식스에이</span>
-          <span class="lg-brand-meta">SIX A</span>
-        </div>
-        <div class="lg-brand-body">
-          <a class="lg-res lg-res-inside" href="#sixA" onclick="openSixA(); return false;">
-            <div class="lg-res-eyebrow">🛒 SHOP</div>
-            <div class="lg-res-title">재고 통합관리</div>
-            <span class="lg-res-arrow">→</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="lg-brand lg-brand-pp">
-        <div class="lg-brand-head">
-          <span class="lg-brand-dot"></span>
-          <span class="lg-brand-name">프로덕트피알</span>
-          <span class="lg-brand-meta">PRODUCT PR</span>
-        </div>
-        <div class="lg-brand-body">
-          <a class="lg-res lg-res-inside" href="#stock" id="lgStockSyncLink" onclick="triggerStock(); return false;">
-            <div class="lg-res-eyebrow">🔗 SYNC</div>
-            <div class="lg-res-title">재고 통합관리</div>
-            <span class="lg-res-arrow">→</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="lg-brand lg-brand-ct">
-        <div class="lg-brand-head">
-          <span class="lg-brand-dot"></span>
-          <span class="lg-brand-name">클리어타입</span>
-          <span class="lg-brand-meta">CLEAR TYPE</span>
-        </div>
-        <div class="lg-brand-body">
-          <a class="lg-res lg-res-inside" href="#cleartype" onclick="openCleartype(); return false;">
-            <div class="lg-res-eyebrow">🔗 SYNC</div>
-            <div class="lg-res-title">재고 통합관리</div>
-            <span class="lg-res-arrow">→</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 브랜드 재고 시트 (최하단) -->
-    <div class="lg-bottom-resources">
-      <a class="lg-res lg-res-bottom" id="lgStockLink" onclick="return openLgResource('stock', event)">
-        <div class="lg-res-eyebrow">📦 STOCK</div>
-        <div class="lg-res-title">브랜드 재고</div>
-        <div class="lg-res-sub">실시간 옵션별 재고 · 브랜드별 (Google Sheets)</div>
-        <span class="lg-res-arrow">→</span>
-      </a>
-    </div>
-  </div><!-- /viewBrandStock -->
 
   <!-- ============ 물류팀 뷰: 발주 관리 ============ -->
   <div class="view" id="viewLg" hidden>
@@ -4441,7 +4363,7 @@
     const slavePending = pending.filter(it=>!it.isMaster);
     const msg = [
       `${pending.length}개 변경분 전송:`,
-      masterPending.length ? `• 마스터 SKU ${masterPending.length}건 → PA 5플랫폼 즉시 + 식스샵 자동 sync (Playwright, ~30-60초)` : '',
+      masterPending.length ? `• 마스터 SKU ${masterPending.length}건 → PA 마스터 실재고만 PUT (자동 sync 초기화됨 — 5채널/식스샵 push 안 함)` : '',
       slavePending.length ? `• 슬레이브 ${slavePending.length}건 → 플랫폼별 sale-cnt PATCH` : '',
       '진행할까요?'
     ].filter(Boolean).join('\n');
@@ -4514,104 +4436,14 @@
       }
     }
 
-    // 1-B) 식스샵 자동 sync — proxy → Playwright → 식스샵 어드민 (~30-60초)
-    if(sixshopUpdates.length>0){
-      try{
-        toast(`식스샵 동기화 중... (~30-60초, ${sixshopUpdates.length}개 옵션)`, 'ok');
-        const r = await sxFetch('/update-stock', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ updates: sixshopUpdates.map(u=>({color:u.color, cable:u.cable, setStock:u.setStock})) })
-        });
-        const j = await r.json();
-        const resByKey = {};
-        for(const res of (j.results||[])){
-          resByKey[`${res.color}/${res.cable}`] = res;
-        }
-        sixshopUpdates.forEach(u=>{
-          const key='master::'+u.skuCd;
-          const prev=_stockRowResults[key];
-          if(!prev) return;
-          const res = resByKey[`${u.color}/${u.cable}`];
-          let suffix;
-          if(!res) suffix = ' · 식스샵?';
-          else if(res.status==='ok') suffix = ' · 식스샵✓';
-          else if(res.status==='skip') suffix = ' · 식스샵 미등록';
-          else suffix = ' · 식스샵✗';
-          _stockRowResults[key] = {status: prev.status, msg: prev.msg + suffix};
-        });
-        if(!j.ok){
-          console.warn('식스샵 sync 부분 실패', j);
-        }
-      }catch(e){
-        console.warn('식스샵 sync 호출 실패', e);
-        sixshopUpdates.forEach(u=>{
-          const key='master::'+u.skuCd;
-          const prev=_stockRowResults[key];
-          if(prev) _stockRowResults[key]={status: prev.status, msg: prev.msg + ' · 식스샵✗'};
-        });
-      }
-    }
-
-    // 1-C) PA 5슬레이브 자동 sync — 마스터 PUT 성공한 sku를 같은 값으로 5채널 옵션에도 PATCH.
-    // PA "마스터 한 칸 = 5채널 동시" 광고대로 안 됨 — /stock/manage가 master.real_stock만 갱신,
-    // slave option stock_cnt는 그대로 → 채널엔 옛 값. 슬레이브 PATCH로 수정대기 만들어야 스케줄러가 push.
-    // 마스터 PUT ok면 자동 sync 대상에 포함 — '변경 없음' 케이스도 포함해서 슬레이브 잔재(이전 품절/0 박혀있는 상태) 항상 정리.
-    const masterSuccesses = masterPending.filter(it => {
-      const k = 'master::' + it.skuCd;
-      const r = _stockRowResults[k];
-      return r && r.status === 'ok';
-    });
-    if (masterSuccesses.length > 0) {
-      // 사용자가 직접 편집한 슬레이브(slavePending)는 user 편집이 우선 — 자동 sync에서 제외
-      const slaveEditedKeys = new Set(slavePending.map(it => `${it.platformId}::${it.seq}`));
-      const paPlatforms = _stockData.platforms.filter(p => p.type === 'pa' && p.c_sale_cd);
-      const autoSync = {}; // skuCd → { ok: [platform names], err: [] }
-      for (const p of paPlatforms) {
-        const live = _stockPaLive[p.id];
-        if (!live || !Array.isArray(live.options)) continue;
-        const opts = [];
-        for (const ms of masterSuccesses) {
-          const target = Number(ms.newValue);
-          if (!Number.isFinite(target) || target < 0) continue;
-          const opt = live.options.find(o => o.sku_cd === ms.skuCd);
-          if (!opt) continue;
-          const seq = opt.sale_opt_seq;
-          if (seq != null && slaveEditedKeys.has(`${p.id}::${seq}`)) continue;
-          opts.push({type:'general', sale_opt_seq: seq ?? -1, stock_cnt: target, status: target > 0 ? '정상' : '품절', sku_cd: ms.skuCd});
-        }
-        if (opts.length === 0) continue;
-        const body = {products:[{c_sale_cd: p.c_sale_cd, shop_cd: p.shop_cd, shop_id: p.account, std_ol_yn:'N', opts}]};
-        try {
-          const r = await paFetch('/api/products/sale-cnt', {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-          const t = await r.text(); let j; try { j = JSON.parse(t); } catch(e) { j = t; }
-          const result = Array.isArray(j) ? j[0] : j;
-          // PA가 "변경사항이 없습니다"를 result:'실패' + 해당 message로 응답 — 슬레이브 값이 이미 같음 → 우리 입장에선 ok
-          const noChange = result?.message && /변경사항이 없/.test(result.message);
-          const ok = (r.ok && result?.result !== '실패') || noChange;
-          opts.forEach(op => {
-            if (!autoSync[op.sku_cd]) autoSync[op.sku_cd] = {ok:[], err:[]};
-            (ok ? autoSync[op.sku_cd].ok : autoSync[op.sku_cd].err).push(p.name);
-          });
-          if (!ok) console.warn(`PA 자동sync ${p.name} 실패`, result);
-        } catch (e) {
-          opts.forEach(op => {
-            if (!autoSync[op.sku_cd]) autoSync[op.sku_cd] = {ok:[], err:[]};
-            autoSync[op.sku_cd].err.push(p.name);
-          });
-          console.warn(`PA 자동sync ${p.name} 통신오류`, e);
-        }
-      }
-      // 마스터 결과 메시지에 자동 sync 요약 append
-      for (const ms of masterSuccesses) {
-        const sum = autoSync[ms.skuCd];
-        if (!sum) continue;
-        const k = 'master::' + ms.skuCd;
-        const prev = _stockRowResults[k];
-        if (!prev) continue;
-        let suffix = '';
-        if (sum.ok.length) suffix += ` · PA슬레이브 ${sum.ok.length}✓`;
-        if (sum.err.length) suffix += ` · ${sum.err.length}✗`;
-        if (suffix) _stockRowResults[k] = {status: prev.status, msg: prev.msg + suffix};
+    // 1-B) 식스샵 자동 sync — 동기화 시스템 초기화 (2026-06-24)로 OFF.
+    // 1-C) PA 5슬레이브 자동 sync — 동기화 시스템 초기화 (2026-06-24)로 OFF.
+    // 마스터 PUT 결과 메시지에 '자동sync OFF' suffix 표시.
+    for (const ms of masterPending) {
+      const k = 'master::' + ms.skuCd;
+      const prev = _stockRowResults[k];
+      if (prev && prev.status === 'ok') {
+        _stockRowResults[k] = {status: prev.status, msg: prev.msg + ' · 자동sync OFF'};
       }
     }
 
@@ -4975,8 +4807,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewBrandStock','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewBrandStock:'brandstock',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -5044,7 +4876,6 @@
 
   function triggerHR(){ showView('viewHr'); }
   function triggerLogistics(){ showView('viewLg'); }
-  function triggerBrandStock(){ showView('viewBrandStock'); }
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
@@ -5084,8 +4915,7 @@
         body: JSON.stringify({ref:'main'}),
       });
       if(r.ok || r.status===204){
-        toast('✓ 갱신 트리거 완료 — 약 3~5분 후 자동 반영','ok');
-        setTimeout(()=>loadCleartype(), 4*60*1000);
+        toast('✓ 갱신 트리거 완료 — 약 3~5분 후 수동 새로고침으로 반영 확인','ok');
       } else {
         toast(`갱신 트리거 실패: ${r.status}`,'err');
       }
@@ -5375,7 +5205,6 @@
   }
   window.triggerHR=triggerHR;
   window.triggerLogistics=triggerLogistics;
-  window.triggerBrandStock=triggerBrandStock;
   window.triggerNotice=triggerNotice;
   window.triggerCs=triggerCs;
   window.triggerMd=triggerMd;
