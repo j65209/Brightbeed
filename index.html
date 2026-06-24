@@ -535,13 +535,13 @@
     background:rgba(255,46,147,.08);border:1px solid rgba(255,46,147,.25);
     letter-spacing:.02em;vertical-align:middle
   }
-  .kd-table th.col-ord{width:14%}
-  .kd-table th.col-img{width:9%}
-  .kd-table th.col-name{width:13%}
-  .kd-table th.col-price{width:8%}
-  .kd-table th.col-qty{width:9%}
-  .kd-table th.col-memo{width:39%}
-  .kd-table th.col-link{width:8%}
+  .kd-table th.col-ord{width:13%}
+  .kd-table th.col-img{width:13%}
+  .kd-table th.col-name{width:11%}
+  .kd-table th.col-price{width:7%}
+  .kd-table th.col-qty{width:8%}
+  .kd-table th.col-memo{width:41%}
+  .kd-table th.col-link{width:7%}
   .kd-table td.col-ord{
     font-family:var(--mono);text-align:left;padding-left:14px;vertical-align:top
   }
@@ -558,7 +558,7 @@
   .kd-st-other{background:rgba(107,114,128,.12);color:var(--text-2);border:1px solid rgba(107,114,128,.3)}
   .kd-table td.col-img{padding:8px 4px}
   .kd-thumb{
-    width:60px;height:60px;object-fit:cover;border-radius:6px;
+    width:120px;height:120px;object-fit:cover;border-radius:8px;
     border:1px solid var(--line);background:#fff;display:inline-block;vertical-align:middle
   }
   .kd-no-img{color:var(--text-3);font-size:18px}
@@ -6154,7 +6154,8 @@
       tbl.style.display='none';
       return;
     }
-    const orders=data.orders;
+    // 발주 품목 없는 신청서는 표시 안 함 (콰이디에어에서 취소/빈 신청서 등)
+    const orders=(data.orders||[]).filter(o => Array.isArray(o.items) && o.items.length > 0);
     // dedup-check: same data → skip rerender for cheaper polling
     const hash = JSON.stringify({n:orders.length, t:data.fetched_at, first:orders[0]&&orders[0].ord_no});
     const tsTxt = (()=>{
@@ -6170,10 +6171,6 @@
     // Flatten — each item is a row, with row-span style group coloring per ord_no
     const rows=[];
     for(const o of orders){
-      if(!o.items || o.items.length===0){
-        rows.push({_empty:true, ord_no:o.ord_no, date:o.order_date||'', status:o.status||'', serial:o.serial});
-        continue;
-      }
       for(const it of o.items){
         rows.push({...it, ord_no:o.ord_no, date:o.order_date||'', status:o.status||'', serial:o.serial});
       }
@@ -6207,12 +6204,6 @@
            <div class="kd-ord-meta">${escapeHTML(r.date)} · #${r.serial}</div>
            ${r.status?`<div class="kd-status ${statusCls}">${escapeHTML(r.status)}</div>`:''}`
         : '';
-      if(r._empty){
-        return `<tr class="${groupCls} kd-row-empty">
-          <td class="col-ord">${ordCell}</td>
-          <td colspan="6" class="col-noitem">— 발주 품목 없음 —</td>
-        </tr>`;
-      }
       // alicdn 등 중국 CDN이 Referer 검사로 hotlink 차단 → referrerpolicy=no-referrer 로 우회
       const imgCell=r.image_url
         ? `<img class="kd-thumb" loading="lazy" referrerpolicy="no-referrer" src="${escapeHTML(r.image_url)}" alt="" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\\'kd-no-img\\'>×</span>')">`
