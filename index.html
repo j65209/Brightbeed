@@ -1728,6 +1728,75 @@
   .sub-module.m-namegen {--m-color:#6366f1;--m-border:rgba(99,102,241,.4)}
   .sub-module.m-namegen .sub-module-icon{color:#6366f1}
   .sub-module.m-namegen .sub-module-tag{color:#6366f1;border-color:rgba(99,102,241,.45);border-style:solid}
+  .sub-module.m-topping {--m-color:#a855f7;--m-border:rgba(168,85,247,.4)}
+  .sub-module.m-topping .sub-module-icon{color:#a855f7}
+  .sub-module.m-topping .sub-module-tag{color:#a855f7;border-color:rgba(168,85,247,.45);border-style:solid}
+
+  /* ===== 텍스트 토핑 도구 ===== */
+  .tp-wrap{max-width:760px;margin:0 auto;padding:8px 18px 28px}
+  .tp-panel{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:14px;
+    padding:22px;display:flex;flex-direction:column;gap:14px
+  }
+  .tp-label{
+    font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:.02em;
+    display:flex;justify-content:space-between;align-items:center
+  }
+  .tp-input{
+    width:100%;box-sizing:border-box;
+    padding:14px 16px;border:1px solid var(--line);border-radius:10px;
+    font-size:16px;font-family:var(--sans);color:var(--text-0);
+    background:#fff;outline:none;
+    transition:border-color .15s,box-shadow .15s
+  }
+  .tp-input:focus{
+    border-color:#a855f7;box-shadow:0 0 0 3px rgba(168,85,247,.15)
+  }
+  .tp-output{
+    width:100%;box-sizing:border-box;min-height:62px;
+    padding:14px 16px;border:1px dashed rgba(168,85,247,.45);border-radius:10px;
+    background:linear-gradient(135deg,rgba(168,85,247,.04),rgba(99,102,241,.04));
+    font-size:18px;line-height:1.6;color:var(--text-0);
+    word-break:break-word;white-space:pre-wrap;
+    user-select:all;cursor:text
+  }
+  .tp-output:empty::before{
+    content:"여기에 토핑이 적용된 결과가 표시됩니다";
+    color:var(--text-3);font-size:13px;font-style:italic
+  }
+  .tp-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .tp-btn{
+    padding:10px 18px;border-radius:8px;cursor:pointer;
+    font-size:13px;font-weight:600;font-family:var(--sans);
+    transition:transform .12s,box-shadow .15s,background .15s;
+    border:1px solid transparent
+  }
+  .tp-btn-primary{
+    background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;
+    box-shadow:0 4px 14px rgba(168,85,247,.35)
+  }
+  .tp-btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(168,85,247,.5)}
+  .tp-btn-primary:active{transform:translateY(0)}
+  .tp-btn-ghost{
+    background:var(--bg-2);color:var(--text-1);border-color:var(--line)
+  }
+  .tp-btn-ghost:hover{background:var(--bg-3)}
+  .tp-copied{
+    color:#16a34a;font-weight:600;font-size:12px;letter-spacing:.02em;
+    opacity:0;transition:opacity .2s;align-self:center
+  }
+  .tp-copied.is-show{opacity:1}
+  .tp-hint{
+    font-size:11.5px;color:var(--text-3);line-height:1.55;
+    padding-top:8px;border-top:1px dashed var(--line)
+  }
+  @media (max-width:520px){
+    .tp-wrap{padding:8px 10px 24px}
+    .tp-panel{padding:16px;gap:12px}
+    .tp-input{font-size:15px;padding:12px 14px}
+    .tp-output{font-size:16px;padding:12px 14px}
+    .tp-btn{padding:10px 14px;font-size:12.5px;flex:1 1 auto}
+  }
 
   /* ============ 제품명 생성기 (Namegen) ============ */
   .ng-wrap{display:flex;flex-direction:column;gap:18px;max-width:1100px;margin:0 auto}
@@ -3115,6 +3184,12 @@
           <div class="sub-module-sub">도시명 추출 + 식스에이 · 클리어타입 풀네임 빌더</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
+        <div class="sub-module m-topping" onclick="triggerTopping()">
+          <div class="sub-module-icon">✨</div>
+          <div class="sub-module-title">텍스트 토핑</div>
+          <div class="sub-module-sub">제품명·캡션 데코 변환 (Unicode 토핑)</div>
+          <div class="sub-module-tag">TOOL</div>
+        </div>
       </div>
     </div>
 
@@ -3814,6 +3889,46 @@
             <div>개수와 형식을 선택하고 <b>추출</b> 버튼을 눌러주세요</div>
             <div class="ng-empty-hint">CLICK GENERATE</div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 텍스트 토핑 도구 ============ -->
+  <div class="view" id="viewTopping" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">텍스트 토핑<span class="view-title-sub">/ Unicode 토핑 변환기</span></h1>
+    </div>
+
+    <div class="tp-wrap">
+      <div class="tp-panel">
+        <div>
+          <div class="tp-label">
+            <span>입력 텍스트</span>
+            <span style="font-weight:400;color:var(--text-3);font-size:11px">실시간 변환</span>
+          </div>
+          <input id="tpInput" class="tp-input" type="text" placeholder="예: Krak Necklace" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div>
+          <div class="tp-label">
+            <span>토핑 결과</span>
+            <span class="tp-copied" id="tpCopied">✓ 복사됨</span>
+          </div>
+          <div id="tpOutput" class="tp-output" aria-live="polite"></div>
+        </div>
+
+        <div class="tp-actions">
+          <button type="button" class="tp-btn tp-btn-primary" onclick="copyTopping()">복사</button>
+          <button type="button" class="tp-btn tp-btn-ghost" onclick="clearTopping()">지우기</button>
+        </div>
+
+        <div class="tp-hint">
+          글자 사이에 <code>U+0591</code> (Hebrew Etnahta) 마크를 끼워 넣어 토핑처럼 보이게 합니다. 띄어쓰기엔 적용 안 됩니다.
         </div>
       </div>
     </div>
@@ -5108,8 +5223,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen','viewTopping'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen',viewTopping:'topping'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -5159,6 +5274,9 @@
     }
     if(id==='viewNamegen'){
       if(typeof initNamegenView==='function') initNamegenView();
+    }
+    if(id==='viewTopping'){
+      if(typeof initToppingView==='function') initToppingView();
     }
   }
 
@@ -5440,6 +5558,8 @@
   }
 
   function triggerNamegen(){ showView('viewNamegen'); }
+  function triggerTopping(){ showView('viewTopping'); if(typeof initToppingView==='function') initToppingView(); }
+  window.triggerTopping=triggerTopping;
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
     const cur=history.state&&history.state.view;
@@ -9679,6 +9799,66 @@
   window.vMarginRefresh=vMarginRefresh;
   window.vMarginEnsureLoaded=vMarginEnsureLoaded;
   window.renderVMargin=renderVMargin;
+
+  /* ===== 텍스트 토핑 (Unicode U+0591 per-character) ===== */
+  const TOPPING_MARK='֑';
+  function applyTopping(text){
+    // 글자마다 마크 추가, 공백(스페이스/탭/개행)은 마크 안 붙임
+    return [...String(text||'')].map(ch => /\s/.test(ch) ? ch : ch + TOPPING_MARK).join('');
+  }
+  function _tpRender(){
+    const inp=document.getElementById('tpInput');
+    const out=document.getElementById('tpOutput');
+    if(!inp||!out) return;
+    out.textContent=applyTopping(inp.value);
+  }
+  let _tpBound=false;
+  function initToppingView(){
+    const inp=document.getElementById('tpInput');
+    if(!inp) return;
+    if(!_tpBound){
+      inp.addEventListener('input', _tpRender);
+      _tpBound=true;
+    }
+    _tpRender();
+    // 모바일에서 자동 포커스는 키보드가 갑자기 떠서 어색할 수 있어 데스크탑만 포커스.
+    if(window.matchMedia && !window.matchMedia('(max-width:720px)').matches){
+      setTimeout(()=>inp.focus(),60);
+    }
+  }
+  async function copyTopping(){
+    const out=document.getElementById('tpOutput');
+    if(!out) return;
+    const txt=out.textContent||'';
+    if(!txt) return;
+    try{
+      await navigator.clipboard.writeText(txt);
+    }catch(e){
+      // fallback: select + execCommand (오래된 브라우저/HTTP)
+      const r=document.createRange();
+      r.selectNodeContents(out);
+      const sel=window.getSelection();
+      sel.removeAllRanges(); sel.addRange(r);
+      try{ document.execCommand('copy'); }catch(_){}
+      sel.removeAllRanges();
+    }
+    const tag=document.getElementById('tpCopied');
+    if(tag){
+      tag.classList.add('is-show');
+      clearTimeout(window._tpCopiedT);
+      window._tpCopiedT=setTimeout(()=>tag.classList.remove('is-show'),1400);
+    }
+  }
+  function clearTopping(){
+    const inp=document.getElementById('tpInput');
+    const out=document.getElementById('tpOutput');
+    if(inp) inp.value='';
+    if(out) out.textContent='';
+    if(inp) inp.focus();
+  }
+  window.copyTopping=copyTopping;
+  window.clearTopping=clearTopping;
+  window.initToppingView=initToppingView;
 
   init();
 </script>
