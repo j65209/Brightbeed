@@ -4886,7 +4886,7 @@
     }
   }
 
-  function triggerHR(){ showView('viewHr'); }
+  function triggerHR(){ showView('viewHr'); if(typeof autoArchiveCycles==='function') autoArchiveCycles(); }
   function triggerLogistics(){ showView('viewLg'); }
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
@@ -5308,6 +5308,133 @@
   function calculateLeaveTotal(hire, today){
     const c = cycleInfo(hire, today);
     return c ? c.total : null;
+  }
+
+  /* 특정 cycle 인덱스의 정보 — archive snapshot용.
+     cycle 0의 granted_total은 종료 시점 max grant = 11 (만 11개월).
+     cycle N(N>=1)는 14 + N. */
+  function cycleInfoForIndex(hire, idx){
+    if(!hire || idx < 0) return null;
+    const m = String(hire).match(/(\d{4})\D?(\d{1,2})\D?(\d{1,2})/);
+    if(!m) return null;
+    const h = new Date(+m[1], +m[2]-1, +m[3]);
+    if(isNaN(h.getTime())) return null;
+    if(idx === 0){
+      return {
+        cycleIndex: 0,
+        label: '1년 미만',
+        cycleStart: h,
+        cycleEnd: new Date(h.getFullYear()+1, h.getMonth(), h.getDate()),
+        total: 11
+      };
+    }
+    return {
+      cycleIndex: idx,
+      label: `${idx}년차`,
+      cycleStart: new Date(h.getFullYear()+idx, h.getMonth(), h.getDate()),
+      cycleEnd: new Date(h.getFullYear()+idx+1, h.getMonth(), h.getDate()),
+      total: 14 + idx
+    };
+  }
+
+  /* archive 시점에 특정 cycle [cs, ce) 안의 사용 내역 snapshot 모음 */
+  function _collectHistorySnapshot(s, v, cs, ce){
+    const inRange = d => {
+      if(!d) return false;
+      const mm = String(d).match(/(\d{4})\D?(\d{1,2})\D?(\d{1,2})/);
+      if(!mm) return false;
+      const dd = new Date(+mm[1], +mm[2]-1, +mm[3]);
+      if(isNaN(dd.getTime())) return false;
+      if(dd < cs) return false;
+      if(ce && dd >= ce) return false;
+      return true;
+    };
+    const deletes = Array.isArray(v?.baselineDeletes) ? v.baselineDeletes : [];
+    const delSet = new Set(deletes.map(d => `${d.date}|${d.type}`));
+    const out = [];
+    const bhist = Array.isArray(s?.history) ? s.history : [];
+    for(const h of bhist){
+      if(!inRange(h.date)) continue;
+      if(delSet.has(`${h.date}|${h.type}`)) continue;
+      out.push({date:h.date, type:h.type, days:_itemUsedDays(h), source:'baseline'});
+    }
+    const newEntries = Array.isArray(v?.history) ? v.history : [];
+    for(const h of newEntries){
+      if(!h || !h.submittedAt) continue;
+      if(!inRange(h.date)) continue;
+      const item = {date:h.date, type:h.type, days:_itemUsedDays(h), source:'entry'};
+      if(h._id) item.entry_id = h._id;
+      if(h.endDate) item.endDate = h.endDate;
+      out.push(item);
+    }
+    out.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    return out;
+  }
+
+  /* 직원별 입사 anniversary를 지난 직전 cycle을 supabase leave_cycles에 영구 archive.
+     · master 권한 필요 (사장님 1명만 트리거). PIN 인증 안 됐으면 skip.
+     · 같은 staff/cycle_index는 PK 충돌로 두 번 insert 안 됨 (멱등성 자체 보장).
+     · archive 성공한 직원은 override.used를 0으로 리셋 — 새 cycle에서 baseline 합산 방지.
+     · 페이지 진입당 한 번만 시도 (_cycleArchiveDone). */
+  let _cycleArchiveDone = false;
+  async function autoArchiveCycles(){
+    if(_cycleArchiveDone) return;
+    if(typeof isMaster !== 'function' || !isMaster()) return;
+    _cycleArchiveDone = true;
+    let archived;
+    try{ archived = await sbFetchLeaveCycles(); }catch(e){ archived = null; }
+    if(!archived){ _cycleArchiveDone = false; return; }
+    const byStaff = {};
+    for(const a of archived){
+      if(!byStaff[a.staff_name]) byStaff[a.staff_name] = new Set();
+      byStaff[a.staff_name].add(a.cycle_index);
+    }
+    const data = loadLeaveData();
+    let archiveCount = 0;
+    const resetNames = [];
+    const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    for(const s of STAFF){
+      const v = data[s.name] || {};
+      const hire = v.hire || s.hire;
+      if(!hire) continue;
+      const current = cycleInfo(hire);
+      if(!current || current.cycleIndex <= 0) continue;
+      const archivedSet = byStaff[s.name] || new Set();
+      let lastArchivedIdx = -1;
+      for(let idx = 0; idx < current.cycleIndex; idx++){
+        if(archivedSet.has(idx)){ lastArchivedIdx = idx; continue; }
+        const ci = cycleInfoForIndex(hire, idx);
+        if(!ci) continue;
+        const used = _computeCycleUsed(s, v, ci) ?? 0;
+        const snapshot = _collectHistorySnapshot(s, v, ci.cycleStart, ci.cycleEnd);
+        const r = await sbInsertLeaveCycle({
+          staff_name: s.name,
+          cycle_index: idx,
+          cycle_label: ci.label,
+          cycle_start: fmt(ci.cycleStart),
+          cycle_end: fmt(ci.cycleEnd),
+          granted_total: ci.total,
+          used_total: used,
+          history_snapshot: snapshot
+        });
+        if(r.ok){ archiveCount++; lastArchivedIdx = idx; }
+        else { console.warn(`leave_cycle archive 실패: ${s.name} #${idx}`, r.reason); break; }
+      }
+      // 모든 이전 cycle archive 완료 → override.used 0 리셋 (cycle 1+ 합산 정확화)
+      if(lastArchivedIdx === current.cycleIndex - 1 && Number.isFinite(v.used)){
+        const rs = await sbUpsertLeaveOverride(s.name, {used: 0});
+        if(rs.ok){
+          v.used = 0;
+          data[s.name] = v;
+          saveLeaveData(data);
+          resetNames.push(s.name);
+        }
+      }
+    }
+    if(archiveCount > 0){
+      try{ toast(`연차 cycle ${archiveCount}건 영구 archive 완료${resetNames.length?` · ${resetNames.length}명 used 리셋`:''}`, 'ok'); }catch(e){}
+      if(typeof renderLeaveStatus === 'function') renderLeaveStatus();
+    }
   }
 
   /* 사용 내역 항목 하나의 차감 일수 */
@@ -6868,6 +6995,28 @@ async function handlePOFiles(files){
       });
       return {ok:r.ok, status:r.status};
     }catch(e){return {ok:false}}
+  }
+
+  /* cycle archive — 영구 기록 (분쟁 방지). UPDATE/DELETE 정책 없음 — INSERT once. */
+  async function sbFetchLeaveCycles(){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_cycles?select=staff_name,cycle_index`,{
+        headers:_sbHeaders(), cache:'no-cache'
+      });
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){return null}
+  }
+  async function sbInsertLeaveCycle(payload){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/leave_cycles`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'return=minimal'}),
+        body:JSON.stringify(payload)
+      });
+      if(!r.ok) return {ok:false, reason:`http_${r.status}`};
+      return {ok:true};
+    }catch(e){return {ok:false, reason:'fetch'}}
   }
 
   /* baseline 사용 내역 삭제 표시(insert) — (staff_name,date,leave_type) 복합 PK */
