@@ -1201,8 +1201,45 @@
   .md-cal-event.is-right-cap{border-top-right-radius:4px;border-bottom-right-radius:4px;margin-right:1px;width:calc(100% + 1px)}
   .md-cal-event.is-left-cap.is-right-cap{margin-left:1px;margin-right:1px;width:calc(100% - 2px)}
   .md-cal-more{
-    font-family:var(--mono);font-size:9.5px;color:var(--text-3);
-    padding:0 6px;line-height:14px;flex-shrink:0;
+    font-family:var(--mono);font-size:10.5px;color:var(--neon-md-2);font-weight:600;
+    padding:0 6px;line-height:14px;flex-shrink:0;cursor:pointer;
+    border:none;background:rgba(225,29,72,.08);border-radius:3px;
+    transition:background .12s;width:fit-content;align-self:flex-start;
+  }
+  .md-cal-more:hover{background:rgba(225,29,72,.18);color:var(--neon-md)}
+  /* 더보기 popover — 한 날짜에 다 안 들어간 일정 전체 표시 */
+  .md-cal-day-popover{
+    position:fixed;z-index:200;
+    background:var(--bg-1);border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 12px 32px rgba(0,0,0,.18);
+    padding:8px;min-width:240px;max-width:320px;max-height:420px;overflow:auto;
+  }
+  .md-cal-day-popover-head{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11.5px;color:var(--text-1);font-family:var(--mono);letter-spacing:.02em;
+    padding:2px 4px 8px;border-bottom:1px solid var(--line);margin-bottom:6px;
+  }
+  .md-cal-day-popover-close{
+    border:none;background:transparent;cursor:pointer;
+    font-size:18px;color:var(--text-3);padding:0 4px;line-height:1;
+  }
+  .md-cal-day-popover-close:hover{color:var(--text-1)}
+  .md-cal-day-popover-list{display:flex;flex-direction:column;gap:2px}
+  .md-cal-day-popover-item{
+    display:flex;align-items:center;gap:8px;
+    padding:7px 8px;background:transparent;border:none;border-radius:4px;cursor:pointer;
+    text-align:left;font-size:12px;transition:background .12s;
+  }
+  .md-cal-day-popover-item:hover{background:var(--bg-2)}
+  .md-cal-day-popover-item .md-cal-day-popover-dot{
+    width:10px;height:10px;border-radius:50%;flex-shrink:0;
+  }
+  .md-cal-day-popover-item .md-cal-day-popover-title{
+    flex:1;color:var(--text-0);font-weight:500;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .md-cal-day-popover-item .md-cal-day-popover-range{
+    color:var(--text-3);font-family:var(--mono);font-size:10px;flex-shrink:0;
   }
   .md-cal-hint{
     margin-top:10px;font-size:11px;color:var(--text-3);font-family:var(--mono);
@@ -8040,6 +8077,7 @@
   let _mdCal_lastHash=null;
   let _mdCal_editingId=null;
   let _mdCal_pickedColor='rose';
+  let _mdLastPutAt=0; // 마지막 ghPut 성공 시각 — CDN race window 가드용
 
   function _mdIso(d){
     const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
@@ -8076,13 +8114,24 @@
   }
 
   async function syncMdEventsFromRemote(){
+    // ghPut 직후 5분 안이면 sync skip — GitHub raw CDN 캐시가 옛 데이터로 덮어쓰는 race 방지
+    if(_mdLastPutAt && (Date.now()-_mdLastPutAt) < 5*60*1000) return;
     const remote=await fetchMdEventsFromRemote();
     if(remote===null) return;
+    // 로컬 메타 (updatedAt 비교용)
+    let localMeta=null;
+    try{ localMeta=JSON.parse(localStorage.getItem(MD_EVENTS_KEY)||'null'); }catch(e){}
+    const localUpdatedAt = localMeta && Number.isFinite(localMeta.updatedAt) ? localMeta.updatedAt : 0;
+    const localEvents = (localMeta && Array.isArray(localMeta.events)) ? localMeta.events : [];
     if(remote.empty){
-      if(loadMdEvents().length){saveMdEventsLocal([]); renderMdCal();}
-      else{_mdCal_lastHash='null'}
+      // remote 비어있는데 로컬에 데이터 있으면 — CDN 일시 오류/캐시 의심. 로컬 보존.
+      if(localEvents.length>0) return;
+      _mdCal_lastHash='null';
       return;
     }
+    const remoteUpdatedAt = Number.isFinite(remote.updatedAt) ? remote.updatedAt : 0;
+    // 로컬이 더 최신이면 덮어쓰지 않음 (CDN 옛 데이터 보호)
+    if(localUpdatedAt > remoteUpdatedAt) return;
     const json=JSON.stringify(remote);
     if(json===_mdCal_lastHash) return;
     _mdCal_lastHash=json;
@@ -8133,7 +8182,7 @@
     }
 
     grid.innerHTML='';
-    const MAX_LANES=3;
+    const MAX_LANES=4;
 
     for(let wi=0; wi<6; wi++){
       const week=cells.slice(wi*7, wi*7+7);
@@ -8209,9 +8258,14 @@
         });
         const hidden=evsHere.filter(e=>evLane.get(e)>=MAX_LANES).length;
         if(hidden>0){
-          const more=document.createElement('div');
+          const more=document.createElement('button');
+          more.type='button';
           more.className='md-cal-more';
-          more.textContent=`+${hidden}`;
+          more.textContent=`+${hidden} 더보기`;
+          more.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            mdCalShowDayPopover(iso, evsHere, cellEl);
+          });
           eventsEl.appendChild(more);
         }
 
@@ -8219,6 +8273,7 @@
 
         cellEl.addEventListener('click', (e)=>{
           if(e.target.closest('.md-cal-event')) return;
+          if(e.target.closest('.md-cal-more')) return;
           mdCalOpenAdd(iso);
         });
 
@@ -8226,6 +8281,58 @@
       });
     }
   }
+
+  /* +N 더보기 클릭 — 그 날짜의 모든 일정을 popover로 표시 (클릭하면 편집 모달) */
+  function mdCalShowDayPopover(iso, evs, anchorCell){
+    document.querySelectorAll('.md-cal-day-popover').forEach(p=>p.remove());
+    const popover=document.createElement('div');
+    popover.className='md-cal-day-popover';
+    const head=document.createElement('div');
+    head.className='md-cal-day-popover-head';
+    head.innerHTML=`<span>${escapeHTML(iso)} · ${evs.length}건</span>`;
+    const closeBtn=document.createElement('button');
+    closeBtn.type='button';
+    closeBtn.className='md-cal-day-popover-close';
+    closeBtn.textContent='×';
+    closeBtn.setAttribute('aria-label','닫기');
+    closeBtn.addEventListener('click', ()=>popover.remove());
+    head.appendChild(closeBtn);
+    popover.appendChild(head);
+    const list=document.createElement('div');
+    list.className='md-cal-day-popover-list';
+    const sorted=evs.slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+    for(const ev of sorted){
+      const item=document.createElement('button');
+      item.type='button';
+      item.className='md-cal-day-popover-item';
+      const c=_mdEvColor(ev.color);
+      const range=ev.end&&ev.end!==ev.start
+        ? `${ev.start.slice(5).replace('-','/')} ~ ${ev.end.slice(5).replace('-','/')}`
+        : ev.start.slice(5).replace('-','/');
+      item.innerHTML=`<span class="md-cal-day-popover-dot" style="background:${c.hex}"></span><span class="md-cal-day-popover-title">${escapeHTML(ev.title||'')}</span><span class="md-cal-day-popover-range">${escapeHTML(range)}</span>`;
+      item.addEventListener('click', ()=>{ popover.remove(); mdCalOpenEdit(ev.id); });
+      list.appendChild(item);
+    }
+    popover.appendChild(list);
+    document.body.appendChild(popover);
+    // 위치 — anchor cell 아래에. 가장자리 넘으면 보정.
+    const rect=anchorCell ? anchorCell.getBoundingClientRect() : {bottom:80,left:80,right:240};
+    popover.style.top=`${rect.bottom+4}px`;
+    const w=popover.offsetWidth||280;
+    let left=rect.left;
+    if(left+w > window.innerWidth-8) left=window.innerWidth-w-8;
+    if(left < 8) left=8;
+    popover.style.left=`${left}px`;
+    // outside 클릭 닫기
+    const onOutside=(e)=>{
+      if(!popover.contains(e.target) && !e.target.closest('.md-cal-more')){
+        popover.remove();
+        document.removeEventListener('click', onOutside, true);
+      }
+    };
+    setTimeout(()=>document.addEventListener('click', onOutside, true), 0);
+  }
+  window.mdCalShowDayPopover=mdCalShowDayPopover;
 
   function _mdRenderChip(ev, iso, weekStartIso, weekEndIso){
     const chip=document.createElement('button');
@@ -8390,6 +8497,7 @@
       toast(`저장 실패: ${r.reason}`,'err');return;
     }
     saveMdEventsLocal(events);
+    _mdLastPutAt=Date.now();
     mdCalCloseModal();
     renderMdCal();
     toast('✓ 저장 완료','ok');
