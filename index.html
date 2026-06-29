@@ -2089,6 +2089,7 @@
   }
   .ng-builder-six6{--brand-color:#22d3ee}
   .ng-builder-ct  {--brand-color:#22c55e}
+  .ng-builder-yar {--brand-color:#a78bfa}
   .ng-builder-head{
     display:flex;align-items:center;gap:8px;margin-bottom:6px;
     flex-wrap:wrap;
@@ -3862,6 +3863,20 @@
             <div class="ng-builder-row">
               <div class="ng-builder-result" id="ngBuilderOutCt">"BARCELONA" 925 Open Ring</div>
               <button type="button" class="ng-builder-copy" onclick="ngBuilderCopy('ct', this)" aria-label="복사">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>복사</span>
+              </button>
+            </div>
+          </div>
+          <div class="ng-builder-output ng-builder-yar">
+            <div class="ng-builder-head">
+              <span class="ng-builder-dot"></span>
+              <span class="ng-builder-brand">YAR</span>
+              <span class="ng-builder-tmpl mono" id="ngBuilderTmplYar">{제품명} S925 {카테고리}</span>
+            </div>
+            <div class="ng-builder-row">
+              <div class="ng-builder-result" id="ngBuilderOutYar">BARCELONA S925 Open Ring</div>
+              <button type="button" class="ng-builder-copy" onclick="ngBuilderCopy('yar', this)" aria-label="복사">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 <span>복사</span>
               </button>
@@ -9274,6 +9289,9 @@
       if(brand==='ct'){
         return isRing ? '"' + n + '" 925 ' + t : n + ' ' + t;
       }
+      if(brand==='yar'){
+        return isRing ? n + ' S925 ' + t : n + ' ' + t;
+      }
       return '';
     }
     function ngBuilderUpdate(){
@@ -9281,17 +9299,21 @@
       const typeEl = document.getElementById('ngBuilderType');
       const outA   = document.getElementById('ngBuilderOutSixA');
       const outC   = document.getElementById('ngBuilderOutCt');
+      const outY   = document.getElementById('ngBuilderOutYar');
       if(!nameEl || !typeEl || !outA || !outC) return;
       const name = nameEl.value || '';
       const type = typeEl.value || 'Open Ring';
       outA.textContent = ngBuilderFormat('sixA', name, type);
       outC.textContent = ngBuilderFormat('ct',   name, type);
+      if(outY) outY.textContent = ngBuilderFormat('yar', name, type);
       // 템플릿 힌트도 카테고리에 따라 동기화 (반지만 실버925 표기)
       const isRing = /\b(open\s+)?ring\b/i.test(type);
       const tmplA = document.getElementById('ngBuilderTmplSixA');
       const tmplC = document.getElementById('ngBuilderTmplCt');
+      const tmplY = document.getElementById('ngBuilderTmplYar');
       if(tmplA) tmplA.textContent = isRing ? '[SILVER925] {제품명} {카테고리}' : '{제품명} {카테고리}';
       if(tmplC) tmplC.textContent = isRing ? '"{제품명}" 925 {카테고리}'      : '{제품명} {카테고리}';
+      if(tmplY) tmplY.textContent = isRing ? '{제품명} S925 {카테고리}'        : '{제품명} {카테고리}';
       // 현재 카테고리에 맞는 chip만 active 표시
       document.querySelectorAll('#ngBuilderChips .ng-builder-chip').forEach(b=>{
         b.classList.toggle('active', (b.dataset.type||'').toLowerCase() === type.trim().toLowerCase());
