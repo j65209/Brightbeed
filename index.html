@@ -2709,6 +2709,86 @@
     .leave-recent-date{grid-column:1/-1;order:4;font-size:10.5px}
   }
 
+  /* ===== 연차 달력 ===== */
+  .leave-cal{
+    max-width:760px;margin:0 auto 28px;
+    padding:16px 18px 18px;
+    background:var(--bg-1);
+    border:1px solid rgba(255,179,71,.22);
+    border-radius:10px;
+  }
+  .leave-cal-head{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    margin-bottom:14px;
+  }
+  .leave-cal-title{
+    font-size:14px;font-weight:600;color:#c2410c;
+    min-width:108px;text-align:center;letter-spacing:.01em;
+    font-family:var(--mono);
+  }
+  .leave-cal-nav{
+    width:28px;height:28px;border-radius:6px;
+    background:var(--bg-2);border:1px solid var(--line);
+    color:var(--text-2);cursor:pointer;font-size:15px;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:all .15s;
+  }
+  .leave-cal-nav:hover{border-color:var(--neon-hr);color:var(--neon-hr);background:rgba(234,88,12,.06)}
+  .leave-cal-today{
+    font-size:11px;padding:5px 10px;border-radius:6px;margin-left:2px;
+    background:var(--bg-2);border:1px solid var(--line);color:var(--text-2);
+    cursor:pointer;transition:all .15s;
+  }
+  .leave-cal-today:hover{border-color:var(--neon-hr);color:var(--neon-hr)}
+  .leave-cal-weekdays{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;
+  }
+  .leave-cal-weekdays span{
+    text-align:center;font-size:11px;font-weight:600;color:var(--text-3);padding:4px 0;
+  }
+  .leave-cal-weekdays span.sun{color:#dc2626}
+  .leave-cal-weekdays span.sat{color:#2563eb}
+  .leave-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .leave-cal-cell{
+    min-height:76px;background:var(--bg-2);
+    border:1px solid var(--line);border-radius:6px;
+    padding:4px 4px 5px;display:flex;flex-direction:column;gap:3px;overflow:hidden;
+  }
+  .leave-cal-cell.other-month{opacity:.38;background:transparent}
+  .leave-cal-cell.today{border-color:var(--neon-hr);box-shadow:inset 0 0 0 1px var(--neon-hr)}
+  .leave-cal-daynum{font-size:11px;font-weight:600;color:var(--text-2);font-family:var(--mono)}
+  .leave-cal-cell.today .leave-cal-daynum{color:var(--neon-hr)}
+  .leave-cal-daynum.sun{color:#dc2626}
+  .leave-cal-daynum.sat{color:#2563eb}
+  .leave-cal-chips{display:flex;flex-direction:column;gap:2px}
+  .leave-cal-chip{
+    font-size:10px;line-height:1.35;font-weight:500;
+    padding:1px 5px;border-radius:3px;border:1px solid;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .leave-cal-chip.t-annual{color:#c2410c;border-color:rgba(255,179,71,.45);background:rgba(255,179,71,.10)}
+  .leave-cal-chip.t-half{color:#9a3412;border-color:rgba(255,170,90,.42);background:rgba(255,210,154,.14)}
+  .leave-cal-chip.t-bday{color:#9d174d;border-color:rgba(255,158,207,.45);background:rgba(255,158,207,.12)}
+  .leave-cal-chip.t-mat{color:#0e7490;border-color:rgba(34,211,238,.45);background:rgba(34,211,238,.10)}
+  .leave-cal-more{font-size:9.5px;color:var(--text-3);font-family:var(--mono);padding-left:3px}
+  .leave-cal-legend{
+    display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;
+    margin-top:14px;padding-top:12px;border-top:1px dashed rgba(255,179,71,.18);
+  }
+  .leave-cal-legend span{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2)}
+  .leave-cal-legend i{width:11px;height:11px;border-radius:2px;border:1px solid;flex-shrink:0}
+  .leave-cal-legend i.t-annual{border-color:rgba(255,179,71,.55);background:rgba(255,179,71,.18)}
+  .leave-cal-legend i.t-half{border-color:rgba(255,170,90,.5);background:rgba(255,210,154,.22)}
+  .leave-cal-legend i.t-bday{border-color:rgba(255,158,207,.55);background:rgba(255,158,207,.2)}
+  .leave-cal-legend i.t-mat{border-color:rgba(34,211,238,.55);background:rgba(34,211,238,.18)}
+  .leave-cal-empty{text-align:center;font-size:11.5px;color:var(--text-3);font-family:var(--mono);padding:10px 0 2px}
+  @media (max-width:600px){
+    .leave-cal{padding:12px 10px 14px}
+    .leave-cal-cell{min-height:56px;padding:3px 2px 4px}
+    .leave-cal-chip{font-size:9px;padding:1px 3px}
+    .leave-cal-daynum{font-size:10px}
+    .leave-cal-more{font-size:8.5px}
+  }
+
   /* 연차/반차 규정 안내 — 앰버 네온 강조 */
   .leave-policy{
     max-width:760px;margin:0 auto 36px;
@@ -3390,6 +3470,26 @@
         <span class="leave-recent-meta" id="leaveRecentMeta"></span>
       </div>
       <div class="leave-recent-list" id="leaveRecentList"></div>
+    </div>
+
+    <!-- 연차 달력 -->
+    <div class="leave-cal" id="leaveCal">
+      <div class="leave-cal-head">
+        <button class="leave-cal-nav" type="button" onclick="leaveCalMove(-1)" aria-label="이전 달">‹</button>
+        <span class="leave-cal-title" id="leaveCalTitle">—</span>
+        <button class="leave-cal-nav" type="button" onclick="leaveCalMove(1)" aria-label="다음 달">›</button>
+        <button class="leave-cal-today" type="button" onclick="leaveCalToday()">오늘</button>
+      </div>
+      <div class="leave-cal-weekdays">
+        <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span>
+      </div>
+      <div class="leave-cal-grid" id="leaveCalGrid"></div>
+      <div class="leave-cal-legend">
+        <span><i class="t-annual"></i>연차</span>
+        <span><i class="t-half"></i>반차</span>
+        <span><i class="t-bday"></i>생일반차</span>
+        <span><i class="t-mat"></i>출산휴가</span>
+      </div>
     </div>
 
     <!-- 연차/반차 규정 안내 -->
@@ -6076,6 +6176,7 @@
       meta.textContent=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')} 기준`;
     }
     renderRecentLeaveLog();
+    renderLeaveCalendar();
   }
 
   /* 최근 연차 신청 내역 — 신청서로 들어온 항목(submittedAt 있는 것) 중 올해 신청만 최신순 전체
@@ -6154,6 +6255,90 @@
       return sameYear?`${mm}/${dd} ${hh}:${mi}`:`${d.getFullYear()}/${mm}/${dd}`;
     }catch(e){return ''}
   }
+
+  /* ===== 연차 달력 ===== */
+  const _leaveCal={y:null,m:null}; // m: 0-indexed 월
+  function _leaveTypeClass(type){
+    if(type==='생일반차') return 't-bday';
+    if(type==='출산휴가') return 't-mat';
+    if(type==='연차') return 't-annual';
+    return 't-half'; // 오전반차 / 오후반차 / 반차(baseline)
+  }
+  /* STAFF baseline(deletes 제외) + 신청서 entries 를 모두 모아 달력 이벤트로 */
+  function collectAllLeaveEvents(){
+    const data=loadLeaveData();
+    const out=[];
+    STAFF.forEach(s=>{
+      const v=data[s.name]||{};
+      const delSet=new Set((Array.isArray(v.baselineDeletes)?v.baselineDeletes:[]).map(d=>`${d.date}|${d.type}`));
+      (s.history||[]).forEach(h=>{
+        if(!h||!h.date||delSet.has(`${h.date}|${h.type}`)) return;
+        out.push({name:s.name,type:h.type||'연차',start:h.date,end:h.endDate||h.date});
+      });
+      (Array.isArray(v.history)?v.history:[]).forEach(h=>{
+        if(!h||!h.date) return;
+        out.push({name:s.name,type:h.type||'연차',start:h.date,end:h.endDate||h.date});
+      });
+    });
+    return out;
+  }
+  function _leaveIso(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+  function leaveCalMove(delta){
+    if(_leaveCal.y==null){const n=new Date();_leaveCal.y=n.getFullYear();_leaveCal.m=n.getMonth();}
+    let m=_leaveCal.m+delta, y=_leaveCal.y;
+    while(m<0){m+=12;y--} while(m>11){m-=12;y++}
+    _leaveCal.y=y;_leaveCal.m=m;
+    renderLeaveCalendar();
+  }
+  function leaveCalToday(){
+    const n=new Date();_leaveCal.y=n.getFullYear();_leaveCal.m=n.getMonth();
+    renderLeaveCalendar();
+  }
+  window.leaveCalMove=leaveCalMove;
+  window.leaveCalToday=leaveCalToday;
+  function renderLeaveCalendar(){
+    const grid=document.getElementById('leaveCalGrid');
+    if(!grid) return;
+    if(_leaveCal.y==null){const n=new Date();_leaveCal.y=n.getFullYear();_leaveCal.m=n.getMonth();}
+    const y=_leaveCal.y, m=_leaveCal.m;
+    const titleEl=document.getElementById('leaveCalTitle');
+    if(titleEl) titleEl.textContent=`${y}년 ${m+1}월`;
+    const events=collectAllLeaveEvents();
+    const now=new Date();
+    const todayIso=_leaveIso(now.getFullYear(),now.getMonth(),now.getDate());
+    const startWeekday=new Date(y,m,1).getDay(); // 0=일
+    const gridStart=new Date(y,m,1-startWeekday);
+    const MAX=3;
+    let monthCount=0, html='';
+    for(let i=0;i<42;i++){
+      const cur=new Date(gridStart.getFullYear(),gridStart.getMonth(),gridStart.getDate()+i);
+      const cm=cur.getMonth(), cd=cur.getDate(), wd=cur.getDay();
+      const iso=_leaveIso(cur.getFullYear(),cm,cd);
+      const other=cm!==m;
+      const dayEvents=events.filter(ev=>ev.start<=iso&&iso<=ev.end);
+      if(!other) monthCount+=dayEvents.length;
+      const cls=['leave-cal-cell'];
+      if(other) cls.push('other-month');
+      if(iso===todayIso) cls.push('today');
+      const dayCls=['leave-cal-daynum'];
+      if(wd===0) dayCls.push('sun'); else if(wd===6) dayCls.push('sat');
+      const chips=dayEvents.slice(0,MAX).map(ev=>
+        `<span class="leave-cal-chip ${_leaveTypeClass(ev.type)}" title="${escapeHTML(ev.name+' · '+ev.type)}">${escapeHTML(ev.name)}</span>`
+      ).join('');
+      const more=dayEvents.length>MAX?`<span class="leave-cal-more">+${dayEvents.length-MAX}</span>`:'';
+      const cellTip=dayEvents.length?` title="${escapeHTML(dayEvents.map(e=>e.name+'('+e.type+')').join(', '))}"`:'';
+      html+=`<div class="${cls.join(' ')}"${cellTip}><span class="${dayCls.join(' ')}">${cd}</span><div class="leave-cal-chips">${chips}${more}</div></div>`;
+    }
+    grid.innerHTML=html;
+    const wrap=grid.closest('.leave-cal');
+    let empty=wrap?wrap.querySelector('.leave-cal-empty'):null;
+    if(monthCount===0){
+      if(!empty&&wrap){empty=document.createElement('div');empty.className='leave-cal-empty';grid.insertAdjacentElement('afterend',empty);}
+      if(empty) empty.textContent='이 달엔 연차 신청 내역이 없어요';
+    } else if(empty){ empty.remove(); }
+  }
+  window.renderLeaveCalendar=renderLeaveCalendar;
+
   function updateLeaveCard(card,v){
     const name=card.dataset.staff;
     const s=STAFF.find(x=>x.name===name)||{};
