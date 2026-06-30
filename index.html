@@ -2803,13 +2803,15 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     cursor:default;
   }
-  .leave-cal-bar.t-annual{background:rgba(245,158,11,.42);color:#7c2d12}
+  /* 일상 — 연차/반차는 강한 amber-orange 로 튀게 */
+  .leave-cal-bar.t-annual{background:rgba(234,88,12,.50);color:#7c2d12}
   .leave-cal-bar.t-half{
-    background:repeating-linear-gradient(45deg,rgba(245,158,11,.42) 0 5px,rgba(245,158,11,.18) 5px 10px);
+    background:repeating-linear-gradient(45deg,rgba(234,88,12,.50) 0 5px,rgba(234,88,12,.22) 5px 10px);
     color:#7c2d12;
   }
-  .leave-cal-bar.t-bday{background:rgba(244,114,182,.36);color:#831843}
-  .leave-cal-bar.t-mat{background:rgba(34,211,238,.32);color:#155e75}
+  /* 특수 — 생일/출산은 차분한 뮤트 톤 */
+  .leave-cal-bar.t-bday{background:rgba(180,135,165,.34);color:#5e3d52}
+  .leave-cal-bar.t-mat{background:rgba(125,155,175,.38);color:#36495d}
   /* 다중일 연결 — 좌/우 마진 음수로 셀 경계 위로 살짝 덮어 시각적으로 이어짐 */
   .leave-cal-bar.cont-l{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:-1px;padding-left:8px}
   .leave-cal-bar.cont-r{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:-1px;padding-right:8px}
@@ -2830,10 +2832,10 @@
   }
   .leave-cal-legend span{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2)}
   .leave-cal-legend i{width:14px;height:10px;border-radius:2px;flex-shrink:0}
-  .leave-cal-legend i.t-annual{background:rgba(245,158,11,.55)}
-  .leave-cal-legend i.t-half{background:repeating-linear-gradient(45deg,rgba(245,158,11,.55) 0 4px,rgba(245,158,11,.22) 4px 8px)}
-  .leave-cal-legend i.t-bday{background:rgba(244,114,182,.5)}
-  .leave-cal-legend i.t-mat{background:rgba(34,211,238,.45)}
+  .leave-cal-legend i.t-annual{background:rgba(234,88,12,.6)}
+  .leave-cal-legend i.t-half{background:repeating-linear-gradient(45deg,rgba(234,88,12,.6) 0 4px,rgba(234,88,12,.24) 4px 8px)}
+  .leave-cal-legend i.t-bday{background:rgba(180,135,165,.48)}
+  .leave-cal-legend i.t-mat{background:rgba(125,155,175,.52)}
 
   .leave-cal-empty{text-align:center;font-size:12px;color:var(--text-3);font-family:var(--mono);padding:14px 0 4px}
 
