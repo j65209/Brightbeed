@@ -1860,6 +1860,20 @@
   .bdg-style.is-active{border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.18);background:#fff}
   .bdg-style-swatch{width:100%;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;letter-spacing:.02em;overflow:hidden}
   .bdg-style-name{font-size:11px;font-weight:600;color:var(--text-2);white-space:nowrap}
+  .bdg-edit-toggle{margin-left:auto;font-size:11px;font-weight:600;color:#0ea5e9;background:none;border:1px solid rgba(14,165,233,.4);border-radius:6px;padding:2px 9px;cursor:pointer;font-family:var(--sans);transition:background .12s}
+  .bdg-edit-toggle:hover{background:rgba(14,165,233,.08)}
+  .bdg-words{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .bdg-word{
+    border:1px solid var(--line);border-radius:9px;padding:8px 6px;cursor:pointer;background:var(--bg-2);
+    transition:all .15s;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;min-height:54px
+  }
+  .bdg-word:hover{border-color:var(--line-2)}
+  .bdg-word.is-active{border-color:#0ea5e9;background:#fff;box-shadow:0 0 0 2px rgba(14,165,233,.18)}
+  .bdg-word-key{font-size:9.5px;font-weight:700;color:var(--text-3);letter-spacing:.08em}
+  .bdg-word.is-active .bdg-word-key{color:#0ea5e9}
+  .bdg-word-text{font-size:13px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .bdg-word-cell{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;min-height:54px;border:1px dashed var(--line-2);border-radius:9px;padding:6px 5px;background:var(--bg-1)}
+  .bdg-word-input{width:100%;box-sizing:border-box;padding:6px 4px;border:1px solid #0ea5e9;border-radius:6px;font-size:12.5px;font-weight:700;text-align:center;font-family:var(--sans);color:var(--text-0);background:#fff;outline:none}
   .bdg-row{display:flex;gap:10px}
   .bdg-row .bdg-field{flex:1}
   .bdg-slider{width:100%;accent-color:#0ea5e9;cursor:pointer}
@@ -3421,7 +3435,7 @@
         <div class="sub-module m-badge" onclick="triggerBadge()">
           <div class="sub-module-icon">🏷️</div>
           <div class="sub-module-title">이미지 배지 합성</div>
-          <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · PNG 저장</div>
+          <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · 문구 A~F 선택 · PNG 저장</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
       </div>
@@ -4220,6 +4234,11 @@
             이미지를 <b>드래그</b>하거나 <b>클릭</b>해서 선택<br>(붙여넣기 Ctrl+V 도 가능)
           </div>
           <input type="file" id="bdgFile" accept="image/*" hidden>
+        </div>
+
+        <div class="bdg-field">
+          <span class="bdg-label" style="display:flex;align-items:center;gap:8px">배지 문구<button type="button" class="bdg-edit-toggle" id="bdgWordEdit">편집</button></span>
+          <div class="bdg-words" id="bdgWords"></div>
         </div>
 
         <div class="bdg-field">
@@ -10410,10 +10429,18 @@
   const BADGE_STYLES={
     A:{name:'기본', bg:'#ff2e93', fg:'#ffffff', border:null, shadow:true, radius:.16},
   };
-  // 배지 고정 문구 (여러 줄은 \n 으로 구분). 문구 바꾸려면 이 값만 수정.
-  const BADGE_TEXT='BEST';
-  const _bdg={img:null, name:'image', style:'A', corner:'tr'};
-  let _bdgBound=false, _bdgRenderT=null;
+  // 배지 문구 프리셋 A~F (앱에서 편집·저장). 기본값은 아래, 사용자 편집분은 localStorage에 저장.
+  const BADGE_WORD_KEYS=['A','B','C','D','E','F'];
+  const BADGE_WORDS_DEFAULT={A:'BEST',B:'NEW',C:'SALE',D:'무료배송',E:'인기',F:'한정수량'};
+  const BADGE_WORDS_LS='bdgPresetWords_v1';
+  function _bdgLoadWords(){
+    try{ const o=JSON.parse(localStorage.getItem(BADGE_WORDS_LS)||'null'); if(o&&typeof o==='object') return Object.assign({},BADGE_WORDS_DEFAULT,o); }catch(e){}
+    return Object.assign({},BADGE_WORDS_DEFAULT);
+  }
+  function _bdgSaveWords(){ try{ localStorage.setItem(BADGE_WORDS_LS,JSON.stringify(_bdgWords)); }catch(e){} }
+  const _bdgWords=_bdgLoadWords();
+  const _bdg={img:null, name:'image', style:'A', corner:'tr', wordKey:'A'};
+  let _bdgBound=false, _bdgRenderT=null, _bdgEditWords=false;
 
   function _bdgRoundRect(ctx,x,y,w,h,r){
     r=Math.min(r,w/2,h/2);
@@ -10443,8 +10470,9 @@
     if(empty) empty.style.display='none';
     if(dl) dl.disabled=false;
 
-    const lines=BADGE_TEXT.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,4);
-    if(!lines.length) return; // 고정 문구 비어있으면 배지 없음
+    const word=(_bdgWords[_bdg.wordKey]||'').trim();
+    const lines=word.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,4);
+    if(!lines.length) return; // 선택 문구 비어있으면 배지 없음
 
     const st=BADGE_STYLES[_bdg.style]||BADGE_STYLES.A;
     const S=Math.min(W,H);
@@ -10524,7 +10552,7 @@
       else sw.style.background=st.bg;
       sw.style.color=st.fg;
       if(st.border) sw.style.boxShadow='inset 0 0 0 1.5px '+st.border;
-      sw.textContent=BADGE_TEXT.split('\n')[0]||'BEST';
+      sw.textContent=(_bdgWords[_bdg.wordKey]||'BEST').split('\n')[0]||'BEST';
       const nm=document.createElement('div');
       nm.className='bdg-style-name'; nm.textContent=st.name;
       btn.appendChild(sw); btn.appendChild(nm);
@@ -10537,6 +10565,51 @@
     });
   }
 
+  function _bdgRenderWords(){
+    const wrap=document.getElementById('bdgWords');
+    if(!wrap) return;
+    wrap.innerHTML='';
+    BADGE_WORD_KEYS.forEach(k=>{
+      if(_bdgEditWords){
+        const cell=document.createElement('div');
+        cell.className='bdg-word-cell';
+        const key=document.createElement('span');
+        key.className='bdg-word-key'; key.textContent=k;
+        const inp=document.createElement('input');
+        inp.className='bdg-word-input'; inp.dataset.key=k; inp.value=_bdgWords[k]||'';
+        inp.maxLength=14; inp.placeholder='(비움)'; inp.autocomplete='off'; inp.spellcheck=false;
+        inp.addEventListener('input',()=>{
+          _bdgWords[k]=inp.value; _bdgSaveWords();
+          if(_bdg.wordKey===k){ _bdgRenderStylePicker(); renderBadgeCanvas(); }
+        });
+        cell.appendChild(key); cell.appendChild(inp);
+        wrap.appendChild(cell);
+      } else {
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='bdg-word'+(k===_bdg.wordKey?' is-active':'');
+        btn.dataset.key=k;
+        const key=document.createElement('span');
+        key.className='bdg-word-key'; key.textContent=k;
+        const txt=document.createElement('span');
+        txt.className='bdg-word-text'; txt.textContent=(_bdgWords[k]||'').trim()||'(비움)';
+        btn.appendChild(key); btn.appendChild(txt);
+        btn.onclick=()=>{
+          _bdg.wordKey=k;
+          wrap.querySelectorAll('.bdg-word').forEach(e=>e.classList.toggle('is-active',e.dataset.key===k));
+          _bdgRenderStylePicker(); renderBadgeCanvas();
+        };
+        wrap.appendChild(btn);
+      }
+    });
+  }
+  function _bdgToggleEditWords(){
+    _bdgEditWords=!_bdgEditWords;
+    const t=document.getElementById('bdgWordEdit');
+    if(t) t.textContent=_bdgEditWords?'완료':'편집';
+    _bdgRenderWords();
+  }
+
   function _bdgSizeLabel(){
     const v=parseInt((document.getElementById('bdgSize')||{}).value,10)||115;
     const el=document.getElementById('bdgSizeVal');
@@ -10545,6 +10618,7 @@
 
   function initBadgeView(){
     _bdgRenderStylePicker();
+    _bdgRenderWords();
     _bdgSizeLabel();
     if(_bdgBound){ renderBadgeCanvas(); return; }
     _bdgBound=true;
@@ -10552,6 +10626,8 @@
     const file=document.getElementById('bdgFile');
     const size=document.getElementById('bdgSize');
     const corners=document.getElementById('bdgCorners');
+    const wordEdit=document.getElementById('bdgWordEdit');
+    if(wordEdit) wordEdit.addEventListener('click',_bdgToggleEditWords);
 
     if(drop&&file){
       drop.addEventListener('click',()=>file.click());
