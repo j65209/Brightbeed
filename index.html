@@ -1768,6 +1768,9 @@
   .sub-module.m-topping {--m-color:#a855f7;--m-border:rgba(168,85,247,.4)}
   .sub-module.m-topping .sub-module-icon{color:#a855f7}
   .sub-module.m-topping .sub-module-tag{color:#a855f7;border-color:rgba(168,85,247,.45);border-style:solid}
+  .sub-module.m-badge {--m-color:#0ea5e9;--m-border:rgba(14,165,233,.4)}
+  .sub-module.m-badge .sub-module-icon{color:#0ea5e9}
+  .sub-module.m-badge .sub-module-tag{color:#0ea5e9;border-color:rgba(14,165,233,.45);border-style:solid}
 
   /* ===== 텍스트 토핑 도구 ===== */
   .tp-wrap{max-width:760px;margin:0 auto;padding:8px 18px 28px}
@@ -1834,6 +1837,58 @@
     .tp-output{font-size:16px;padding:12px 14px}
     .tp-btn{padding:10px 14px;font-size:12.5px;flex:1 1 auto}
   }
+
+  /* ===== 이미지 배지 합성 도구 ===== */
+  .bdg-wrap{max-width:1040px;margin:0 auto;padding:8px 18px 32px;display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+  @media(max-width:820px){.bdg-wrap{grid-template-columns:1fr}}
+  .bdg-panel{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px}
+  .bdg-field{display:flex;flex-direction:column;gap:8px}
+  .bdg-label{font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:.02em}
+  .bdg-drop{
+    border:1.5px dashed var(--line-2);border-radius:10px;background:var(--bg-2);
+    padding:22px 16px;text-align:center;cursor:pointer;color:var(--text-3);
+    font-size:12.5px;line-height:1.5;transition:all .15s
+  }
+  .bdg-drop:hover,.bdg-drop.is-drag{border-color:#0ea5e9;background:rgba(14,165,233,.06);color:var(--text-2)}
+  .bdg-drop b{color:#0ea5e9}
+  .bdg-input,.bdg-textarea{
+    width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--line);
+    border-radius:9px;font-size:14px;font-family:var(--sans);color:var(--text-0);
+    background:#fff;outline:none;transition:border-color .15s,box-shadow .15s
+  }
+  .bdg-textarea{resize:vertical;min-height:52px;line-height:1.35}
+  .bdg-input:focus,.bdg-textarea:focus{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+  .bdg-styles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .bdg-style{
+    border:1px solid var(--line);border-radius:9px;padding:8px;cursor:pointer;
+    background:var(--bg-2);transition:all .15s;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center
+  }
+  .bdg-style:hover{border-color:var(--line-2)}
+  .bdg-style.is-active{border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.18);background:#fff}
+  .bdg-style-swatch{width:100%;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;overflow:hidden}
+  .bdg-style-name{font-size:11px;font-weight:600;color:var(--text-2)}
+  .bdg-row{display:flex;gap:10px}
+  .bdg-row .bdg-field{flex:1}
+  .bdg-slider{width:100%;accent-color:#0ea5e9;cursor:pointer}
+  .bdg-corners{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .bdg-corner{padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:11.5px;color:var(--text-2);transition:all .12s}
+  .bdg-corner:hover{border-color:var(--line-2)}
+  .bdg-corner.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;font-weight:600;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
+  .bdg-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .bdg-btn{padding:11px 18px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans);border:1px solid transparent;transition:transform .12s,box-shadow .15s,background .15s}
+  .bdg-btn:disabled{opacity:.4;cursor:not-allowed}
+  .bdg-btn-primary{background:linear-gradient(135deg,#0ea5e9,#0369a1);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,.35);flex:1 1 auto}
+  .bdg-btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,165,233,.5)}
+  .bdg-btn-ghost{background:var(--bg-2);color:var(--text-1);border-color:var(--line)}
+  .bdg-btn-ghost:hover{background:var(--bg-3)}
+  .bdg-preview{
+    background:repeating-conic-gradient(#eee 0% 25%,#f7f7f7 0% 50%) 50%/22px 22px;
+    border:1px solid var(--line);border-radius:14px;padding:14px;
+    min-height:320px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden
+  }
+  .bdg-preview canvas{max-width:100%;max-height:70vh;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.15);display:block}
+  .bdg-preview-empty{color:#9aa0a6;font-size:13px;text-align:center;line-height:1.6}
+  @media(max-width:520px){.bdg-wrap{padding:8px 10px 26px}.bdg-panel{padding:16px}}
 
   /* ============ 제품명 생성기 (Namegen) ============ */
   .ng-wrap{display:flex;flex-direction:column;gap:18px;max-width:1100px;margin:0 auto}
@@ -3370,6 +3425,12 @@
           <div class="sub-module-sub">제품명·캡션 데코 변환 (Unicode 토핑)</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
+        <div class="sub-module m-badge" onclick="triggerBadge()">
+          <div class="sub-module-icon">🏷️</div>
+          <div class="sub-module-title">이미지 배지 합성</div>
+          <div class="sub-module-sub">제품 이미지 우측 상단에 A·B·C·D 스타일 배지 합성</div>
+          <div class="sub-module-tag">TOOL</div>
+        </div>
       </div>
     </div>
 
@@ -4144,6 +4205,68 @@
         <div class="tp-hint">
           글자 사이에 <code>U+0591</code> (Hebrew Etnahta) 마크를 끼워 넣어 토핑처럼 보이게 합니다. 띄어쓰기엔 적용 안 됩니다.
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 이미지 배지 합성 도구 ============ -->
+  <div class="view" id="viewBadge" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">이미지 배지 합성<span class="view-title-sub">/ 제품 이미지 배지 오버레이</span></h1>
+    </div>
+
+    <div class="bdg-wrap">
+      <div class="bdg-panel">
+        <div class="bdg-field">
+          <span class="bdg-label">이미지</span>
+          <div class="bdg-drop" id="bdgDrop">
+            이미지를 <b>드래그</b>하거나 <b>클릭</b>해서 선택<br>(붙여넣기 Ctrl+V 도 가능)
+          </div>
+          <input type="file" id="bdgFile" accept="image/*" hidden>
+        </div>
+
+        <div class="bdg-field">
+          <span class="bdg-label">배지 문구 <span style="font-weight:400;color:var(--text-3)">— 줄바꿈(Enter)으로 여러 줄</span></span>
+          <textarea class="bdg-textarea" id="bdgText" rows="2" placeholder="예: BEST&#10;무료배송" spellcheck="false"></textarea>
+        </div>
+
+        <div class="bdg-field">
+          <span class="bdg-label">스타일</span>
+          <div class="bdg-styles" id="bdgStyles"></div>
+        </div>
+
+        <div class="bdg-row">
+          <div class="bdg-field">
+            <span class="bdg-label">위치</span>
+            <div class="bdg-corners" id="bdgCorners">
+              <button type="button" class="bdg-corner is-active" data-corner="tr">우측 상단</button>
+              <button type="button" class="bdg-corner" data-corner="tl">좌측 상단</button>
+              <button type="button" class="bdg-corner" data-corner="br">우측 하단</button>
+              <button type="button" class="bdg-corner" data-corner="bl">좌측 하단</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bdg-field">
+          <span class="bdg-label">배지 크기 <span id="bdgSizeVal" style="font-weight:400;color:var(--text-3)">보통</span></span>
+          <input type="range" class="bdg-slider" id="bdgSize" min="60" max="180" value="115" step="1">
+        </div>
+
+        <div class="bdg-actions">
+          <button type="button" class="bdg-btn bdg-btn-primary" id="bdgDownload" disabled onclick="downloadBadge()">PNG 다운로드</button>
+          <button type="button" class="bdg-btn bdg-btn-ghost" onclick="clearBadge()">지우기</button>
+        </div>
+      </div>
+
+      <div class="bdg-preview" id="bdgPreview">
+        <div class="bdg-preview-empty" id="bdgPreviewEmpty">
+          이미지를 넣으면<br>여기에 배지 합성 결과가 실시간으로 표시됩니다.
+        </div>
+        <canvas id="bdgCanvas" hidden></canvas>
       </div>
     </div>
   </div>
@@ -5437,8 +5560,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen','viewTopping'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen',viewTopping:'topping'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen','viewTopping','viewBadge'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -5491,6 +5614,9 @@
     }
     if(id==='viewTopping'){
       if(typeof initToppingView==='function') initToppingView();
+    }
+    if(id==='viewBadge'){
+      if(typeof initBadgeView==='function') initBadgeView();
     }
   }
 
@@ -5773,6 +5899,7 @@
 
   function triggerNamegen(){ showView('viewNamegen'); }
   function triggerTopping(){ showView('viewTopping'); if(typeof initToppingView==='function') initToppingView(); }
+  function triggerBadge(){ showView('viewBadge'); if(typeof initBadgeView==='function') initBadgeView(); }
   window.triggerTopping=triggerTopping;
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
@@ -10290,6 +10417,206 @@
   window.copyTopping=copyTopping;
   window.clearTopping=clearTopping;
   window.initToppingView=initToppingView;
+
+  /* ===== 이미지 배지 합성 도구 ===== */
+  const BADGE_STYLES={
+    A:{name:'A · 네온',      bg:'#ff2e93', fg:'#ffffff', border:null,      shadow:true,  radius:.16},
+    B:{name:'B · 블랙',      bg:'#0a0b0d', fg:'#ff2e93', border:'#ff2e93', shadow:true,  radius:.16},
+    C:{name:'C · 화이트',    bg:'#ffffff', fg:'#000000', border:'#000000', shadow:false, radius:.08},
+    D:{name:'D · 그라디언트', grad:['#ff2e93','#ff6b35'], fg:'#ffffff', border:null, shadow:true, radius:.16},
+  };
+  const _bdg={img:null, name:'image', style:'A', corner:'tr'};
+  let _bdgBound=false, _bdgRenderT=null;
+
+  function _bdgRoundRect(ctx,x,y,w,h,r){
+    r=Math.min(r,w/2,h/2);
+    if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); return; }
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+
+  function renderBadgeCanvas(){
+    const canvas=document.getElementById('bdgCanvas');
+    const empty=document.getElementById('bdgPreviewEmpty');
+    const dl=document.getElementById('bdgDownload');
+    if(!canvas) return;
+    if(!_bdg.img){
+      canvas.setAttribute('hidden','');
+      if(empty) empty.style.display='';
+      if(dl) dl.disabled=true;
+      return;
+    }
+    const img=_bdg.img, W=img.naturalWidth, H=img.naturalHeight;
+    canvas.width=W; canvas.height=H;
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(img,0,0,W,H);
+    canvas.removeAttribute('hidden');
+    if(empty) empty.style.display='none';
+    if(dl) dl.disabled=false;
+
+    const raw=(document.getElementById('bdgText')||{}).value||'';
+    const lines=raw.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,4);
+    if(!lines.length) return; // 이미지만, 배지 없음
+
+    const st=BADGE_STYLES[_bdg.style]||BADGE_STYLES.A;
+    const S=Math.min(W,H);
+    const scale=(parseInt((document.getElementById('bdgSize')||{}).value,10)||115)/100;
+    const fontSize=Math.max(12,Math.round(S*0.05*scale));
+    ctx.font="800 "+fontSize+"px 'Pretendard','Inter',-apple-system,sans-serif";
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+
+    let maxW=0;
+    lines.forEach(l=>{ const m=ctx.measureText(l).width; if(m>maxW) maxW=m; });
+    const padX=fontSize*0.58, padY=fontSize*0.36, lineGap=fontSize*0.18;
+    const textH=lines.length*fontSize+(lines.length-1)*lineGap;
+    const bw=Math.round(maxW+padX*2), bh=Math.round(textH+padY*2);
+    const margin=Math.round(S*0.038);
+
+    let x,y;
+    if(_bdg.corner==='tr'){ x=W-margin-bw; y=margin; }
+    else if(_bdg.corner==='tl'){ x=margin; y=margin; }
+    else if(_bdg.corner==='br'){ x=W-margin-bw; y=H-margin-bh; }
+    else { x=margin; y=H-margin-bh; }
+
+    const rad=bh*st.radius;
+
+    // 배경 (그림자 포함)
+    ctx.save();
+    if(st.shadow){ ctx.shadowColor='rgba(0,0,0,.30)'; ctx.shadowBlur=fontSize*0.4; ctx.shadowOffsetY=Math.round(fontSize*0.12); }
+    _bdgRoundRect(ctx,x,y,bw,bh,rad);
+    if(st.grad){
+      const g=ctx.createLinearGradient(x,y,x+bw,y+bh);
+      g.addColorStop(0,st.grad[0]); g.addColorStop(1,st.grad[1]);
+      ctx.fillStyle=g;
+    } else { ctx.fillStyle=st.bg; }
+    ctx.fill();
+    ctx.restore();
+
+    // 테두리
+    if(st.border){
+      _bdgRoundRect(ctx,x,y,bw,bh,rad);
+      ctx.lineWidth=Math.max(2,fontSize*0.07);
+      ctx.strokeStyle=st.border;
+      ctx.stroke();
+    }
+
+    // 텍스트
+    ctx.fillStyle=st.fg;
+    const cx=x+bw/2;
+    let cy=y+padY+fontSize/2;
+    lines.forEach(l=>{ ctx.fillText(l,cx,cy); cy+=fontSize+lineGap; });
+  }
+
+  function _bdgScheduleRender(){
+    clearTimeout(_bdgRenderT);
+    _bdgRenderT=setTimeout(renderBadgeCanvas,80);
+  }
+
+  function _bdgLoadFile(file){
+    if(!file||!/^image\//.test(file.type)) return;
+    _bdg.name=(file.name||'image').replace(/\.[^.]+$/,'');
+    const url=URL.createObjectURL(file);
+    const im=new Image();
+    im.onload=()=>{ _bdg.img=im; URL.revokeObjectURL(url); renderBadgeCanvas(); };
+    im.onerror=()=>{ URL.revokeObjectURL(url); };
+    im.src=url;
+  }
+
+  function _bdgRenderStylePicker(){
+    const wrap=document.getElementById('bdgStyles');
+    if(!wrap) return;
+    wrap.innerHTML='';
+    Object.entries(BADGE_STYLES).forEach(([k,st])=>{
+      const btn=document.createElement('div');
+      btn.className='bdg-style'+(k===_bdg.style?' is-active':'');
+      btn.dataset.style=k;
+      const sw=document.createElement('div');
+      sw.className='bdg-style-swatch';
+      if(st.grad) sw.style.background='linear-gradient(135deg,'+st.grad[0]+','+st.grad[1]+')';
+      else sw.style.background=st.bg;
+      sw.style.color=st.fg;
+      if(st.border) sw.style.boxShadow='inset 0 0 0 1.5px '+st.border;
+      sw.textContent='BEST';
+      const nm=document.createElement('div');
+      nm.className='bdg-style-name'; nm.textContent=st.name;
+      btn.appendChild(sw); btn.appendChild(nm);
+      btn.onclick=()=>{
+        _bdg.style=k;
+        wrap.querySelectorAll('.bdg-style').forEach(e=>e.classList.toggle('is-active',e.dataset.style===k));
+        renderBadgeCanvas();
+      };
+      wrap.appendChild(btn);
+    });
+  }
+
+  function _bdgSizeLabel(){
+    const v=parseInt((document.getElementById('bdgSize')||{}).value,10)||115;
+    const el=document.getElementById('bdgSizeVal');
+    if(el) el.textContent = v<90?'작게' : v>140?'크게' : '보통';
+  }
+
+  function initBadgeView(){
+    _bdgRenderStylePicker();
+    _bdgSizeLabel();
+    if(_bdgBound){ renderBadgeCanvas(); return; }
+    _bdgBound=true;
+    const drop=document.getElementById('bdgDrop');
+    const file=document.getElementById('bdgFile');
+    const text=document.getElementById('bdgText');
+    const size=document.getElementById('bdgSize');
+    const corners=document.getElementById('bdgCorners');
+
+    if(drop&&file){
+      drop.addEventListener('click',()=>file.click());
+      file.addEventListener('change',e=>{ if(e.target.files&&e.target.files[0]) _bdgLoadFile(e.target.files[0]); });
+      ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.add('is-drag'); }));
+      ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.remove('is-drag'); }));
+      drop.addEventListener('drop',e=>{ const f=e.dataTransfer&&e.dataTransfer.files[0]; if(f) _bdgLoadFile(f); });
+    }
+    if(text) text.addEventListener('input',_bdgScheduleRender);
+    if(size) size.addEventListener('input',()=>{ _bdgSizeLabel(); _bdgScheduleRender(); });
+    if(corners) corners.addEventListener('click',e=>{
+      const b=e.target.closest('.bdg-corner'); if(!b) return;
+      _bdg.corner=b.dataset.corner;
+      corners.querySelectorAll('.bdg-corner').forEach(x=>x.classList.toggle('is-active',x===b));
+      renderBadgeCanvas();
+    });
+    // 붙여넣기 (배지 뷰가 보일 때만)
+    document.addEventListener('paste',e=>{
+      const view=document.getElementById('viewBadge');
+      if(!view||view.hasAttribute('hidden')) return;
+      const items=(e.clipboardData||{}).items||[];
+      for(const it of items){ if(it.type&&it.type.indexOf('image')===0){ const f=it.getAsFile(); if(f){ _bdgLoadFile(f); e.preventDefault(); } break; } }
+    });
+    renderBadgeCanvas();
+  }
+
+  function downloadBadge(){
+    const canvas=document.getElementById('bdgCanvas');
+    if(!canvas||!_bdg.img) return;
+    canvas.toBlob(blob=>{
+      if(!blob) return;
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=(_bdg.name||'image')+'_badge.png';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    },'image/png');
+  }
+
+  function clearBadge(){
+    _bdg.img=null; _bdg.name='image';
+    const text=document.getElementById('bdgText'); if(text) text.value='';
+    const file=document.getElementById('bdgFile'); if(file) file.value='';
+    renderBadgeCanvas();
+  }
+
+  window.triggerBadge=triggerBadge;
+  window.initBadgeView=initBadgeView;
+  window.downloadBadge=downloadBadge;
+  window.clearBadge=clearBadge;
 
   init();
 </script>
