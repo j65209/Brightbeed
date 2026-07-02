@@ -1851,24 +1851,6 @@
   }
   .bdg-drop:hover,.bdg-drop.is-drag{border-color:#0ea5e9;background:rgba(14,165,233,.06);color:var(--text-2)}
   .bdg-drop b{color:#0ea5e9}
-  .bdg-input,.bdg-textarea{
-    width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--line);
-    border-radius:9px;font-size:14px;font-family:var(--sans);color:var(--text-0);
-    background:#fff;outline:none;transition:border-color .15s,box-shadow .15s
-  }
-  .bdg-textarea{resize:vertical;min-height:52px;line-height:1.35}
-  .bdg-input:focus,.bdg-textarea:focus{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.12)}
-  .bdg-styles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  @media(max-width:820px){.bdg-styles{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:400px){.bdg-styles{grid-template-columns:repeat(2,1fr)}}
-  .bdg-style{
-    border:1px solid var(--line);border-radius:9px;padding:7px;cursor:pointer;
-    background:var(--bg-2);transition:all .15s;text-align:center;display:flex;flex-direction:column;gap:5px;align-items:center
-  }
-  .bdg-style:hover{border-color:var(--line-2)}
-  .bdg-style.is-active{border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.18);background:#fff}
-  .bdg-style-swatch{width:100%;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;letter-spacing:.02em;overflow:hidden}
-  .bdg-style-name{font-size:10.5px;font-weight:600;color:var(--text-2);white-space:nowrap}
   .bdg-row{display:flex;gap:10px}
   .bdg-row .bdg-field{flex:1}
   .bdg-slider{width:100%;accent-color:#0ea5e9;cursor:pointer}
@@ -3430,7 +3412,7 @@
         <div class="sub-module m-badge" onclick="triggerBadge()">
           <div class="sub-module-icon">🏷️</div>
           <div class="sub-module-title">이미지 배지 합성</div>
-          <div class="sub-module-sub">제품 이미지 코너에 A~F 스타일 배지 합성 · PNG 저장</div>
+          <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · PNG 저장</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
       </div>
@@ -4229,16 +4211,6 @@
             이미지를 <b>드래그</b>하거나 <b>클릭</b>해서 선택<br>(붙여넣기 Ctrl+V 도 가능)
           </div>
           <input type="file" id="bdgFile" accept="image/*" hidden>
-        </div>
-
-        <div class="bdg-field">
-          <span class="bdg-label">배지 문구 <span style="font-weight:400;color:var(--text-3)">— 줄바꿈(Enter)으로 여러 줄</span></span>
-          <textarea class="bdg-textarea" id="bdgText" rows="2" placeholder="예: BEST&#10;무료배송" spellcheck="false"></textarea>
-        </div>
-
-        <div class="bdg-field">
-          <span class="bdg-label">배지 스타일</span>
-          <div class="bdg-styles" id="bdgStyles"></div>
         </div>
 
         <div class="bdg-row">
@@ -10422,13 +10394,10 @@
 
   /* ===== 이미지 배지 합성 도구 ===== */
   const BADGE_STYLES={
-    A:{name:'A · 네온',      bg:'#ff2e93', fg:'#ffffff', border:null,       shadow:true,  radius:.16},
-    B:{name:'B · 블랙',      bg:'#0a0b0d', fg:'#ff2e93', border:'#ff2e93',  shadow:true,  radius:.16},
-    C:{name:'C · 화이트',    bg:'#ffffff', fg:'#0a0b0d', border:'#0a0b0d',  shadow:false, radius:.08},
-    D:{name:'D · 그라디언트', grad:['#ff2e93','#ff6b35'], fg:'#ffffff', border:null, shadow:true, radius:.16},
-    E:{name:'E · 레드세일',   bg:'#e11d48', fg:'#ffffff', border:null,       shadow:true,  radius:.16},
-    F:{name:'F · 골드',       bg:'#161628', fg:'#f3d27a', border:'#f3d27a',  shadow:true,  radius:.1},
+    A:{name:'A · 네온', bg:'#ff2e93', fg:'#ffffff', border:null, shadow:true, radius:.16},
   };
+  // 배지 고정 문구 (여러 줄은 \n 으로 구분). 문구 바꾸려면 이 값만 수정.
+  const BADGE_TEXT='BEST';
   const _bdg={img:null, name:'image', style:'A', corner:'tr'};
   let _bdgBound=false, _bdgRenderT=null;
 
@@ -10460,9 +10429,8 @@
     if(empty) empty.style.display='none';
     if(dl) dl.disabled=false;
 
-    const raw=(document.getElementById('bdgText')||{}).value||'';
-    const lines=raw.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,4);
-    if(!lines.length) return; // 이미지만, 배지 없음
+    const lines=BADGE_TEXT.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,4);
+    if(!lines.length) return; // 고정 문구 비어있으면 배지 없음
 
     const st=BADGE_STYLES[_bdg.style]||BADGE_STYLES.A;
     const S=Math.min(W,H);
@@ -10528,33 +10496,6 @@
     im.src=url;
   }
 
-  function _bdgRenderStylePicker(){
-    const wrap=document.getElementById('bdgStyles');
-    if(!wrap) return;
-    wrap.innerHTML='';
-    Object.entries(BADGE_STYLES).forEach(([k,st])=>{
-      const btn=document.createElement('div');
-      btn.className='bdg-style'+(k===_bdg.style?' is-active':'');
-      btn.dataset.style=k;
-      const sw=document.createElement('div');
-      sw.className='bdg-style-swatch';
-      if(st.grad) sw.style.background='linear-gradient(135deg,'+st.grad[0]+','+st.grad[1]+')';
-      else sw.style.background=st.bg;
-      sw.style.color=st.fg;
-      if(st.border) sw.style.boxShadow='inset 0 0 0 1.5px '+st.border;
-      sw.textContent='BEST';
-      const nm=document.createElement('div');
-      nm.className='bdg-style-name'; nm.textContent=st.name;
-      btn.appendChild(sw); btn.appendChild(nm);
-      btn.onclick=()=>{
-        _bdg.style=k;
-        wrap.querySelectorAll('.bdg-style').forEach(e=>e.classList.toggle('is-active',e.dataset.style===k));
-        renderBadgeCanvas();
-      };
-      wrap.appendChild(btn);
-    });
-  }
-
   function _bdgSizeLabel(){
     const v=parseInt((document.getElementById('bdgSize')||{}).value,10)||115;
     const el=document.getElementById('bdgSizeVal');
@@ -10562,13 +10503,11 @@
   }
 
   function initBadgeView(){
-    _bdgRenderStylePicker();
     _bdgSizeLabel();
     if(_bdgBound){ renderBadgeCanvas(); return; }
     _bdgBound=true;
     const drop=document.getElementById('bdgDrop');
     const file=document.getElementById('bdgFile');
-    const text=document.getElementById('bdgText');
     const size=document.getElementById('bdgSize');
     const corners=document.getElementById('bdgCorners');
 
@@ -10579,7 +10518,6 @@
       ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.remove('is-drag'); }));
       drop.addEventListener('drop',e=>{ const f=e.dataTransfer&&e.dataTransfer.files[0]; if(f) _bdgLoadFile(f); });
     }
-    if(text) text.addEventListener('input',_bdgScheduleRender);
     if(size) size.addEventListener('input',()=>{ _bdgSizeLabel(); _bdgScheduleRender(); });
     if(corners) corners.addEventListener('click',e=>{
       const b=e.target.closest('.bdg-corner'); if(!b) return;
@@ -10612,7 +10550,6 @@
 
   function clearBadge(){
     _bdg.img=null; _bdg.name='image';
-    const text=document.getElementById('bdgText'); if(text) text.value='';
     const file=document.getElementById('bdgFile'); if(file) file.value='';
     renderBadgeCanvas();
   }
