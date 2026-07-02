@@ -1851,6 +1851,15 @@
   }
   .bdg-drop:hover,.bdg-drop.is-drag{border-color:#0ea5e9;background:rgba(14,165,233,.06);color:var(--text-2)}
   .bdg-drop b{color:#0ea5e9}
+  .bdg-styles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .bdg-style{
+    border:1px solid var(--line);border-radius:9px;padding:8px;cursor:pointer;
+    background:var(--bg-2);transition:all .15s;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center
+  }
+  .bdg-style:hover{border-color:var(--line-2)}
+  .bdg-style.is-active{border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.18);background:#fff}
+  .bdg-style-swatch{width:100%;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;letter-spacing:.02em;overflow:hidden}
+  .bdg-style-name{font-size:11px;font-weight:600;color:var(--text-2);white-space:nowrap}
   .bdg-row{display:flex;gap:10px}
   .bdg-row .bdg-field{flex:1}
   .bdg-slider{width:100%;accent-color:#0ea5e9;cursor:pointer}
@@ -3412,7 +3421,7 @@
         <div class="sub-module m-badge" onclick="triggerBadge()">
           <div class="sub-module-icon">🏷️</div>
           <div class="sub-module-title">이미지 배지 합성</div>
-          <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · PNG 저장</div>
+          <div class="sub-module-sub">제품 이미지 코너에 배지 합성 (A·B·C·F 스타일) · PNG 저장</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
       </div>
@@ -4211,6 +4220,11 @@
             이미지를 <b>드래그</b>하거나 <b>클릭</b>해서 선택<br>(붙여넣기 Ctrl+V 도 가능)
           </div>
           <input type="file" id="bdgFile" accept="image/*" hidden>
+        </div>
+
+        <div class="bdg-field">
+          <span class="bdg-label">배지 스타일</span>
+          <div class="bdg-styles" id="bdgStyles"></div>
         </div>
 
         <div class="bdg-row">
@@ -10394,7 +10408,10 @@
 
   /* ===== 이미지 배지 합성 도구 ===== */
   const BADGE_STYLES={
-    A:{name:'A · 네온', bg:'#ff2e93', fg:'#ffffff', border:null, shadow:true, radius:.16},
+    A:{name:'A · 네온',   bg:'#ff2e93', fg:'#ffffff', border:null,      shadow:true,  radius:.16},
+    B:{name:'B · 블랙',   bg:'#0a0b0d', fg:'#ff2e93', border:'#ff2e93', shadow:true,  radius:.16},
+    C:{name:'C · 화이트', bg:'#ffffff', fg:'#0a0b0d', border:'#0a0b0d', shadow:false, radius:.08},
+    F:{name:'F · 골드',   bg:'#161628', fg:'#f3d27a', border:'#f3d27a', shadow:true,  radius:.1},
   };
   // 배지 고정 문구 (여러 줄은 \n 으로 구분). 문구 바꾸려면 이 값만 수정.
   const BADGE_TEXT='BEST';
@@ -10496,6 +10513,33 @@
     im.src=url;
   }
 
+  function _bdgRenderStylePicker(){
+    const wrap=document.getElementById('bdgStyles');
+    if(!wrap) return;
+    wrap.innerHTML='';
+    Object.entries(BADGE_STYLES).forEach(([k,st])=>{
+      const btn=document.createElement('div');
+      btn.className='bdg-style'+(k===_bdg.style?' is-active':'');
+      btn.dataset.style=k;
+      const sw=document.createElement('div');
+      sw.className='bdg-style-swatch';
+      if(st.grad) sw.style.background='linear-gradient(135deg,'+st.grad[0]+','+st.grad[1]+')';
+      else sw.style.background=st.bg;
+      sw.style.color=st.fg;
+      if(st.border) sw.style.boxShadow='inset 0 0 0 1.5px '+st.border;
+      sw.textContent=BADGE_TEXT.split('\n')[0]||'BEST';
+      const nm=document.createElement('div');
+      nm.className='bdg-style-name'; nm.textContent=st.name;
+      btn.appendChild(sw); btn.appendChild(nm);
+      btn.onclick=()=>{
+        _bdg.style=k;
+        wrap.querySelectorAll('.bdg-style').forEach(e=>e.classList.toggle('is-active',e.dataset.style===k));
+        renderBadgeCanvas();
+      };
+      wrap.appendChild(btn);
+    });
+  }
+
   function _bdgSizeLabel(){
     const v=parseInt((document.getElementById('bdgSize')||{}).value,10)||115;
     const el=document.getElementById('bdgSizeVal');
@@ -10503,6 +10547,7 @@
   }
 
   function initBadgeView(){
+    _bdgRenderStylePicker();
     _bdgSizeLabel();
     if(_bdgBound){ renderBadgeCanvas(); return; }
     _bdgBound=true;
