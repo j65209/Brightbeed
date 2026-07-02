@@ -10431,8 +10431,8 @@
   };
   // 배지 문구 프리셋 A~F (앱에서 편집·저장). 기본값은 아래, 사용자 편집분은 localStorage에 저장.
   const BADGE_WORD_KEYS=['A','B','C','D','E','F'];
-  const BADGE_WORDS_DEFAULT={A:'BEST',B:'NEW',C:'SALE',D:'무료배송',E:'인기',F:'한정수량'};
-  const BADGE_WORDS_LS='bdgPresetWords_v1';
+  const BADGE_WORDS_DEFAULT={A:'A Style',B:'B Style',C:'C Style',D:'D Style',E:'E Style',F:'F Style'};
+  const BADGE_WORDS_LS='bdgPresetWords_v2';
   function _bdgLoadWords(){
     try{ const o=JSON.parse(localStorage.getItem(BADGE_WORDS_LS)||'null'); if(o&&typeof o==='object') return Object.assign({},BADGE_WORDS_DEFAULT,o); }catch(e){}
     return Object.assign({},BADGE_WORDS_DEFAULT);
