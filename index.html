@@ -1869,7 +1869,7 @@
   }
   .bdg-word:hover{border-color:var(--line-2)}
   .bdg-word.is-active{border-color:#0ea5e9;background:#fff;box-shadow:0 0 0 2px rgba(14,165,233,.18)}
-  .bdg-word-key{font-size:9.5px;font-weight:700;color:var(--text-3);letter-spacing:.08em}
+  .bdg-word-key{font-size:11px;font-weight:800;color:var(--text-3)}
   .bdg-word.is-active .bdg-word-key{color:#0ea5e9}
   .bdg-word-text{font-size:13px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .bdg-word-cell{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;min-height:54px;border:1px dashed var(--line-2);border-radius:9px;padding:6px 5px;background:var(--bg-1)}
@@ -3435,7 +3435,7 @@
         <div class="sub-module m-badge" onclick="triggerBadge()">
           <div class="sub-module-icon">🏷️</div>
           <div class="sub-module-title">이미지 배지 합성</div>
-          <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · 문구 A~F 선택 · PNG 저장</div>
+          <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · 문구 1~6 선택 · PNG 저장</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
       </div>
@@ -10569,12 +10569,13 @@
     const wrap=document.getElementById('bdgWords');
     if(!wrap) return;
     wrap.innerHTML='';
-    BADGE_WORD_KEYS.forEach(k=>{
+    BADGE_WORD_KEYS.forEach((k,i)=>{
+      const num=String(i+1);
       if(_bdgEditWords){
         const cell=document.createElement('div');
         cell.className='bdg-word-cell';
         const key=document.createElement('span');
-        key.className='bdg-word-key'; key.textContent=k+' Style';
+        key.className='bdg-word-key'; key.textContent=num;
         const inp=document.createElement('input');
         inp.className='bdg-word-input'; inp.dataset.key=k; inp.value=_bdgWords[k]||'';
         inp.maxLength=14; inp.placeholder='(비움)'; inp.autocomplete='off'; inp.spellcheck=false;
@@ -10590,7 +10591,7 @@
         btn.className='bdg-word'+(k===_bdg.wordKey?' is-active':'');
         btn.dataset.key=k;
         const key=document.createElement('span');
-        key.className='bdg-word-key'; key.textContent=k+' Style';
+        key.className='bdg-word-key'; key.textContent=num;
         const txt=document.createElement('span');
         txt.className='bdg-word-text'; txt.textContent=(_bdgWords[k]||'').trim()||'(비움)';
         btn.appendChild(key); btn.appendChild(txt);
