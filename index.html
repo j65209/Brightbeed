@@ -10574,7 +10574,7 @@
         const cell=document.createElement('div');
         cell.className='bdg-word-cell';
         const key=document.createElement('span');
-        key.className='bdg-word-key'; key.textContent=k;
+        key.className='bdg-word-key'; key.textContent=k+' Style';
         const inp=document.createElement('input');
         inp.className='bdg-word-input'; inp.dataset.key=k; inp.value=_bdgWords[k]||'';
         inp.maxLength=14; inp.placeholder='(비움)'; inp.autocomplete='off'; inp.spellcheck=false;
@@ -10590,7 +10590,7 @@
         btn.className='bdg-word'+(k===_bdg.wordKey?' is-active':'');
         btn.dataset.key=k;
         const key=document.createElement('span');
-        key.className='bdg-word-key'; key.textContent=k;
+        key.className='bdg-word-key'; key.textContent=k+' Style';
         const txt=document.createElement('span');
         txt.className='bdg-word-text'; txt.textContent=(_bdgWords[k]||'').trim()||'(비움)';
         btn.appendChild(key); btn.appendChild(txt);
