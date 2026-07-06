@@ -6007,7 +6007,7 @@
     });
 
     let html = '<table class="sixstock-tbl"><thead><tr>';
-    html += '<th>상품명</th><th class="sixstock-col-price">가격</th><th class="sixstock-col-stock">재고</th><th class="sixstock-col-status">상태</th><th class="sixstock-col-act">편집</th></tr></thead><tbody>';
+    html += '<th>상품명</th><th class="sixstock-col-price">가격</th><th class="sixstock-col-stock">재고</th><th class="sixstock-col-status">상태</th></tr></thead><tbody>';
     for(const p of rows){
       const st = _sixStockStatusLabel(p.status);
       const sc = _sixStockStockCell(p.stock, p.status);
@@ -6019,7 +6019,6 @@
         + `<td class="sixstock-price">${(p.price||0).toLocaleString()}</td>`
         + `<td class="sixstock-stock ${sc.cls}" title="${_esc(sc.hint)}">${sc.n}</td>`
         + `<td class="sixstock-status-cell"><span class="sixstock-badge ${st.cls}">${_esc(st.label)}</span></td>`
-        + `<td class="sixstock-act">${p.editUrl?`<a class="sixstock-link" href="${_esc(p.editUrl)}" target="_blank" rel="noopener" title="식스샵 admin 편집">↗</a>`:''}</td>`
         + `</tr>`;
       if(hasOpts){
         for(const o of p.options){
@@ -6029,7 +6028,6 @@
             + `<td class="sixstock-price"></td>`
             + `<td class="sixstock-stock ${osc.cls}" title="${_esc(osc.hint)}">${osc.n}</td>`
             + `<td class="sixstock-status-cell"></td>`
-            + `<td class="sixstock-act"></td>`
             + `</tr>`;
         }
       }
