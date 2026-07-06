@@ -2331,6 +2331,87 @@
   }
   .lg-res-bottom:hover{border-color:rgba(180,108,255,.45);background:var(--bg-2);box-shadow:0 0 18px rgba(180,108,255,.10)}
 
+  /* ===== 실 재고 현황판 (viewSixStock) ===== */
+  .sixstock-wrap{padding:12px 4px 20px}
+  .sixstock-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  @media(max-width:640px){.sixstock-tabs{grid-template-columns:1fr}}
+  .sixstock-tab{
+    display:flex;align-items:center;gap:10px;padding:12px 16px;
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    cursor:pointer;transition:.15s;color:var(--text-1);text-align:left;
+    font-family:inherit;
+  }
+  .sixstock-tab:hover{background:var(--bg-2);border-color:rgba(255,255,255,.15)}
+  .sixstock-tab.is-active{background:var(--bg-2);border-color:rgba(255,255,255,.28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .sixstock-tab-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .sixstock-tab-name{font-size:14px;font-weight:700;color:var(--text-0)}
+  .sixstock-tab-meta{margin-left:auto;font-size:10.5px;font-family:var(--mono);color:var(--text-3);letter-spacing:.05em}
+  .sixstock-toolbar{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    padding:10px 14px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;margin-bottom:12px;
+  }
+  .sixstock-status{font-size:12.5px;color:var(--text-2);font-family:var(--mono);letter-spacing:.02em;flex:1;min-width:200px}
+  .sixstock-status strong{color:var(--text-0);font-weight:700}
+  .sixstock-status.is-loading{color:#f59e0b}
+  .sixstock-status.is-err{color:#ef4444}
+  .sixstock-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .sixstock-filter{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;padding:4px 10px;border:1px solid var(--line);border-radius:6px;user-select:none}
+  .sixstock-filter input{margin:0;accent-color:#22d3ee}
+  .sixstock-search{
+    padding:6px 10px;border:1px solid var(--line);border-radius:6px;
+    background:var(--bg-0);color:var(--text-0);font-size:12.5px;min-width:180px;font-family:inherit;
+  }
+  .sixstock-search:focus{outline:none;border-color:rgba(255,255,255,.25)}
+  .sixstock-refresh{
+    display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;
+    border:1px solid var(--line);background:var(--bg-0);color:var(--text-1);
+    font-size:12px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit;
+  }
+  .sixstock-refresh:hover:not(:disabled){border-color:rgba(255,255,255,.25);background:var(--bg-2)}
+  .sixstock-refresh:disabled{opacity:.5;cursor:not-allowed}
+  .sixstock-body{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .sixstock-empty{padding:60px 20px;text-align:center;color:var(--text-3);font-size:13px}
+  .sixstock-tbl{width:100%;border-collapse:collapse;font-size:12.5px;font-family:inherit;font-variant-numeric:tabular-nums}
+  .sixstock-tbl thead{position:sticky;top:0;background:var(--bg-2);z-index:2}
+  .sixstock-tbl th{padding:9px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--line);white-space:nowrap}
+  .sixstock-tbl th.sixstock-col-price,
+  .sixstock-tbl th.sixstock-col-stock{text-align:right}
+  .sixstock-tbl th.sixstock-col-status,
+  .sixstock-tbl th.sixstock-col-act{text-align:center}
+  .sixstock-tbl td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;color:var(--text-1)}
+  .sixstock-tbl tr:last-child td{border-bottom:none}
+  .sixstock-tbl tr:hover td{background:rgba(255,255,255,.02)}
+  .sixstock-tbl .sixstock-name{font-weight:600;color:var(--text-0)}
+  .sixstock-tbl .sixstock-price{text-align:right;font-family:var(--mono);color:var(--text-2)}
+  .sixstock-tbl .sixstock-stock{text-align:right;font-weight:700}
+  .sixstock-tbl .sixstock-stock.is-on{color:#22c55e}
+  .sixstock-tbl .sixstock-stock.is-low{color:#f59e0b}
+  .sixstock-tbl .sixstock-stock.is-out{color:#ef4444}
+  .sixstock-tbl .sixstock-stock.is-untracked{color:var(--text-3);font-weight:500}
+  .sixstock-tbl .sixstock-status-cell{text-align:center}
+  .sixstock-badge{
+    display:inline-block;padding:2px 8px;border-radius:9px;font-size:10.5px;font-weight:700;
+    letter-spacing:.02em;font-family:var(--mono);
+  }
+  .sixstock-badge.is-selling{background:rgba(34,197,94,.14);color:#22c55e}
+  .sixstock-badge.is-soldout{background:rgba(239,68,68,.14);color:#ef4444}
+  .sixstock-badge.is-stopped{background:rgba(148,163,184,.14);color:var(--text-3)}
+  .sixstock-tbl .sixstock-act{text-align:center;width:60px}
+  .sixstock-link{
+    display:inline-block;padding:2px 8px;font-size:11px;font-family:var(--mono);
+    color:var(--text-2);text-decoration:none;border:1px solid var(--line);border-radius:5px;transition:.15s;
+  }
+  .sixstock-link:hover{color:var(--text-0);border-color:rgba(255,255,255,.25);background:var(--bg-0)}
+  .sixstock-parent td{background:rgba(255,255,255,.015);border-bottom:1px dashed rgba(255,255,255,.06)}
+  .sixstock-parent .sixstock-opts-tag{
+    display:inline-block;font-size:9.5px;color:var(--text-3);background:rgba(255,255,255,.06);
+    padding:1px 6px;border-radius:8px;margin-left:8px;font-family:var(--mono);letter-spacing:.03em;
+    font-weight:600;vertical-align:middle;
+  }
+  .sixstock-opt-row td{padding-top:5px;padding-bottom:5px}
+  .sixstock-opt-row .sixstock-name{padding-left:28px;font-size:12px;font-weight:500;color:var(--text-2)}
+  .sixstock-opt-row .sixstock-name::before{content:"└ ";color:var(--text-3);opacity:.5;font-weight:500}
+
   /* ===== 식스에이 뷰 ===== */
   .sixa-head{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 14px;border-bottom:1px solid var(--line);margin-bottom:16px}
   .sixa-meta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
@@ -3420,6 +3501,12 @@
           <div class="sub-module-title">사내 공지사항</div>
           <div class="sub-module-sub">공지 · 일정 · 업무 안내</div>
         </div>
+        <div class="sub-module m-sixstock" onclick="triggerSixStock()">
+          <div class="sub-module-icon">📦</div>
+          <div class="sub-module-title">실 재고 현황판</div>
+          <div class="sub-module-sub">식스에이 · 클리어타입 · 야르 · 식스샵 어드민 실시간</div>
+          <div class="sub-module-tag">LIVE</div>
+        </div>
         <div class="sub-module m-namegen" onclick="triggerNamegen()">
           <div class="sub-module-icon">🌍</div>
           <div class="sub-module-title">제품명 생성기</div>
@@ -3974,6 +4061,58 @@
       </div>
 
       <div id="ctBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ 실 재고 현황판 (식스에이 / 클리어타입 / 야르) ============ -->
+  <!-- Server proxy /sx/catalog?brand=X 로 sixshop 어드민 mall API 실시간 fetch (~2-5초/브랜드).
+       캐시 JSON 없이 매번 fresh. 클릭 시 3 브랜드 병렬 fetch. -->
+  <div class="view" id="viewSixStock" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">실 재고 현황판<span class="view-title-sub">/ 식스샵 어드민 실시간</span></h1>
+    </div>
+
+    <div class="sixstock-wrap">
+      <div class="sixstock-tabs" role="tablist">
+        <button type="button" class="sixstock-tab" data-brand="6a"  role="tab" onclick="sixStockSwitch('6a')">
+          <span class="sixstock-tab-dot" style="background:#22d3ee;box-shadow:0 0 10px rgba(34,211,238,.7)"></span>
+          <span class="sixstock-tab-name">식스에이</span>
+          <span class="sixstock-tab-meta">6thanother</span>
+        </button>
+        <button type="button" class="sixstock-tab" data-brand="ct"  role="tab" onclick="sixStockSwitch('ct')">
+          <span class="sixstock-tab-dot" style="background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.7)"></span>
+          <span class="sixstock-tab-name">클리어타입</span>
+          <span class="sixstock-tab-meta">cleartype</span>
+        </button>
+        <button type="button" class="sixstock-tab" data-brand="yar" role="tab" onclick="sixStockSwitch('yar')">
+          <span class="sixstock-tab-dot" style="background:#a78bfa;box-shadow:0 0 10px rgba(167,139,250,.7)"></span>
+          <span class="sixstock-tab-name">야르</span>
+          <span class="sixstock-tab-meta">yarseoul</span>
+        </button>
+      </div>
+
+      <div class="sixstock-toolbar">
+        <div class="sixstock-status" id="sixStockStatus">브랜드 탭을 선택하세요.</div>
+        <div class="sixstock-controls">
+          <label class="sixstock-filter">
+            <input type="checkbox" id="sixStockFilterSelling" onchange="sixStockRender()" checked>
+            <span>판매중만</span>
+          </label>
+          <input type="search" id="sixStockSearch" class="sixstock-search" placeholder="상품명 검색…" oninput="sixStockRender()">
+          <button type="button" class="sixstock-refresh" id="sixStockRefreshBtn" onclick="sixStockRefresh()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            새로고침
+          </button>
+        </div>
+      </div>
+
+      <div class="sixstock-body" id="sixStockBody">
+        <div class="sixstock-empty">브랜드 탭을 선택하면 실 재고를 fetch합니다.</div>
+      </div>
     </div>
   </div>
 
@@ -5567,8 +5706,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewNamegen','viewTopping','viewBadge'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -5650,6 +5789,177 @@
   function triggerMd(){ showView('viewMd'); }
   function triggerVendor(){ showView('viewVendor'); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
+  function triggerSixStock(){ showView('viewSixStock'); sixStockOpen(); }
+
+  /* ===== 실 재고 현황판 (viewSixStock) =====
+     server proxy /sx/catalog?brand=X → sixshop 어드민 mall API read-only fetch.
+     캐시 JSON 없이 매번 fresh. 3 브랜드 병렬 fetch (약 3~5초). */
+  const SIX_STOCK_BRANDS = [
+    {key:'6a',  display:'식스에이',   host:'6thanother.sixshop.com'},
+    {key:'ct',  display:'클리어타입', host:'cleartype.sixshop.com'},
+    {key:'yar', display:'야르',       host:'yarseoul.sixshop.com'},
+  ];
+  const _sixStockCache = { '6a':null, 'ct':null, 'yar':null };
+  const _sixStockInflight = { '6a':false, 'ct':false, 'yar':false };
+  let _sixStockActive = '6a';
+
+  function sixStockOpen(){
+    // 진입 시: 모든 브랜드 병렬 fetch (없는 것만) + 기본 탭 렌더
+    for(const b of SIX_STOCK_BRANDS){
+      if(!_sixStockCache[b.key] && !_sixStockInflight[b.key]){
+        sixStockFetch(b.key, false).catch(()=>{});
+      }
+    }
+    sixStockSwitch(_sixStockActive);
+  }
+
+  function sixStockSwitch(brandKey){
+    _sixStockActive = brandKey;
+    document.querySelectorAll('.sixstock-tab').forEach(el=>{
+      el.classList.toggle('is-active', el.dataset.brand===brandKey);
+    });
+    if(!_sixStockCache[brandKey] && !_sixStockInflight[brandKey]){
+      sixStockFetch(brandKey, false).catch(()=>{});
+    }
+    sixStockRender();
+  }
+
+  async function sixStockFetch(brandKey, force){
+    if(_sixStockInflight[brandKey]) return;
+    _sixStockInflight[brandKey] = true;
+    if(_sixStockActive===brandKey){
+      const status = document.getElementById('sixStockStatus');
+      if(status){ status.className='sixstock-status is-loading'; status.textContent='식스샵 어드민 로그인 + fetch 중… (~2-5초)'; }
+      const btn = document.getElementById('sixStockRefreshBtn');
+      if(btn) btn.disabled = true;
+    }
+    try{
+      const r = await sxFetch(`/catalog?brand=${brandKey}`, {method:'GET'});
+      let data;
+      try{ data = await r.json(); } catch(e){ data = {ok:false, error:'invalid JSON'}; }
+      if(!r.ok || !data.ok){
+        _sixStockCache[brandKey] = {error: data.error || `HTTP ${r.status}`, at: Date.now()};
+      } else {
+        _sixStockCache[brandKey] = data;
+      }
+    } catch(e){
+      _sixStockCache[brandKey] = {error: String(e && e.message || e), at: Date.now()};
+    } finally {
+      _sixStockInflight[brandKey] = false;
+      if(_sixStockActive===brandKey){
+        const btn = document.getElementById('sixStockRefreshBtn');
+        if(btn) btn.disabled = false;
+        sixStockRender();
+      }
+    }
+  }
+
+  function sixStockRefresh(){
+    if(_sixStockInflight[_sixStockActive]) return;
+    _sixStockCache[_sixStockActive] = null;
+    sixStockFetch(_sixStockActive, true).catch(()=>{});
+  }
+
+  function _sixStockStatusLabel(raw){
+    // sellStatus: selling / soldOut_selling / stop_selling / ...
+    if(!raw) return {label:'—', cls:''};
+    if(raw==='selling') return {label:'판매중', cls:'is-selling'};
+    if(raw==='soldOut_selling') return {label:'품절', cls:'is-soldout'};
+    if(raw.indexOf('stop')>=0) return {label:'중지', cls:'is-stopped'};
+    return {label:raw, cls:''};
+  }
+
+  function _sixStockStockCell(stock){
+    // stock: 정수. -1 or -2 → sixshop 무제한/재고관리안함 관행. 0 → 매진.
+    if(stock === -1 || stock === -2) return {n:'—', cls:'is-untracked', hint:'재고관리 안함'};
+    if(stock === 0) return {n:'0', cls:'is-out', hint:''};
+    if(stock <= 5) return {n:String(stock), cls:'is-low', hint:''};
+    return {n:String(stock), cls:'is-on', hint:''};
+  }
+
+  function _esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function sixStockRender(){
+    const brandKey = _sixStockActive;
+    const meta = SIX_STOCK_BRANDS.find(b=>b.key===brandKey);
+    const cache = _sixStockCache[brandKey];
+    const body = document.getElementById('sixStockBody');
+    const status = document.getElementById('sixStockStatus');
+    if(!body || !meta) return;
+
+    if(!cache){
+      body.innerHTML = '<div class="sixstock-empty">첫 fetch 대기 중…</div>';
+      if(status){ status.className='sixstock-status is-loading'; status.textContent='fetch 대기 중…'; }
+      return;
+    }
+    if(cache.error){
+      body.innerHTML = `<div class="sixstock-empty">❌ ${_esc(cache.error)}</div>`;
+      if(status){ status.className='sixstock-status is-err'; status.textContent = `❌ ${cache.error}`; }
+      return;
+    }
+
+    // 필터 + 검색 적용
+    const onlySelling = !!document.getElementById('sixStockFilterSelling')?.checked;
+    const q = (document.getElementById('sixStockSearch')?.value || '').trim().toLowerCase();
+    const rows = (cache.products || []).filter(p=>{
+      if(onlySelling && p.status !== 'selling') return false;
+      if(q && !(p.name||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    // 상태 라인
+    const t = new Date(cache.fetchedAt||Date.now());
+    const hh = String(t.getHours()).padStart(2,'0');
+    const mm = String(t.getMinutes()).padStart(2,'0');
+    const ss = String(t.getSeconds()).padStart(2,'0');
+    if(status){
+      status.className='sixstock-status';
+      status.innerHTML = `<strong>${_esc(meta.display)}</strong> · ${_esc(meta.host)} · fetch ${hh}:${mm}:${ss} (${cache.elapsedMs||0} ms) · ${rows.length}/${(cache.products||[]).length} 상품 표시`;
+    }
+
+    if(rows.length===0){
+      body.innerHTML = '<div class="sixstock-empty">필터 조건에 맞는 상품이 없습니다.</div>';
+      return;
+    }
+
+    // 재고 낮은 순 → 재고 높은 순 정렬 (0/품절 위로)
+    rows.sort((a,b)=>{
+      const av = (a.stock === -1 || a.stock === -2) ? Infinity : a.stock;
+      const bv = (b.stock === -1 || b.stock === -2) ? Infinity : b.stock;
+      return av - bv;
+    });
+
+    let html = '<div style="overflow:auto;max-height:calc(100vh - 300px)"><table class="sixstock-tbl"><thead><tr>';
+    html += '<th>상품명</th><th class="sixstock-col-price">가격</th><th class="sixstock-col-stock">재고</th><th class="sixstock-col-status">상태</th><th class="sixstock-col-act">편집</th></tr></thead><tbody>';
+    for(const p of rows){
+      const st = _sixStockStatusLabel(p.status);
+      const sc = _sixStockStockCell(p.stock);
+      const hasOpts = p.hasOptions && (p.options||[]).length>0;
+      const optsTag = hasOpts ? `<span class="sixstock-opts-tag">${p.options.length} opt</span>` : '';
+      const parentCls = hasOpts ? ' sixstock-parent' : '';
+      html += `<tr class="${parentCls}">`
+        + `<td class="sixstock-name">${_esc(p.name)}${optsTag}</td>`
+        + `<td class="sixstock-price">${(p.price||0).toLocaleString()}</td>`
+        + `<td class="sixstock-stock ${sc.cls}" title="${_esc(sc.hint)}">${sc.n}</td>`
+        + `<td class="sixstock-status-cell"><span class="sixstock-badge ${st.cls}">${_esc(st.label)}</span></td>`
+        + `<td class="sixstock-act">${p.editUrl?`<a class="sixstock-link" href="${_esc(p.editUrl)}" target="_blank" rel="noopener" title="식스샵 admin 편집">↗</a>`:''}</td>`
+        + `</tr>`;
+      if(hasOpts){
+        for(const o of p.options){
+          const osc = _sixStockStockCell(o.stock);
+          html += `<tr class="sixstock-opt-row">`
+            + `<td class="sixstock-name">${_esc(o.label)}</td>`
+            + `<td class="sixstock-price"></td>`
+            + `<td class="sixstock-stock ${osc.cls}" title="${_esc(osc.hint)}">${osc.n}</td>`
+            + `<td class="sixstock-status-cell"></td>`
+            + `<td class="sixstock-act"></td>`
+            + `</tr>`;
+        }
+      }
+    }
+    html += '</tbody></table></div>';
+    body.innerHTML = html;
+  }
 
   /* 식스에이 JS 블록 제거 (2026-06-09) — brightbeed-stock /sixA (Supabase sixa.*) 로 이전. */
   function openSixA(){ showView("viewSixA"); }
