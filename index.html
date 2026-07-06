@@ -2411,6 +2411,7 @@
   .sixstock-tbl .sixstock-stock.is-low{color:#f59e0b}
   .sixstock-tbl .sixstock-stock.is-out{color:#ef4444}
   .sixstock-tbl .sixstock-stock.is-untracked{color:var(--text-3);font-weight:500}
+  .sixstock-tbl .sixstock-stock.is-unlimited{color:#8b5cf6;font-weight:800;font-size:15px;letter-spacing:-.01em}
   .sixstock-tbl .sixstock-status-cell{text-align:center}
   .sixstock-badge{
     display:inline-block;padding:2px 8px;border-radius:9px;font-size:10.5px;font-weight:700;
@@ -5947,8 +5948,14 @@
     return {label:raw, cls:''};
   }
 
-  function _sixStockStockCell(stock){
-    if(stock === -1 || stock === -2) return {n:'—', cls:'is-untracked', hint:'재고관리 안함'};
+  function _sixStockStockCell(stock, status){
+    // sixshop 은 "수량관리안함" 인 상품에 productQuantity 를 음수(-1/-2)로 돌려줌.
+    // 판매중(selling) + 음수 → 무제한 (∞).
+    // 품절/중지 + 음수 → 재고 없어서 음수 (skip 처리).
+    if(stock === -1 || stock === -2){
+      if(status === 'selling') return {n:'∞', cls:'is-unlimited', hint:'수량관리안함 (무제한)'};
+      return {n:'—', cls:'is-untracked', hint:'재고 정보 없음'};
+    }
     if(stock === 0) return {n:'0', cls:'is-out', hint:''};
     if(stock <= 5) return {n:String(stock), cls:'is-low', hint:''};
     return {n:String(stock), cls:'is-on', hint:''};
@@ -6003,7 +6010,7 @@
     html += '<th>상품명</th><th class="sixstock-col-price">가격</th><th class="sixstock-col-stock">재고</th><th class="sixstock-col-status">상태</th><th class="sixstock-col-act">편집</th></tr></thead><tbody>';
     for(const p of rows){
       const st = _sixStockStatusLabel(p.status);
-      const sc = _sixStockStockCell(p.stock);
+      const sc = _sixStockStockCell(p.stock, p.status);
       const hasOpts = p.hasOptions && (p.options||[]).length>0;
       const optsTag = hasOpts ? `<span class="sixstock-opts-tag">${p.options.length} opt</span>` : '';
       const parentCls = hasOpts ? ' sixstock-parent' : '';
@@ -6016,7 +6023,7 @@
         + `</tr>`;
       if(hasOpts){
         for(const o of p.options){
-          const osc = _sixStockStockCell(o.stock);
+          const osc = _sixStockStockCell(o.stock, p.status);
           html += `<tr class="sixstock-opt-row">`
             + `<td class="sixstock-name">${_esc(o.label)}</td>`
             + `<td class="sixstock-price"></td>`
