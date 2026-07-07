@@ -1930,6 +1930,7 @@
   .blog-filter-spacer{width:1px;height:16px;background:var(--line-2);margin:0 4px}
 
   .blog-panel{display:flex;flex-direction:column;gap:14px}
+  .blog-panel[hidden]{display:none}
   .blog-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
   .blog-card{background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:all .15s;position:relative}
   .blog-card:hover{border-color:var(--line-2);box-shadow:0 4px 14px rgba(0,0,0,.06)}
@@ -3738,6 +3739,17 @@
           <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · 문구 1~6 선택 · PNG 저장</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
+      </div>
+    </div>
+
+    <!-- 블로그 트래픽 툴 — 트렌드 · 키워드 · 유입 소재 -->
+    <div class="sub-modules-section">
+      <div class="sub-modules-eyebrow">
+        <span class="folder-icon">📈</span>
+        <span class="folder-label">블로그 트래픽 툴</span>
+        <span class="folder-meta"><b id="blogTrafficCount">—</b> 도구</span>
+      </div>
+      <div class="sub-modules">
         <div class="sub-module m-naverbest" onclick="triggerNaverBest()">
           <div class="sub-module-icon">🔥</div>
           <div class="sub-module-title">오늘의 쇼핑 트렌드</div>
@@ -6085,6 +6097,9 @@
     }
     if(id==='viewBadge'){
       if(typeof initBadgeView==='function') initBadgeView();
+    }
+    if(id==='viewBlog'){
+      if(typeof initBlogView==='function') initBlogView();
     }
   }
 
@@ -10625,12 +10640,22 @@
     window.ngFillBuilder = ngFillBuilder;
   })();
 
-  /* 업무용 툴 폴더 — 카드 개수 자동 카운트 */
+  /* 홈 폴더 카드 자동 카운트 — 각 subModulesCount / blogTrafficCount 를 폴더별로 계산 */
   (function(){
-    const el = document.getElementById('subModulesCount');
-    if(!el) return;
-    const n = document.querySelectorAll('.sub-modules .sub-module').length;
-    el.textContent = n;
+    function countIn(sectionEl){
+      if(!sectionEl) return 0;
+      return sectionEl.querySelectorAll('.sub-modules > .sub-module').length;
+    }
+    const workEl = document.getElementById('subModulesCount');
+    if(workEl){
+      const section = workEl.closest('.sub-modules-section');
+      workEl.textContent = countIn(section);
+    }
+    const blogEl = document.getElementById('blogTrafficCount');
+    if(blogEl){
+      const section = blogEl.closest('.sub-modules-section');
+      blogEl.textContent = countIn(section);
+    }
   })();
 
   /* ===== 벤더팀 — 공구 일정 캘린더 (brightbeed@gmail.com 공개 iCal, /cal 프록시) ===== */
@@ -11469,6 +11494,478 @@
   window.initBadgeView=initBadgeView;
   window.downloadBadge=downloadBadge;
   window.clearBadge=clearBadge;
+
+  /* ============================================================
+     블로그 자동화 (마스터 전용)
+     쇼핑 정보 네이버 블로그 · 후보 → 승인 → 초안 → 발행
+     상태는 localStorage에 저장 (개인용, 동기화 불필요)
+     ============================================================ */
+  const BLOG_KEY_CAND = 'brightbeed_blog_candidates';
+  const BLOG_KEY_APR  = 'brightbeed_blog_approved';
+  const BLOG_KEY_PUB  = 'brightbeed_blog_published';
+  const BLOG_KEY_SEED = 'brightbeed_blog_seeded_v1';
+  const BLOG_KEY_TAB  = 'brightbeed_blog_tab';
+
+  let _blogFilter = 'all';
+  let _blogFilterType = 'all';
+  let _blogTab = 'candidates';
+
+  const BLOG_CAT_LABEL = { electronics:'소형 전자제품', household:'생활용품', furniture:'소형가구' };
+  const BLOG_TYPE_LABEL = { sale:'🔥 세일정보', trend:'📈 트렌드제품', compare:'⚖️ 비교리스트', tip:'💡 사용팁', guide:'📖 구매가이드' };
+
+  function blogRead(key, fb){
+    try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; }
+    catch(e){ return fb; }
+  }
+  function blogWrite(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  }
+
+  function blogSeedInitial(){
+    if(localStorage.getItem(BLOG_KEY_SEED)) return;
+    const now = Date.now();
+    const seed = [
+      {
+        id:'seed-1', type:'sale', category:'electronics',
+        title:'이번 주 쿠팡·네이버 무선청소기 특가 TOP7',
+        reason:'다이슨·차이슨 가을 세일 시즌 진입 · 무선청소기 검색량 최근 30일 +42% 급증 · 경쟁 블로그 아직 적음',
+        meta:['월간검색 89K','경쟁 낮음','시의성 ★★★'],
+        score:87, keyword:'무선청소기 특가', createdAt:now
+      },
+      {
+        id:'seed-2', type:'trend', category:'electronics',
+        title:'요즘 사무실에서 다들 쓴다는 초미니 서큘레이터',
+        reason:'맘카페·직장인 커뮤니티 언급량 최근 2주 +180% · "책상용 서큘레이터" 검색 급상승 · 3~5만원대 가성비',
+        meta:['월간검색 34K','언급 급증','신선도 ★★★★'],
+        score:82, keyword:'초미니 서큘레이터', createdAt:now
+      },
+      {
+        id:'seed-3', type:'compare', category:'household',
+        title:'10만원대 로봇청소기 5종 완벽 비교 (2026 최신)',
+        reason:'구매의도 매우 높은 키워드 · "로봇청소기 비교" 상위 노출 블로그 낡음(2024년 기준) · 신규 진입 여지 큼',
+        meta:['월간검색 56K','구매의도 ★★★★','업데이트 필요'],
+        score:85, keyword:'로봇청소기 비교', createdAt:now
+      },
+      {
+        id:'seed-4', type:'tip', category:'furniture',
+        title:'원룸 접이식 침대 오래 쓰는 관리법 5가지',
+        reason:'롱테일 키워드 강함 · 체류시간 유도 좋음 · 정보성 콘텐츠라 저품질 위험 낮음 · 재방문 유도',
+        meta:['월간검색 12K','체류시간 ★★★★','저품질 안전'],
+        score:73, keyword:'접이식 침대 관리', createdAt:now
+      },
+      {
+        id:'seed-5', type:'guide', category:'furniture',
+        title:'1인 가구 소형 냉장고 살 때 반드시 체크할 7가지',
+        reason:'상시 검색량 안정 · "고르는 법/체크리스트" 키워드는 애드포스트 CTR 좋음 · 시즌 무관 트래픽',
+        meta:['월간검색 28K','CTR 우수','시즌무관'],
+        score:78, keyword:'소형 냉장고 구매가이드', createdAt:now
+      },
+      {
+        id:'seed-6', type:'sale', category:'household',
+        title:'주말 네이버 쇼핑 생활용품 핫딜 모음 (~일요일 자정)',
+        reason:'매주 주말 반복 발행 가능한 정기 콘텐츠 · 재방문 유도력 최상 · 브랜드화 가능("주말 핫딜은 여기")',
+        meta:['정기 콘텐츠','재방문 ★★★★★','브랜드화'],
+        score:80, keyword:'생활용품 핫딜', createdAt:now
+      },
+      {
+        id:'seed-7', type:'trend', category:'household',
+        title:'요즘 뜨는 무접점 원터치 정수기 진짜 편할까',
+        reason:'홈쇼핑·유튜브 노출 급증 · "무접점 정수기" 검색량 +65% · 리뷰 콘텐츠 부족',
+        meta:['월간검색 21K','리뷰 부족','신선도 ★★★'],
+        score:76, keyword:'무접점 정수기 후기', createdAt:now
+      },
+    ];
+    blogWrite(BLOG_KEY_CAND, seed);
+    localStorage.setItem(BLOG_KEY_SEED, '1');
+  }
+
+  function blogTab(tab){
+    _blogTab = tab;
+    localStorage.setItem(BLOG_KEY_TAB, tab);
+    document.querySelectorAll('.blog-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+    document.getElementById('blogPanelCandidates').hidden = tab!=='candidates';
+    document.getElementById('blogPanelApproved').hidden = tab!=='approved';
+    document.getElementById('blogPanelPublished').hidden = tab!=='published';
+    blogRender();
+  }
+  function blogFilter(cat){
+    _blogFilter = cat;
+    document.querySelectorAll('.blog-filter-chip').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
+    blogRender();
+  }
+  function blogFilterType(type){
+    _blogFilterType = type;
+    document.querySelectorAll('.blog-type-chip').forEach(b=>b.classList.toggle('active', b.dataset.type===type));
+    blogRender();
+  }
+
+  function blogEscape(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+  function blogFilterList(list){
+    return list.filter(c=>{
+      if(_blogFilter!=='all' && c.category!==_blogFilter) return false;
+      if(_blogFilterType!=='all' && c.type!==_blogFilterType) return false;
+      return true;
+    });
+  }
+
+  function blogRenderCandidates(){
+    const all = blogRead(BLOG_KEY_CAND, []);
+    const list = blogFilterList(all);
+    const cont = document.getElementById('blogCandidatesList');
+    const empty = document.getElementById('blogCandidatesEmpty');
+    document.getElementById('blogCntCandidates').textContent = all.length;
+    if(!list.length){ cont.innerHTML=''; empty.hidden=false; return; }
+    empty.hidden = true;
+    cont.innerHTML = list.map(c=>{
+      const held = c.status==='hold';
+      const metaHtml = (c.meta||[]).map(m=>`<span>${blogEscape(m)}</span>`).join('');
+      return `
+        <div class="blog-card ${held?'is-hold':''}" data-id="${c.id}">
+          <div class="blog-card-head">
+            <span class="blog-card-type t-${c.type}">${BLOG_TYPE_LABEL[c.type]||c.type}</span>
+            <span class="blog-card-cat">${BLOG_CAT_LABEL[c.category]||c.category}</span>
+            <span class="blog-card-score">기회점수 <b>${c.score||0}</b></span>
+          </div>
+          <div class="blog-card-title">${blogEscape(c.title)}</div>
+          <div class="blog-card-reason">${blogEscape(c.reason)}</div>
+          <div class="blog-card-meta">${metaHtml}</div>
+          <div class="blog-card-actions">
+            <button class="blog-btn b-approve" onclick="blogApprove('${c.id}')">👍 승인</button>
+            <button class="blog-btn b-hold" onclick="blogHold('${c.id}')">⏸ 보류</button>
+            <button class="blog-btn b-pass" onclick="blogPass('${c.id}')">👎 패스</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function blogApprove(id){
+    const cands = blogRead(BLOG_KEY_CAND, []);
+    const idx = cands.findIndex(c=>c.id===id);
+    if(idx<0) return;
+    const c = cands[idx];
+    cands.splice(idx,1);
+    blogWrite(BLOG_KEY_CAND, cands);
+
+    const approved = blogRead(BLOG_KEY_APR, []);
+    approved.unshift({
+      id:'apr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+      candidateId:c.id,
+      title:c.title, type:c.type, category:c.category, keyword:c.keyword,
+      draft: blogGenerateDraft(c),
+      approvedAt: Date.now()
+    });
+    blogWrite(BLOG_KEY_APR, approved);
+    if(typeof toast==='function') toast('승인 → 초안 대기 탭에서 확인하세요','ok');
+    blogRender();
+  }
+
+  function blogPass(id){
+    const cands = blogRead(BLOG_KEY_CAND, []);
+    const next = cands.filter(c=>c.id!==id);
+    blogWrite(BLOG_KEY_CAND, next);
+    blogRender();
+  }
+
+  function blogHold(id){
+    const cands = blogRead(BLOG_KEY_CAND, []);
+    const c = cands.find(x=>x.id===id);
+    if(!c) return;
+    c.status = c.status==='hold' ? null : 'hold';
+    blogWrite(BLOG_KEY_CAND, cands);
+    blogRender();
+  }
+
+  /* --- 초안 자동 생성 (템플릿 기반; 이후 AI 훅으로 교체 가능) --- */
+  function blogGenerateDraft(c){
+    const t = c.type;
+    const kw = c.keyword || c.title;
+    const catLabel = BLOG_CAT_LABEL[c.category]||'';
+    let body='', tags=[], imageGuide=[];
+    if(t==='sale'){
+      body = `안녕하세요, 오늘도 알뜰 쇼핑러 여러분을 위해 이번 주 놓치면 아까운 특가 상품들을 정리해봤습니다.\n\n요즘 ${kw} 관련 검색이 확 늘어서 저도 며칠간 쿠팡·네이버 쇼핑 여기저기 뒤져봤는데요, 정말 이런 가격 다시 안 나올 것 같은 딜들만 골라 담았어요.\n\n📌 목차\n1. 이번 주 특가 하이라이트 TOP 3\n2. 카테고리별 상세 특가 리스트\n3. 세일 종료 임박 상품\n4. 다음 주 세일 예상 상품\n\n\n1️⃣ 이번 주 특가 하이라이트 TOP 3\n\n첫 번째로 소개드릴 상품은 [상품명 A]입니다.\n원래 가격 대비 얼마나 할인되는지 보면 진짜 이 정도면 사둬야 하나 싶은 수준이에요. 특히 리뷰 평점도 4.7 이상으로 검증된 제품이라 부담없이 담을 수 있습니다.\n\n두 번째는 [상품명 B].\n요즘 인스타에서도 자주 보이는 인기 아이템인데 이번 세일 기간 동안만 특별가로 나왔어요.\n\n세 번째는 [상품명 C]로, 실사용 후기가 압도적으로 좋은 제품이에요.\n\n\n2️⃣ 카테고리별 상세 특가 리스트\n\n[여기에 카테고리별로 3~5개씩 상품 정리]\n\n\n3️⃣ 세일 종료 임박\n\n마감 임박 상품은 정말 몇 시간 차이로 완판되니 관심 있으신 분들은 서두르세요.\n\n\n4️⃣ 다음 주 세일 예상\n\n다음 주엔 [카테고리]에서 대규모 할인이 예정되어 있다는 정보를 입수했습니다. 관심 카테고리 즐겨찾기 해두시면 편해요.\n\n\n오늘 소개해드린 상품 외에도 궁금하신 카테고리 있으시면 댓글 남겨주세요. 다음 세일 정보 포스팅에 반영해드립니다.\n\n좋은 쇼핑 되세요! 💝`;
+      tags = ['특가정보','핫딜','쿠팡세일','네이버쇼핑','알뜰쇼핑',catLabel,'주말특가','할인정보'];
+      imageGuide = [
+        '썸네일: "이번 주 특가 TOP7" 문구 + 대표 상품 이미지 콜라주 (밝은 색상 배경)',
+        '본문 상단: 세일 배너 or 쇼핑몰 스크린샷 (원가 → 할인가 대비 강조)',
+        '상품 A 이미지 (판매처 이미지 사용 OK)',
+        '상품 B 이미지',
+        '상품 C 이미지',
+        '카테고리별 상품 리스트 옆에 각 제품 썸네일',
+        '마무리: 다음 세일 캘린더 or 즐겨찾기 안내 이미지'
+      ];
+    } else if(t==='trend'){
+      body = `요즘 SNS랑 카페 여기저기서 자주 보이는 ${kw}, 저도 궁금해서 직접 알아봤어요.\n\n처음엔 "이게 정말 그렇게 좋을까?" 반신반의였는데, 실제 사용자 후기랑 스펙 뜯어보니까 왜 뜨는지 이유가 확실히 있더라구요.\n\n📌 이 글에서 다룰 내용\n· 이 제품이 요즘 왜 뜨는지\n· 실제 스펙 & 기능\n· 사용자 리얼 후기\n· 어떤 사람에게 추천하는지\n· 가격대 & 구매처 정보\n\n\n요즘 왜 뜨는지\n\n최근 한 달 사이 관련 검색량이 눈에 띄게 늘었어요. 유튜브에서도 리뷰 영상 조회수가 급증하고 있고, 맘카페·직장인 커뮤니티에서도 "사보니 진짜 좋더라"는 후기가 계속 올라오는 중이에요.\n\n특히 [강점 포인트 1], [강점 포인트 2] 이 두 가지가 요즘 소비자들이 원하는 딱 그 지점을 저격했다는 평이에요.\n\n\n실제 스펙 & 기능\n\n[제품 스펙 상세 — 크기, 무게, 주요 기능, 배터리 등]\n\n특히 눈여겨볼 점은 [독특한 기능]입니다. 비슷한 가격대 제품들 중에서 이 기능 지원하는 건 드물어요.\n\n\n사용자 리얼 후기\n\n실제 리뷰들을 여러 개 살펴봤는데 공통적으로 나오는 이야기들을 정리하면:\n\n👍 좋은 점\n- [장점 1]\n- [장점 2]\n- [장점 3]\n\n👎 아쉬운 점\n- [단점 1]\n- [단점 2]\n\n\n어떤 사람에게 추천?\n\n[구체적인 페르소나 3가지 예시]\n반대로 [특정 상황]이라면 다른 제품을 알아보시는 게 낫습니다.\n\n\n가격대 & 구매처\n\n현재 온라인 최저가는 대략 [가격대]이고, 쿠팡·네이버 쇼핑 어디서든 쉽게 구매 가능합니다.\n\n\n오늘 소개드린 제품, 관심 있으셨던 분들께 도움이 됐으면 좋겠어요. 실제 구매하시고 궁금한 점 있으시면 댓글 남겨주세요!`;
+      tags = ['신상품','트렌드','추천템','인기상품','리뷰',catLabel,kw,'요즘뜨는'];
+      imageGuide = [
+        '썸네일: 제품 클로즈업 + "요즘 뜨는 이유" 오버레이 텍스트',
+        '제품 정면 이미지 (고해상도)',
+        '스펙표 이미지 or 인포그래픽',
+        '실사용 씬 이미지 (라이프스타일)',
+        '사용자 리뷰 캡처 (블러 처리)',
+        '가격 비교 표 이미지'
+      ];
+    } else if(t==='compare'){
+      body = `[가격대] ${kw}로 뭐 살지 고민 중이신가요?\n\n요즘 워낙 모델이 많이 나와서 오히려 뭘 골라야 할지 헷갈리시죠. 저도 같은 고민 하다가 결국 스펙표 5개 뽑아놓고 하나씩 비교해봤어요. 그 결과를 여러분과 공유합니다.\n\n📌 목차\n1. 선정 기준 (왜 이 5개인지)\n2. 한눈에 보는 비교표\n3. 모델별 상세 리뷰\n4. 상황별 최종 추천\n\n\n1️⃣ 선정 기준\n\n2026년 기준 다음 조건으로 골랐습니다:\n· 온라인 리뷰 500개 이상 & 평점 4.3점 이상\n· 최근 6개월 내 출시 or 인기 상승 모델\n· 가격대 [범위] 이내\n· A/S 접근성 확보\n\n\n2️⃣ 한눈에 보는 비교표\n\n[모델 A] vs [모델 B] vs [모델 C] vs [모델 D] vs [모델 E]\n\n항목별 비교 — 가격 / 핵심 스펙 / 특장점 / 단점 / 추천 대상\n\n\n3️⃣ 모델별 상세 리뷰\n\n🥇 [모델 A]\n장점: [상세 장점]\n단점: [상세 단점]\n한줄평: \n\n🥈 [모델 B]\n...\n\n🥉 [모델 C]\n...\n\n[모델 D]\n...\n\n[모델 E]\n...\n\n\n4️⃣ 상황별 최종 추천\n\n· 가성비 최고: [모델 X]\n· 프리미엄: [모델 Y]\n· 1인 가구용: [모델 Z]\n· 자녀 있는 가정: [모델 W]\n\n\n결국 "가장 좋은 하나"는 없어요. 여러분의 상황에 맞는 모델을 고르는 게 정답입니다. 위 정리를 참고해서 후회 없는 선택 하시길 바랄게요.\n\n추가 질문 있으시면 댓글 환영합니다.`;
+      tags = ['비교','추천','TOP5',kw,'구매가이드','2026신상',catLabel,'가성비'];
+      imageGuide = [
+        '썸네일: 5개 제품 나란히 + "5종 완벽 비교" 문구',
+        '5개 제품 각각 이미지 (모델 A~E, 판매처 이미지 활용)',
+        '비교표 인포그래픽 (한눈에 보이게)',
+        '각 모델별 상세 이미지 1장씩',
+        '가격 비교 그래프',
+        '상황별 추천 요약 인포그래픽'
+      ];
+    } else if(t==='tip'){
+      body = `${kw}, 처음 살 땐 좋았는데 몇 달 지나니까 슬슬 문제 생기지 않으셨어요?\n\n저도 그랬어요. 그런데 알고 보니 대부분 관리 안 해서 생기는 문제더라구요. 몇 가지 습관만 들이면 훨씬 오래 쓸 수 있어요.\n\n오늘은 실제로 제가 3년째 잘 쓰고 있는 관리법 5가지 공유합니다.\n\n📌 목차\n1. 첫 관리 포인트\n2. 두 번째 관리 포인트\n3. 세 번째 관리 포인트\n4. 네 번째 관리 포인트\n5. 다섯 번째 관리 포인트\n6. 이것만은 절대 하지 마세요\n\n\n1️⃣ 첫 관리 포인트\n\n[구체적 관리 방법 1 — 무엇을, 얼마나 자주, 어떻게]\n\n이걸 안 하면 [구체적 문제] 생겨요. 저도 이거 몰라서 첫 6개월 만에 [경험담] 있었거든요.\n\n\n2️⃣ 두 번째 관리 포인트\n\n[관리 방법 2]\n\n\n3️⃣ 세 번째 관리 포인트\n\n[관리 방법 3]\n\n\n4️⃣ 네 번째 관리 포인트\n\n[관리 방법 4]\n\n\n5️⃣ 다섯 번째 관리 포인트\n\n[관리 방법 5]\n\n\n❌ 이것만은 절대 하지 마세요\n\n- [금기 사항 1] — 이거 하면 수명 확 줄어듭니다\n- [금기 사항 2]\n- [금기 사항 3]\n\n\n오늘 소개한 5가지만 습관화하시면 최소 2배는 더 오래 쓰실 수 있어요. 관리 잘하시고 좋은 아이템 오래오래 쓰세요!`;
+      tags = ['꿀팁','관리법','생활정보','노하우',kw,catLabel,'오래쓰기','꿀템'];
+      imageGuide = [
+        '썸네일: "5가지 관리법" 리스트 오버레이 + 대표 제품 이미지',
+        '관리 도구/용품 이미지 (부드러운 조명)',
+        '각 관리 방법 스텝별 이미지 (5개)',
+        'Before / After 비교 이미지',
+        '금기사항 경고 인포그래픽'
+      ];
+    } else if(t==='guide'){
+      body = `${kw} 처음 사시는 분들 정말 많이 헷갈리시죠.\n\n저도 얼마 전에 사면서 정말 3주 동안 폭풍 검색만 했어요. 사고 나서 "이거 미리 알았으면 좋았을 텐데" 싶은 게 몇 가지 있더라구요.\n\n오늘은 그 경험 바탕으로 실패 없이 고르는 체크리스트 7가지 정리해봤습니다.\n\n📌 목차\n1. 사기 전 필수 체크 7가지\n2. 예산별 추천 스펙\n3. 자주 하는 실수\n4. 어디서 사야 유리한가\n5. 마무리 팁\n\n\n1️⃣ 사기 전 필수 체크 7가지\n\n✅ 체크 1: [핵심 스펙 A]\n왜 중요한가 — [이유]\n체크 기준 — [구체적 수치/기준]\n\n✅ 체크 2: [핵심 스펙 B]\n\n✅ 체크 3: [핵심 스펙 C]\n\n✅ 체크 4: [설치/공간 조건]\n\n✅ 체크 5: [사용 환경 조건]\n\n✅ 체크 6: [A/S 및 워런티]\n\n✅ 체크 7: [부속품/소모품]\n\n\n2️⃣ 예산별 추천 스펙\n\n💰 10만원대: [기본 스펙 조합]\n💰💰 20만원대: [권장 조합]\n💰💰💰 30만원 이상: [프리미엄 조합]\n\n\n3️⃣ 자주 하는 실수\n\n❌ 실수 1: [흔한 실수 및 결과]\n❌ 실수 2: [실수 및 결과]\n❌ 실수 3: [실수 및 결과]\n\n\n4️⃣ 어디서 사야 유리한가\n\n· 쿠팡: [특징]\n· 네이버 쇼핑: [특징]\n· 브랜드 공식몰: [특징]\n· 오프라인 매장: [특징]\n\n같은 제품도 어디서 사느냐에 따라 가격 차이가 꽤 커요.\n\n\n5️⃣ 마무리 팁\n\n결국 가장 중요한 건 "내 사용 환경에 맞는지"입니다. 남들이 좋다는 제품이 나한테는 별로일 수 있고, 반대도 마찬가지예요.\n\n오늘 체크리스트 참고해서 후회 없는 선택 하시길 바랍니다!\n\n궁금한 점 있으시면 댓글 달아주세요.`;
+      tags = ['구매가이드','체크리스트','고르는법',kw,catLabel,'초보자','후회없이','2026'];
+      imageGuide = [
+        '썸네일: 체크리스트 아이콘 + "7가지 체크포인트" 문구',
+        '제품 카테고리 대표 이미지',
+        '각 체크 포인트별 인포그래픽 (7개)',
+        '예산별 비교 표',
+        '자주 하는 실수 경고 이미지',
+        '구매처 비교 인포그래픽',
+        '마무리 요약 카드'
+      ];
+    }
+    return {
+      title: c.title,
+      body,
+      tags,
+      imageGuide,
+      publishTime: t==='sale' ? '금요일 저녁 8시~10시' : (t==='trend' ? '평일 오전 10시~11시' : '평일 오후 8시~10시'),
+      category: catLabel
+    };
+  }
+
+  function blogRenderApproved(){
+    const list = blogRead(BLOG_KEY_APR, []);
+    const cont = document.getElementById('blogApprovedList');
+    const empty = document.getElementById('blogApprovedEmpty');
+    document.getElementById('blogCntApproved').textContent = list.length;
+    if(!list.length){ cont.innerHTML=''; empty.hidden=false; return; }
+    empty.hidden=true;
+    cont.innerHTML = list.map(a=>{
+      const d = a.draft || {};
+      const tagText = (d.tags||[]).map(t=>'#'+t).join(' ');
+      const tagChips = (d.tags||[]).map(t=>`<span class="blog-draft-tag">#${blogEscape(t)}</span>`).join('');
+      const imgList = (d.imageGuide||[]).map((g,i)=>`<li>${blogEscape(g)}</li>`).join('');
+      const bodyId = 'draft-body-'+a.id;
+      const titleId = 'draft-title-'+a.id;
+      return `
+        <div class="blog-draft" data-id="${a.id}">
+          <div class="blog-draft-head">
+            <span class="blog-card-type t-${a.type}">${BLOG_TYPE_LABEL[a.type]||a.type}</span>
+            <span class="blog-card-cat">${BLOG_CAT_LABEL[a.category]||a.category}</span>
+            <div class="blog-draft-title" id="${titleId}">${blogEscape(d.title||a.title)}</div>
+          </div>
+
+          <div class="blog-draft-section">
+            <div class="blog-draft-label">
+              📌 제목
+              <button class="blog-copy-btn" onclick="blogCopyEl('${titleId}',this)">📋 복사</button>
+            </div>
+          </div>
+
+          <div class="blog-draft-section">
+            <div class="blog-draft-label">
+              📝 본문 (네이버 블로그 에디터에 붙여넣기)
+              <button class="blog-copy-btn" onclick="blogCopyEl('${bodyId}',this)">📋 본문 전체 복사</button>
+            </div>
+            <div class="blog-draft-body" id="${bodyId}">${blogEscape(d.body||'')}</div>
+          </div>
+
+          <div class="blog-draft-section">
+            <div class="blog-draft-label">
+              🖼️ 이미지 가이드 (이런 이미지를 순서대로 넣으세요)
+            </div>
+            <div class="blog-image-guide">
+              <b>본문 흐름에 맞춰 아래 이미지를 준비하세요:</b>
+              <ol>${imgList}</ol>
+            </div>
+          </div>
+
+          <div class="blog-draft-section">
+            <div class="blog-draft-label">
+              🏷️ 태그
+              <button class="blog-copy-btn" data-tags="${blogEscape(tagText)}" onclick="blogCopyText(this.dataset.tags,this)">📋 복사</button>
+            </div>
+            <div class="blog-draft-tags">${tagChips}</div>
+          </div>
+
+          <div class="blog-draft-section">
+            <div class="blog-draft-label">⏰ 발행 가이드</div>
+            <div class="blog-image-guide">
+              <b>추천 발행 시간:</b> ${blogEscape(d.publishTime||'평일 저녁')}<br>
+              <b>추천 카테고리:</b> ${blogEscape(d.category||'')}<br>
+              <b>주제 집중도:</b> ✅ 쇼핑 정보 (C-Rank 안전)
+            </div>
+          </div>
+
+          <div class="blog-draft-actions">
+            <button class="blog-btn b-publish" onclick="blogMarkPublished('${a.id}')">✅ 발행완료</button>
+            <button class="blog-btn b-discard" onclick="blogDiscardDraft('${a.id}')">🗑 초안 폐기</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function blogCopyText(text, btn){
+    try{
+      const decoded = String(text||'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+      navigator.clipboard.writeText(decoded);
+      if(btn){ btn.classList.add('copied'); const orig=btn.innerHTML; btn.innerHTML='✅ 복사됨'; setTimeout(()=>{btn.classList.remove('copied'); btn.innerHTML=orig;},1500); }
+    }catch(e){ if(typeof toast==='function') toast('복사 실패','err'); }
+  }
+  function blogCopyEl(elId, btn){
+    const el = document.getElementById(elId);
+    if(!el) return;
+    blogCopyText(el.innerText || el.textContent || '', btn);
+  }
+
+  function blogMarkPublished(id){
+    const apr = blogRead(BLOG_KEY_APR, []);
+    const idx = apr.findIndex(a=>a.id===id);
+    if(idx<0) return;
+    const item = apr[idx];
+    apr.splice(idx,1);
+    blogWrite(BLOG_KEY_APR, apr);
+
+    const pub = blogRead(BLOG_KEY_PUB, []);
+    pub.unshift({
+      id:'pub-'+Date.now(),
+      title:item.title, type:item.type, category:item.category,
+      publishedAt: Date.now()
+    });
+    blogWrite(BLOG_KEY_PUB, pub);
+    if(typeof toast==='function') toast('발행 기록에 저장했습니다','ok');
+    blogRender();
+  }
+
+  function blogDiscardDraft(id){
+    if(!confirm('이 초안을 폐기하시겠습니까?')) return;
+    const apr = blogRead(BLOG_KEY_APR, []);
+    blogWrite(BLOG_KEY_APR, apr.filter(a=>a.id!==id));
+    blogRender();
+  }
+
+  function blogRenderPublished(){
+    const list = blogRead(BLOG_KEY_PUB, []);
+    document.getElementById('blogCntPublished').textContent = list.length;
+    const statsEl = document.getElementById('blogPublishedStats');
+    const listEl = document.getElementById('blogPublishedList');
+    const emptyEl = document.getElementById('blogPublishedEmpty');
+
+    if(!list.length){ statsEl.innerHTML=''; listEl.innerHTML=''; emptyEl.hidden=false; return; }
+    emptyEl.hidden=true;
+
+    const now = Date.now();
+    const day = 24*60*60*1000;
+    const last7 = list.filter(p=>now-p.publishedAt<7*day).length;
+    const last30 = list.filter(p=>now-p.publishedAt<30*day).length;
+    const byType = {};
+    list.forEach(p=>{ byType[p.type]=(byType[p.type]||0)+1; });
+    const topType = Object.keys(byType).sort((a,b)=>byType[b]-byType[a])[0];
+
+    statsEl.innerHTML = `
+      <div class="blog-stat"><div class="blog-stat-label">누적 발행</div><div class="blog-stat-val">${list.length}</div><div class="blog-stat-sub">전체 포스트</div></div>
+      <div class="blog-stat"><div class="blog-stat-label">최근 7일</div><div class="blog-stat-val">${last7}</div><div class="blog-stat-sub">주간 발행</div></div>
+      <div class="blog-stat"><div class="blog-stat-label">최근 30일</div><div class="blog-stat-val">${last30}</div><div class="blog-stat-sub">월간 발행</div></div>
+      <div class="blog-stat"><div class="blog-stat-label">주력 유형</div><div class="blog-stat-val" style="font-size:14px;line-height:1.4">${topType?BLOG_TYPE_LABEL[topType]:'—'}</div><div class="blog-stat-sub">가장 많이 발행</div></div>
+    `;
+    listEl.innerHTML = list.map(p=>{
+      const d = new Date(p.publishedAt);
+      const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+      return `
+        <div class="blog-published-item">
+          <span class="blog-card-type t-${p.type}">${BLOG_TYPE_LABEL[p.type]||p.type}</span>
+          <div class="blog-published-item-title">${blogEscape(p.title)}</div>
+          <div class="blog-published-item-date">${dateStr}</div>
+          <button class="blog-published-item-del" onclick="blogDeletePublished('${p.id}')" title="기록 삭제">×</button>
+        </div>`;
+    }).join('');
+  }
+
+  function blogDeletePublished(id){
+    if(!confirm('이 발행 기록을 삭제하시겠습니까?')) return;
+    const pub = blogRead(BLOG_KEY_PUB, []);
+    blogWrite(BLOG_KEY_PUB, pub.filter(p=>p.id!==id));
+    blogRender();
+  }
+
+  function blogRefreshCandidates(){
+    const btn = document.querySelector('.blog-refresh-btn');
+    if(btn) btn.classList.add('spin');
+    // MVP: 새 후보 pool 주입 (실제 크롤/AI 훅은 나중 단계)
+    setTimeout(()=>{
+      const now = Date.now();
+      const cands = blogRead(BLOG_KEY_CAND, []);
+      const existingKeywords = new Set(cands.map(c=>c.keyword));
+      const freshPool = [
+        {id:'fresh-'+now+'-1', type:'sale', category:'electronics', title:'네이버 쇼핑 이번 주 소형 가전 특가 정리', reason:'월요일 새 세일 리셋 · 트래픽 폭발 시간대', meta:['월간검색 76K','구매의도 ★★★★','신규 세일'], score:84, keyword:'소형가전 세일'},
+        {id:'fresh-'+now+'-2', type:'compare', category:'household', title:'가성비 vs 프리미엄 공기청정기 3종 비교', reason:'실내 공기질 관심 재점화 · 비교 콘텐츠 부족', meta:['월간검색 41K','비교 콘텐츠 부족','구매의도 ★★★★'], score:81, keyword:'공기청정기 비교'},
+        {id:'fresh-'+now+'-3', type:'guide', category:'furniture', title:'좁은 원룸에 딱 맞는 소파 고르는 5가지 기준', reason:'1인 가구 검색 안정적 · 롱테일 강력', meta:['월간검색 18K','시즌무관','롱테일 강함'], score:74, keyword:'원룸 소파 고르는법'},
+        {id:'fresh-'+now+'-4', type:'trend', category:'electronics', title:'뜨는 미니 프로젝터 진짜 쓸만한가', reason:'유튜브 리뷰 급증 · 홈시네마 관심 증가', meta:['월간검색 29K','리뷰 증가','신선도 ★★★★'], score:79, keyword:'미니 프로젝터 후기'},
+        {id:'fresh-'+now+'-5', type:'tip', category:'household', title:'제습기 여름에만 쓰지 마세요, 사계절 활용법', reason:'상시 검색 안정 · 정보성 강함', meta:['월간검색 15K','저품질 안전','재방문 유도'], score:71, keyword:'제습기 활용법'},
+      ].filter(c=>!existingKeywords.has(c.keyword)).map(c=>({...c, createdAt:now}));
+
+      if(!freshPool.length){
+        if(typeof toast==='function') toast('새 후보 없음 (기존과 중복). 잠시 후 다시 시도하세요','info');
+      } else {
+        blogWrite(BLOG_KEY_CAND, [...freshPool, ...cands]);
+        if(typeof toast==='function') toast(`새 후보 ${freshPool.length}개 추가`,'ok');
+      }
+      if(btn) btn.classList.remove('spin');
+      blogRender();
+    }, 700);
+  }
+
+  function blogRender(){
+    if(_blogTab==='candidates') blogRenderCandidates();
+    else if(_blogTab==='approved') blogRenderApproved();
+    else if(_blogTab==='published') blogRenderPublished();
+    // 다른 탭 카운트도 유지
+    document.getElementById('blogCntCandidates').textContent = blogRead(BLOG_KEY_CAND, []).length;
+    document.getElementById('blogCntApproved').textContent = blogRead(BLOG_KEY_APR, []).length;
+    document.getElementById('blogCntPublished').textContent = blogRead(BLOG_KEY_PUB, []).length;
+  }
+
+  function initBlogView(){
+    blogSeedInitial();
+    const savedTab = localStorage.getItem(BLOG_KEY_TAB) || 'candidates';
+    _blogTab = savedTab;
+    document.querySelectorAll('.blog-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===savedTab));
+    document.getElementById('blogPanelCandidates').hidden = savedTab!=='candidates';
+    document.getElementById('blogPanelApproved').hidden = savedTab!=='approved';
+    document.getElementById('blogPanelPublished').hidden = savedTab!=='published';
+    blogRender();
+  }
+
+  window.triggerBlog = triggerBlog;
+  window.initBlogView = initBlogView;
+  window.blogTab = blogTab;
+  window.blogFilter = blogFilter;
+  window.blogFilterType = blogFilterType;
+  window.blogApprove = blogApprove;
+  window.blogPass = blogPass;
+  window.blogHold = blogHold;
+  window.blogMarkPublished = blogMarkPublished;
+  window.blogDiscardDraft = blogDiscardDraft;
+  window.blogDeletePublished = blogDeletePublished;
+  window.blogRefreshCandidates = blogRefreshCandidates;
+  window.blogCopyEl = blogCopyEl;
+  window.blogCopyText = blogCopyText;
 
   init();
 </script>
