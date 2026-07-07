@@ -8135,13 +8135,25 @@
     </a>`;
   }
 
+  function _emScore(x){
+    // 인기순 정렬용 — 서버 fetcher 와 같은 공식.
+    // 하트가 최우선 신호, 댓글은 참여도, 조회수는 백업.
+    return (x.likes||0)*10 + (x.comments||0)*3 + (x.views||0)/100;
+  }
+
   function _emRenderGrid(){
     const grid=document.getElementById('eomisaeGrid');
     const empty=document.getElementById('eomisaeEmpty');
     if(!grid||!empty) return;
-    const items = _emState.filter==='all'
+    const src = _emState.filter==='all'
       ? _emState.items
       : _emState.items.filter(x=>x.board===_emState.filter);
+    // 필터 후에도 인기순 유지 — score desc, tiebreak 는 date desc.
+    const items = src.slice().sort((a,b)=>{
+      const sd = (b.score!==undefined?b.score:_emScore(b)) - (a.score!==undefined?a.score:_emScore(a));
+      if(sd!==0) return sd;
+      return (b.date||'').localeCompare(a.date||'');
+    });
     if(items.length===0){
       empty.style.display='block';
       empty.textContent = _emState.items.length ? '해당 게시판 항목이 없어요' : '세일 정보가 아직 없어요';

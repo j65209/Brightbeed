@@ -209,13 +209,23 @@
     }
   }
 
+  function scoreOf(x) {
+    return (x.likes || 0) * 10 + (x.comments || 0) * 3 + (x.views || 0) / 100;
+  }
+
   function filterItems() {
     const q = state.search.trim().toLowerCase();
-    return state.items.filter(it => {
+    const filtered = state.items.filter(it => {
       if (state.filter !== "all" && it.board !== state.filter && !(it.sourceBoards || []).includes(state.filter)) return false;
       if (!q) return true;
       const hay = (it.title + " " + (it.category || "") + " " + (it.author || "")).toLowerCase();
       return hay.includes(q);
+    });
+    // 필터 후에도 인기순 유지 — score desc, tiebreak 는 date desc.
+    return filtered.slice().sort((a, b) => {
+      const sd = (b.score !== undefined ? b.score : scoreOf(b)) - (a.score !== undefined ? a.score : scoreOf(a));
+      if (sd !== 0) return sd;
+      return (b.date || "").localeCompare(a.date || "");
     });
   }
 
