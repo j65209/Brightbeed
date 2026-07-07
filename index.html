@@ -631,6 +631,75 @@
   .kd-refresh-btn:hover{background:var(--bg-3)}
   .kd-refresh-btn:disabled{opacity:.5;cursor:default}
 
+  /* ===== 네이버쇼핑 오늘의 트렌드 ===== */
+  .nb-wrap{max-width:1120px;margin:0 auto;padding:0 4px}
+  .nb-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;background:var(--bg-2);border:1px solid var(--line);
+    border-radius:8px;margin-bottom:14px;flex-wrap:wrap;gap:10px
+  }
+  .nb-title{font-size:14px;font-weight:700;color:var(--text-1)}
+  .nb-sub{font-size:11px;color:var(--text-3);font-weight:500;margin-left:6px}
+  .nb-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2)}
+  .nb-refresh-btn{
+    display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+    background:var(--bg-3);border:1px solid var(--line);border-radius:6px;
+    font-size:12px;color:var(--text-1);cursor:pointer;transition:background .15s
+  }
+  .nb-refresh-btn:hover{background:var(--bg-1)}
+  .nb-refresh-btn:disabled{opacity:.5;cursor:default}
+  .nb-empty{
+    padding:36px 20px;text-align:center;color:var(--text-3);font-size:13px;
+    background:var(--bg-2);border:1px dashed var(--line);border-radius:8px
+  }
+  .nb-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px
+  }
+  .nb-card{
+    display:flex;flex-direction:column;gap:8px;padding:14px 16px;
+    background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    text-decoration:none;color:var(--text-1);transition:transform .12s, border-color .12s;
+    position:relative;overflow:hidden
+  }
+  .nb-card:hover{transform:translateY(-2px);border-color:#22d3ee}
+  .nb-card-rank{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:11px;font-weight:600;color:var(--text-3)
+  }
+  .nb-rank-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:26px;height:26px;padding:0 8px;border-radius:6px;
+    background:#22d3ee;color:#062329;font-size:12px;font-weight:800
+  }
+  .nb-rank-num.r-top3{background:#f59e0b;color:#3a2100}
+  .nb-status{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px}
+  .nb-status.up   {background:rgba(34,197,94,.15);color:#22c55e}
+  .nb-status.down {background:rgba(239,68,68,.15);color:#f87171}
+  .nb-status.stable{background:rgba(148,163,184,.15);color:#94a3b8}
+  .nb-status.soar {background:rgba(236,72,153,.18);color:#f472b6}
+  .nb-status.new  {background:rgba(168,85,247,.18);color:#c084fc}
+  .nb-card-title{font-size:15px;font-weight:700;color:var(--text-1);line-height:1.35}
+  .nb-card-cat{font-size:11px;color:var(--text-3);line-height:1.4}
+  .nb-card-cat b{color:var(--text-2);font-weight:600}
+  .nb-card-cta{
+    align-self:flex-start;margin-top:4px;font-size:11px;color:#22d3ee;
+    text-decoration:none;padding:3px 8px;border:1px solid rgba(34,211,238,.35);border-radius:4px
+  }
+  .nb-excluded{margin-top:22px;padding:12px 14px;background:var(--bg-2);border:1px dashed var(--line);border-radius:8px}
+  .nb-excluded-title{font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:8px;letter-spacing:.03em}
+  .nb-excluded-list{display:flex;flex-wrap:wrap;gap:6px}
+  .nb-excluded-item{
+    font-size:11px;color:var(--text-3);padding:3px 8px;
+    background:var(--bg-3);border-radius:4px
+  }
+  #naverBestUpdated{margin-left:10px;font-size:11px;color:var(--text-3)}
+  #naverBestUpdated.nb-error{color:#f87171}
+  @media (max-width: 720px){
+    .nb-grid{grid-template-columns:1fr}
+    .nb-head{padding:12px 14px}
+    .nb-title{font-size:13px}
+  }
+
   /* ===== 콰이디에어 리스트 — 모바일 (≤720px) 카드 레이아웃 ===== */
   @media (max-width: 720px){
     .po-wrap{max-width:100%;padding:0 8px}
@@ -1836,6 +1905,103 @@
     .tp-input{font-size:15px;padding:12px 14px}
     .tp-output{font-size:16px;padding:12px 14px}
     .tp-btn{padding:10px 14px;font-size:12.5px;flex:1 1 auto}
+  }
+
+  /* ===== 블로그 자동화 (마스터 전용) ===== */
+  .blog-wrap{max-width:1200px;margin:0 auto;padding:8px 18px 32px;display:flex;flex-direction:column;gap:16px}
+  .blog-tabs{display:flex;align-items:center;gap:8px;background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:6px}
+  .blog-tab{background:transparent;border:none;padding:10px 14px;border-radius:8px;color:var(--text-3);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;font-family:var(--sans)}
+  .blog-tab:hover{background:var(--bg-2);color:var(--text-1)}
+  .blog-tab.active{background:linear-gradient(135deg,#ff2e93 0%,#ff6b35 100%);color:#fff;box-shadow:0 4px 12px rgba(255,46,147,.28)}
+  .blog-tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--bg-3);color:var(--text-2);font-size:10.5px;font-weight:700;font-family:var(--mono)}
+  .blog-tab.active .blog-tab-count{background:rgba(255,255,255,.25);color:#fff}
+  .blog-tab-spacer{flex:1}
+  .blog-refresh-btn{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--text-2);font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-family:var(--sans)}
+  .blog-refresh-btn:hover{background:var(--bg-3);border-color:var(--line-2);color:var(--text-0)}
+  .blog-refresh-btn.spin svg{animation:blogSpin .8s linear infinite}
+  @keyframes blogSpin{to{transform:rotate(360deg)}}
+
+  .blog-filter-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+  .blog-filter-label{font-size:10.5px;font-weight:600;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
+  .blog-filter-chip,.blog-type-chip{background:transparent;border:1px solid var(--line);border-radius:6px;padding:5px 10px;color:var(--text-2);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--sans)}
+  .blog-filter-chip:hover,.blog-type-chip:hover{background:var(--bg-2);color:var(--text-0)}
+  .blog-filter-chip.active{background:#0a0b0d;border-color:#0a0b0d;color:#fff}
+  .blog-type-chip.active{background:#ff2e93;border-color:#ff2e93;color:#fff}
+  .blog-filter-spacer{width:1px;height:16px;background:var(--line-2);margin:0 4px}
+
+  .blog-panel{display:flex;flex-direction:column;gap:14px}
+  .blog-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+  .blog-card{background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:all .15s;position:relative}
+  .blog-card:hover{border-color:var(--line-2);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .blog-card.is-hold{opacity:.5;background:var(--bg-2)}
+  .blog-card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .blog-card-type{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:10.5px;font-weight:600;letter-spacing:.02em}
+  .blog-card-type.t-sale{background:rgba(239,68,68,.12);color:#ef4444}
+  .blog-card-type.t-trend{background:rgba(14,165,233,.12);color:#0ea5e9}
+  .blog-card-type.t-compare{background:rgba(168,85,247,.12);color:#a855f7}
+  .blog-card-type.t-tip{background:rgba(34,197,94,.12);color:#22c55e}
+  .blog-card-type.t-guide{background:rgba(245,158,11,.12);color:#f59e0b}
+  .blog-card-cat{padding:3px 8px;border-radius:5px;background:var(--bg-3);color:var(--text-2);font-size:10.5px;font-weight:500}
+  .blog-card-score{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:3px}
+  .blog-card-score b{color:#ff2e93;font-weight:700;font-size:13px}
+  .blog-card-title{font-size:14.5px;font-weight:600;color:var(--text-0);line-height:1.4;letter-spacing:-.01em}
+  .blog-card-reason{font-size:12.5px;color:var(--text-2);line-height:1.5}
+  .blog-card-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--text-3);font-family:var(--mono)}
+  .blog-card-meta span{padding:2px 6px;background:var(--bg-2);border-radius:4px}
+  .blog-card-actions{display:flex;gap:6px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line)}
+  .blog-btn{flex:1;background:var(--bg-2);border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--text-2);font-family:var(--sans)}
+  .blog-btn:hover{background:var(--bg-3);color:var(--text-0)}
+  .blog-btn.b-approve{background:#22c55e;border-color:#22c55e;color:#fff}
+  .blog-btn.b-approve:hover{background:#16a34a;border-color:#16a34a}
+  .blog-btn.b-pass{background:transparent}
+  .blog-btn.b-pass:hover{background:#fee;border-color:#ef4444;color:#ef4444}
+  .blog-btn.b-hold{background:transparent}
+
+  .blog-drafts{display:flex;flex-direction:column;gap:16px}
+  .blog-draft{background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px}
+  .blog-draft-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .blog-draft-title{flex:1;font-size:16px;font-weight:700;color:var(--text-0);line-height:1.35}
+  .blog-draft-section{display:flex;flex-direction:column;gap:8px}
+  .blog-draft-label{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-3);text-transform:uppercase}
+  .blog-draft-body{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--text-1);white-space:pre-wrap;font-family:var(--sans);max-height:340px;overflow-y:auto}
+  .blog-draft-tags{display:flex;flex-wrap:wrap;gap:6px}
+  .blog-draft-tag{padding:4px 8px;background:rgba(255,46,147,.08);color:#ff2e93;border-radius:5px;font-size:11.5px;font-weight:500}
+  .blog-image-guide{background:var(--bg-2);border:1px dashed var(--line-2);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text-2);line-height:1.6}
+  .blog-image-guide ol{margin:6px 0 0 18px;padding:0}
+  .blog-image-guide li{margin:4px 0}
+  .blog-copy-btn{background:#0a0b0d;color:#fff;border:none;border-radius:7px;padding:7px 12px;font-size:11.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);transition:all .12s}
+  .blog-copy-btn:hover{background:#ff2e93}
+  .blog-copy-btn.copied{background:#22c55e}
+  .blog-draft-actions{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+  .blog-draft-actions .blog-btn{flex:1;padding:10px}
+  .blog-btn.b-publish{background:#ff2e93;border-color:#ff2e93;color:#fff}
+  .blog-btn.b-publish:hover{background:#e11d74;border-color:#e11d74}
+  .blog-btn.b-discard{background:transparent;color:var(--text-3)}
+  .blog-btn.b-discard:hover{background:#fee;border-color:#ef4444;color:#ef4444}
+
+  .blog-published-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+  .blog-stat{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .blog-stat-label{font-size:10.5px;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+  .blog-stat-val{font-size:22px;font-weight:700;color:var(--text-0);font-family:var(--mono);margin-top:4px;letter-spacing:-.02em}
+  .blog-stat-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+  .blog-published-list{display:flex;flex-direction:column;gap:8px}
+  .blog-published-item{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px}
+  .blog-published-item-title{flex:1;font-size:13.5px;color:var(--text-1);font-weight:500}
+  .blog-published-item-date{font-size:11.5px;color:var(--text-3);font-family:var(--mono)}
+  .blog-published-item-del{background:transparent;border:none;color:var(--text-3);cursor:pointer;padding:4px 6px;border-radius:4px;font-size:16px}
+  .blog-published-item-del:hover{color:#ef4444;background:#fee}
+
+  .blog-empty{background:var(--bg-1);border:1px dashed var(--line-2);border-radius:12px;padding:60px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .blog-empty-icon{font-size:40px;opacity:.6}
+  .blog-empty-title{font-size:15px;font-weight:600;color:var(--text-1)}
+  .blog-empty-sub{font-size:12.5px;color:var(--text-3)}
+
+  .sub-module.m-blog .sub-module-icon{color:#ff2e93}
+  .sub-module.m-blog .sub-module-tag{color:#ff2e93;border-color:rgba(255,46,147,.45);border-style:solid;background:rgba(255,46,147,.06)}
+
+  @media(max-width:720px){
+    .blog-published-stats{grid-template-columns:repeat(2,1fr)}
+    .blog-cards{grid-template-columns:1fr}
   }
 
   /* ===== 이미지 배지 합성 도구 ===== */
@@ -3572,6 +3738,29 @@
           <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · 문구 1~6 선택 · PNG 저장</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
+        <div class="sub-module m-naverbest" onclick="triggerNaverBest()">
+          <div class="sub-module-icon">🔥</div>
+          <div class="sub-module-title">오늘의 쇼핑 트렌드</div>
+          <div class="sub-module-sub">네이버쇼핑 인기 검색 · 카테고리별 · 식품 제외</div>
+          <div class="sub-module-tag">DAILY</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 개인 (마스터 전용) -->
+    <div class="sub-modules-section master-only">
+      <div class="sub-modules-eyebrow">
+        <span class="folder-icon">🔒</span>
+        <span class="folder-label">개인</span>
+        <span class="folder-meta">마스터 전용</span>
+      </div>
+      <div class="sub-modules">
+        <div class="sub-module m-blog" onclick="triggerBlog()">
+          <div class="sub-module-icon">📝</div>
+          <div class="sub-module-title">블로그 자동화</div>
+          <div class="sub-module-sub">쇼핑 정보 네이버 블로그 · 후보 큐레이션 + 초안 생성</div>
+          <div class="sub-module-tag">PERSONAL</div>
+        </div>
       </div>
     </div>
 
@@ -3849,6 +4038,35 @@
       </div>
     </div>
   </div><!-- /viewLg -->
+
+  <!-- ============ 네이버쇼핑 오늘의 트렌드 (식품 제외) ============ -->
+  <div class="view" id="viewNaverBest" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">쇼핑 트렌드<span class="view-title-sub">/ 네이버쇼핑 오늘의 인기</span><span id="naverBestUpdated" class="sales-updated-tag"></span></h1>
+    </div>
+    <div class="nb-wrap">
+      <div class="nb-head">
+        <div class="nb-title">🔥 오늘의 인기 트렌드 <span class="nb-sub">식품 제외 · TOP 20 중</span></div>
+        <div class="nb-meta">
+          <span id="naverBestCount">—</span>
+          <button class="nb-refresh-btn" id="naverBestRefreshBtn" onclick="refreshNaverBest()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            새로고침
+          </button>
+        </div>
+      </div>
+      <div id="naverBestEmpty" class="nb-empty">불러오는 중…</div>
+      <div class="nb-grid" id="naverBestGrid"></div>
+      <div class="nb-excluded" id="naverBestExcluded" hidden>
+        <div class="nb-excluded-title">참고 · 식품 카테고리 제외 항목</div>
+        <div class="nb-excluded-list" id="naverBestExcludedList"></div>
+      </div>
+    </div>
+  </div><!-- /viewNaverBest -->
 
   <!-- ============ CS팀 — FAQ / 템플릿 / 메모장 ============ -->
   <div class="view" id="viewCs" hidden>
@@ -4443,6 +4661,80 @@
           이미지를 넣으면<br>여기에 배지 합성 결과가 실시간으로 표시됩니다.
         </div>
         <canvas id="bdgCanvas" hidden></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 블로그 자동화 뷰 (마스터 전용) ============ -->
+  <div class="view" id="viewBlog" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">블로그 자동화<span class="view-title-sub">/ 쇼핑 정보 네이버 블로그 파이프라인</span></h1>
+    </div>
+
+    <div class="blog-wrap">
+      <div class="blog-tabs" id="blogTabs">
+        <button class="blog-tab active" data-tab="candidates" onclick="blogTab('candidates')">
+          🔥 오늘의 후보 <span class="blog-tab-count" id="blogCntCandidates">0</span>
+        </button>
+        <button class="blog-tab" data-tab="approved" onclick="blogTab('approved')">
+          ✍️ 초안 대기 <span class="blog-tab-count" id="blogCntApproved">0</span>
+        </button>
+        <button class="blog-tab" data-tab="published" onclick="blogTab('published')">
+          📮 발행 완료 <span class="blog-tab-count" id="blogCntPublished">0</span>
+        </button>
+        <div class="blog-tab-spacer"></div>
+        <button class="blog-refresh-btn" onclick="blogRefreshCandidates()" title="새 후보 불러오기">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15A9 9 0 1 1 5.64 5.64L1 10"/></svg>
+          새로고침
+        </button>
+      </div>
+
+      <div class="blog-filter-bar">
+        <span class="blog-filter-label">카테고리</span>
+        <button class="blog-filter-chip active" data-cat="all" onclick="blogFilter('all')">전체</button>
+        <button class="blog-filter-chip" data-cat="electronics" onclick="blogFilter('electronics')">소형 전자제품</button>
+        <button class="blog-filter-chip" data-cat="household" onclick="blogFilter('household')">생활용품</button>
+        <button class="blog-filter-chip" data-cat="furniture" onclick="blogFilter('furniture')">소형가구</button>
+        <div class="blog-filter-spacer"></div>
+        <span class="blog-filter-label">유형</span>
+        <button class="blog-type-chip active" data-type="all" onclick="blogFilterType('all')">전체</button>
+        <button class="blog-type-chip" data-type="sale" onclick="blogFilterType('sale')">🔥 세일</button>
+        <button class="blog-type-chip" data-type="trend" onclick="blogFilterType('trend')">📈 트렌드</button>
+        <button class="blog-type-chip" data-type="compare" onclick="blogFilterType('compare')">⚖️ 비교</button>
+        <button class="blog-type-chip" data-type="tip" onclick="blogFilterType('tip')">💡 팁</button>
+        <button class="blog-type-chip" data-type="guide" onclick="blogFilterType('guide')">📖 가이드</button>
+      </div>
+
+      <div class="blog-panel" id="blogPanelCandidates">
+        <div class="blog-cards" id="blogCandidatesList"></div>
+        <div class="blog-empty" id="blogCandidatesEmpty" hidden>
+          <div class="blog-empty-icon">🔍</div>
+          <div class="blog-empty-title">후보가 없습니다</div>
+          <div class="blog-empty-sub">"새로고침"을 눌러 새 후보를 받아오세요</div>
+        </div>
+      </div>
+
+      <div class="blog-panel" id="blogPanelApproved" hidden>
+        <div class="blog-drafts" id="blogApprovedList"></div>
+        <div class="blog-empty" id="blogApprovedEmpty" hidden>
+          <div class="blog-empty-icon">✍️</div>
+          <div class="blog-empty-title">승인된 후보가 없습니다</div>
+          <div class="blog-empty-sub">🔥 후보 탭에서 👍를 눌러 승인하면 여기에 초안이 생성됩니다</div>
+        </div>
+      </div>
+
+      <div class="blog-panel" id="blogPanelPublished" hidden>
+        <div class="blog-published-stats" id="blogPublishedStats"></div>
+        <div class="blog-published-list" id="blogPublishedList"></div>
+        <div class="blog-empty" id="blogPublishedEmpty" hidden>
+          <div class="blog-empty-icon">📮</div>
+          <div class="blog-empty-title">발행 이력이 없습니다</div>
+          <div class="blog-empty-sub">초안을 네이버 블로그에 붙여넣고 발행하신 후 "발행완료" 버튼을 누르세요</div>
+        </div>
       </div>
     </div>
   </div>
@@ -5736,8 +6028,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewBlog','viewNaverBest'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewBlog:'blog',viewNaverBest:'naverbest'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -6292,6 +6584,7 @@
   function triggerNamegen(){ showView('viewNamegen'); }
   function triggerTopping(){ showView('viewTopping'); if(typeof initToppingView==='function') initToppingView(); }
   function triggerBadge(){ showView('viewBadge'); if(typeof initBadgeView==='function') initBadgeView(); }
+  function triggerBlog(){ showView('viewBlog'); if(typeof initBlogView==='function') initBlogView(); }
   window.triggerTopping=triggerTopping;
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
@@ -7593,6 +7886,120 @@
 
   // 초기 렌더 — 페이지 로드 직후 KD 데이터 가져옴
   renderKDOrders().catch(()=>{});
+
+  /* ===== 네이버쇼핑 오늘의 인기 트렌드 (식품 제외) =====
+     서버 Mac scripts/naver_best_fetcher.py 가 msearch.shopping.naver.com/best 를 파싱.
+     프록시 /naver/best 가 캐시 JSON 서빙 (6시간 stale → 백그라운드 refresh).
+     launchd 는 매일 07:30 실행 — 새벽 랭킹 최신화. */
+  async function fetchNaverBest(opts){
+    opts=opts||{};
+    const base=await loadProxyBase();
+    if(!base) throw new Error('proxy unavailable');
+    const sep = opts.refresh ? '?refresh=1&' : '?';
+    const url = base+'/naver/best'+sep+'cb='+Date.now();
+    const r=await fetch(url, {headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
+    if(!r.ok) return null;
+    return await r.json();
+  }
+
+  function _nbStatusBadge(status, fluct){
+    const cls={UP:'up',DOWN:'down',STABLE:'stable',SOAR:'soar',NEW:'new'}[status]||'stable';
+    const label={UP:'상승',DOWN:'하락',STABLE:'유지',SOAR:'급상승',NEW:'NEW'}[status]||status||'';
+    const fs = fluct>0 ? ('▲'+fluct) : (fluct<0 ? ('▼'+Math.abs(fluct)) : '—');
+    return `<span class="nb-status ${cls}">${label} ${status==='NEW'?'':fs}</span>`;
+  }
+
+  async function renderNaverBest(opts){
+    opts=opts||{};
+    const grid=document.getElementById('naverBestGrid');
+    const empty=document.getElementById('naverBestEmpty');
+    const cnt=document.getElementById('naverBestCount');
+    const updTag=document.getElementById('naverBestUpdated');
+    const exclBox=document.getElementById('naverBestExcluded');
+    const exclList=document.getElementById('naverBestExcludedList');
+    if(!grid||!empty) return;
+    let data=null;
+    try{ data=await fetchNaverBest(opts); }catch(e){ data=null; }
+    if(!data){
+      empty.style.display='block';
+      empty.textContent='서버 프록시 연결 실패';
+      grid.innerHTML='';
+      if(updTag){ updTag.classList.add('nb-error'); updTag.textContent='연결 실패'; }
+      if(cnt) cnt.textContent='—';
+      if(exclBox) exclBox.hidden=true;
+      return;
+    }
+    const items=Array.isArray(data.items)?data.items:[];
+    const excluded=Array.isArray(data.excluded)?data.excluded:[];
+    const tsTxt = (()=>{
+      if(!data.ts) return '없음';
+      const ts=new Date(data.ts*1000);
+      return `${String(ts.getMonth()+1).padStart(2,'0')}.${String(ts.getDate()).padStart(2,'0')} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
+    })();
+    if(updTag){
+      if(data._error){
+        const errTs=new Date((data._error.ts||0)*1000);
+        const eh=`${String(errTs.getMonth()+1).padStart(2,'0')}.${String(errTs.getDate()).padStart(2,'0')} ${String(errTs.getHours()).padStart(2,'0')}:${String(errTs.getMinutes()).padStart(2,'0')}`;
+        updTag.classList.add('nb-error');
+        updTag.textContent=`갱신 실패 ${eh} · 마지막 성공 ${tsTxt}`;
+        updTag.title=`${eh} 갱신 실패\n${(data._error.error||'').slice(0,120)}\n마지막 성공: ${tsTxt}`;
+      }else{
+        updTag.classList.remove('nb-error');
+        updTag.textContent=`최근 갱신 ${tsTxt}`;
+        updTag.title='';
+      }
+    }
+    if(cnt) cnt.textContent=`${items.length}개 · 식품 ${excluded.length}개 제외`;
+    if(items.length===0){
+      empty.style.display='block';
+      empty.textContent=data._error ? '아직 데이터 없음 — 프록시 fetcher 실패' : '오늘의 트렌드가 아직 준비되지 않았어요';
+      grid.innerHTML='';
+    }else{
+      empty.style.display='none';
+      grid.innerHTML=items.map(x=>{
+        const rankCls = (x.rank<=3) ? 'nb-rank-num r-top3' : 'nb-rank-num';
+        const cat = [x.catNm1, x.catNm2, x.catNm3].filter(Boolean).map(escapeHTML);
+        const catHtml = cat.length ? `<div class="nb-card-cat"><b>${cat[0]}</b>${cat.slice(1).length?' › '+cat.slice(1).join(' › '):''}</div>` : '';
+        const url = x.searchUrl || ('https://msearch.shopping.naver.com/search?query='+encodeURIComponent(x.title||''));
+        return `<a class="nb-card" href="${escapeHTML(url)}" target="_blank" rel="noopener">
+          <div class="nb-card-rank">
+            <span class="${rankCls}">${x.rank||'?'}위</span>
+            ${_nbStatusBadge(x.status, x.rankFluctuation||0)}
+          </div>
+          <div class="nb-card-title">${escapeHTML(x.title||'')}</div>
+          ${catHtml}
+          <span class="nb-card-cta">네이버쇼핑에서 보기 →</span>
+        </a>`;
+      }).join('');
+    }
+    if(exclBox && exclList){
+      if(excluded.length===0){
+        exclBox.hidden=true;
+      }else{
+        exclBox.hidden=false;
+        exclList.innerHTML=excluded.map(e=>`<span class="nb-excluded-item">#${e.rank} ${escapeHTML(e.title||'')} <small>· ${escapeHTML(e.catNm2||'식품')}</small></span>`).join('');
+      }
+    }
+  }
+
+  async function refreshNaverBest(){
+    const btn=document.getElementById('naverBestRefreshBtn');
+    if(btn) btn.disabled=true;
+    try{
+      await renderNaverBest({refresh:true});
+      // 서버가 백그라운드 fetch 를 킥오프하므로 잠깐 뒤 재렌더로 최신값 반영
+      setTimeout(()=>{ renderNaverBest().catch(()=>{}); if(btn) btn.disabled=false; }, 4000);
+    }catch(e){ if(btn) btn.disabled=false; }
+  }
+
+  function triggerNaverBest(){
+    showView('viewNaverBest');
+    renderNaverBest().catch(()=>{});
+  }
+
+  window.triggerNaverBest=triggerNaverBest;
+  window.renderNaverBest=renderNaverBest;
+  window.refreshNaverBest=refreshNaverBest;
 
 
   /* ===================================================== */
