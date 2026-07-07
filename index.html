@@ -2005,6 +2005,14 @@
   .blog-card-reason{font-size:12.5px;color:var(--text-2);line-height:1.5}
   .blog-card-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--text-3);font-family:var(--mono)}
   .blog-card-meta span{padding:2px 6px;background:var(--bg-2);border-radius:4px}
+  .blog-em-items{display:flex;flex-direction:column;gap:6px;margin-top:2px;padding-top:10px;border-top:1px dashed var(--line)}
+  .blog-em-item{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:7px;background:var(--bg-2);text-decoration:none;color:inherit;transition:all .12s;border:1px solid transparent}
+  .blog-em-item:hover{background:var(--bg-3);border-color:var(--line-2)}
+  .blog-em-thumb{width:36px;height:36px;object-fit:cover;border-radius:5px;flex-shrink:0;background:var(--bg-3)}
+  .blog-em-thumb-fb{display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-3)}
+  .blog-em-item-body{flex:1;min-width:0}
+  .blog-em-item-rank{font-size:11.5px;font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+  .blog-em-item-stats{font-size:10px;font-family:var(--mono);color:var(--text-3);margin-top:2px;letter-spacing:.02em}
   .blog-card-actions{display:flex;gap:6px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line)}
   .blog-btn{flex:1;background:var(--bg-2);border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--text-2);font-family:var(--sans)}
   .blog-btn:hover{background:var(--bg-3);color:var(--text-0)}
@@ -11721,7 +11729,9 @@
     try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
   }
 
-  function blogSeedInitial(){
+  /* 하드코딩 시드는 폐기됨 — 어미새 실시간 데이터로 교체 (blogLoadEomisae).
+     레거시 시드 함수는 남겨두지만 호출되지 않음. */
+  function _blogSeedLegacy(){
     if(localStorage.getItem(BLOG_KEY_SEED)) return;
     const now = Date.now();
     const seed = [
@@ -11820,6 +11830,24 @@
     cont.innerHTML = list.map(c=>{
       const held = c.status==='hold';
       const metaHtml = (c.meta||[]).map(m=>`<span>${blogEscape(m)}</span>`).join('');
+      // 어미새 그룹 후보면 상품 미리보기 리스트 추가
+      let itemsPreview = '';
+      if(c._emItems && c._emItems.length){
+        itemsPreview = `<div class="blog-em-items">${c._emItems.map((it,i)=>{
+          const rank = ['🥇','🥈','🥉'][i]||'▪';
+          const views = (it.views||0).toLocaleString();
+          const thumb = it.thumb
+            ? `<img class="blog-em-thumb" src="${blogEscape(it.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"/>`
+            : `<div class="blog-em-thumb blog-em-thumb-fb">🐦</div>`;
+          return `<a class="blog-em-item" href="${blogEscape(it.url||'#')}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            ${thumb}
+            <div class="blog-em-item-body">
+              <div class="blog-em-item-rank">${rank} ${blogEscape((it.title||'').slice(0,60))}</div>
+              <div class="blog-em-item-stats">👁 ${views} · ❤️ ${it.likes||0} · 💬 ${it.comments||0}</div>
+            </div>
+          </a>`;
+        }).join('')}</div>`;
+      }
       return `
         <div class="blog-card ${held?'is-hold':''}" data-id="${c.id}">
           <div class="blog-card-head">
@@ -11830,8 +11858,9 @@
           <div class="blog-card-title">${blogEscape(c.title)}</div>
           <div class="blog-card-reason">${blogEscape(c.reason)}</div>
           <div class="blog-card-meta">${metaHtml}</div>
+          ${itemsPreview}
           <div class="blog-card-actions">
-            <button class="blog-btn b-approve" onclick="blogApprove('${c.id}')">👍 승인</button>
+            <button class="blog-btn b-approve" onclick="blogApprove('${c.id}')">${c._emItems?'👍 이 그룹으로 초안 만들기':'👍 승인'}</button>
             <button class="blog-btn b-hold" onclick="blogHold('${c.id}')">⏸ 보류</button>
             <button class="blog-btn b-pass" onclick="blogPass('${c.id}')">👎 패스</button>
           </div>
@@ -11876,8 +11905,106 @@
     blogRender();
   }
 
+  /* --- 어미새 items 기반 실제 상품 초안 생성 (세일 추천 톤, 긴 본문) --- */
+  function _blogDraftFromEomisae(c){
+    const items = c._emItems || [];
+    const cat = c._emGroup || '기타';
+    const today = new Date();
+    const dateLabel = `${today.getMonth()+1}월 ${today.getDate()}일`;
+    const rankBadge = ['🥇 1위','🥈 2위','🥉 3위'];
+
+    const title = `🔥 오늘의 ${cat} 세일 BEST${items.length} — 어미새 실시간 인기 정리 (${dateLabel})`;
+
+    let body = '';
+    body += `안녕하세요, 매일 아침 세일 정보 큐레이션하는 알뜰 쇼핑러입니다.\n\n`;
+    body += `오늘 ${cat} 카테고리에서 가장 반응이 뜨거웠던 세일 ${items.length}개를 골라왔어요. 조회수·좋아요·댓글을 종합해서 정말 사람들이 관심 갖는 딜만 추렸으니 한 번씩 훑어보세요.\n\n`;
+    body += `이런 딜은 하루 이틀이면 소진되는 경우가 많아서, 관심 가는 게 있으면 링크 타고 빠르게 확인하시는 걸 추천드려요.\n\n`;
+
+    body += `📌 오늘의 목차\n`;
+    items.forEach((it,i)=>{
+      const rank = i+1;
+      body += `${rank}위. ${(it.title||'').slice(0,50)}\n`;
+    });
+    body += `\n`;
+    body += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+    items.forEach((it,i)=>{
+      const rank = rankBadge[i] || `${i+1}위`;
+      const views = (it.views||0).toLocaleString();
+      const likes = it.likes||0;
+      const cmts  = it.comments||0;
+
+      body += `\n${rank}\n\n`;
+      body += `${it.title||''}\n\n`;
+
+      body += `📊 실시간 인기 지표\n`;
+      body += `· 👁 조회수  ${views}회\n`;
+      body += `· ❤️ 좋아요  ${likes}개\n`;
+      body += `· 💬 댓글    ${cmts}개\n\n`;
+
+      body += `이런 반응이 나오는 이유\n`;
+      const reasons = [];
+      if(likes >= 50) reasons.push(`좋아요 ${likes}개를 넘길 정도로 사용자들이 "이 딜은 진짜다" 인정한 상품`);
+      else if(likes >= 20) reasons.push(`좋아요 ${likes}개로 검증된 인기 세일`);
+      if(cmts >= 20) reasons.push(`댓글 ${cmts}개가 달리며 활발한 반응`);
+      else if(cmts >= 5) reasons.push(`실제 구매 문의·후기가 오가는 활발한 스레드`);
+      if((it.views||0) >= 5000) reasons.push(`조회수 ${views}회로 카테고리 상위권 진입`);
+      if(reasons.length===0) reasons.push(`${cat} 카테고리에서 오늘 새롭게 주목받는 세일`);
+      reasons.forEach(r=>{ body += `· ${r}\n`; });
+      body += `\n`;
+
+      body += `👉 자세한 세일 조건·가격·구매처는 아래 링크에서 확인하세요:\n`;
+      body += `${it.url||''}\n\n`;
+
+      if(it.thumb){
+        body += `[여기에 아래 상품 이미지 삽입]\n`;
+        body += `이미지 URL: ${it.thumb}\n\n`;
+      } else {
+        body += `[여기에 상품 이미지 삽입 — 링크 열어서 대표 이미지 캡처]\n\n`;
+      }
+
+      body += `━━━━━━━━━━━━━━━━━━━━\n`;
+    });
+
+    body += `\n\n💡 이런 세일 정보 큐레이션은 매일 아침 업데이트됩니다\n\n`;
+    body += `저는 매일 아침 어미새 세일 게시판에서 가장 반응 좋은 딜만 추려서 카테고리별로 정리해드리고 있어요. 즐겨찾기 해두시면 매일 아침 핫한 세일 정보를 놓치지 않고 챙기실 수 있어요.\n\n`;
+    body += `📮 특별히 자주 챙기는 카테고리가 있으시면 댓글 남겨주세요! 다음 게시물에 반영해드릴게요.\n\n`;
+    body += `그리고 오늘 소개해드린 딜 중에 실제로 구매하셨다면 후기도 남겨주시면 좋아요. 다른 분들께도 큰 도움이 됩니다.\n\n`;
+    body += `좋은 쇼핑 되세요! 💝\n\n`;
+    body += `#세일추천 #오늘의세일 #${cat.replace(/\s+/g,'')} #핫딜 #어미새세일`;
+
+    const tags = ['세일추천','핫딜정보','오늘의세일',cat,`${cat}세일`,'실시간세일','알뜰쇼핑','베스트세일','어미새세일','추천'];
+
+    const imageGuide = [
+      `📸 썸네일: "오늘의 ${cat} 세일 BEST${items.length}" 오버레이 텍스트 + ${items.length}개 상품 콜라주 (밝은 색상)`,
+      `📸 본문 상단: "실시간 인기 세일" 배너 이미지 (조회수/좋아요 아이콘 강조)`,
+      ...items.map((it,i)=>{
+        const rank = i+1;
+        if(it.thumb){
+          return `📸 ${rank}위 상품 이미지 (⭐ 자동 URL 있음):\n     ${it.thumb}\n     → 이 URL 그대로 우클릭 → 이미지 저장 → 블로그 업로드`;
+        }
+        return `📸 ${rank}위 상품 이미지: 링크 열어서 대표 이미지 캡처 (${(it.title||'').slice(0,30)})`;
+      }),
+      `📸 마무리: "매일 아침 세일 정보 업데이트" 안내 배너 or 다음 게시물 티저`
+    ];
+
+    return {
+      title,
+      body,
+      tags,
+      imageGuide,
+      publishTime: '오전 9시 30분 ~ 10시 30분 (실시간 인기 정보 노출 최대)',
+      category: '쇼핑 정보',
+      sourceLinks: items.map(it=>({title:it.title, url:it.url, thumb:it.thumb, views:it.views, likes:it.likes, comments:it.comments}))
+    };
+  }
+
   /* --- 초안 자동 생성 (템플릿 기반; 이후 AI 훅으로 교체 가능) --- */
   function blogGenerateDraft(c){
+    // 어미새 그룹 후보면 실제 상품 데이터 기반 초안
+    if(c._emItems && c._emItems.length){
+      return _blogDraftFromEomisae(c);
+    }
     const t = c.type;
     const kw = c.keyword || c.title;
     const catLabel = BLOG_CAT_LABEL[c.category]||'';
@@ -12104,31 +12231,96 @@
     blogRender();
   }
 
+  /* ===== 어미새 실시간 세일 → 카테고리별 BEST3 후보 =====
+     조회수·좋아요·댓글 종합 점수로 정렬하고 category 필드로 그룹화.
+     각 그룹 상위 3개를 하나의 "그룹 카드" 후보로 만든다.
+     승인하면 그 3개 상품으로 긴 리뷰 게시글 초안이 자동 생성됨. */
+  function _blogScoreEomisae(it){
+    // 조회수 + 좋아요*15 + 댓글*5 (좋아요와 댓글이 강한 quality signal)
+    return (it.views||0) + (it.likes||0)*15 + (it.comments||0)*5;
+  }
+  function _blogGroupEomisae(items){
+    // category 필드 기준 그룹화. 없으면 board 라벨 사용.
+    const groups = {};
+    items.forEach(it=>{
+      const cat = (it.category && String(it.category).trim())
+        || (EM_BOARD_LABELS && EM_BOARD_LABELS[it.board])
+        || '기타';
+      if(!groups[cat]) groups[cat] = [];
+      groups[cat].push({...it, _score: _blogScoreEomisae(it)});
+    });
+    // 각 그룹 정렬 후 top3, 최소 2개 이상만 유지
+    const out = [];
+    Object.entries(groups).forEach(([cat, arr])=>{
+      arr.sort((a,b)=>b._score - a._score);
+      const top = arr.slice(0,3);
+      if(top.length < 2) return;
+      out.push({cat, items: top, totalScore: top.reduce((s,x)=>s+x._score,0)});
+    });
+    out.sort((a,b)=>b.totalScore - a.totalScore);
+    return out;
+  }
+  function _blogBuildCandidatesFromEomisae(groups){
+    const now = Date.now();
+    return groups.map((g,i)=>{
+      const [top1, top2, top3] = g.items;
+      const totalViews = g.items.reduce((s,x)=>s+(x.views||0),0);
+      const totalLikes = g.items.reduce((s,x)=>s+(x.likes||0),0);
+      const totalCmts  = g.items.reduce((s,x)=>s+(x.comments||0),0);
+      const meta = [
+        `TOP1 👁 ${(top1.views||0).toLocaleString()}`,
+        `❤️ ${totalLikes}`,
+        `💬 ${totalCmts}`
+      ];
+      return {
+        id: 'em-'+now+'-'+i+'-'+Math.random().toString(36).slice(2,6),
+        type: 'sale',
+        category: 'household', // 네이버 카테고리는 편의상 household (필터용, 실제 게시물 내용은 어미새 그룹 그대로)
+        title: `🔥 오늘 어미새 ${g.cat} 세일 BEST${g.items.length} (실시간 인기)`,
+        reason: `${g.cat} 카테고리 상위 ${g.items.length}개 · 조회수 ${totalViews.toLocaleString()} · ❤️ ${totalLikes} · 💬 ${totalCmts}`,
+        meta,
+        score: Math.min(99, Math.round(Math.log10(g.totalScore+10)*20)),
+        keyword: g.cat + ' 세일',
+        _emGroup: g.cat,
+        _emItems: g.items,
+        createdAt: now
+      };
+    });
+  }
+
+  async function blogLoadEomisae(opts){
+    opts = opts || {};
+    if(typeof fetchEomisaeSales !== 'function') return null;
+    let data;
+    try{ data = await fetchEomisaeSales({refresh: opts.refresh}); }
+    catch(e){ return null; }
+    if(!data || !Array.isArray(data.items) || !data.items.length) return null;
+    const groups = _blogGroupEomisae(data.items);
+    if(!groups.length) return null;
+    const candidates = _blogBuildCandidatesFromEomisae(groups);
+    // 기존 어미새 후보(em-) 갈아치우고, 사용자가 만든 non-em 후보(승인/보류/패스 남긴 것)는 보존
+    const cur = blogRead(BLOG_KEY_CAND, []);
+    const preserved = cur.filter(c => !String(c.id||'').startsWith('em-'));
+    blogWrite(BLOG_KEY_CAND, [...candidates, ...preserved]);
+    return {added: candidates.length, ts: data.ts};
+  }
+
   function blogRefreshCandidates(){
     const btn = document.querySelector('.blog-refresh-btn');
     if(btn) btn.classList.add('spin');
-    // MVP: 새 후보 pool 주입 (실제 크롤/AI 훅은 나중 단계)
-    setTimeout(()=>{
-      const now = Date.now();
-      const cands = blogRead(BLOG_KEY_CAND, []);
-      const existingKeywords = new Set(cands.map(c=>c.keyword));
-      const freshPool = [
-        {id:'fresh-'+now+'-1', type:'sale', category:'electronics', title:'네이버 쇼핑 이번 주 소형 가전 특가 정리', reason:'월요일 새 세일 리셋 · 트래픽 폭발 시간대', meta:['월간검색 76K','구매의도 ★★★★','신규 세일'], score:84, keyword:'소형가전 세일'},
-        {id:'fresh-'+now+'-2', type:'compare', category:'household', title:'가성비 vs 프리미엄 공기청정기 3종 비교', reason:'실내 공기질 관심 재점화 · 비교 콘텐츠 부족', meta:['월간검색 41K','비교 콘텐츠 부족','구매의도 ★★★★'], score:81, keyword:'공기청정기 비교'},
-        {id:'fresh-'+now+'-3', type:'guide', category:'furniture', title:'좁은 원룸에 딱 맞는 소파 고르는 5가지 기준', reason:'1인 가구 검색 안정적 · 롱테일 강력', meta:['월간검색 18K','시즌무관','롱테일 강함'], score:74, keyword:'원룸 소파 고르는법'},
-        {id:'fresh-'+now+'-4', type:'trend', category:'electronics', title:'뜨는 미니 프로젝터 진짜 쓸만한가', reason:'유튜브 리뷰 급증 · 홈시네마 관심 증가', meta:['월간검색 29K','리뷰 증가','신선도 ★★★★'], score:79, keyword:'미니 프로젝터 후기'},
-        {id:'fresh-'+now+'-5', type:'tip', category:'household', title:'제습기 여름에만 쓰지 마세요, 사계절 활용법', reason:'상시 검색 안정 · 정보성 강함', meta:['월간검색 15K','저품질 안전','재방문 유도'], score:71, keyword:'제습기 활용법'},
-      ].filter(c=>!existingKeywords.has(c.keyword)).map(c=>({...c, createdAt:now}));
-
-      if(!freshPool.length){
-        if(typeof toast==='function') toast('새 후보 없음 (기존과 중복). 잠시 후 다시 시도하세요','info');
-      } else {
-        blogWrite(BLOG_KEY_CAND, [...freshPool, ...cands]);
-        if(typeof toast==='function') toast(`새 후보 ${freshPool.length}개 추가`,'ok');
-      }
-      if(btn) btn.classList.remove('spin');
-      blogRender();
-    }, 700);
+    blogLoadEomisae({refresh:true})
+      .then(r=>{
+        if(!r){
+          if(typeof toast==='function') toast('어미새 세일 정보 불러오기 실패 (프록시 확인)','err');
+        } else {
+          if(typeof toast==='function') toast(`카테고리별 BEST 그룹 ${r.added}개 갱신됨`,'ok');
+        }
+      })
+      .catch(()=>{})
+      .finally(()=>{
+        if(btn) btn.classList.remove('spin');
+        blogRender();
+      });
   }
 
   function blogRender(){
@@ -12141,8 +12333,77 @@
     document.getElementById('blogCntPublished').textContent = blogRead(BLOG_KEY_PUB, []).length;
   }
 
+  /* ===== 아침 9시 자동 실행 =====
+     하루 첫 대시보드 접속이 오전 9시 이후면 자동으로:
+     1. 어미새 데이터 새로고침
+     2. 카테고리별 BEST3 후보 자동 승인 → 초안 대기로 이동
+     사장님이 아침에 열면 이미 카테고리별 긴 초안이 준비되어 있음. */
+  const BLOG_KEY_AUTORUN = 'brightbeed_blog_autorun_date';
+
+  async function blogAutoRun9AM(){
+    const now = new Date();
+    // 로컬 날짜 YYYY-MM-DD
+    const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const lastRun = localStorage.getItem(BLOG_KEY_AUTORUN);
+    if(lastRun === today) return; // 오늘 이미 실행됨
+    if(now.getHours() < 9) return; // 아직 오전 9시 전
+
+    // 어미새 데이터 최신화
+    const loaded = await blogLoadEomisae({refresh:true}).catch(()=>null);
+    if(!loaded){
+      // 실패해도 하루에 여러 번 안 돌게 마킹은 안 함
+      return;
+    }
+
+    // 오늘 자동 승인 대상: 어미새 후보 중 상위 N개
+    const AUTO_APPROVE_LIMIT = 3; // 하루 3개 카테고리 자동 초안 (트래픽 리듬 최적)
+    const cands = blogRead(BLOG_KEY_CAND, []).filter(c=>String(c.id||'').startsWith('em-'));
+    if(!cands.length) return;
+
+    const approved = blogRead(BLOG_KEY_APR, []);
+    // 이미 오늘 만들어진 카테고리는 skip
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const todayCatGroups = new Set(
+      approved.filter(a => (a.approvedAt||0) >= startOfToday).map(a => a._catGroup).filter(Boolean)
+    );
+
+    const toApprove = [];
+    for(const c of cands){
+      if(toApprove.length >= AUTO_APPROVE_LIMIT) break;
+      if(todayCatGroups.has(c._emGroup)) continue;
+      toApprove.push(c);
+      todayCatGroups.add(c._emGroup);
+    }
+    if(!toApprove.length){
+      localStorage.setItem(BLOG_KEY_AUTORUN, today);
+      return;
+    }
+
+    const approvedIds = new Set(toApprove.map(c=>c.id));
+    const remainingCands = blogRead(BLOG_KEY_CAND, []).filter(c=>!approvedIds.has(c.id));
+    blogWrite(BLOG_KEY_CAND, remainingCands);
+
+    const newApproved = toApprove.map(c=>({
+      id:'apr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+      candidateId:c.id,
+      title:c.title, type:c.type, category:c.category, keyword:c.keyword,
+      _catGroup: c._emGroup,
+      draft: blogGenerateDraft(c),
+      approvedAt: Date.now(),
+      auto: true
+    }));
+    blogWrite(BLOG_KEY_APR, [...newApproved, ...approved]);
+
+    localStorage.setItem(BLOG_KEY_AUTORUN, today);
+    if(typeof toast==='function') toast(`🌅 아침 9시 자동 생성: 초안 ${newApproved.length}개 대기 중`,'ok');
+  }
+
   function initBlogView(){
-    blogSeedInitial();
+    // 진입 시: 어미새 최신 데이터 fetch (background, non-blocking)
+    blogLoadEomisae().then(r=>{ if(r) blogRender(); }).catch(()=>{});
+    // 아침 9시 자동 초안 생성 시도 (오늘 첫 접속이면 실행)
+    blogAutoRun9AM().catch(()=>{});
+
     const savedTab = localStorage.getItem(BLOG_KEY_TAB) || 'candidates';
     _blogTab = savedTab;
     document.querySelectorAll('.blog-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===savedTab));
