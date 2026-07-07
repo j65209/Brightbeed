@@ -2065,6 +2065,24 @@
   .blog-btn.b-preview{background:var(--bg-2);color:var(--text-1);border:1px solid var(--line-2);flex:1.4}
   .blog-btn.b-preview:hover{background:#0a0b0d;color:#fff;border-color:#0a0b0d}
 
+  .blog-image-gallery{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px}
+  .blog-image-gallery-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:600;color:var(--text-1);letter-spacing:.02em}
+  .blog-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .blog-img-card{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:all .12s}
+  .blog-img-card:hover{border-color:var(--line-2);box-shadow:0 4px 10px rgba(0,0,0,.06)}
+  .blog-img-thumb-wrap{width:100%;aspect-ratio:1;background:var(--bg-3);position:relative;overflow:hidden}
+  .blog-img-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+  .blog-img-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:11px;text-align:center;padding:8px}
+  .blog-img-body{padding:8px 10px 10px;display:flex;flex-direction:column;gap:6px}
+  .blog-img-rank{font-size:14px;font-weight:700;color:#ff2e93;letter-spacing:.02em}
+  .blog-img-title{font-size:11px;color:var(--text-2);line-height:1.4;min-height:30px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .blog-img-dl{background:#0a0b0d;color:#fff;border:none;border-radius:6px;padding:6px 8px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--sans)}
+  .blog-img-dl:hover{background:#ff2e93}
+  .blog-img-dl:disabled{opacity:.6;cursor:wait}
+  .blog-img-dl-all{background:#ff2e93;padding:7px 12px;font-size:11.5px}
+  .blog-img-dl-all:hover{background:#e11d74}
+  .blog-image-gallery-hint{font-size:11.5px;color:var(--text-3);line-height:1.5;padding:8px 10px;background:var(--bg-1);border-radius:6px;border:1px dashed var(--line)}
+
   .blog-preview-overlay{position:fixed;inset:0;background:rgba(10,11,13,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;animation:blogPrevFade .18s ease}
   .blog-preview-overlay[hidden]{display:none}
   @keyframes blogPrevFade{from{opacity:0}to{opacity:1}}
@@ -11903,6 +11921,89 @@
     }).join('');
   }
 
+  /* ===== 이미지 다운로드 =====
+     어미새 썸네일 fetch → blob → save (원클릭 저장).
+     CORS 실패 시 새 탭 열어 사장님이 우클릭 저장. */
+  async function blogDownloadImage(url, filename){
+    if(!url) return;
+    try{
+      const r = await fetch(url, {mode:'cors', referrerPolicy:'no-referrer'});
+      if(!r.ok) throw new Error('http '+r.status);
+      const blob = await r.blob();
+      const a = document.createElement('a');
+      const objUrl = URL.createObjectURL(blob);
+      a.href = objUrl;
+      a.download = filename || ('image-'+Date.now()+'.jpg');
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(objUrl), 1000);
+      return true;
+    }catch(e){
+      // CORS fail → 새 탭 열기 (사장님 우클릭 저장)
+      window.open(url, '_blank', 'noopener');
+      if(typeof toast==='function') toast('이미지 새 탭 열림 → 우클릭 후 "이미지 저장"','info');
+      return false;
+    }
+  }
+  async function blogDownloadAllImages(urls, prefix){
+    if(!Array.isArray(urls) || !urls.length) return;
+    const btn = event && event.currentTarget;
+    if(btn){ btn.disabled=true; btn.dataset.origText = btn.innerHTML; btn.innerHTML='📥 저장 중…'; }
+    for(let i=0;i<urls.length;i++){
+      const url = urls[i];
+      if(!url) continue;
+      const ext = (url.match(/\.(jpe?g|png|webp|gif)(?:\?|$)/i)||[])[1] || 'jpg';
+      const fname = `${prefix||'blog'}-${String(i+1).padStart(2,'0')}.${ext}`;
+      await blogDownloadImage(url, fname);
+      // 브라우저 다운로드 팝업 겹침 방지 (500ms 간격)
+      await new Promise(r=>setTimeout(r, 500));
+    }
+    if(btn){ btn.disabled=false; btn.innerHTML = btn.dataset.origText || '📦 이미지 전체 저장'; }
+    if(typeof toast==='function') toast(`${urls.length}개 이미지 다운로드 요청 완료`,'ok');
+  }
+  window.blogDownloadImage = blogDownloadImage;
+  window.blogDownloadAllImages = blogDownloadAllImages;
+
+  /* 이미지 갤러리 HTML — 초안에 삽입할 실제 상품 이미지들 */
+  function blogRenderImageGallery(items, prefix){
+    if(!Array.isArray(items) || !items.length) return '';
+    const validItems = items.filter(it => it.thumb);
+    if(!validItems.length) return '';
+    const urls = validItems.map(it=>it.thumb);
+    const urlsJson = blogEscape(JSON.stringify(urls));
+    const prefixSafe = blogEscape(prefix||'blog');
+    const cards = validItems.map((it,i)=>{
+      const rank = ['🥇','🥈','🥉'][i]||`${i+1}위`;
+      const label = blogEscape((it.title||'').slice(0,45));
+      const ext = (it.thumb.match(/\.(jpe?g|png|webp|gif)(?:\?|$)/i)||[])[1] || 'jpg';
+      const fname = `${prefixSafe}-${String(i+1).padStart(2,'0')}.${ext}`;
+      return `<div class="blog-img-card">
+        <div class="blog-img-thumb-wrap">
+          <img src="${blogEscape(it.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+               onerror="this.parentElement.innerHTML='<div class=\\'blog-img-fb\\'>🐦 이미지 로드 실패</div>'"/>
+        </div>
+        <div class="blog-img-body">
+          <div class="blog-img-rank">${rank}</div>
+          <div class="blog-img-title">${label}</div>
+          <button class="blog-img-dl" onclick="blogDownloadImage('${blogEscape(it.thumb)}','${fname}')">💾 이 이미지 저장</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="blog-image-gallery">
+        <div class="blog-image-gallery-head">
+          <span>📸 게시글에 넣을 이미지 (${validItems.length}장)</span>
+          <button class="blog-img-dl blog-img-dl-all" onclick='blogDownloadAllImages(${urlsJson},"${prefixSafe}")'>📦 전체 저장</button>
+        </div>
+        <div class="blog-img-grid">${cards}</div>
+        <div class="blog-image-gallery-hint">
+          💡 저장한 이미지들을 순서대로 네이버 블로그 에디터에 드래그해서 넣으세요. 파일명이 순서(01, 02, 03)대로 되어 있어 헷갈리지 않습니다.
+        </div>
+      </div>
+    `;
+  }
+
   /* ===== 초안 미리보기 모달 =====
      승인 전에 초안 전체를 볼 수 있도록. 초안은 실시간 생성 (localStorage에 저장 안 함).
      모달 안에서 승인/보류/패스 결정 + 본문 즉시 복사도 가능. */
@@ -11945,10 +12046,12 @@
           <div class="blog-draft-body" id="previewBody">${blogEscape(d.body||'')}</div>
         </div>
 
+        ${blogRenderImageGallery(c._emItems, (c._emGroup||'blog')+'-'+(new Date().getMonth()+1)+(new Date().getDate()))}
+
         <div class="blog-draft-section">
-          <div class="blog-draft-label">🖼️ 이미지 가이드 (순서대로 삽입)</div>
+          <div class="blog-draft-label">🖼️ 이미지 삽입 가이드 (순서 참고)</div>
           <div class="blog-image-guide">
-            <b>본문 흐름에 맞춰 아래 이미지를 준비하세요:</b>
+            <b>본문 흐름에 맞춰 아래 순서로 이미지를 배치하세요:</b>
             <ol>${imgList}</ol>
           </div>
         </div>
@@ -12260,12 +12363,14 @@
             <div class="blog-draft-body" id="${bodyId}">${blogEscape(d.body||'')}</div>
           </div>
 
+          ${blogRenderImageGallery(d.sourceLinks, (a._catGroup||a.keyword||'blog').replace(/\s+/g,'')+'-'+(new Date(a.approvedAt||Date.now()).getMonth()+1)+(new Date(a.approvedAt||Date.now()).getDate()))}
+
           <div class="blog-draft-section">
             <div class="blog-draft-label">
-              🖼️ 이미지 가이드 (이런 이미지를 순서대로 넣으세요)
+              🖼️ 이미지 삽입 가이드 (순서 참고)
             </div>
             <div class="blog-image-guide">
-              <b>본문 흐름에 맞춰 아래 이미지를 준비하세요:</b>
+              <b>본문 흐름에 맞춰 아래 순서로 이미지를 배치하세요:</b>
               <ol>${imgList}</ol>
             </div>
           </div>
