@@ -2062,6 +2062,28 @@
   .blog-empty-title{font-size:15px;font-weight:600;color:var(--text-1)}
   .blog-empty-sub{font-size:12.5px;color:var(--text-3)}
 
+  .blog-btn.b-preview{background:var(--bg-2);color:var(--text-1);border:1px solid var(--line-2);flex:1.4}
+  .blog-btn.b-preview:hover{background:#0a0b0d;color:#fff;border-color:#0a0b0d}
+
+  .blog-preview-overlay{position:fixed;inset:0;background:rgba(10,11,13,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;animation:blogPrevFade .18s ease}
+  .blog-preview-overlay[hidden]{display:none}
+  @keyframes blogPrevFade{from{opacity:0}to{opacity:1}}
+  .blog-preview-modal{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.35);width:min(880px,100%);max-height:calc(100vh - 40px);display:flex;flex-direction:column;overflow:hidden;animation:blogPrevSlide .22s ease}
+  @keyframes blogPrevSlide{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .blog-preview-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--bg-2);flex-shrink:0}
+  .blog-preview-eyebrow{flex:1;font-size:12px;font-weight:600;color:var(--text-1);letter-spacing:.02em}
+  .blog-preview-close{background:transparent;border:none;font-size:28px;line-height:1;color:var(--text-3);cursor:pointer;padding:0 6px;border-radius:6px;transition:all .12s}
+  .blog-preview-close:hover{background:var(--bg-3);color:var(--text-0)}
+  .blog-preview-body{flex:1;overflow-y:auto;padding:22px 24px;min-height:0}
+  .blog-preview-body .blog-draft{background:transparent;border:none;padding:0;gap:16px}
+  .blog-preview-body .blog-draft-head{padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .blog-preview-body .blog-draft-body{max-height:none}
+  .blog-preview-actions{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--line);background:var(--bg-2);flex-shrink:0;flex-wrap:wrap}
+  .blog-preview-actions .blog-btn{flex:1;padding:12px;font-size:13px;min-width:120px}
+  .blog-card{cursor:default}
+  .blog-card-title{cursor:pointer}
+  .blog-card-title:hover{color:#ff2e93}
+
   .sub-module.m-blog .sub-module-icon{color:#ff2e93}
   .sub-module.m-blog .sub-module-tag{color:#ff2e93;border-color:rgba(255,46,147,.45);border-style:solid;background:rgba(255,46,147,.06)}
 
@@ -4814,6 +4836,18 @@
           <div class="blog-empty-icon">📮</div>
           <div class="blog-empty-title">발행 이력이 없습니다</div>
           <div class="blog-empty-sub">초안을 네이버 블로그에 붙여넣고 발행하신 후 "발행완료" 버튼을 누르세요</div>
+        </div>
+      </div>
+
+      <!-- 초안 미리보기 모달 -->
+      <div class="blog-preview-overlay" id="blogPreviewOverlay" hidden onclick="blogClosePreview(event)">
+        <div class="blog-preview-modal" onclick="event.stopPropagation()">
+          <div class="blog-preview-head">
+            <div class="blog-preview-eyebrow">👀 초안 미리보기 · 승인 전 전체 확인</div>
+            <button class="blog-preview-close" onclick="blogClosePreview()" aria-label="닫기">×</button>
+          </div>
+          <div class="blog-preview-body" id="blogPreviewBody"></div>
+          <div class="blog-preview-actions" id="blogPreviewActions"></div>
         </div>
       </div>
     </div>
@@ -11855,18 +11889,131 @@
             <span class="blog-card-cat">${BLOG_CAT_LABEL[c.category]||c.category}</span>
             <span class="blog-card-score">기회점수 <b>${c.score||0}</b></span>
           </div>
-          <div class="blog-card-title">${blogEscape(c.title)}</div>
+          <div class="blog-card-title" onclick="blogPreview('${c.id}')" title="클릭해서 초안 전체 미리보기">${blogEscape(c.title)}</div>
           <div class="blog-card-reason">${blogEscape(c.reason)}</div>
           <div class="blog-card-meta">${metaHtml}</div>
           ${itemsPreview}
           <div class="blog-card-actions">
-            <button class="blog-btn b-approve" onclick="blogApprove('${c.id}')">${c._emItems?'👍 이 그룹으로 초안 만들기':'👍 승인'}</button>
-            <button class="blog-btn b-hold" onclick="blogHold('${c.id}')">⏸ 보류</button>
-            <button class="blog-btn b-pass" onclick="blogPass('${c.id}')">👎 패스</button>
+            <button class="blog-btn b-preview" onclick="blogPreview('${c.id}')">👀 초안 전체 보기</button>
+            <button class="blog-btn b-approve" onclick="blogApprove('${c.id}')">👍 승인</button>
+            <button class="blog-btn b-hold" onclick="blogHold('${c.id}')">⏸</button>
+            <button class="blog-btn b-pass" onclick="blogPass('${c.id}')">👎</button>
           </div>
         </div>`;
     }).join('');
   }
+
+  /* ===== 초안 미리보기 모달 =====
+     승인 전에 초안 전체를 볼 수 있도록. 초안은 실시간 생성 (localStorage에 저장 안 함).
+     모달 안에서 승인/보류/패스 결정 + 본문 즉시 복사도 가능. */
+  let _blogPreviewId = null;
+
+  function blogPreview(id){
+    const cands = blogRead(BLOG_KEY_CAND, []);
+    const c = cands.find(x=>x.id===id);
+    if(!c) return;
+    _blogPreviewId = id;
+
+    // 초안 실시간 생성 (승인은 아직 안 함)
+    const draft = blogGenerateDraft(c);
+    const d = draft || {};
+    const tagText = (d.tags||[]).map(t=>'#'+t).join(' ');
+    const tagChips = (d.tags||[]).map(t=>`<span class="blog-draft-tag">#${blogEscape(t)}</span>`).join('');
+    const imgList = (d.imageGuide||[]).map(g=>`<li>${blogEscape(g)}</li>`).join('');
+
+    document.getElementById('blogPreviewBody').innerHTML = `
+      <div class="blog-draft">
+        <div class="blog-draft-head">
+          <span class="blog-card-type t-${c.type}">${BLOG_TYPE_LABEL[c.type]||c.type}</span>
+          <span class="blog-card-cat">${BLOG_CAT_LABEL[c.category]||c.category}</span>
+          <span class="blog-card-score">기회점수 <b>${c.score||0}</b></span>
+        </div>
+
+        <div class="blog-draft-section">
+          <div class="blog-draft-label">
+            📌 제목
+            <button class="blog-copy-btn" onclick="blogCopyEl('previewTitle',this)">📋 복사</button>
+          </div>
+          <div class="blog-draft-title" id="previewTitle" style="font-size:17px;font-weight:700;color:var(--text-0);line-height:1.4;padding:8px 0">${blogEscape(d.title||c.title)}</div>
+        </div>
+
+        <div class="blog-draft-section">
+          <div class="blog-draft-label">
+            📝 본문 (네이버 블로그 에디터에 붙여넣기)
+            <button class="blog-copy-btn" onclick="blogCopyEl('previewBody',this)">📋 본문 전체 복사</button>
+          </div>
+          <div class="blog-draft-body" id="previewBody">${blogEscape(d.body||'')}</div>
+        </div>
+
+        <div class="blog-draft-section">
+          <div class="blog-draft-label">🖼️ 이미지 가이드 (순서대로 삽입)</div>
+          <div class="blog-image-guide">
+            <b>본문 흐름에 맞춰 아래 이미지를 준비하세요:</b>
+            <ol>${imgList}</ol>
+          </div>
+        </div>
+
+        <div class="blog-draft-section">
+          <div class="blog-draft-label">
+            🏷️ 태그
+            <button class="blog-copy-btn" data-tags="${blogEscape(tagText)}" onclick="blogCopyText(this.dataset.tags,this)">📋 복사</button>
+          </div>
+          <div class="blog-draft-tags">${tagChips}</div>
+        </div>
+
+        <div class="blog-draft-section">
+          <div class="blog-draft-label">⏰ 발행 가이드</div>
+          <div class="blog-image-guide">
+            <b>추천 발행 시간:</b> ${blogEscape(d.publishTime||'평일 저녁')}<br>
+            <b>추천 카테고리:</b> ${blogEscape(d.category||'')}<br>
+            <b>주제 집중도:</b> ✅ 쇼핑 정보 (C-Rank 안전)
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('blogPreviewActions').innerHTML = `
+      <button class="blog-btn b-approve" onclick="blogApproveFromPreview()">👍 이 초안 승인 → 대기함 이동</button>
+      <button class="blog-btn b-hold" onclick="blogHoldFromPreview()">⏸ 보류</button>
+      <button class="blog-btn b-pass" onclick="blogPassFromPreview()">👎 패스 (폐기)</button>
+      <button class="blog-btn b-preview" onclick="blogClosePreview()">← 닫기</button>
+    `;
+
+    document.getElementById('blogPreviewOverlay').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function blogClosePreview(e){
+    // overlay 클릭이면 e.target === overlay인 경우만 닫음
+    if(e && e.target && e.target !== document.getElementById('blogPreviewOverlay') && e.type==='click') return;
+    document.getElementById('blogPreviewOverlay').hidden = true;
+    document.body.style.overflow = '';
+    _blogPreviewId = null;
+  }
+  function blogApproveFromPreview(){
+    const id = _blogPreviewId; if(!id) return;
+    blogClosePreview();
+    blogApprove(id);
+  }
+  function blogHoldFromPreview(){
+    const id = _blogPreviewId; if(!id) return;
+    blogHold(id);
+    // hold 는 카드가 남아있으니 모달도 유지하고 렌더만 갱신 안 함
+    blogClosePreview();
+  }
+  function blogPassFromPreview(){
+    const id = _blogPreviewId; if(!id) return;
+    if(!confirm('이 후보를 폐기하시겠습니까?')) return;
+    blogClosePreview();
+    blogPass(id);
+  }
+
+  // ESC로 닫기
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !document.getElementById('blogPreviewOverlay').hidden){
+      blogClosePreview();
+    }
+  });
 
   function blogApprove(id){
     const cands = blogRead(BLOG_KEY_CAND, []);
@@ -12440,6 +12587,11 @@
   window.blogRefreshCandidates = blogRefreshCandidates;
   window.blogCopyEl = blogCopyEl;
   window.blogCopyText = blogCopyText;
+  window.blogPreview = blogPreview;
+  window.blogClosePreview = blogClosePreview;
+  window.blogApproveFromPreview = blogApproveFromPreview;
+  window.blogHoldFromPreview = blogHoldFromPreview;
+  window.blogPassFromPreview = blogPassFromPreview;
 
   init();
 </script>
