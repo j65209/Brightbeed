@@ -692,12 +692,37 @@
     font-size:11px;color:var(--text-3);padding:3px 8px;
     background:var(--bg-3);border-radius:4px
   }
-  #naverBestUpdated{margin-left:10px;font-size:11px;color:var(--text-3)}
+  .nb-embed{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    margin-bottom:16px;overflow:hidden
+  }
+  .nb-embed[open]{border-color:rgba(34,211,238,.35)}
+  .nb-embed-summary{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 16px;cursor:pointer;list-style:none;user-select:none
+  }
+  .nb-embed-summary::-webkit-details-marker{display:none}
+  .nb-embed-summary:hover{background:var(--bg-3)}
+  .nb-embed-title{font-size:13px;font-weight:700;color:var(--text-1)}
+  .nb-embed-sub{font-size:11px;color:var(--text-3);font-weight:500;margin-left:6px}
+  .nb-embed-meta{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-3)}
+  .nb-embed-count{padding:2px 8px;background:var(--bg-3);border-radius:4px}
+  .nb-embed-updated{color:var(--text-3)}
+  .nb-embed-updated.nb-error{color:#f87171}
+  .nb-embed-chevron{transition:transform .18s;color:var(--text-3);font-size:12px}
+  .nb-embed[open] .nb-embed-chevron{transform:rotate(180deg)}
+  .nb-embed-body{padding:0 16px 14px;border-top:1px solid var(--line)}
+  .nb-embed-toolbar{display:flex;justify-content:flex-end;padding:10px 0 12px}
+  #naverBestUpdated{font-size:11px;color:var(--text-3)}
   #naverBestUpdated.nb-error{color:#f87171}
   @media (max-width: 720px){
     .nb-grid{grid-template-columns:1fr}
     .nb-head{padding:12px 14px}
     .nb-title{font-size:13px}
+    .nb-embed-summary{padding:10px 12px}
+    .nb-embed-body{padding:0 12px 10px}
+    .nb-embed-title{font-size:12px}
+    .nb-embed-meta{font-size:10px}
   }
 
   /* ===== 콰이디에어 리스트 — 모바일 (≤720px) 카드 레이아웃 ===== */
@@ -3743,23 +3768,6 @@
       </div>
     </div>
 
-    <!-- 블로그 트래픽 툴 — 트렌드 · 키워드 · 유입 소재 -->
-    <div class="sub-modules-section">
-      <div class="sub-modules-eyebrow">
-        <span class="folder-icon">📈</span>
-        <span class="folder-label">블로그 트래픽 툴</span>
-        <span class="folder-meta"><b id="blogTrafficCount">—</b> 도구</span>
-      </div>
-      <div class="sub-modules">
-        <div class="sub-module m-naverbest" onclick="triggerNaverBest()">
-          <div class="sub-module-icon">🔥</div>
-          <div class="sub-module-title">오늘의 쇼핑 트렌드</div>
-          <div class="sub-module-sub">네이버쇼핑 인기 검색 · 카테고리별 · 식품 제외</div>
-          <div class="sub-module-tag">DAILY</div>
-        </div>
-      </div>
-    </div>
-
     <!-- 개인 (마스터 전용) -->
     <div class="sub-modules-section master-only">
       <div class="sub-modules-eyebrow">
@@ -4051,35 +4059,6 @@
       </div>
     </div>
   </div><!-- /viewLg -->
-
-  <!-- ============ 네이버쇼핑 오늘의 트렌드 (식품 제외) ============ -->
-  <div class="view" id="viewNaverBest" hidden>
-    <div class="view-head">
-      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-        홈
-      </button>
-      <h1 class="view-title">쇼핑 트렌드<span class="view-title-sub">/ 네이버쇼핑 오늘의 인기</span><span id="naverBestUpdated" class="sales-updated-tag"></span></h1>
-    </div>
-    <div class="nb-wrap">
-      <div class="nb-head">
-        <div class="nb-title">🔥 오늘의 인기 트렌드 <span class="nb-sub">식품 제외 · TOP 20 중</span></div>
-        <div class="nb-meta">
-          <span id="naverBestCount">—</span>
-          <button class="nb-refresh-btn" id="naverBestRefreshBtn" onclick="refreshNaverBest()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-            새로고침
-          </button>
-        </div>
-      </div>
-      <div id="naverBestEmpty" class="nb-empty">불러오는 중…</div>
-      <div class="nb-grid" id="naverBestGrid"></div>
-      <div class="nb-excluded" id="naverBestExcluded" hidden>
-        <div class="nb-excluded-title">참고 · 식품 카테고리 제외 항목</div>
-        <div class="nb-excluded-list" id="naverBestExcludedList"></div>
-      </div>
-    </div>
-  </div><!-- /viewNaverBest -->
 
   <!-- ============ CS팀 — FAQ / 템플릿 / 메모장 ============ -->
   <div class="view" id="viewCs" hidden>
@@ -4689,6 +4668,32 @@
     </div>
 
     <div class="blog-wrap">
+      <!-- 오늘의 쇼핑 트렌드 (네이버쇼핑 인기 검색 · 식품 제외) — 접힘 가능 -->
+      <details class="nb-embed" id="naverBestEmbed">
+        <summary class="nb-embed-summary">
+          <span class="nb-embed-title">🔥 오늘의 쇼핑 트렌드 <span class="nb-embed-sub">네이버쇼핑 · 식품 제외</span></span>
+          <span class="nb-embed-meta">
+            <span id="naverBestCount" class="nb-embed-count">—</span>
+            <span id="naverBestUpdated" class="nb-embed-updated"></span>
+            <span class="nb-embed-chevron" aria-hidden="true">▾</span>
+          </span>
+        </summary>
+        <div class="nb-embed-body">
+          <div class="nb-embed-toolbar">
+            <button class="nb-refresh-btn" id="naverBestRefreshBtn" onclick="event.stopPropagation();refreshNaverBest()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              새로고침
+            </button>
+          </div>
+          <div id="naverBestEmpty" class="nb-empty">불러오는 중…</div>
+          <div class="nb-grid" id="naverBestGrid"></div>
+          <div class="nb-excluded" id="naverBestExcluded" hidden>
+            <div class="nb-excluded-title">참고 · 식품 카테고리 제외 항목</div>
+            <div class="nb-excluded-list" id="naverBestExcludedList"></div>
+          </div>
+        </div>
+      </details>
+
       <div class="blog-tabs" id="blogTabs">
         <button class="blog-tab active" data-tab="candidates" onclick="blogTab('candidates')">
           🔥 오늘의 후보 <span class="blog-tab-count" id="blogCntCandidates">0</span>
@@ -6041,8 +6046,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewBlog','viewNaverBest'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewBlog:'blog',viewNaverBest:'naverbest'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewBlog'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewBlog:'blog'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -10641,22 +10646,13 @@
     window.ngFillBuilder = ngFillBuilder;
   })();
 
-  /* 홈 폴더 카드 자동 카운트 — 각 subModulesCount / blogTrafficCount 를 폴더별로 계산 */
+  /* 업무용 툴 폴더 — 카드 개수 자동 카운트 (자기 섹션 내부만) */
   (function(){
-    function countIn(sectionEl){
-      if(!sectionEl) return 0;
-      return sectionEl.querySelectorAll('.sub-modules > .sub-module').length;
-    }
-    const workEl = document.getElementById('subModulesCount');
-    if(workEl){
-      const section = workEl.closest('.sub-modules-section');
-      workEl.textContent = countIn(section);
-    }
-    const blogEl = document.getElementById('blogTrafficCount');
-    if(blogEl){
-      const section = blogEl.closest('.sub-modules-section');
-      blogEl.textContent = countIn(section);
-    }
+    const el = document.getElementById('subModulesCount');
+    if(!el) return;
+    const section = el.closest('.sub-modules-section');
+    if(!section) return;
+    el.textContent = section.querySelectorAll('.sub-modules > .sub-module').length;
   })();
 
   /* ===== 벤더팀 — 공구 일정 캘린더 (brightbeed@gmail.com 공개 iCal, /cal 프록시) ===== */
@@ -11951,6 +11947,19 @@
     document.getElementById('blogPanelApproved').hidden = savedTab!=='approved';
     document.getElementById('blogPanelPublished').hidden = savedTab!=='published';
     blogRender();
+    // 네이버쇼핑 오늘의 트렌드 — 접힘 상태 복원 + 항상 최신값 로드
+    const nb = document.getElementById('naverBestEmbed');
+    if(nb){
+      const openSaved = localStorage.getItem('brightbeed_naverbest_open');
+      nb.open = openSaved === '1';
+      if(!nb.dataset.wired){
+        nb.addEventListener('toggle', ()=>{
+          localStorage.setItem('brightbeed_naverbest_open', nb.open ? '1' : '0');
+        });
+        nb.dataset.wired = '1';
+      }
+    }
+    if(typeof renderNaverBest==='function') renderNaverBest().catch(()=>{});
   }
 
   window.triggerBlog = triggerBlog;
