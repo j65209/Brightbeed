@@ -2065,9 +2065,7 @@
   .blog-btn.b-preview{background:var(--bg-2);color:var(--text-1);border:1px solid var(--line-2);flex:1.4}
   .blog-btn.b-preview:hover{background:#0a0b0d;color:#fff;border-color:#0a0b0d}
 
-  .blog-image-gallery{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px}
-  .blog-image-gallery-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:600;color:var(--text-1);letter-spacing:.02em}
-  .blog-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .blog-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
   .blog-img-card{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:all .12s}
   .blog-img-card:hover{border-color:var(--line-2);box-shadow:0 4px 10px rgba(0,0,0,.06)}
   .blog-img-thumb-wrap{width:100%;aspect-ratio:1;background:var(--bg-3);position:relative;overflow:hidden}
@@ -2087,33 +2085,55 @@
   .blog-img-dl-all{background:var(--bg-3);color:var(--text-1);padding:7px 12px;font-size:11.5px;border:1px solid var(--line)}
   .blog-img-dl-all:hover{background:var(--line-2);color:var(--text-0)}
   .blog-image-gallery-actions{display:flex;gap:6px}
-  .blog-image-gallery-hint{font-size:11.5px;color:var(--text-3);line-height:1.5;padding:8px 10px;background:var(--bg-1);border-radius:6px;border:1px dashed var(--line)}
+  .blog-image-gallery-hint{font-size:11.5px;color:var(--text-3);line-height:1.5;padding:8px 10px;background:var(--bg-2);border-radius:6px;border:1px dashed var(--line)}
+  .blog-image-gallery-hint b{color:var(--text-1)}
 
-  .blog-phrase-bank{background:linear-gradient(180deg,rgba(255,46,147,.04),rgba(255,107,53,.03));border:1px solid rgba(255,46,147,.25);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
-  .blog-phrase-bank-head{display:flex;align-items:center;justify-content:space-between}
-  .blog-phrase-bank-title{font-size:13px;font-weight:700;color:#ff2e93;letter-spacing:.01em}
-  .blog-phrase-bank-intro{font-size:12px;color:var(--text-2);line-height:1.6;background:var(--bg-1);border-radius:8px;padding:10px 12px;border:1px solid var(--line)}
+  /* ===== 깔끔한 접이식 섹션 (미리보기·초안 대기 공용) ===== */
+  .blog-draft-clean{display:flex;flex-direction:column;gap:8px}
+  .blog-draft-head-clean{display:flex;align-items:center;gap:6px;padding-bottom:4px}
+
+  .blog-title-card{display:flex;align-items:center;gap:10px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .blog-title-card-label{font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.02em;flex-shrink:0}
+  .blog-title-card-text{flex:1;font-size:14.5px;font-weight:700;color:var(--text-0);line-height:1.4;letter-spacing:-.01em;min-width:0}
+
+  .blog-sec{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:border-color .12s}
+  .blog-sec[open]{border-color:var(--line-2)}
+  .blog-sec-summary{cursor:pointer;padding:10px 14px;display:flex;align-items:center;gap:8px;list-style:none;user-select:none;transition:background .12s;min-height:38px}
+  .blog-sec-summary::-webkit-details-marker{display:none}
+  .blog-sec-summary::marker{display:none;content:''}
+  .blog-sec-summary:hover{background:var(--bg-2)}
+  .blog-sec[open] .blog-sec-summary{background:var(--bg-2);border-bottom:1px solid var(--line)}
+  .blog-sec-icon{font-size:14px;flex-shrink:0}
+  .blog-sec-label{font-size:12.5px;font-weight:600;color:var(--text-0);flex-shrink:0;letter-spacing:.01em}
+  .blog-sec-meta{background:var(--bg-3);color:var(--text-2);font-size:10.5px;padding:2px 7px;border-radius:10px;font-weight:600;font-family:var(--mono);flex-shrink:0}
+  .blog-sec-spacer{flex:1}
+  .blog-sec-chevron{color:var(--text-3);font-size:12px;transition:transform .18s;flex-shrink:0}
+  .blog-sec[open] .blog-sec-chevron{transform:rotate(180deg)}
+  .blog-sec-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+
+  .blog-sec-action{background:#0a0b0d;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--sans);white-space:nowrap;flex-shrink:0}
+  .blog-sec-action:hover{background:#ff2e93}
+  .blog-sec-action.copied{background:#22c55e}
+
+  /* 표현 사전 안쪽 그룹 (blog-sec 안에 중첩됨) */
+  .blog-phrase-bank-intro{font-size:12px;color:var(--text-2);line-height:1.55;padding:8px 10px;background:rgba(255,46,147,.05);border:1px dashed rgba(255,46,147,.3);border-radius:7px}
   .blog-phrase-bank-intro b{color:#ff2e93;font-weight:700}
-  .blog-phrase-group{background:var(--bg-1);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .blog-phrase-group{background:var(--bg-2);border:1px solid var(--line);border-radius:7px;overflow:hidden}
   .blog-phrase-group[open]{border-color:var(--line-2)}
-  .blog-phrase-summary{cursor:pointer;padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;color:var(--text-1);list-style:none;user-select:none;transition:background .12s}
+  .blog-phrase-summary{cursor:pointer;padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--text-1);list-style:none;user-select:none;transition:background .12s}
   .blog-phrase-summary::-webkit-details-marker{display:none}
-  .blog-phrase-summary:hover{background:var(--bg-2)}
-  .blog-phrase-group[open] .blog-phrase-summary{background:var(--bg-2);border-bottom:1px solid var(--line)}
-  .blog-phrase-icon{font-size:14px;flex-shrink:0}
+  .blog-phrase-summary:hover{background:var(--bg-3)}
+  .blog-phrase-group[open] .blog-phrase-summary{background:var(--bg-3);border-bottom:1px solid var(--line)}
+  .blog-phrase-icon{font-size:13px;flex-shrink:0}
   .blog-phrase-label{font-weight:600;color:var(--text-0);flex-shrink:0}
-  .blog-phrase-count{background:var(--bg-3);color:var(--text-2);font-size:10.5px;padding:2px 7px;border-radius:10px;font-weight:600;font-family:var(--mono);flex-shrink:0}
-  .blog-phrase-hint{font-size:11px;color:var(--text-3);margin-left:auto;font-style:italic}
-  .blog-phrase-list{padding:8px;display:flex;flex-direction:column;gap:6px}
-  .blog-phrase-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-2);border:1px solid transparent;border-radius:6px;transition:all .12s}
+  .blog-phrase-count{background:var(--bg-1);color:var(--text-2);font-size:10px;padding:1px 6px;border-radius:9px;font-weight:600;font-family:var(--mono);flex-shrink:0;margin-left:auto}
+  .blog-phrase-list{padding:6px;display:flex;flex-direction:column;gap:4px;background:var(--bg-1)}
+  .blog-phrase-item{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg-2);border:1px solid transparent;border-radius:5px;transition:all .12s}
   .blog-phrase-item:hover{background:var(--bg-3);border-color:var(--line-2)}
-  .blog-phrase-text{flex:1;font-size:12.5px;line-height:1.55;color:var(--text-1)}
-  .blog-phrase-copy{background:transparent;border:none;padding:4px 6px;border-radius:5px;font-size:12px;cursor:pointer;color:var(--text-3);transition:all .12s;flex-shrink:0}
+  .blog-phrase-text{flex:1;font-size:12px;line-height:1.5;color:var(--text-1)}
+  .blog-phrase-copy{background:transparent;border:none;padding:3px 5px;border-radius:4px;font-size:11px;cursor:pointer;color:var(--text-3);transition:all .12s;flex-shrink:0}
   .blog-phrase-copy:hover{background:#0a0b0d;color:#fff}
   .blog-phrase-copy.copied{background:#22c55e;color:#fff}
-  @media(max-width:640px){
-    .blog-phrase-hint{display:none}
-  }
 
   .blog-preview-overlay{position:fixed;inset:0;background:rgba(10,11,13,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;animation:blogPrevFade .18s ease}
   .blog-preview-overlay[hidden]{display:none}
@@ -2124,9 +2144,8 @@
   .blog-preview-eyebrow{flex:1;font-size:12px;font-weight:600;color:var(--text-1);letter-spacing:.02em}
   .blog-preview-close{background:transparent;border:none;font-size:28px;line-height:1;color:var(--text-3);cursor:pointer;padding:0 6px;border-radius:6px;transition:all .12s}
   .blog-preview-close:hover{background:var(--bg-3);color:var(--text-0)}
-  .blog-preview-body{flex:1;overflow-y:auto;padding:22px 24px;min-height:0}
-  .blog-preview-body .blog-draft{background:transparent;border:none;padding:0;gap:16px}
-  .blog-preview-body .blog-draft-head{padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .blog-preview-body{flex:1;overflow-y:auto;padding:18px 20px;min-height:0}
+  .blog-preview-body .blog-draft{background:transparent;border:none;padding:0}
   .blog-preview-body .blog-draft-body{max-height:none}
   .blog-preview-actions{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--line);background:var(--bg-2);flex-shrink:0;flex-wrap:wrap}
   .blog-preview-actions .blog-btn{flex:1;padding:12px;font-size:13px;min-width:120px}
@@ -12064,6 +12083,23 @@
   window.blogDownloadImage = blogDownloadImage;
   window.blogDownloadAllImages = blogDownloadAllImages;
 
+  /* 접이식 섹션 헬퍼 — 초안 미리보기/대기 화면을 깔끔하게 유지.
+     open=true 면 기본 펼침. actionHtml 은 요약줄 오른쪽에 붙는 버튼 (펼치지 않고도 실행 가능). */
+  function blogSection(cfg){
+    const { icon, label, meta, actionHtml, contentHtml, open } = cfg || {};
+    return `<details class="blog-sec"${open?' open':''}>
+      <summary class="blog-sec-summary">
+        <span class="blog-sec-icon">${icon||''}</span>
+        <span class="blog-sec-label">${blogEscape(label||'')}</span>
+        ${meta?`<span class="blog-sec-meta">${blogEscape(meta)}</span>`:''}
+        <span class="blog-sec-spacer"></span>
+        ${actionHtml||''}
+        <span class="blog-sec-chevron">▾</span>
+      </summary>
+      <div class="blog-sec-body">${contentHtml||''}</div>
+    </details>`;
+  }
+
   /* 대체 표현 사전 HTML — 사장님이 붙여넣기 후 부분 대체하며 편집 흔적을 남기게 함 */
   const BLOG_PHRASE_LABELS = {
     opening:      { icon:'👋', label:'오프닝 (도입)', hint:'게시글 시작할 때 인사·소개용' },
@@ -12078,12 +12114,12 @@
     closing:      { icon:'🎁', label:'클로징 (마무리)', hint:'게시글 마무리할 때' }
   };
 
-  function blogRenderPhraseBank(phraseBank){
+  function blogRenderPhraseBankBody(phraseBank){
     if(!phraseBank || typeof phraseBank !== 'object') return '';
     const sections = Object.entries(BLOG_PHRASE_LABELS).map(([key, meta])=>{
       const phrases = phraseBank[key] || [];
       if(!phrases.length) return '';
-      const items = phrases.map((p,i)=>{
+      const items = phrases.map(p=>{
         const esc = blogEscape(p);
         return `<div class="blog-phrase-item">
           <span class="blog-phrase-text">${esc}</span>
@@ -12094,26 +12130,30 @@
         <summary class="blog-phrase-summary">
           <span class="blog-phrase-icon">${meta.icon}</span>
           <span class="blog-phrase-label">${meta.label}</span>
-          <span class="blog-phrase-count">${phrases.length}개 후보</span>
-          <span class="blog-phrase-hint">${meta.hint}</span>
+          <span class="blog-phrase-count">${phrases.length}</span>
         </summary>
         <div class="blog-phrase-list">${items}</div>
       </details>`;
     }).join('');
 
     return `
-      <div class="blog-phrase-bank">
-        <div class="blog-phrase-bank-head">
-          <span class="blog-phrase-bank-title">✨ 대체 표현 사전 — 붙여넣기 후 부분 교체용</span>
-        </div>
-        <div class="blog-phrase-bank-intro">
-          초안을 그대로 붙여넣지 마시고 <b>일부 문장을 아래 후보로 교체</b>하면서 편집 흔적을 남기세요.
-          이렇게 하면 네이버 저품질 감지 회피 + 매일 다른 문체 유지가 가능합니다.
-          문장 옆 📋 클릭하면 클립보드 복사됩니다.
-        </div>
-        ${sections}
+      <div class="blog-phrase-bank-intro">
+        붙여넣기 후 <b>일부 문장을 대체</b>하면서 편집 흔적을 남기면 저품질 감지 회피에 큰 도움이 됩니다.
       </div>
+      ${sections}
     `;
+  }
+  function blogRenderPhraseBank(phraseBank){
+    if(!phraseBank) return '';
+    const body = blogRenderPhraseBankBody(phraseBank);
+    if(!body) return '';
+    // 총 후보 개수 계산
+    let total = 0;
+    Object.values(phraseBank).forEach(arr=>{ if(Array.isArray(arr)) total += arr.length; });
+    return blogSection({
+      icon:'✨', label:'대체 표현 사전', meta: total+'개 후보',
+      contentHtml: body, open:false
+    });
   }
 
   /* 이미지 갤러리 HTML — 초안에 삽입할 실제 상품 이미지들 */
@@ -12144,21 +12184,17 @@
         </div>
       </div>`;
     }).join('');
-    return `
-      <div class="blog-image-gallery">
-        <div class="blog-image-gallery-head">
-          <span>📸 게시글에 넣을 이미지 (${validItems.length}장)</span>
-          <div class="blog-image-gallery-actions">
-            <button class="blog-img-dl blog-img-dl-all" onclick='blogDownloadAllImages(${urlsJson},"${prefixSafe}")'>📦 전체 저장</button>
-          </div>
-        </div>
-        <div class="blog-img-grid">${cards}</div>
-        <div class="blog-image-gallery-hint">
-          💡 <b>이미지 복사</b> 눌러서 네이버 블로그 에디터에서 <b>⌘V (Ctrl+V)</b>로 붙여넣으세요. 다운로드 없이 바로 삽입됩니다.<br>
-          💾 저장 버튼은 파일로 받고 싶을 때만 사용하세요.
-        </div>
+    const bodyHtml = `
+      <div class="blog-img-grid">${cards}</div>
+      <div class="blog-image-gallery-hint">
+        💡 <b>이미지 복사</b> 버튼으로 네이버 에디터에 <b>⌘V</b> 붙여넣기 · 💾 는 파일로 저장
       </div>
     `;
+    const actionHtml = `<button class="blog-sec-action" onclick='event.preventDefault();event.stopPropagation();blogDownloadAllImages(${urlsJson},"${prefixSafe}")'>📦 전체 저장</button>`;
+    return blogSection({
+      icon:'📸', label:'게시글 이미지', meta: validItems.length+'장',
+      actionHtml, contentHtml: bodyHtml, open:false
+    });
   }
 
   /* ===== 초안 미리보기 모달 =====
@@ -12179,56 +12215,54 @@
     const tagChips = (d.tags||[]).map(t=>`<span class="blog-draft-tag">#${blogEscape(t)}</span>`).join('');
     const imgList = (d.imageGuide||[]).map(g=>`<li>${blogEscape(g)}</li>`).join('');
 
+    const bodyLen = (d.body||'').length;
+    const imagePrefix = (c._emGroup||'blog')+'-'+(new Date().getMonth()+1)+(new Date().getDate());
+
     document.getElementById('blogPreviewBody').innerHTML = `
-      <div class="blog-draft">
-        <div class="blog-draft-head">
+      <div class="blog-draft blog-draft-clean">
+        <div class="blog-draft-head-clean">
           <span class="blog-card-type t-${c.type}">${BLOG_TYPE_LABEL[c.type]||c.type}</span>
           <span class="blog-card-cat">${BLOG_CAT_LABEL[c.category]||c.category}</span>
           <span class="blog-card-score">기회점수 <b>${c.score||0}</b></span>
         </div>
 
-        <div class="blog-draft-section">
-          <div class="blog-draft-label">
-            📌 제목
-            <button class="blog-copy-btn" onclick="blogCopyEl('previewTitle',this)">📋 복사</button>
-          </div>
-          <div class="blog-draft-title" id="previewTitle" style="font-size:17px;font-weight:700;color:var(--text-0);line-height:1.4;padding:8px 0">${blogEscape(d.title||c.title)}</div>
+        <div class="blog-title-card">
+          <div class="blog-title-card-label">📌 제목</div>
+          <div class="blog-title-card-text" id="previewTitle">${blogEscape(d.title||c.title)}</div>
+          <button class="blog-sec-action" onclick="blogCopyEl('previewTitle',this)">📋 복사</button>
         </div>
 
-        <div class="blog-draft-section">
-          <div class="blog-draft-label">
-            📝 본문 (네이버 블로그 에디터에 붙여넣기)
-            <button class="blog-copy-btn" onclick="blogCopyEl('previewBody',this)">📋 본문 전체 복사</button>
-          </div>
-          <div class="blog-draft-body" id="previewBody">${blogEscape(d.body||'')}</div>
-        </div>
+        ${blogSection({
+          icon:'📝', label:'본문', meta: bodyLen.toLocaleString()+'자',
+          actionHtml: `<button class="blog-sec-action" onclick="event.preventDefault();event.stopPropagation();blogCopyEl('previewBody',this)">📋 전체 복사</button>`,
+          contentHtml: `<div class="blog-draft-body" id="previewBody">${blogEscape(d.body||'')}</div>`,
+          open: true
+        })}
 
-        ${blogRenderImageGallery(c._emItems, (c._emGroup||'blog')+'-'+(new Date().getMonth()+1)+(new Date().getDate()))}
+        ${blogRenderImageGallery(c._emItems, imagePrefix)}
 
-        <div class="blog-draft-section">
-          <div class="blog-draft-label">🖼️ 이미지 삽입 가이드 (순서 참고)</div>
-          <div class="blog-image-guide">
-            <b>본문 흐름에 맞춰 아래 순서로 이미지를 배치하세요:</b>
-            <ol>${imgList}</ol>
-          </div>
-        </div>
+        ${blogSection({
+          icon:'🏷️', label:'태그', meta: (d.tags||[]).length+'개',
+          actionHtml: `<button class="blog-sec-action" data-tags="${blogEscape(tagText)}" onclick="event.preventDefault();event.stopPropagation();blogCopyText(this.dataset.tags,this)">📋 복사</button>`,
+          contentHtml: `<div class="blog-draft-tags">${tagChips}</div>`,
+          open: false
+        })}
 
-        <div class="blog-draft-section">
-          <div class="blog-draft-label">
-            🏷️ 태그
-            <button class="blog-copy-btn" data-tags="${blogEscape(tagText)}" onclick="blogCopyText(this.dataset.tags,this)">📋 복사</button>
-          </div>
-          <div class="blog-draft-tags">${tagChips}</div>
-        </div>
+        ${blogSection({
+          icon:'🖼️', label:'이미지 삽입 순서 가이드',
+          contentHtml: `<div class="blog-image-guide"><ol>${imgList}</ol></div>`,
+          open: false
+        })}
 
-        <div class="blog-draft-section">
-          <div class="blog-draft-label">⏰ 발행 가이드</div>
-          <div class="blog-image-guide">
-            <b>추천 발행 시간:</b> ${blogEscape(d.publishTime||'평일 저녁')}<br>
+        ${blogSection({
+          icon:'⏰', label:'발행 가이드',
+          contentHtml: `<div class="blog-image-guide">
+            <b>추천 시간:</b> ${blogEscape(d.publishTime||'평일 저녁')}<br>
             <b>추천 카테고리:</b> ${blogEscape(d.category||'')}<br>
             <b>주제 집중도:</b> ✅ 쇼핑 정보 (C-Rank 안전)
-          </div>
-        </div>
+          </div>`,
+          open: false
+        })}
 
         ${blogRenderPhraseBank(d.phraseBank)}
       </div>
@@ -12600,63 +12634,58 @@
       const imgList = (d.imageGuide||[]).map((g,i)=>`<li>${blogEscape(g)}</li>`).join('');
       const bodyId = 'draft-body-'+a.id;
       const titleId = 'draft-title-'+a.id;
+      const bodyLen = (d.body||'').length;
+      const imagePrefix = (a._catGroup||a.keyword||'blog').replace(/\s+/g,'')+'-'+(new Date(a.approvedAt||Date.now()).getMonth()+1)+(new Date(a.approvedAt||Date.now()).getDate());
       return `
-        <div class="blog-draft" data-id="${a.id}">
-          <div class="blog-draft-head">
+        <div class="blog-draft blog-draft-clean" data-id="${a.id}">
+          <div class="blog-draft-head-clean">
             <span class="blog-card-type t-${a.type}">${BLOG_TYPE_LABEL[a.type]||a.type}</span>
             <span class="blog-card-cat">${BLOG_CAT_LABEL[a.category]||a.category}</span>
-            <div class="blog-draft-title" id="${titleId}">${blogEscape(d.title||a.title)}</div>
           </div>
 
-          <div class="blog-draft-section">
-            <div class="blog-draft-label">
-              📌 제목
-              <button class="blog-copy-btn" onclick="blogCopyEl('${titleId}',this)">📋 복사</button>
-            </div>
+          <div class="blog-title-card">
+            <div class="blog-title-card-label">📌 제목</div>
+            <div class="blog-title-card-text" id="${titleId}">${blogEscape(d.title||a.title)}</div>
+            <button class="blog-sec-action" onclick="blogCopyEl('${titleId}',this)">📋 복사</button>
           </div>
 
-          <div class="blog-draft-section">
-            <div class="blog-draft-label">
-              📝 본문 (네이버 블로그 에디터에 붙여넣기)
-              <button class="blog-copy-btn" onclick="blogCopyEl('${bodyId}',this)">📋 본문 전체 복사</button>
-            </div>
-            <div class="blog-draft-body" id="${bodyId}">${blogEscape(d.body||'')}</div>
-          </div>
+          ${blogSection({
+            icon:'📝', label:'본문', meta: bodyLen.toLocaleString()+'자',
+            actionHtml: `<button class="blog-sec-action" onclick="event.preventDefault();event.stopPropagation();blogCopyEl('${bodyId}',this)">📋 전체 복사</button>`,
+            contentHtml: `<div class="blog-draft-body" id="${bodyId}">${blogEscape(d.body||'')}</div>`,
+            open: true
+          })}
 
-          ${blogRenderImageGallery(d.sourceLinks, (a._catGroup||a.keyword||'blog').replace(/\s+/g,'')+'-'+(new Date(a.approvedAt||Date.now()).getMonth()+1)+(new Date(a.approvedAt||Date.now()).getDate()))}
+          ${blogRenderImageGallery(d.sourceLinks, imagePrefix)}
 
-          <div class="blog-draft-section">
-            <div class="blog-draft-label">
-              🖼️ 이미지 삽입 가이드 (순서 참고)
-            </div>
-            <div class="blog-image-guide">
-              <b>본문 흐름에 맞춰 아래 순서로 이미지를 배치하세요:</b>
-              <ol>${imgList}</ol>
-            </div>
-          </div>
+          ${blogSection({
+            icon:'🏷️', label:'태그', meta: (d.tags||[]).length+'개',
+            actionHtml: `<button class="blog-sec-action" data-tags="${blogEscape(tagText)}" onclick="event.preventDefault();event.stopPropagation();blogCopyText(this.dataset.tags,this)">📋 복사</button>`,
+            contentHtml: `<div class="blog-draft-tags">${tagChips}</div>`,
+            open: false
+          })}
 
-          <div class="blog-draft-section">
-            <div class="blog-draft-label">
-              🏷️ 태그
-              <button class="blog-copy-btn" data-tags="${blogEscape(tagText)}" onclick="blogCopyText(this.dataset.tags,this)">📋 복사</button>
-            </div>
-            <div class="blog-draft-tags">${tagChips}</div>
-          </div>
+          ${blogSection({
+            icon:'🖼️', label:'이미지 삽입 순서 가이드',
+            contentHtml: `<div class="blog-image-guide"><ol>${imgList}</ol></div>`,
+            open: false
+          })}
 
-          <div class="blog-draft-section">
-            <div class="blog-draft-label">⏰ 발행 가이드</div>
-            <div class="blog-image-guide">
-              <b>추천 발행 시간:</b> ${blogEscape(d.publishTime||'평일 저녁')}<br>
+          ${blogSection({
+            icon:'⏰', label:'발행 가이드',
+            contentHtml: `<div class="blog-image-guide">
+              <b>추천 시간:</b> ${blogEscape(d.publishTime||'평일 저녁')}<br>
               <b>추천 카테고리:</b> ${blogEscape(d.category||'')}<br>
               <b>주제 집중도:</b> ✅ 쇼핑 정보 (C-Rank 안전)
-            </div>
-          </div>
+            </div>`,
+            open: false
+          })}
 
           ${blogRenderPhraseBank(d.phraseBank)}
 
           <div class="blog-draft-actions">
             <button class="blog-btn b-publish" onclick="blogMarkPublished('${a.id}')">✅ 발행완료</button>
-            <button class="blog-btn b-discard" onclick="blogDiscardDraft('${a.id}')">🗑 초안 폐기</button>
+            <button class="blog-btn b-discard" onclick="blogDiscardDraft('${a.id}')">🗑 폐기</button>
           </div>
         </div>`;
     }).join('');
