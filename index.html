@@ -2089,6 +2089,32 @@
   .blog-image-gallery-actions{display:flex;gap:6px}
   .blog-image-gallery-hint{font-size:11.5px;color:var(--text-3);line-height:1.5;padding:8px 10px;background:var(--bg-1);border-radius:6px;border:1px dashed var(--line)}
 
+  .blog-phrase-bank{background:linear-gradient(180deg,rgba(255,46,147,.04),rgba(255,107,53,.03));border:1px solid rgba(255,46,147,.25);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .blog-phrase-bank-head{display:flex;align-items:center;justify-content:space-between}
+  .blog-phrase-bank-title{font-size:13px;font-weight:700;color:#ff2e93;letter-spacing:.01em}
+  .blog-phrase-bank-intro{font-size:12px;color:var(--text-2);line-height:1.6;background:var(--bg-1);border-radius:8px;padding:10px 12px;border:1px solid var(--line)}
+  .blog-phrase-bank-intro b{color:#ff2e93;font-weight:700}
+  .blog-phrase-group{background:var(--bg-1);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .blog-phrase-group[open]{border-color:var(--line-2)}
+  .blog-phrase-summary{cursor:pointer;padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;color:var(--text-1);list-style:none;user-select:none;transition:background .12s}
+  .blog-phrase-summary::-webkit-details-marker{display:none}
+  .blog-phrase-summary:hover{background:var(--bg-2)}
+  .blog-phrase-group[open] .blog-phrase-summary{background:var(--bg-2);border-bottom:1px solid var(--line)}
+  .blog-phrase-icon{font-size:14px;flex-shrink:0}
+  .blog-phrase-label{font-weight:600;color:var(--text-0);flex-shrink:0}
+  .blog-phrase-count{background:var(--bg-3);color:var(--text-2);font-size:10.5px;padding:2px 7px;border-radius:10px;font-weight:600;font-family:var(--mono);flex-shrink:0}
+  .blog-phrase-hint{font-size:11px;color:var(--text-3);margin-left:auto;font-style:italic}
+  .blog-phrase-list{padding:8px;display:flex;flex-direction:column;gap:6px}
+  .blog-phrase-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-2);border:1px solid transparent;border-radius:6px;transition:all .12s}
+  .blog-phrase-item:hover{background:var(--bg-3);border-color:var(--line-2)}
+  .blog-phrase-text{flex:1;font-size:12.5px;line-height:1.55;color:var(--text-1)}
+  .blog-phrase-copy{background:transparent;border:none;padding:4px 6px;border-radius:5px;font-size:12px;cursor:pointer;color:var(--text-3);transition:all .12s;flex-shrink:0}
+  .blog-phrase-copy:hover{background:#0a0b0d;color:#fff}
+  .blog-phrase-copy.copied{background:#22c55e;color:#fff}
+  @media(max-width:640px){
+    .blog-phrase-hint{display:none}
+  }
+
   .blog-preview-overlay{position:fixed;inset:0;background:rgba(10,11,13,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;animation:blogPrevFade .18s ease}
   .blog-preview-overlay[hidden]{display:none}
   @keyframes blogPrevFade{from{opacity:0}to{opacity:1}}
@@ -12038,6 +12064,58 @@
   window.blogDownloadImage = blogDownloadImage;
   window.blogDownloadAllImages = blogDownloadAllImages;
 
+  /* 대체 표현 사전 HTML — 사장님이 붙여넣기 후 부분 대체하며 편집 흔적을 남기게 함 */
+  const BLOG_PHRASE_LABELS = {
+    opening:      { icon:'👋', label:'오프닝 (도입)', hint:'게시글 시작할 때 인사·소개용' },
+    intro:        { icon:'📢', label:'주제 소개', hint:'오늘 다룰 내용 안내할 때' },
+    popularReason:{ icon:'🔥', label:'인기 이유 설명', hint:'왜 이 상품이 뜨는지 설명할 때' },
+    priceEmphasis:{ icon:'💰', label:'가격/할인 강조', hint:'세일 가격 언급할 때' },
+    urgency:      { icon:'⏰', label:'긴급성 어필', hint:'"빨리 사세요" 뉘앙스 필요할 때' },
+    recommendFor: { icon:'👥', label:'추천 대상', hint:'"이런 분께 좋아요" 문장' },
+    personalTouch:{ icon:'💬', label:'개인 경험 삽입', hint:'AI 티 지우는 데 가장 효과적' },
+    linkCta:      { icon:'🔗', label:'링크 유도 (CTA)', hint:'"자세한 정보는 링크에서" 뉘앙스' },
+    commentPrompt:{ icon:'💭', label:'댓글 유도', hint:'독자 참여 유도용' },
+    closing:      { icon:'🎁', label:'클로징 (마무리)', hint:'게시글 마무리할 때' }
+  };
+
+  function blogRenderPhraseBank(phraseBank){
+    if(!phraseBank || typeof phraseBank !== 'object') return '';
+    const sections = Object.entries(BLOG_PHRASE_LABELS).map(([key, meta])=>{
+      const phrases = phraseBank[key] || [];
+      if(!phrases.length) return '';
+      const items = phrases.map((p,i)=>{
+        const esc = blogEscape(p);
+        return `<div class="blog-phrase-item">
+          <span class="blog-phrase-text">${esc}</span>
+          <button class="blog-phrase-copy" data-p="${esc}" onclick="blogCopyText(this.dataset.p,this)">📋</button>
+        </div>`;
+      }).join('');
+      return `<details class="blog-phrase-group">
+        <summary class="blog-phrase-summary">
+          <span class="blog-phrase-icon">${meta.icon}</span>
+          <span class="blog-phrase-label">${meta.label}</span>
+          <span class="blog-phrase-count">${phrases.length}개 후보</span>
+          <span class="blog-phrase-hint">${meta.hint}</span>
+        </summary>
+        <div class="blog-phrase-list">${items}</div>
+      </details>`;
+    }).join('');
+
+    return `
+      <div class="blog-phrase-bank">
+        <div class="blog-phrase-bank-head">
+          <span class="blog-phrase-bank-title">✨ 대체 표현 사전 — 붙여넣기 후 부분 교체용</span>
+        </div>
+        <div class="blog-phrase-bank-intro">
+          초안을 그대로 붙여넣지 마시고 <b>일부 문장을 아래 후보로 교체</b>하면서 편집 흔적을 남기세요.
+          이렇게 하면 네이버 저품질 감지 회피 + 매일 다른 문체 유지가 가능합니다.
+          문장 옆 📋 클릭하면 클립보드 복사됩니다.
+        </div>
+        ${sections}
+      </div>
+    `;
+  }
+
   /* 이미지 갤러리 HTML — 초안에 삽입할 실제 상품 이미지들 */
   function blogRenderImageGallery(items, prefix){
     if(!Array.isArray(items) || !items.length) return '';
@@ -12151,6 +12229,8 @@
             <b>주제 집중도:</b> ✅ 쇼핑 정보 (C-Rank 안전)
           </div>
         </div>
+
+        ${blogRenderPhraseBank(d.phraseBank)}
       </div>
     `;
 
@@ -12324,7 +12404,108 @@
       imageGuide,
       publishTime: '오전 9시 30분 ~ 10시 30분 (실시간 인기 정보 노출 최대)',
       category: '쇼핑 정보',
-      sourceLinks: items.map(it=>({title:it.title, url:it.url, thumb:it.thumb, views:it.views, likes:it.likes, comments:it.comments}))
+      sourceLinks: items.map(it=>({title:it.title, url:it.url, thumb:it.thumb, views:it.views, likes:it.likes, comments:it.comments})),
+      phraseBank: _blogBuildPhraseBank(c, items)
+    };
+  }
+
+  /* ===== 대체 표현 사전 =====
+     초안을 그대로 붙여넣지 말고 사장님이 부분부분 대체하며 편집 흔적을 남기게 도와줌.
+     각 카테고리별 5~8개 문장 후보 제공. 클릭 = 클립보드 복사.
+     이렇게 편집하면 네이버 저품질 감지 회피 + 매일 다른 문체 유지 가능. */
+  function _blogBuildPhraseBank(c, items){
+    const cat = c._emGroup || '';
+    const top1 = items[0] || {};
+    const totalLikes = items.reduce((s,x)=>s+(x.likes||0),0);
+
+    return {
+      opening: [
+        `안녕하세요! 오늘도 알뜰한 쇼핑 정보 가지고 왔어요.`,
+        `요즘 세일 정보 궁금하신 분들 많으실 것 같아서 정리해봤어요.`,
+        `이번 주 진짜 대박 딜이 몇 개 나왔더라구요.`,
+        `매일 어미새 세일 게시판 뒤적이는 게 습관이 됐는데, 오늘도 좋은 딜이 많네요.`,
+        `요즘 물가 미쳐서 세일 정보 하나하나가 소중한 것 같아요.`,
+        `저도 오늘 아침에 쇼핑 정보 훑다가 좋은 딜 몇 개 발견해서 공유드려요.`,
+        `${cat} 세일 정보 찾으시는 분들께 도움될만한 아이템 골라왔어요.`,
+        `요즘 지출 관리 신경 쓰시는 분들 많으시죠? 오늘 딜 진짜 알짜배기예요.`
+      ],
+      intro: [
+        `오늘은 ${cat} 카테고리에서 반응 뜨거운 상품 ${items.length}개를 추려봤어요.`,
+        `조회수·좋아요·댓글까지 종합해서 정말 사람들이 관심 갖는 딜만 골랐습니다.`,
+        `이런 딜은 하루 이틀이면 소진되는 경우가 많더라구요. 관심 가는 거 있으면 빠르게 확인하세요.`,
+        `제가 매일 세일 정보 정리하는데, 오늘 ${cat} 쪽은 특히 알짜배기가 많았어요.`,
+        `아래 소개해드리는 상품들 다 실사용자 반응 좋은 검증된 딜입니다.`,
+        `저도 이 중에 한두 개는 이미 담아뒀어요. 그만큼 자신 있게 추천드립니다.`
+      ],
+      popularReason: [
+        `좋아요 ${top1.likes||0}개가 달릴 정도로 반응이 뜨거웠던 상품이에요.`,
+        `댓글에서도 "이 가격 실화냐"는 반응이 많더라구요.`,
+        `조회수가 이 정도로 나온다는 건 다들 관심 있다는 뜻이겠죠.`,
+        `저도 이 딜은 놓칠 뻔했는데 다행히 발견했어요.`,
+        `리뷰 평점도 높고 가성비 좋은 상품이라 픽했어요.`,
+        `저희 집에서도 이 브랜드 자주 쓰는데, 이 가격은 진짜 좋네요.`,
+        `다른 사이트랑 비교해봐도 확실히 여기가 가장 싸요.`,
+        `이런 반응이 나오는 데는 다 이유가 있는 것 같아요.`
+      ],
+      priceEmphasis: [
+        `이 가격 다신 안 나올 것 같아요.`,
+        `정가 대비 반값 이하로 나왔어요.`,
+        `이 정도 할인은 정말 흔치 않아요.`,
+        `블랙프라이데이 뺨치는 가격이에요.`,
+        `1개당 단가 계산해보면 진짜 저렴하죠.`,
+        `할인율만 봐도 이건 챙겨야 할 딜이에요.`,
+        `역대급 특가라고 봐도 무방합니다.`,
+        `최저가 검색해봤는데 이만한 가격 못 찾겠더라구요.`
+      ],
+      urgency: [
+        `종료 임박이라 서두르셔야 해요.`,
+        `이런 딜은 몇 시간 안에 완판되니까 관심 있으신 분들은 빨리 확인하세요.`,
+        `수량 한정이라 놓치면 아쉬울 것 같아요.`,
+        `제가 글 쓰는 사이에도 재고가 줄고 있을 거예요.`,
+        `내일이면 정가로 돌아갈 수도 있으니 오늘 안에 결정하세요.`,
+        `특가 종료 시각 확인하시고 진행하세요.`
+      ],
+      recommendFor: [
+        `1인 가구 분들께 특히 좋을 것 같아요.`,
+        `온 가족이 함께 쓸 수 있는 아이템이에요.`,
+        `재택근무 하시는 분들께 강추드립니다.`,
+        `선물용으로도 무난한 상품이에요.`,
+        `대량으로 미리 사두면 두고두고 쓸 수 있어요.`,
+        `평소 자주 쓰시는 분들이면 무조건 챙기세요.`,
+        `초보자·전문가 상관없이 만족하실 만한 상품입니다.`
+      ],
+      linkCta: [
+        `자세한 세일 조건은 링크에서 확인하세요.`,
+        `구매처 정보는 아래 링크 참고해주세요.`,
+        `링크 타고 들어가서 상세 정보 꼭 확인하시고 결제하세요.`,
+        `실제 판매 페이지에서 옵션·수량 확인 후 진행하세요.`,
+        `상품 정보 궁금하시면 링크 클릭!`,
+        `아래 링크로 넘어가시면 바로 구매 가능해요.`
+      ],
+      closing: [
+        `오늘도 좋은 쇼핑 되세요! 💝`,
+        `궁금한 상품 있으면 댓글 남겨주세요, 다음 게시물에 반영할게요.`,
+        `매일 아침 세일 정보 정리해서 올리니 즐겨찾기 해두시면 좋아요.`,
+        `구매 후기 남겨주시면 다른 분들께도 큰 도움이 됩니다.`,
+        `다음에도 좋은 딜 가지고 올게요, 감사합니다!`,
+        `오늘도 알뜰한 하루 되시길 바랄게요.`,
+        `이런 정보 도움됐다면 좋아요·구독 부탁드려요!`
+      ],
+      commentPrompt: [
+        `이 중에 관심 가는 상품 있으신가요? 댓글로 알려주세요.`,
+        `이번 주 세일 중에 놓친 게 있으면 댓글로 알려주세요.`,
+        `여러분이 자주 챙기시는 카테고리는 뭔가요?`,
+        `혹시 이 상품 사용해보신 분 있으시면 후기 남겨주세요!`,
+        `다음에 어떤 카테고리 다뤄줬으면 좋겠는지 알려주세요.`
+      ],
+      personalTouch: [
+        `저번에 비슷한 상품 써봤는데 만족도 높았어요.`,
+        `제가 3년째 쓰는 브랜드인데 이 가격은 처음이에요.`,
+        `요즘 저희 집 필수템 중 하나예요.`,
+        `얼마 전에 지인이 추천해줘서 저도 관심 있게 봤던 상품이에요.`,
+        `평소에도 자주 눈여겨보던 브랜드인데 이번 세일 놓치기 아까워요.`,
+        `직접 써본 건 아니지만 리뷰 보면 만족도 정말 높더라구요.`
+      ]
     };
   }
 
@@ -12470,6 +12651,8 @@
               <b>주제 집중도:</b> ✅ 쇼핑 정보 (C-Rank 안전)
             </div>
           </div>
+
+          ${blogRenderPhraseBank(d.phraseBank)}
 
           <div class="blog-draft-actions">
             <button class="blog-btn b-publish" onclick="blogMarkPublished('${a.id}')">✅ 발행완료</button>
