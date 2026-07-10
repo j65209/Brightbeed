@@ -582,7 +582,6 @@ def aggregate_products(orders):
 
     link_seen = {}
     img_seen = {}
-    name_seen = {}
 
     for o in orders:
         for it in o.get("items", []):
@@ -602,16 +601,11 @@ def aggregate_products(orders):
                     union(idx, img_seen[ik])
                 else:
                     img_seen[ik] = idx
+            # link/img 둘 다 없으면 별도 상품으로 취급 (이름으로 합치지 않음 — 사장님 오타 방지)
+            # 단, kor/cn/qty 하나라도 없는 완전 빈 라인은 제외
             if not lk and not ik:
-                nm = ((it.get("kor") or "").strip() + "|" + (it.get("cn") or "").strip()).strip("|")
-                if nm:
-                    if nm in name_seen:
-                        union(idx, name_seen[nm])
-                    else:
-                        name_seen[nm] = idx
-                else:
-                    # link/img/이름 다 없는 완전 빈 아이템은 제외
-                    parent[idx] = -1  # mark as dropped
+                if not (it.get("kor") or it.get("cn") or it.get("qty") is not None):
+                    parent[idx] = -1
 
     # 그룹핑
     groups = {}
