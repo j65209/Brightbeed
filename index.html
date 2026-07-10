@@ -657,26 +657,27 @@
   }
   .lg-tab.active .lg-tab-badge{background:rgba(255,255,255,.2);color:#fff}
 
-  /* ===== 발주서 아카이브 (ar-*) — kd-table 스타일 재사용 + 2열 카드 그리드 ===== */
+  /* ===== 발주서 아카이브 (ar-*) — kd-table 스타일 재사용 + 3열 카드 그리드 ===== */
   .ar-grid{
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:14px;padding:0 4px
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;padding:0 4px
   }
-  @media (max-width:600px){ .ar-grid{grid-template-columns:1fr} }
+  @media (max-width:1050px){ .ar-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:700px){ .ar-grid{grid-template-columns:1fr} }
   .ar-card{
     background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
     overflow:hidden;display:flex;flex-direction:column;
-    content-visibility:auto;contain-intrinsic-size:auto 400px;
+    content-visibility:auto;contain-intrinsic-size:auto 500px;
   }
   .ar-card-head{
-    display:flex;align-items:baseline;gap:10px;padding:12px 14px 10px;
-    border-bottom:1px solid var(--line);background:var(--bg-2);flex-wrap:wrap
+    display:flex;align-items:baseline;gap:6px;padding:8px 10px 7px;
+    border-bottom:1px solid var(--line);background:var(--bg-2);flex-wrap:wrap;line-height:1.2
   }
-  .ar-date{font-size:14px;font-weight:700;color:var(--text-0);letter-spacing:-.2px;font-family:var(--mono)}
-  .ar-date .yr{color:var(--text-3);font-weight:500;margin-right:3px}
-  .ar-file{font-size:11.5px;color:var(--text-2);flex:1;word-break:break-all}
+  .ar-date{font-size:13px;font-weight:700;color:var(--text-0);letter-spacing:-.2px;font-family:var(--mono)}
+  .ar-date .yr{color:var(--text-3);font-weight:500;margin-right:2px}
+  .ar-file{font-size:10.5px;color:var(--text-2);flex:1;word-break:break-all;line-height:1.25}
   .ar-tag{
-    font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;
+    font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:999px;
     background:rgba(255,46,147,.08);color:var(--neon);border:1px solid rgba(255,46,147,.25);
     letter-spacing:.02em;white-space:nowrap
   }
@@ -686,44 +687,46 @@
   .ar-tag.g-케이블{background:rgba(5,150,105,.08);color:var(--ok);border-color:rgba(5,150,105,.25)}
   .ar-tag.g-재고·양식{background:rgba(107,114,128,.08);color:var(--text-3);border-color:rgba(107,114,128,.25)}
 
-  .ar-card-stats{display:flex;gap:12px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:11px;color:var(--text-3);background:var(--bg-2)}
+  .ar-card-stats{display:flex;gap:8px;padding:5px 10px;border-bottom:1px solid var(--line);font-size:10.5px;color:var(--text-3);background:var(--bg-2)}
   .ar-card-stats b{color:var(--text-1);font-weight:700;font-family:var(--mono);margin-right:2px}
 
   .ar-items{width:100%;border-collapse:collapse;table-layout:fixed}
   .ar-items th{
     background:var(--bg-2);color:var(--text-3);
-    font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
-    padding:6px 8px;text-align:center;border-bottom:1px solid var(--line)
+    font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    padding:4px 4px;text-align:center;border-bottom:1px solid var(--line)
   }
-  .ar-items th.col-img{width:80px}
-  .ar-items th.col-price{width:70px}
-  .ar-items th.col-qty{width:70px}
-  .ar-items th.col-link{width:70px}
-  .ar-items td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+  .ar-items th.col-img{width:144px}
+  .ar-items th.col-price{width:56px}
+  .ar-items th.col-qty{width:60px}
+  .ar-items th.col-link{width:56px}
+  .ar-items td{padding:4px 3px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
   .ar-items tbody tr:last-child td{border-bottom:none}
   .ar-items td.col-img{padding:4px}
   .ar-items td.col-price{font-family:var(--mono);font-size:12px;color:var(--text-1);font-weight:600}
   .ar-items td.col-qty{font-family:var(--mono);font-size:12px;color:var(--text-1);font-weight:600}
-  .ar-items td.col-qty .qty-unit{font-size:.75em;color:var(--text-3);margin-left:2px;font-weight:500}
+  .ar-items td.col-qty .qty-unit{font-size:.7em;color:var(--text-3);margin-left:1px;font-weight:500}
   .ar-thumb-wrap{position:relative;display:inline-block;cursor:zoom-in}
   .ar-thumb{
-    width:64px;height:64px;object-fit:cover;border-radius:6px;
+    width:128px;height:128px;object-fit:cover;border-radius:6px;
     border:1px solid var(--line);background:#fff;display:block;
     transition:filter .12s
   }
   .ar-thumb-wrap:hover .ar-thumb{filter:brightness(.7)}
   .ar-thumb-zoom{
-    position:absolute;top:50%;left:74px;transform:translateY(-50%);
-    width:280px;height:280px;object-fit:contain;
-    background:#fff;border:1px solid var(--line);border-radius:10px;
-    box-shadow:0 12px 40px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.06);
-    z-index:100;opacity:0;pointer-events:none;transition:opacity .12s;padding:6px
+    position:absolute;top:50%;left:138px;transform:translateY(-50%);
+    width:560px;height:560px;object-fit:contain;
+    background:#fff;border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 16px 48px rgba(0,0,0,.32),0 0 0 1px rgba(0,0,0,.06);
+    z-index:100;opacity:0;pointer-events:none;transition:opacity .12s;padding:8px
   }
   .ar-thumb-wrap:hover .ar-thumb-zoom{opacity:1}
+  /* 우측 끝 컬럼에서는 왼쪽으로 펼쳐지도록 */
+  .ar-thumb-wrap.zoom-left .ar-thumb-zoom{left:auto;right:138px}
   .ar-no-img{
-    display:inline-block;width:64px;height:64px;border-radius:6px;
-    background:var(--bg-3);color:var(--text-3);
-    display:inline-flex;align-items:center;justify-content:center;font-size:18px
+    display:inline-flex;align-items:center;justify-content:center;
+    width:128px;height:128px;border-radius:6px;
+    background:var(--bg-3);color:var(--text-3);font-size:22px
   }
   .ar-link{
     display:inline-block;padding:4px 10px;border-radius:4px;
@@ -8306,6 +8309,13 @@
     const show=arState.filtered.slice(0,arState.shown);
     grid.innerHTML=show.map(renderArchiveCard).join('');
     more.style.display=arState.filtered.length>arState.shown?'block':'none';
+    // 우측 컬럼 썸네일 hover 시 확대 이미지가 화면 밖으로 나가지 않게 좌측으로 flip
+    grid.querySelectorAll('.ar-thumb-wrap').forEach(w=>{
+      w.addEventListener('mouseenter', ()=>{
+        const rect=w.getBoundingClientRect();
+        w.classList.toggle('zoom-left', rect.left + 128 + 570 > window.innerWidth);
+      }, {passive:true});
+    });
   }
   function renderArchiveCard(o){
     const gTag=o.group&&o.group!=='일반'&&o.group!=='기타'
