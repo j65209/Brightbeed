@@ -629,6 +629,7 @@ def aggregate_products(orders):
                 "_files": set(),
                 "_dates": [],
                 "_in_sheet": False,
+                "_ids": set(),  # 후보 stable id (offer:XXX 또는 ibank:XXX)
             }
             groups[root] = p
         img = it.get("img") or ""
@@ -636,6 +637,13 @@ def aggregate_products(orders):
         kor = it.get("kor") or ""
         cn = it.get("cn") or ""
         from_sheet = bool(it.get("_from_sheet"))
+        # stable id 후보 수집
+        _lk = _norm_link(link)
+        _ik = _norm_img(img)
+        if _lk:
+            p["_ids"].add(_lk)
+        if _ik:
+            p["_ids"].add(_ik)
 
         # 마스터 시트 이름 우선 저장 (있으면 이걸 사용)
         if from_sheet:
@@ -673,14 +681,20 @@ def aggregate_products(orders):
                 p["_dates"].append(dt)
 
     result = []
-    for p in groups.values():
+    for root, p in groups.items():
         prices = p["_prices"]
         qtys = p["_qtys"]
         dates = p["_dates"]
         # 이름 우선순위: 마스터 시트 → 발주서
         kor = p["_kor_sheet"] or p["kor"]
         cn = p["_cn_sheet"] or p["cn"]
+        # stable id: offer id 우선 → ibank id → 없으면 root
+        ids_sorted = sorted(p["_ids"])
+        offer_ids = [i for i in ids_sorted if i.startswith("offer:")]
+        ibank_ids = [i for i in ids_sorted if i.startswith("ibank:")]
+        pid = offer_ids[0] if offer_ids else (ibank_ids[0] if ibank_ids else f"grp:{root}")
         result.append({
+            "id": pid,
             "img": p["img"],
             "link": p["link"],
             "kor": kor,
