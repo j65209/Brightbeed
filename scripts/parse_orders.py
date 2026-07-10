@@ -453,74 +453,141 @@ def dedupe_key(fname: str) -> str:
     return stem + ext.lower()
 
 
-def _norm_url(url):
-    """상품/이미지 URL 정규화 — 쿼리·프래그먼트·프로토콜 무시."""
+_OFFER_RE = re.compile(r"/offer/(\d+)")
+_IBANK_RE = re.compile(r"/img/ibank/(O1CN[0-9A-Za-z]+)")
+
+
+def _norm_link(url):
+    """1688 상품 링크 정규화 — offer ID만 있으면 그것을 키로."""
     if not url or not isinstance(url, str) or not url.startswith("http"):
         return ""
+    m = _OFFER_RE.search(url)
+    if m:
+        return "offer:" + m.group(1)
     u = url.split("?")[0].split("#")[0].strip("/").lower()
-    # https:// / http:// 통일
     u = re.sub(r"^https?://", "", u)
-    return u
+    return "url:" + u
+
+
+def _norm_img(url):
+    """alicdn 이미지 URL 정규화 — ibank ID (O1CN...)만 있으면 그것을 키로.
+    사이즈/webp suffix 무시.
+    """
+    if not url or not isinstance(url, str) or not url.startswith("http"):
+        return ""
+    m = _IBANK_RE.search(url)
+    if m:
+        return "ibank:" + m.group(1)
+    u = url.split("?")[0].split("#")[0].lower()
+    u = re.sub(r"^https?://", "", u)
+    u = re.sub(r"_\d+x\d+\.jpg.*$", ".jpg", u)
+    u = re.sub(r"\.jpg_\.webp$", ".jpg", u)
+    return "img:" + u
 
 
 def aggregate_products(orders):
-    """모든 발주서의 아이템을 link/img 기준으로 합쳐 고유 상품 카탈로그로.
+    """모든 아이템을 dedupe. link 또는 img 하나라도 겹치면 같은 상품으로 병합 (union-find).
 
-    같은 상품 판정 우선순위: 상품링크 → 이미지 URL → (kor|cn) 이름 조합.
-    각 상품에 total_qty(누적), order_count(발주 횟수), 단가 min/max/avg 집계.
+    - link 정규화: 1688 offer ID 추출
+    - img 정규화: alicdn ibank ID 추출 (사이즈/webp suffix 무시)
+    - 둘 다 없으면 (kor|cn) 이름 조합 폴백
+    - 병합 후 상품별 total_qty/order_count/price min/max/avg 집계
     """
-    products = {}
+    items_list = []  # (item, order_group, order_file)
+    parent = []
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(x, y):
+        rx, ry = find(x), find(y)
+        if rx != ry:
+            parent[rx] = ry
+
+    link_seen = {}
+    img_seen = {}
+    name_seen = {}
+
     for o in orders:
         for it in o.get("items", []):
-            link = it.get("link") or ""
-            img = it.get("img") or ""
-            kor = it.get("kor") or ""
-            cn = it.get("cn") or ""
-            # dedupe 키 결정
-            key = _norm_url(link) or _norm_url(img)
-            if not key:
-                name = (kor.strip() + "|" + cn.strip()).strip("|")
-                if not name:
-                    continue
-                key = "name:" + name
-            p = products.get(key)
-            if p is None:
-                p = {
-                    "id": key,
-                    "img": "",
-                    "link": "",
-                    "kor": "",
-                    "cn": "",
-                    "_qtys": [],
-                    "_prices": [],
-                    "_memos": [],
-                    "_groups": set(),
-                    "_files": set(),
-                }
-                products[key] = p
-            # 첫 번째 나온 img/link 유지 (또는 더 나은 것 있으면 교체)
-            if not p["img"] and img.startswith("http"):
-                p["img"] = img
-            if not p["link"] and link.startswith("http"):
-                p["link"] = link
-            # 이름은 길이 긴 것 우선 (더 서술적)
-            if len(kor) > len(p["kor"]):
-                p["kor"] = kor
-            if len(cn) > len(p["cn"]):
-                p["cn"] = cn
-            if it.get("qty") is not None:
-                p["_qtys"].append(float(it["qty"]))
-            if it.get("price_cny") is not None:
-                p["_prices"].append(float(it["price_cny"]))
-            memo = it.get("memo") or ""
-            if memo and memo not in p["_memos"] and len(p["_memos"]) < 5:
-                p["_memos"].append(memo)
-            if o.get("group"):
-                p["_groups"].add(o["group"])
-            p["_files"].add(o.get("file", ""))
+            idx = len(items_list)
+            items_list.append((it, o.get("group") or "", o.get("file") or ""))
+            parent.append(idx)
+
+            lk = _norm_link(it.get("link"))
+            ik = _norm_img(it.get("img"))
+            if lk:
+                if lk in link_seen:
+                    union(idx, link_seen[lk])
+                else:
+                    link_seen[lk] = idx
+            if ik:
+                if ik in img_seen:
+                    union(idx, img_seen[ik])
+                else:
+                    img_seen[ik] = idx
+            if not lk and not ik:
+                nm = ((it.get("kor") or "").strip() + "|" + (it.get("cn") or "").strip()).strip("|")
+                if nm:
+                    if nm in name_seen:
+                        union(idx, name_seen[nm])
+                    else:
+                        name_seen[nm] = idx
+                else:
+                    # link/img/이름 다 없는 완전 빈 아이템은 제외
+                    parent[idx] = -1  # mark as dropped
+
+    # 그룹핑
+    groups = {}
+    for idx, (it, group, file) in enumerate(items_list):
+        if parent[idx] == -1:
+            continue
+        root = find(idx)
+        p = groups.get(root)
+        if p is None:
+            p = {
+                "img": "",
+                "link": "",
+                "kor": "",
+                "cn": "",
+                "_qtys": [],
+                "_prices": [],
+                "_memos": [],
+                "_groups": set(),
+                "_files": set(),
+            }
+            groups[root] = p
+        img = it.get("img") or ""
+        link = it.get("link") or ""
+        kor = it.get("kor") or ""
+        cn = it.get("cn") or ""
+        # 첫 번째 http URL 유지 (다른 URL은 무시)
+        if not p["img"] and img.startswith("http"):
+            p["img"] = img
+        if not p["link"] and link.startswith("http"):
+            p["link"] = link
+        # 이름은 더 서술적인 것 우선 (긴 것)
+        if len(kor) > len(p["kor"]):
+            p["kor"] = kor
+        if len(cn) > len(p["cn"]):
+            p["cn"] = cn
+        if it.get("qty") is not None:
+            p["_qtys"].append(float(it["qty"]))
+        if it.get("price_cny") is not None:
+            p["_prices"].append(float(it["price_cny"]))
+        memo = it.get("memo") or ""
+        if memo and memo not in p["_memos"] and len(p["_memos"]) < 5:
+            p["_memos"].append(memo)
+        if group:
+            p["_groups"].add(group)
+        if file:
+            p["_files"].add(file)
 
     result = []
-    for p in products.values():
+    for p in groups.values():
         prices = p["_prices"]
         qtys = p["_qtys"]
         result.append({
@@ -536,7 +603,6 @@ def aggregate_products(orders):
             "groups": sorted(p["_groups"]),
             "memos": p["_memos"][:3],
         })
-    # 총 발주 수량 desc → 발주 횟수 desc 순
     result.sort(key=lambda x: (
         x.get("total_qty") or 0,
         x.get("order_count") or 0,
