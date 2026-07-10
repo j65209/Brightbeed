@@ -157,7 +157,7 @@ def is_summary_row(row_s):
 
 HEADER_ALIASES = {
     "link": ["상품링크"],
-    "img": ["상품사진"],
+    "img": ["상품이미지", "상품사진"],
     "basket_price": ["장바구니단가"],
     "kor": ["제품명및옵션명", "한글옵션명", "제품명옵션명"],
     "cn": ["1688옵션명", "1668옵션명"],
@@ -225,6 +225,7 @@ def parse_xls_via_xlrd(path: Path):
     total_cny_any = False
     if header_row is not None:
         c_link = col_map.get("link")
+        c_img = col_map.get("img")
         c_kor = col_map.get("kor")
         c_cn = col_map.get("cn")
         c_memo = col_map.get("memo")
@@ -251,8 +252,11 @@ def parse_xls_via_xlrd(path: Path):
                 break
             if not (link or kor or cn):
                 continue
+            img = get(c_img, 400)
+            if img and not img.startswith("http"):
+                img = ""
             items.append({
-                "link": link, "kor": kor, "cn": cn,
+                "img": img, "link": link, "kor": kor, "cn": cn,
                 "memo": get(c_memo), "qty": qty, "price_cny": price,
             })
             if qty is not None and price is not None:
@@ -323,6 +327,7 @@ def parse_workbook(path: Path):
         return result
 
     c_link = col_map.get("link")
+    c_img = col_map.get("img")
     c_kor = col_map.get("kor")
     c_cn = col_map.get("cn")
     c_memo = col_map.get("memo")
@@ -359,7 +364,17 @@ def parse_workbook(path: Path):
         if not (link or kor or cn):
             continue
 
+        img = get(c_img, 400)
+        if not img or not img.startswith("http"):
+            # 폴백: 첫 10칸 안에서 상품링크와 별개의 alicdn 이미지 URL 탐색
+            img = ""
+            for j in range(min(10, len(row_s))):
+                v = row_s[j]
+                if v.startswith("http") and "alicdn" in v and (c_link is None or j != c_link):
+                    img = v[:400]
+                    break
         item = {
+            "img": img,
             "link": link,
             "kor": kor,
             "cn": cn,

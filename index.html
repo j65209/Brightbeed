@@ -631,6 +631,97 @@
   .kd-refresh-btn:hover{background:var(--bg-3)}
   .kd-refresh-btn:disabled{opacity:.5;cursor:default}
 
+  /* ===== 발주서 아카이브 (ar-*) — kd-table 스타일 재사용 + 2열 카드 그리드 ===== */
+  .ar-grid{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;padding:0 4px
+  }
+  @media (max-width:600px){ .ar-grid{grid-template-columns:1fr} }
+  .ar-card{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;display:flex;flex-direction:column;
+    content-visibility:auto;contain-intrinsic-size:auto 400px;
+  }
+  .ar-card-head{
+    display:flex;align-items:baseline;gap:10px;padding:12px 14px 10px;
+    border-bottom:1px solid var(--line);background:var(--bg-2);flex-wrap:wrap
+  }
+  .ar-date{font-size:14px;font-weight:700;color:var(--text-0);letter-spacing:-.2px;font-family:var(--mono)}
+  .ar-date .yr{color:var(--text-3);font-weight:500;margin-right:3px}
+  .ar-file{font-size:11.5px;color:var(--text-2);flex:1;word-break:break-all}
+  .ar-tag{
+    font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;
+    background:rgba(255,46,147,.08);color:var(--neon);border:1px solid rgba(255,46,147,.25);
+    letter-spacing:.02em;white-space:nowrap
+  }
+  .ar-tag.g-6A{background:rgba(255,107,53,.08);color:var(--neon-2);border-color:rgba(255,107,53,.25)}
+  .ar-tag.g-제이{background:rgba(124,58,237,.08);color:#7c3aed;border-color:rgba(124,58,237,.25)}
+  .ar-tag.g-샤인비드{background:rgba(2,132,199,.08);color:#0284c7;border-color:rgba(2,132,199,.25)}
+  .ar-tag.g-케이블{background:rgba(5,150,105,.08);color:var(--ok);border-color:rgba(5,150,105,.25)}
+  .ar-tag.g-재고·양식{background:rgba(107,114,128,.08);color:var(--text-3);border-color:rgba(107,114,128,.25)}
+
+  .ar-card-stats{display:flex;gap:12px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:11px;color:var(--text-3);background:var(--bg-2)}
+  .ar-card-stats b{color:var(--text-1);font-weight:700;font-family:var(--mono);margin-right:2px}
+
+  .ar-items{width:100%;border-collapse:collapse;table-layout:fixed}
+  .ar-items th{
+    background:var(--bg-2);color:var(--text-3);
+    font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    padding:6px 8px;text-align:center;border-bottom:1px solid var(--line)
+  }
+  .ar-items th.col-img{width:80px}
+  .ar-items th.col-price{width:70px}
+  .ar-items th.col-qty{width:70px}
+  .ar-items th.col-link{width:70px}
+  .ar-items td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+  .ar-items tbody tr:last-child td{border-bottom:none}
+  .ar-items td.col-img{padding:4px}
+  .ar-items td.col-price{font-family:var(--mono);font-size:12px;color:var(--text-1);font-weight:600}
+  .ar-items td.col-qty{font-family:var(--mono);font-size:12px;color:var(--text-1);font-weight:600}
+  .ar-items td.col-qty .qty-unit{font-size:.75em;color:var(--text-3);margin-left:2px;font-weight:500}
+  .ar-thumb-wrap{position:relative;display:inline-block;cursor:zoom-in}
+  .ar-thumb{
+    width:64px;height:64px;object-fit:cover;border-radius:6px;
+    border:1px solid var(--line);background:#fff;display:block;
+    transition:filter .12s
+  }
+  .ar-thumb-wrap:hover .ar-thumb{filter:brightness(.7)}
+  .ar-thumb-zoom{
+    position:absolute;top:50%;left:74px;transform:translateY(-50%);
+    width:280px;height:280px;object-fit:contain;
+    background:#fff;border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 12px 40px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.06);
+    z-index:100;opacity:0;pointer-events:none;transition:opacity .12s;padding:6px
+  }
+  .ar-thumb-wrap:hover .ar-thumb-zoom{opacity:1}
+  .ar-no-img{
+    display:inline-block;width:64px;height:64px;border-radius:6px;
+    background:var(--bg-3);color:var(--text-3);
+    display:inline-flex;align-items:center;justify-content:center;font-size:18px
+  }
+  .ar-link{
+    display:inline-block;padding:4px 10px;border-radius:4px;
+    background:rgba(255,46,147,.08);color:var(--neon);
+    font-size:11px;font-weight:600;text-decoration:none;
+    border:1px solid rgba(255,46,147,.3);white-space:nowrap
+  }
+  .ar-link:hover{background:rgba(255,46,147,.18)}
+  .ar-no-link{color:var(--text-3);font-size:14px}
+
+  .ar-chip{
+    padding:5px 11px;border-radius:999px;font-size:11px;font-weight:500;
+    background:var(--bg-1);border:1px solid var(--line);color:var(--text-2);
+    cursor:pointer;user-select:none;transition:all .1s
+  }
+  .ar-chip:hover{background:var(--bg-2)}
+  .ar-chip.active{background:var(--text-0);color:#fff;border-color:var(--text-0);font-weight:600}
+  .ar-chip .n{color:var(--text-3);font-weight:500;margin-left:3px}
+  .ar-chip.active .n{color:rgba(255,255,255,.65)}
+  .ar-more-items{
+    font-size:11px;color:var(--text-3);text-align:center;padding:6px;
+    background:var(--bg-2);border-top:1px solid var(--line)
+  }
+
   /* ===== 네이버쇼핑 오늘의 트렌드 ===== */
   .nb-wrap{max-width:1120px;margin:0 auto;padding:0 4px}
   .nb-head{
@@ -4151,18 +4242,6 @@
       <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주 관리</span></h1>
     </div>
 
-    <!-- 발주서 아카이브 (Dropbox xlsx 정리) -->
-    <div class="po-wrap" style="margin-bottom:12px">
-      <a href="orders.html" style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,rgba(255,46,147,.08),rgba(255,107,53,.06));border:1px solid rgba(255,46,147,.25);border-radius:10px;text-decoration:none;color:var(--text-1);transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='rgba(255,46,147,.25)';this.style.transform='translateY(0)'">
-        <span style="font-size:22px">📦</span>
-        <span style="flex:1">
-          <span style="display:block;font-size:14px;font-weight:700;letter-spacing:-.2px">발주서 아카이브</span>
-          <span style="display:block;font-size:11.5px;color:var(--text-3);margin-top:2px">Dropbox/중요 폴더/발주서 — 날짜별 발주서 통합 리스트</span>
-        </span>
-        <span style="font-size:16px;color:var(--accent)">→</span>
-      </a>
-    </div>
-
     <!-- 최근 발주 내역 — 콰이디에어 실시간 -->
     <div class="po-wrap">
       <div class="po-section">
@@ -4198,6 +4277,31 @@
           </thead>
           <tbody id="poBody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ============ 브라이트비드 발주서 아카이브 (Dropbox 파싱) ============ -->
+    <div class="po-wrap" style="margin-top:24px">
+      <div class="po-section">
+        <div class="po-section-head">
+          <div class="po-section-title">브라이트비드 발주서 아카이브 <span class="kd-section-sub">Dropbox · 중요 폴더/발주서</span></div>
+          <div class="po-section-meta">
+            <input type="search" id="arSearch" class="kd-search" placeholder="파일명·품목 검색" oninput="filterArchive(this.value)" />
+            <span id="arUpdated"></span>
+            <span id="arCount">0건</span>
+          </div>
+        </div>
+        <div id="arFilters" style="display:flex;gap:6px;flex-wrap:wrap;padding:0 4px 14px"></div>
+        <div id="arEmpty" class="po-empty">
+          <div class="po-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          <div class="po-empty-text">발주서 아카이브 불러오는 중…</div>
+        </div>
+        <div id="arGrid" class="ar-grid" style="display:none"></div>
+        <div id="arMore" style="display:none;text-align:center;padding:16px 0 4px">
+          <button class="kd-refresh-btn" onclick="loadMoreArchive()">더 보기 (+40)</button>
+        </div>
       </div>
     </div>
   </div><!-- /viewLg -->
@@ -8084,6 +8188,142 @@
 
   // 초기 렌더 — 페이지 로드 직후 KD 데이터 가져옴
   renderKDOrders().catch(()=>{});
+
+  /* ===== 브라이트비드 발주서 아카이브 (data/orders.json 정적 로드) =====
+     scripts/parse_orders.py 가 ~/Dropbox/중요 폴더/발주서 xlsx 528개를 파싱해
+     data/orders.json 에 저장. 이 스크립트는 그걸 읽어 2열 카드 그리드로 렌더. */
+  const arState={all:[],filtered:[],year:'',group:'',q:'',shown:40};
+  function arEscape(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
+  function arFmtInt(n){if(n==null||isNaN(n))return '—';return Math.round(n).toLocaleString('ko-KR');}
+  function arFmtDate(iso){if(!iso)return '—';const [y,m,d]=iso.split('-');return `<span class="yr">${y.slice(2)}.</span>${m}.${d}`;}
+  async function loadArchive(){
+    try{
+      const r=await fetch('data/orders.json?cb='+Date.now(),{cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const d=await r.json();
+      arState.all=d.orders||[];
+      const upd=document.getElementById('arUpdated');
+      if(upd) upd.textContent=(d.generated_at||'').slice(0,16).replace('T',' ');
+      buildArFilters();
+      applyArchive();
+    }catch(e){
+      const emp=document.getElementById('arEmpty');
+      if(emp){emp.querySelector('.po-empty-text').textContent='데이터 없음';emp.style.display='block';}
+    }
+  }
+  function buildArFilters(){
+    const wrap=document.getElementById('arFilters');
+    if(!wrap) return;
+    const years=new Map(),groups=new Map();
+    for(const o of arState.all){
+      const y=(o.date||'').slice(0,4);
+      if(y) years.set(y,(years.get(y)||0)+1);
+      const g=o.group||'기타';
+      groups.set(g,(groups.get(g)||0)+1);
+    }
+    const yEntries=[...years.entries()].sort((a,b)=>b[0].localeCompare(a[0]));
+    const gEntries=[...groups.entries()].sort((a,b)=>b[1]-a[1]);
+    const chip=(k,v,n,active)=>`<button class="ar-chip ${active?'active':''}" data-k="${k}" data-v="${arEscape(v)}">${arEscape(v||'전체')}<span class="n">${n||''}</span></button>`;
+    let html=chip('year','',arState.all.length,!arState.year);
+    for(const [y,n] of yEntries) html+=chip('year',y,n,arState.year===y);
+    html+='<span style="width:1px;background:var(--line-2);margin:0 4px"></span>';
+    html+=chip('group','',arState.all.length,!arState.group);
+    for(const [g,n] of gEntries) html+=chip('group',g,n,arState.group===g);
+    wrap.innerHTML=html;
+    wrap.querySelectorAll('.ar-chip').forEach(c=>c.addEventListener('click',()=>{
+      arState[c.dataset.k]=c.dataset.v;
+      arState.shown=40;
+      buildArFilters();
+      applyArchive();
+    }));
+  }
+  function applyArchive(){
+    const q=arState.q.trim().toLowerCase();
+    arState.filtered=arState.all.filter(o=>{
+      if(arState.year && !(o.date||'').startsWith(arState.year)) return false;
+      if(arState.group && (o.group||'기타')!==arState.group) return false;
+      if(q){
+        const hay=[o.file,o.group||'',o.note||'',...(o.items||[]).slice(0,20).map(it=>`${it.kor} ${it.cn} ${it.memo}`)].join(' ').toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    renderArchive();
+  }
+  function renderArchive(){
+    const grid=document.getElementById('arGrid');
+    const empty=document.getElementById('arEmpty');
+    const more=document.getElementById('arMore');
+    const cnt=document.getElementById('arCount');
+    if(!grid) return;
+    if(cnt) cnt.textContent=`${arState.filtered.length}건`;
+    if(!arState.filtered.length){
+      grid.style.display='none';empty.style.display='block';more.style.display='none';
+      empty.querySelector('.po-empty-text').textContent = arState.all.length?'검색 결과 없음':'데이터 없음';
+      return;
+    }
+    empty.style.display='none';
+    grid.style.display='grid';
+    const show=arState.filtered.slice(0,arState.shown);
+    grid.innerHTML=show.map(renderArchiveCard).join('');
+    more.style.display=arState.filtered.length>arState.shown?'block':'none';
+  }
+  function renderArchiveCard(o){
+    const gTag=o.group&&o.group!=='일반'&&o.group!=='기타'
+      ? `<span class="ar-tag g-${arEscape(o.group.replace(/[()]/g,'').split('(')[0])}">${arEscape(o.group)}</span>`
+      : '';
+    const items=(o.items||[]).slice(0,30);
+    const rows=items.map(it=>{
+      const img=it.img
+        ? `<span class="ar-thumb-wrap">
+             <img class="ar-thumb" loading="lazy" referrerpolicy="no-referrer" src="${arEscape(it.img)}" alt="" onerror="this.parentElement.replaceWith(Object.assign(document.createElement('span'),{className:'ar-no-img',textContent:'×'}))">
+             <img class="ar-thumb-zoom" referrerpolicy="no-referrer" src="${arEscape(it.img)}" alt="">
+           </span>`
+        : '<span class="ar-no-img">×</span>';
+      const price=it.price_cny!=null?`¥${(+it.price_cny).toFixed(2)}`:'—';
+      const qty=it.qty!=null?arFmtInt(it.qty):'—';
+      const link=it.link?`<a class="ar-link" href="${arEscape(it.link)}" target="_blank" rel="noopener">열기</a>`:'<span class="ar-no-link">—</span>';
+      return `<tr>
+        <td class="col-img">${img}</td>
+        <td class="col-price">${price}</td>
+        <td class="col-qty">${qty}<span class="qty-unit">개</span></td>
+        <td class="col-link">${link}</td>
+      </tr>`;
+    }).join('');
+    const remain=(o.items||[]).length-items.length;
+    const remainRow=remain>0?`<div class="ar-more-items">…외 ${remain}개 품목</div>`:'';
+    return `
+      <div class="ar-card">
+        <div class="ar-card-head">
+          <span class="ar-date">${arFmtDate(o.date)}</span>
+          <span class="ar-file">${arEscape(o.file)}</span>
+          ${gTag}
+        </div>
+        <div class="ar-card-stats">
+          <span><b>${arFmtInt(o.item_count)}</b>품목</span>
+          <span><b>${arFmtInt(o.total_qty)}</b>개</span>
+          <span><b>${o.total_cny!=null?'¥'+arFmtInt(o.total_cny):'—'}</b></span>
+        </div>
+        <table class="ar-items">
+          <thead><tr><th class="col-img">이미지</th><th class="col-price">단가</th><th class="col-qty">수량</th><th class="col-link">상품열기</th></tr></thead>
+          <tbody>${rows||'<tr><td colspan="4" style="padding:16px;color:var(--text-3);font-size:11.5px">품목 없음</td></tr>'}</tbody>
+        </table>
+        ${remainRow}
+      </div>`;
+  }
+  function loadMoreArchive(){
+    arState.shown+=40;
+    renderArchive();
+  }
+  function filterArchive(q){
+    arState.q=q||'';
+    arState.shown=40;
+    applyArchive();
+  }
+  window.filterArchive=filterArchive;
+  window.loadMoreArchive=loadMoreArchive;
+  window.loadArchive=loadArchive;
+  loadArchive();
 
   /* ===== 네이버쇼핑 오늘의 인기 트렌드 (식품 제외) =====
      서버 Mac scripts/naver_best_fetcher.py 가 msearch.shopping.naver.com/best 를 파싱.
