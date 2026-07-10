@@ -223,6 +223,8 @@ def parse_xls_via_xlrd(path: Path):
     items = []
     total_cny = 0.0
     total_cny_any = False
+    last_link_x = ""
+    last_img_x = ""
     if header_row is not None:
         c_link = col_map.get("link")
         c_img = col_map.get("img")
@@ -253,8 +255,21 @@ def parse_xls_via_xlrd(path: Path):
             if not (link or kor or cn):
                 continue
             img = get(c_img, 400)
-            if img and not img.startswith("http"):
+            if not img or not img.startswith("http"):
                 img = ""
+                for j in range(min(10, len(row_s))):
+                    v = row_s[j]
+                    if v.startswith("http") and "alicdn" in v and (c_link is None or j != c_link):
+                        img = v[:400]
+                        break
+            if not link and last_link_x:
+                link = last_link_x
+            else:
+                last_link_x = link
+            if not img and last_img_x:
+                img = last_img_x
+            else:
+                last_img_x = img
             items.append({
                 "img": img, "link": link, "kor": kor, "cn": cn,
                 "memo": get(c_memo), "qty": qty, "price_cny": price,
@@ -338,6 +353,8 @@ def parse_workbook(path: Path):
     MAX_ROWS = 500
     total_cny = 0.0
     total_cny_any = False
+    last_link = ""
+    last_img = ""
 
     for r_idx, row in enumerate(ws.iter_rows(min_row=header_row + 1, max_row=header_row + MAX_ROWS, max_col=20, values_only=True), start=header_row + 1):
         row = list(row)
@@ -373,6 +390,15 @@ def parse_workbook(path: Path):
                 if v.startswith("http") and "alicdn" in v and (c_link is None or j != c_link):
                     img = v[:400]
                     break
+        # 색상별 연속 행: link/img 비어있으면 이전 행 값 상속
+        if not link and last_link:
+            link = last_link
+        else:
+            last_link = link
+        if not img and last_img:
+            img = last_img
+        else:
+            last_img = img
         item = {
             "img": img,
             "link": link,
@@ -401,6 +427,25 @@ def parse_workbook(path: Path):
     return result
 
 
+DUP_TAIL = re.compile(r"\s*\(\d+\)\s*$")
+
+
+def dedupe_key(fname: str) -> str:
+    """중복 감지용 정규화 파일명.
+    - 확장자 대소문자 통일
+    - 끝의 (1)/(2)/(3) 반복 제거
+    - 여러 공백 → 단일 공백
+    """
+    fname = nfc(fname)
+    stem, ext = os.path.splitext(fname)
+    prev = None
+    while prev != stem:
+        prev = stem
+        stem = DUP_TAIL.sub("", stem).strip()
+    stem = re.sub(r"\s+", " ", stem).strip()
+    return stem + ext.lower()
+
+
 def main():
     files = sorted(FOLDER.glob("*.xls*"))
     files = [f for f in files if not f.name.startswith("~$") and not f.name.endswith(".part")]
@@ -421,6 +466,26 @@ def main():
         except Exception as e:
             errors.append({"file": f.name, "error": str(e)})
             print(f"  [{i}/{len(files)}] EXC {f.name}: {e}", file=sys.stderr, flush=True)
+
+    # 중복 제거: 정규화된 파일명별로 그룹핑, 아이템 많은 것 우선 (동수면 mtime 최신)
+    dup_groups = {}
+    for o in orders:
+        key = dedupe_key(o["file"])
+        dup_groups.setdefault(key, []).append(o)
+    deduped = []
+    dropped = 0
+    for key, group in dup_groups.items():
+        if len(group) == 1:
+            deduped.append(group[0])
+            continue
+        # 아이템 갯수 desc → mtime desc
+        group.sort(key=lambda x: (x.get("item_count") or 0, x.get("mtime") or ""), reverse=True)
+        best = group[0]
+        best["duplicates"] = [g["file"] for g in group[1:]]
+        deduped.append(best)
+        dropped += len(group) - 1
+    print(f"  deduped: {len(orders)} → {len(deduped)} ({dropped} duplicates removed)", file=sys.stderr, flush=True)
+    orders = deduped
 
     # 정렬: 아이템 있는 것 우선 → 날짜 desc → 파일명 desc
     orders.sort(key=lambda x: (
