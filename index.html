@@ -4355,10 +4355,11 @@
     <div class="po-wrap lg-pane" data-pane="archive" style="display:none">
       <div class="po-section">
         <div class="po-section-head">
-          <div class="po-section-title">브라이트비드 발주 상품 카탈로그 <span class="kd-section-sub">Dropbox · 중요 폴더/발주서</span></div>
+          <div class="po-section-title">브라이트비드 발주 상품 카탈로그</div>
           <div class="po-section-meta">
             <input type="search" id="arSearch" class="kd-search" placeholder="상품명·1688옵션 검색" oninput="filterArchive(this.value)" />
             <select id="arSort" class="kd-search" style="width:auto;padding:7px 10px" onchange="setArchiveSort(this.value)">
+              <option value="recent">최근 발주순</option>
               <option value="qty">총 발주수량 많은순</option>
               <option value="order">발주 횟수 많은순</option>
               <option value="price_hi">단가 높은순</option>
@@ -4369,7 +4370,6 @@
             <span id="arCount">0건</span>
           </div>
         </div>
-        <div id="arFilters" style="display:flex;gap:6px;flex-wrap:wrap;padding:0 4px 14px"></div>
         <div id="arEmpty" class="po-empty">
           <div class="po-empty-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -8270,7 +8270,7 @@
   /* ===== 발주 상품 카탈로그 (products 배열 로드) =====
      scripts/parse_orders.py 가 xlsx 아이템 6천개를 link/img 기준 dedupe해서
      1,100+ 개 고유 상품으로 집계한 것을 3열 그리드로 렌더. */
-  const arState={all:[],filtered:[],group:'',q:'',sort:'qty',shown:60};
+  const arState={all:[],filtered:[],q:'',sort:'recent',shown:60};
   function arEscape(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
   function arFmtInt(n){if(n==null||isNaN(n))return '—';return Math.round(n).toLocaleString('ko-KR');}
   async function loadArchive(){
@@ -8281,46 +8281,24 @@
       arState.all=d.products||[];
       const upd=document.getElementById('arUpdated');
       if(upd) upd.textContent=(d.generated_at||'').slice(0,16).replace('T',' ');
-      buildArFilters();
       applyArchive();
     }catch(e){
       const emp=document.getElementById('arEmpty');
       if(emp){emp.querySelector('.po-empty-text').textContent='데이터 없음';emp.style.display='block';}
     }
   }
-  function buildArFilters(){
-    const wrap=document.getElementById('arFilters');
-    if(!wrap) return;
-    const groups=new Map();
-    for(const p of arState.all){
-      for(const g of (p.groups||[])){
-        groups.set(g,(groups.get(g)||0)+1);
-      }
-    }
-    const gEntries=[...groups.entries()].sort((a,b)=>b[1]-a[1]);
-    const chip=(k,v,n,active)=>`<button class="ar-chip ${active?'active':''}" data-k="${k}" data-v="${arEscape(v)}">${arEscape(v||'전체')}<span class="n">${n||''}</span></button>`;
-    let html=chip('group','',arState.all.length,!arState.group);
-    for(const [g,n] of gEntries) html+=chip('group',g,n,arState.group===g);
-    wrap.innerHTML=html;
-    wrap.querySelectorAll('.ar-chip').forEach(c=>c.addEventListener('click',()=>{
-      arState[c.dataset.k]=c.dataset.v;
-      arState.shown=60;
-      buildArFilters();
-      applyArchive();
-    }));
-  }
   function applyArchive(){
     const q=arState.q.trim().toLowerCase();
     arState.filtered=arState.all.filter(p=>{
-      if(arState.group && !(p.groups||[]).includes(arState.group)) return false;
       if(q){
-        const hay=[p.kor||'',p.cn||'',...(p.groups||[]),...(p.memos||[])].join(' ').toLowerCase();
+        const hay=[p.kor||'',p.cn||'',...(p.memos||[])].join(' ').toLowerCase();
         if(!hay.includes(q)) return false;
       }
       return true;
     });
     const s=arState.sort;
     arState.filtered.sort((a,b)=>{
+      if(s==='recent') return (b.latest_date||'').localeCompare(a.latest_date||'');
       if(s==='qty') return (b.total_qty||0)-(a.total_qty||0);
       if(s==='order') return (b.order_count||0)-(a.order_count||0);
       if(s==='price_hi') return (b.price_avg||0)-(a.price_avg||0);
@@ -8370,9 +8348,7 @@
     const priceLabel = (p.price_min!=null && p.price_max!=null && p.price_min!==p.price_max)
       ? `¥${p.price_min}~${p.price_max}`
       : (p.price_avg!=null ? `¥${p.price_avg}` : '—');
-    const gTags=(p.groups||[]).filter(g=>g!=='일반'&&g!=='기타').slice(0,3).map(g=>
-      `<span class="ar-tag g-${arEscape(g.replace(/[()]/g,'').split('(')[0])}">${arEscape(g)}</span>`
-    ).join('');
+    const recentLabel = p.latest_date ? p.latest_date.slice(2).replace(/-/g,'.') : '—';
     return `
       <div class="ar-prod">
         <div class="ar-prod-img">${img}</div>
@@ -8383,9 +8359,10 @@
             <span class="ar-stat"><span class="lbl">단가</span><b>${priceLabel}</b></span>
             <span class="ar-stat"><span class="lbl">누적</span><b>${arFmtInt(p.total_qty)}<span class="unit">개</span></b></span>
             <span class="ar-stat"><span class="lbl">발주</span><b>${p.order_count}<span class="unit">회</span></b></span>
+            <span class="ar-stat"><span class="lbl">최근</span><b>${recentLabel}</b></span>
           </div>
           <div class="ar-prod-foot">
-            <div class="ar-prod-tags">${gTags}</div>
+            <div class="ar-prod-tags"></div>
             ${link}
           </div>
         </div>

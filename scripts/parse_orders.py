@@ -12,15 +12,21 @@ Brightbeed data/orders.json 생성.
   구형: 상품링크|상품사진|한글옵션명|1688옵션명|메모|수량|1688단가￥|...
 """
 
+import csv
+import io
 import json
 import os
 import re
 import sys
 import unicodedata
+import urllib.request
 from datetime import datetime, date
 from pathlib import Path
 
 import openpyxl
+
+# 사장님이 정리해두신 마스터 상품 리스트 (한글 이름 우선 사용)
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1enzaVYWZF7MRYnFTdtfajwvogvk4I7EgZ54Gr1d40uI/export?format=csv&gid=0"
 
 FOLDER = Path(os.path.expanduser("~/Dropbox/중요 폴더/발주서"))
 OUT = Path(__file__).resolve().parent.parent / "data" / "orders.json"
@@ -485,6 +491,73 @@ def _norm_img(url):
     return "img:" + u
 
 
+def fetch_master_sheet():
+    """사장님이 정리해두신 구글 시트에서 마스터 상품 리스트를 가져옴.
+    파일 하나에 있는 것처럼 order 형식으로 반환 (group='마스터').
+    """
+    try:
+        req = urllib.request.Request(SHEET_URL, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+    except Exception as e:
+        print(f"  [sheet] fetch failed: {e}", file=sys.stderr, flush=True)
+        return None
+
+    reader = csv.reader(io.StringIO(body))
+    rows = list(reader)
+    if not rows:
+        return None
+    # 첫 줄이 헤더
+    header = [nfc(h).replace("\n", "").strip() for h in rows[0]]
+    def col(name_options):
+        for name in name_options:
+            for i, h in enumerate(header):
+                if h.startswith(name) or h == name:
+                    return i
+        return None
+    c_link = col(["상품링크"])
+    c_img = col(["상품사진", "상품이미지"])
+    c_kor = col(["한글옵션명", "제품명"])
+    c_cn = col(["1688옵션명"])
+    c_price = col(["1688단가", "단가"])
+
+    items = []
+    for r in rows[1:]:
+        if not r or all(not c.strip() for c in r):
+            continue
+        def get(i, limit=200):
+            if i is None or i >= len(r):
+                return ""
+            return nfc(r[i]).strip()[:limit]
+        link = get(c_link, 400)
+        img = get(c_img, 400)
+        kor = get(c_kor)
+        cn = get(c_cn)
+        price = to_num(get(c_price)) if c_price is not None else None
+        if not (link or img or kor or cn):
+            continue
+        items.append({
+            "img": img if img.startswith("http") else "",
+            "link": link if link.startswith("http") else "",
+            "kor": kor,
+            "cn": cn,
+            "memo": "",
+            "qty": None,
+            "price_cny": price,
+            "_from_sheet": True,
+        })
+    if not items:
+        return None
+    print(f"  [sheet] {len(items)} rows from master sheet", file=sys.stderr, flush=True)
+    return {
+        "file": "master-sheet.csv",
+        "group": "마스터",
+        "date": datetime.now().date().isoformat(),
+        "items": items,
+        "item_count": len(items),
+    }
+
+
 def aggregate_products(orders):
     """모든 아이템을 dedupe. link 또는 img 하나라도 겹치면 같은 상품으로 병합 (union-find).
 
@@ -493,7 +566,7 @@ def aggregate_products(orders):
     - 둘 다 없으면 (kor|cn) 이름 조합 폴백
     - 병합 후 상품별 total_qty/order_count/price min/max/avg 집계
     """
-    items_list = []  # (item, order_group, order_file)
+    items_list = []  # (item, order_group, order_file, order_date)
     parent = []
 
     def find(x):
@@ -514,7 +587,7 @@ def aggregate_products(orders):
     for o in orders:
         for it in o.get("items", []):
             idx = len(items_list)
-            items_list.append((it, o.get("group") or "", o.get("file") or ""))
+            items_list.append((it, o.get("group") or "", o.get("file") or "", o.get("date") or ""))
             parent.append(idx)
 
             lk = _norm_link(it.get("link"))
@@ -542,7 +615,7 @@ def aggregate_products(orders):
 
     # 그룹핑
     groups = {}
-    for idx, (it, group, file) in enumerate(items_list):
+    for idx, (it, group, file, dt) in enumerate(items_list):
         if parent[idx] == -1:
             continue
         root = find(idx)
@@ -553,53 +626,78 @@ def aggregate_products(orders):
                 "link": "",
                 "kor": "",
                 "cn": "",
+                "_kor_sheet": "",  # 마스터 시트에서 온 이름 (최우선)
+                "_cn_sheet": "",
                 "_qtys": [],
                 "_prices": [],
                 "_memos": [],
                 "_groups": set(),
                 "_files": set(),
+                "_dates": [],
+                "_in_sheet": False,
             }
             groups[root] = p
         img = it.get("img") or ""
         link = it.get("link") or ""
         kor = it.get("kor") or ""
         cn = it.get("cn") or ""
-        # 첫 번째 http URL 유지 (다른 URL은 무시)
+        from_sheet = bool(it.get("_from_sheet"))
+
+        # 마스터 시트 이름 우선 저장 (있으면 이걸 사용)
+        if from_sheet:
+            p["_in_sheet"] = True
+            if kor and len(kor) > len(p["_kor_sheet"]):
+                p["_kor_sheet"] = kor
+            if cn and len(cn) > len(p["_cn_sheet"]):
+                p["_cn_sheet"] = cn
+        else:
+            # 이름은 더 서술적인 것 우선 (긴 것) — 발주서에서 온 경우만
+            if len(kor) > len(p["kor"]):
+                p["kor"] = kor
+            if len(cn) > len(p["cn"]):
+                p["cn"] = cn
+
+        # 첫 번째 http URL 유지
         if not p["img"] and img.startswith("http"):
             p["img"] = img
         if not p["link"] and link.startswith("http"):
             p["link"] = link
-        # 이름은 더 서술적인 것 우선 (긴 것)
-        if len(kor) > len(p["kor"]):
-            p["kor"] = kor
-        if len(cn) > len(p["cn"]):
-            p["cn"] = cn
-        if it.get("qty") is not None:
-            p["_qtys"].append(float(it["qty"]))
-        if it.get("price_cny") is not None:
-            p["_prices"].append(float(it["price_cny"]))
-        memo = it.get("memo") or ""
-        if memo and memo not in p["_memos"] and len(p["_memos"]) < 5:
-            p["_memos"].append(memo)
-        if group:
-            p["_groups"].add(group)
-        if file:
-            p["_files"].add(file)
+        # 마스터 시트가 아닌 실제 발주만 통계에 포함
+        if not from_sheet:
+            if it.get("qty") is not None:
+                p["_qtys"].append(float(it["qty"]))
+            if it.get("price_cny") is not None:
+                p["_prices"].append(float(it["price_cny"]))
+            memo = it.get("memo") or ""
+            if memo and memo not in p["_memos"] and len(p["_memos"]) < 5:
+                p["_memos"].append(memo)
+            if group:
+                p["_groups"].add(group)
+            if file:
+                p["_files"].add(file)
+            if dt:
+                p["_dates"].append(dt)
 
     result = []
     for p in groups.values():
         prices = p["_prices"]
         qtys = p["_qtys"]
+        dates = p["_dates"]
+        # 이름 우선순위: 마스터 시트 → 발주서
+        kor = p["_kor_sheet"] or p["kor"]
+        cn = p["_cn_sheet"] or p["cn"]
         result.append({
             "img": p["img"],
             "link": p["link"],
-            "kor": p["kor"],
-            "cn": p["cn"],
+            "kor": kor,
+            "cn": cn,
             "total_qty": int(round(sum(qtys))) if qtys else None,
             "order_count": len(p["_files"]),
             "price_min": round(min(prices), 2) if prices else None,
             "price_max": round(max(prices), 2) if prices else None,
             "price_avg": round(sum(prices) / len(prices), 2) if prices else None,
+            "latest_date": max(dates) if dates else "",
+            "in_sheet": p["_in_sheet"],
             "groups": sorted(p["_groups"]),
             "memos": p["_memos"][:3],
         })
@@ -658,9 +756,13 @@ def main():
         x.get("file", ""),
     ), reverse=True)
 
+    # 사장님 마스터 시트 로드 (있으면 이름 우선 사용)
+    sheet_order = fetch_master_sheet()
+    all_for_products = orders + ([sheet_order] if sheet_order else [])
+
     # 아이템들을 link/img 기준으로 dedupe → 상품 카탈로그 생성
-    products = aggregate_products(orders)
-    print(f"  products: {sum(o['item_count'] for o in orders):,} items → {len(products):,} unique products", file=sys.stderr, flush=True)
+    products = aggregate_products(all_for_products)
+    print(f"  products: {sum(o['item_count'] for o in all_for_products):,} items → {len(products):,} unique products", file=sys.stderr, flush=True)
 
     payload = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
