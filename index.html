@@ -631,6 +631,32 @@
   .kd-refresh-btn:hover{background:var(--bg-3)}
   .kd-refresh-btn:disabled{opacity:.5;cursor:default}
 
+  /* ===== 물류팀 뷰 탭 (최근 발주 ↔ 발주서 리스트) ===== */
+  .lg-tabs{
+    display:flex;gap:8px;padding:0 4px 14px;max-width:1120px;margin:0 auto;flex-wrap:wrap
+  }
+  .lg-tab{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 18px;font-size:13px;font-weight:600;color:var(--text-2);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:8px;
+    cursor:pointer;transition:all .12s;
+    font-family:var(--sans);letter-spacing:-.1px
+  }
+  .lg-tab:hover{background:var(--bg-2);border-color:var(--line-2);color:var(--text-1)}
+  .lg-tab.active{
+    background:var(--text-0);color:#fff;border-color:var(--text-0);
+    box-shadow:0 2px 8px rgba(0,0,0,.12)
+  }
+  .lg-tab.active:hover{background:var(--text-1)}
+  .lg-tab svg{opacity:.75}
+  .lg-tab.active svg{opacity:1}
+  .lg-tab-badge{
+    font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:rgba(255,46,147,.12);color:var(--neon);
+    letter-spacing:.02em;font-family:var(--mono)
+  }
+  .lg-tab.active .lg-tab-badge{background:rgba(255,255,255,.2);color:#fff}
+
   /* ===== 발주서 아카이브 (ar-*) — kd-table 스타일 재사용 + 2열 카드 그리드 ===== */
   .ar-grid{
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -4242,8 +4268,21 @@
       <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주 관리</span></h1>
     </div>
 
+    <!-- 탭 버튼: 최근 발주 내역 ↔ 발주서 리스트 -->
+    <div class="lg-tabs" role="tablist">
+      <button class="lg-tab active" data-tab="recent" onclick="switchLgTab('recent')" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="12 6 12 12 16 14"/><circle cx="12" cy="12" r="10"/></svg>
+        최근 발주 내역
+      </button>
+      <button class="lg-tab" data-tab="archive" onclick="switchLgTab('archive')" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 8v13H3V8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        발주서 리스트
+        <span class="lg-tab-badge" id="lgTabArchiveBadge">—</span>
+      </button>
+    </div>
+
     <!-- 최근 발주 내역 — 콰이디에어 실시간 -->
-    <div class="po-wrap">
+    <div class="po-wrap lg-pane" data-pane="recent">
       <div class="po-section">
         <div class="po-section-head">
           <div class="po-section-title">최근 발주 내역 <span class="kd-section-sub">콰이디에어 실시간</span></div>
@@ -4281,7 +4320,7 @@
     </div>
 
     <!-- ============ 브라이트비드 발주서 아카이브 (Dropbox 파싱) ============ -->
-    <div class="po-wrap" style="margin-top:24px">
+    <div class="po-wrap lg-pane" data-pane="archive" style="display:none">
       <div class="po-section">
         <div class="po-section-head">
           <div class="po-section-title">브라이트비드 발주서 아카이브 <span class="kd-section-sub">Dropbox · 중요 폴더/발주서</span></div>
@@ -8324,6 +8363,30 @@
   window.loadMoreArchive=loadMoreArchive;
   window.loadArchive=loadArchive;
   loadArchive();
+
+  // 물류팀 뷰 탭 전환 (최근 발주 내역 ↔ 발주서 리스트)
+  function switchLgTab(name){
+    document.querySelectorAll('.lg-tab').forEach(btn=>{
+      const active = btn.dataset.tab===name;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active?'true':'false');
+    });
+    document.querySelectorAll('.lg-pane').forEach(p=>{
+      p.style.display = p.dataset.pane===name ? '' : 'none';
+    });
+    // 스크롤 최상단
+    const vh=document.getElementById('viewLg');
+    if(vh) vh.scrollTop=0;
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  window.switchLgTab=switchLgTab;
+  // 아카이브 갯수를 탭 뱃지에 반영
+  const _origApply=applyArchive;
+  applyArchive=function(){
+    _origApply();
+    const b=document.getElementById('lgTabArchiveBadge');
+    if(b) b.textContent=arState.filtered.length;
+  };
 
   /* ===== 네이버쇼핑 오늘의 인기 트렌드 (식품 제외) =====
      서버 Mac scripts/naver_best_fetcher.py 가 msearch.shopping.naver.com/best 를 파싱.
