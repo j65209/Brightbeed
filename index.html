@@ -8413,9 +8413,10 @@
     const link=p.link
       ? `<a class="ar-link" href="${arEscape(p.link)}" target="_blank" rel="noopener">상품열기</a>`
       : '<span class="ar-no-link">—</span>';
-    const priceLabel = (p.price_min!=null && p.price_max!=null && p.price_min!==p.price_max)
-      ? `¥${p.price_min}~${p.price_max}`
-      : (p.price_avg!=null ? `¥${p.price_avg}` : '—');
+    // 최근 발주 시 실제 단가 (없으면 평균)
+    const priceLabel = p.price_latest != null
+      ? `¥${p.price_latest}`
+      : (p.price_avg != null ? `¥${p.price_avg}` : '—');
     const recentLabel = p.latest_date ? p.latest_date.slice(2).replace(/-/g,'.') : '—';
     return `
       <div class="ar-prod">

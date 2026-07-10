@@ -630,6 +630,8 @@ def aggregate_products(orders):
                 "_dates": [],
                 "_in_sheet": False,
                 "_ids": set(),  # 후보 stable id (offer:XXX 또는 ibank:XXX)
+                "_latest_date": "",  # 최근 발주 날짜
+                "_latest_price": None,  # 최근 발주 시 단가
             }
             groups[root] = p
         img = it.get("img") or ""
@@ -668,8 +670,10 @@ def aggregate_products(orders):
         if not from_sheet:
             if it.get("qty") is not None:
                 p["_qtys"].append(float(it["qty"]))
+            price_val = None
             if it.get("price_cny") is not None:
-                p["_prices"].append(float(it["price_cny"]))
+                price_val = float(it["price_cny"])
+                p["_prices"].append(price_val)
             memo = it.get("memo") or ""
             if memo and memo not in p["_memos"] and len(p["_memos"]) < 5:
                 p["_memos"].append(memo)
@@ -679,6 +683,13 @@ def aggregate_products(orders):
                 p["_files"].add(file)
             if dt:
                 p["_dates"].append(dt)
+            # 이 아이템이 지금까지 본 것 중 가장 최근이면 latest_price 갱신
+            if dt and dt >= p["_latest_date"]:
+                # 같은 날짜면 실제 단가가 있는 아이템 우선
+                if dt > p["_latest_date"] or (price_val is not None and p["_latest_price"] is None):
+                    p["_latest_date"] = dt
+                    if price_val is not None:
+                        p["_latest_price"] = price_val
 
     result = []
     for root, p in groups.items():
@@ -704,6 +715,7 @@ def aggregate_products(orders):
             "price_min": round(min(prices), 2) if prices else None,
             "price_max": round(max(prices), 2) if prices else None,
             "price_avg": round(sum(prices) / len(prices), 2) if prices else None,
+            "price_latest": round(p["_latest_price"], 2) if p["_latest_price"] is not None else None,
             "latest_date": max(dates) if dates else "",
             "in_sheet": p["_in_sheet"],
             "groups": sorted(p["_groups"]),
