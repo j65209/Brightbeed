@@ -102,12 +102,9 @@
     background: var(--panel-2); color: var(--text-2); border: 1px solid var(--line);
     letter-spacing: 0.1px;
   }
-  .tag.t-발주서 { background: rgba(255,46,147,.08); color: var(--accent); border-color: rgba(255,46,147,.25); }
-  .tag.t-견적서 { background: rgba(2,132,199,.08); color: #0284c7; border-color: rgba(2,132,199,.25); }
-  .tag.t-주문서 { background: rgba(255,107,53,.08); color: var(--accent-2); border-color: rgba(255,107,53,.25); }
-  .tag.t-샘플   { background: rgba(124,58,237,.08); color: #7c3aed; border-color: rgba(124,58,237,.25); }
-  .tag.t-문의   { background: rgba(180,83,9,.08); color: var(--warn); border-color: rgba(180,83,9,.25); }
-  .tag.vendor  { background: rgba(5,150,105,.08); color: var(--ok); border-color: rgba(5,150,105,.25); }
+  .tag.group   { background: rgba(255,46,147,.08); color: var(--accent); border-color: rgba(255,46,147,.25); }
+  .tag.note    { background: rgba(2,132,199,.08); color: #0284c7; border-color: rgba(2,132,199,.25); }
+  .tag.extra   { background: rgba(255,107,53,.1); color: var(--accent-2); border-color: rgba(255,107,53,.3); }
 
   .filename {
     font-size: 12px; color: var(--text-2); word-break: break-all;
@@ -119,7 +116,7 @@
   .stat { display: flex; flex-direction: column; gap: 1px; }
   .stat .lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.2px; }
   .stat .val { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
-  .stat .val.krw::after { content: ' 원'; font-weight: 500; color: var(--muted); font-size: 10.5px; }
+  .stat .val.cny::after { content: ''; font-weight: 500; color: var(--muted); font-size: 10.5px; }
   .stat .val.qty::after { content: ' 개'; font-weight: 500; color: var(--muted); font-size: 10.5px; }
   .stat .val.cnt::after { content: ' 품목'; font-weight: 500; color: var(--muted); font-size: 10.5px; }
 
@@ -165,19 +162,17 @@
 <header>
   <div class="head-row">
     <div class="brand">
-      <span class="brand-title">📦 샤인비드 발주서 리스트</span>
-      <span class="brand-sub">Dropbox/쟌뚜비/샤인비드 발주</span>
+      <span class="brand-title">📦 발주서 아카이브</span>
+      <span class="brand-sub">Dropbox/중요 폴더/발주서</span>
     </div>
     <div class="meta" id="meta">불러오는 중…</div>
   </div>
   <div class="controls">
-    <input class="search" id="q" type="search" placeholder="파일명·업체·품목·메모 검색…" />
-    <div class="sep"></div>
-    <div class="chip-group" id="typeFilters"></div>
-    <div class="sep"></div>
-    <div class="chip-group" id="vendorFilters"></div>
+    <input class="search" id="q" type="search" placeholder="파일명·품목·메모·노트 검색…" />
     <div class="sep"></div>
     <div class="chip-group" id="yearFilters"></div>
+    <div class="sep"></div>
+    <div class="chip-group" id="groupFilters"></div>
   </div>
 </header>
 
@@ -192,8 +187,7 @@ const state = {
   all: [],
   filtered: [],
   q: "",
-  type: "",
-  vendor: "",
+  group: "",
   year: "",
   opened: new Set(),
 };
@@ -229,16 +223,15 @@ async function load() {
 }
 
 function buildFilters() {
-  const types = new Map(), vendors = new Map(), years = new Map();
+  const groups = new Map(), years = new Map();
   for (const o of state.all) {
-    types.set(o.type || "기타", (types.get(o.type || "기타") || 0) + 1);
-    if (o.vendor) vendors.set(o.vendor, (vendors.get(o.vendor) || 0) + 1);
+    const g = o.group || "기타";
+    groups.set(g, (groups.get(g) || 0) + 1);
     const yr = (o.date || "").slice(0, 4);
     if (yr) years.set(yr, (years.get(yr) || 0) + 1);
   }
-  renderChips("typeFilters", types, "type");
-  renderChips("vendorFilters", vendors, "vendor");
   renderChips("yearFilters", years, "year", true);
+  renderChips("groupFilters", groups, "group");
 }
 
 function renderChips(id, map, key, desc = false) {
@@ -258,11 +251,10 @@ function renderChips(id, map, key, desc = false) {
 function apply() {
   const q = state.q.trim().toLowerCase();
   state.filtered = state.all.filter(o => {
-    if (state.type && (o.type || "기타") !== state.type) return false;
-    if (state.vendor && o.vendor !== state.vendor) return false;
+    if (state.group && (o.group || "기타") !== state.group) return false;
     if (state.year && !(o.date || "").startsWith(state.year)) return false;
     if (q) {
-      const hay = [o.file, o.vendor, o.type,
+      const hay = [o.file, o.note || "", o.group || "",
         ...(o.items || []).slice(0, 40).map(it => `${it.kor} ${it.cn} ${it.memo}`)
       ].join(" ").toLowerCase();
       if (!hay.includes(q)) return false;
@@ -277,14 +269,14 @@ function renderSummary() {
   const s = state.filtered;
   if (!s.length) { document.getElementById("summary").style.display = "none"; return; }
   const totalQty = s.reduce((a, o) => a + (o.total_qty || 0), 0);
-  const totalKrw = s.reduce((a, o) => a + (o.total_krw || 0), 0);
+  const totalCny = s.reduce((a, o) => a + (o.total_cny || 0), 0);
   const totalItems = s.reduce((a, o) => a + (o.item_count || 0), 0);
   document.getElementById("summary").style.display = "flex";
   document.getElementById("summary").innerHTML = `
     <div class="s-item"><span class="s-lbl">발주 건수</span><span class="s-val">${fmtInt(s.length)}</span></div>
     <div class="s-item"><span class="s-lbl">총 품목수</span><span class="s-val">${fmtInt(totalItems)}</span></div>
     <div class="s-item"><span class="s-lbl">총 수량</span><span class="s-val">${fmtInt(totalQty)}</span></div>
-    <div class="s-item"><span class="s-lbl">총 입금액</span><span class="s-val">₩${fmtInt(totalKrw)}</span></div>
+    <div class="s-item"><span class="s-lbl">총 상품가</span><span class="s-val">¥${fmtInt(totalCny)}</span></div>
   `;
 }
 
@@ -314,8 +306,9 @@ function renderCard(o, idx) {
   const key = o.file;
   const opened = state.opened.has(key);
   const tags = [];
-  if (o.type) tags.push(`<span class="tag t-${o.type}">${o.type}</span>`);
-  if (o.vendor) tags.push(`<span class="tag vendor">${esc(o.vendor)}</span>`);
+  if (o.group && o.group !== "일반") tags.push(`<span class="tag group">${esc(o.group)}</span>`);
+  if (o.note) tags.push(`<span class="tag note">${esc(o.note)}</span>`);
+  if (o.extra) tags.push(`<span class="tag extra">추가</span>`);
 
   const items = o.items || [];
   const isUrl = s => typeof s === "string" && /^https?:\/\//.test(s);
@@ -364,7 +357,7 @@ function renderCard(o, idx) {
       <div class="stats">
         <div class="stat"><span class="lbl">품목수</span><span class="val cnt">${fmtInt(o.item_count)}</span></div>
         <div class="stat"><span class="lbl">총수량</span><span class="val qty">${fmtInt(o.total_qty)}</span></div>
-        <div class="stat"><span class="lbl">입금액</span><span class="val krw">${fmtInt(o.total_krw)}</span></div>
+        <div class="stat"><span class="lbl">상품가</span><span class="val cny">${o.total_cny != null ? '¥' + fmtInt(o.total_cny) : '—'}</span></div>
       </div>
       ${detailsHtml}
     </div>
