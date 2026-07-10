@@ -676,11 +676,12 @@
   .ar-prod-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
   .ar-prod-name{
     font-size:15px;font-weight:700;color:var(--text-0);line-height:1.3;
-    padding-right:22px;word-break:break-all;letter-spacing:-.2px
+    padding-right:46px;word-break:break-all;letter-spacing:-.2px
   }
   .ar-prod-name .ar-name-text{
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden
   }
+  .ar-auto-badge{font-size:.7em;opacity:.6;margin-left:2px;vertical-align:middle}
   .ar-name-edit{
     position:absolute;top:8px;right:8px;
     background:transparent;border:none;padding:3px;
@@ -689,6 +690,19 @@
   }
   .ar-prod:hover .ar-name-edit{opacity:1}
   .ar-name-edit:hover{background:var(--bg-3);color:var(--neon)}
+  .ar-auto-actions{
+    position:absolute;top:6px;right:6px;
+    display:flex;gap:3px
+  }
+  .ar-btn-approve,.ar-btn-reject{
+    background:transparent;border:1px solid var(--line);padding:2px;
+    cursor:pointer;border-radius:4px;line-height:0;
+    transition:all .1s
+  }
+  .ar-btn-approve{color:var(--ok);border-color:rgba(21,128,61,.35);background:rgba(21,128,61,.06)}
+  .ar-btn-approve:hover{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .ar-btn-reject{color:var(--text-3);background:var(--bg-1)}
+  .ar-btn-reject:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
   .ar-prod-sub{
     font-size:11px;color:var(--text-3);line-height:1.3;
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;
@@ -4379,6 +4393,9 @@
             </select>
             <span id="arUpdated"></span>
             <span id="arCount">0건</span>
+            <button class="kd-refresh-btn" id="arResetBtn" onclick="resetAutoOverrides()" style="display:none" title="자동 매칭한 상품명을 원래대로 되돌립니다">
+              🤖 자동매칭 초기화 <span id="arAutoCount" style="color:var(--text-3);font-weight:500;margin-left:3px"></span>
+            </button>
           </div>
         </div>
         <div id="arEmpty" class="po-empty">
@@ -8281,7 +8298,7 @@
   /* ===== 발주 상품 카탈로그 (products 배열 로드) =====
      scripts/parse_orders.py 가 xlsx 아이템 6천개를 link/img 기준 dedupe해서
      1,100+ 개 고유 상품으로 집계한 것을 3열 그리드로 렌더. */
-  const arState={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{}};
+  const arState={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{}};
   let _arOverridesSha=null;
   const AR_OVERRIDES_API='https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json';
   function arEscape(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
@@ -8306,14 +8323,37 @@
   async function loadNameOverrides(){
     try{
       const r=await ghFetch(AR_OVERRIDES_API,{cache:'no-cache'});
-      if(!r.ok){ arState.overrides={}; return; }
+      if(!r.ok){ arState.overrides={}; arState.autoOverrides={}; return; }
       const j=await r.json();
       const raw=decodeURIComponent(escape(atob(j.content||'')));
       const d=JSON.parse(raw||'{}');
       arState.overrides=d.overrides||{};
+      arState.autoOverrides=d.auto_overrides||{};
       _arOverridesSha=j.sha||null;
-    }catch(e){ arState.overrides={}; }
+    }catch(e){ arState.overrides={}; arState.autoOverrides={}; }
   }
+
+  async function _saveOverridesPayload(nextOverrides, nextAuto, msg){
+    const payload={version:1, description:'대시보드에서 사장님이 직접 수정한 상품명. product.id 를 key 로 사용.', overrides:nextOverrides, auto_overrides:nextAuto};
+    const body={message:msg, content: btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))), branch:'main'};
+    if(_arOverridesSha) body.sha=_arOverridesSha;
+    const r=await ghFetch(AR_OVERRIDES_API,{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    if(j.content?.sha) _arOverridesSha=j.content.sha;
+    arState.overrides=nextOverrides;
+    arState.autoOverrides=nextAuto;
+  }
+
+  async function resetAutoOverrides(){
+    if(!confirm('자동 매칭된 상품명을 모두 원래 이름으로 되돌립니다.\n(수동으로 수정한 이름은 그대로 유지됩니다)\n\n계속할까요?')) return;
+    try{
+      await _saveOverridesPayload(arState.overrides, {}, 'product-name-overrides: reset auto_overrides');
+      applyArchive();
+      toast('✓ 자동 매칭 되돌림','ok');
+    }catch(e){ toast(`되돌리기 실패: ${e.message}`,'err'); }
+  }
+  window.resetAutoOverrides=resetAutoOverrides;
 
   async function saveProductName(pid, currentDisplay){
     const raw=prompt('상품명 수정 (비우면 원래 이름으로 복구):', currentDisplay||'');
@@ -8322,17 +8362,8 @@
     const next={...arState.overrides};
     if(val) next[pid]=val;
     else delete next[pid];
-    const payload={version:1, description:'대시보드에서 사장님이 직접 수정한 상품명. product.id 를 key 로 사용.', overrides:next};
-    const body={message:`product-name-overrides: ${val?'update':'clear'} ${pid}`,
-                content: btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))),
-                branch:'main'};
-    if(_arOverridesSha) body.sha=_arOverridesSha;
     try{
-      const r=await ghFetch(AR_OVERRIDES_API,{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-      if(!r.ok){ toast(`저장 실패 (HTTP ${r.status})`,'err'); return; }
-      const j=await r.json();
-      if(j.content?.sha) _arOverridesSha=j.content.sha;
-      arState.overrides=next;
+      await _saveOverridesPayload(next, arState.autoOverrides, `product-name-overrides: ${val?'update':'clear'} ${pid}`);
       applyArchive();
       toast('✓ 상품명 저장됨','ok');
     }catch(e){ toast(`저장 오류: ${e.message}`,'err'); }
@@ -8370,6 +8401,11 @@
     const cnt=document.getElementById('arCount');
     if(!grid) return;
     if(cnt) cnt.textContent=`${arState.filtered.length.toLocaleString('ko-KR')}종`;
+    const autoCnt=Object.keys(arState.autoOverrides||{}).length;
+    const resetBtn=document.getElementById('arResetBtn');
+    const autoCntSpan=document.getElementById('arAutoCount');
+    if(resetBtn) resetBtn.style.display = autoCnt>0 ? '' : 'none';
+    if(autoCntSpan) autoCntSpan.textContent = autoCnt>0 ? `(${autoCnt}개)` : '';
     if(!arState.filtered.length){
       grid.style.display='none';empty.style.display='block';more.style.display='none';
       empty.querySelector('.po-empty-text').textContent = arState.all.length?'검색 결과 없음':'데이터 없음';
@@ -8396,12 +8432,45 @@
         saveProductName(pid, nameEl?.textContent?.trim() || '');
       });
     });
+    // 자동 매칭 승인/취소
+    grid.querySelectorAll('.ar-btn-approve').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{ e.stopPropagation(); approveAutoName(btn.dataset.pid); });
+    });
+    grid.querySelectorAll('.ar-btn-reject').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{ e.stopPropagation(); rejectAutoName(btn.dataset.pid); });
+    });
   }
+
+  async function approveAutoName(pid){
+    const name = arState.autoOverrides[pid]?.name;
+    if(!name) return;
+    const nextOverrides = {...arState.overrides, [pid]: name};
+    const nextAuto = {...arState.autoOverrides};
+    delete nextAuto[pid];
+    try{
+      await _saveOverridesPayload(nextOverrides, nextAuto, `product-name-overrides: approve auto ${pid}`);
+      applyArchive();
+      toast(`✓ 승인: ${name}`,'ok');
+    }catch(e){ toast(`승인 실패: ${e.message}`,'err'); }
+  }
+  async function rejectAutoName(pid){
+    const nextAuto = {...arState.autoOverrides};
+    delete nextAuto[pid];
+    try{
+      await _saveOverridesPayload(arState.overrides, nextAuto, `product-name-overrides: reject auto ${pid}`);
+      applyArchive();
+      toast('✗ 취소됨','ok');
+    }catch(e){ toast(`취소 실패: ${e.message}`,'err'); }
+  }
+  window.approveAutoName=approveAutoName;
+  window.rejectAutoName=rejectAutoName;
   function renderProductCard(p){
     const overrideName=arState.overrides[p.id];
-    const displayName=overrideName || p.kor || p.cn || '—';
+    const autoName=arState.autoOverrides?.[p.id]?.name;
+    const displayName=overrideName || autoName || p.kor || p.cn || '—';
+    const isAuto = !overrideName && !!autoName;
     const origName=p.kor||p.cn||'';
-    const sub=(overrideName && origName && overrideName!==origName) ? origName
+    const sub=((overrideName||autoName) && origName && (overrideName||autoName)!==origName) ? origName
              : (p.kor && p.cn && p.kor!==p.cn) ? p.cn : '';
     const img=p.img
       ? `<span class="ar-thumb-wrap">
@@ -8422,10 +8491,21 @@
         <div class="ar-prod-img">${img}</div>
         <div class="ar-prod-body">
           <div class="ar-prod-name">
-            <span class="ar-name-text${overrideName?' ar-name-edited':''}">${arEscape(displayName)}</span>
-            <button class="ar-name-edit" title="상품명 편집" data-pid="${arEscape(p.id)}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
+            <span class="ar-name-text${overrideName?' ar-name-edited':''}${isAuto?' ar-name-auto':''}">${arEscape(displayName)}${isAuto?' <span class="ar-auto-badge" title="자동 매칭 – 확인 후 승인/취소">🤖</span>':''}</span>
+            ${isAuto ? `
+              <div class="ar-auto-actions">
+                <button class="ar-btn-approve" title="이 이름 승인 (수동 편집으로 승격)" data-pid="${arEscape(p.id)}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button class="ar-btn-reject" title="원래 이름으로 취소" data-pid="${arEscape(p.id)}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            ` : `
+              <button class="ar-name-edit" title="상품명 편집" data-pid="${arEscape(p.id)}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            `}
           </div>
           ${sub?`<div class="ar-prod-sub">${arEscape(sub)}</div>`:''}
           <div class="ar-prod-stats">
