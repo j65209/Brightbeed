@@ -4359,7 +4359,7 @@
           <div class="po-section-meta">
             <input type="search" id="arSearch" class="kd-search" placeholder="상품명·1688옵션 검색" oninput="filterArchive(this.value)" />
             <select id="arSort" class="kd-search" style="width:auto;padding:7px 10px" onchange="setArchiveSort(this.value)">
-              <option value="recent">최근 발주순</option>
+              <option value="recent" selected>최근 발주순</option>
               <option value="qty">총 발주수량 많은순</option>
               <option value="order">발주 횟수 많은순</option>
               <option value="price_hi">단가 높은순</option>
@@ -8281,6 +8281,9 @@
       arState.all=d.products||[];
       const upd=document.getElementById('arUpdated');
       if(upd) upd.textContent=(d.generated_at||'').slice(0,16).replace('T',' ');
+      // dropdown 을 state 와 동기화 (혹시 브라우저가 다른 옵션 잡고있어도 강제로 recent 로)
+      const sel=document.getElementById('arSort');
+      if(sel) sel.value=arState.sort;
       applyArchive();
     }catch(e){
       const emp=document.getElementById('arEmpty');
@@ -8298,7 +8301,11 @@
     });
     const s=arState.sort;
     arState.filtered.sort((a,b)=>{
-      if(s==='recent') return (b.latest_date||'').localeCompare(a.latest_date||'');
+      if(s==='recent'){
+        const d=(b.latest_date||'').localeCompare(a.latest_date||'');
+        // 같은 날 발주면 수량 많은 순으로 tie-break
+        return d!==0 ? d : (b.total_qty||0)-(a.total_qty||0);
+      }
       if(s==='qty') return (b.total_qty||0)-(a.total_qty||0);
       if(s==='order') return (b.order_count||0)-(a.order_count||0);
       if(s==='price_hi') return (b.price_avg||0)-(a.price_avg||0);
