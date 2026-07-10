@@ -791,6 +791,33 @@
     transform:translate(8px,-50%) scale(.94)
   }
   .ar-thumb-wrap.zoom-left:hover .ar-thumb-zoom{transform:translate(0,-50%) scale(1)}
+
+  /* ===== 모바일/터치 최적화 (hover 없는 기기 OR 좁은 화면) ===== */
+  @media (hover:none) and (pointer:coarse), (max-width:700px){
+    /* 편집·승인·취소 버튼 상시 표시 (hover 없어서 흐릿하면 안 보임) */
+    .ar-name-edit{opacity:.85;padding:6px}
+    .ar-name-edit svg{width:16px;height:16px}
+    .ar-btn-approve,.ar-btn-reject{padding:6px}
+    .ar-btn-approve svg,.ar-btn-reject svg{width:16px;height:16px}
+    /* hover 확대 팝업 무의미 → 표시 안 함 */
+    .ar-thumb-zoom{display:none}
+    .ar-thumb-wrap:hover .ar-thumb{transform:none;box-shadow:none}
+    .ar-thumb-wrap:active .ar-thumb{transform:scale(.96)}
+    /* 상품열기 링크 터치 타겟 확보 */
+    .ar-link{padding:7px 14px;font-size:12px}
+    /* 카드 hover 그림자 대신 active 시 강조 */
+    .ar-prod:hover{border-color:var(--line);box-shadow:none}
+    .ar-prod:active{border-color:var(--accent);box-shadow:0 2px 8px rgba(255,46,147,.12)}
+  }
+  /* 좁은 화면 카드 컴팩트 */
+  @media (max-width:480px){
+    .ar-thumb,.ar-no-img{width:110px;height:110px}
+    .ar-prod{padding:9px;gap:9px}
+    .ar-prod-name{font-size:14.5px;padding-right:52px}
+    .ar-prod-stats{gap:12px}
+    .ar-stat b{font-size:12.5px}
+    .ar-prod-body{gap:4px}
+  }
   .ar-no-img{
     display:inline-flex;align-items:center;justify-content:center;
     width:128px;height:128px;border-radius:6px;
