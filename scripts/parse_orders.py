@@ -241,7 +241,10 @@ def parse_xls_via_xlrd(path: Path):
             def get(cidx, limit=200):
                 if cidx is None or cidx >= len(row_s):
                     return ""
-                return row_s[cidx][:limit]
+                v = row_s[cidx]
+                if v.startswith("=") or v.startswith("_xlfn."):
+                    return ""
+                return v[:limit]
 
             qty = to_num(row[c_qty]) if c_qty is not None and c_qty < len(row) else None
             price = to_num(row[c_price]) if c_price is not None and c_price < len(row) else None
@@ -363,7 +366,11 @@ def parse_workbook(path: Path):
         def get(cidx, limit=200):
             if cidx is None or cidx >= len(row_s):
                 return ""
-            return row_s[cidx][:limit]
+            v = row_s[cidx]
+            # =DISPIMG(...) 같은 엑셀 수식은 상품명으로 부적절
+            if v.startswith("=") or v.startswith("_xlfn."):
+                return ""
+            return v[:limit]
 
         qty = to_num(row[c_qty]) if c_qty is not None and c_qty < len(row) else None
         price = to_num(row[c_price]) if c_price is not None and c_price < len(row) else None
@@ -446,6 +453,97 @@ def dedupe_key(fname: str) -> str:
     return stem + ext.lower()
 
 
+def _norm_url(url):
+    """상품/이미지 URL 정규화 — 쿼리·프래그먼트·프로토콜 무시."""
+    if not url or not isinstance(url, str) or not url.startswith("http"):
+        return ""
+    u = url.split("?")[0].split("#")[0].strip("/").lower()
+    # https:// / http:// 통일
+    u = re.sub(r"^https?://", "", u)
+    return u
+
+
+def aggregate_products(orders):
+    """모든 발주서의 아이템을 link/img 기준으로 합쳐 고유 상품 카탈로그로.
+
+    같은 상품 판정 우선순위: 상품링크 → 이미지 URL → (kor|cn) 이름 조합.
+    각 상품에 total_qty(누적), order_count(발주 횟수), 단가 min/max/avg 집계.
+    """
+    products = {}
+    for o in orders:
+        for it in o.get("items", []):
+            link = it.get("link") or ""
+            img = it.get("img") or ""
+            kor = it.get("kor") or ""
+            cn = it.get("cn") or ""
+            # dedupe 키 결정
+            key = _norm_url(link) or _norm_url(img)
+            if not key:
+                name = (kor.strip() + "|" + cn.strip()).strip("|")
+                if not name:
+                    continue
+                key = "name:" + name
+            p = products.get(key)
+            if p is None:
+                p = {
+                    "id": key,
+                    "img": "",
+                    "link": "",
+                    "kor": "",
+                    "cn": "",
+                    "_qtys": [],
+                    "_prices": [],
+                    "_memos": [],
+                    "_groups": set(),
+                    "_files": set(),
+                }
+                products[key] = p
+            # 첫 번째 나온 img/link 유지 (또는 더 나은 것 있으면 교체)
+            if not p["img"] and img.startswith("http"):
+                p["img"] = img
+            if not p["link"] and link.startswith("http"):
+                p["link"] = link
+            # 이름은 길이 긴 것 우선 (더 서술적)
+            if len(kor) > len(p["kor"]):
+                p["kor"] = kor
+            if len(cn) > len(p["cn"]):
+                p["cn"] = cn
+            if it.get("qty") is not None:
+                p["_qtys"].append(float(it["qty"]))
+            if it.get("price_cny") is not None:
+                p["_prices"].append(float(it["price_cny"]))
+            memo = it.get("memo") or ""
+            if memo and memo not in p["_memos"] and len(p["_memos"]) < 5:
+                p["_memos"].append(memo)
+            if o.get("group"):
+                p["_groups"].add(o["group"])
+            p["_files"].add(o.get("file", ""))
+
+    result = []
+    for p in products.values():
+        prices = p["_prices"]
+        qtys = p["_qtys"]
+        result.append({
+            "img": p["img"],
+            "link": p["link"],
+            "kor": p["kor"],
+            "cn": p["cn"],
+            "total_qty": int(round(sum(qtys))) if qtys else None,
+            "order_count": len(p["_files"]),
+            "price_min": round(min(prices), 2) if prices else None,
+            "price_max": round(max(prices), 2) if prices else None,
+            "price_avg": round(sum(prices) / len(prices), 2) if prices else None,
+            "groups": sorted(p["_groups"]),
+            "memos": p["_memos"][:3],
+        })
+    # 총 발주 수량 desc → 발주 횟수 desc 순
+    result.sort(key=lambda x: (
+        x.get("total_qty") or 0,
+        x.get("order_count") or 0,
+    ), reverse=True)
+    return result
+
+
 def main():
     files = sorted(FOLDER.glob("*.xls*"))
     files = [f for f in files if not f.name.startswith("~$") and not f.name.endswith(".part")]
@@ -494,12 +592,18 @@ def main():
         x.get("file", ""),
     ), reverse=True)
 
+    # 아이템들을 link/img 기준으로 dedupe → 상품 카탈로그 생성
+    products = aggregate_products(orders)
+    print(f"  products: {sum(o['item_count'] for o in orders):,} items → {len(products):,} unique products", file=sys.stderr, flush=True)
+
     payload = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "source_folder": str(FOLDER),
         "count": len(orders),
+        "product_count": len(products),
         "errors": errors,
         "orders": orders,
+        "products": products,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2))

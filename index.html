@@ -657,13 +657,42 @@
   }
   .lg-tab.active .lg-tab-badge{background:rgba(255,255,255,.2);color:#fff}
 
-  /* ===== 발주서 아카이브 (ar-*) — kd-table 스타일 재사용 + 3열 카드 그리드 ===== */
+  /* ===== 발주 상품 카탈로그 (ar-*) — 3열 상품 카드 그리드 ===== */
   .ar-grid{
     display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:10px;padding:0 4px
+    gap:12px;padding:0 4px
   }
   @media (max-width:1050px){ .ar-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (max-width:700px){ .ar-grid{grid-template-columns:1fr} }
+  .ar-prod{
+    display:flex;gap:10px;padding:10px;
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    content-visibility:auto;contain-intrinsic-size:auto 170px;
+    transition:border-color .12s,box-shadow .12s
+  }
+  .ar-prod:hover{border-color:var(--line-2);box-shadow:0 3px 10px rgba(0,0,0,.05)}
+  .ar-prod-img{flex-shrink:0}
+  .ar-prod-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+  .ar-prod-name{
+    font-size:13px;font-weight:700;color:var(--text-0);line-height:1.3;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+    word-break:break-all
+  }
+  .ar-prod-sub{
+    font-size:11px;color:var(--text-3);line-height:1.3;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;
+    word-break:break-all
+  }
+  .ar-prod-stats{display:flex;gap:10px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .ar-stat{display:flex;flex-direction:column;gap:1px;line-height:1.1}
+  .ar-stat .lbl{font-size:9.5px;color:var(--text-3);letter-spacing:.05em}
+  .ar-stat b{font-size:13px;font-weight:700;color:var(--text-1);font-family:var(--mono);letter-spacing:-.2px}
+  .ar-stat .unit{font-size:.65em;color:var(--text-3);margin-left:1px;font-weight:500}
+  .ar-prod-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    margin-top:4px;padding-top:6px;border-top:1px dashed var(--line)
+  }
+  .ar-prod-tags{display:flex;gap:4px;flex-wrap:wrap;min-width:0}
   .ar-card{
     background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
     overflow:hidden;display:flex;flex-direction:column;
@@ -4279,7 +4308,7 @@
       </button>
       <button class="lg-tab" data-tab="archive" onclick="switchLgTab('archive')" role="tab" aria-selected="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 8v13H3V8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-        발주서 리스트
+        발주 상품 리스트
         <span class="lg-tab-badge" id="lgTabArchiveBadge">—</span>
       </button>
     </div>
@@ -4326,9 +4355,16 @@
     <div class="po-wrap lg-pane" data-pane="archive" style="display:none">
       <div class="po-section">
         <div class="po-section-head">
-          <div class="po-section-title">브라이트비드 발주서 아카이브 <span class="kd-section-sub">Dropbox · 중요 폴더/발주서</span></div>
+          <div class="po-section-title">브라이트비드 발주 상품 카탈로그 <span class="kd-section-sub">Dropbox · 중요 폴더/발주서</span></div>
           <div class="po-section-meta">
-            <input type="search" id="arSearch" class="kd-search" placeholder="파일명·품목 검색" oninput="filterArchive(this.value)" />
+            <input type="search" id="arSearch" class="kd-search" placeholder="상품명·1688옵션 검색" oninput="filterArchive(this.value)" />
+            <select id="arSort" class="kd-search" style="width:auto;padding:7px 10px" onchange="setArchiveSort(this.value)">
+              <option value="qty">총 발주수량 많은순</option>
+              <option value="order">발주 횟수 많은순</option>
+              <option value="price_hi">단가 높은순</option>
+              <option value="price_lo">단가 낮은순</option>
+              <option value="name">이름순</option>
+            </select>
             <span id="arUpdated"></span>
             <span id="arCount">0건</span>
           </div>
@@ -8231,19 +8267,18 @@
   // 초기 렌더 — 페이지 로드 직후 KD 데이터 가져옴
   renderKDOrders().catch(()=>{});
 
-  /* ===== 브라이트비드 발주서 아카이브 (data/orders.json 정적 로드) =====
-     scripts/parse_orders.py 가 ~/Dropbox/중요 폴더/발주서 xlsx 528개를 파싱해
-     data/orders.json 에 저장. 이 스크립트는 그걸 읽어 2열 카드 그리드로 렌더. */
-  const arState={all:[],filtered:[],year:'',group:'',q:'',shown:40};
+  /* ===== 발주 상품 카탈로그 (products 배열 로드) =====
+     scripts/parse_orders.py 가 xlsx 아이템 6천개를 link/img 기준 dedupe해서
+     1,100+ 개 고유 상품으로 집계한 것을 3열 그리드로 렌더. */
+  const arState={all:[],filtered:[],group:'',q:'',sort:'qty',shown:60};
   function arEscape(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
   function arFmtInt(n){if(n==null||isNaN(n))return '—';return Math.round(n).toLocaleString('ko-KR');}
-  function arFmtDate(iso){if(!iso)return '—';const [y,m,d]=iso.split('-');return `<span class="yr">${y.slice(2)}.</span>${m}.${d}`;}
   async function loadArchive(){
     try{
       const r=await fetch('data/orders.json?cb='+Date.now(),{cache:'no-store'});
       if(!r.ok) throw new Error('HTTP '+r.status);
       const d=await r.json();
-      arState.all=d.orders||[];
+      arState.all=d.products||[];
       const upd=document.getElementById('arUpdated');
       if(upd) upd.textContent=(d.generated_at||'').slice(0,16).replace('T',' ');
       buildArFilters();
@@ -8256,39 +8291,42 @@
   function buildArFilters(){
     const wrap=document.getElementById('arFilters');
     if(!wrap) return;
-    const years=new Map(),groups=new Map();
-    for(const o of arState.all){
-      const y=(o.date||'').slice(0,4);
-      if(y) years.set(y,(years.get(y)||0)+1);
-      const g=o.group||'기타';
-      groups.set(g,(groups.get(g)||0)+1);
+    const groups=new Map();
+    for(const p of arState.all){
+      for(const g of (p.groups||[])){
+        groups.set(g,(groups.get(g)||0)+1);
+      }
     }
-    const yEntries=[...years.entries()].sort((a,b)=>b[0].localeCompare(a[0]));
     const gEntries=[...groups.entries()].sort((a,b)=>b[1]-a[1]);
     const chip=(k,v,n,active)=>`<button class="ar-chip ${active?'active':''}" data-k="${k}" data-v="${arEscape(v)}">${arEscape(v||'전체')}<span class="n">${n||''}</span></button>`;
-    let html=chip('year','',arState.all.length,!arState.year);
-    for(const [y,n] of yEntries) html+=chip('year',y,n,arState.year===y);
-    html+='<span style="width:1px;background:var(--line-2);margin:0 4px"></span>';
-    html+=chip('group','',arState.all.length,!arState.group);
+    let html=chip('group','',arState.all.length,!arState.group);
     for(const [g,n] of gEntries) html+=chip('group',g,n,arState.group===g);
     wrap.innerHTML=html;
     wrap.querySelectorAll('.ar-chip').forEach(c=>c.addEventListener('click',()=>{
       arState[c.dataset.k]=c.dataset.v;
-      arState.shown=40;
+      arState.shown=60;
       buildArFilters();
       applyArchive();
     }));
   }
   function applyArchive(){
     const q=arState.q.trim().toLowerCase();
-    arState.filtered=arState.all.filter(o=>{
-      if(arState.year && !(o.date||'').startsWith(arState.year)) return false;
-      if(arState.group && (o.group||'기타')!==arState.group) return false;
+    arState.filtered=arState.all.filter(p=>{
+      if(arState.group && !(p.groups||[]).includes(arState.group)) return false;
       if(q){
-        const hay=[o.file,o.group||'',o.note||'',...(o.items||[]).slice(0,20).map(it=>`${it.kor} ${it.cn} ${it.memo}`)].join(' ').toLowerCase();
+        const hay=[p.kor||'',p.cn||'',...(p.groups||[]),...(p.memos||[])].join(' ').toLowerCase();
         if(!hay.includes(q)) return false;
       }
       return true;
+    });
+    const s=arState.sort;
+    arState.filtered.sort((a,b)=>{
+      if(s==='qty') return (b.total_qty||0)-(a.total_qty||0);
+      if(s==='order') return (b.order_count||0)-(a.order_count||0);
+      if(s==='price_hi') return (b.price_avg||0)-(a.price_avg||0);
+      if(s==='price_lo') return (a.price_avg||Infinity)-(b.price_avg||Infinity);
+      if(s==='name') return (a.kor||a.cn||'').localeCompare(b.kor||b.cn||'');
+      return 0;
     });
     renderArchive();
   }
@@ -8298,7 +8336,7 @@
     const more=document.getElementById('arMore');
     const cnt=document.getElementById('arCount');
     if(!grid) return;
-    if(cnt) cnt.textContent=`${arState.filtered.length}건`;
+    if(cnt) cnt.textContent=`${arState.filtered.length.toLocaleString('ko-KR')}종`;
     if(!arState.filtered.length){
       grid.style.display='none';empty.style.display='block';more.style.display='none';
       empty.querySelector('.po-empty-text').textContent = arState.all.length?'검색 결과 없음':'데이터 없음';
@@ -8307,9 +8345,9 @@
     empty.style.display='none';
     grid.style.display='grid';
     const show=arState.filtered.slice(0,arState.shown);
-    grid.innerHTML=show.map(renderArchiveCard).join('');
+    grid.innerHTML=show.map(renderProductCard).join('');
     more.style.display=arState.filtered.length>arState.shown?'block':'none';
-    // 우측 컬럼 썸네일 hover 시 확대 이미지가 화면 밖으로 나가지 않게 좌측으로 flip
+    // 우측 컬럼 썸네일 hover 시 확대 이미지가 화면 밖으로 나가지 않게 좌측 flip
     grid.querySelectorAll('.ar-thumb-wrap').forEach(w=>{
       w.addEventListener('mouseenter', ()=>{
         const rect=w.getBoundingClientRect();
@@ -8317,59 +8355,58 @@
       }, {passive:true});
     });
   }
-  function renderArchiveCard(o){
-    const gTag=o.group&&o.group!=='일반'&&o.group!=='기타'
-      ? `<span class="ar-tag g-${arEscape(o.group.replace(/[()]/g,'').split('(')[0])}">${arEscape(o.group)}</span>`
-      : '';
-    const items=(o.items||[]).slice(0,30);
-    const rows=items.map(it=>{
-      const img=it.img
-        ? `<span class="ar-thumb-wrap">
-             <img class="ar-thumb" loading="lazy" referrerpolicy="no-referrer" src="${arEscape(it.img)}" alt="" onerror="this.parentElement.replaceWith(Object.assign(document.createElement('span'),{className:'ar-no-img',textContent:'×'}))">
-             <img class="ar-thumb-zoom" referrerpolicy="no-referrer" src="${arEscape(it.img)}" alt="">
-           </span>`
-        : '<span class="ar-no-img">×</span>';
-      const price=it.price_cny!=null?`¥${(+it.price_cny).toFixed(2)}`:'—';
-      const qty=it.qty!=null?arFmtInt(it.qty):'—';
-      const link=it.link?`<a class="ar-link" href="${arEscape(it.link)}" target="_blank" rel="noopener">열기</a>`:'<span class="ar-no-link">—</span>';
-      return `<tr>
-        <td class="col-img">${img}</td>
-        <td class="col-price">${price}</td>
-        <td class="col-qty">${qty}<span class="qty-unit">개</span></td>
-        <td class="col-link">${link}</td>
-      </tr>`;
-    }).join('');
-    const remain=(o.items||[]).length-items.length;
-    const remainRow=remain>0?`<div class="ar-more-items">…외 ${remain}개 품목</div>`:'';
+  function renderProductCard(p){
+    const name=p.kor||p.cn||'—';
+    const sub=(p.kor && p.cn && p.kor!==p.cn) ? p.cn : '';
+    const img=p.img
+      ? `<span class="ar-thumb-wrap">
+           <img class="ar-thumb" loading="lazy" referrerpolicy="no-referrer" src="${arEscape(p.img)}" alt="" onerror="this.parentElement.replaceWith(Object.assign(document.createElement('span'),{className:'ar-no-img',textContent:'×'}))">
+           <img class="ar-thumb-zoom" referrerpolicy="no-referrer" src="${arEscape(p.img)}" alt="">
+         </span>`
+      : '<span class="ar-no-img">×</span>';
+    const link=p.link
+      ? `<a class="ar-link" href="${arEscape(p.link)}" target="_blank" rel="noopener">상품열기</a>`
+      : '<span class="ar-no-link">—</span>';
+    const priceLabel = (p.price_min!=null && p.price_max!=null && p.price_min!==p.price_max)
+      ? `¥${p.price_min}~${p.price_max}`
+      : (p.price_avg!=null ? `¥${p.price_avg}` : '—');
+    const gTags=(p.groups||[]).filter(g=>g!=='일반'&&g!=='기타').slice(0,3).map(g=>
+      `<span class="ar-tag g-${arEscape(g.replace(/[()]/g,'').split('(')[0])}">${arEscape(g)}</span>`
+    ).join('');
     return `
-      <div class="ar-card">
-        <div class="ar-card-head">
-          <span class="ar-date">${arFmtDate(o.date)}</span>
-          <span class="ar-file">${arEscape(o.file)}</span>
-          ${gTag}
+      <div class="ar-prod">
+        <div class="ar-prod-img">${img}</div>
+        <div class="ar-prod-body">
+          <div class="ar-prod-name">${arEscape(name)}</div>
+          ${sub?`<div class="ar-prod-sub">${arEscape(sub)}</div>`:''}
+          <div class="ar-prod-stats">
+            <span class="ar-stat"><span class="lbl">단가</span><b>${priceLabel}</b></span>
+            <span class="ar-stat"><span class="lbl">누적</span><b>${arFmtInt(p.total_qty)}<span class="unit">개</span></b></span>
+            <span class="ar-stat"><span class="lbl">발주</span><b>${p.order_count}<span class="unit">회</span></b></span>
+          </div>
+          <div class="ar-prod-foot">
+            <div class="ar-prod-tags">${gTags}</div>
+            ${link}
+          </div>
         </div>
-        <div class="ar-card-stats">
-          <span><b>${arFmtInt(o.item_count)}</b>품목</span>
-          <span><b>${arFmtInt(o.total_qty)}</b>개</span>
-          <span><b>${o.total_cny!=null?'¥'+arFmtInt(o.total_cny):'—'}</b></span>
-        </div>
-        <table class="ar-items">
-          <thead><tr><th class="col-img">이미지</th><th class="col-price">단가</th><th class="col-qty">수량</th><th class="col-link">상품열기</th></tr></thead>
-          <tbody>${rows||'<tr><td colspan="4" style="padding:16px;color:var(--text-3);font-size:11.5px">품목 없음</td></tr>'}</tbody>
-        </table>
-        ${remainRow}
       </div>`;
   }
   function loadMoreArchive(){
-    arState.shown+=40;
+    arState.shown+=60;
     renderArchive();
   }
   function filterArchive(q){
     arState.q=q||'';
-    arState.shown=40;
+    arState.shown=60;
+    applyArchive();
+  }
+  function setArchiveSort(s){
+    arState.sort=s;
+    arState.shown=60;
     applyArchive();
   }
   window.filterArchive=filterArchive;
+  window.setArchiveSort=setArchiveSort;
   window.loadMoreArchive=loadMoreArchive;
   window.loadArchive=loadArchive;
   loadArchive();
@@ -8390,12 +8427,12 @@
     window.scrollTo({top:0,behavior:'instant'});
   }
   window.switchLgTab=switchLgTab;
-  // 아카이브 갯수를 탭 뱃지에 반영
+  // 상품 카탈로그 갯수를 탭 뱃지에 반영
   const _origApply=applyArchive;
   applyArchive=function(){
     _origApply();
     const b=document.getElementById('lgTabArchiveBadge');
-    if(b) b.textContent=arState.filtered.length;
+    if(b) b.textContent=arState.filtered.length.toLocaleString('ko-KR');
   };
 
   /* ===== 네이버쇼핑 오늘의 인기 트렌드 (식품 제외) =====
