@@ -7549,7 +7549,12 @@
     );
     const data=loadLeaveData();
     const editing=document.body.classList.contains('leave-edit-mode');
-    grid.innerHTML=STAFF.map(s=>leaveCardHTML(s,data[s.name],editing)).join('');
+    // 입사일 오름차순 정렬 (오래된 직원 → 오늘 입사자 순, 입사일 없으면 맨 뒤)
+    const sorted=[...STAFF].sort((a,b)=>{
+      const ha=a.hire||'9999-12-31', hb=b.hire||'9999-12-31';
+      return ha.localeCompare(hb);
+    });
+    grid.innerHTML=sorted.map(s=>leaveCardHTML(s,data[s.name],editing)).join('');
     if(expandedStaff.size){
       grid.querySelectorAll('.leave-card').forEach(c=>{
         if(expandedStaff.has(c.dataset.staff)) c.classList.add('expanded');
