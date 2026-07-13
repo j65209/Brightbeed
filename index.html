@@ -3609,10 +3609,42 @@
   .leave-policy-body .pol-sub::before{
     content:'– ';color:rgba(255,179,71,.6);
   }
+  /* 경조사 휴가 테이블 */
+  .pol-table{
+    width:100%;margin-top:6px;
+    border-collapse:collapse;font-size:12.5px;
+    background:rgba(255,179,71,.03);
+    border:1px solid rgba(255,179,71,.25);
+    border-radius:6px;overflow:hidden;
+  }
+  .pol-table th,.pol-table td{
+    padding:8px 12px;text-align:left;
+    border-bottom:1px solid rgba(255,179,71,.15);
+  }
+  .pol-table thead th{
+    background:rgba(255,179,71,.10);
+    color:#9a3412;font-weight:600;font-size:12px;letter-spacing:.01em;
+  }
+  .pol-table td.pol-days{
+    text-align:right;font-family:var(--mono);font-weight:600;
+    color:#c2410c;width:80px;
+    text-shadow:0 0 6px rgba(255,179,71,.35);
+  }
+  .pol-table tbody tr:last-child td{border-bottom:0}
+  .pol-table tbody tr:hover{background:rgba(255,179,71,.05)}
+  .pol-rules{
+    margin-top:10px;font-size:12px;color:var(--text-2);line-height:1.75;
+    padding-left:2px;
+  }
+  .pol-rules li{margin-bottom:2px;list-style:'· ';padding-left:4px}
   @media (max-width:600px){
     .leave-policy{padding:16px 16px 18px}
     .leave-policy-title{font-size:13.5px}
     .leave-policy-body{font-size:12px;padding-left:18px}
+    .pol-table{font-size:11.5px}
+    .pol-table th,.pol-table td{padding:6px 8px}
+    .pol-table td.pol-days{width:60px}
+    .pol-rules{font-size:11.5px}
   }
   .leave-cta .btn-neon{padding:14px 36px;font-size:15px}
   .leave-section{margin-bottom:32px}
@@ -4340,6 +4372,34 @@
           • <em>오후 반차</em>:
           <span class="pol-sub">13:00 퇴근 — 점심 식사 없이 바로 퇴근 시</span>
           <span class="pol-sub">14:00 퇴근 — 점심 식사 후 퇴근 시</span>
+        </div>
+      </div>
+
+      <div class="leave-policy-section">
+        <div class="leave-policy-section-title"><span class="num">4.</span>경조사 휴가 기준</div>
+        <div class="leave-policy-body">
+          <table class="pol-table">
+            <thead>
+              <tr><th>경조사 구분</th><th style="text-align:right">유급휴가</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>본인 결혼</td><td class="pol-days">5일</td></tr>
+              <tr><td>배우자 사망</td><td class="pol-days">5일</td></tr>
+              <tr><td>자녀 사망</td><td class="pol-days">5일</td></tr>
+              <tr><td>본인 또는 배우자의 부모 사망</td><td class="pol-days">5일</td></tr>
+              <tr><td>본인 또는 배우자의 조부모·외조부모 사망</td><td class="pol-days">3일</td></tr>
+              <tr><td>본인 또는 배우자의 형제자매 사망</td><td class="pol-days">3일</td></tr>
+              <tr><td>자녀 결혼</td><td class="pol-days">1일</td></tr>
+            </tbody>
+          </table>
+          <ul class="pol-rules">
+            <li>경조휴가는 <em>연차휴가에서 차감하지 않는</em> 유급 특별휴가로 한다.</li>
+            <li>본인 가족과 배우자 가족은 동일한 기준을 적용한다.</li>
+            <li>결혼휴가는 결혼일을 기준으로 전후 일정 기간 내 사용할 수 있다.</li>
+            <li>조사휴가는 경조사 발생일을 기준으로 연속하여 사용하는 것을 원칙으로 한다.</li>
+            <li>휴가 사용 시 청첩장, 부고장, 가족관계증명서 등 관련 증빙을 제출할 수 있다.</li>
+            <li>휴가일에 공휴일과 주말을 포함할지 여부는 회사의 별도 기준에 따른다.</li>
+          </ul>
         </div>
       </div>
     </div>
