@@ -274,14 +274,25 @@
   .best-item[data-rank="2"] .best-rank{background:linear-gradient(135deg,#cbd5e1 0%,#94a3b8 100%);color:#fff}
   .best-item[data-rank="3"] .best-rank{background:linear-gradient(135deg,#f97316 0%,#c2410c 100%);color:#fff}
   .best-thumb{
-    flex-shrink:0;width:32px;height:32px;border-radius:6px;background-size:cover;background-position:center;
+    display:block;width:32px;height:32px;border-radius:6px;background-size:cover;background-position:center;
     background-color:var(--bg-3);border:1px solid var(--line);
   }
+  .best-thumb-link{
+    flex-shrink:0;display:block;text-decoration:none;color:inherit;transition:transform .15s, box-shadow .15s;
+  }
+  .best-thumb-link:hover .best-thumb{transform:scale(1.06);box-shadow:0 0 0 2px var(--accent-soft);border-color:var(--accent)}
+  .best-name-link{
+    flex:1;min-width:0;display:block;text-decoration:none;color:inherit;transition:color .12s;
+  }
+  .best-name-link:hover .best-name{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
   .best-name{
-    flex:1;font-size:12.5px;line-height:1.35;color:var(--text-1);
+    font-size:12.5px;line-height:1.35;color:var(--text-1);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
     word-break:break-word;
   }
+  /* 링크가 없는 아이템의 썸네일/이름은 flex 흐름을 그대로 유지 */
+  li.best-item > .best-thumb{flex-shrink:0}
+  li.best-item > .best-name{flex:1;min-width:0}
   .best-count{
     flex-shrink:0;font-family:var(--mono);font-size:11px;color:var(--text-3);
     font-weight:500;letter-spacing:.02em;
@@ -5677,12 +5688,21 @@
       return `<div class="best-col">${head}<div class="best-empty">최근 30일 판매 데이터가 없습니다</div></div>`;
     }
     const rows=items.map(it=>{
-      const thumb=it.thumb?`style="background-image:url('${_bestEsc(it.thumb)}')"`:'';
+      const thumbStyle=it.thumb?`style="background-image:url('${_bestEsc(it.thumb)}')"`:'';
       const cnt=Number(it.count)||0;
+      const url=it.url||'';
+      // 링크가 있으면 썸네일 + 이름을 <a>로 감쌈. 없으면 span (fallback)
+      const openAttr=url?` href="${_bestEsc(url)}" target="_blank" rel="noopener noreferrer" title="${_bestEsc(it.name)} — 상품 페이지 열기"`:'';
+      const thumbEl=url
+        ? `<a class="best-thumb-link"${openAttr}><span class="best-thumb" ${thumbStyle}></span></a>`
+        : `<span class="best-thumb" ${thumbStyle}></span>`;
+      const nameEl=url
+        ? `<a class="best-name-link"${openAttr}><span class="best-name">${_bestEsc(it.name)}</span></a>`
+        : `<span class="best-name" title="${_bestEsc(it.name)}">${_bestEsc(it.name)}</span>`;
       return `<li class="best-item" data-rank="${it.rank}">
         <span class="best-rank">${it.rank}</span>
-        <span class="best-thumb" ${thumb}></span>
-        <span class="best-name" title="${_bestEsc(it.name)}">${_bestEsc(it.name)}</span>
+        ${thumbEl}
+        ${nameEl}
         <span class="best-count"><b>${_bestFmtCount(cnt)}</b>건</span>
       </li>`;
     }).join('');
