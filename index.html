@@ -217,6 +217,86 @@
   .btn.spin svg{animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
+  /* ===== 브랜드별 판매 순위 TOP 10 (홈 최상단 패널) — 식스샵 통계 ===== */
+  .best-panel{
+    margin-bottom:40px;background:var(--bg-1);border:1px solid var(--line);border-radius:12px;
+    padding:22px 22px 20px;box-shadow:0 2px 24px rgba(255,46,147,.05);
+    position:relative;overflow:hidden;
+  }
+  .best-panel::before{
+    content:'';position:absolute;left:0;top:0;height:3px;width:100%;
+    background:linear-gradient(90deg,#22d3ee 0%,#22c55e 50%,#a78bfa 100%);
+    opacity:.9;
+  }
+  .best-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap}
+  .best-head-left{display:flex;align-items:baseline;gap:12px;min-width:0}
+  .best-eyebrow{font-family:var(--mono);font-size:11px;color:var(--neon);letter-spacing:.22em;text-transform:uppercase;text-shadow:0 0 12px var(--neon-glow)}
+  .best-title{font-size:16px;font-weight:600;color:var(--text-0);letter-spacing:-.01em}
+  .best-title-sub{font-size:12px;color:var(--text-3);font-weight:500;margin-left:6px}
+  .best-head-right{display:flex;align-items:center;gap:10px}
+  .best-updated{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.02em}
+  .best-refresh{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;
+    background:var(--bg-2);border:1px solid var(--line);color:var(--text-2);
+    font-size:11.5px;font-family:var(--mono);cursor:pointer;transition:all .15s;
+  }
+  .best-refresh:hover:not(:disabled){background:var(--bg-3);border-color:var(--line-2);color:var(--text-0)}
+  .best-refresh:disabled{opacity:.6;cursor:not-allowed}
+  .best-refresh.spin svg{animation:spin .9s linear infinite}
+  .best-refresh svg{width:12px;height:12px}
+
+  .best-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .best-col{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    padding:14px 14px 10px;display:flex;flex-direction:column;min-height:120px;
+  }
+  .best-col-head{display:flex;align-items:center;gap:8px;padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+  .best-col-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .best-col-name{font-size:13.5px;font-weight:600;color:var(--text-0);letter-spacing:-.01em}
+  .best-col-site{font-family:var(--mono);font-size:10.5px;color:var(--text-3);margin-left:auto;letter-spacing:.02em}
+  .best-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+  .best-item{
+    display:flex;align-items:center;gap:9px;padding:6px 6px;border-radius:6px;
+    transition:background .12s;cursor:default;
+  }
+  .best-item:hover{background:var(--bg-1)}
+  .best-rank{
+    flex-shrink:0;width:22px;height:22px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:11px;font-weight:700;
+    background:var(--bg-3);color:var(--text-2);
+  }
+  .best-item[data-rank="1"] .best-rank{background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 100%);color:#fff;box-shadow:0 0 10px rgba(251,191,36,.4)}
+  .best-item[data-rank="2"] .best-rank{background:linear-gradient(135deg,#cbd5e1 0%,#94a3b8 100%);color:#fff}
+  .best-item[data-rank="3"] .best-rank{background:linear-gradient(135deg,#f97316 0%,#c2410c 100%);color:#fff}
+  .best-thumb{
+    flex-shrink:0;width:32px;height:32px;border-radius:6px;background-size:cover;background-position:center;
+    background-color:var(--bg-3);border:1px solid var(--line);
+  }
+  .best-name{
+    flex:1;font-size:12.5px;line-height:1.35;color:var(--text-1);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    word-break:break-word;
+  }
+  .best-count{
+    flex-shrink:0;font-family:var(--mono);font-size:11px;color:var(--text-3);
+    font-weight:500;letter-spacing:.02em;
+  }
+  .best-count b{color:var(--text-1);font-weight:600}
+  .best-empty{padding:22px 8px;text-align:center;color:var(--text-3);font-size:12px}
+  .best-err{padding:16px 8px;text-align:center;color:var(--danger,#dc2626);font-size:12px}
+  .best-skel{padding:8px 6px}
+  .best-skel .best-skel-row{
+    height:36px;border-radius:6px;background:linear-gradient(90deg,var(--bg-2) 0%,var(--bg-3) 50%,var(--bg-2) 100%);
+    background-size:200% 100%;margin-bottom:6px;animation:bestSkel 1.4s ease-in-out infinite;
+  }
+  @keyframes bestSkel{0%{background-position:100% 0}100%{background-position:-100% 0}}
+  @media (max-width:960px){
+    .best-grid{grid-template-columns:1fr;gap:10px}
+    .best-panel{padding:16px 14px 14px;margin-bottom:24px}
+    .best-title{font-size:14.5px}
+  }
+
   /* 히어로 카드 — 인사팀/물류팀/브랜드별 재고관리 3개 나란히 */
   .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
   .hero{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:36px 20px 30px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;text-align:center}
@@ -4063,6 +4143,28 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
+    <!-- 판매 순위 TOP 10 (식스샵 통계 · 브랜드별) — 최상단 -->
+    <section class="best-panel" id="bestPanel">
+      <div class="best-head">
+        <div class="best-head-left">
+          <span class="best-eyebrow">TOP 10</span>
+          <span class="best-title">브랜드별 판매 순위<span class="best-title-sub">/ 식스샵 지난 30일</span></span>
+        </div>
+        <div class="best-head-right">
+          <span class="best-updated" id="bestUpdated"></span>
+          <button class="best-refresh" id="bestRefresh" type="button" onclick="loadBestsellers(true)" title="새로고침">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            새로고침
+          </button>
+        </div>
+      </div>
+      <div class="best-grid" id="bestGrid">
+        <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#22d3ee"></span><span class="best-col-name">식스에이</span><span class="best-col-site">6thanother</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
+        <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#22c55e"></span><span class="best-col-name">클리어타입</span><span class="best-col-site">cleartype</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
+        <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#a78bfa"></span><span class="best-col-name">야르</span><span class="best-col-site">yarseoul</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
+      </div>
+    </section>
+
     <!-- 팀 카드 1행: 인사팀 / 물류팀 -->
     <div class="hero-row" style="grid-template-columns:repeat(2,1fr)">
       <section class="hero hero-hr">
@@ -5510,6 +5612,80 @@
     return fetch(url, Object.assign({},opts,{headers}));
   }
 
+  /* ===== 브랜드별 판매 순위 TOP 10 — 식스샵 통계 (홈 최상단 패널) =====
+     proxy /sx/bestsellers?brand=all → 3 브랜드 병렬 fetch (~3~5초).
+     첫 호출은 show()에서 백그라운드로. 명시 새로고침 버튼 있음. */
+  let _bestBusy=false;
+  let _bestLastFetch=0;
+  function _bestEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function _bestFmtCount(n){
+    n=Number(n)||0;
+    return n>=1000 ? (n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'')+'k' : String(n);
+  }
+  function _bestRenderBrandCol(b){
+    const dot=b.dot||'#94a3b8';
+    const head=`<div class="best-col-head"><span class="best-col-dot" style="background:${dot}"></span><span class="best-col-name">${_bestEsc(b.display||b.brand||'')}</span><span class="best-col-site">${_bestEsc(b.siteLink||'')}</span></div>`;
+    if(!b.ok){
+      return `<div class="best-col">${head}<div class="best-err">불러오지 못했습니다<br><span style="opacity:.7;font-size:11px">${_bestEsc(b.error||'')}</span></div></div>`;
+    }
+    const items=b.top10||[];
+    if(!items.length){
+      return `<div class="best-col">${head}<div class="best-empty">최근 30일 판매 데이터가 없습니다</div></div>`;
+    }
+    const rows=items.map(it=>{
+      const thumb=it.thumb?`style="background-image:url('${_bestEsc(it.thumb)}')"`:'';
+      const cnt=Number(it.count)||0;
+      return `<li class="best-item" data-rank="${it.rank}">
+        <span class="best-rank">${it.rank}</span>
+        <span class="best-thumb" ${thumb}></span>
+        <span class="best-name" title="${_bestEsc(it.name)}">${_bestEsc(it.name)}</span>
+        <span class="best-count"><b>${_bestFmtCount(cnt)}</b>건</span>
+      </li>`;
+    }).join('');
+    return `<div class="best-col">${head}<ul class="best-list">${rows}</ul></div>`;
+  }
+  async function loadBestsellers(force){
+    const grid=document.getElementById('bestGrid');
+    const btn=document.getElementById('bestRefresh');
+    const upd=document.getElementById('bestUpdated');
+    if(!grid) return;
+    if(_bestBusy) return;
+    // 캐시 30분 (사용자가 새로고침 버튼 누르면 force=true)
+    if(!force && Date.now()-_bestLastFetch < 30*60*1000) return;
+    _bestBusy=true;
+    if(btn){btn.disabled=true;btn.classList.add('spin')}
+    try{
+      const r=await sxFetch('/bestsellers?brand=all',{method:'GET'});
+      if(!r.ok){
+        grid.innerHTML=`<div class="best-col" style="grid-column:1/-1"><div class="best-err">서버 프록시 오류 (HTTP ${r.status})</div></div>`;
+        return;
+      }
+      const j=await r.json();
+      const brands=(j&&j.brands)||[];
+      if(!brands.length){
+        grid.innerHTML=`<div class="best-col" style="grid-column:1/-1"><div class="best-err">${_bestEsc(j&&j.error||'브랜드 데이터 없음')}</div></div>`;
+        return;
+      }
+      // 브랜드 순서 고정: 6a → ct → yar
+      const order={'6a':0,'ct':1,'yar':2};
+      brands.sort((a,b)=>(order[a.brand]??9)-(order[b.brand]??9));
+      grid.innerHTML=brands.map(_bestRenderBrandCol).join('');
+      _bestLastFetch=Date.now();
+      if(upd){
+        const t=new Date(j.fetchedAt||Date.now());
+        const hh=String(t.getHours()).padStart(2,'0');
+        const mm=String(t.getMinutes()).padStart(2,'0');
+        upd.textContent=`${hh}:${mm} 갱신`;
+      }
+    }catch(e){
+      grid.innerHTML=`<div class="best-col" style="grid-column:1/-1"><div class="best-err">${_bestEsc(e.message||e)}</div></div>`;
+    }finally{
+      _bestBusy=false;
+      if(btn){btn.disabled=false;btn.classList.remove('spin')}
+    }
+  }
+  window.loadBestsellers=loadBestsellers;
+
   /* ===== 재고연동 뷰 — 180도 케이블 통합 매핑 =====
      데이터 모델 (data/stock-cables.json):
      {
@@ -6392,6 +6568,8 @@
     // 벤더 데이터 백그라운드 첫 로드 — 사용자가 벤더 뷰에 들어오지 않아도 폴링이 즉시 살아남
     if(typeof gcCalEnsureLoaded==='function') gcCalEnsureLoaded();
     if(typeof vMarginEnsureLoaded==='function') vMarginEnsureLoaded();
+    // 홈 최상단 판매 순위 TOP 10 — 백그라운드 로드 (첫 진입 시)
+    if(typeof loadBestsellers==='function') loadBestsellers();
   }
   function showLock(){app.classList.remove('show');lock.classList.add('show');setTimeout(()=>pin.focus(),50)}
 
