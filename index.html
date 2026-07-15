@@ -281,11 +281,11 @@
     background-color:var(--bg-3);border:1px solid var(--line);cursor:zoom-in;transition:box-shadow .15s;
   }
   .best-thumb-wrap:hover .best-thumb{box-shadow:0 0 0 2px var(--accent-soft);border-color:var(--accent)}
-  /* 호버 미리보기 — 썸네일 우측에 뜨는 240×240 popover */
+  /* 호버 미리보기 — 썸네일 우측에 뜨는 480×480 popover */
   .best-thumb-preview{
     position:absolute;top:50%;left:calc(100% + 10px);transform:translateY(-50%) scale(.85);
     transform-origin:left center;
-    width:240px;height:240px;border-radius:10px;background-size:cover;background-position:center;
+    width:480px;height:480px;border-radius:10px;background-size:cover;background-position:center;
     background-color:var(--bg-3);border:1px solid var(--line-2);
     box-shadow:0 12px 32px rgba(0,0,0,.25),0 0 0 4px rgba(255,255,255,.7);
     pointer-events:none;opacity:0;visibility:hidden;
@@ -5704,9 +5704,9 @@
     const rows=items.map(it=>{
       const cnt=Number(it.count)||0;
       const url=it.url||'';
-      // 작은 썸네일은 그대로. 호버 미리보기용 큰 이미지는 ?width=100 → ?width=480 로 스왑
+      // 작은 썸네일은 그대로. 호버 미리보기용 큰 이미지는 ?width=100 → ?width=960 로 스왑 (480px 렌더링용)
       const thumbSmall=it.thumb||'';
-      const thumbLarge=thumbSmall.replace(/([?&])width=\d+/, '$1width=480');
+      const thumbLarge=thumbSmall.replace(/([?&])width=\d+/, '$1width=960');
       const thumbStyle=thumbSmall?`style="background-image:url('${_bestEsc(thumbSmall)}')"`:'';
       const previewEl=thumbLarge
         ? `<span class="best-thumb-preview" style="background-image:url('${_bestEsc(thumbLarge)}')" aria-hidden="true"></span>`
