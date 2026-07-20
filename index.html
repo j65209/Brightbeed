@@ -292,9 +292,9 @@
     transition:opacity .12s ease-out, transform .18s cubic-bezier(.2,.9,.3,1.2);
     z-index:20;
   }
-  .best-thumb-wrap:hover .best-thumb-preview{opacity:1;visibility:visible;transform:translateY(-50%) scale(1)}
-  /* 마지막 컬럼(야르)은 오른쪽 공간이 좁을 수 있어 왼쪽으로 flip */
-  .best-col:last-child .best-thumb-preview{left:auto;right:calc(100% + 10px);transform-origin:right center}
+  .best-thumb-wrap:hover .best-thumb-preview{opacity:1;visibility:visible}
+  /* 위치는 JS가 뷰포트 기준(position:fixed)으로 실시간 계산해 화면 안에 클램프 → 좌/우 어디서도 안 잘림 */
+  .best-thumb-preview.is-fixed{position:fixed;top:auto;left:auto;transform:scale(1);transform-origin:center center}
   .best-name{
     flex:1;min-width:0;font-size:12.5px;line-height:1.35;color:var(--text-1);
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
@@ -5756,6 +5756,7 @@
       const order={'6a':0,'ct':1,'yar':2};
       brands.sort((a,b)=>(order[a.brand]??9)-(order[b.brand]??9));
       grid.innerHTML=brands.map(_bestRenderBrandCol).join('');
+      _bestBindHover();
       _bestLastFetch=Date.now();
       if(upd){
         const t=new Date(j.fetchedAt||Date.now());
@@ -5771,6 +5772,43 @@
     }
   }
   window.loadBestsellers=loadBestsellers;
+
+  /* 호버 미리보기 위치 — 컬럼/화면 크기 관계없이 뷰포트 안에 딱 맞게 클램프 */
+  function _bestPositionPreview(wrap){
+    const preview=wrap.querySelector('.best-thumb-preview');
+    const thumb=wrap.querySelector('.best-thumb');
+    if(!preview||!thumb) return;
+    const tr=thumb.getBoundingClientRect();
+    const M=8, GAP=12;                // 화면 가장자리 여백 / 썸네일과의 간격
+    const vw=window.innerWidth, vh=window.innerHeight;
+    const pw=Math.min(480, vw-M*2);   // 좁은 화면이면 미리보기 폭도 축소
+    const ph=Math.min(480, vh-M*2);
+    preview.style.width=pw+'px';
+    preview.style.height=ph+'px';
+    // 가로: 우측 우선 → 공간 없으면 좌측 → 그래도 없으면 뷰포트 안으로 클램프
+    let left=tr.right+GAP;
+    if(left+pw>vw-M){
+      const leftSide=tr.left-GAP-pw;
+      left = leftSide>=M ? leftSide : Math.max(M, Math.min(vw-pw-M, left));
+    }
+    // 세로: 썸네일 중앙 정렬 후 상/하 클램프
+    let top=tr.top+tr.height/2-ph/2;
+    top=Math.max(M, Math.min(vh-ph-M, top));
+    preview.classList.add('is-fixed');
+    preview.style.left=left+'px';
+    preview.style.top=top+'px';
+    preview.style.right='auto';
+  }
+  function _bestBindHover(){
+    const grid=document.getElementById('bestGrid');
+    if(!grid||grid._bestHoverBound) return;
+    grid._bestHoverBound=true;
+    grid.addEventListener('mouseover',(e)=>{
+      const wrap=e.target.closest && e.target.closest('.best-thumb-wrap');
+      if(wrap && grid.contains(wrap)) _bestPositionPreview(wrap);
+    });
+  }
+  _bestBindHover();
 
   /* ===== 재고연동 뷰 — 180도 케이블 통합 매핑 =====
      데이터 모델 (data/stock-cables.json):
