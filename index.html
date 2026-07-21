@@ -328,6 +328,8 @@
 
   /* 히어로 카드 — 인사팀/물류팀/브랜드별 재고관리 3개 나란히 */
   .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+  .hero-row-2{grid-template-columns:repeat(2,1fr)}
+  .hero-row-4{grid-template-columns:repeat(4,1fr)}
   .hero{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:36px 20px 30px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;text-align:center}
   .hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--neon);letter-spacing:.22em;text-transform:uppercase;margin-bottom:18px;text-shadow:0 0 12px var(--neon-glow)}
   .btn-neon{
@@ -3635,6 +3637,7 @@
     .container{padding:20px}
     .topbar{padding:12px 20px}
     .hero-row{grid-template-columns:1fr;gap:12px;margin-bottom:32px}
+    .hero-row-2,.hero-row-4{grid-template-columns:repeat(2,1fr)}
     .hero{padding:32px 16px 28px}
     .btn-neon{padding:18px 36px;font-size:16px}
     .po-table th,.po-table td{padding:10px 6px;font-size:12px}
@@ -3870,7 +3873,7 @@
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
     <!-- 팀 카드 1행: 인사팀 / 물류팀 -->
-    <div class="hero-row" style="grid-template-columns:repeat(2,1fr)">
+    <div class="hero-row hero-row-2">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
         <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
@@ -3891,7 +3894,7 @@
     </div>
 
     <!-- 팀 카드 2행: CS / MD / 마케팅 / 벤더 -->
-    <div class="hero-row" style="grid-template-columns:repeat(4,1fr)">
+    <div class="hero-row hero-row-4">
       <section class="hero hero-cs">
         <div class="hero-eyebrow">CS</div>
         <button class="btn-neon btn-cs" id="csBtn" onclick="triggerCs()">
