@@ -733,6 +733,69 @@
   }
   .kd-link:hover{background:rgba(255,46,147,.18)}
 
+  /* 이전 발주 뱃지 (링크 셀 안, 열기 버튼 아래) */
+  .kd-link-cell{display:inline-flex;flex-direction:column;align-items:stretch;gap:4px;min-width:64px}
+  .kd-hist-slot{display:block;line-height:0}
+  .kd-hist-chip{
+    display:inline-block;padding:3px 7px;border-radius:4px;
+    background:var(--bg-2);color:var(--text-3);
+    font-size:10.5px;font-weight:500;letter-spacing:.02em;
+    border:1px solid var(--line);cursor:default;white-space:nowrap;
+    font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1.3
+  }
+  .kd-hist-chip em{color:var(--text-2);font-style:normal;margin-left:3px;font-weight:600}
+  .kd-hist-chip:hover{background:var(--bg-3);color:var(--text-1);border-color:var(--line-2)}
+
+  /* 이전 발주 팝업 (body 에 붙는 fixed 오버레이) */
+  .kd-hist-pop{
+    position:fixed;z-index:2000;
+    background:#fff;color:var(--text-1);
+    border:1px solid var(--line-2);border-radius:10px;
+    box-shadow:0 24px 60px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.04);
+    padding:10px 12px;max-height:calc(100vh - 24px);overflow:auto;
+    font-size:12px;pointer-events:none
+  }
+  .kd-hist-head{
+    font-size:12.5px;font-weight:700;color:var(--text-1);
+    padding-bottom:8px;margin-bottom:6px;border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;justify-content:space-between;gap:8px
+  }
+  .kd-hist-head em{
+    font-style:normal;font-size:11px;font-weight:500;color:var(--text-3);
+    font-family:var(--mono);font-variant-numeric:tabular-nums
+  }
+  .kd-hist-body{display:flex;flex-direction:column;gap:4px}
+  .kd-hist-row{
+    display:grid;grid-template-columns:56px 78px 56px 1fr;gap:8px;
+    padding:6px 4px;border-radius:5px;align-items:baseline;
+    font-family:var(--mono);font-variant-numeric:tabular-nums
+  }
+  .kd-hist-row:hover{background:var(--bg-2)}
+  .kd-hist-dt{color:var(--text-2);font-size:11px;font-weight:600}
+  .kd-hist-qty{color:var(--text-1);font-weight:700;text-align:right}
+  .kd-hist-qty em{font-style:normal;font-size:.7em;color:var(--text-3);margin-left:1px;font-weight:500}
+  .kd-hist-price{color:var(--text-2);font-size:11px}
+  .kd-hist-name{
+    color:var(--text-1);font-size:11.5px;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard',sans-serif;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500
+  }
+  .kd-hist-name em{
+    font-style:normal;font-size:9.5px;color:var(--text-3);margin-left:4px;
+    padding:1px 5px;background:var(--bg-2);border-radius:3px;font-weight:500
+  }
+  .kd-hist-memo{
+    grid-column:2 / -1;font-size:10.5px;color:var(--text-3);
+    font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard',sans-serif;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px
+  }
+  .kd-hist-more{
+    text-align:center;font-size:10.5px;color:var(--text-3);
+    padding:6px 0 2px;margin-top:4px;border-top:1px dashed var(--line)
+  }
+  @media (max-width:900px){
+    .kd-hist-chip{font-size:10px;padding:2px 6px}
+  }
+
   /* 검색 입력 */
   .kd-search{
     width:240px;padding:7px 12px;border:1px solid var(--line);border-radius:6px;
@@ -8212,19 +8275,85 @@
         ? `<a class="kd-link" href="${escapeHTML(r.product_url)}" target="_blank" rel="noopener" title="${escapeHTML(r.product_url)}">열기</a>`
         : '';
       const memoText=escapeHTML(r.memo||'');
-      return `<tr class="${groupCls} kd-row" data-ord="${escapeHTML(r.ord_no)}">
+      const oidAttr = r.product_url ? escapeHTML(r.product_url) : '';
+      return `<tr class="${groupCls} kd-row" data-ord="${escapeHTML(r.ord_no)}" data-purl="${oidAttr}">
         <td class="col-ord">${ordCell}</td>
         <td class="col-img">${imgCell}</td>
         <td class="col-price">¥${escapeHTML(r.price_cny||'0')}</td>
         <td class="col-qty">${escapeHTML(r.qty||'0')}<span class="qty-unit">개</span></td>
         <td class="col-memo"><div class="kd-memo-text" title="${memoText}">${memoText}</div></td>
-        <td class="col-link">${urlCell}</td>
+        <td class="col-link"><span class="kd-link-cell">${urlCell}<span class="kd-hist-slot"></span></span></td>
       </tr>`;
     }).join('');
     tbody.innerHTML=renderedHTML;
+    attachKDHistoryChips();
     // 검색어가 입력돼 있으면 재렌더 후 다시 필터 적용
     const sb=document.getElementById('kdSearch');
     if(sb && sb.value) filterKDOrders(sb.value);
+  }
+
+  // 각 KD 행에 이전 발주 뱃지 부착 (렌더 후 또는 orders.json 로드 후 호출)
+  function attachKDHistoryChips(){
+    const rows=document.querySelectorAll('#poBody tr.kd-row');
+    rows.forEach(tr=>{
+      const slot=tr.querySelector('.kd-hist-slot');
+      if(!slot) return;
+      const url=tr.dataset.purl||'';
+      const hist=window.getOfferHistory ? window.getOfferHistory(url) : [];
+      if(!hist.length){ slot.innerHTML=''; return; }
+      const totalQty=hist.reduce((s,h)=>s+(+h.qty||0),0);
+      slot.innerHTML=`<span class="kd-hist-chip" title="hover 시 이전 발주 내역">이전 ${hist.length}회<em>·${totalQty.toLocaleString('ko-KR')}</em></span>`;
+      const chip=slot.querySelector('.kd-hist-chip');
+      chip.addEventListener('mouseenter', ()=>showKDHistoryPopup(chip, hist), {passive:true});
+      chip.addEventListener('mouseleave', hideKDHistoryPopup, {passive:true});
+    });
+  }
+  window.attachKDHistoryChips=attachKDHistoryChips;
+
+  let _kdHistPop=null;
+  function _ensureKDHistPop(){
+    if(_kdHistPop) return _kdHistPop;
+    _kdHistPop=document.createElement('div');
+    _kdHistPop.className='kd-hist-pop';
+    _kdHistPop.style.display='none';
+    document.body.appendChild(_kdHistPop);
+    return _kdHistPop;
+  }
+  function showKDHistoryPopup(anchor, hist){
+    const pop=_ensureKDHistPop();
+    const rows=hist.slice(0,30).map(h=>{
+      const dt=(h.date||'').slice(2).replace(/-/g,'.');
+      const nm=escapeHTML(h.kor||h.cn||'—');
+      const memo=escapeHTML((h.memo||'').replace(/\s+/g,' ').slice(0,80));
+      const grp=escapeHTML(h.group||'');
+      return `<div class="kd-hist-row">
+        <span class="kd-hist-dt">${dt||'—'}</span>
+        <span class="kd-hist-qty">${(+h.qty||0).toLocaleString('ko-KR')}<em>개</em></span>
+        <span class="kd-hist-price">¥${h.price_cny||'0'}</span>
+        <span class="kd-hist-name" title="${nm}">${nm}${grp?` <em>${grp}</em>`:''}</span>
+        ${memo?`<span class="kd-hist-memo">${memo}</span>`:''}
+      </div>`;
+    }).join('');
+    const more = hist.length>30 ? `<div class="kd-hist-more">… 이전 ${hist.length-30}건 더</div>` : '';
+    pop.innerHTML=`
+      <div class="kd-hist-head">이전 발주 <em>${hist.length}회 · 총 ${hist.reduce((s,h)=>s+(+h.qty||0),0).toLocaleString('ko-KR')}개</em></div>
+      <div class="kd-hist-body">${rows}${more}</div>`;
+    pop.style.display='block';
+    // 위치: 앵커 우측 정렬, 화면 밖 나가면 좌측 flip
+    const r=anchor.getBoundingClientRect();
+    const w=Math.min(520, window.innerWidth-24);
+    const h=Math.min(pop.offsetHeight, window.innerHeight-24);
+    let left=r.right+8;
+    if(left+w > window.innerWidth-8) left=Math.max(8, r.left-w-8);
+    let top=r.top+r.height/2 - h/2;
+    if(top<8) top=8;
+    if(top+h>window.innerHeight-8) top=window.innerHeight-h-8;
+    pop.style.left=left+'px';
+    pop.style.top=top+'px';
+    pop.style.width=w+'px';
+  }
+  function hideKDHistoryPopup(){
+    if(_kdHistPop) _kdHistPop.style.display='none';
   }
 
   async function refreshKDOrders(){
@@ -8352,16 +8481,52 @@
       if(!r.ok) throw new Error('HTTP '+r.status);
       const d=await r.json();
       arState.all=d.products||[];
+      buildOfferHistoryIndex(d.orders||[]);
       const upd=document.getElementById('arUpdated');
       if(upd) upd.textContent=(d.generated_at||'').slice(0,16).replace('T',' ');
       const sel=document.getElementById('arSort');
       if(sel) sel.value=arState.sort;
       loadNameOverrides().finally(()=>applyArchive());
+      // 콰이디에어 최근 발주 테이블이 이미 렌더되었으면 이전 발주 뱃지 재부착
+      if(typeof attachKDHistoryChips==='function') attachKDHistoryChips();
     }catch(e){
       const emp=document.getElementById('arEmpty');
       if(emp){emp.querySelector('.po-empty-text').textContent='데이터 없음';emp.style.display='block';}
     }
   }
+
+  // 발주 링크(1688 offer URL) → 이전 발주 기록 인덱스
+  const _offerHistory={};
+  function _extractOfferId(url){
+    if(!url) return '';
+    const m=String(url).match(/\/offer\/(\d+)\.html/);
+    return m ? 'offer:'+m[1] : '';
+  }
+  function buildOfferHistoryIndex(orders){
+    for(const k of Object.keys(_offerHistory)) delete _offerHistory[k];
+    for(const o of orders||[]){
+      for(const it of (o.items||[])){
+        const oid=_extractOfferId(it.link);
+        if(!oid) continue;
+        (_offerHistory[oid] ||= []).push({
+          date: o.date||'',
+          file: o.file||'',
+          group: o.group||'',
+          note: o.note||'',
+          qty: it.qty||0,
+          price_cny: it.price_cny||0,
+          kor: it.kor||'',
+          cn: it.cn||'',
+          memo: it.memo||''
+        });
+      }
+    }
+    // 각 오퍼 기록을 날짜 내림차순으로 정렬
+    for(const oid in _offerHistory){
+      _offerHistory[oid].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    }
+  }
+  window.getOfferHistory=(url)=>_offerHistory[_extractOfferId(url)]||[];
 
   async function loadNameOverrides(){
     try{
