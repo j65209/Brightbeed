@@ -901,7 +901,18 @@
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;
     word-break:break-all
   }
-  .ar-prod-stats{display:flex;gap:10px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .ar-prod-stats{display:flex;gap:10px;margin-top:auto;padding-top:4px;flex-wrap:wrap;align-items:center}
+  /* "이전 N회" 뱃지 — 최근 스탯 우측, hover 시 이력 팝업 */
+  .ar-hist-chip{
+    margin-left:auto;padding:4px 9px;border-radius:5px;
+    background:var(--bg-2);color:var(--text-3);
+    font-size:10.5px;font-weight:500;letter-spacing:.02em;
+    border:1px solid var(--line);cursor:default;white-space:nowrap;
+    font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1.3;
+    transition:background .12s, color .12s, border-color .12s
+  }
+  .ar-hist-chip em{color:var(--text-1);font-style:normal;margin-left:2px;font-weight:700}
+  .ar-hist-chip:hover{background:var(--bg-3);color:var(--text-1);border-color:var(--neon)}
   .ar-stat{display:flex;flex-direction:column;gap:1px;line-height:1.1}
   .ar-stat .lbl{font-size:9.5px;color:var(--text-3);letter-spacing:.05em}
   .ar-stat b{font-size:13px;font-weight:700;color:var(--text-1);font-family:var(--mono);letter-spacing:-.2px}
@@ -8706,6 +8717,16 @@
         saveProductDelete(btn.dataset.pid, btn.dataset.name || '');
       });
     });
+    // 이전 발주 뱃지 hover → 이력 팝업
+    grid.querySelectorAll('.ar-hist-chip').forEach(chip=>{
+      const url=chip.dataset.purl||'';
+      chip.addEventListener('mouseenter', ()=>{
+        const hist=window.getOfferHistory ? window.getOfferHistory(url) : [];
+        if(!hist.length) return;
+        showKDHistoryPopup(chip, hist);
+      }, {passive:true});
+      chip.addEventListener('mouseleave', hideKDHistoryPopup, {passive:true});
+    });
     // 자동 매칭 승인/취소
     grid.querySelectorAll('.ar-btn-approve').forEach(btn=>{
       btn.addEventListener('click', (e)=>{ e.stopPropagation(); approveAutoName(btn.dataset.pid); });
@@ -8797,6 +8818,7 @@
             <span class="ar-stat"><span class="lbl">누적</span><b>${arFmtInt(p.total_qty)}<span class="unit">개</span></b></span>
             <span class="ar-stat"><span class="lbl">발주</span><b>${p.order_count}<span class="unit">회</span></b></span>
             <span class="ar-stat"><span class="lbl">최근</span><b>${recentLabel}</b></span>
+            ${p.link ? `<span class="ar-hist-chip" data-purl="${arEscape(p.link)}" title="hover 시 이전 발주 내역">이전 <em>${p.order_count||0}회</em></span>` : ''}
           </div>
           <div class="ar-prod-foot">
             <div class="ar-prod-tags"></div>
