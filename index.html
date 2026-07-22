@@ -970,6 +970,21 @@
   /* URL은 있지만 로드 실패한 경우 onerror 핸들러가 버튼에 .ar-img-edit-solid 를 직접 붙임 */
   .ar-img-edit.ar-img-edit-solid{opacity:.92;background:var(--neon);border-color:transparent}
   .ar-img-edit.ar-img-edit-solid:hover{background:var(--neon);opacity:1}
+  /* 카드 삭제(숨김) 버튼 — 카드 우측 상단 */
+  .ar-prod{position:relative}
+  .ar-card-del{
+    position:absolute;top:6px;right:6px;
+    width:22px;height:22px;padding:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:transparent;color:var(--text-3);border:1px solid transparent;
+    border-radius:5px;cursor:pointer;opacity:0;transition:opacity .12s, background .12s, color .12s;z-index:7
+  }
+  .ar-prod:hover .ar-card-del{opacity:.7}
+  .ar-card-del:hover{opacity:1;background:var(--danger, #dc2626);color:#fff;border-color:transparent}
+  @media (hover:none) and (pointer:coarse), (max-width:700px){
+    .ar-card-del{opacity:.6;width:26px;height:26px}
+    .ar-card-del svg{width:14px;height:14px}
+  }
   /* 편집된 이미지에 얇은 강조 테두리 */
   .ar-thumb-edited .ar-thumb{border-color:rgba(255,46,147,.55);box-shadow:0 0 0 1px rgba(255,46,147,.18)}
   /* onerror 시 썸네일 자리를 × 로 대체 */
@@ -4366,6 +4381,9 @@
             <span id="arCount">0건</span>
             <button class="kd-refresh-btn" id="arResetBtn" onclick="resetAutoOverrides()" style="display:none" title="자동 매칭한 상품명을 원래대로 되돌립니다">
               🤖 자동매칭 초기화 <span id="arAutoCount" style="color:var(--text-3);font-weight:500;margin-left:3px"></span>
+            </button>
+            <button class="kd-refresh-btn" id="arRestoreBtn" onclick="restoreAllDeleted()" style="display:none" title="숨긴 상품을 모두 목록에 다시 표시합니다">
+              🗑 숨긴 상품 복원 <span id="arRestoreCount" style="color:var(--text-3);font-weight:500;margin-left:3px"></span>
             </button>
           </div>
         </div>
@@ -8323,7 +8341,7 @@
   /* ===== 발주 상품 카탈로그 (products 배열 로드) =====
      scripts/parse_orders.py 가 xlsx 아이템 6천개를 link/img 기준 dedupe해서
      1,100+ 개 고유 상품으로 집계한 것을 3열 그리드로 렌더. */
-  const arState={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{}};
+  const arState={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{}};
   let _arOverridesSha=null;
   const AR_OVERRIDES_API='https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json';
   function arEscape(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
@@ -8348,20 +8366,22 @@
   async function loadNameOverrides(){
     try{
       const r=await ghFetch(AR_OVERRIDES_API,{cache:'no-cache'});
-      if(!r.ok){ arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; return; }
+      if(!r.ok){ arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; arState.deletedIds={}; return; }
       const j=await r.json();
       const raw=decodeURIComponent(escape(atob(j.content||'')));
       const d=JSON.parse(raw||'{}');
       arState.overrides=d.overrides||{};
       arState.autoOverrides=d.auto_overrides||{};
       arState.imgOverrides=d.img_overrides||{};
+      arState.deletedIds=d.deleted_ids||{};
       _arOverridesSha=j.sha||null;
-    }catch(e){ arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; }
+    }catch(e){ arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; arState.deletedIds={}; }
   }
 
-  async function _saveOverridesPayload(nextOverrides, nextAuto, msg, nextImg){
+  async function _saveOverridesPayload(nextOverrides, nextAuto, msg, nextImg, nextDeleted){
     if(nextImg===undefined) nextImg=arState.imgOverrides||{};
-    const payload={version:1, description:'대시보드에서 사장님이 직접 수정한 상품명·이미지. product.id 를 key 로 사용.', overrides:nextOverrides, auto_overrides:nextAuto, img_overrides:nextImg};
+    if(nextDeleted===undefined) nextDeleted=arState.deletedIds||{};
+    const payload={version:1, description:'대시보드에서 사장님이 직접 수정한 상품명·이미지·숨김. product.id 를 key 로 사용.', overrides:nextOverrides, auto_overrides:nextAuto, img_overrides:nextImg, deleted_ids:nextDeleted};
     const body={message:msg, content: btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))), branch:'main'};
     if(_arOverridesSha) body.sha=_arOverridesSha;
     const r=await ghFetch(AR_OVERRIDES_API,{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
@@ -8371,6 +8391,7 @@
     arState.overrides=nextOverrides;
     arState.autoOverrides=nextAuto;
     arState.imgOverrides=nextImg;
+    arState.deletedIds=nextDeleted;
   }
 
   async function resetAutoOverrides(){
@@ -8413,9 +8434,34 @@
     }catch(e){ toast(`저장 오류: ${e.message}`,'err'); }
   }
   window.saveProductImg=saveProductImg;
+
+  async function saveProductDelete(pid, displayName){
+    if(!confirm(`이 상품을 목록에서 숨깁니까?\n\n"${displayName||pid}"\n\n(원본 발주 데이터는 그대로 유지되며, 언제든 되돌릴 수 있습니다.)`)) return;
+    const next={...arState.deletedIds, [pid]: true};
+    try{
+      await _saveOverridesPayload(arState.overrides, arState.autoOverrides, `product-name-overrides: delete ${pid}`, arState.imgOverrides, next);
+      applyArchive();
+      toast('✓ 목록에서 숨김','ok');
+    }catch(e){ toast(`저장 오류: ${e.message}`,'err'); }
+  }
+  window.saveProductDelete=saveProductDelete;
+
+  async function restoreAllDeleted(){
+    const cnt=Object.keys(arState.deletedIds||{}).length;
+    if(!cnt){ toast('숨긴 상품이 없습니다','ok'); return; }
+    if(!confirm(`숨겨둔 상품 ${cnt}개를 모두 복원할까요?`)) return;
+    try{
+      await _saveOverridesPayload(arState.overrides, arState.autoOverrides, 'product-name-overrides: restore all deleted', arState.imgOverrides, {});
+      applyArchive();
+      toast(`✓ ${cnt}개 복원됨`,'ok');
+    }catch(e){ toast(`복원 오류: ${e.message}`,'err'); }
+  }
+  window.restoreAllDeleted=restoreAllDeleted;
   function applyArchive(){
     const q=arState.q.trim().toLowerCase();
+    const del=arState.deletedIds||{};
     arState.filtered=arState.all.filter(p=>{
+      if(del[p.id]) return false;
       if(q){
         const hay=[p.kor||'',p.cn||'',...(p.memos||[])].join(' ').toLowerCase();
         if(!hay.includes(q)) return false;
@@ -8450,6 +8496,11 @@
     const autoCntSpan=document.getElementById('arAutoCount');
     if(resetBtn) resetBtn.style.display = autoCnt>0 ? '' : 'none';
     if(autoCntSpan) autoCntSpan.textContent = autoCnt>0 ? `(${autoCnt}개)` : '';
+    const delCnt=Object.keys(arState.deletedIds||{}).length;
+    const restoreBtn=document.getElementById('arRestoreBtn');
+    const restoreCntSpan=document.getElementById('arRestoreCount');
+    if(restoreBtn) restoreBtn.style.display = delCnt>0 ? '' : 'none';
+    if(restoreCntSpan) restoreCntSpan.textContent = delCnt>0 ? `(${delCnt}개)` : '';
     if(!arState.filtered.length){
       grid.style.display='none';empty.style.display='block';more.style.display='none';
       empty.querySelector('.po-empty-text').textContent = arState.all.length?'검색 결과 없음':'데이터 없음';
@@ -8481,6 +8532,13 @@
       btn.addEventListener('click', (e)=>{
         e.stopPropagation();
         saveProductImg(btn.dataset.pid, btn.dataset.img || '');
+      });
+    });
+    // 삭제(숨김) 버튼 클릭 → 상품 숨김 처리
+    grid.querySelectorAll('.ar-card-del').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        saveProductDelete(btn.dataset.pid, btn.dataset.name || '');
       });
     });
     // 자동 매칭 승인/취소
@@ -8546,6 +8604,9 @@
     const recentLabel = p.latest_date ? p.latest_date.slice(2).replace(/-/g,'.') : '—';
     return `
       <div class="ar-prod">
+        <button class="ar-card-del" title="이 상품을 목록에서 숨김" data-pid="${arEscape(p.id)}" data-name="${arEscape(displayName)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
         <div class="ar-prod-img">${img}</div>
         <div class="ar-prod-body">
           <div class="ar-prod-name">
