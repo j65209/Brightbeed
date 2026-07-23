@@ -733,6 +733,18 @@ def main():
     files = [f for f in files if not f.name.startswith("~$") and not f.name.endswith(".part")]
     print(f"parsing {len(files)} files from {FOLDER}", file=sys.stderr, flush=True)
 
+    # 안전장치: 발주서 폴더에는 항상 수백 개 xlsx가 있음. 0개는 실제 상태가 아니라
+    # Dropbox File Provider(~/Library/CloudStorage/Dropbox)가 아직 마운트/열거되지
+    # 않은 일시적 상황(예: 부팅 직후). 이때 orders.json을 덮어쓰면 마스터시트만 남아
+    # 단가·발주횟수가 전부 날아가므로, 쓰지 않고 실패로 종료한다. (2026-07-23 사고)
+    if not files:
+        print(
+            f"🚫 ABORT: '{FOLDER}' 에서 xlsx 0개 — Dropbox 마운트 대기 중으로 판단. "
+            f"orders.json 을 덮어쓰지 않고 종료합니다.",
+            file=sys.stderr, flush=True,
+        )
+        sys.exit(2)
+
     orders = []
     errors = []
     for i, f in enumerate(files, 1):
@@ -779,6 +791,15 @@ def main():
     # 사장님 마스터 시트 로드 (있으면 이름 우선 사용)
     sheet_order = fetch_master_sheet()
     all_for_products = orders + ([sheet_order] if sheet_order else [])
+
+    # 안전장치: 실제 발주서가 한 건도 파싱되지 않았으면 (마스터시트만 남음) 쓰지 않는다.
+    # 마스터시트 단독으로는 단가·수량·발주횟수가 없어 카탈로그가 빈 껍데기가 된다.
+    if not orders:
+        print(
+            "🚫 ABORT: 파싱된 발주서 0건 — orders.json 을 덮어쓰지 않고 종료합니다.",
+            file=sys.stderr, flush=True,
+        )
+        sys.exit(2)
 
     # 아이템들을 link/img 기준으로 dedupe → 상품 카탈로그 생성
     products = aggregate_products(all_for_products)
