@@ -5440,12 +5440,18 @@
     if(n>=10000)     return (n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,'')+'만';
     return n.toLocaleString('ko-KR');
   }
-  // 요약 카드용 — 숫자와 단위(만/억)를 분리해서 렌더 (단위는 더 작게).
+  // 요약 카드용 — 숫자(1,000 단위 콤마)와 단위(만/억) 분리 렌더.
   function _akoiFmtKrwParts(n){
     n=Number(n)||0;
-    if(n>=100000000){ const v=(n/100000000).toFixed(1).replace(/\.0$/,''); return {num:v, unit:'억'}; }
-    if(n>=10000){     const v=(n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,''); return {num:v, unit:'만'}; }
-    return {num: n.toLocaleString('ko-KR'), unit:''};
+    const withCommas = (v) => {
+      const s = String(v);
+      const [int, dec] = s.split('.');
+      const intCommas = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return dec ? `${intCommas}.${dec}` : intCommas;
+    };
+    if(n>=100000000){ const v=(n/100000000).toFixed(1).replace(/\.0$/,''); return {num:withCommas(v), unit:'억'}; }
+    if(n>=10000){     const v=(n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,''); return {num:withCommas(v), unit:'만'}; }
+    return {num: withCommas(n), unit:''};
   }
   function _akoiFmtCount(n){
     n=Number(n)||0;
@@ -5464,7 +5470,6 @@
       return `<div class="akoi-summary-card">
       <span class="akoi-summary-label">${c.label}</span>
       <span class="akoi-summary-value is-rev"><span class="akoi-summary-won">₩</span><span class="akoi-summary-num">${_akoiEsc(p.num)}</span>${p.unit?`<span class="akoi-summary-unit">${p.unit}</span>`:''}</span>
-      ${c.ord?`<span class="akoi-summary-sub">${_akoiFmtCount(c.ord)}건</span>`:''}
     </div>`;
     }).join('');
   }
