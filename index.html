@@ -1901,8 +1901,15 @@
   .akoi-summary-value.is-rev{color:#0f766e}
   .akoi-summary-sub{font-size:10.5px;color:var(--text-3);font-weight:500;font-family:var(--mono)}
   .akoi-body{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .akoi-body.akoi-body-collapsed{display:none}
   .akoi-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
   .akoi-err{padding:20px;background:rgba(225,29,72,.06);border:1px solid rgba(225,29,72,.35);border-radius:8px;color:#b91c1c;font-size:12.5px;line-height:1.6}
+  .akoi-toggle-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important;display:inline-flex;align-items:center;gap:5px}
+  .akoi-toggle-btn .chev{transition:transform .18s}
+  .akoi-amount.is-empty{min-width:0;padding:0}
+  @media (max-width:600px){
+    .akoi-toggle-label{display:none}
+  }
   .akoi-row{display:grid;grid-template-columns:32px minmax(120px,1fr) auto auto;gap:14px;align-items:center;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg-1);transition:background .12s}
   .akoi-row:hover{background:var(--bg-2)}
   .akoi-rank{font-size:14px;font-weight:800;color:var(--text-2);text-align:center;font-family:var(--mono)}
@@ -4630,7 +4637,7 @@
             </button>
           </div>
         </div>
-        <div class="md-cal-hint" style="margin-bottom:12px">30분마다 자동 갱신 · 판매수 기준 정렬 · 실 매출 = 결제완료 - 취소/반품 · 식스샵프로만 상품별 매출/옵션 세부 제공</div>
+        <div class="md-cal-hint" style="margin-bottom:12px">30분마다 자동 갱신 · 실 매출 = 결제완료 - 취소/반품 · [상품 top10 펼치기]로 판매수 순위 확인 · 식스샵프로만 상품별 매출/옵션 세부 제공</div>
         <div id="salesReportsWrap"></div>
       </div>
 
@@ -5451,11 +5458,12 @@
       optCol=`<span class="akoi-optnames" title="${_akoiEsc(sortedOpts.map(o=>o.optionName).join(' / '))}">${optNames}${moreOpts}</span>`;
     }
     const nameEl=it.url
-      ? `<a class="akoi-name" href="${_akoiEsc(it.url)}" target="_blank" rel="noopener noreferrer" title="${_akoiEsc(it.name)} — 상품 페이지" onclick="event.stopPropagation()">${_akoiEsc(it.name)}</a>`
+      ? `<a class="akoi-name" href="${_akoiEsc(it.url)}" target="_blank" rel="noopener noreferrer" title="${_akoiEsc(it.name)} — 상품 페이지">${_akoiEsc(it.name)}</a>`
       : `<span class="akoi-name" title="${_akoiEsc(it.name)}">${_akoiEsc(it.name)}</span>`;
+    // 매출 컬럼: Pro 브랜드는 상품별 실매출금액, admin은 컬럼 자체 비움 (정보 부재를 조용히)
     const amountCol=(cfg.hasItemAmount && it.amount!=null)
       ? `<div class="akoi-amount"><span class="akoi-amount-num">₩${_akoiEsc(_akoiFmtKrw(it.amount))}</span><span class="akoi-amount-unit">실매출금액</span></div>`
-      : `<div class="akoi-amount"><span class="akoi-amount-num" style="color:var(--text-3);font-weight:600">—</span><span class="akoi-amount-unit">매출/상품 X</span></div>`;
+      : '<div class="akoi-amount is-empty"></div>';
     return `<div class="akoi-row" data-idx="${it.rank}">
       <span class="akoi-rank">${it.rank}</span>
       <div class="akoi-nameblock">${nameEl}${optCol}</div>
@@ -5470,7 +5478,7 @@
     el.textContent=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')} 갱신`;
   }
   function _salesBuildCard(cfg){
-    return `<div class="akoi-section po-section" data-brand="${cfg.id}" style="margin-bottom:14px">
+    return `<div class="akoi-section po-section" data-brand="${cfg.id}" data-expanded="0" style="margin-bottom:14px">
       <div class="po-section-head">
         <div class="po-section-title">
           <span class="brand-dot" style="background:${cfg.dot}"></span>
@@ -5479,6 +5487,10 @@
         </div>
         <div class="po-section-meta">
           <span id="salesUpd_${cfg.id}" class="sales-updated-tag"></span>
+          <button class="btn po-import akoi-toggle-btn" type="button" onclick="salesToggleBody('${cfg.id}')" title="상품 top10 접기/펼치기">
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="akoi-toggle-label">상품 top10 펼치기</span>
+          </button>
           <button class="btn po-import akoi-refresh-btn" type="button" onclick="salesRefresh('${cfg.id}')" title="${_akoiEsc(cfg.display)} 다시 불러오기">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             새로고침
@@ -5486,9 +5498,22 @@
         </div>
       </div>
       <div class="akoi-summary" id="salesSummary_${cfg.id}"></div>
-      <div class="akoi-body" id="salesBody_${cfg.id}"><div class="akoi-empty">불러오는 중…</div></div>
+      <div class="akoi-body akoi-body-collapsed" id="salesBody_${cfg.id}"><div class="akoi-empty">불러오는 중…</div></div>
     </div>`;
   }
+  function salesToggleBody(id){
+    const card=document.querySelector(`.akoi-section[data-brand="${id}"]`);
+    const body=document.getElementById(`salesBody_${id}`);
+    if(!card || !body) return;
+    const expanded=card.dataset.expanded==='1';
+    card.dataset.expanded=expanded?'0':'1';
+    body.classList.toggle('akoi-body-collapsed', expanded);
+    const label=card.querySelector('.akoi-toggle-label');
+    if(label) label.textContent=expanded ? '상품 top10 펼치기' : '상품 top10 접기';
+    const chev=card.querySelector('.akoi-toggle-btn .chev');
+    if(chev) chev.style.transform=expanded ? '' : 'rotate(180deg)';
+  }
+  window.salesToggleBody=salesToggleBody;
   function _salesInitCards(){
     const wrap=document.getElementById('salesReportsWrap');
     if(!wrap || wrap.dataset.initted) return;
