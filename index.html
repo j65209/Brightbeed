@@ -1898,32 +1898,36 @@
   .akoi-summary-label{font-size:10.5px;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono)}
   .akoi-summary-value{font-size:19px;font-weight:800;color:var(--text-0);font-family:var(--mono);letter-spacing:-.01em}
   .akoi-summary-value.is-rev{color:#0f766e}
+  .akoi-summary-sub{font-size:10.5px;color:var(--text-3);font-weight:500;font-family:var(--mono)}
   .akoi-body{display:flex;flex-direction:column;gap:8px;margin-top:6px}
   .akoi-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
   .akoi-err{padding:20px;background:rgba(225,29,72,.06);border:1px solid rgba(225,29,72,.35);border-radius:8px;color:#b91c1c;font-size:12.5px;line-height:1.6}
-  .akoi-row{display:grid;grid-template-columns:32px 44px minmax(120px,1fr) auto;gap:12px;align-items:center;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg-1);cursor:pointer;transition:background .12s}
+  .akoi-row{display:grid;grid-template-columns:32px minmax(120px,1fr) auto auto;gap:14px;align-items:center;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg-1);cursor:pointer;transition:background .12s}
   .akoi-row:hover{background:var(--bg-2)}
   .akoi-rank{font-size:14px;font-weight:800;color:var(--text-2);text-align:center;font-family:var(--mono)}
-  .akoi-thumb{width:44px;height:44px;border-radius:6px;background:var(--bg-3) center/cover no-repeat;border:1px solid var(--line);flex-shrink:0}
   .akoi-nameblock{min-width:0;display:flex;flex-direction:column;gap:3px}
   .akoi-name{font-size:13.5px;font-weight:700;color:var(--text-0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .akoi-name a,.akoi-name:link{color:var(--text-0);text-decoration:none}
-  .akoi-name a:hover{text-decoration:underline}
   .akoi-optcount{font-size:10.5px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em}
-  .akoi-count{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:70px}
-  .akoi-count-num{font-size:16px;font-weight:800;color:#0f766e;font-family:var(--mono)}
+  .akoi-count{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:60px}
+  .akoi-count-num{font-size:15px;font-weight:800;color:var(--text-0);font-family:var(--mono)}
   .akoi-count-unit{font-size:9.5px;color:var(--text-3);font-weight:500;letter-spacing:.06em;font-family:var(--mono)}
-  .akoi-optlist{margin-top:2px;padding:8px 14px 12px 90px;background:var(--bg-2);border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;display:none;flex-direction:column;gap:5px}
+  .akoi-amount{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:80px}
+  .akoi-amount-num{font-size:15px;font-weight:800;color:#0f766e;font-family:var(--mono)}
+  .akoi-amount-unit{font-size:9.5px;color:var(--text-3);font-weight:500;letter-spacing:.06em;font-family:var(--mono)}
+  .akoi-optlist{margin-top:2px;padding:8px 14px 12px 46px;background:var(--bg-2);border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;display:none;flex-direction:column;gap:5px}
   .akoi-row.is-open{border-radius:8px 8px 0 0;border-bottom-color:transparent}
   .akoi-row.is-open + .akoi-optlist{display:flex}
-  .akoi-opt-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:5px 0;font-size:12px;color:var(--text-1);border-bottom:1px dashed var(--line)}
+  .akoi-opt-row{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:5px 0;font-size:12px;color:var(--text-1);border-bottom:1px dashed var(--line)}
   .akoi-opt-row:last-child{border-bottom:none}
   .akoi-opt-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-1)}
-  .akoi-opt-stock{font-family:var(--mono);font-weight:600;color:var(--text-2);font-size:11.5px;text-align:right}
-  .akoi-opt-stock.is-out{color:#b91c1c;font-weight:700}
+  .akoi-opt-qty{font-family:var(--mono);font-weight:700;color:var(--text-0);font-size:12px;min-width:44px;text-align:right}
+  .akoi-opt-amt{font-family:var(--mono);font-weight:700;color:#0f766e;font-size:12px;min-width:70px;text-align:right}
   @media (max-width:640px){
-    .akoi-row{grid-template-columns:26px 40px 1fr auto;gap:8px;padding:9px 10px}
-    .akoi-optlist{padding:8px 10px 12px 76px}
+    .akoi-row{grid-template-columns:26px 1fr auto;gap:8px;padding:9px 10px}
+    .akoi-row .akoi-amount{display:none}
+    .akoi-optlist{padding:8px 10px 12px 40px}
+    .akoi-opt-row{grid-template-columns:1fr auto;gap:8px}
+    .akoi-opt-row .akoi-opt-amt{display:none}
   }
 
   /* ===== 시딩 재고 — 라이트 단순화 v3 (중립 + 의미 색만 유지) ===== */
@@ -4637,7 +4641,7 @@
         </div>
         <div class="akoi-summary" id="akoiSummary"></div>
         <div class="akoi-body" id="akoiBody"><div class="akoi-empty">불러오는 중…</div></div>
-        <div class="md-cal-hint">식스샵프로 salesDataset 실시간 조회 (~10~15초) · 판매수 기준 정렬 · 옵션명 접기/펼치기 지원</div>
+        <div class="md-cal-hint">식스샵프로 API · 30분마다 자동 갱신 · [새로고침] 버튼은 서버에서 즉시 재조회 (10~15초) · 판매수 기준 정렬 · 상품 클릭 → 옵션명 · 판매수 · 매출</div>
       </div>
 
     </div>
@@ -5423,38 +5427,34 @@
   }
   function _akoiRenderSummary(s){
     if(!s) return '';
+    const today=s.today||{}, sd=s.sevenDays||{}, td=s.thirtyDays||{};
     const cards=[
-      {label:'오늘 매출',    v:s.dayIncomeAmount},
-      {label:'최근 7일',     v:s.sevenDaysIncomeAmount},
-      {label:'최근 30일',    v:s.thirtyDaysIncomeAmount},
-      {label:'이번 달',      v:s.monthIncomeAmount},
+      {label:'오늘',       rev:today.revenue, ord:today.orders},
+      {label:'최근 7일',   rev:sd.revenue,    ord:sd.orders},
+      {label:'최근 30일',  rev:td.revenue,    ord:td.orders},
     ];
     return cards.map(c=>`<div class="akoi-summary-card">
       <span class="akoi-summary-label">${c.label}</span>
-      <span class="akoi-summary-value is-rev">₩${_akoiEsc(_akoiFmtKrw(c.v))}</span>
+      <span class="akoi-summary-value is-rev">₩${_akoiEsc(_akoiFmtKrw(c.rev))}</span>
+      <span class="akoi-summary-sub">${_akoiFmtCount(c.ord)}건</span>
     </div>`).join('');
   }
   function _akoiRenderRow(it){
-    const thumbStyle=it.thumb?`style="background-image:url('${_akoiEsc(it.thumb)}')"`:'';
     const nameCore=`<span class="akoi-name" title="${_akoiEsc(it.name)}">${_akoiEsc(it.name)}</span>`;
-    const linkEl=it.url
-      ? `<a class="akoi-name" href="${_akoiEsc(it.url)}" target="_blank" rel="noopener noreferrer" title="${_akoiEsc(it.name)} — 상품 페이지 열기" onclick="event.stopPropagation()">${_akoiEsc(it.name)}</a>`
-      : nameCore;
     const opts=Array.isArray(it.options)?it.options:[];
     const optsList=opts.length
       ? opts.map(o=>{
-          const stockNum=(o.stock==null)?'':`재고 ${o.stock}`;
-          const isOut=o.isSoldOut || (o.stock!=null && o.stock<=0);
-          const stockLabel=isOut ? '품절' : stockNum;
-          return `<div class="akoi-opt-row"><span class="akoi-opt-name">${_akoiEsc(o.optionName)}</span><span class="akoi-opt-stock${isOut?' is-out':''}">${_akoiEsc(stockLabel)}</span></div>`;
+          const qty=Number(o.quantity)||0;
+          const amt=Number(o.amount)||0;
+          return `<div class="akoi-opt-row"><span class="akoi-opt-name">${_akoiEsc(o.optionName)}</span><span class="akoi-opt-qty">${_akoiFmtCount(qty)}건</span><span class="akoi-opt-amt">₩${_akoiEsc(_akoiFmtKrw(amt))}</span></div>`;
         }).join('')
-      : '<div class="akoi-opt-row"><span class="akoi-opt-name" style="color:var(--text-3);font-style:italic">옵션 정보 없음</span><span></span></div>';
+      : '<div class="akoi-opt-row"><span class="akoi-opt-name" style="color:var(--text-3);font-style:italic">옵션 정보 없음</span><span></span><span></span></div>';
     const optCountLabel=opts.length ? `옵션 ${opts.length}개 · 클릭하여 펼치기` : '옵션 없음';
     return `<div class="akoi-row" data-idx="${it.rank}" onclick="akoiToggleRow(this)">
       <span class="akoi-rank">${it.rank}</span>
-      <span class="akoi-thumb" ${thumbStyle}></span>
-      <div class="akoi-nameblock">${linkEl}<span class="akoi-optcount">${_akoiEsc(optCountLabel)}</span></div>
-      <div class="akoi-count"><span class="akoi-count-num">${_akoiFmtCount(it.count)}</span><span class="akoi-count-unit">판매</span></div>
+      <div class="akoi-nameblock">${nameCore}<span class="akoi-optcount">${_akoiEsc(optCountLabel)}</span></div>
+      <div class="akoi-count"><span class="akoi-count-num">${_akoiFmtCount(it.count)}</span><span class="akoi-count-unit">건</span></div>
+      <div class="akoi-amount"><span class="akoi-amount-num">₩${_akoiEsc(_akoiFmtKrw(it.amount))}</span><span class="akoi-amount-unit">매출</span></div>
     </div>
     <div class="akoi-optlist">${optsList}</div>`;
   }
@@ -5477,10 +5477,15 @@
     const btn=document.querySelector('.akoi-refresh-btn');
     if(!body || !summary) return;
     if(_akoiBusy) return;
-    if(!force && Date.now()-_akoiLastFetch < AKOI_CACHE_MS) return;
+    // 캐시는 서버 launchd(30분마다)가 갱신. 사용자 새로고침(force)만 서버 refetch 트리거.
+    if(!force && Date.now()-_akoiLastFetch < 60*1000) return;
     _akoiBusy=true;
     if(btn){btn.disabled=true;btn.classList.add('spin')}
-    body.innerHTML='<div class="akoi-empty">식스샵프로 로그인 → salesDataset 조회 중… (약 10~15초)</div>';
+    if(force){
+      // POST → 서버 즉시 refetch (~15s). 완료 후 body 갱신.
+      body.innerHTML='<div class="akoi-empty">식스샵프로에서 새로 가져오는 중… (약 10~15초)</div>';
+      try{ await sxFetch('/akoihaus-sales',{method:'POST'}); }catch(e){}
+    }
     try{
       const r=await sxFetch('/akoihaus-sales',{method:'GET'});
       if(!r.ok){
@@ -5495,7 +5500,7 @@
       summary.innerHTML=_akoiRenderSummary(j.summary||{});
       const top=Array.isArray(j.top10)?j.top10:[];
       if(!top.length){
-        body.innerHTML='<div class="akoi-empty">아직 판매된 상품이 없습니다. 첫 주문이 들어오면 여기에 자동 표시됩니다.</div>';
+        body.innerHTML='<div class="akoi-empty">아직 판매된 상품이 없습니다. 첫 주문이 들어오면 자동 표시됩니다.</div>';
       }else{
         body.innerHTML=top.map(_akoiRenderRow).join('');
       }
@@ -5511,9 +5516,23 @@
   function akoiSalesRefresh(){ akoiSalesLoad(true); }
   function akoiSalesEnsureLoaded(){
     if(_akoiLastFetch===0) akoiSalesLoad(false);
+    akoiStartPolling();
+  }
+  // 30분마다 서버 캐시를 조회 (서버 launchd가 30분마다 갱신 → 클라이언트도 동일 주기 폴링).
+  // MD 뷰 진입 시 시작, 이탈 시 멈춤. 탭 hidden 시 pollPO가 정지되므로 별도 처리 불필요.
+  let _akoiPollTimer=null;
+  function akoiStartPolling(){
+    if(_akoiPollTimer) return;
+    _akoiPollTimer=setInterval(()=>{
+      if(!document.getElementById('viewMd')?.hidden) akoiSalesLoad(false);
+    }, 30*60*1000);
+  }
+  function akoiStopPolling(){
+    if(_akoiPollTimer){ clearInterval(_akoiPollTimer); _akoiPollTimer=null; }
   }
   window.akoiSalesRefresh=akoiSalesRefresh;
   window.akoiSalesEnsureLoaded=akoiSalesEnsureLoaded;
+  window.akoiStopPolling=akoiStopPolling;
 
   /* ===== 재고연동 뷰 — 180도 케이블 통합 매핑 =====
      데이터 모델 (data/stock-cables.json):
