@@ -1889,6 +1889,43 @@
     .vm-table th,.vm-table td{padding:5px 7px}
   }
 
+  /* ===== AkoiHaus 실시간 매출 리포트 (식스샵프로 salesDataset) ===== */
+  .akoi-section .po-section-title{display:flex;align-items:baseline;gap:8px;color:var(--text-0)}
+  .akoi-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em}
+  .akoi-refresh-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
+  .akoi-summary{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+  .akoi-summary-card{flex:1;min-width:150px;padding:12px 14px;background:var(--bg-2);border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;gap:4px}
+  .akoi-summary-label{font-size:10.5px;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono)}
+  .akoi-summary-value{font-size:19px;font-weight:800;color:var(--text-0);font-family:var(--mono);letter-spacing:-.01em}
+  .akoi-summary-value.is-rev{color:#0f766e}
+  .akoi-body{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .akoi-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
+  .akoi-err{padding:20px;background:rgba(225,29,72,.06);border:1px solid rgba(225,29,72,.35);border-radius:8px;color:#b91c1c;font-size:12.5px;line-height:1.6}
+  .akoi-row{display:grid;grid-template-columns:32px 44px minmax(120px,1fr) auto;gap:12px;align-items:center;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg-1);cursor:pointer;transition:background .12s}
+  .akoi-row:hover{background:var(--bg-2)}
+  .akoi-rank{font-size:14px;font-weight:800;color:var(--text-2);text-align:center;font-family:var(--mono)}
+  .akoi-thumb{width:44px;height:44px;border-radius:6px;background:var(--bg-3) center/cover no-repeat;border:1px solid var(--line);flex-shrink:0}
+  .akoi-nameblock{min-width:0;display:flex;flex-direction:column;gap:3px}
+  .akoi-name{font-size:13.5px;font-weight:700;color:var(--text-0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .akoi-name a,.akoi-name:link{color:var(--text-0);text-decoration:none}
+  .akoi-name a:hover{text-decoration:underline}
+  .akoi-optcount{font-size:10.5px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em}
+  .akoi-count{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:70px}
+  .akoi-count-num{font-size:16px;font-weight:800;color:#0f766e;font-family:var(--mono)}
+  .akoi-count-unit{font-size:9.5px;color:var(--text-3);font-weight:500;letter-spacing:.06em;font-family:var(--mono)}
+  .akoi-optlist{margin-top:2px;padding:8px 14px 12px 90px;background:var(--bg-2);border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;display:none;flex-direction:column;gap:5px}
+  .akoi-row.is-open{border-radius:8px 8px 0 0;border-bottom-color:transparent}
+  .akoi-row.is-open + .akoi-optlist{display:flex}
+  .akoi-opt-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:5px 0;font-size:12px;color:var(--text-1);border-bottom:1px dashed var(--line)}
+  .akoi-opt-row:last-child{border-bottom:none}
+  .akoi-opt-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-1)}
+  .akoi-opt-stock{font-family:var(--mono);font-weight:600;color:var(--text-2);font-size:11.5px;text-align:right}
+  .akoi-opt-stock.is-out{color:#b91c1c;font-weight:700}
+  @media (max-width:640px){
+    .akoi-row{grid-template-columns:26px 40px 1fr auto;gap:8px;padding:9px 10px}
+    .akoi-optlist{padding:8px 10px 12px 76px}
+  }
+
   /* ===== 시딩 재고 — 라이트 단순화 v3 (중립 + 의미 색만 유지) ===== */
   .seeding-section .po-section-title{display:flex;align-items:baseline;gap:8px;color:var(--text-0)}
   .seeding-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em}
@@ -4027,7 +4064,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           <span id="mdBtnLabel">MD팀</span>
         </button>
-        <div class="hero-hint">기획전 일정 · 시딩 재고</div>
+        <div class="hero-hint">기획전 일정 · AkoiHaus 매출</div>
       </section>
 
       <section class="hero hero-mkt">
@@ -4550,7 +4587,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전 · 시딩 재고</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전 · AkoiHaus 실시간 매출</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
 
@@ -4586,48 +4623,21 @@
         </div>
       </div>
 
-      <!-- 시딩 재고 -->
-      <div class="po-section seeding-section">
+      <!-- AkoiHaus 실시간 매출 리포트 (식스샵프로) -->
+      <div class="po-section akoi-section">
         <div class="po-section-head">
-          <div class="po-section-title">시딩 재고 <span class="seeding-sub">AkoiHaus 슬리퍼</span></div>
+          <div class="po-section-title">AkoiHaus 실시간 매출 <span class="akoi-sub">식스샵프로 · 최근 30일</span></div>
           <div class="po-section-meta">
-            <span id="seedingUpdatedTag" class="sales-updated-tag"></span>
-            <button class="btn po-import seeding-add-btn" type="button" onclick="seedingOpenStockEdit()" title="보유 수량 조정">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4z"/></svg>
-              보유 조정
+            <span id="akoiUpdatedTag" class="sales-updated-tag"></span>
+            <button class="btn po-import akoi-refresh-btn" type="button" onclick="akoiSalesRefresh()" title="다시 불러오기">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              새로고침
             </button>
           </div>
         </div>
-        <div class="seeding-body" id="seedingBody"></div>
-        <div class="md-cal-hint">행 클릭 → 발송 이력 · [출고] 버튼으로 발송 기록 · 다른 사용자 화면도 약 1분 안에 자동 반영</div>
-      </div>
-
-      <!-- 시딩 반납 캘린더 -->
-      <div class="po-section md-cal-section">
-        <div class="po-section-head md-cal-head">
-          <div class="po-section-title">시딩 출고·반납 캘린더 <span class="seeding-sub">출고일 + 반납 예정일 자동 표시</span></div>
-          <div class="po-section-meta md-cal-meta">
-            <div class="md-cal-nav">
-              <button type="button" class="btn-md-cal-nav" onclick="seedingCalNavToday()">오늘</button>
-              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="seedingCalNavPrev()" aria-label="이전 달">‹</button>
-              <span class="md-cal-monthlabel" id="seedingCalMonthLabel">2026.05</span>
-              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="seedingCalNavNext()" aria-label="다음 달">›</button>
-            </div>
-          </div>
-        </div>
-        <div class="md-cal-body">
-          <div class="md-cal-weekdays">
-            <div class="md-cal-wd md-cal-sun">일</div>
-            <div class="md-cal-wd">월</div>
-            <div class="md-cal-wd">화</div>
-            <div class="md-cal-wd">수</div>
-            <div class="md-cal-wd">목</div>
-            <div class="md-cal-wd">금</div>
-            <div class="md-cal-wd md-cal-sat">토</div>
-          </div>
-          <div class="md-cal-grid" id="seedingCalGrid"></div>
-          <div class="md-cal-hint">출고·반납 chip 클릭 → 해당 컬러 이력 모달 열림</div>
-        </div>
+        <div class="akoi-summary" id="akoiSummary"></div>
+        <div class="akoi-body" id="akoiBody"><div class="akoi-empty">불러오는 중…</div></div>
+        <div class="md-cal-hint">식스샵프로 salesDataset 실시간 조회 (~10~15초) · 판매수 기준 정렬 · 옵션명 접기/펼치기 지원</div>
       </div>
 
     </div>
@@ -5168,69 +5178,6 @@
   </div>
 </div>
 
-<!-- 시딩 발송 모달 -->
-<div class="modal-bg" id="seedingModal">
-  <div class="modal seeding-modal">
-    <div class="modal-title" id="seedingModalTitle">발송 기록</div>
-    <div class="seeding-modal-sub" id="seedingModalSub"></div>
-    <div class="md-event-field">
-      <label class="md-event-label">받는 사람 <span class="seeding-req">*</span></label>
-      <input class="modal-input md-event-input" id="seedingTo" type="text" maxlength="40" placeholder="예: 헬로키티 / @account_name / 브랜드명" autocomplete="off">
-    </div>
-    <div class="md-event-row">
-      <div class="md-event-field">
-        <label class="md-event-label">사이즈</label>
-        <div class="seeding-size-radios">
-          <label class="seeding-size-opt"><input type="radio" name="seedingSize" value="M" checked> 미듐 · 여성용 (260mm)</label>
-          <label class="seeding-size-opt"><input type="radio" name="seedingSize" value="L"> 라지 · 남성용 (290mm)</label>
-        </div>
-      </div>
-      <div class="md-event-field">
-        <label class="md-event-label">수량 (족)</label>
-        <input class="modal-input md-event-input" id="seedingQty" type="number" min="1" value="1">
-      </div>
-    </div>
-    <div class="md-event-field">
-      <label class="md-event-label">반납 예정일 (선택 — 입력 시 달력에 자동 표시)</label>
-      <input class="modal-input md-event-input" id="seedingReturnDate" type="date">
-    </div>
-    <div class="md-event-field md-event-field-memo">
-      <label class="md-event-label">메모</label>
-      <textarea class="modal-input md-event-memo seeding-memo-area" id="seedingMemo" rows="5" maxlength="500" placeholder="예: 컨텐츠 일정, 반품 여부, 사이즈 추가 가능 여부, 인플루언서 채널/URL, 콘셉트 가이드 등 자유롭게 기록"></textarea>
-    </div>
-    <div class="modal-actions md-event-actions">
-      <span class="md-event-actions-spacer"></span>
-      <button class="modal-btn" id="seedingCancelBtn">취소</button>
-      <button class="modal-btn modal-btn-primary" id="seedingSendBtn">발송 기록</button>
-    </div>
-  </div>
-</div>
-
-<!-- 시딩 이력 모달 -->
-<div class="modal-bg" id="seedingLogModal">
-  <div class="modal seeding-log-modal">
-    <div class="modal-title" id="seedingLogTitle">발송 이력</div>
-    <div class="seeding-log-body" id="seedingLogBody"></div>
-    <div class="modal-actions md-event-actions">
-      <span class="md-event-actions-spacer"></span>
-      <button class="modal-btn" id="seedingLogCloseBtn">닫기</button>
-    </div>
-  </div>
-</div>
-
-<!-- 시딩 보유 조정 모달 -->
-<div class="modal-bg" id="seedingStockModal">
-  <div class="modal seeding-stock-modal">
-    <div class="modal-title">보유 수량 조정</div>
-    <div class="seeding-stock-body" id="seedingStockBody"></div>
-    <div class="modal-actions md-event-actions">
-      <span class="md-event-actions-spacer"></span>
-      <button class="modal-btn" id="seedingStockCancelBtn">취소</button>
-      <button class="modal-btn modal-btn-primary" id="seedingStockSaveBtn">저장</button>
-    </div>
-  </div>
-</div>
-
 <!-- 기획전 호버 툴팁 -->
 <div class="md-cal-tooltip" id="mdCalTooltip" hidden></div>
 
@@ -5457,6 +5404,116 @@
     });
   }
   _bestBindHover();
+
+  /* ===== AkoiHaus 실시간 매출 리포트 — /sx/akoihaus-sales =====
+     첫 진입 (viewMd) → 5분 캐시. 사장님이 [새로고침] 누르면 force. */
+  let _akoiBusy=false;
+  let _akoiLastFetch=0;
+  const AKOI_CACHE_MS=5*60*1000;
+  function _akoiEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function _akoiFmtKrw(n){
+    n=Number(n)||0;
+    if(n>=100000000) return (n/100000000).toFixed(1).replace(/\.0$/,'')+'억';
+    if(n>=10000)     return (n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,'')+'만';
+    return n.toLocaleString('ko-KR');
+  }
+  function _akoiFmtCount(n){
+    n=Number(n)||0;
+    return n>=1000 ? (n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'')+'k' : String(n);
+  }
+  function _akoiRenderSummary(s){
+    if(!s) return '';
+    const cards=[
+      {label:'오늘 매출',    v:s.dayIncomeAmount},
+      {label:'최근 7일',     v:s.sevenDaysIncomeAmount},
+      {label:'최근 30일',    v:s.thirtyDaysIncomeAmount},
+      {label:'이번 달',      v:s.monthIncomeAmount},
+    ];
+    return cards.map(c=>`<div class="akoi-summary-card">
+      <span class="akoi-summary-label">${c.label}</span>
+      <span class="akoi-summary-value is-rev">₩${_akoiEsc(_akoiFmtKrw(c.v))}</span>
+    </div>`).join('');
+  }
+  function _akoiRenderRow(it){
+    const thumbStyle=it.thumb?`style="background-image:url('${_akoiEsc(it.thumb)}')"`:'';
+    const nameCore=`<span class="akoi-name" title="${_akoiEsc(it.name)}">${_akoiEsc(it.name)}</span>`;
+    const linkEl=it.url
+      ? `<a class="akoi-name" href="${_akoiEsc(it.url)}" target="_blank" rel="noopener noreferrer" title="${_akoiEsc(it.name)} — 상품 페이지 열기" onclick="event.stopPropagation()">${_akoiEsc(it.name)}</a>`
+      : nameCore;
+    const opts=Array.isArray(it.options)?it.options:[];
+    const optsList=opts.length
+      ? opts.map(o=>{
+          const stockNum=(o.stock==null)?'':`재고 ${o.stock}`;
+          const isOut=o.isSoldOut || (o.stock!=null && o.stock<=0);
+          const stockLabel=isOut ? '품절' : stockNum;
+          return `<div class="akoi-opt-row"><span class="akoi-opt-name">${_akoiEsc(o.optionName)}</span><span class="akoi-opt-stock${isOut?' is-out':''}">${_akoiEsc(stockLabel)}</span></div>`;
+        }).join('')
+      : '<div class="akoi-opt-row"><span class="akoi-opt-name" style="color:var(--text-3);font-style:italic">옵션 정보 없음</span><span></span></div>';
+    const optCountLabel=opts.length ? `옵션 ${opts.length}개 · 클릭하여 펼치기` : '옵션 없음';
+    return `<div class="akoi-row" data-idx="${it.rank}" onclick="akoiToggleRow(this)">
+      <span class="akoi-rank">${it.rank}</span>
+      <span class="akoi-thumb" ${thumbStyle}></span>
+      <div class="akoi-nameblock">${linkEl}<span class="akoi-optcount">${_akoiEsc(optCountLabel)}</span></div>
+      <div class="akoi-count"><span class="akoi-count-num">${_akoiFmtCount(it.count)}</span><span class="akoi-count-unit">판매</span></div>
+    </div>
+    <div class="akoi-optlist">${optsList}</div>`;
+  }
+  function akoiToggleRow(el){
+    if(!el) return;
+    el.classList.toggle('is-open');
+  }
+  window.akoiToggleRow=akoiToggleRow;
+  function _akoiRenderUpdated(ts){
+    const el=document.getElementById('akoiUpdatedTag');
+    if(!el) return;
+    const t=new Date(ts||Date.now());
+    const hh=String(t.getHours()).padStart(2,'0');
+    const mm=String(t.getMinutes()).padStart(2,'0');
+    el.textContent=`${hh}:${mm} 갱신`;
+  }
+  async function akoiSalesLoad(force){
+    const body=document.getElementById('akoiBody');
+    const summary=document.getElementById('akoiSummary');
+    const btn=document.querySelector('.akoi-refresh-btn');
+    if(!body || !summary) return;
+    if(_akoiBusy) return;
+    if(!force && Date.now()-_akoiLastFetch < AKOI_CACHE_MS) return;
+    _akoiBusy=true;
+    if(btn){btn.disabled=true;btn.classList.add('spin')}
+    body.innerHTML='<div class="akoi-empty">식스샵프로 로그인 → salesDataset 조회 중… (약 10~15초)</div>';
+    try{
+      const r=await sxFetch('/akoihaus-sales',{method:'GET'});
+      if(!r.ok){
+        body.innerHTML=`<div class="akoi-err">서버 프록시 오류 (HTTP ${r.status})</div>`;
+        return;
+      }
+      const j=await r.json();
+      if(!j || !j.ok){
+        body.innerHTML=`<div class="akoi-err">${_akoiEsc(j&&j.error||'응답 오류')}</div>`;
+        return;
+      }
+      summary.innerHTML=_akoiRenderSummary(j.summary||{});
+      const top=Array.isArray(j.top10)?j.top10:[];
+      if(!top.length){
+        body.innerHTML='<div class="akoi-empty">아직 판매된 상품이 없습니다. 첫 주문이 들어오면 여기에 자동 표시됩니다.</div>';
+      }else{
+        body.innerHTML=top.map(_akoiRenderRow).join('');
+      }
+      _akoiLastFetch=Date.now();
+      _akoiRenderUpdated(j.fetchedAt);
+    }catch(e){
+      body.innerHTML=`<div class="akoi-err">${_akoiEsc(e.message||e)}</div>`;
+    }finally{
+      _akoiBusy=false;
+      if(btn){btn.disabled=false;btn.classList.remove('spin')}
+    }
+  }
+  function akoiSalesRefresh(){ akoiSalesLoad(true); }
+  function akoiSalesEnsureLoaded(){
+    if(_akoiLastFetch===0) akoiSalesLoad(false);
+  }
+  window.akoiSalesRefresh=akoiSalesRefresh;
+  window.akoiSalesEnsureLoaded=akoiSalesEnsureLoaded;
 
   /* ===== 재고연동 뷰 — 180도 케이블 통합 매핑 =====
      데이터 모델 (data/stock-cables.json):
@@ -6550,9 +6607,7 @@
       if(typeof renderSalesArchive==='function') renderSalesArchive();
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
       if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
-      if(typeof renderSeeding==='function') renderSeeding();
-      if(typeof renderSeedingCal==='function') renderSeedingCal();
-      if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
+      if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
     }
     if(id==='viewNotice'){
       if(typeof renderNotice==='function') renderNotice();
@@ -8394,7 +8449,6 @@
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
-    if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
   }
 
   /* === 자동 폴링 (60초마다 + 탭 활성화 시 즉시) === */
@@ -8410,7 +8464,6 @@
     if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
     if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
     if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
-    if(typeof syncSeedingFromRemote==='function') syncSeedingFromRemote().catch(()=>{});
     // 벤더사 데이터 자동 갱신 — 성공 후 10분 게이트 / 실패 후 5분 재시도 (탭이 hidden일 땐 폴링 자체가 멈춤)
     // 시트는 서버 launchd 가 10분마다 fetch → 프록시 파일 캐시. 대시보드도 같은 주기로 폴링.
     const VENDOR_OK_MS=10*60*1000, VENDOR_RETRY_MS=5*60*1000;
