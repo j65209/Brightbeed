@@ -4647,7 +4647,7 @@
             </button>
           </div>
         </div>
-        <div class="md-cal-hint" style="margin-bottom:12px">30분마다 자동 갱신 · 실 매출 = 결제완료 - 취소/반품 · [상품 top10 펼치기]로 판매수 순위 확인 · 식스샵프로만 상품별 매출/옵션 세부 제공</div>
+        <div class="md-cal-hint" style="margin-bottom:12px">30분마다 자동 갱신 · 식스샵프로는 실결제 매출(주문 금액) · 식스샵은 실 매출(취소/반품 제외) · [상품 top10 펼치기]로 판매수 순위 확인 · 식스샵프로만 상품별 매출/옵션 세부 제공</div>
         <div id="salesReportsWrap"></div>
       </div>
 
@@ -5457,10 +5457,10 @@
   }
   function _akoiRenderSummary(s){
     if(!s) return '';
-    const today=s.today||{}, sd=s.sevenDays||{}, td=s.thirtyDays||{};
+    const today=s.today||{}, yst=s.yesterday||{}, td=s.thirtyDays||{};
     const cards=[
       {label:'오늘',      rev:today.revenue, ord:today.orders},
-      {label:'최근 7일',  rev:sd.revenue,    ord:sd.orders},
+      {label:'어제',      rev:yst.revenue,   ord:yst.orders},
       {label:'최근 30일', rev:td.revenue,    ord:td.orders},
     ];
     return cards.map(c=>{
@@ -5487,7 +5487,7 @@
       : `<span class="akoi-name" title="${_akoiEsc(it.name)}">${_akoiEsc(it.name)}</span>`;
     // 매출 컬럼: Pro 브랜드는 상품별 실매출금액, admin은 컬럼 자체 비움 (정보 부재를 조용히)
     const amountCol=(cfg.hasItemAmount && it.amount!=null)
-      ? `<div class="akoi-amount"><span class="akoi-amount-num">₩${_akoiEsc(_akoiFmtKrw(it.amount))}</span><span class="akoi-amount-unit">실매출금액</span></div>`
+      ? `<div class="akoi-amount"><span class="akoi-amount-num">₩${_akoiEsc(_akoiFmtKrw(it.amount))}</span><span class="akoi-amount-unit">실결제 매출</span></div>`
       : '<div class="akoi-amount is-empty"></div>';
     return `<div class="akoi-row" data-idx="${it.rank}">
       <span class="akoi-rank">${it.rank}</span>
