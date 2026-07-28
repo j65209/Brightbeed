@@ -5417,15 +5417,15 @@
   _bestBindHover();
 
   /* ===== 브랜드별 실시간 매출 리포트 (식스샵 + 식스샵프로) =====
-     server proxy /sx/admin-sales?brand=6a|ct|yar (일반 admin)
-                  /sx/pro-sales?brand=akoi|pp     (식스샵프로)
+     server proxy /sx/admin-sales?brand=6a|yar    (일반 admin)
+                  /sx/pro-sales?brand=akoi|pp|ct  (식스샵프로)
      각 브랜드 카드 자동 생성 → 개별 fetch. 서버 캐시(launchd 30분) → 클라이언트 폴링(30분). */
   const BRAND_SECTIONS=[
     // 식스샵 (일반 admin) — 상품별 매출/옵션 없음, 요약만 실 매출
     {id:'6a',   endpoint:'/admin-sales?brand=6a',   group:'식스샵',    display:'식스에이',   dot:'#22d3ee', hasItemAmount:false, hasOptions:false},
-    {id:'ct',   endpoint:'/admin-sales?brand=ct',   group:'식스샵',    display:'클리어타입', dot:'#22c55e', hasItemAmount:false, hasOptions:false},
     {id:'yar',  endpoint:'/admin-sales?brand=yar',  group:'식스샵',    display:'야르',       dot:'#a78bfa', hasItemAmount:false, hasOptions:false},
     // 식스샵프로 — 상품별 실매출 + 옵션별 매출 있음
+    {id:'ct',   endpoint:'/pro-sales?brand=ct',     group:'식스샵프로',display:'클리어타입',  dot:'#22c55e', hasItemAmount:true,  hasOptions:true},
     {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
     {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true},
   ];
