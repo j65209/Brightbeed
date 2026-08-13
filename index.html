@@ -869,22 +869,24 @@
   .ar-prod-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
   .ar-prod-name{
     font-size:15px;font-weight:700;color:var(--text-0);line-height:1.3;
-    padding-right:46px;word-break:break-all;letter-spacing:-.2px
+    padding-right:34px;word-break:break-all;letter-spacing:-.2px;
+    display:flex;align-items:flex-start;gap:6px
   }
   .ar-prod-name .ar-name-text{
+    flex:1;min-width:0;
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden
   }
   .ar-auto-badge{font-size:.7em;opacity:.6;margin-left:2px;vertical-align:middle}
   .ar-name-edit{
-    position:absolute;top:8px;right:8px;
+    flex-shrink:0;
     background:transparent;border:none;padding:3px;
     color:var(--text-3);cursor:pointer;border-radius:4px;
-    opacity:.35;transition:opacity .1s,background .1s,color .1s;line-height:0
+    opacity:.5;transition:opacity .1s,background .1s,color .1s;line-height:0
   }
   .ar-prod:hover .ar-name-edit{opacity:1}
   .ar-name-edit:hover{background:var(--bg-3);color:var(--neon)}
   .ar-auto-actions{
-    position:absolute;top:6px;right:6px;
+    flex-shrink:0;
     display:flex;gap:3px
   }
   .ar-btn-approve,.ar-btn-reject{
@@ -1018,7 +1020,7 @@
   @media (max-width:480px){
     .ar-thumb,.ar-no-img{width:110px;height:110px}
     .ar-prod{padding:9px;gap:9px}
-    .ar-prod-name{font-size:14.5px;padding-right:52px}
+    .ar-prod-name{font-size:14.5px;padding-right:40px}
     .ar-prod-stats{gap:12px}
     .ar-stat b{font-size:12.5px}
     .ar-prod-body{gap:4px}
@@ -3664,8 +3666,42 @@
 
   .leave-card{position:relative;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;padding:14px 14px 12px;transition:all .15s}
   .leave-card:hover{border-color:var(--line-2);background:var(--bg-2)}
-  .leave-name-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .leave-name-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding-right:28px}
   .leave-name{font-size:14px;font-weight:600;color:var(--text-0);letter-spacing:-.005em}
+  /* 직원 숨김(퇴사) 버튼 — master 전용, 카드 우측 상단 */
+  .leave-staff-hide{
+    position:absolute;top:6px;right:6px;
+    width:22px;height:22px;padding:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--bg-1);color:var(--text-3);border:1px solid var(--line);
+    border-radius:5px;cursor:pointer;opacity:.55;
+    transition:opacity .12s,background .12s,color .12s,border-color .12s
+  }
+  .leave-card:hover .leave-staff-hide{opacity:1;color:var(--danger,#dc2626);border-color:rgba(220,38,38,.35)}
+  .leave-staff-hide:hover{opacity:1 !important;background:var(--danger,#dc2626);color:#fff;border-color:transparent}
+  @media (hover:none) and (pointer:coarse){
+    .leave-staff-hide{opacity:.85;width:26px;height:26px;color:var(--danger,#dc2626);border-color:rgba(220,38,38,.35)}
+  }
+  /* 숨긴 직원 복원 패널 */
+  .leave-hidden-panel{
+    margin:12px 0 0;padding:10px 12px;
+    background:var(--bg-1);border:1px dashed var(--line);border-radius:8px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap
+  }
+  .leave-hidden-panel .lhp-title{font-size:12px;color:var(--text-3);font-weight:500;margin-right:4px}
+  .leave-hidden-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 6px 3px 10px;font-size:12px;color:var(--text-2);
+    background:var(--bg-2);border:1px solid var(--line);border-radius:999px
+  }
+  .leave-hidden-chip button{
+    width:18px;height:18px;padding:0;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:transparent;border:none;color:var(--text-3);
+    cursor:pointer;border-radius:50%;font-size:14px;
+    transition:background .12s,color .12s
+  }
+  .leave-hidden-chip button:hover{background:var(--ok);color:#fff}
   .leave-hire{font-size:10.5px;font-family:var(--mono);color:var(--text-3);letter-spacing:.03em;font-weight:500}
   .leave-dept{font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em;margin-top:3px;margin-bottom:12px}
   .leave-bar{height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;margin-bottom:8px}
@@ -4422,6 +4458,8 @@
         </div>
       </div>
       <div class="leave-grid" id="leaveGrid"></div>
+      <!-- 숨긴 직원(퇴사자) 복원 패널 — master 전용, 숨긴 직원이 있을 때만 표시 -->
+      <div class="leave-hidden-panel master-only" id="leaveHiddenPanel" hidden></div>
     </div>
   </div><!-- /viewHr -->
 
@@ -7657,8 +7695,12 @@
         }).join('')}
       </div>
     `:'';
+    const hideBtn=`<button class="leave-staff-hide master-only" type="button" title="이 직원을 조직도에서 숨김 (퇴사 처리)" onclick="hideStaffMember('${escapeHTML(s.name)}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </button>`;
     return `
       <div class="leave-card l-${s.color}${isEmpty?' leave-empty':''}" data-staff="${escapeHTML(s.name)}">
+        ${hideBtn}
         <div class="leave-name-row">
           <span class="leave-name">${escapeHTML(s.name)}</span>
           ${hireHtml}
@@ -7687,11 +7729,13 @@
     const data=loadLeaveData();
     const editing=document.body.classList.contains('leave-edit-mode');
     // 입사일 오름차순 정렬 (오래된 직원 → 오늘 입사자 순, 입사일 없으면 맨 뒤)
-    const sorted=[...STAFF].sort((a,b)=>{
+    // 숨긴(퇴사) 직원 제외
+    const sorted=activeStaff().sort((a,b)=>{
       const ha=a.hire||'9999-12-31', hb=b.hire||'9999-12-31';
       return ha.localeCompare(hb);
     });
     grid.innerHTML=sorted.map(s=>leaveCardHTML(s,data[s.name],editing)).join('');
+    applyHiddenToOrgChart();
     if(expandedStaff.size){
       grid.querySelectorAll('.leave-card').forEach(c=>{
         if(expandedStaff.has(c.dataset.staff)) c.classList.add('expanded');
@@ -7719,6 +7763,7 @@
     const currentYear=new Date().getFullYear();
     const items=[];
     Object.keys(data).forEach(name=>{
+      if(_hiddenStaff.has(name)) return; // 숨긴 직원 신청 내역 제외
       const h=Array.isArray(data[name]?.history)?data[name].history:[];
       h.forEach(e=>{
         if(!e||!e.submittedAt) return;
@@ -7799,7 +7844,7 @@
   function collectAllLeaveEvents(){
     const data=loadLeaveData();
     const out=[];
-    STAFF.forEach(s=>{
+    activeStaff().forEach(s=>{
       const v=data[s.name]||{};
       const delSet=new Set((Array.isArray(v.baselineDeletes)?v.baselineDeletes:[]).map(d=>`${d.date}|${d.type}`));
       (s.history||[]).forEach(h=>{
@@ -8130,10 +8175,10 @@
     if(!form)return;
     const opening=form.hidden;
     if(opening){
-      // STAFF 옵션 채움 + 오늘 날짜 default
+      // STAFF 옵션 채움 + 오늘 날짜 default (숨긴 직원 제외)
       const sel=document.getElementById('lfStaff');
       sel.innerHTML='<option value="">선택해주세요</option>'+
-        STAFF.map(s=>`<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)} · ${escapeHTML(s.team||s.dept)}</option>`).join('');
+        activeStaff().map(s=>`<option value="${escapeHTML(s.name)}">${escapeHTML(s.name)} · ${escapeHTML(s.team||s.dept)}</option>`).join('');
       const dateInput=document.getElementById('lfDate');
       const dateEndInput=document.getElementById('lfDateEnd');
       const today=new Date();
@@ -9085,6 +9130,12 @@
   // anon JWT — Authorization: Bearer 헤더로 PostgREST가 role=anon 인식
   const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNreWpreGJxc3lqb3FwdXF3b2NlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjI2NzEsImV4cCI6MjA5Mzk5ODY3MX0.C8WIGqf-zIYkCq0dGWTMjIYuPM-IVInMn1p6FaWbVKA';
   let _leave_lastHash=null;
+  /* 숨긴 직원(퇴사자) 명단 — staff_hidden 테이블에서 동기화. 조직도·연차 현황·신청서에서 필터 */
+  const _hiddenStaff=new Set();
+  function isStaffHidden(name){return _hiddenStaff.has(name)}
+  function activeStaff(){return STAFF.filter(s=>!_hiddenStaff.has(s.name))}
+  window.activeStaff=activeStaff;
+  window.isStaffHidden=isStaffHidden;
 
   function _sbHeaders(extra){
     return Object.assign({
@@ -9098,15 +9149,21 @@
      v = { used?, total?, hire?, history: [...신규 entries], baselineDeletes: [{date,type,days}] } */
   async function sbFetchLeave(){
     try{
-      const [entriesR, overridesR, deletesR]=await Promise.all([
+      const [entriesR, overridesR, deletesR, hiddenR]=await Promise.all([
         fetch(`${SUPABASE_URL}/rest/v1/leave_entries?select=*&order=submitted_at.asc`,{headers:_sbHeaders(),cache:'no-cache'}),
         fetch(`${SUPABASE_URL}/rest/v1/leave_overrides?select=*`,{headers:_sbHeaders(),cache:'no-cache'}),
-        fetch(`${SUPABASE_URL}/rest/v1/leave_baseline_deletes?select=*`,{headers:_sbHeaders(),cache:'no-cache'})
+        fetch(`${SUPABASE_URL}/rest/v1/leave_baseline_deletes?select=*`,{headers:_sbHeaders(),cache:'no-cache'}),
+        fetch(`${SUPABASE_URL}/rest/v1/staff_hidden?select=staff_name`,{headers:_sbHeaders(),cache:'no-cache'})
       ]);
       if(!entriesR.ok || !overridesR.ok || !deletesR.ok) return null;
       const entries=await entriesR.json();
       const overrides=await overridesR.json();
       const deletes=await deletesR.json();
+      if(hiddenR.ok){
+        const hidden=await hiddenR.json();
+        _hiddenStaff.clear();
+        for(const h of (hidden||[])) if(h?.staff_name) _hiddenStaff.add(h.staff_name);
+      }
       const data={};
       for(const o of (overrides||[])){
         const row={};
@@ -9207,6 +9264,26 @@
     }catch(e){return {ok:false, reason:'fetch'}}
   }
 
+  /* 직원 숨김(퇴사자) — staff_hidden 테이블 upsert/delete */
+  async function sbInsertStaffHidden(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_hidden?on_conflict=staff_name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify({staff_name})
+      });
+      return r.ok?{ok:true}:{ok:false,reason:`http_${r.status}`};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+  async function sbDeleteStaffHidden(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_hidden?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
+    }catch(e){return {ok:false}}
+  }
+
   /* baseline 사용 내역 삭제 표시(insert) — (staff_name,date,leave_type) 복합 PK */
   async function sbInsertBaselineDelete({staff_name, date, leave_type, days}){
     try{
@@ -9291,14 +9368,79 @@
   }
   window.deleteBaselineLeave=deleteBaselineLeave;
 
+  /* 직원 숨김(퇴사자 처리) — master 전용
+     · 조직도/연차 현황/신청서 dropdown/달력에서 제거
+     · leave_entries·leave_overrides 등 기존 데이터는 그대로 유지 (분쟁 방지)
+     · 복원 패널에서 언제든 되돌릴 수 있음 */
+  async function hideStaffMember(name){
+    if(!name) return;
+    if(!requireMaster('직원 삭제')) return;
+    const ok=confirm(`'${name}'님을 조직도·연차 현황에서 숨길까요?\n\n· 조직도, 연차 현황, 연차 신청서, 달력에서 사라집니다.\n· 신청 이력·연차 데이터는 그대로 유지됩니다 (분쟁 방지).\n· 언제든 '숨긴 직원' 패널에서 복원할 수 있습니다.`);
+    if(!ok) return;
+    const r=await sbInsertStaffHidden(name);
+    if(!r.ok){
+      toast(`숨김 실패 (${r.reason||'?'}) — 잠시 후 다시 시도해주세요`,'err');
+      return;
+    }
+    _hiddenStaff.add(name);
+    _leave_lastHash=null;
+    renderLeaveStatus();
+    applyHiddenToOrgChart();
+    toast(`✓ ${name}님을 조직도에서 숨겼습니다`,'ok');
+  }
+  window.hideStaffMember=hideStaffMember;
+
+  async function restoreStaffMember(name){
+    if(!name) return;
+    if(!requireMaster('직원 복원')) return;
+    const r=await sbDeleteStaffHidden(name);
+    if(!r.ok){
+      toast('복원 실패 — 잠시 후 다시 시도해주세요','err');
+      return;
+    }
+    _hiddenStaff.delete(name);
+    _leave_lastHash=null;
+    renderLeaveStatus();
+    applyHiddenToOrgChart();
+    toast(`✓ ${name}님을 복원했습니다`,'ok');
+  }
+  window.restoreStaffMember=restoreStaffMember;
+
+  /* 숨긴 직원 복원 패널 — leave-grid 아래에 chip 형태로 표시 */
+  function renderHiddenStaffPanel(){
+    const panel=document.getElementById('leaveHiddenPanel');
+    if(!panel) return;
+    const names=[..._hiddenStaff].filter(n=>STAFF.some(s=>s.name===n));
+    if(!names.length){panel.hidden=true;panel.innerHTML='';return}
+    panel.hidden=false;
+    const chips=names.map(n=>`<span class="leave-hidden-chip">${escapeHTML(n)}<button type="button" title="복원" onclick="restoreStaffMember('${escapeHTML(n)}')">↺</button></span>`).join('');
+    panel.innerHTML=`<span class="lhp-title">🙈 숨긴 직원 (${names.length})</span>${chips}`;
+  }
+  window.renderHiddenStaffPanel=renderHiddenStaffPanel;
+
+  /* SVG 조직도 · 모바일 카드에서 숨긴 직원 이름 노드 hide/show */
+  function applyHiddenToOrgChart(){
+    document.querySelectorAll('.org-svg .t-mem').forEach(el=>{
+      el.style.display=_hiddenStaff.has(el.textContent.trim())?'none':'';
+    });
+    document.querySelectorAll('.org-mobile .om-mem').forEach(el=>{
+      el.style.display=_hiddenStaff.has(el.textContent.trim())?'none':'';
+    });
+    renderHiddenStaffPanel();
+  }
+  window.applyHiddenToOrgChart=applyHiddenToOrgChart;
+
   async function syncLeaveFromRemote(){
     const fresh=await sbFetchLeave();
     if(fresh===null) return; // 네트워크 실패 — 조용히 패스
-    const json=JSON.stringify(fresh);
+    // hidden 목록 변경도 hash에 반영 (직원 삭제/복원 시 재렌더 트리거)
+    const hiddenKey=[..._hiddenStaff].sort().join('|');
+    const json=JSON.stringify(fresh)+'#'+hiddenKey;
     if(json===_leave_lastHash) return;
     _leave_lastHash=json;
-    localStorage.setItem(LEAVE_KEY, json);
+    localStorage.setItem(LEAVE_KEY, JSON.stringify(fresh));
     if(document.getElementById('leaveGrid')) renderLeaveStatus();
+    else applyHiddenToOrgChart(); // 뷰 밖에서도 조직도만은 반영
   }
   window.syncLeaveFromRemote=syncLeaveFromRemote;
 
