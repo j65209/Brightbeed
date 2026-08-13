@@ -4104,7 +4104,7 @@
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📦</span>
         <span class="folder-label">실시간 재고</span>
-        <span class="folder-meta"><b>3</b> 브랜드 · 식스샵 어드민</span>
+        <span class="folder-meta"><b>3</b> 브랜드 · 식스샵 / 식스샵프로</span>
       </div>
       <div class="sub-modules">
         <div class="sub-module m-sixstock m-sixstock-6a" onclick="triggerSixStock()">
@@ -4116,7 +4116,7 @@
         <div class="sub-module m-sixstock m-sixstock-ct" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span></div>
           <div class="sub-module-title">클리어타입</div>
-          <div class="sub-module-sub">cleartype.sixshop.com</div>
+          <div class="sub-module-sub">store.sixshop.com/cleartype1</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-yar" onclick="triggerSixStock()">
@@ -4753,20 +4753,20 @@
     ></iframe>
   </div>
 
-  <!-- ============ 클리어타입 SKU (식스샵 cleartype 단독) ============ -->
+  <!-- ============ 클리어타입 SKU (식스샵프로 cleartype1) ============ -->
   <div class="view" id="viewCleartype" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">클리어타입<span class="view-title-sub">/ 식스샵 단독 SKU</span><span id="ctUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">클리어타입<span class="view-title-sub">/ 식스샵프로 SKU</span><span id="ctUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
 
     <div class="po-wrap">
       <div class="sixa-head">
         <div class="sixa-meta">
-          <span class="sixa-platform"><span class="lg-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span> cleartype.sixshop.com</span>
+          <span class="sixa-platform"><span class="lg-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span> store.sixshop.com/cleartype1</span>
           <span class="sixa-count"><strong id="ctCount">—</strong> SKU</span>
           <label class="sixa-sort">정렬
             <select id="ctSortSel" onchange="onCleartypeSortChange(this.value)">
@@ -6763,9 +6763,9 @@
      캐시 JSON 없이 매번 fresh. 진입 시 3 브랜드 병렬 fetch (약 3~5초).
      3 섹션 모두 렌더 — 헤더 클릭으로 접기/펼치기. */
   const SIX_STOCK_BRANDS = [
-    {key:'6a',  display:'식스에이',   host:'6thanother.sixshop.com'},
-    {key:'ct',  display:'클리어타입', host:'cleartype.sixshop.com'},
-    {key:'yar', display:'야르',       host:'yarseoul.sixshop.com'},
+    {key:'6a',  display:'식스에이',   host:'6thanother.sixshop.com',      endpoint:'/catalog?brand=6a'},
+    {key:'ct',  display:'클리어타입', host:'store.sixshop.com/cleartype1', endpoint:'/pro-stock?brand=ct', proShape:true},
+    {key:'yar', display:'야르',       host:'yarseoul.sixshop.com',        endpoint:'/catalog?brand=yar'},
   ];
   const _sixStockCache    = { '6a':null,  'ct':null,  'yar':null };
   const _sixStockInflight = { '6a':false, 'ct':false, 'yar':false };
@@ -6818,18 +6818,40 @@
     if(sec) sec.classList.toggle('is-collapsed', _sixStockCollapsed[brandKey]);
   }
 
+  // 식스샵프로(cleartype1) → viewSixStock catalog shape 로 adapt.
+  // 원본: {products:[{id,name,status:'판매중'|'판매중지',stock,price,options:[{label,stock}]}]}
+  // 대상: {products:[{name,price,status:'selling'|'stop',stock,hasOptions,options:[{label,stock}]}]}
+  function _sixStockAdaptPro(pro){
+    const products=(pro.products||[]).map(p=>{
+      const hasOpts=(p.options||[]).length>0;
+      const totalOptStock=hasOpts?(p.options||[]).reduce((a,o)=>a+(Number(o.stock)||0),0):0;
+      return {
+        name: p.name,
+        price: Number(p.price)||0,
+        status: p.status==='판매중' ? 'selling' : 'stop_selling',
+        stock: hasOpts ? totalOptStock : (Number(p.stock)||0),
+        hasOptions: hasOpts,
+        options: (p.options||[]).map(o=>({label:o.label, stock:Number(o.stock)||0})),
+      };
+    });
+    return {ok:true, products, fetchedAt:pro.fetchedAt, elapsedMs:pro.elapsedMs||0};
+  }
+
   async function sixStockFetch(brandKey){
     if(_sixStockInflight[brandKey]) return;
     _sixStockInflight[brandKey] = true;
     _sixStockSetStatus(brandKey, 'loading', '로그인 + fetch 중… (~2-5초)');
     _sixStockDisableRefresh(brandKey, true);
     try{
-      const r = await sxFetch(`/catalog?brand=${brandKey}`, {method:'GET'});
+      const meta = SIX_STOCK_BRANDS.find(b=>b.key===brandKey);
+      const ep = meta?.endpoint || `/catalog?brand=${brandKey}`;
+      const r = await sxFetch(ep, {method:'GET'});
       let data;
       try{ data = await r.json(); } catch(e){ data = {ok:false, error:'invalid JSON'}; }
       if(!r.ok || !data.ok){
         _sixStockCache[brandKey] = {error: data.error || `HTTP ${r.status}`, at: Date.now()};
       } else {
+        if(meta?.proShape) data = _sixStockAdaptPro(data);
         _sixStockCache[brandKey] = data;
       }
     } catch(e){
@@ -6998,64 +7020,43 @@
     renderCleartype();
   }
   async function refreshCleartype(){
-    // GHA list-cleartype-skus.yml dispatch — 그러면 03~05분 후 cleartype-products.json 갱신됨.
-    if(!confirm('식스샵 admin에서 클리어타입 SKU 카탈로그를 재수집합니다.\n약 3~5분 소요. 진행할까요?')) return;
+    // 식스샵프로 API 직접 재수집 (Playwright 없음, ~1초).
+    if(!confirm('식스샵프로에서 클리어타입 SKU 카탈로그를 재수집합니다.\n약 1~3초 소요. 진행할까요?')) return;
+    const btn=document.getElementById('ctRefreshBtn');
+    if(btn){ btn.disabled=true; }
     try{
-      const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/list-cleartype-skus.yml/dispatches',{
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ref:'main'}),
-      });
-      if(r.ok || r.status===204){
-        toast('✓ 갱신 트리거 완료 — 약 3~5분 후 수동 새로고침으로 반영 확인','ok');
+      const r = await sxFetch('/pro-stock?brand=ct',{method:'POST'});
+      if(r.ok){
+        toast('✓ 재수집 완료','ok');
+        await loadCleartype();
       } else {
-        toast(`갱신 트리거 실패: ${r.status}`,'err');
+        const j = await r.json().catch(()=>({}));
+        toast(`재수집 실패: HTTP ${r.status} · ${j.error||''}`,'err');
       }
-    }catch(e){ toast('갱신 트리거 오류: '+e.message,'err'); }
+    }catch(e){ toast('재수집 오류: '+e.message,'err'); }
+    finally{ if(btn) btn.disabled=false; }
   }
   async function loadCleartype(){
     const body=document.getElementById('ctBody');
     const tag=document.getElementById('ctUpdatedTag');
     if(body && !_ctData) body.innerHTML='<div class="po-empty"><div class="po-empty-text">로딩 중…</div></div>';
     try{
-      const r=await fetch('data/cleartype-products.json?t='+Date.now());
+      const r=await sxFetch('/pro-stock?brand=ct',{method:'GET'});
       if(!r.ok){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">로드 실패 (HTTP '+r.status+')</div></div>'; return; }
-      _ctData=await r.json();
+      const j=await r.json();
+      if(!j.ok){
+        if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">'+_esc(j.error||'응답 오류')+'<br><br>우측 상단 「최신화」로 첫 수집을 시작하세요.</div></div>';
+        if(tag) tag.textContent='⚠ 첫 최신화 필요';
+        return;
+      }
+      _ctData=j;
       if(tag) tag.textContent = _ctData.lastUpdated ? '최신화 '+_fmtDateShort(_ctData.lastUpdated) : '⚠ 첫 최신화 필요';
       renderCleartype();
     }catch(e){ if(body) body.innerHTML='<div class="po-empty"><div class="po-empty-text">오류: '+_esc(e.message)+'</div></div>'; }
   }
   async function sendCleartypeChanges(){
-    const entries = Object.entries(_ctPending);
-    if(entries.length===0){ toast('변경된 항목이 없습니다','err'); return; }
-    const updates = entries.map(([key,v])=>{
-      const p = (_ctData?.products||[]).find(p=>p.id===v.id);
-      const u = { id:v.id, name:p?.name||v.id, setStock:v.setStock };
-      if(v.optionNo){ u.optionNo = v.optionNo; u.optionLabel = v.optionLabel||''; }
-      return u;
-    });
-    if(!confirm(`클리어타입 식스샵 재고 ${updates.length}건을 전송합니다.\nGHA Playwright 워크플로(약 2~4분) 실행됩니다.\n진행할까요?`)) return;
-    try{
-      const r = await ghFetch('https://api.github.com/repos/j65209/sixshop-collector/actions/workflows/update-cleartype-stock.yml/dispatches',{
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ref:'main', inputs:{updates: JSON.stringify(updates)}}),
-      });
-      const ok = r.ok || r.status===204;
-      entries.forEach(([key,v])=>{
-        _ctResults[key] = { status: ok?'ok':'err', msg: ok?`GHA → ${v.setStock} (~3분)`:`GHA ${r.status}` };
-        // optimistic 로컬 업데이트
-        if(ok){
-          const p = (_ctData?.products||[]).find(p=>p.id===v.id);
-          if(p){
-            if(v.optionNo){ const opt = (p.options||[]).find(o=>o.optionNo===v.optionNo); if(opt) opt.stock = v.setStock; }
-            else { p.stock = v.setStock; }
-          }
-        }
-      });
-      toast(ok?`✓ 전송 완료 — ${updates.length}건`:`전송 실패: ${r.status}`, ok?'ok':'err');
-    }catch(e){
-      entries.forEach(([key])=>{ _ctResults[key] = { status:'err', msg:e.message }; });
-      toast('전송 오류: '+e.message,'err');
-    }
+    // 식스샵프로 재고 수정 API 미구현 (조회 전용). 사장님 요청 오면 추가.
+    toast('식스샵프로 재고 수정은 아직 준비 중입니다 — 현재는 조회 전용','err');
     _ctPending = {};
     _ctEditMode = false;
     renderCleartype();
