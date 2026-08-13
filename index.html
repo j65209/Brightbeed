@@ -2884,7 +2884,6 @@
   .sixstock-sec[data-brand="pp"]  {--brand-color:245,158,11}
   .sixstock-sec[data-brand="yar"] {--brand-color:167,139,250}
   .sixstock-sec[data-brand="kop"] {--brand-color:129,140,248}
-  .sixstock-sec[data-brand="apt"] {--brand-color:251,113,133}
   .sixstock-sec[data-brand="koz"] {--brand-color:20,184,166}
   .sixstock-sec-head{
     display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;
@@ -4139,12 +4138,12 @@
       </section>
     </div>
 
-    <!-- 실시간 재고 (폴더 스타일 — 7 브랜드 식스샵/식스샵프로 실시간) -->
+    <!-- 실시간 재고 (폴더 스타일 — 6 브랜드 식스샵/식스샵프로 실시간; 아페티는 admin credentials 대기 중) -->
     <div class="sub-modules-section sub-modules-sixstock">
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📦</span>
         <span class="folder-label">실시간 재고</span>
-        <span class="folder-meta"><b>7</b> 브랜드 · 식스샵 / 식스샵프로</span>
+        <span class="folder-meta"><b>6</b> 브랜드 · 식스샵 / 식스샵프로</span>
       </div>
       <div class="sub-modules">
         <div class="sub-module m-sixstock m-sixstock-6a" onclick="triggerSixStock()">
@@ -4175,12 +4174,6 @@
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#818cf8;box-shadow:0 0 12px rgba(129,140,248,.7)"></span></div>
           <div class="sub-module-title">코페리</div>
           <div class="sub-module-sub">coferryworld.sixshop.com</div>
-          <div class="sub-module-tag">LIVE</div>
-        </div>
-        <div class="sub-module m-sixstock m-sixstock-apt" onclick="triggerSixStock()">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#fb7185;box-shadow:0 0 12px rgba(251,113,133,.7)"></span></div>
-          <div class="sub-module-title">아페티</div>
-          <div class="sub-module-sub">store.sixshop.com/apeti</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-koz" onclick="triggerSixStock()">
@@ -4657,7 +4650,6 @@
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#f59e0b"></span><span class="best-col-name">프로덕트피알</span><span class="best-col-site">produktepr</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#a78bfa"></span><span class="best-col-name">야르</span><span class="best-col-site">yarseoul</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#818cf8"></span><span class="best-col-name">코페리</span><span class="best-col-site">coferryworld</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
-        <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#fb7185"></span><span class="best-col-name">아페티</span><span class="best-col-site">apeti</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#14b8a6"></span><span class="best-col-name">코즈미</span><span class="best-col-site">cos-mi</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
       </div>
     </section>
@@ -5429,7 +5421,7 @@
         return;
       }
       // 브랜드 순서 고정: 6a → ct → yar
-      const order={'6a':0,'ct':1,'pp':2,'yar':3,'kop':4,'apt':5,'koz':6};
+      const order={'6a':0,'ct':1,'pp':2,'yar':3,'kop':4,'koz':5};
       brands.sort((a,b)=>(order[a.brand]??9)-(order[b.brand]??9));
       grid.innerHTML=brands.map(_bestRenderBrandCol).join('');
       _bestBindHover();
@@ -5499,8 +5491,8 @@
     {id:'ct',   endpoint:'/pro-sales?brand=ct',     group:'식스샵프로',display:'클리어타입',  dot:'#22c55e', hasItemAmount:true,  hasOptions:true},
     {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
     {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true},
-    {id:'apt',  endpoint:'/pro-sales?brand=apt',    group:'식스샵프로',display:'아페티',     dot:'#fb7185', hasItemAmount:true,  hasOptions:true},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
+    // apt (아페티) 는 식스샵프로 아닌 일반 admin — credentials 확인 후 group:'식스샵'/endpoint:/admin-sales?brand=apt 로 추가.
   ];
   const _salesBusy={};   // id → bool
   const _salesLast={};   // id → timestamp
@@ -6841,12 +6833,12 @@
     {key:'pp',  display:'프로덕트피알', host:'store.sixshop.com/produktepr',   endpoint:'/pro-stock?brand=pp',   proShape:true},
     {key:'yar', display:'야르',         host:'yarseoul.sixshop.com',          endpoint:'/catalog?brand=yar'},
     {key:'kop', display:'코페리',       host:'coferryworld.sixshop.com',      endpoint:'/catalog?brand=kop'},
-    {key:'apt', display:'아페티',       host:'store.sixshop.com/apeti',       endpoint:'/pro-stock?brand=apt',  proShape:true},
     {key:'koz', display:'코즈미',       host:'store.sixshop.com/cos-mi',      endpoint:'/pro-stock?brand=koz',  proShape:true},
+    // apt (아페티) 는 admin credentials 대기 중 — 확보 시 endpoint:/catalog?brand=apt 로 추가.
   ];
-  const _sixStockCache    = { '6a':null,  'ct':null,  'pp':null,  'yar':null,  'kop':null,  'apt':null,  'koz':null };
-  const _sixStockInflight = { '6a':false, 'ct':false, 'pp':false, 'yar':false, 'kop':false, 'apt':false, 'koz':false };
-  const _sixStockCollapsed= { '6a':false, 'ct':false, 'pp':false, 'yar':false, 'kop':false, 'apt':false, 'koz':false };
+  const _sixStockCache    = { '6a':null,  'ct':null,  'pp':null,  'yar':null,  'kop':null,  'koz':null };
+  const _sixStockInflight = { '6a':false, 'ct':false, 'pp':false, 'yar':false, 'kop':false, 'koz':false };
+  const _sixStockCollapsed= { '6a':false, 'ct':false, 'pp':false, 'yar':false, 'kop':false, 'koz':false };
   let _sixStockOpened = false;
 
   function sixStockOpen(){
