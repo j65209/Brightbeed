@@ -249,7 +249,7 @@
   .best-refresh.spin svg{animation:spin .9s linear infinite}
   .best-refresh svg{width:12px;height:12px}
 
-  .best-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .best-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
   .best-col{
     background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
     padding:14px 14px 10px;display:flex;flex-direction:column;min-height:120px;
@@ -2881,6 +2881,7 @@
   }
   .sixstock-sec[data-brand="6a"]  {--brand-color:34,211,238}
   .sixstock-sec[data-brand="ct"]  {--brand-color:34,197,94}
+  .sixstock-sec[data-brand="pp"]  {--brand-color:245,158,11}
   .sixstock-sec[data-brand="yar"] {--brand-color:167,139,250}
   .sixstock-sec-head{
     display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;
@@ -4135,12 +4136,12 @@
       </section>
     </div>
 
-    <!-- 실시간 재고 (폴더 스타일 — 3 브랜드 sixshop 어드민 실시간) -->
+    <!-- 실시간 재고 (폴더 스타일 — 4 브랜드 식스샵/식스샵프로 실시간) -->
     <div class="sub-modules-section sub-modules-sixstock">
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📦</span>
         <span class="folder-label">실시간 재고</span>
-        <span class="folder-meta"><b>3</b> 브랜드 · 식스샵 / 식스샵프로</span>
+        <span class="folder-meta"><b>4</b> 브랜드 · 식스샵 / 식스샵프로</span>
       </div>
       <div class="sub-modules">
         <div class="sub-module m-sixstock m-sixstock-6a" onclick="triggerSixStock()">
@@ -4153,6 +4154,12 @@
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span></div>
           <div class="sub-module-title">클리어타입</div>
           <div class="sub-module-sub">store.sixshop.com/cleartype1</div>
+          <div class="sub-module-tag">LIVE</div>
+        </div>
+        <div class="sub-module m-sixstock m-sixstock-pp" onclick="triggerSixStock()">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.7)"></span></div>
+          <div class="sub-module-title">프로덕트피알</div>
+          <div class="sub-module-sub">store.sixshop.com/produktepr</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-yar" onclick="triggerSixStock()">
@@ -4626,6 +4633,7 @@
       <div class="best-grid" id="bestGrid">
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#22d3ee"></span><span class="best-col-name">식스에이</span><span class="best-col-site">6thanother</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#22c55e"></span><span class="best-col-name">클리어타입</span><span class="best-col-site">cleartype1</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
+        <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#f59e0b"></span><span class="best-col-name">프로덕트피알</span><span class="best-col-site">produktepr</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#a78bfa"></span><span class="best-col-name">야르</span><span class="best-col-site">yarseoul</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
       </div>
     </section>
@@ -5397,7 +5405,7 @@
         return;
       }
       // 브랜드 순서 고정: 6a → ct → yar
-      const order={'6a':0,'ct':1,'yar':2};
+      const order={'6a':0,'ct':1,'pp':2,'yar':3};
       brands.sort((a,b)=>(order[a.brand]??9)-(order[b.brand]??9));
       grid.innerHTML=brands.map(_bestRenderBrandCol).join('');
       _bestBindHover();
@@ -6801,13 +6809,14 @@
      캐시 JSON 없이 매번 fresh. 진입 시 3 브랜드 병렬 fetch (약 3~5초).
      3 섹션 모두 렌더 — 헤더 클릭으로 접기/펼치기. */
   const SIX_STOCK_BRANDS = [
-    {key:'6a',  display:'식스에이',   host:'6thanother.sixshop.com',      endpoint:'/catalog?brand=6a'},
-    {key:'ct',  display:'클리어타입', host:'store.sixshop.com/cleartype1', endpoint:'/pro-stock?brand=ct', proShape:true},
-    {key:'yar', display:'야르',       host:'yarseoul.sixshop.com',        endpoint:'/catalog?brand=yar'},
+    {key:'6a',  display:'식스에이',     host:'6thanother.sixshop.com',        endpoint:'/catalog?brand=6a'},
+    {key:'ct',  display:'클리어타입',   host:'store.sixshop.com/cleartype1',   endpoint:'/pro-stock?brand=ct',   proShape:true},
+    {key:'pp',  display:'프로덕트피알', host:'store.sixshop.com/produktepr',   endpoint:'/pro-stock?brand=pp',   proShape:true},
+    {key:'yar', display:'야르',         host:'yarseoul.sixshop.com',          endpoint:'/catalog?brand=yar'},
   ];
-  const _sixStockCache    = { '6a':null,  'ct':null,  'yar':null };
-  const _sixStockInflight = { '6a':false, 'ct':false, 'yar':false };
-  const _sixStockCollapsed= { '6a':false, 'ct':false, 'yar':false };
+  const _sixStockCache    = { '6a':null,  'ct':null,  'pp':null,  'yar':null };
+  const _sixStockInflight = { '6a':false, 'ct':false, 'pp':false, 'yar':false };
+  const _sixStockCollapsed= { '6a':false, 'ct':false, 'pp':false, 'yar':false };
   let _sixStockOpened = false;
 
   function sixStockOpen(){
