@@ -5483,16 +5483,15 @@
                   /sx/pro-sales?brand=akoi|pp|ct  (식스샵프로)
      각 브랜드 카드 자동 생성 → 개별 fetch. 서버 캐시(launchd 30분) → 클라이언트 폴링(30분). */
   const BRAND_SECTIONS=[
-    // 식스샵 (일반 admin) — 상품별 매출/옵션 없음, 요약만 실 매출
+    // 사장님 지정 순서 (2026-08-13): 6a → ct → yar → pp → akoi → kop → apt → koz
     {id:'6a',   endpoint:'/admin-sales?brand=6a',   group:'식스샵',    display:'식스에이',   dot:'#22d3ee', hasItemAmount:false, hasOptions:false},
-    {id:'yar',  endpoint:'/admin-sales?brand=yar',  group:'식스샵',    display:'야르',       dot:'#a78bfa', hasItemAmount:false, hasOptions:false},
-    {id:'kop',  endpoint:'/admin-sales?brand=kop',  group:'식스샵',    display:'코페리',     dot:'#818cf8', hasItemAmount:false, hasOptions:false},
-    // 식스샵프로 — 상품별 실매출 + 옵션별 매출 있음
     {id:'ct',   endpoint:'/pro-sales?brand=ct',     group:'식스샵프로',display:'클리어타입',  dot:'#22c55e', hasItemAmount:true,  hasOptions:true},
-    {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
+    {id:'yar',  endpoint:'/admin-sales?brand=yar',  group:'식스샵',    display:'야르',       dot:'#a78bfa', hasItemAmount:false, hasOptions:false},
     {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true},
+    {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
+    {id:'kop',  endpoint:'/admin-sales?brand=kop',  group:'식스샵',    display:'코페리',     dot:'#818cf8', hasItemAmount:false, hasOptions:false},
+    // apt (아페티) 자리 — admin credentials 오면 여기에 삽입: {id:'apt', endpoint:'/admin-sales?brand=apt', group:'식스샵', display:'아페티', dot:'#fb7185', hasItemAmount:false, hasOptions:false},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
-    // apt (아페티) 는 식스샵프로 아닌 일반 admin — credentials 확인 후 group:'식스샵'/endpoint:/admin-sales?brand=apt 로 추가.
   ];
   const _salesBusy={};   // id → bool
   const _salesLast={};   // id → timestamp
