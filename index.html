@@ -12279,8 +12279,22 @@
       }
 
       if(_isClosingRow(r)){
+        // lookahead — 다음 라벨/마감이 나오기 전까지 이어지는 item 행 존재 여부.
+        // 존재하면 이 총매출금액은 "정산 완료분 소계"이고 뒤 items 는 같은 월의 진행 중분.
+        let hasFollowingItems=false;
+        for(let j=i+1;j<rows.length;j++){
+          const nr=rows[j];
+          if(_parseMonthLbl((nr[0]||'').trim())) break;
+          if(_isClosingRow(nr)) break;
+          if(nr.slice(1,10).some(c=>(c||'').trim())){hasFollowingItems=true; break;}
+        }
         cur.totalMargin=(r[6]||'').trim();
         cur.totalSales=(r[8]||'').trim();
+        if(hasFollowingItems){
+          // 같은 월의 진행 중 확장 — cur 유지, pending 표시. 총매출금액은 완료분 소계로 남김.
+          cur.pending=true;
+          continue;
+        }
         cur.pending=false;
         _fillFromLast();
         if(cur.month){
