@@ -2296,16 +2296,23 @@
   .sub-module.m-badge .sub-module-icon{color:#0ea5e9}
   .sub-module.m-badge .sub-module-tag{color:#0ea5e9;border-color:rgba(14,165,233,.45);border-style:solid}
 
-  /* 브랜드 분석 리포트 — 3개 브랜드 (kop/apt/koz) */
-  .sub-modules-analysis-grid{grid-template-columns:repeat(3,1fr) !important}
-  @media(max-width:900px){.sub-modules-analysis-grid{grid-template-columns:repeat(3,1fr) !important}}
-  @media(max-width:600px){.sub-modules-analysis-grid{grid-template-columns:1fr !important}}
-  .sub-modules-analysis::before{background:linear-gradient(90deg,#818cf8 0%,#fb7185 50%,#14b8a6 100%)}
-  .sub-module.m-analysis-kop{--m-color:#818cf8;--m-border:rgba(129,140,248,.45)}
+  /* 브랜드 분석 리포트 — 8 브랜드 (매출 순위 순서) */
+  .sub-modules-analysis::before{background:linear-gradient(90deg,#22d3ee 0%,#22c55e 15%,#a78bfa 30%,#f59e0b 45%,#f472b6 60%,#818cf8 75%,#fb7185 90%,#14b8a6 100%)}
+  .sub-module.m-analysis-6a  {--m-color:#22d3ee;--m-border:rgba(34,211,238,.45)}
+  .sub-module.m-analysis-6a  .sub-module-tag{color:#22d3ee;border-color:rgba(34,211,238,.45);border-style:solid}
+  .sub-module.m-analysis-ct  {--m-color:#22c55e;--m-border:rgba(34,197,94,.45)}
+  .sub-module.m-analysis-ct  .sub-module-tag{color:#22c55e;border-color:rgba(34,197,94,.45);border-style:solid}
+  .sub-module.m-analysis-yar {--m-color:#a78bfa;--m-border:rgba(167,139,250,.45)}
+  .sub-module.m-analysis-yar .sub-module-tag{color:#a78bfa;border-color:rgba(167,139,250,.45);border-style:solid}
+  .sub-module.m-analysis-pp  {--m-color:#f59e0b;--m-border:rgba(245,158,11,.45)}
+  .sub-module.m-analysis-pp  .sub-module-tag{color:#f59e0b;border-color:rgba(245,158,11,.45);border-style:solid}
+  .sub-module.m-analysis-akoi{--m-color:#f472b6;--m-border:rgba(244,114,182,.45)}
+  .sub-module.m-analysis-akoi .sub-module-tag{color:#f472b6;border-color:rgba(244,114,182,.45);border-style:solid}
+  .sub-module.m-analysis-kop {--m-color:#818cf8;--m-border:rgba(129,140,248,.45)}
   .sub-module.m-analysis-kop .sub-module-tag{color:#818cf8;border-color:rgba(129,140,248,.45);border-style:solid}
-  .sub-module.m-analysis-apt{--m-color:#fb7185;--m-border:rgba(251,113,133,.45)}
+  .sub-module.m-analysis-apt {--m-color:#fb7185;--m-border:rgba(251,113,133,.45)}
   .sub-module.m-analysis-apt .sub-module-tag{color:#fb7185;border-color:rgba(251,113,133,.45);border-style:solid}
-  .sub-module.m-analysis-koz{--m-color:#14b8a6;--m-border:rgba(20,184,166,.45)}
+  .sub-module.m-analysis-koz {--m-color:#14b8a6;--m-border:rgba(20,184,166,.45)}
   .sub-module.m-analysis-koz .sub-module-tag{color:#14b8a6;border-color:rgba(20,184,166,.45);border-style:solid}
   .sub-module.m-analysis[data-ready="0"]{opacity:.6;cursor:default}
   .sub-module.m-analysis[data-ready="0"]:hover{transform:none;background:var(--bg-1)}
@@ -4163,14 +4170,44 @@
       </section>
     </div>
 
-    <!-- 브랜드 분석 리포트 (폴더 스타일 — 코페리·아페티·코즈미 · 매일 08:00 자동 업로드; 클릭 시 새 창) -->
+    <!-- 브랜드 분석 리포트 (폴더 스타일 — 8 브랜드, 매출 순위 순서 · 매일 08:00 자동 업로드; 클릭 시 새 창) -->
     <div class="sub-modules-section sub-modules-analysis">
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📊</span>
         <span class="folder-label">브랜드 분석 리포트</span>
         <span class="folder-meta"><b>매일 08:00</b> 자동 업로드 · 클릭 시 새 창</span>
       </div>
-      <div class="sub-modules sub-modules-analysis-grid">
+      <div class="sub-modules">
+        <div class="sub-module m-analysis m-analysis-6a" onclick="openBrandAnalysis('6a')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22d3ee;box-shadow:0 0 12px rgba(34,211,238,.7)"></span></div>
+          <div class="sub-module-title">식스에이</div>
+          <div class="sub-module-sub" id="analysisSub_6a">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_6a">—</div>
+        </div>
+        <div class="sub-module m-analysis m-analysis-ct" onclick="openBrandAnalysis('ct')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span></div>
+          <div class="sub-module-title">클리어타입</div>
+          <div class="sub-module-sub" id="analysisSub_ct">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_ct">—</div>
+        </div>
+        <div class="sub-module m-analysis m-analysis-yar" onclick="openBrandAnalysis('yar')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#a78bfa;box-shadow:0 0 12px rgba(167,139,250,.7)"></span></div>
+          <div class="sub-module-title">야르</div>
+          <div class="sub-module-sub" id="analysisSub_yar">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_yar">—</div>
+        </div>
+        <div class="sub-module m-analysis m-analysis-pp" onclick="openBrandAnalysis('pp')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.7)"></span></div>
+          <div class="sub-module-title">프로덕트피알</div>
+          <div class="sub-module-sub" id="analysisSub_pp">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_pp">—</div>
+        </div>
+        <div class="sub-module m-analysis m-analysis-akoi" onclick="openBrandAnalysis('akoi')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f472b6;box-shadow:0 0 12px rgba(244,114,182,.7)"></span></div>
+          <div class="sub-module-title">아코이하우스</div>
+          <div class="sub-module-sub" id="analysisSub_akoi">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_akoi">—</div>
+        </div>
         <div class="sub-module m-analysis m-analysis-kop" onclick="openBrandAnalysis('kop')">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#818cf8;box-shadow:0 0 12px rgba(129,140,248,.7)"></span></div>
           <div class="sub-module-title">코페리</div>
@@ -4203,43 +4240,36 @@
         <div class="sub-module m-sixstock m-sixstock-6a" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22d3ee;box-shadow:0 0 12px rgba(34,211,238,.7)"></span></div>
           <div class="sub-module-title">식스에이</div>
-          <div class="sub-module-sub">6thanother.sixshop.com</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-ct" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span></div>
           <div class="sub-module-title">클리어타입</div>
-          <div class="sub-module-sub">store.sixshop.com/cleartype1</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-pp" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.7)"></span></div>
           <div class="sub-module-title">프로덕트피알</div>
-          <div class="sub-module-sub">store.sixshop.com/produktepr</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-yar" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#a78bfa;box-shadow:0 0 12px rgba(167,139,250,.7)"></span></div>
           <div class="sub-module-title">야르</div>
-          <div class="sub-module-sub">yarseoul.sixshop.com</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-kop" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#818cf8;box-shadow:0 0 12px rgba(129,140,248,.7)"></span></div>
           <div class="sub-module-title">코페리</div>
-          <div class="sub-module-sub">coferryworld.sixshop.com</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-apt" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#fb7185;box-shadow:0 0 12px rgba(251,113,133,.7)"></span></div>
           <div class="sub-module-title">아페티</div>
-          <div class="sub-module-sub">apeti.sixshop.com</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-koz" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#14b8a6;box-shadow:0 0 12px rgba(20,184,166,.7)"></span></div>
           <div class="sub-module-title">코즈미</div>
-          <div class="sub-module-sub">store.sixshop.com/cos-mi</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
       </div>
@@ -10073,14 +10103,20 @@
   renderSalesPptView();
   renderSalesUpdatedTag();
 
-  /* ===== 브랜드 분석 리포트 (홈 — kop/apt/koz · 매일 08:00 업로드) =====
+  /* ===== 브랜드 분석 리포트 (홈 — 8 브랜드, 매출 순위 순서 · 매일 08:00 업로드) =====
      파일 경로: data/analysis/{brand}.pdf (덮어쓰기).
      status 체크: raw URL HEAD → 존재하면 GitHub API commits 로 최근 업로드 시각 조회.
      아직 없으면 "준비중" 표시 + 클릭 비활성. */
   const ANALYSIS_BRANDS=[
-    {id:'kop', name:'코페리', dir:'coferryworld'},
-    {id:'apt', name:'아페티', dir:'apeti'},
-    {id:'koz', name:'코즈미', dir:'cos-mi'},
+    // 사장님 지정 순서 (2026-08-13): 6a → ct → yar → pp → akoi → kop → apt → koz
+    {id:'6a',   name:'식스에이'},
+    {id:'ct',   name:'클리어타입'},
+    {id:'yar',  name:'야르'},
+    {id:'pp',   name:'프로덕트피알'},
+    {id:'akoi', name:'아코이하우스'},
+    {id:'kop',  name:'코페리'},
+    {id:'apt',  name:'아페티'},
+    {id:'koz',  name:'코즈미'},
   ];
   const _analysisMeta={}; // { kop:{ready:true, dateStr:'8/14 08:03', url:'...'}, ... }
 
