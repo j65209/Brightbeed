@@ -4827,7 +4827,6 @@
             </button>
           </div>
         </div>
-        <div class="md-cal-hint" style="margin-bottom:12px">30분마다 자동 갱신 · 요약 카드는 실 매출 금액 (결제완료 - 취소/반품) · 상품 top10의 매출은 결제완료 gross · 식스샵프로만 상품별 매출/옵션 세부 제공</div>
         <div id="salesReportsWrap"></div>
       </div>
 
@@ -5769,48 +5768,12 @@
     return n>=1000 ? (n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'')+'k' : String(n);
   }
   /* ===== 원화→달러 병기 (오늘 일매출만) =====
-     환율은 매월 1회, 그달 1일(ECB 기준·프랑크푸르터) USD→KRW 로 고정.
-     이번 달 캐시가 있으면 재fetch 안 함 → 한 달에 딱 한 번만 네트워크 호출. */
-  let _usdKrwRate=null;                 // 1 USD = ? KRW (그달 1일 기준 고정)
-  const _USDKRW_FALLBACK=1400;          // API 실패 + 캐시도 없을 때만 쓰는 최후값 (현재 원/달러 ~1400)
-  const _USDKRW_LS_KEY='bb_usdkrw_monthly';
-  function _usdKrwMonthKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-  function _usdKrwReadLS(){ try{ return JSON.parse(localStorage.getItem(_USDKRW_LS_KEY)||'null'); }catch(e){ return null; } }
-  // 이번 달 캐시가 있으면 동기적으로 반영 (대부분의 로드에서 즉시 값 확보 → 재렌더 불필요).
-  function _usdKrwLoadCached(){
-    const o=_usdKrwReadLS();
-    if(o && o.month===_usdKrwMonthKey() && Number(o.rate)>0){ _usdKrwRate=Number(o.rate); return true; }
-    return false;
-  }
-  // 이번 달 환율 확보 — 이번 달 값이 이미 있으면 그대로, 없을 때만 1일 기준으로 1회 fetch 후 캐시.
-  async function _usdKrwEnsure(){
-    if(_usdKrwLoadCached()) return _usdKrwRate;
-    const m=_usdKrwMonthKey();
-    try{
-      // 그달 1일(휴장이면 직전 영업일) USD→KRW. 프랑크푸르터(ECB) 무료·키 불필요·CORS 허용.
-      const r=await fetch(`https://api.frankfurter.app/${m}-01?from=USD&to=KRW`,{cache:'no-store'});
-      const j=await r.json();
-      const rate=j && j.rates && Number(j.rates.KRW);
-      if(rate>0){
-        _usdKrwRate=rate;
-        try{ localStorage.setItem(_USDKRW_LS_KEY, JSON.stringify({month:m, rate, date:j.date})); }catch(e){}
-        return rate;
-      }
-    }catch(e){}
-    // 실패 — 지난달 캐시라도 있으면 재사용, 그것도 없으면 고정값.
-    if(!_usdKrwRate){ const o=_usdKrwReadLS(); if(o && Number(o.rate)>0) _usdKrwRate=Number(o.rate); }
-    if(!_usdKrwRate) _usdKrwRate=_USDKRW_FALLBACK;
-    return _usdKrwRate;
-  }
+     환율 기준 = 네이버 '미국 USD' 매매기준율.
+     네이버 환율은 브라우저에서 직접 조회가 CORS로 막혀 자동화가 불가.
+     → 매월 초 네이버에 나오는 달러 숫자로 아래 _USD_KRW 값만 갱신한다. */
+  const _USD_KRW=1400;   // ← 네이버 달러 환율. 매월 초 이 숫자만 네이버 값으로 갱신.
   function _akoiFmtUsd(krw){
-    const rate=_usdKrwRate||_USDKRW_FALLBACK;
-    return '$'+Math.round((Number(krw)||0)/rate).toLocaleString('en-US');
-  }
-  // 환율이 async로 늦게 도착한 경우(그달 첫 로드), 이미 렌더된 오늘 카드의 달러값을 다시 채운다.
-  function _usdKrwApplyAll(){
-    document.querySelectorAll('.akoi-summary-usd[data-krw]').forEach(el=>{
-      el.textContent=_akoiFmtUsd(Number(el.getAttribute('data-krw'))||0);
-    });
+    return '$'+Math.round((Number(krw)||0)/_USD_KRW).toLocaleString('en-US');
   }
   function _akoiRenderSummary(s){
     if(!s) return '';
@@ -5953,9 +5916,7 @@
     BRAND_SECTIONS.forEach(cfg => salesLoad(cfg.id, true));
   }
   function salesEnsureLoaded(){
-    _usdKrwLoadCached();                    // 이번 달 캐시 있으면 즉시 반영 (동기)
     _salesInitCards();
-    _usdKrwEnsure().then(_usdKrwApplyAll);  // 캐시 없으면 그달 1일 기준 1회 fetch → 오늘 카드 달러 채움
     BRAND_SECTIONS.forEach(cfg => salesLoad(cfg.id, false));
     salesStartPolling();
   }
