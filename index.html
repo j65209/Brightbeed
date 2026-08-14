@@ -5772,7 +5772,7 @@
      환율은 매월 1회, 그달 1일(ECB 기준·프랑크푸르터) USD→KRW 로 고정.
      이번 달 캐시가 있으면 재fetch 안 함 → 한 달에 딱 한 번만 네트워크 호출. */
   let _usdKrwRate=null;                 // 1 USD = ? KRW (그달 1일 기준 고정)
-  const _USDKRW_FALLBACK=1380;          // API 실패 + 캐시도 없을 때만 쓰는 최후값
+  const _USDKRW_FALLBACK=1400;          // API 실패 + 캐시도 없을 때만 쓰는 최후값 (현재 원/달러 ~1400)
   const _USDKRW_LS_KEY='bb_usdkrw_monthly';
   function _usdKrwMonthKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
   function _usdKrwReadLS(){ try{ return JSON.parse(localStorage.getItem(_USDKRW_LS_KEY)||'null'); }catch(e){ return null; } }
