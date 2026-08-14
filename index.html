@@ -1896,21 +1896,30 @@
   .brand-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1px rgba(0,0,0,.05)}
   .akoi-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em}
   .akoi-refresh-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
-  .akoi-summary{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin:8px 0 14px}
+  .akoi-summary{display:grid;grid-template-columns:1.25fr 1.25fr 0.7fr;gap:10px;margin:8px 0 14px;align-items:stretch}
   .akoi-summary-card{padding:16px 18px 14px;background:linear-gradient(135deg, var(--bg-2) 0%, var(--bg-1) 100%);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;position:relative;overflow:hidden;transition:transform .12s, border-color .12s, box-shadow .12s}
   .akoi-summary-card:hover{transform:translateY(-1px);border-color:var(--line-2);box-shadow:0 4px 12px rgba(0,0,0,.05)}
   .akoi-summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg, transparent, #dc2626, transparent);opacity:.7}
   .akoi-summary-label{font-size:11px;color:var(--text-2);letter-spacing:.08em;text-transform:uppercase;font-family:var(--mono);font-weight:700}
   .akoi-summary-value{display:inline-flex;align-items:baseline;gap:2px;font-family:var(--mono);line-height:1}
   .akoi-summary-value.is-rev{color:#dc2626;text-shadow:0 1px 0 rgba(220,38,38,.08)}
-  .akoi-summary-num{font-size:34px;font-weight:900;letter-spacing:-.03em}
-  .akoi-summary-unit{font-size:15px;font-weight:700;opacity:.7;margin-left:2px}
+  .akoi-summary-num{font-size:38px;font-weight:900;letter-spacing:-.03em}
+  .akoi-summary-unit{font-size:16px;font-weight:700;opacity:.7;margin-left:2px}
   .akoi-summary-sub{font-size:11.5px;color:var(--text-2);font-weight:600;font-family:var(--mono);letter-spacing:.02em}
+  /* 최근 30일 — 오늘/어제보다 시각적으로 축소 (보조 정보) */
+  .akoi-summary-card.is-secondary{padding:10px 12px 9px;gap:4px;background:var(--bg-1);opacity:.72}
+  .akoi-summary-card.is-secondary::before{opacity:.35}
+  .akoi-summary-card.is-secondary .akoi-summary-label{font-size:10px;letter-spacing:.06em}
+  .akoi-summary-card.is-secondary .akoi-summary-num{font-size:19px;font-weight:800}
+  .akoi-summary-card.is-secondary .akoi-summary-unit{font-size:11px}
+  .akoi-summary-card.is-secondary:hover{opacity:1}
   @media (max-width:720px){
-    .akoi-summary{grid-template-columns:1fr;gap:8px}
+    .akoi-summary{grid-template-columns:1fr 1fr;gap:8px}
     .akoi-summary-card{padding:14px 16px 12px}
+    .akoi-summary-card.is-secondary{grid-column:1 / -1;padding:8px 12px 7px}
     .akoi-summary-num{font-size:28px}
     .akoi-summary-unit{font-size:13px}
+    .akoi-summary-card.is-secondary .akoi-summary-num{font-size:17px}
   }
   .akoi-body{display:flex;flex-direction:column;gap:8px;margin-top:6px}
   .akoi-body.akoi-body-collapsed{display:none}
@@ -2286,6 +2295,21 @@
   .sub-module.m-badge {--m-color:#0ea5e9;--m-border:rgba(14,165,233,.4)}
   .sub-module.m-badge .sub-module-icon{color:#0ea5e9}
   .sub-module.m-badge .sub-module-tag{color:#0ea5e9;border-color:rgba(14,165,233,.45);border-style:solid}
+
+  /* 브랜드 분석 리포트 — 3개 브랜드 (kop/apt/koz) */
+  .sub-modules-analysis-grid{grid-template-columns:repeat(3,1fr) !important}
+  @media(max-width:900px){.sub-modules-analysis-grid{grid-template-columns:repeat(3,1fr) !important}}
+  @media(max-width:600px){.sub-modules-analysis-grid{grid-template-columns:1fr !important}}
+  .sub-modules-analysis::before{background:linear-gradient(90deg,#818cf8 0%,#fb7185 50%,#14b8a6 100%)}
+  .sub-module.m-analysis-kop{--m-color:#818cf8;--m-border:rgba(129,140,248,.45)}
+  .sub-module.m-analysis-kop .sub-module-tag{color:#818cf8;border-color:rgba(129,140,248,.45);border-style:solid}
+  .sub-module.m-analysis-apt{--m-color:#fb7185;--m-border:rgba(251,113,133,.45)}
+  .sub-module.m-analysis-apt .sub-module-tag{color:#fb7185;border-color:rgba(251,113,133,.45);border-style:solid}
+  .sub-module.m-analysis-koz{--m-color:#14b8a6;--m-border:rgba(20,184,166,.45)}
+  .sub-module.m-analysis-koz .sub-module-tag{color:#14b8a6;border-color:rgba(20,184,166,.45);border-style:solid}
+  .sub-module.m-analysis[data-ready="0"]{opacity:.6;cursor:default}
+  .sub-module.m-analysis[data-ready="0"]:hover{transform:none;background:var(--bg-1)}
+  .sub-module.m-analysis[data-ready="0"] .sub-module-tag{color:var(--text-3);border-color:var(--line-2);border-style:dashed}
 
   /* ===== 텍스트 토핑 도구 ===== */
   .tp-wrap{max-width:760px;margin:0 auto;padding:8px 18px 28px}
@@ -4139,6 +4163,35 @@
       </section>
     </div>
 
+    <!-- 브랜드 분석 리포트 (폴더 스타일 — 코페리·아페티·코즈미 · 매일 08:00 자동 업로드; 클릭 시 새 창) -->
+    <div class="sub-modules-section sub-modules-analysis">
+      <div class="sub-modules-eyebrow">
+        <span class="folder-icon">📊</span>
+        <span class="folder-label">브랜드 분석 리포트</span>
+        <span class="folder-meta"><b>매일 08:00</b> 자동 업로드 · 클릭 시 새 창</span>
+      </div>
+      <div class="sub-modules sub-modules-analysis-grid">
+        <div class="sub-module m-analysis m-analysis-kop" onclick="openBrandAnalysis('kop')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#818cf8;box-shadow:0 0 12px rgba(129,140,248,.7)"></span></div>
+          <div class="sub-module-title">코페리</div>
+          <div class="sub-module-sub" id="analysisSub_kop">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_kop">—</div>
+        </div>
+        <div class="sub-module m-analysis m-analysis-apt" onclick="openBrandAnalysis('apt')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#fb7185;box-shadow:0 0 12px rgba(251,113,133,.7)"></span></div>
+          <div class="sub-module-title">아페티</div>
+          <div class="sub-module-sub" id="analysisSub_apt">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_apt">—</div>
+        </div>
+        <div class="sub-module m-analysis m-analysis-koz" onclick="openBrandAnalysis('koz')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#14b8a6;box-shadow:0 0 12px rgba(20,184,166,.7)"></span></div>
+          <div class="sub-module-title">코즈미</div>
+          <div class="sub-module-sub" id="analysisSub_koz">파일 확인 중…</div>
+          <div class="sub-module-tag" id="analysisTag_koz">—</div>
+        </div>
+      </div>
+    </div>
+
     <!-- 실시간 재고 (폴더 스타일 — 7 브랜드 식스샵/식스샵프로 실시간; 아페티는 admin credentials 대기 중) -->
     <div class="sub-modules-section sub-modules-sixstock">
       <div class="sub-modules-eyebrow">
@@ -4674,8 +4727,23 @@
     </div>
     <div class="po-wrap">
 
+      <!-- 브랜드별 실시간 매출 (식스샵 + 식스샵프로) — JS가 카드 5개 자동 생성 -->
+      <div class="po-section" style="padding:0;background:transparent;border:none">
+        <div class="po-section-head" style="padding:0 0 6px">
+          <div class="po-section-title">브랜드별 실시간 매출</div>
+          <div class="po-section-meta">
+            <button class="btn po-import akoi-refresh-btn" type="button" onclick="salesRefreshAll()" title="전체 새로고침 (모든 브랜드 서버에서 재조회, 30초~1분)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              전체 새로고침
+            </button>
+          </div>
+        </div>
+        <div class="md-cal-hint" style="margin-bottom:12px">30분마다 자동 갱신 · 요약 카드는 실 매출 금액 (결제완료 - 취소/반품) · 상품 top10의 매출은 결제완료 gross · 식스샵프로만 상품별 매출/옵션 세부 제공</div>
+        <div id="salesReportsWrap"></div>
+      </div>
+
       <!-- 기획전 일정 캘린더 -->
-      <div class="po-section md-cal-section">
+      <div class="po-section md-cal-section" style="margin-top:28px">
         <div class="po-section-head md-cal-head">
           <div class="po-section-title">기획전 일정</div>
           <div class="po-section-meta md-cal-meta">
@@ -4704,21 +4772,6 @@
           <div class="md-cal-grid" id="mdCalGrid"></div>
           <div class="md-cal-hint">날짜 칸 클릭 → 그 날짜로 일정 추가 · 일정 클릭 → 수정/삭제 · 일정 위에 마우스 올리면 상세보기</div>
         </div>
-      </div>
-
-      <!-- 브랜드별 실시간 매출 (식스샵 + 식스샵프로) — JS가 카드 5개 자동 생성 -->
-      <div class="po-section" style="padding:0;background:transparent;border:none">
-        <div class="po-section-head" style="padding:0 0 6px">
-          <div class="po-section-title">브랜드별 실시간 매출</div>
-          <div class="po-section-meta">
-            <button class="btn po-import akoi-refresh-btn" type="button" onclick="salesRefreshAll()" title="전체 새로고침 (모든 브랜드 서버에서 재조회, 30초~1분)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              전체 새로고침
-            </button>
-          </div>
-        </div>
-        <div class="md-cal-hint" style="margin-bottom:12px">30분마다 자동 갱신 · 요약 카드는 실 매출 금액 (결제완료 - 취소/반품) · 상품 top10의 매출은 결제완료 gross · 식스샵프로만 상품별 매출/옵션 세부 제공</div>
-        <div id="salesReportsWrap"></div>
       </div>
 
     </div>
@@ -5531,13 +5584,13 @@
     if(!s) return '';
     const today=s.today||{}, yst=s.yesterday||{}, td=s.thirtyDays||{};
     const cards=[
-      {label:'오늘',      rev:today.revenue, ord:today.orders},
-      {label:'어제',      rev:yst.revenue,   ord:yst.orders},
-      {label:'최근 30일', rev:td.revenue,    ord:td.orders},
+      {label:'오늘',      rev:today.revenue, ord:today.orders, cls:''},
+      {label:'어제',      rev:yst.revenue,   ord:yst.orders,   cls:''},
+      {label:'최근 30일', rev:td.revenue,    ord:td.orders,    cls:' is-secondary'},
     ];
     return cards.map(c=>{
       const p=_akoiFmtKrwParts(c.rev);
-      return `<div class="akoi-summary-card">
+      return `<div class="akoi-summary-card${c.cls}">
       <span class="akoi-summary-label">${c.label}</span>
       <span class="akoi-summary-value is-rev"><span class="akoi-summary-num">${_akoiEsc(p.num)}</span>${p.unit?`<span class="akoi-summary-unit">${p.unit}</span>`:''}</span>
     </div>`;
@@ -10020,6 +10073,92 @@
   renderSalesPptView();
   renderSalesUpdatedTag();
 
+  /* ===== 브랜드 분석 리포트 (홈 — kop/apt/koz · 매일 08:00 업로드) =====
+     파일 경로: data/analysis/{brand}.pdf (덮어쓰기).
+     status 체크: raw URL HEAD → 존재하면 GitHub API commits 로 최근 업로드 시각 조회.
+     아직 없으면 "준비중" 표시 + 클릭 비활성. */
+  const ANALYSIS_BRANDS=[
+    {id:'kop', name:'코페리', dir:'coferryworld'},
+    {id:'apt', name:'아페티', dir:'apeti'},
+    {id:'koz', name:'코즈미', dir:'cos-mi'},
+  ];
+  const _analysisMeta={}; // { kop:{ready:true, dateStr:'8/14 08:03', url:'...'}, ... }
+
+  function _analysisFilePath(brand){ return `data/analysis/${brand}.pdf`; }
+  function _analysisRawUrl(brand, cb){
+    return `https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${_analysisFilePath(brand)}${cb?`?cb=${cb}`:''}`;
+  }
+
+  async function _analysisFetchLastCommit(brand){
+    // GitHub API로 해당 파일의 최근 commit 시각 조회. 실패해도 무해 (dateStr 생략).
+    try{
+      const api=`https://api.github.com/repos/${PO_REPO}/commits?path=${encodeURIComponent(_analysisFilePath(brand))}&per_page=1`;
+      const r=await fetch(api, { headers:{'Accept':'application/vnd.github+json'} });
+      if(!r.ok) return null;
+      const arr=await r.json();
+      const d=arr && arr[0] && arr[0].commit && (arr[0].commit.committer?.date || arr[0].commit.author?.date);
+      return d ? new Date(d) : null;
+    }catch(e){ return null }
+  }
+
+  function _analysisFmtDate(d){
+    if(!(d instanceof Date) || isNaN(d)) return '';
+    const now=new Date();
+    const sameDay = d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
+    const hh=String(d.getHours()).padStart(2,'0');
+    const mm=String(d.getMinutes()).padStart(2,'0');
+    if(sameDay) return `오늘 ${hh}:${mm}`;
+    return `${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
+  }
+
+  async function _analysisCheckOne(brand){
+    const subEl=document.getElementById(`analysisSub_${brand}`);
+    const tagEl=document.getElementById(`analysisTag_${brand}`);
+    const cardEl=document.querySelector(`.m-analysis-${brand}`);
+    if(!subEl || !tagEl || !cardEl) return;
+    try{
+      // raw URL HEAD 로 존재 여부만 우선 확인
+      const rawR=await fetch(_analysisRawUrl(brand, Date.now()), { method:'HEAD', cache:'no-cache' });
+      if(rawR.ok){
+        const commit=await _analysisFetchLastCommit(brand);
+        const dateStr=_analysisFmtDate(commit) || '업로드됨';
+        _analysisMeta[brand]={ ready:true, dateStr, url:_analysisRawUrl(brand, commit ? commit.getTime() : Date.now()) };
+        subEl.textContent=dateStr;
+        tagEl.textContent='READY';
+        cardEl.dataset.ready='1';
+      } else {
+        _analysisMeta[brand]={ ready:false };
+        subEl.textContent='아직 업로드되지 않음';
+        tagEl.textContent='준비중';
+        cardEl.dataset.ready='0';
+      }
+    }catch(e){
+      _analysisMeta[brand]={ ready:false };
+      subEl.textContent='상태 확인 실패';
+      tagEl.textContent='—';
+      cardEl.dataset.ready='0';
+    }
+  }
+
+  function checkBrandAnalysisStatus(){
+    ANALYSIS_BRANDS.forEach(b=>_analysisCheckOne(b.id));
+  }
+  window.checkBrandAnalysisStatus=checkBrandAnalysisStatus;
+
+  function openBrandAnalysis(brand){
+    const meta=_analysisMeta[brand];
+    if(!meta || !meta.ready){
+      toast('아직 오늘 분석 리포트가 업로드되지 않았습니다','err');
+      return;
+    }
+    window.open(meta.url, '_blank', 'noopener,noreferrer');
+  }
+  window.openBrandAnalysis=openBrandAnalysis;
+
+  // 초기 로드 + 홈 진입/포커스 시 재검사 (매일 08:00 이후 자동 반영)
+  checkBrandAnalysisStatus();
+  window.addEventListener('focus', ()=>{ checkBrandAnalysisStatus() });
+
   /* ===================================================== */
   /* ============ 사내 공지사항 (자유양식 + GitHub 동기화) ============ */
   /* ===================================================== */
@@ -12087,13 +12226,15 @@
   }
 
   function vMarginParse(text){
-    // 시트 구조: 한 월의 영역은 "총매출금액" 행으로 닫힘 (색칠된 정산 행).
-    // "X월" 라벨은 보통 영역 첫 행 column A. 마지막 영역(현재 진행 월)은 총매출금액 행이
-    // 아직 없을 수 있음 → loop 끝나고 cur 에 item 이 남아있으면 pending 으로 push.
-    // 시트엔 헤더 행이 없으므로 i=0 부터 처리.
+    // 시트 구조: 한 월 영역은 "총매출금액" 행으로 닫힘 (색칠된 정산 행).
+    // 월 라벨은 column A. 지원 서식: "8월" / "2026.08" / "2026.08월" / "2026-08".
+    // 옛날 월들은 items 없이 총매출금액 행만 남아있고 라벨도 생략되는 경우가 있어
+    // 라벨 미기재 마감 행은 직전 월+1로 자동 부여.
+    // 마지막 영역(진행 중인 월)은 총매출금액 행이 없을 수 있음 → cur 남아있으면 pending 으로 push.
     const rows=_vmCSVParse(text);
     const out=[];
     let cur=_vmEmptySection();
+    let lastYear=null, lastMonthNum=null;
     // 총매출 행 감지: 제품/셀러/수량(1~3) 다 비어있고 마진합(6) 또는 매출합(8)에 값이 있으면 closing.
     // 시트 운영자가 "총매출금액" 라벨을 깜빡 누락해도 정상 마감되게 robust 처리.
     const _isClosingRow = (r) => {
@@ -12103,14 +12244,37 @@
       const hasTotal = !!((r[6]||'').trim()) || !!((r[8]||'').trim());
       return noItem && hasTotal;
     };
+    const _parseMonthLbl = (lbl) => {
+      if(!lbl) return null;
+      let m=lbl.match(/^(\d{4})[.\-\/](\d{1,2})월?$/);
+      if(m) return {year:parseInt(m[1],10), monthNum:parseInt(m[2],10)};
+      m=lbl.match(/^(\d{1,2})월$/);
+      if(m) return {year:null, monthNum:parseInt(m[1],10)};
+      return null;
+    };
+    const _fillFromLast = () => {
+      if(cur.month) return;
+      if(lastYear==null || lastMonthNum==null) return;
+      let nm=lastMonthNum+1, ny=lastYear;
+      if(nm>12){nm=1; ny+=1;}
+      cur.monthNum=nm; cur.year=ny;
+      cur.month=`${ny}.${String(nm).padStart(2,'0')}`;
+    };
     for(let i=0; i<rows.length; i++){
       const r=rows[i];
+      // 헤더 행 skip — 시트 상단에 "월별/제품명/셀러명…" 헤더가 붙는 경우
+      if(i===0){
+        const c0=(r[0]||'').trim(), c1=(r[1]||'').trim();
+        if(c0==='월별' || c1==='제품명') continue;
+      }
       const monthLbl=(r[0]||'').trim();
-      const mMatch=monthLbl.match(/^(\d+)월$/);
+      const parsed=_parseMonthLbl(monthLbl);
 
-      if(mMatch){
+      if(parsed){
         cur.month=monthLbl;
-        cur.monthNum=parseInt(mMatch[1],10);
+        cur.monthNum=parsed.monthNum;
+        cur.year=parsed.year!=null?parsed.year:(lastYear||new Date().getFullYear());
+        lastYear=cur.year; lastMonthNum=cur.monthNum;
         // 라벨 행도 그 자체로 첫 진행건일 수 있으니 아래 item-row 분기로 흘림
       }
 
@@ -12118,7 +12282,12 @@
         cur.totalMargin=(r[6]||'').trim();
         cur.totalSales=(r[8]||'').trim();
         cur.pending=false;
-        if(cur.month && cur.items.length) out.push(cur);
+        _fillFromLast();
+        if(cur.month){
+          lastYear=cur.year; lastMonthNum=cur.monthNum;
+          // items 있는 월만 진행 내역으로 push (총매출만 있는 옛날 월은 노이즈)
+          if(cur.items.length) out.push(cur);
+        }
         cur=_vmEmptySection();
         continue;
       }
@@ -12145,14 +12314,17 @@
       }
     }
     // 마지막 영역에 총매출이 없으면 = 진행 중인 월. pending 으로 표시해서 보여줌.
-    if(cur.month && cur.items.length){
-      cur.pending=true;
-      out.push(cur);
+    if(cur.items.length){
+      _fillFromLast();
+      if(cur.month){
+        cur.pending=true;
+        out.push(cur);
+      }
     }
     return out;
   }
   function _vmEmptySection(){
-    return {month:'',monthNum:0,items:[],totalMargin:'',totalSales:'',pending:false};
+    return {month:'',monthNum:0,year:null,items:[],totalMargin:'',totalSales:'',pending:false};
   }
 
   async function vMarginLoad(force){
@@ -12256,10 +12428,13 @@
     }
     if(!_vMargin.loaded){ wrap.innerHTML=''; return; }
 
-    // 최근월 상단으로 정렬 — pending(정산 전, 진행 월) 항상 맨 위
+    // 최근월 상단으로 정렬 — pending(정산 전, 진행 월) 항상 맨 위. year 우선.
+    const _now=new Date();
+    const _fallbackYear=_now.getFullYear();
+    const _sortKey=(m)=>((m.year||_fallbackYear)*100)+m.monthNum;
     const sorted=[..._vMargin.months].sort((a,b)=>{
       if(a.pending!==b.pending) return a.pending?-1:1;
-      return b.monthNum-a.monthNum;
+      return _sortKey(b)-_sortKey(a);
     });
 
     // 매출/마진 합계 계산 (시트에 총매출금액 행이 없는 진행 월용)
@@ -12269,11 +12444,11 @@
     // 셀러 누적 순위 렌더 (모든 월 합산)
     renderVendorSellerRank(_vMargin.months, _krwParse, _krwFmt);
 
-    // 이번달 ±1 월은 자동 펼침, 그 외는 접음 (연도 경계 고려: 12-1 거리 1)
-    const curMonth=new Date().getMonth()+1;
+    // 이번달 ±1 월은 자동 펼침 (year 반영: 절대 월 인덱스 차이)
+    const curAbs=_now.getFullYear()*12+(_now.getMonth()+1);
     const monthGap=(m)=>{
-      const d=Math.abs(m-curMonth);
-      return Math.min(d, 12-d); // 12-1 거리 1
+      const y=m.year||_fallbackYear;
+      return Math.abs((y*12+m.monthNum)-curAbs);
     };
 
     wrap.innerHTML='';
@@ -12281,7 +12456,7 @@
       const det=document.createElement('details');
       det.className='vm-month'+(m.pending?' vm-month-pending':'');
       // pending(진행 중) 월은 항상 펼침. 그 외엔 이번달과 1개월 이내일 때만 펼침.
-      if(m.pending || monthGap(m.monthNum) <= 1) det.open=true;
+      if(m.pending || monthGap(m) <= 1) det.open=true;
 
       // 진행 월은 총매출/총마진이 시트에 없을 수 있어 클라이언트에서 합산 보조
       const calcMargin = m.items.reduce((s,it)=>s+_krwParse(it.margin),0);
