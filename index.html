@@ -2295,6 +2295,9 @@
   .sub-module.m-badge {--m-color:#0ea5e9;--m-border:rgba(14,165,233,.4)}
   .sub-module.m-badge .sub-module-icon{color:#0ea5e9}
   .sub-module.m-badge .sub-module-tag{color:#0ea5e9;border-color:rgba(14,165,233,.45);border-style:solid}
+  .sub-module.m-promo {--m-color:#06b6d4;--m-border:rgba(6,182,212,.4)}
+  .sub-module.m-promo .sub-module-icon{color:#06b6d4}
+  .sub-module.m-promo .sub-module-tag{color:#06b6d4;border-color:rgba(6,182,212,.45);border-style:solid}
 
   /* 브랜드 분석 리포트 — 8 브랜드 (매출 순위 순서) */
   .sub-modules-analysis::before{background:linear-gradient(90deg,#22d3ee 0%,#22c55e 15%,#a78bfa 30%,#f59e0b 45%,#f472b6 60%,#818cf8 75%,#fb7185 90%,#14b8a6 100%)}
@@ -2382,6 +2385,60 @@
     .tp-input{font-size:15px;padding:12px 14px}
     .tp-output{font-size:16px;padding:12px 14px}
     .tp-btn{padding:10px 14px;font-size:12.5px;flex:1 1 auto}
+  }
+
+  /* ===== 기획전 계산기 (에이블리 · 코페리) ===== */
+  .pc-wrap{max-width:960px;margin:0 auto;padding:8px 18px 32px;display:flex;flex-direction:column;gap:14px}
+  .pc-panel{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .pc-panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px}
+  .pc-panel-title{font-size:14px;font-weight:700;color:var(--text-1);letter-spacing:.02em}
+  .pc-panel-meta{font-size:11.5px;color:var(--text-3);font-family:var(--mono)}
+  .pc-grid{display:grid;gap:12px}
+  .pc-grid-product{grid-template-columns:2fr 1fr 1fr 1fr}
+  .pc-grid-fee{grid-template-columns:1fr}
+  @media(max-width:700px){
+    .pc-grid-product{grid-template-columns:1fr 1fr}
+    .pc-grid-product .pc-ctl-wide{grid-column:1 / -1}
+  }
+  .pc-ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .pc-ctl-label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.03em}
+  .pc-ctl-hint{font-size:10.5px;color:var(--text-3);font-family:var(--mono);margin-top:2px}
+  .pc-input{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+    padding:9px 11px;font-size:13px;color:var(--text-1);width:100%;box-sizing:border-box;
+    font-family:inherit;transition:border-color .12s
+  }
+  .pc-input:focus{outline:none;border-color:#06b6d4;background:var(--bg-1)}
+  .pc-input-sm{max-width:110px}
+  .pc-readout{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+    padding:9px 11px;font-size:13px;font-weight:700;color:var(--text-1);
+    font-family:var(--mono);min-height:37px;display:flex;align-items:center
+  }
+  .pc-note{font-size:11px;color:var(--text-3);margin-top:10px;font-style:italic}
+  .pc-scenarios{display:grid;grid-template-columns:1fr;gap:10px}
+  .pc-scenario{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+  .pc-scenario-head{font-size:12px;font-weight:700;color:#06b6d4;letter-spacing:.05em}
+  .pc-scenario-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .pc-ctl-inline{font-size:11.5px;color:var(--text-2);display:inline-flex;align-items:center;gap:6px;font-weight:600}
+  .pc-empty{color:var(--text-3);font-size:12.5px;text-align:center;padding:22px 12px}
+  .pc-rec{padding:14px 16px;border-radius:10px;font-size:13px;line-height:1.55;margin-bottom:14px}
+  .pc-rec-ok{background:rgba(6,182,212,.10);border:1px solid rgba(6,182,212,.35);color:var(--text-1)}
+  .pc-rec-warn{background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);color:var(--text-1)}
+  .pc-rec b{color:#0891b2}
+  .pc-rec-warn b{color:#d97706}
+  .pc-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
+  .pc-table th,.pc-table td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  .pc-table th{font-size:10.5px;font-weight:700;color:var(--text-2);letter-spacing:.04em;text-transform:uppercase;background:var(--bg-2)}
+  .pc-table th:first-child,.pc-table td:first-child{text-align:left}
+  .pc-table th small{display:block;font-size:9px;color:var(--text-3);text-transform:none;letter-spacing:0;font-weight:500;margin-top:1px}
+  .pc-table tr.pc-baseline td{color:var(--text-3);background:rgba(0,0,0,.02)}
+  .pc-table tr.pc-ok td{color:var(--text-1)}
+  .pc-table tr.pc-ok td:last-child{color:#059669;font-weight:700}
+  .pc-table tr.pc-ng td:last-child{color:#dc2626;font-weight:700}
+  @media(max-width:600px){
+    .pc-table{font-size:10.5px}
+    .pc-table th,.pc-table td{padding:6px 5px}
   }
 
   /* ===== 이미지 배지 합성 도구 ===== */
@@ -4300,6 +4357,12 @@
           <div class="sub-module-sub">제품 이미지 코너에 네온 배지 합성 · 문구 1~6 선택 · PNG 저장</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
+        <div class="sub-module m-promo" onclick="triggerPromoCalc()">
+          <div class="sub-module-icon">🧮</div>
+          <div class="sub-module-title">기획전 계산기</div>
+          <div class="sub-module-sub">에이블리 · 코페리 정가 자동 · 조건별 마진 분석</div>
+          <div class="sub-module-tag">TOOL</div>
+        </div>
       </div>
     </div>
 
@@ -5269,6 +5332,105 @@
           이미지를 넣으면<br>여기에 배지 합성 결과가 실시간으로 표시됩니다.
         </div>
         <canvas id="bdgCanvas" hidden></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 기획전 계산기 (에이블리 · 코페리) ============ -->
+  <div class="view" id="viewPromoCalc" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">기획전 계산기<span class="view-title-sub">/ 에이블리 · 코페리</span></h1>
+    </div>
+
+    <div class="pc-wrap">
+      <!-- 상품 & 매입가 -->
+      <div class="pc-panel">
+        <div class="pc-panel-head">
+          <div class="pc-panel-title">1. 상품 선택</div>
+          <div class="pc-panel-meta" id="pcCatalogStatus">불러오는 중…</div>
+        </div>
+        <div class="pc-grid pc-grid-product">
+          <div class="pc-ctl pc-ctl-wide">
+            <div class="pc-ctl-label">코페리 상품</div>
+            <select id="pcProduct" class="pc-input" onchange="pcOnProductChange()">
+              <option value="">— 상품 목록 로딩중 —</option>
+            </select>
+          </div>
+          <div class="pc-ctl">
+            <div class="pc-ctl-label">정가</div>
+            <div class="pc-readout" id="pcPrice">—</div>
+          </div>
+          <div class="pc-ctl">
+            <div class="pc-ctl-label">매입가 (₩)</div>
+            <input id="pcCost" class="pc-input" type="number" inputmode="numeric" min="0" step="100" placeholder="예: 15000" oninput="pcSaveCost()">
+          </div>
+          <div class="pc-ctl">
+            <div class="pc-ctl-label">목표 이익률 (%)</div>
+            <input id="pcTarget" class="pc-input" type="number" inputmode="numeric" min="0" step="1" value="20" oninput="pcCompute()">
+          </div>
+        </div>
+        <div class="pc-note">매입가는 상품별로 브라우저에 저장돼서 다음 방문 때 자동으로 채워집니다.</div>
+      </div>
+
+      <!-- 에이블리 고정 조건 -->
+      <div class="pc-panel">
+        <div class="pc-panel-head">
+          <div class="pc-panel-title">2. 에이블리 조건 (고정)</div>
+          <div class="pc-panel-meta">배송비 무료 · 셀러스 기준</div>
+        </div>
+        <div class="pc-grid pc-grid-fee">
+          <div class="pc-ctl">
+            <div class="pc-ctl-label">에이블리 수수료 (%)</div>
+            <input id="pcFee" class="pc-input" type="number" inputmode="decimal" min="0" step="0.01" value="6.96" oninput="pcCompute()">
+            <div class="pc-ctl-hint">플랫폼 3% + 결제 3.96% (VAT 별도)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 가정 3개 -->
+      <div class="pc-panel">
+        <div class="pc-panel-head">
+          <div class="pc-panel-title">3. 기획전 조건 (가정)</div>
+          <div class="pc-panel-meta">할인율 % 또는 판매가 원 중 하나만 입력</div>
+        </div>
+        <div class="pc-scenarios">
+          <div class="pc-scenario">
+            <div class="pc-scenario-head">가정 1</div>
+            <input id="pcMemo1" class="pc-input" type="text" placeholder="메모 (예: 15,000원 이하 존)" oninput="pcCompute()">
+            <div class="pc-scenario-row">
+              <label class="pc-ctl-inline">할인율 % <input id="pcDisc1" class="pc-input pc-input-sm" type="number" inputmode="decimal" min="0" step="0.5" placeholder="예: 30" oninput="pcCompute()"></label>
+              <label class="pc-ctl-inline">판매가 원 <input id="pcSale1" class="pc-input pc-input-sm" type="number" inputmode="numeric" min="0" step="100" placeholder="예: 9900" oninput="pcCompute()"></label>
+            </div>
+          </div>
+          <div class="pc-scenario">
+            <div class="pc-scenario-head">가정 2</div>
+            <input id="pcMemo2" class="pc-input" type="text" placeholder="메모 (예: 15,000원 이상)" oninput="pcCompute()">
+            <div class="pc-scenario-row">
+              <label class="pc-ctl-inline">할인율 % <input id="pcDisc2" class="pc-input pc-input-sm" type="number" inputmode="decimal" min="0" step="0.5" placeholder="예: 10" oninput="pcCompute()"></label>
+              <label class="pc-ctl-inline">판매가 원 <input id="pcSale2" class="pc-input pc-input-sm" type="number" inputmode="numeric" min="0" step="100" placeholder="예: 15000" oninput="pcCompute()"></label>
+            </div>
+          </div>
+          <div class="pc-scenario">
+            <div class="pc-scenario-head">가정 3</div>
+            <input id="pcMemo3" class="pc-input" type="text" placeholder="메모 (예: 브랜드 자체 쿠폰 5%)" oninput="pcCompute()">
+            <div class="pc-scenario-row">
+              <label class="pc-ctl-inline">할인율 % <input id="pcDisc3" class="pc-input pc-input-sm" type="number" inputmode="decimal" min="0" step="0.5" placeholder="예: 5" oninput="pcCompute()"></label>
+              <label class="pc-ctl-inline">판매가 원 <input id="pcSale3" class="pc-input pc-input-sm" type="number" inputmode="numeric" min="0" step="100" oninput="pcCompute()"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 결과 -->
+      <div class="pc-panel pc-panel-result">
+        <div class="pc-panel-head">
+          <div class="pc-panel-title">4. 분석 결과</div>
+        </div>
+        <div id="pcResult"><div class="pc-empty">상품 선택 & 매입가를 입력하면 계산 결과가 여기에 표시됩니다.</div></div>
       </div>
     </div>
   </div>
@@ -6823,8 +6985,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge'};
+  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewPromoCalc'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewPromoCalc:'promo'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -6878,6 +7040,9 @@
     }
     if(id==='viewBadge'){
       if(typeof initBadgeView==='function') initBadgeView();
+    }
+    if(id==='viewPromoCalc'){
+      if(typeof pcInit==='function') pcInit();
     }
   }
 
@@ -7383,6 +7548,7 @@
   function triggerNamegen(){ showView('viewNamegen'); }
   function triggerTopping(){ showView('viewTopping'); if(typeof initToppingView==='function') initToppingView(); }
   function triggerBadge(){ showView('viewBadge'); if(typeof initBadgeView==='function') initBadgeView(); }
+  function triggerPromoCalc(){ showView('viewPromoCalc'); if(typeof pcInit==='function') pcInit(); }
   window.triggerTopping=triggerTopping;
   // goHome: 서브뷰면 history.back() — 브라우저 뒤로가기와 동일 경로로 빠짐 (iOS 엣지 스와이프와 일관됨).
   function goHome(){
@@ -12877,6 +13043,176 @@
   window.initBadgeView=initBadgeView;
   window.downloadBadge=downloadBadge;
   window.clearBadge=clearBadge;
+
+  /* ===== 기획전 계산기 (에이블리 · 코페리) ===== */
+  window._pc = {catalog:null, loading:false, sel:null};
+
+  async function pcInit(){
+    pcRestoreForm();
+    await pcLoadCatalog();
+    pcCompute();
+  }
+
+  async function pcLoadCatalog(){
+    const s=window._pc;
+    const stEl=document.getElementById('pcCatalogStatus');
+    if(s.loading) return;
+    if(s.catalog){ pcRenderProductSelect(); if(stEl) stEl.textContent=`${s.catalog.length}개 상품`; return; }
+    s.loading=true;
+    if(stEl){stEl.textContent='불러오는 중…'; stEl.style.color='';}
+    try{
+      const base=await loadProxyBase();
+      if(!base) throw new Error('proxy unavailable');
+      const r=await fetch(`${base}/sx/catalog?brand=kop`,{headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const d=await r.json();
+      const raw=d.products||d.items||[];
+      const items=raw.filter(x=>x.status==='selling' && (x.price||0)>0);
+      items.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+      s.catalog=items;
+      pcRenderProductSelect();
+      if(stEl) stEl.textContent=`${items.length}개 상품`;
+    }catch(e){
+      console.error('pcLoadCatalog',e);
+      if(stEl){stEl.textContent='⚠ 로드 실패'; stEl.style.color='#dc2626';}
+    }finally{s.loading=false;}
+  }
+
+  function pcRenderProductSelect(){
+    const sel=document.getElementById('pcProduct'); if(!sel) return;
+    const s=window._pc;
+    const prev=sel.value || localStorage.getItem('promoCalc_lastProduct') || '';
+    sel.innerHTML='<option value="">— 상품을 선택하세요 —</option>' +
+      (s.catalog||[]).map(p=>`<option value="${p.productNo}" data-price="${p.price}" data-name="${_pcEsc(p.name||'')}">${_pcEsc(p.name||'')} · ₩${(p.price||0).toLocaleString('ko-KR')}</option>`).join('');
+    if(prev && [...sel.options].some(o=>o.value===prev)){ sel.value=prev; pcOnProductChange(); }
+  }
+
+  function pcOnProductChange(){
+    const sel=document.getElementById('pcProduct');
+    const opt=sel.selectedOptions[0];
+    if(!opt || !opt.value){
+      window._pc.sel=null;
+      document.getElementById('pcPrice').textContent='—';
+      document.getElementById('pcCost').value='';
+      pcCompute();
+      return;
+    }
+    const price=parseInt(opt.dataset.price,10)||0;
+    const pno=opt.value;
+    const name=opt.dataset.name||'';
+    window._pc.sel={productNo:pno, name, price};
+    document.getElementById('pcPrice').textContent=`₩${price.toLocaleString('ko-KR')}`;
+    const cost=localStorage.getItem('promoCalc_cost_'+pno);
+    document.getElementById('pcCost').value=cost||'';
+    try{ localStorage.setItem('promoCalc_lastProduct', pno); }catch(e){}
+    pcCompute();
+  }
+
+  function pcSaveCost(){
+    const s=window._pc.sel; if(!s){ pcCompute(); return; }
+    const v=(document.getElementById('pcCost').value||'').trim();
+    if(v && parseInt(v,10)>0) localStorage.setItem('promoCalc_cost_'+s.productNo, v);
+    else if(!v) localStorage.removeItem('promoCalc_cost_'+s.productNo);
+    pcCompute();
+  }
+
+  function pcRestoreForm(){
+    try{
+      const t=localStorage.getItem('promoCalc_target'); if(t) document.getElementById('pcTarget').value=t;
+      const f=localStorage.getItem('promoCalc_fee'); if(f) document.getElementById('pcFee').value=f;
+      for(let i=1;i<=3;i++){
+        const m=localStorage.getItem('promoCalc_memo'+i); if(m) document.getElementById('pcMemo'+i).value=m;
+        const d=localStorage.getItem('promoCalc_disc'+i); if(d) document.getElementById('pcDisc'+i).value=d;
+        const s=localStorage.getItem('promoCalc_sale'+i); if(s) document.getElementById('pcSale'+i).value=s;
+      }
+    }catch(e){}
+  }
+
+  function pcCompute(){
+    const s=window._pc.sel;
+    const price=s?.price||0;
+    const cost=parseInt((document.getElementById('pcCost')||{}).value,10)||0;
+    const target=parseFloat((document.getElementById('pcTarget')||{}).value)||0;
+    const fee=parseFloat((document.getElementById('pcFee')||{}).value)||0;
+    try{
+      localStorage.setItem('promoCalc_target', String(target||''));
+      localStorage.setItem('promoCalc_fee', String(fee||''));
+      for(let i=1;i<=3;i++){
+        const memo=(document.getElementById('pcMemo'+i)||{}).value?.trim()||'';
+        const disc=(document.getElementById('pcDisc'+i)||{}).value||'';
+        const sale=(document.getElementById('pcSale'+i)||{}).value||'';
+        memo?localStorage.setItem('promoCalc_memo'+i, memo):localStorage.removeItem('promoCalc_memo'+i);
+        disc?localStorage.setItem('promoCalc_disc'+i, disc):localStorage.removeItem('promoCalc_disc'+i);
+        sale?localStorage.setItem('promoCalc_sale'+i, sale):localStorage.removeItem('promoCalc_sale'+i);
+      }
+    }catch(e){}
+    const rows=[];
+    if(price>0) rows.push(_pcCalc('정가 (할인 없음)', price, price, cost, fee, 0));
+    for(let i=1;i<=3;i++){
+      const memo=(document.getElementById('pcMemo'+i)||{}).value?.trim()||'';
+      const discRaw=(document.getElementById('pcDisc'+i)||{}).value;
+      const saleRaw=(document.getElementById('pcSale'+i)||{}).value;
+      const disc=parseFloat(discRaw); const sale=parseFloat(saleRaw);
+      let sellPrice=null, discPct=null;
+      if(saleRaw!=='' && sale>=0){ sellPrice=sale; discPct=price>0?((1-sale/price)*100):0; }
+      else if(discRaw!=='' && !isNaN(disc)){ sellPrice=Math.max(0, Math.round(price*(1-disc/100))); discPct=disc; }
+      else continue;
+      rows.push(_pcCalc(`가정 ${i}${memo?' · '+memo:''}`, price, sellPrice, cost, fee, discPct));
+    }
+    pcRenderResult(rows, target, cost, price);
+  }
+
+  function _pcCalc(label, listPrice, sellPrice, cost, feeRate, discPct){
+    const fee=Math.round(sellPrice*feeRate/100);
+    const net=sellPrice-fee;
+    const profit=cost>0?(net-cost):0;
+    const rateOnCost=cost>0?(profit/cost*100):0;
+    return {label, sellPrice, fee, net, cost, profit, rateOnCost, disc:discPct};
+  }
+
+  function pcRenderResult(rows, target, cost, price){
+    const wrap=document.getElementById('pcResult'); if(!wrap) return;
+    if(!price){ wrap.innerHTML='<div class="pc-empty">상품을 선택해주세요.</div>'; return; }
+    if(!cost){ wrap.innerHTML='<div class="pc-empty">매입가를 입력하면 계산 결과가 표시됩니다.</div>'; return; }
+    const fmt=n=>`₩${Math.round(n).toLocaleString('ko-KR')}`;
+    const rateFmt=n=>(Math.round(n*10)/10)+'%';
+    const discFmt=n=>n>0?(Math.round(n*10)/10)+'%':'—';
+    const table=`
+      <table class="pc-table">
+        <thead><tr><th>가정</th><th>할인</th><th>판매가</th><th>수수료</th><th>실수령</th><th>이익</th><th>이익률<br><small>매입가 대비</small></th></tr></thead>
+        <tbody>
+          ${rows.map((r,i)=>{
+            const ok=r.rateOnCost>=target;
+            const cls=i===0?'pc-baseline':(ok?'pc-ok':'pc-ng');
+            return `<tr class="${cls}"><td>${_pcEsc(r.label)}</td><td>${discFmt(r.disc)}</td><td>${fmt(r.sellPrice)}</td><td>-${fmt(r.fee)}</td><td>${fmt(r.net)}</td><td>${fmt(r.profit)}</td><td>${rateFmt(r.rateOnCost)}${i>0?(ok?' ✓':' ✗'):''}</td></tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+    const scenarios=rows.slice(1);
+    let rec='';
+    if(scenarios.length===0){
+      rec='<div class="pc-rec pc-rec-warn">💡 가정 1~3 중 하나 이상에 할인율(%) 또는 판매가(원)를 입력해주세요.</div>';
+    } else {
+      const passing=scenarios.filter(r=>r.rateOnCost>=target);
+      if(passing.length>0){
+        const rec1=[...passing].sort((a,b)=>a.sellPrice-b.sellPrice)[0];
+        const alt=passing.length>1?[...passing].sort((a,b)=>b.rateOnCost-a.rateOnCost)[0]:null;
+        const altHtml=(alt && alt.label!==rec1.label)?`<br><span style="color:var(--text-3);font-size:12px">더 큰 이익을 원하면: <b>${_pcEsc(alt.label)}</b> (이익률 ${rateFmt(alt.rateOnCost)})</span>`:'';
+        rec=`<div class="pc-rec pc-rec-ok">💡 <b>${_pcEsc(rec1.label)}</b> (할인 ${discFmt(rec1.disc)}, 판매가 ${fmt(rec1.sellPrice)}) 로 신청하세요.<br>이익 ${fmt(rec1.profit)} · 이익률 <b>${rateFmt(rec1.rateOnCost)}</b> — 목표 ${target}% 달성 ✓${altHtml}</div>`;
+      } else {
+        const best=[...scenarios].sort((a,b)=>b.rateOnCost-a.rateOnCost)[0];
+        rec=`<div class="pc-rec pc-rec-warn">⚠ 목표 이익률 ${target}% 를 달성하는 조건이 없습니다.<br>가장 좋은 것은 <b>${_pcEsc(best.label)}</b> (이익률 ${rateFmt(best.rateOnCost)}). 매입가 재협의 또는 할인 폭 축소 검토 필요.</div>`;
+      }
+    }
+    wrap.innerHTML=rec+table;
+  }
+  function _pcEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  window.triggerPromoCalc=triggerPromoCalc;
+  window.pcInit=pcInit;
+  window.pcOnProductChange=pcOnProductChange;
+  window.pcSaveCost=pcSaveCost;
+  window.pcCompute=pcCompute;
 
   init();
 </script>
