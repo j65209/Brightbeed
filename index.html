@@ -5804,7 +5804,7 @@
   }
   function _akoiFmtUsd(krw){
     const rate=_usdKrwRate||_USDKRW_FALLBACK;
-    return '≈ $'+Math.round((Number(krw)||0)/rate).toLocaleString('en-US');
+    return '$'+Math.round((Number(krw)||0)/rate).toLocaleString('en-US');
   }
   // 환율이 async로 늦게 도착한 경우(그달 첫 로드), 이미 렌더된 오늘 카드의 달러값을 다시 채운다.
   function _usdKrwApplyAll(){
