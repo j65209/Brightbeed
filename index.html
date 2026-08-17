@@ -2403,6 +2403,11 @@
     display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:11px;font-weight:600;
     color:#b45309;background:rgba(245,158,11,.11);border-bottom:1px solid var(--line);
   }
+  .brep-hint{
+    padding:6px 14px;font-size:11px;color:var(--text-3);background:var(--bg-2);
+    border-bottom:1px solid var(--line);line-height:1.45;
+  }
+  .brep-hint b{color:var(--text-1);font-family:var(--mono);font-weight:700}
   .brep-empty{padding:26px 16px;text-align:center;font-size:12px;color:var(--text-3)}
   .brep-empty b{display:block;font-size:13px;color:var(--text-2);margin-bottom:3px}
 
@@ -6021,8 +6026,9 @@
         <span class="brep-card-note">최근 3일 vs 평소</span>
         <span class="brep-card-count ${items.length?'is-hot':''}">${items.length}</span>
       </div>`;
+    const hint=`<div class="brep-hint"><b>×N</b> = 평소보다 N배 빠르게 팔리는 중 · 최근 3일 판매속도 ÷ 이전 27일 판매속도</div>`;
     if(!items.length){
-      return `<div class="brep-card">${head}<div class="brep-empty"><b>급상승 아이템 없음</b>평소 대비 2배 이상 팔린 상품이 없습니다</div></div>`;
+      return `<div class="brep-card">${head}${hint}<div class="brep-empty"><b>급상승 아이템 없음</b>평소 대비 2배 이상 팔린 상품이 없습니다</div></div>`;
     }
     const rows=items.map((h,i)=>{
       const big = h.isNew ? `<span class="brep-qty" style="font-size:15px">NEW</span>`
@@ -6034,7 +6040,7 @@
         right:big,
       });
     }).join('');
-    return `<div class="brep-card">${head}<div class="brep-rows">${rows}</div></div>`;
+    return `<div class="brep-card">${head}${hint}<div class="brep-rows">${rows}</div></div>`;
   }
 
   /* ===== 브랜드별 판매 순위 TOP 10 — 식스샵 통계 (홈 최상단 패널) =====
