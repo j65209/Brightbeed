@@ -2333,6 +2333,14 @@
   .sub-module.m-brep-akoi .sub-module-tag{color:#f472b6;border-color:rgba(244,114,182,.45)}
   .sub-module.m-brep-koz  {--m-color:#14b8a6;--m-border:rgba(20,184,166,.45)}
   .sub-module.m-brep-koz  .sub-module-tag{color:#14b8a6;border-color:rgba(20,184,166,.45)}
+  .sub-module.m-brep-6a   {--m-color:#22d3ee;--m-border:rgba(34,211,238,.45)}
+  .sub-module.m-brep-6a   .sub-module-tag{color:#22d3ee;border-color:rgba(34,211,238,.45)}
+  .sub-module.m-brep-kop  {--m-color:#818cf8;--m-border:rgba(129,140,248,.45)}
+  .sub-module.m-brep-kop  .sub-module-tag{color:#818cf8;border-color:rgba(129,140,248,.45)}
+  .sub-module.m-brep-yar  {--m-color:#a78bfa;--m-border:rgba(167,139,250,.45)}
+  .sub-module.m-brep-yar  .sub-module-tag{color:#a78bfa;border-color:rgba(167,139,250,.45)}
+  .sub-module.m-brep-apt  {--m-color:#fb7185;--m-border:rgba(251,113,133,.45)}
+  .sub-module.m-brep-apt  .sub-module-tag{color:#fb7185;border-color:rgba(251,113,133,.45)}
 
   /* ===== 브랜드 리포트 (viewBrandReport) — 어제 TOP10 / 리오더 / 급상승 ===== */
   .brep-wrap{max-width:1420px;margin:0 auto;padding:4px 18px 60px}
@@ -2351,6 +2359,10 @@
   .brep-date{font-size:13px;font-weight:700;color:var(--text-1)}
   .brep-date b{font-family:var(--mono)}
   .brep-stamp{font-size:11px;color:var(--text-3)}
+  .brep-channels{
+    font-size:11px;font-weight:700;color:var(--text-2);
+    padding:3px 9px;border-radius:999px;background:var(--bg-3);
+  }
   .brep-refresh{
     margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;cursor:pointer;
     background:var(--bg-1);border:1px solid var(--line);border-radius:7px;
@@ -2387,6 +2399,10 @@
   .brep-card-count.is-alert{background:#dc2626;color:#fff}
   .brep-card-count.is-hot{background:var(--neon-2);color:#fff}
   .brep-rows{padding:5px}
+  .brep-notebar{
+    display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:11px;font-weight:600;
+    color:#b45309;background:rgba(245,158,11,.11);border-bottom:1px solid var(--line);
+  }
   .brep-empty{padding:26px 16px;text-align:center;font-size:12px;color:var(--text-3)}
   .brep-empty b{display:block;font-size:13px;color:var(--text-2);margin-bottom:3px}
 
@@ -4406,6 +4422,16 @@
         <span class="folder-meta">어제 TOP10 · 리오더 · 급상승 <b>한 페이지</b></span>
       </div>
       <div class="sub-modules">
+        <div class="sub-module m-brep m-brep-6a" onclick="triggerBrandReport('6a')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22d3ee;box-shadow:0 0 12px rgba(34,211,238,.7)"></span></div>
+          <div class="sub-module-title">식스에이</div>
+          <div class="sub-module-tag">LIVE</div>
+        </div>
+        <div class="sub-module m-brep m-brep-kop" onclick="triggerBrandReport('kop')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#818cf8;box-shadow:0 0 12px rgba(129,140,248,.7)"></span></div>
+          <div class="sub-module-title">코페리</div>
+          <div class="sub-module-tag">LIVE</div>
+        </div>
         <div class="sub-module m-brep m-brep-ct" onclick="triggerBrandReport('ct')">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span></div>
           <div class="sub-module-title">클리어타입</div>
@@ -4424,6 +4450,16 @@
         <div class="sub-module m-brep m-brep-koz" onclick="triggerBrandReport('koz')">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#14b8a6;box-shadow:0 0 12px rgba(20,184,166,.7)"></span></div>
           <div class="sub-module-title">코즈미</div>
+          <div class="sub-module-tag">LIVE</div>
+        </div>
+        <div class="sub-module m-brep m-brep-yar" onclick="triggerBrandReport('yar')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#a78bfa;box-shadow:0 0 12px rgba(167,139,250,.7)"></span></div>
+          <div class="sub-module-title">야르</div>
+          <div class="sub-module-tag">LIVE</div>
+        </div>
+        <div class="sub-module m-brep m-brep-apt" onclick="triggerBrandReport('apt')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#fb7185;box-shadow:0 0 12px rgba(251,113,133,.7)"></span></div>
+          <div class="sub-module-title">아페티</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
       </div>
@@ -5764,12 +5800,16 @@
      proxy /sx/report?brand=X → out/report_{brand}.json (30분 launchd 캐시).
      한 페이지에 어제 TOP10 / 리오더 필요 / 급상승 핫 아이템 세 섹션. */
   const BREP_BRANDS=[
+    {key:'6a',   display:'식스에이',     dot:'#22d3ee'},
+    {key:'kop',  display:'코페리',       dot:'#818cf8'},
     {key:'ct',   display:'클리어타입',   dot:'#22c55e'},
     {key:'pp',   display:'프로덕트피알', dot:'#f59e0b'},
     {key:'akoi', display:'AkoiHaus',    dot:'#f472b6'},
     {key:'koz',  display:'코즈미',       dot:'#14b8a6'},
+    {key:'yar',  display:'야르',         dot:'#a78bfa'},
+    {key:'apt',  display:'아페티',       dot:'#fb7185'},
   ];
-  let _brepBrand='ct';
+  let _brepBrand='6a';
   const _brepCache={};
   let _brepBusy=false;
 
@@ -5822,7 +5862,7 @@
     if(!body) return;
     if(!force && _brepCache[k]){ brepRender(_brepCache[k]); return; }
     _brepBusy=true;
-    body.innerHTML=`<div class="brep-card"><div class="brep-empty">불러오는 중…</div></div>`;
+    body.innerHTML=`<div class="brep-card"><div class="brep-empty">${force?'주문 집계 중… 최대 1분 걸릴 수 있어요':'불러오는 중…'}</div></div>`;
     try{
       if(force){ try{ await sxFetch('/report?brand='+k,{method:'POST'}); }catch(e){} }
       const r=await sxFetch('/report?brand='+k,{method:'GET'});
@@ -5873,9 +5913,15 @@
         </div>
       </div>`;
 
+    const ch=(d.channels||[]).filter(c=>Number(c.orders)>0);
+    const chTxt = ch.length>1
+      ? ch.map(c=>`${_brepEsc(c.label)} ${Number(c.orders).toLocaleString()}건`).join(' · ')
+      : '';
+
     const bar=`
       <div class="brep-bar">
         <span class="brep-date">기준일 <b>${_brepEsc(_brepDate(d.dates&&d.dates.yesterday))}</b></span>
+        ${chTxt?`<span class="brep-channels">${chTxt}</span>`:''}
         <span class="brep-stamp">${d.fetchedAt?new Date(d.fetchedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 갱신':''}</span>
         <button class="brep-refresh" onclick="brepRefresh()" ${_brepBusy?'disabled':''}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -5914,8 +5960,12 @@
         <span class="brep-card-note">TOP 10</span>
         <span class="brep-card-count">${items.length}</span>
       </div>`;
+    const note=d.topNote?`<div class="brep-notebar">ℹ️ ${_brepEsc(d.topNote)}</div>`:'';
     if(!items.length){
-      return `<div class="brep-card">${head}<div class="brep-empty"><b>어제 판매 없음</b>${_brepEsc(_brepDate(d.dates&&d.dates.yesterday))}에 판매된 상품이 없습니다</div></div>`;
+      const why=d.topNote
+        ? `${_brepEsc(_brepDate(d.dates&&d.dates.yesterday))} 자사몰 주문이 없습니다`
+        : `${_brepEsc(_brepDate(d.dates&&d.dates.yesterday))}에 판매된 상품이 없습니다`;
+      return `<div class="brep-card">${head}${note}<div class="brep-empty"><b>어제 판매 없음</b>${why}</div></div>`;
     }
     const rows=items.map(t=>{
       const dl=t.delta;
@@ -5930,7 +5980,7 @@
         right:`<span class="brep-qty">${(Number(t.count)||0).toLocaleString()}<small>개</small></span>`,
       });
     }).join('');
-    return `<div class="brep-card">${head}<div class="brep-rows">${rows}</div></div>`;
+    return `<div class="brep-card">${head}${note}<div class="brep-rows">${rows}</div></div>`;
   }
 
   function brepCardReorder(d){
