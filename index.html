@@ -5914,7 +5914,7 @@
       </div>`;
 
     const ch=(d.channels||[]).filter(c=>Number(c.orders)>0);
-    const chTxt = ch.length>1
+    const chTxt = ch.some(c=>c.id!=='commerce')
       ? ch.map(c=>`${_brepEsc(c.label)} ${Number(c.orders).toLocaleString()}건`).join(' · ')
       : '';
 
@@ -5962,10 +5962,11 @@
       </div>`;
     const note=d.topNote?`<div class="brep-notebar">ℹ️ ${_brepEsc(d.topNote)}</div>`:'';
     if(!items.length){
-      const why=d.topNote
-        ? `${_brepEsc(_brepDate(d.dates&&d.dates.yesterday))} 자사몰 주문이 없습니다`
-        : `${_brepEsc(_brepDate(d.dates&&d.dates.yesterday))}에 판매된 상품이 없습니다`;
-      return `<div class="brep-card">${head}${note}<div class="brep-empty"><b>어제 판매 없음</b>${why}</div></div>`;
+      const day=_brepEsc(_brepDate(d.dates&&d.dates.yesterday));
+      const [title,why]=d.topNote
+        ? ['자사몰 판매 없음',`${day} 자사몰 주문이 없어 상품별 순위를 낼 수 없습니다`]
+        : ['어제 판매 없음',`${day}에 판매된 상품이 없습니다`];
+      return `<div class="brep-card">${head}${note}<div class="brep-empty"><b>${title}</b>${why}</div></div>`;
     }
     const rows=items.map(t=>{
       const dl=t.delta;
