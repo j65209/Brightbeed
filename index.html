@@ -5959,30 +5959,40 @@
 
   function brepCardTop(d){
     const items=d.yesterdayTop10||[];
+    const is30=d.topSource==='30days';
+    const title=is30?'최근 30일 잘 팔린 제품':'어제 제일 잘 팔린 제품';
     const head=`<div class="brep-card-head">
         <span class="brep-card-ico">🏆</span>
-        <span class="brep-card-title">어제 제일 잘 팔린 제품</span>
+        <span class="brep-card-title">${title}</span>
         <span class="brep-card-note">TOP 10</span>
         <span class="brep-card-count">${items.length}</span>
       </div>`;
     const note=d.topNote?`<div class="brep-notebar">ℹ️ ${_brepEsc(d.topNote)}</div>`:'';
     if(!items.length){
       const day=_brepEsc(_brepDate(d.dates&&d.dates.yesterday));
-      const [title,why]=d.topNote
+      const [t,why]=d.topNote
         ? ['자사몰 판매 없음',`${day} 자사몰 주문이 없어 상품별 순위를 낼 수 없습니다`]
         : ['어제 판매 없음',`${day}에 판매된 상품이 없습니다`];
-      return `<div class="brep-card">${head}${note}<div class="brep-empty"><b>${title}</b>${why}</div></div>`;
+      return `<div class="brep-card">${head}${note}<div class="brep-empty"><b>${t}</b>${why}</div></div>`;
     }
     const rows=items.map(t=>{
-      const dl=t.delta;
-      const deltaChip = t.prevCount===0
-        ? `<span class="brep-chip up">신규 진입</span>`
-        : (dl>0?`<span class="brep-chip up">▲ ${dl}</span>`
-              : dl<0?`<span class="brep-chip down">▼ ${Math.abs(dl)}</span>`
-                    :`<span class="brep-chip">전일과 동일</span>`);
+      let sub;
+      if(is30){
+        const y=Number(t.soldYesterday)||0;
+        const yChip = y>0?`<span class="brep-chip up">어제 ${y}개</span>`:`<span class="brep-chip">어제 판매 없음</span>`;
+        sub=`${yChip}<span class="brep-chip">7일 ${Number(t.sold7d)||0}개</span>${_brepStock(t.stock)}`;
+      }else{
+        const dl=t.delta;
+        const deltaChip = t.prevCount===0
+          ? `<span class="brep-chip up">신규 진입</span>`
+          : (dl>0?`<span class="brep-chip up">▲ ${dl}</span>`
+                : dl<0?`<span class="brep-chip down">▼ ${Math.abs(dl)}</span>`
+                      :`<span class="brep-chip">전일과 동일</span>`);
+        sub=`${deltaChip}${_brepStock(t.stock)}${t.amount?`<span class="brep-chip">${_brepWon(t.amount).replace(/<\/?small>/g,'')}</span>`:''}`;
+      }
       return _brepRow({
         rank:t.rank, top:t.rank<=3, name:t.name, thumb:t.thumb, url:t.url,
-        sub:`${deltaChip}${_brepStock(t.stock)}${t.amount?`<span class="brep-chip">${_brepWon(t.amount).replace(/<\/?small>/g,'')}</span>`:''}`,
+        sub,
         right:`<span class="brep-qty">${(Number(t.count)||0).toLocaleString()}<small>개</small></span>`,
       });
     }).join('');
