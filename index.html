@@ -2721,14 +2721,44 @@
   .pc-radio-row label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-1);cursor:pointer;font-weight:600}
   .pc-radio-row input[type=radio]{accent-color:#06b6d4;cursor:pointer;width:15px;height:15px}
 
-  /* Result column highlights (플랫폼최저가/공홈판매가/공홈+3500) */
-  .pc-result-table th.pc-col-platmin,.pc-result-table td.pc-col-platmin{background:rgba(6,182,212,.10);color:#0e7490}
-  .pc-result-table th.pc-col-homesale,.pc-result-table td.pc-col-homesale{background:rgba(168,85,247,.10);color:#7e22ce}
-  .pc-result-table th.pc-col-homeplus,.pc-result-table td.pc-col-homeplus{background:rgba(245,158,11,.10);color:#a16207}
-  .pc-result-table thead th.pc-col-platmin{background:rgba(6,182,212,.20)}
-  .pc-result-table thead th.pc-col-homesale{background:rgba(168,85,247,.20)}
-  .pc-result-table thead th.pc-col-homeplus{background:rgba(245,158,11,.20)}
+  /* Result column highlights (플랫폼최저가/공홈판매가/공홈+3500) - CSS 변수로 사용자 색상 지정 가능 */
+  :root{
+    --pc-col1: #0e7490;
+    --pc-col1-bg: rgba(6,182,212,.10);
+    --pc-col1-hdr: rgba(6,182,212,.20);
+    --pc-col2: #7e22ce;
+    --pc-col2-bg: rgba(168,85,247,.10);
+    --pc-col2-hdr: rgba(168,85,247,.20);
+    --pc-col3: #a16207;
+    --pc-col3-bg: rgba(245,158,11,.10);
+    --pc-col3-hdr: rgba(245,158,11,.20);
+  }
+  .pc-result-table th.pc-col-platmin,.pc-result-table td.pc-col-platmin{background:var(--pc-col1-bg);color:var(--pc-col1)}
+  .pc-result-table th.pc-col-homesale,.pc-result-table td.pc-col-homesale{background:var(--pc-col2-bg);color:var(--pc-col2)}
+  .pc-result-table th.pc-col-homeplus,.pc-result-table td.pc-col-homeplus{background:var(--pc-col3-bg);color:var(--pc-col3)}
+  .pc-result-table thead th.pc-col-platmin{background:var(--pc-col1-hdr)}
+  .pc-result-table thead th.pc-col-homesale{background:var(--pc-col2-hdr)}
+  .pc-result-table thead th.pc-col-homeplus{background:var(--pc-col3-hdr)}
   .pc-result-table tr.violate td.pc-col-platmin,.pc-result-table tr.violate td.pc-col-homesale,.pc-result-table tr.violate td.pc-col-homeplus{background:rgba(220,38,38,.14);color:#991b1b}
+
+  /* Recommended 세팅가 셀 (클릭으로 세팅가에 적용) */
+  .pc-req-cell{cursor:pointer;transition:filter .12s}
+  .pc-req-cell:hover{filter:brightness(0.94)}
+  .pc-req-val{font-weight:800;font-size:13px}
+  .pc-req-target{font-size:10px;opacity:.7;margin-top:1px}
+  .pc-req-none{font-size:11px;opacity:.55;font-style:italic}
+
+  /* 컬러 피커 */
+  .pc-color-row{display:flex;gap:14px;flex-wrap:wrap;padding:4px 0}
+  .pc-color-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-2);font-weight:600}
+  .pc-color-item input[type=color]{
+    width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;background:none;cursor:pointer
+  }
+  .pc-color-reset{
+    background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;
+    font-size:11px;color:var(--text-2);cursor:pointer;font-family:inherit;transition:background .12s
+  }
+  .pc-color-reset:hover{background:var(--bg-2);color:var(--text-1)}
 
   /* ===== 이미지 배지 합성 도구 ===== */
   .bdg-wrap{max-width:1040px;margin:0 auto;padding:8px 18px 32px;display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
@@ -5812,6 +5842,16 @@
 
           <div class="pc-cond-col">
             <div class="pc-field">
+              <div class="pc-field-label">기준가 컬럼 색상 (셀프 지정)</div>
+              <div class="pc-color-row">
+                <label class="pc-color-item">플랫폼 최저가 <input type="color" id="pcColor1" value="#06b6d4" oninput="pcOnColorChange(1)"></label>
+                <label class="pc-color-item">공홈 판매가 <input type="color" id="pcColor2" value="#a855f7" oninput="pcOnColorChange(2)"></label>
+                <label class="pc-color-item">공홈+3,500 <input type="color" id="pcColor3" value="#f59e0b" oninput="pcOnColorChange(3)"></label>
+                <button class="pc-color-reset" onclick="pcResetColors()">기본값</button>
+              </div>
+              <div class="pc-field-hint">결과 테이블의 3개 기준가 컬럼 색상을 직접 지정</div>
+            </div>
+            <div class="pc-field">
               <div class="pc-field-label">기획전 조건 텍스트</div>
               <textarea id="pcCondText" class="pc-input pc-textarea" placeholder="예: 에이블리 여름 세일 · 카테고리 전 상품 5% 즉시할인 · 브랜드 쿠폰 10%" oninput="pcSaveConditions()"></textarea>
               <div class="pc-field-hint">자유 서식 메모</div>
@@ -5841,6 +5881,8 @@
           <div class="pc-empty">위에서 상품을 선택하면 계산 결과가 여기에 표시됩니다.</div>
         </div>
         <div class="pc-note">
+          <b>이 표의 목적</b>: 모든 쿠폰(A+B) 적용했을 때 목표가(플랫폼 최저가/공홈 판매가/공홈+3,500)와 <b>같거나 그 이상</b>이 되려면 세팅가가 얼마여야 하는지 역산.<br>
+          <br>
           <b>계산 공식</b><br>
           · 세팅가(제출가) = 사장님이 각 상품별 입력 (기본값 = 플랫폼 최저가)<br>
           · 에이블리 쿠폰 할인 (A) = 세팅가에 맞는 tier(최소 주문금액 만족 최상위) 자동 적용<br>
@@ -5850,6 +5892,7 @@
           · 에이블리 지원금 = (A + B) − 셀러 쿠폰 부담금<br>
           · 수수료 = 실매출 × 27.5% <span style="color:var(--text-3)">(실매출 = 세팅가 − min(A×½, 세팅가×5%) − B)</span><br>
           · 최종 이익 = 실매출 − 2,699원 − 수수료<br>
+          · <b>3개 기준가 컬럼</b> = "이 기준을 하회하지 않으려면 필요한 세팅가" (클릭하면 세팅가에 적용). 아래 작은 글씨는 원래 기준가.<br>
           · <span style="color:#dc2626;font-weight:700">빨간 행</span> = 쿠폰 적용가 &lt; 플랫폼 최저가 (플랫폼 최저가 위반 위험)
         </div>
       </div>
@@ -13919,6 +13962,7 @@
 
   async function pcInit(){
     pcRestoreConditions();
+    pcRestoreColors();
     const s=window._pcv2;
     if(!s.primaryTiers.length) s.primaryTiers.push({minOrder:'',type:'pct',value:'',maxDisc:''});
     if(!s.dupTiers.length)     s.dupTiers.push({minOrder:'',type:'pct',value:'',maxDisc:''});
@@ -14193,6 +14237,97 @@
     if(disc>base) disc=base;
     return Math.max(0,disc);
   }
+  function _pcReqCellHtml(req, target){
+    if(!target||target<=0) return '<div class="pc-req-none">기준가 없음</div>';
+    if(!req) return `<div class="pc-req-none">해 없음</div><div class="pc-req-target">기준 ${_pcFmt(target)}</div>`;
+    return `<div class="pc-req-val">${_pcFmt(req)}</div><div class="pc-req-target">기준 ${_pcFmt(target)}</div>`;
+  }
+
+  function pcApplyRecommended(cell){
+    const name=cell.dataset.name;
+    const req=parseInt(cell.dataset.req,10);
+    if(!name||!req||req<=0) return;
+    const s=window._pcv2;
+    s.settings[name]=req;
+    try{ localStorage.setItem(PC_LS.settings, JSON.stringify(s.settings)); }catch(e){}
+    pcCompute();
+  }
+
+  // --- 컬럼 색상 커스터마이제이션 ---
+  const PC_COLOR_LS='promoCalcV2_colors';
+  const PC_COLOR_DEFAULTS={col1:'#06b6d4', col2:'#a855f7', col3:'#f59e0b'};
+  function _pcHexToRgb(hex){
+    hex=(hex||'').replace('#','');
+    if(hex.length===3) hex=hex.split('').map(c=>c+c).join('');
+    const r=parseInt(hex.slice(0,2),16)||0;
+    const g=parseInt(hex.slice(2,4),16)||0;
+    const b=parseInt(hex.slice(4,6),16)||0;
+    return {r,g,b};
+  }
+  function _pcApplyOneColor(idx, hex){
+    const {r,g,b}=_pcHexToRgb(hex);
+    const root=document.documentElement;
+    root.style.setProperty(`--pc-col${idx}`, hex);
+    root.style.setProperty(`--pc-col${idx}-bg`, `rgba(${r},${g},${b},.10)`);
+    root.style.setProperty(`--pc-col${idx}-hdr`, `rgba(${r},${g},${b},.22)`);
+  }
+  function pcOnColorChange(idx){
+    const inp=document.getElementById('pcColor'+idx); if(!inp) return;
+    _pcApplyOneColor(idx, inp.value);
+    pcSaveColors();
+  }
+  function pcSaveColors(){
+    try{
+      const colors={
+        col1: document.getElementById('pcColor1')?.value || PC_COLOR_DEFAULTS.col1,
+        col2: document.getElementById('pcColor2')?.value || PC_COLOR_DEFAULTS.col2,
+        col3: document.getElementById('pcColor3')?.value || PC_COLOR_DEFAULTS.col3,
+      };
+      localStorage.setItem(PC_COLOR_LS, JSON.stringify(colors));
+    }catch(e){}
+  }
+  function pcRestoreColors(){
+    let colors={...PC_COLOR_DEFAULTS};
+    try{
+      const raw=localStorage.getItem(PC_COLOR_LS);
+      if(raw){ const c=JSON.parse(raw); if(c) colors={...colors, ...c}; }
+    }catch(e){}
+    ['col1','col2','col3'].forEach((k,i)=>{
+      const idx=i+1;
+      const inp=document.getElementById('pcColor'+idx);
+      if(inp) inp.value=colors[k];
+      _pcApplyOneColor(idx, colors[k]);
+    });
+  }
+  function pcResetColors(){
+    ['col1','col2','col3'].forEach((k,i)=>{
+      const idx=i+1;
+      const inp=document.getElementById('pcColor'+idx);
+      if(inp) inp.value=PC_COLOR_DEFAULTS[k];
+      _pcApplyOneColor(idx, PC_COLOR_DEFAULTS[k]);
+    });
+    pcSaveColors();
+  }
+
+  function _pcRequiredSetting(target, s){
+    // target가 있고 tier가 정의됐을 때, 모든 쿠폰 적용 후 결과가 target 이상이 되는 최소 세팅가 (100원 단위)
+    if(!target || target<=0) return 0;
+    const base=Math.ceil(target/100)*100;
+    const LIMIT=Math.max(base*3, 500000);
+    for(let setting=base; setting<=LIMIT; setting+=100){
+      const primTier=_pcMatchTier(s.primaryTiers, setting);
+      const primDisc=_pcTierDiscount(primTier, setting);
+      let dupDisc=0;
+      if(s.dupEnabled){
+        const afterPrim=Math.max(0, setting - primDisc);
+        const dupTier=_pcMatchTier(s.dupTiers, afterPrim);
+        dupDisc=_pcTierDiscount(dupTier, afterPrim);
+      }
+      if((setting - primDisc - dupDisc) >= target) return setting;
+    }
+    return 0; // 해 못 찾음
+  }
+
   function _pcCalcRow(p, setting, s){
     const primTier=_pcMatchTier(s.primaryTiers, setting);
     const primDisc=_pcTierDiscount(primTier, setting);
@@ -14265,6 +14400,10 @@
       const p=byName.get(name); if(!p) continue;
       const setting=_pcSettingFor(p);
       const r=_pcCalcRow(p, setting, s);
+      // 3개 기준가 각각에 대한 필요 세팅가 역산
+      r.reqPlatMin=_pcRequiredSetting(p.platformMin, s);
+      r.reqHomeSale=_pcRequiredSetting(p.homeSale, s);
+      r.reqHomePlus=_pcRequiredSetting(r.homePlus, s);
       if(r.violate) violates++;
       rows.push(r);
     }
@@ -14285,9 +14424,9 @@
               <th>할인되는 금액<br><small>에이블리 쿠폰 (A)</small></th>
               <th>중복쿠폰 할인금액<br><small>추가 쿠폰 (B)</small></th>
               <th>쿠폰 적용가<br><small>세팅가 − A − B</small></th>
-              <th class="pc-col-platmin">플랫폼 최저가<br><small>min(ably/zig/29w/쿠팡/스스)</small></th>
-              <th class="pc-col-homesale">공홈 판매가<br><small>G열</small></th>
-              <th class="pc-col-homeplus">공홈+3,500<br><small>배송비 포함</small></th>
+              <th class="pc-col-platmin">플랫폼 최저가 기준<br><small>필요 세팅가 (클릭 적용)</small></th>
+              <th class="pc-col-homesale">공홈 판매가 기준<br><small>필요 세팅가 (클릭 적용)</small></th>
+              <th class="pc-col-homeplus">공홈+3,500 기준<br><small>필요 세팅가 (클릭 적용)</small></th>
               <th>셀러 쿠폰 부담금<br><small>min(A×½, 세팅가5%)+B</small></th>
               <th>에이블리 지원금<br><small>(A+B) − 셀러부담</small></th>
               <th>수수료<br><small>실매출 × 27.5%</small></th>
@@ -14305,9 +14444,9 @@
                 <td>${_pcFmt(r.primDisc)}</td>
                 <td>${_pcFmt(r.dupDisc)}</td>
                 <td>${_pcFmt(r.applied)}</td>
-                <td class="pc-col-platmin">${_pcFmt(r.p.platformMin)}</td>
-                <td class="pc-col-homesale">${_pcFmt(r.p.homeSale)}</td>
-                <td class="pc-col-homeplus">${_pcFmt(r.homePlus)}</td>
+                <td class="pc-col-platmin pc-req-cell" data-name="${_pcEsc(r.p.name)}" data-req="${r.reqPlatMin}" onclick="pcApplyRecommended(this)">${_pcReqCellHtml(r.reqPlatMin, r.p.platformMin)}</td>
+                <td class="pc-col-homesale pc-req-cell" data-name="${_pcEsc(r.p.name)}" data-req="${r.reqHomeSale}" onclick="pcApplyRecommended(this)">${_pcReqCellHtml(r.reqHomeSale, r.p.homeSale)}</td>
+                <td class="pc-col-homeplus pc-req-cell" data-name="${_pcEsc(r.p.name)}" data-req="${r.reqHomePlus}" onclick="pcApplyRecommended(this)">${_pcReqCellHtml(r.reqHomePlus, r.homePlus)}</td>
                 <td>${_pcFmt(r.sellerBurden)}</td>
                 <td>${_pcFmt(r.ablySupport)}</td>
                 <td>${_pcFmt(r.fee)}</td>
@@ -14373,6 +14512,9 @@
   window.pcRemoveDupTier=pcRemoveDupTier;
   window.pcUpdateDupTier=pcUpdateDupTier;
   window.pcSetDupEnabled=pcSetDupEnabled;
+  window.pcApplyRecommended=pcApplyRecommended;
+  window.pcOnColorChange=pcOnColorChange;
+  window.pcResetColors=pcResetColors;
 
   init();
 </script>
