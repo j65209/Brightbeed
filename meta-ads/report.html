@@ -857,9 +857,42 @@
     if (!data) return;
     const s = getCurrentSummary();
     const targetRoas = data.target_roas || 2.0;
-    const roasPct = Math.round((s.roas / targetRoas) * 100);
-    const roasCls = s.roas>=targetRoas ? 'ok' : s.roas>=1 ? 'warn' : 'err';
     const activeCount = data.active_campaign_count ?? (data.campaigns||[]).filter(c => c.is_active).length;
+
+    // ── 자사몰 ROAS 우선, FB Pixel ROAS 서브
+    const sixshopAvail = !!s.sixshop_available;
+    const displayRoas   = sixshopAvail ? (s.sixshop_roas || 0) : (s.roas || 0);
+    const displayRev    = sixshopAvail ? (s.sixshop_revenue || 0) : (s.purchase_value || 0);
+    const displayOrders = sixshopAvail ? (s.sixshop_orders || 0) : (s.purchases || 0);
+    const displayCpa    = sixshopAvail && s.sixshop_cpa ? s.sixshop_cpa : s.cpa;
+
+    const roasPct = Math.round((displayRoas / targetRoas) * 100);
+    const roasCls = displayRoas >= targetRoas ? 'ok' : displayRoas >= 1 ? 'warn' : 'err';
+
+    // FB Pixel ROAS 서브 뱃지 (자사몰 데이터 있을 때만 병기)
+    const fbRoasBadgeCls = s.roas >= 2 ? 'ok' : s.roas >= 1 ? 'warn' : 'err';
+    const fbRoasSubHtml = sixshopAvail
+      ? `<div style="margin-top:5px;display:flex;align-items:center;gap:5px">
+           <span style="font-size:10px;color:var(--muted)">FB Pixel</span>
+           <span class="mini-roas ${fbRoasBadgeCls}">${fmt.dec(s.roas)}</span>
+         </div>`
+      : '';
+
+    // 자사몰 매출 KRW 병기
+    const sixshopRevKrw = s.sixshop_revenue_krw || 0;
+    const revSubHtml = sixshopAvail
+      ? `<div style="display:flex;flex-direction:column;gap:2px">
+           <div><span style="font-size:10px;color:var(--muted)">₩${(sixshopRevKrw||0).toLocaleString('en-US')}</span></div>
+           <div><span style="font-size:10px;color:var(--muted)">FB픽셀 ${fmt.money(s.purchase_value)}</span></div>
+         </div>`
+      : `<span style="font-size:11px;color:var(--muted)">FB픽셀 기준</span>`;
+
+    // 자사몰 데이터 없을 때 안내
+    const noSixshopNote = !sixshopAvail
+      ? `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:6px 10px;font-size:11px;color:#fbbf24;margin-bottom:10px">
+           ⚠ 이 기간은 자사몰 매출 데이터를 지원하지 않습니다 — FB Pixel 기준으로 표시됩니다.
+         </div>`
+      : '';
 
     // 기간 라벨
     let periodLabel = '';
@@ -870,24 +903,43 @@
       periodLabel = meta ? `${meta.label} (${meta.since} ~ ${meta.until})` : currentPeriod;
     }
 
+    const roasLabelHtml = sixshopAvail
+      ? `<div class="label">ROAS <span class="label-ko">자사몰 실매출 기준</span></div>`
+      : `<div class="label">ROAS <span class="label-ko">FB Pixel 기준</span></div>`;
+
+    const revLabelHtml = sixshopAvail
+      ? `<div class="label">매출 <span class="label-ko">자사몰 실매출</span></div>`
+      : `<div class="label">매출 <span class="label-ko">FB Pixel</span></div>`;
+
+    const cpaLabelHtml = sixshopAvail
+      ? `<div class="label">구매당 비용 <span class="label-ko">자사몰 주문 기준</span></div>`
+      : `<div class="label">구매당 가격</div>`;
+
     const kpiEl = el('kpiCards');
     if (kpiEl) kpiEl.innerHTML = `
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px">📅 ${periodLabel}</div>
+      ${noSixshopNote}
       <div class="kpi-grid hero">
         <div class="kpi hero ${roasCls}">
-          <div class="label">ROAS</div>
-          <div class="value">${fmt.dec(s.roas)}</div>
+          ${roasLabelHtml}
+          <div class="value">${fmt.dec(displayRoas)}</div>
           <div class="roas-target">목표 <b>${targetRoas.toFixed(1)}</b> 대비 <b>${roasPct}%</b></div>
+          ${fbRoasSubHtml}
         </div>
         <div class="kpi hero emph">
-          <div class="label">구매당 가격</div>
-          <div class="value">${fmt.money(s.cpa)}</div>
-          <div class="sub">구매 ${fmt.int(s.purchases)}건</div>
+          ${cpaLabelHtml}
+          <div class="value">${displayCpa ? fmt.money(displayCpa) : '—'}</div>
+          <div class="sub">주문 ${fmt.int(displayOrders)}건</div>
         </div>
         <div class="kpi hero emph">
           <div class="label">지출</div>
           <div class="value">${fmt.money(s.spend)}</div>
-          <div class="sub">매출 ${fmt.money(s.purchase_value)} · ${activeCount}개 집행중</div>
+          <div class="sub">${activeCount}개 집행중</div>
+        </div>
+        <div class="kpi hero emph">
+          ${revLabelHtml}
+          <div class="value">${fmt.money(displayRev)}</div>
+          <div class="sub">${revSubHtml}</div>
         </div>
       </div>`;
 
@@ -969,7 +1021,13 @@
         const meta = periodMeta[currentPeriod];
         const psum = (data.summaries_by_period || {})[currentPeriod];
         if (meta && psum) {
-          infoBar.innerHTML = `📅 <b>${meta.label}</b> (${meta.since} ~ ${meta.until}) · 지출 <b>${fmt.money(psum.spend)}</b> · 매출 <b>${fmt.money(psum.purchase_value)}</b> · ROAS <b>${fmt.dec(psum.roas)}</b> · 구매 ${fmt.int(psum.purchases)}건`;
+          const sixAvail = !!psum.sixshop_available;
+          const dispRev  = sixAvail ? psum.sixshop_revenue : psum.purchase_value;
+          const dispRoas = sixAvail ? psum.sixshop_roas    : psum.roas;
+          const dispOrds = sixAvail ? psum.sixshop_orders  : psum.purchases;
+          const revLabel = sixAvail ? '자사몰매출' : 'FB픽셀매출';
+          const roasLabel = sixAvail ? '자사몰ROAS' : 'ROAS';
+          infoBar.innerHTML = `📅 <b>${meta.label}</b> (${meta.since} ~ ${meta.until}) · 지출 <b>${fmt.money(psum.spend)}</b> · ${revLabel} <b>${fmt.money(dispRev)}</b> · ${roasLabel} <b>${fmt.dec(dispRoas)}</b> · 주문 ${fmt.int(dispOrds)}건`;
         } else { infoBar.innerHTML = ''; }
       }
     }
