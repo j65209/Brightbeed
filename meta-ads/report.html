@@ -34,15 +34,56 @@
   .status-banner.err { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.4); color:#f87171; display:flex }
 
   /* KPI cards */
-  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:24px }
+  .kpi-section-title { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; font-weight:700; margin:6px 0 8px }
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px }
+  .kpi-grid.hero { grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-bottom:18px }
   .kpi { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow) }
+  .kpi.hero { padding:18px 20px; border-radius:12px }
   .kpi .label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; font-weight:600 }
+  .kpi.hero .label { font-size:12px }
   .kpi .value { font-size:22px; font-weight:800; letter-spacing:-.5px; color:var(--text) }
+  .kpi.hero .value { font-size:30px }
   .kpi .sub { font-size:11px; color:var(--muted); margin-top:3px }
+  .kpi.hero .sub { font-size:12px; margin-top:5px }
   .kpi.ok .value { color:var(--ok) }
   .kpi.warn .value { color:var(--warn) }
   .kpi.err .value { color:var(--err) }
   .kpi.emph { border-color:rgba(79,124,255,.4); background:linear-gradient(180deg, rgba(79,124,255,.08), var(--panel)) }
+  .kpi.spend-today { border-color:rgba(34,211,238,.4); background:linear-gradient(180deg, rgba(34,211,238,.08), var(--panel)) }
+  .kpi.spend-yesterday { border-color:rgba(139,145,158,.35); background:linear-gradient(180deg, rgba(139,145,158,.06), var(--panel)) }
+
+  /* Filter bar */
+  .filter-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap }
+  .filter-bar .left { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--muted) }
+  .toggle { display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border:1px solid var(--border); border-radius:999px; background:var(--panel-2); cursor:pointer; font-size:12px; color:var(--text); user-select:none }
+  .toggle input { appearance:none; width:32px; height:18px; background:var(--border); border-radius:999px; position:relative; cursor:pointer; transition:background .18s }
+  .toggle input::after { content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .18s }
+  .toggle input:checked { background:var(--accent) }
+  .toggle input:checked::after { transform:translateX(14px) }
+
+  /* Status badge inside table */
+  .status-badge { display:inline-block; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:700; margin-left:6px; vertical-align:middle }
+  .status-badge.active { background:rgba(34,197,94,.18); color:var(--ok) }
+  .status-badge.paused { background:rgba(139,145,158,.18); color:var(--muted) }
+
+  /* Ads tooltip (fixed positioning so it escapes table overflow) */
+  .campaign-name-wrap { display:inline-block; max-width:100%; }
+  .has-ads { cursor:help }
+  .has-ads::after { content:'💬'; font-size:10px; margin-left:5px; opacity:.55 }
+  #adsFloatingTip {
+    display:none;
+    position:fixed;
+    z-index:9999;
+    min-width:260px; max-width:420px;
+    background:#0f1524; border:1px solid var(--accent);
+    border-radius:8px; padding:10px 12px;
+    box-shadow:0 12px 30px rgba(0,0,0,.55);
+    white-space:normal; color:var(--text); font-size:12px; line-height:1.5;
+    pointer-events:none;
+  }
+  #adsFloatingTip .tip-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; font-weight:700; margin-bottom:6px; border-bottom:1px solid var(--border); padding-bottom:5px }
+  #adsFloatingTip .tip-item { padding:3px 0; color:var(--text); font-weight:500 }
+  #adsFloatingTip .tip-empty { color:var(--muted); font-style:italic }
 
   /* Sections */
   section { margin-bottom:28px }
@@ -109,6 +150,7 @@
     <div class="center"><div class="spinner"></div><div style="margin-top:12px">데이터 로딩 중…</div></div>
   </div>
 </div>
+<div id="adsFloatingTip"></div>
 
 <script>
   const params = new URLSearchParams(location.search);
@@ -117,10 +159,9 @@
   const el = id => document.getElementById(id);
 
   const fmt = {
-    money: (v, cur='') => {
-      const minor = ['USD','EUR','GBP','CAD','AUD','SGD','HKD'].includes(cur);
-      return v.toLocaleString('en-US', { minimumFractionDigits: minor?2:0, maximumFractionDigits: minor?2:0 }) + (cur?' '+cur:'');
-    },
+    // 사장님 요청: 모두 달러 표시
+    money: (v) => '$' + (v||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    moneyBig: (v) => '$' + (v||0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
     int: v => (v||0).toLocaleString('en-US'),
     pct: v => (v||0).toFixed(2) + '%',
     dec: (v,n=2) => (v||0).toFixed(n),
@@ -141,38 +182,84 @@
     } catch { return iso }
   }
 
+  // 전역: active-only 필터 상태
+  let showActiveOnly = true;
+  let lastRenderedData = null;
+
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
   function render(data){
+    lastRenderedData = data;
     const acct = data.account || {};
-    const cur = acct.currency || '';
     const s = data.summary || {};
     const fb = data.feedback || {};
+    const today = data.today || {};
+    const yesterday = data.yesterday || {};
+    const currency = acct.currency || '';
+
+    const activeCount = data.active_campaign_count ?? (data.campaigns||[]).filter(c => c.is_active).length;
 
     el('brandName').textContent = `${data.brand_name || acct.name || brand} · 메타 광고 분석 리포트`;
     el('periodInfo').innerHTML = `📅 <b>${data.period?.label || '-'}</b> · ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
     el('generatedInfo').innerHTML = `🕐 생성 ${fmtDate(data.generated_at)}`;
 
-    // Status banner
+    // Status banner: 계정 상태 or 화폐 환기
+    const bannerLines = [];
     if (acct.status_code && acct.status_code !== 1) {
-      const banner = el('statusBanner');
       const cls = [101, 100, 2].includes(acct.status_code) ? 'err' : 'warn';
+      const banner = el('statusBanner');
       banner.className = 'status-banner ' + cls;
       banner.innerHTML = `⚠ 계정 상태: <b>${acct.status_label}</b> (코드 ${acct.status_code}) — 결제 정보 점검 권장`;
     }
 
     const html = [];
 
-    // KPI cards
-    html.push(`<section><div class="kpi-grid">
-      <div class="kpi emph"><div class="label">지출</div><div class="value">${fmt.money(s.spend, cur)}</div><div class="sub">${data.campaigns.length}개 캠페인</div></div>
-      <div class="kpi emph"><div class="label">매출</div><div class="value">${fmt.money(s.purchase_value, cur)}</div><div class="sub">구매 ${fmt.int(s.purchases)}건</div></div>
-      <div class="kpi ${s.roas>=2?'ok':s.roas>=1?'warn':'err'}"><div class="label">ROAS</div><div class="value">${fmt.dec(s.roas)}</div><div class="sub">1$ 당 매출</div></div>
+    // === 오늘 · 어제 (hero) ===
+    html.push(`<div class="kpi-section-title">🕐 실시간 지출</div>`);
+    html.push(`<div class="kpi-grid hero">
+      <div class="kpi hero spend-today">
+        <div class="label">오늘 지출 (KST)</div>
+        <div class="value">${fmt.money(today.spend)}</div>
+        <div class="sub">구매 ${fmt.int(today.purchases)}건 · 매출 ${fmt.money(today.purchase_value)} · ROAS ${fmt.dec(today.roas)}</div>
+      </div>
+      <div class="kpi hero spend-yesterday">
+        <div class="label">어제 지출</div>
+        <div class="value">${fmt.money(yesterday.spend)}</div>
+        <div class="sub">구매 ${fmt.int(yesterday.purchases)}건 · 매출 ${fmt.money(yesterday.purchase_value)} · ROAS ${fmt.dec(yesterday.roas)}</div>
+      </div>
+    </div>`);
+
+    // === 핵심 지표: ROAS · CPA · 지출 (기간 요약, 우선순위 카드) ===
+    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.label || ''}</div>`);
+    html.push(`<div class="kpi-grid hero">
+      <div class="kpi hero ${s.roas>=2?'ok':s.roas>=1?'warn':'err'}">
+        <div class="label">ROAS</div>
+        <div class="value">${fmt.dec(s.roas)}</div>
+        <div class="sub">$1 지출당 매출 · 손익분기 1.0</div>
+      </div>
+      <div class="kpi hero emph">
+        <div class="label">구매당 가격 (CPA)</div>
+        <div class="value">${fmt.money(s.cpa)}</div>
+        <div class="sub">구매 ${fmt.int(s.purchases)}건</div>
+      </div>
+      <div class="kpi hero emph">
+        <div class="label">지출 (기간 총합)</div>
+        <div class="value">${fmt.money(s.spend)}</div>
+        <div class="sub">매출 ${fmt.money(s.purchase_value)} · ${activeCount}/${(data.campaigns||[]).length}개 집행중</div>
+      </div>
+    </div>`);
+
+    // === 보조 지표 ===
+    html.push(`<div class="kpi-section-title">📊 보조 지표</div>`);
+    html.push(`<div class="kpi-grid">
       <div class="kpi"><div class="label">CTR</div><div class="value">${fmt.pct(s.ctr)}</div><div class="sub">${fmt.int(s.clicks)} / ${fmt.int(s.impressions)}</div></div>
-      <div class="kpi"><div class="label">CPC</div><div class="value">${fmt.money(s.cpc, cur)}</div><div class="sub">CPM ${fmt.money(s.cpm, cur)}</div></div>
-      <div class="kpi"><div class="label">CPA</div><div class="value">${fmt.money(s.cpa, cur)}</div><div class="sub">구매당 비용</div></div>
-    </div></section>`);
+      <div class="kpi"><div class="label">CPC</div><div class="value">${fmt.money(s.cpc)}</div><div class="sub">클릭당 비용</div></div>
+      <div class="kpi"><div class="label">CPM</div><div class="value">${fmt.money(s.cpm)}</div><div class="sub">1,000회 노출당</div></div>
+      <div class="kpi"><div class="label">노출</div><div class="value">${fmt.int(s.impressions)}</div><div class="sub">클릭 ${fmt.int(s.clicks)}</div></div>
+    </div>`);
 
     // Feedback: Actions + Insights top row
-    html.push(`<section><h2>💡 액션 & 인사이트</h2><div class="feedback-grid">
+    html.push(`<section style="margin-top:24px"><h2>💡 액션 & 인사이트</h2><div class="feedback-grid">
       <div class="fb-card action"><h3>📌 이번 주 액션 아이템</h3>
         ${(fb.actions && fb.actions.length) ? fb.actions.map(a=>`<div class="fb-item action">${a}</div>`).join('') : '<div class="fb-empty">특별한 액션 없음</div>'}
       </div>
@@ -182,81 +269,160 @@
     </div></section>`);
 
     // Feedback: Scale up + Reduce
-    html.push(`<section><h2>🎯 캠페인 최적화 제안</h2><div class="feedback-grid">
+    html.push(`<section><h2>🎯 캠페인 최적화 제안 <span class="count">· 집행중 캠페인 기준</span></h2><div class="feedback-grid">
       <div class="fb-card ok"><h3>🟢 예산 확대 후보 <span style="color:var(--muted);font-weight:400;font-size:11px">· ROAS ≥ 2.0</span></h3>
         ${(fb.scale_up && fb.scale_up.length) ? fb.scale_up.map(x=>`
-          <div class="fb-item"><div class="name">${x.name}</div><div class="reason">${x.reason}</div></div>
+          <div class="fb-item"><div class="name">${escapeHtml(x.name)}</div><div class="reason">${x.reason}</div></div>
         `).join('') : '<div class="fb-empty">기준 충족 캠페인 없음</div>'}
       </div>
       <div class="fb-card err"><h3>🔴 정리/재검토 후보 <span style="color:var(--muted);font-weight:400;font-size:11px">· ROAS ≤ 1.0</span></h3>
         ${(fb.reduce_or_kill && fb.reduce_or_kill.length) ? fb.reduce_or_kill.map(x=>`
-          <div class="fb-item"><div class="name">${x.name}</div><div class="reason">${x.reason}</div></div>
+          <div class="fb-item"><div class="name">${escapeHtml(x.name)}</div><div class="reason">${x.reason}</div></div>
         `).join('') : '<div class="fb-empty">저효율 캠페인 없음</div>'}
       </div>
     </div></section>`);
 
-    // Full campaigns table
-    html.push(`<section><h2>📋 전체 캠페인 <span class="count">· ${data.campaigns.length}개 · 지출순</span></h2>
+    // Filter bar + Full campaigns table
+    html.push(`<section>
+      <h2>📋 캠페인 상세 <span class="count" id="campCount"></span></h2>
+      <div class="filter-bar">
+        <div class="left">
+          <span>💡 캠페인명 위에 마우스를 올리면 <b>집행중인 광고 목록</b>이 표시됩니다.</span>
+        </div>
+        <label class="toggle" for="activeOnly">
+          <input type="checkbox" id="activeOnly" ${showActiveOnly ? 'checked' : ''}>
+          <span>집행중인 캠페인만 보기</span>
+        </label>
+      </div>
       <div class="table-wrap"><div class="table-scroll"><table id="campTbl">
         <thead><tr>
           <th class="name-col" data-key="name">캠페인 <span class="arrow">↕</span></th>
-          <th data-key="spend" class="sort-desc">지출 <span class="arrow">▼</span></th>
-          <th data-key="impressions">노출 <span class="arrow">↕</span></th>
-          <th data-key="clicks">클릭 <span class="arrow">↕</span></th>
+          <th data-key="roas" class="sort-desc">ROAS <span class="arrow">▼</span></th>
+          <th data-key="cpa">구매당 가격 <span class="arrow">↕</span></th>
+          <th data-key="spend">지출 <span class="arrow">↕</span></th>
+          <th data-key="purchase_value">매출 <span class="arrow">↕</span></th>
+          <th data-key="purchases">구매 <span class="arrow">↕</span></th>
           <th data-key="ctr">CTR <span class="arrow">↕</span></th>
           <th data-key="cpc">CPC <span class="arrow">↕</span></th>
-          <th data-key="purchases">구매 <span class="arrow">↕</span></th>
-          <th data-key="purchase_value">매출 <span class="arrow">↕</span></th>
-          <th data-key="cpa">CPA <span class="arrow">↕</span></th>
-          <th data-key="roas">ROAS <span class="arrow">↕</span></th>
+          <th data-key="clicks">클릭 <span class="arrow">↕</span></th>
+          <th data-key="impressions">노출 <span class="arrow">↕</span></th>
         </tr></thead>
         <tbody id="campBody"></tbody>
       </table></div></div>
     </section>`);
 
     el('content').innerHTML = html.join('');
-    renderTable(data.campaigns, cur, 'spend', 'desc');
-    setupSort(data.campaigns, cur);
+
+    // 초기 정렬: ROAS 내림차순 (핵심 지표 우선 노출)
+    renderTable('roas', 'desc');
+    setupSort();
+
+    // 필터 토글
+    const toggle = el('activeOnly');
+    if (toggle) toggle.addEventListener('change', e => {
+      showActiveOnly = e.target.checked;
+      renderTable(currentSortKey, currentSortDir);
+    });
   }
 
-  function renderTable(rows, cur, sortKey, dir){
-    const sorted = [...rows].sort((a,b) => {
+  let currentSortKey = 'roas', currentSortDir = 'desc';
+
+  function renderTable(sortKey, dir){
+    currentSortKey = sortKey; currentSortDir = dir;
+    if (!lastRenderedData) return;
+    let rows = [...(lastRenderedData.campaigns || [])];
+    if (showActiveOnly) rows = rows.filter(r => r.is_active);
+
+    rows.sort((a,b) => {
       const av = a[sortKey] ?? 0, bv = b[sortKey] ?? 0;
       if (typeof av === 'string') return dir==='asc' ? av.localeCompare(bv) : bv.localeCompare(av);
       return dir==='asc' ? av - bv : bv - av;
     });
-    el('campBody').innerHTML = sorted.map(r => `
+
+    const totalAll = (lastRenderedData.campaigns || []).length;
+    const activeAll = (lastRenderedData.campaigns || []).filter(r => r.is_active).length;
+    const countEl = el('campCount');
+    if (countEl) countEl.textContent = showActiveOnly
+      ? `· 집행중 ${rows.length}/${activeAll}개 표시 (전체 ${totalAll}개)`
+      : `· 전체 ${rows.length}개 (집행중 ${activeAll}개)`;
+
+    el('campBody').innerHTML = rows.map((r, idx) => {
+      const activeAds = r.active_ads || [];
+      const badge = r.is_active
+        ? '<span class="status-badge active">집행중</span>'
+        : `<span class="status-badge paused">${escapeHtml(r.effective_status || '중지')}</span>`;
+      const nameCls = 'campaign-name-wrap' + (activeAds.length ? ' has-ads' : '');
+      return `
       <tr>
-        <td class="name-col" title="${r.name}">${r.name}</td>
-        <td class="num">${fmt.money(r.spend, cur)}</td>
-        <td class="num">${fmt.int(r.impressions)}</td>
-        <td class="num">${fmt.int(r.clicks)}</td>
-        <td class="num">${fmt.pct(r.ctr)}</td>
-        <td class="num">${fmt.money(r.cpc, cur)}</td>
-        <td class="num">${fmt.int(r.purchases)}</td>
-        <td class="num">${fmt.money(r.purchase_value, cur)}</td>
-        <td class="num">${fmt.money(r.cpa, cur)}</td>
+        <td class="name-col">
+          <span class="${nameCls}" data-camp-idx="${idx}" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}${badge}</span>
+        </td>
         <td class="num">${roasTag(r.roas)}</td>
+        <td class="num">${r.cpa ? fmt.money(r.cpa) : '—'}</td>
+        <td class="num">${fmt.money(r.spend)}</td>
+        <td class="num">${fmt.money(r.purchase_value)}</td>
+        <td class="num">${fmt.int(r.purchases)}</td>
+        <td class="num">${fmt.pct(r.ctr)}</td>
+        <td class="num">${fmt.money(r.cpc)}</td>
+        <td class="num">${fmt.int(r.clicks)}</td>
+        <td class="num">${fmt.int(r.impressions)}</td>
       </tr>
-    `).join('');
+    `; }).join('') || '<tr><td colspan="10" class="center" style="padding:32px;color:var(--muted)">표시할 캠페인이 없습니다.</td></tr>';
+
+    attachHoverTips(rows);
   }
 
-  function setupSort(rows, cur){
-    let currentKey = 'spend', currentDir = 'desc';
+  function attachHoverTips(rows){
+    const tip = document.getElementById('adsFloatingTip');
+    if (!tip) return;
+    document.querySelectorAll('.campaign-name-wrap').forEach(el => {
+      el.addEventListener('mouseenter', ev => {
+        const idx = parseInt(el.dataset.campIdx, 10);
+        const r = rows[idx];
+        if (!r) return;
+        const ads = r.active_ads || [];
+        if (!ads.length && !r.is_active) { tip.style.display = 'none'; return; }
+        tip.innerHTML = ads.length
+          ? `<div class="tip-title">🟢 집행중 광고 ${ads.length}개</div>` + ads.map(a=>`<div class="tip-item">• ${escapeHtml(a.name)}</div>`).join('')
+          : `<div class="tip-title">집행중 광고</div><div class="tip-empty">활성 광고 없음</div>`;
+        tip.style.display = 'block';
+        positionTip(tip, el);
+      });
+      el.addEventListener('mousemove', ev => {
+        if (tip.style.display === 'block') positionTip(tip, el);
+      });
+      el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+    });
+  }
+
+  function positionTip(tip, el){
+    const r = el.getBoundingClientRect();
+    const tipW = tip.offsetWidth || 320;
+    const tipH = tip.offsetHeight || 100;
+    let left = r.left;
+    let top = r.bottom + 6;
+    if (left + tipW > window.innerWidth - 10) left = window.innerWidth - tipW - 10;
+    if (top + tipH > window.innerHeight - 10) top = r.top - tipH - 6;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+
+  function setupSort(){
     document.querySelectorAll('#campTbl th').forEach(th => {
       th.addEventListener('click', () => {
         const key = th.dataset.key;
-        if (currentKey === key) currentDir = currentDir==='asc' ? 'desc' : 'asc';
-        else { currentKey = key; currentDir = ['name'].includes(key) ? 'asc' : 'desc' }
+        let dir;
+        if (currentSortKey === key) dir = currentSortDir==='asc' ? 'desc' : 'asc';
+        else dir = ['name'].includes(key) ? 'asc' : 'desc';
         document.querySelectorAll('#campTbl th').forEach(t => {
           t.classList.remove('sort-asc','sort-desc');
           const arrow = t.querySelector('.arrow');
           if (arrow) arrow.textContent = '↕';
         });
-        th.classList.add('sort-'+currentDir);
+        th.classList.add('sort-'+dir);
         const arrow = th.querySelector('.arrow');
-        if (arrow) arrow.textContent = currentDir==='asc' ? '▲' : '▼';
-        renderTable(rows, cur, currentKey, currentDir);
+        if (arrow) arrow.textContent = dir==='asc' ? '▲' : '▼';
+        renderTable(key, dir);
       });
     });
   }

@@ -15,9 +15,9 @@ model: sonnet
 | 파일 | 역할 |
 |---|---|
 | `.env` | `FB_ACCESS_TOKEN`, `FB_AD_ACCOUNTS` (콤마 구분), `FB_API_VERSION`. **절대 커밋 금지** |
-| `insights.py` | Graph API `/act_.../insights` 호출. `--level {account,campaign,adset,ad}`, `--preset {yesterday,last_7d,last_30d,...}`, `--since/--until` |
+| `insights.py` | Graph API `/act_.../insights` 호출. `--level {account,campaign,adset,ad}`, `--preset {yesterday,last_7d,last_30d,...}`, `--since/--until`. **캠페인/광고 상태 + 오늘·어제 총합도 자동 fetch** (campaigns_meta, ads_meta, today, yesterday 필드) |
 | `report.py` | JSON → 마크다운 (터미널 출력용, Claude가 대화에서 요약할 때 사용) |
-| `build_dashboard_report.py` | JSON → `~/projects/Brightbeed/data/meta-ads/{brand_id}.json` (대시보드용, 피드백 자동 생성) |
+| `build_dashboard_report.py` | JSON → `~/projects/Brightbeed/data/meta-ads/{brand_id}.json` (대시보드용, 피드백 자동 생성). 캠페인 `effective_status` 병합, `active_ads` 리스트 첨부 |
 | `refresh_dashboard.sh` | 원샷: insights → build → git push. `bash refresh_dashboard.sh <preset> <brand_id>` |
 | `reports/` | 원본 JSON + MD (gitignore) |
 
@@ -61,8 +61,23 @@ bash ~/projects/fb-ads/refresh_dashboard.sh last_30d ct    # 지난 30일
 ### 3. 리포트 양식/방식 수정
 
 **KPI 카드 추가·제거·순서 변경**:
-- `~/projects/Brightbeed/meta-ads/report.html` 안 `.kpi-grid` 블록 편집
+- `~/projects/Brightbeed/meta-ads/report.html` 안 `.kpi-grid.hero` (오늘/어제 · 핵심지표) / `.kpi-grid` (보조지표) 블록 편집
+- 세 개 그룹으로 나눔: (1) 실시간 지출 (오늘·어제) → (2) 핵심 지표 (ROAS·CPA·지출) → (3) 보조 지표 (CTR·CPC·CPM·노출)
 - 새 필드는 `build_dashboard_report.py` `summary` 또는 `enrich_row`에도 계산 로직 추가
+
+**모두 USD 표시**:
+- `fmt.money` / `fmt.moneyBig` 는 화폐 코드 무관하게 `$` prefix + 2자리 소수점 (2026-08-18 사장님 요청)
+- 새 브랜드가 KRW 등 non-USD면 향후 환율 변환 필요 (현재는 그대로 표시)
+
+**집행중 캠페인 필터**:
+- 기본 ON (`showActiveOnly = true`), 토글 UI로 사용자가 끌 수 있음
+- 필터 기준: `campaign.is_active === true` (Graph API `effective_status === "ACTIVE"`)
+- 피드백 (scale_up / reduce_or_kill) 도 집행중 캠페인만 대상 (build_feedback 함수)
+
+**광고 마우스오버 툴팁**:
+- 캠페인명 위에 마우스 올리면 해당 캠페인의 ACTIVE 광고 리스트 표시
+- `#adsFloatingTip` 엘리먼트 (position:fixed, z-index:9999) 를 hover 이벤트로 좌표 계산
+- 데이터: `campaigns[i].active_ads[]` (name, id, status)
 
 **피드백 로직 튜닝** (`build_dashboard_report.py` `build_feedback` 함수):
 - **예산 확대 후보 기준**: `r["roas"] >= 2.0 and r["spend"] >= total_spend * 0.01` — 이 숫자 조정
