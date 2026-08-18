@@ -229,29 +229,28 @@
 
     const activeCount = data.active_campaign_count ?? (data.campaigns||[]).filter(c => c.is_active).length;
 
-    // MD 매출 서브텍스트 (실 매출 USD + KRW 병기, 실 ROAS, FB 픽셀 대비)
-    const mdSub = (mdSlice, adSpend, fbRoas, fbRev) => {
-      if (!mdSlice.usd) return `<span style="color:var(--muted)">MD 매출 데이터 없음</span>`;
+    // MD 매출 서브텍스트 (실 매출 USD + KRW · 실 ROAS)
+    const mdSub = (mdSlice, adSpend) => {
+      if (!mdSlice.usd) return `<span style="color:var(--muted)">매출 데이터 없음</span>`;
       const realRoas = adSpend ? (mdSlice.usd / adSpend) : 0;
       const roasCls = realRoas>=2 ? 'ok' : realRoas>=1 ? 'warn' : 'err';
       const krw = '₩' + (mdSlice.krw||0).toLocaleString('en-US');
-      return `<div style="display:flex;flex-direction:column;gap:2px">
-        <div><b style="color:var(--text);font-size:13px">MD 매출 ${fmt.money(mdSlice.usd)}</b> <span style="color:var(--muted);font-size:11px">(${krw} · ${mdSlice.orders}건)</span></div>
-        <div><span class="mini-roas ${roasCls}">실 ROAS ${fmt.dec(realRoas)}</span> <span style="color:var(--muted);font-size:11px;margin-left:8px">FB픽셀 ${fmt.money(fbRev)} · ROAS ${fmt.dec(fbRoas)}</span></div>
+      return `<div style="display:flex;flex-direction:column;gap:3px">
+        <div><b style="color:var(--text);font-size:13px">매출 ${fmt.money(mdSlice.usd)}</b> <span style="color:var(--muted);font-size:11px">${krw} · ${mdSlice.orders}건</span></div>
+        <div><span class="mini-roas ${roasCls}">ROAS ${fmt.dec(realRoas)}</span></div>
       </div>`;
     };
 
     el('brandName').textContent = `${data.brand_name || acct.name || brand} · 메타 광고 분석 리포트`;
-    el('periodInfo').innerHTML = `📅 <b>${data.period?.display || data.period?.label || '-'}</b> · ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
-    el('generatedInfo').innerHTML = `🕐 생성 ${fmtDate(data.generated_at)}`;
+    el('periodInfo').innerHTML = `📅 ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
+    el('generatedInfo').innerHTML = `🕐 ${fmtDate(data.generated_at)}`;
 
-    // Status banner: 계정 상태 or 화폐 환기
-    const bannerLines = [];
+    // Status banner: 계정 상태만 (심각한 경우만)
     if (acct.status_code && acct.status_code !== 1) {
       const cls = [101, 100, 2].includes(acct.status_code) ? 'err' : 'warn';
       const banner = el('statusBanner');
       banner.className = 'status-banner ' + cls;
-      banner.innerHTML = `⚠ 계정 상태: <b>${acct.status_label}</b> (코드 ${acct.status_code}) — 결제 정보 점검 권장`;
+      banner.innerHTML = `⚠ ${acct.status_label}`;
     }
 
     const html = [];
@@ -271,74 +270,68 @@
         </div>`
       : `<span style="color:var(--muted)">예산 데이터 없음</span>`;
 
-    const mdSourceBadge = md.source_file ? `<span style="color:var(--muted);font-size:10px;margin-left:6px">MD · 환율 1$=₩${md.usd_krw_rate}</span>` : '';
-    html.push(`<div class="kpi-section-title">🕐 실시간 지출 & 예산 ${mdSourceBadge}</div>`);
     html.push(`<div class="kpi-grid hero">
       <div class="kpi hero spend-today">
-        <div class="label">오늘 지출 (KST)</div>
+        <div class="label">오늘 지출</div>
         <div class="value">${fmt.money(today.spend)}</div>
-        <div class="sub">${mdSub(mdToday, today.spend, today.roas, today.purchase_value)}</div>
+        <div class="sub">${mdSub(mdToday, today.spend)}</div>
       </div>
       <div class="kpi hero spend-yesterday">
         <div class="label">어제 지출</div>
         <div class="value">${fmt.money(yesterday.spend)}</div>
-        <div class="sub">${mdSub(mdYst, yesterday.spend, yesterday.roas, yesterday.purchase_value)}</div>
+        <div class="sub">${mdSub(mdYst, yesterday.spend)}</div>
       </div>
       <div class="kpi hero budget-realtime">
-        <div class="label">실시간 예산 (일 총합)</div>
+        <div class="label">실시간 예산</div>
         <div class="value">${fmt.money(bs.daily_budget_total || 0)}</div>
         <div class="sub">${budgetSub}</div>
       </div>
     </div>`);
 
-    // === 핵심 지표: ROAS · CPA · 지출 (기간 요약, 우선순위 카드) ===
-    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.display || data.period?.label || ''}</div>`);
+    // === 핵심 지표: ROAS · CPA · 지출 ===
+    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.display || ''}</div>`);
     html.push(`<div class="kpi-grid hero">
       <div class="kpi hero ${s.roas>=2?'ok':s.roas>=1?'warn':'err'}">
         <div class="label">ROAS</div>
         <div class="value">${fmt.dec(s.roas)}</div>
-        <div class="sub">$1 지출당 매출 · 손익분기 1.0</div>
       </div>
       <div class="kpi hero emph">
-        <div class="label">구매당 가격 (CPA)</div>
+        <div class="label">구매당 가격</div>
         <div class="value">${fmt.money(s.cpa)}</div>
         <div class="sub">구매 ${fmt.int(s.purchases)}건</div>
       </div>
       <div class="kpi hero emph">
-        <div class="label">지출 (기간 총합)</div>
+        <div class="label">지출</div>
         <div class="value">${fmt.money(s.spend)}</div>
         <div class="sub">매출 ${fmt.money(s.purchase_value)} · ${activeCount}/${(data.campaigns||[]).length}개 집행중</div>
       </div>
     </div>`);
 
-    // === 보조 지표 (한글 설명 병기) ===
+    // === 보조 지표 ===
     html.push(`<div class="kpi-section-title">📊 보조 지표</div>`);
     html.push(`<div class="kpi-grid">
       <div class="kpi">
-        <div class="label">CTR <span class="label-ko">클릭률 · 노출→클릭</span></div>
+        <div class="label">CTR <span class="label-ko">클릭률</span></div>
         <div class="value">${fmt.pct(s.ctr)}</div>
         <div class="sub">${fmt.int(s.clicks)} 클릭 / ${fmt.int(s.impressions)} 노출</div>
       </div>
       <div class="kpi">
         <div class="label">CPC <span class="label-ko">클릭당 비용</span></div>
         <div class="value">${fmt.money(s.cpc)}</div>
-        <div class="sub">한 번의 클릭에 드는 광고비</div>
       </div>
       <div class="kpi">
-        <div class="label">CPM <span class="label-ko">노출당 비용 (1,000회)</span></div>
+        <div class="label">CPM <span class="label-ko">1,000노출당 비용</span></div>
         <div class="value">${fmt.money(s.cpm)}</div>
-        <div class="sub">1,000명에게 광고 보여주는 비용</div>
       </div>
       <div class="kpi">
-        <div class="label">노출 <span class="label-ko">본 사람 수</span></div>
+        <div class="label">노출</div>
         <div class="value">${fmt.int(s.impressions)}</div>
-        <div class="sub">클릭 ${fmt.int(s.clicks)}</div>
       </div>
     </div>`);
 
     // Feedback: Actions + Insights top row
     html.push(`<section style="margin-top:24px"><h2>💡 액션 & 인사이트</h2><div class="feedback-grid">
-      <div class="fb-card action"><h3>📌 이번 주 액션 아이템</h3>
+      <div class="fb-card action"><h3>📌 액션 아이템</h3>
         ${(fb.actions && fb.actions.length) ? fb.actions.map(a=>`<div class="fb-item action">${a}</div>`).join('') : '<div class="fb-empty">특별한 액션 없음</div>'}
       </div>
       <div class="fb-card info"><h3>🔍 데이터 인사이트</h3>
@@ -347,13 +340,13 @@
     </div></section>`);
 
     // Feedback: Scale up + Reduce
-    html.push(`<section><h2>🎯 캠페인 최적화 제안 <span class="count">· 집행중 캠페인 기준</span></h2><div class="feedback-grid">
-      <div class="fb-card ok"><h3>🟢 예산 확대 후보 <span style="color:var(--muted);font-weight:400;font-size:11px">· ROAS ≥ 2.0</span></h3>
+    html.push(`<section><h2>🎯 캠페인 최적화 제안</h2><div class="feedback-grid">
+      <div class="fb-card ok"><h3>🟢 예산 확대 후보</h3>
         ${(fb.scale_up && fb.scale_up.length) ? fb.scale_up.map(x=>`
           <div class="fb-item"><div class="name">${escapeHtml(x.name)}</div><div class="reason">${x.reason}</div></div>
         `).join('') : '<div class="fb-empty">기준 충족 캠페인 없음</div>'}
       </div>
-      <div class="fb-card err"><h3>🔴 정리/재검토 후보 <span style="color:var(--muted);font-weight:400;font-size:11px">· ROAS ≤ 1.0</span></h3>
+      <div class="fb-card err"><h3>🔴 정리/재검토 후보</h3>
         ${(fb.reduce_or_kill && fb.reduce_or_kill.length) ? fb.reduce_or_kill.map(x=>`
           <div class="fb-item"><div class="name">${escapeHtml(x.name)}</div><div class="reason">${x.reason}</div></div>
         `).join('') : '<div class="fb-empty">저효율 캠페인 없음</div>'}
@@ -372,9 +365,7 @@
     html.push(`<section>
       <h2>📋 캠페인 상세 <span class="count" id="campCount"></span></h2>
       <div class="filter-bar">
-        <div class="left">
-          <span>💡 캠페인명 위에 마우스를 올리면 <b>집행중인 광고 목록</b>이 표시됩니다.</span>
-        </div>
+        <div class="left"></div>
         <div class="right">
           ${periodTabsHtml}
           <label class="toggle" for="activeOnly">
