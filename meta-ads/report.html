@@ -147,7 +147,7 @@
     const s = data.summary || {};
     const fb = data.feedback || {};
 
-    el('brandName').textContent = `${acct.name || brand} · 메타 광고 분석 리포트`;
+    el('brandName').textContent = `${data.brand_name || acct.name || brand} · 메타 광고 분석 리포트`;
     el('periodInfo').innerHTML = `📅 <b>${data.period?.label || '-'}</b> · ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
     el('generatedInfo').innerHTML = `🕐 생성 ${fmtDate(data.generated_at)}`;
 
