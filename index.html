@@ -5712,8 +5712,10 @@
 <script>
   const PIN_VIEWER='6702';     // 보기 전용
   const PIN_MASTER='0000';     // 수정 권한
+  const AUTH_VERSION='2';      // PIN 회전 시 bump → 모든 기기 강제 재로그인
   const KEY='brightbeed_unlocked';
   const ROLE_KEY='brightbeed_role';
+  const VER_KEY='brightbeed_auth_ver';
   const lock=document.getElementById('lock');
   const app=document.getElementById('app');
   const pin=document.getElementById('pin');
@@ -7277,6 +7279,10 @@
 
   async function init(){
     applyRole();
+    if(localStorage.getItem(VER_KEY)!==AUTH_VERSION){
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(ROLE_KEY);
+    }
     if(localStorage.getItem(KEY)==='1'){show();return}
     showLock();
   }
@@ -7286,10 +7292,12 @@
     if(v===PIN_MASTER){
       localStorage.setItem(KEY,'1');
       localStorage.setItem(ROLE_KEY,'master');
+      localStorage.setItem(VER_KEY,AUTH_VERSION);
       err.textContent='';show();
     }else if(v===PIN_VIEWER){
       localStorage.setItem(KEY,'1');
       localStorage.setItem(ROLE_KEY,'viewer');
+      localStorage.setItem(VER_KEY,AUTH_VERSION);
       err.textContent='';show();
     }else{
       err.textContent='접속 코드가 올바르지 않습니다.';
