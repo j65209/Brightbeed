@@ -2323,6 +2323,28 @@
   .sub-module.m-analysis[data-ready="0"]:hover{transform:none;background:var(--bg-1)}
   .sub-module.m-analysis[data-ready="0"] .sub-module-tag{color:var(--text-3);border-color:var(--line-2);border-style:dashed}
 
+  /* 메타 광고 분석 리포트 — 8 브랜드 (Facebook Marketing API) */
+  .sub-modules-metaads::before{background:linear-gradient(90deg,#22d3ee 0%,#22c55e 15%,#a78bfa 30%,#f59e0b 45%,#f472b6 60%,#818cf8 75%,#fb7185 90%,#14b8a6 100%)}
+  .sub-module.m-metaads-6a  {--m-color:#22d3ee;--m-border:rgba(34,211,238,.45)}
+  .sub-module.m-metaads-6a  .sub-module-tag{color:#22d3ee;border-color:rgba(34,211,238,.45);border-style:solid}
+  .sub-module.m-metaads-ct  {--m-color:#22c55e;--m-border:rgba(34,197,94,.45)}
+  .sub-module.m-metaads-ct  .sub-module-tag{color:#22c55e;border-color:rgba(34,197,94,.45);border-style:solid}
+  .sub-module.m-metaads-yar {--m-color:#a78bfa;--m-border:rgba(167,139,250,.45)}
+  .sub-module.m-metaads-yar .sub-module-tag{color:#a78bfa;border-color:rgba(167,139,250,.45);border-style:solid}
+  .sub-module.m-metaads-pp  {--m-color:#f59e0b;--m-border:rgba(245,158,11,.45)}
+  .sub-module.m-metaads-pp  .sub-module-tag{color:#f59e0b;border-color:rgba(245,158,11,.45);border-style:solid}
+  .sub-module.m-metaads-akoi{--m-color:#f472b6;--m-border:rgba(244,114,182,.45)}
+  .sub-module.m-metaads-akoi .sub-module-tag{color:#f472b6;border-color:rgba(244,114,182,.45);border-style:solid}
+  .sub-module.m-metaads-kop {--m-color:#818cf8;--m-border:rgba(129,140,248,.45)}
+  .sub-module.m-metaads-kop .sub-module-tag{color:#818cf8;border-color:rgba(129,140,248,.45);border-style:solid}
+  .sub-module.m-metaads-apt {--m-color:#fb7185;--m-border:rgba(251,113,133,.45)}
+  .sub-module.m-metaads-apt .sub-module-tag{color:#fb7185;border-color:rgba(251,113,133,.45);border-style:solid}
+  .sub-module.m-metaads-koz {--m-color:#14b8a6;--m-border:rgba(20,184,166,.45)}
+  .sub-module.m-metaads-koz .sub-module-tag{color:#14b8a6;border-color:rgba(20,184,166,.45);border-style:solid}
+  .sub-module.m-metaads[data-ready="0"]{opacity:.6;cursor:default}
+  .sub-module.m-metaads[data-ready="0"]:hover{transform:none;background:var(--bg-1)}
+  .sub-module.m-metaads[data-ready="0"] .sub-module-tag{color:var(--text-3);border-color:var(--line-2);border-style:dashed}
+
   /* 홈 폴더 — 실시간 브랜드 리포트 (식스샵프로 4 브랜드) */
   .sub-modules-brep::before{background:linear-gradient(90deg,#22c55e 0%,#f59e0b 33%,#f472b6 66%,#14b8a6 100%)}
   .sub-module.m-brep-ct   {--m-color:#22c55e;--m-border:rgba(34,197,94,.45)}
@@ -4472,6 +4494,65 @@
           <div class="sub-module-title">코즈미</div>
           <div class="sub-module-sub" id="analysisSub_koz">파일 확인 중…</div>
           <div class="sub-module-tag" id="analysisTag_koz">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메타 광고 분석 리포트 (Facebook Marketing API — 브랜드별 성과·피드백; 클릭 시 새 창) -->
+    <div class="sub-modules-section sub-modules-metaads">
+      <div class="sub-modules-eyebrow">
+        <span class="folder-icon">📱</span>
+        <span class="folder-label">메타 광고 분석 리포트</span>
+        <span class="folder-meta">Facebook Marketing API · 성과 + 자동 피드백</span>
+      </div>
+      <div class="sub-modules">
+        <div class="sub-module m-metaads m-metaads-6a" onclick="openMetaAdsReport('6a')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22d3ee;box-shadow:0 0 12px rgba(34,211,238,.7)"></span></div>
+          <div class="sub-module-title">식스에이</div>
+          <div class="sub-module-sub" id="metaadsSub_6a">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_6a">—</div>
+        </div>
+        <div class="sub-module m-metaads m-metaads-ct" onclick="openMetaAdsReport('ct')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span></div>
+          <div class="sub-module-title">클리어타입</div>
+          <div class="sub-module-sub" id="metaadsSub_ct">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_ct">—</div>
+        </div>
+        <div class="sub-module m-metaads m-metaads-yar" onclick="openMetaAdsReport('yar')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#a78bfa;box-shadow:0 0 12px rgba(167,139,250,.7)"></span></div>
+          <div class="sub-module-title">야르</div>
+          <div class="sub-module-sub" id="metaadsSub_yar">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_yar">—</div>
+        </div>
+        <div class="sub-module m-metaads m-metaads-pp" onclick="openMetaAdsReport('pp')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.7)"></span></div>
+          <div class="sub-module-title">프로덕트피알</div>
+          <div class="sub-module-sub" id="metaadsSub_pp">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_pp">—</div>
+        </div>
+        <div class="sub-module m-metaads m-metaads-akoi" onclick="openMetaAdsReport('akoi')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f472b6;box-shadow:0 0 12px rgba(244,114,182,.7)"></span></div>
+          <div class="sub-module-title">아코이하우스</div>
+          <div class="sub-module-sub" id="metaadsSub_akoi">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_akoi">—</div>
+        </div>
+        <div class="sub-module m-metaads m-metaads-kop" onclick="openMetaAdsReport('kop')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#818cf8;box-shadow:0 0 12px rgba(129,140,248,.7)"></span></div>
+          <div class="sub-module-title">코페리</div>
+          <div class="sub-module-sub" id="metaadsSub_kop">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_kop">—</div>
+        </div>
+        <div class="sub-module m-metaads m-metaads-apt" onclick="openMetaAdsReport('apt')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#fb7185;box-shadow:0 0 12px rgba(251,113,133,.7)"></span></div>
+          <div class="sub-module-title">아페티</div>
+          <div class="sub-module-sub" id="metaadsSub_apt">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_apt">—</div>
+        </div>
+        <div class="sub-module m-metaads m-metaads-koz" onclick="openMetaAdsReport('koz')">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#14b8a6;box-shadow:0 0 12px rgba(20,184,166,.7)"></span></div>
+          <div class="sub-module-title">코즈미</div>
+          <div class="sub-module-sub" id="metaadsSub_koz">확인 중…</div>
+          <div class="sub-module-tag" id="metaadsTag_koz">—</div>
         </div>
       </div>
     </div>
@@ -11010,6 +11091,69 @@
   // 초기 로드 + 홈 진입/포커스 시 재검사 (매일 08:00 이후 자동 반영)
   checkBrandAnalysisStatus();
   window.addEventListener('focus', ()=>{ checkBrandAnalysisStatus() });
+
+  /* ===== 메타 광고 분석 리포트 (Facebook Marketing API — 브랜드별 JSON 존재 여부 체크) =====
+     JSON 경로: data/meta-ads/{brand}.json (build_dashboard_report.py 로 생성)
+     뷰어 경로: meta-ads/report.html?brand={brand} */
+  const METAADS_BRANDS = ANALYSIS_BRANDS;
+  const _metaadsMeta = {};
+
+  function _metaadsJsonPath(brand){ return `data/meta-ads/${brand}.json`; }
+  function _metaadsRawUrl(brand, cb){
+    return `https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${_metaadsJsonPath(brand)}${cb?`?cb=${cb}`:''}`;
+  }
+  function _metaadsViewerUrl(brand){
+    return `meta-ads/report.html?brand=${brand}&cb=${Date.now()}`;
+  }
+
+  async function _metaadsCheckOne(brand){
+    const subEl = document.getElementById(`metaadsSub_${brand}`);
+    const tagEl = document.getElementById(`metaadsTag_${brand}`);
+    const cardEl = document.querySelector(`.m-metaads-${brand}`);
+    if(!subEl || !tagEl || !cardEl) return;
+    try{
+      // JSON 존재 여부 확인 (내용에서 generated_at + ROAS 요약 읽기)
+      const r = await fetch(_metaadsRawUrl(brand, Date.now()), { cache:'no-cache' });
+      if(r.ok){
+        const data = await r.json();
+        const genDate = data.generated_at ? new Date(data.generated_at) : null;
+        const dateStr = _analysisFmtDate(genDate) || '업로드됨';
+        const roas = data.summary?.roas ?? '—';
+        _metaadsMeta[brand] = { ready:true, dateStr, roas };
+        subEl.textContent = `${dateStr} · ROAS ${roas}`;
+        tagEl.textContent = 'READY';
+        cardEl.dataset.ready = '1';
+      } else {
+        _metaadsMeta[brand] = { ready:false };
+        subEl.textContent = '아직 연결 안 됨';
+        tagEl.textContent = '준비중';
+        cardEl.dataset.ready = '0';
+      }
+    }catch(e){
+      _metaadsMeta[brand] = { ready:false };
+      subEl.textContent = '상태 확인 실패';
+      tagEl.textContent = '—';
+      cardEl.dataset.ready = '0';
+    }
+  }
+
+  function checkMetaAdsStatus(){
+    METAADS_BRANDS.forEach(b => _metaadsCheckOne(b.id));
+  }
+  window.checkMetaAdsStatus = checkMetaAdsStatus;
+
+  function openMetaAdsReport(brand){
+    const meta = _metaadsMeta[brand];
+    if(!meta || !meta.ready){
+      toast('아직 메타 광고 리포트가 준비되지 않았습니다 (토큰 연결 필요)','err');
+      return;
+    }
+    window.open(_metaadsViewerUrl(brand), '_blank', 'noopener,noreferrer');
+  }
+  window.openMetaAdsReport = openMetaAdsReport;
+
+  checkMetaAdsStatus();
+  window.addEventListener('focus', ()=>{ checkMetaAdsStatus() });
 
   /* ===================================================== */
   /* ============ 사내 공지사항 (자유양식 + GitHub 동기화) ============ */

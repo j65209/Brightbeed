@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>메타 광고 분석 리포트</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📱%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg:#0a0d14; --panel:#121826; --panel-2:#1a2233; --border:#26314a;
+    --text:#e8ecf5; --muted:#8a96b0; --accent:#4f7cff;
+    --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; --info:#22d3ee;
+    --shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; margin:0; padding:0 }
+  html,body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif; font-size:14px; -webkit-font-smoothing:antialiased }
+  a { color:var(--accent); text-decoration:none }
+  .wrap { max-width:1200px; margin:0 auto; padding:24px 20px 60px }
+
+  /* Header */
+  header.top { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px }
+  .brand-title { display:flex; align-items:center; gap:10px }
+  .brand-title h1 { font-size:22px; font-weight:800; letter-spacing:-.5px }
+  .brand-title .icon { font-size:24px }
+  .meta-info { display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:12px; color:var(--muted) }
+  .meta-info b { color:var(--text); font-weight:600 }
+  .refresh-btn { background:var(--panel-2); border:1px solid var(--border); color:var(--text); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:4px }
+  .refresh-btn:hover { background:var(--border) }
+  .refresh-btn:active { transform:scale(.97) }
+
+  /* Status banner */
+  .status-banner { padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:13px; display:none; align-items:center; gap:8px }
+  .status-banner.warn { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.4); color:#fbbf24; display:flex }
+  .status-banner.err { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.4); color:#f87171; display:flex }
+
+  /* KPI cards */
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:24px }
+  .kpi { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow) }
+  .kpi .label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; font-weight:600 }
+  .kpi .value { font-size:22px; font-weight:800; letter-spacing:-.5px; color:var(--text) }
+  .kpi .sub { font-size:11px; color:var(--muted); margin-top:3px }
+  .kpi.ok .value { color:var(--ok) }
+  .kpi.warn .value { color:var(--warn) }
+  .kpi.err .value { color:var(--err) }
+  .kpi.emph { border-color:rgba(79,124,255,.4); background:linear-gradient(180deg, rgba(79,124,255,.08), var(--panel)) }
+
+  /* Sections */
+  section { margin-bottom:28px }
+  h2 { font-size:15px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px; color:var(--text) }
+  h2 .count { color:var(--muted); font-weight:500; font-size:12px }
+
+  /* Feedback cards */
+  .feedback-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px }
+  @media (max-width:800px) { .feedback-grid { grid-template-columns:1fr } }
+  .fb-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:var(--shadow) }
+  .fb-card h3 { font-size:13px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:6px; padding-bottom:8px; border-bottom:1px solid var(--border) }
+  .fb-card.ok h3 { color:var(--ok) }
+  .fb-card.err h3 { color:var(--err) }
+  .fb-card.info h3 { color:var(--info) }
+  .fb-card.action h3 { color:var(--accent) }
+  .fb-item { padding:9px 0; border-bottom:1px dashed var(--border); font-size:13px; line-height:1.5 }
+  .fb-item:last-child { border-bottom:none }
+  .fb-item .name { font-weight:700; color:var(--text); margin-bottom:2px }
+  .fb-item .reason { color:var(--muted); font-size:12px }
+  .fb-item.action { padding:8px 0; color:var(--text) }
+  .fb-item.insight { padding:7px 0; color:var(--text); font-size:12.5px }
+  .fb-empty { color:var(--muted); font-style:italic; padding:8px 0; font-size:12.5px }
+
+  /* Campaign table */
+  .table-wrap { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; box-shadow:var(--shadow) }
+  .table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; min-width:800px }
+  th, td { padding:10px 12px; text-align:right; border-bottom:1px solid var(--border); white-space:nowrap }
+  th { background:var(--panel-2); color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.4px; position:sticky; top:0; cursor:pointer; user-select:none }
+  th:hover { color:var(--text) }
+  th .arrow { opacity:.4; font-size:9px; margin-left:2px }
+  th.sort-asc .arrow, th.sort-desc .arrow { opacity:1; color:var(--accent) }
+  th.name-col, td.name-col { text-align:left; max-width:280px; overflow:hidden; text-overflow:ellipsis }
+  td.num { font-variant-numeric:tabular-nums }
+  tr:hover td { background:rgba(255,255,255,.03) }
+  .roas-tag { display:inline-block; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:700 }
+  .roas-tag.hi { background:rgba(34,197,94,.15); color:var(--ok) }
+  .roas-tag.mid { background:rgba(245,158,11,.15); color:var(--warn) }
+  .roas-tag.lo { background:rgba(239,68,68,.15); color:var(--err) }
+
+  /* Loading / error */
+  .center { text-align:center; padding:60px 20px; color:var(--muted) }
+  .spinner { display:inline-block; width:24px; height:24px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite }
+  @keyframes spin { to { transform:rotate(360deg) } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand-title">
+      <span class="icon">📱</span>
+      <h1 id="brandName">메타 광고 분석 리포트</h1>
+    </div>
+    <div class="meta-info">
+      <span id="periodInfo"></span>
+      <span id="generatedInfo"></span>
+      <button class="refresh-btn" onclick="location.reload()">🔄 새로고침</button>
+    </div>
+  </header>
+
+  <div id="statusBanner" class="status-banner"></div>
+
+  <div id="content">
+    <div class="center"><div class="spinner"></div><div style="margin-top:12px">데이터 로딩 중…</div></div>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const brand = params.get('brand') || 'cleartype';
+  const dataUrl = `../data/meta-ads/${brand}.json?cb=${Date.now()}`;
+  const el = id => document.getElementById(id);
+
+  const fmt = {
+    money: (v, cur='') => {
+      const minor = ['USD','EUR','GBP','CAD','AUD','SGD','HKD'].includes(cur);
+      return v.toLocaleString('en-US', { minimumFractionDigits: minor?2:0, maximumFractionDigits: minor?2:0 }) + (cur?' '+cur:'');
+    },
+    int: v => (v||0).toLocaleString('en-US'),
+    pct: v => (v||0).toFixed(2) + '%',
+    dec: (v,n=2) => (v||0).toFixed(n),
+  };
+
+  const roasClass = v => v>=2 ? 'hi' : v>=1 ? 'mid' : 'lo';
+  const roasTag = v => `<span class="roas-tag ${roasClass(v)}">${fmt.dec(v)}</span>`;
+
+  function fmtDate(iso){
+    if(!iso) return '';
+    try {
+      const d = new Date(iso);
+      const M = String(d.getMonth()+1).padStart(2,'0');
+      const D = String(d.getDate()).padStart(2,'0');
+      const h = String(d.getHours()).padStart(2,'0');
+      const m = String(d.getMinutes()).padStart(2,'0');
+      return `${d.getFullYear()}-${M}-${D} ${h}:${m}`;
+    } catch { return iso }
+  }
+
+  function render(data){
+    const acct = data.account || {};
+    const cur = acct.currency || '';
+    const s = data.summary || {};
+    const fb = data.feedback || {};
+
+    el('brandName').textContent = `${acct.name || brand} · 메타 광고 분석 리포트`;
+    el('periodInfo').innerHTML = `📅 <b>${data.period?.label || '-'}</b> · ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
+    el('generatedInfo').innerHTML = `🕐 생성 ${fmtDate(data.generated_at)}`;
+
+    // Status banner
+    if (acct.status_code && acct.status_code !== 1) {
+      const banner = el('statusBanner');
+      const cls = [101, 100, 2].includes(acct.status_code) ? 'err' : 'warn';
+      banner.className = 'status-banner ' + cls;
+      banner.innerHTML = `⚠ 계정 상태: <b>${acct.status_label}</b> (코드 ${acct.status_code}) — 결제 정보 점검 권장`;
+    }
+
+    const html = [];
+
+    // KPI cards
+    html.push(`<section><div class="kpi-grid">
+      <div class="kpi emph"><div class="label">지출</div><div class="value">${fmt.money(s.spend, cur)}</div><div class="sub">${data.campaigns.length}개 캠페인</div></div>
+      <div class="kpi emph"><div class="label">매출</div><div class="value">${fmt.money(s.purchase_value, cur)}</div><div class="sub">구매 ${fmt.int(s.purchases)}건</div></div>
+      <div class="kpi ${s.roas>=2?'ok':s.roas>=1?'warn':'err'}"><div class="label">ROAS</div><div class="value">${fmt.dec(s.roas)}</div><div class="sub">1$ 당 매출</div></div>
+      <div class="kpi"><div class="label">CTR</div><div class="value">${fmt.pct(s.ctr)}</div><div class="sub">${fmt.int(s.clicks)} / ${fmt.int(s.impressions)}</div></div>
+      <div class="kpi"><div class="label">CPC</div><div class="value">${fmt.money(s.cpc, cur)}</div><div class="sub">CPM ${fmt.money(s.cpm, cur)}</div></div>
+      <div class="kpi"><div class="label">CPA</div><div class="value">${fmt.money(s.cpa, cur)}</div><div class="sub">구매당 비용</div></div>
+    </div></section>`);
+
+    // Feedback: Actions + Insights top row
+    html.push(`<section><h2>💡 액션 & 인사이트</h2><div class="feedback-grid">
+      <div class="fb-card action"><h3>📌 이번 주 액션 아이템</h3>
+        ${(fb.actions && fb.actions.length) ? fb.actions.map(a=>`<div class="fb-item action">${a}</div>`).join('') : '<div class="fb-empty">특별한 액션 없음</div>'}
+      </div>
+      <div class="fb-card info"><h3>🔍 데이터 인사이트</h3>
+        ${(fb.insights && fb.insights.length) ? fb.insights.map(i=>`<div class="fb-item insight">${i}</div>`).join('') : '<div class="fb-empty">인사이트 없음</div>'}
+      </div>
+    </div></section>`);
+
+    // Feedback: Scale up + Reduce
+    html.push(`<section><h2>🎯 캠페인 최적화 제안</h2><div class="feedback-grid">
+      <div class="fb-card ok"><h3>🟢 예산 확대 후보 <span style="color:var(--muted);font-weight:400;font-size:11px">· ROAS ≥ 2.0</span></h3>
+        ${(fb.scale_up && fb.scale_up.length) ? fb.scale_up.map(x=>`
+          <div class="fb-item"><div class="name">${x.name}</div><div class="reason">${x.reason}</div></div>
+        `).join('') : '<div class="fb-empty">기준 충족 캠페인 없음</div>'}
+      </div>
+      <div class="fb-card err"><h3>🔴 정리/재검토 후보 <span style="color:var(--muted);font-weight:400;font-size:11px">· ROAS ≤ 1.0</span></h3>
+        ${(fb.reduce_or_kill && fb.reduce_or_kill.length) ? fb.reduce_or_kill.map(x=>`
+          <div class="fb-item"><div class="name">${x.name}</div><div class="reason">${x.reason}</div></div>
+        `).join('') : '<div class="fb-empty">저효율 캠페인 없음</div>'}
+      </div>
+    </div></section>`);
+
+    // Full campaigns table
+    html.push(`<section><h2>📋 전체 캠페인 <span class="count">· ${data.campaigns.length}개 · 지출순</span></h2>
+      <div class="table-wrap"><div class="table-scroll"><table id="campTbl">
+        <thead><tr>
+          <th class="name-col" data-key="name">캠페인 <span class="arrow">↕</span></th>
+          <th data-key="spend" class="sort-desc">지출 <span class="arrow">▼</span></th>
+          <th data-key="impressions">노출 <span class="arrow">↕</span></th>
+          <th data-key="clicks">클릭 <span class="arrow">↕</span></th>
+          <th data-key="ctr">CTR <span class="arrow">↕</span></th>
+          <th data-key="cpc">CPC <span class="arrow">↕</span></th>
+          <th data-key="purchases">구매 <span class="arrow">↕</span></th>
+          <th data-key="purchase_value">매출 <span class="arrow">↕</span></th>
+          <th data-key="cpa">CPA <span class="arrow">↕</span></th>
+          <th data-key="roas">ROAS <span class="arrow">↕</span></th>
+        </tr></thead>
+        <tbody id="campBody"></tbody>
+      </table></div></div>
+    </section>`);
+
+    el('content').innerHTML = html.join('');
+    renderTable(data.campaigns, cur, 'spend', 'desc');
+    setupSort(data.campaigns, cur);
+  }
+
+  function renderTable(rows, cur, sortKey, dir){
+    const sorted = [...rows].sort((a,b) => {
+      const av = a[sortKey] ?? 0, bv = b[sortKey] ?? 0;
+      if (typeof av === 'string') return dir==='asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+      return dir==='asc' ? av - bv : bv - av;
+    });
+    el('campBody').innerHTML = sorted.map(r => `
+      <tr>
+        <td class="name-col" title="${r.name}">${r.name}</td>
+        <td class="num">${fmt.money(r.spend, cur)}</td>
+        <td class="num">${fmt.int(r.impressions)}</td>
+        <td class="num">${fmt.int(r.clicks)}</td>
+        <td class="num">${fmt.pct(r.ctr)}</td>
+        <td class="num">${fmt.money(r.cpc, cur)}</td>
+        <td class="num">${fmt.int(r.purchases)}</td>
+        <td class="num">${fmt.money(r.purchase_value, cur)}</td>
+        <td class="num">${fmt.money(r.cpa, cur)}</td>
+        <td class="num">${roasTag(r.roas)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function setupSort(rows, cur){
+    let currentKey = 'spend', currentDir = 'desc';
+    document.querySelectorAll('#campTbl th').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        if (currentKey === key) currentDir = currentDir==='asc' ? 'desc' : 'asc';
+        else { currentKey = key; currentDir = ['name'].includes(key) ? 'asc' : 'desc' }
+        document.querySelectorAll('#campTbl th').forEach(t => {
+          t.classList.remove('sort-asc','sort-desc');
+          const arrow = t.querySelector('.arrow');
+          if (arrow) arrow.textContent = '↕';
+        });
+        th.classList.add('sort-'+currentDir);
+        const arrow = th.querySelector('.arrow');
+        if (arrow) arrow.textContent = currentDir==='asc' ? '▲' : '▼';
+        renderTable(rows, cur, currentKey, currentDir);
+      });
+    });
+  }
+
+  fetch(dataUrl, { cache: 'no-cache' })
+    .then(r => { if (!r.ok) throw new Error('데이터 없음'); return r.json() })
+    .then(render)
+    .catch(err => {
+      el('content').innerHTML = `<div class="center">
+        <div style="font-size:36px;margin-bottom:12px">📭</div>
+        <div style="font-size:15px;color:var(--text);margin-bottom:6px">아직 <b>${brand}</b> 브랜드 리포트가 준비되지 않았어요</div>
+        <div style="font-size:12px;color:var(--muted)">${err.message}</div>
+        <div style="margin-top:20px;font-size:12px;color:var(--muted)">
+          서버에서 <code style="background:var(--panel);padding:2px 6px;border-radius:4px">python3 ~/projects/fb-ads/build_dashboard_report.py ${brand}</code> 실행 후 커밋/푸시하세요.
+        </div>
+      </div>`;
+    });
+</script>
+</body>
+</html>
