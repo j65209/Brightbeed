@@ -242,7 +242,7 @@
     };
 
     el('brandName').textContent = `${data.brand_name || acct.name || brand} · 메타 광고 분석 리포트`;
-    el('periodInfo').innerHTML = `📅 <b>${data.period?.label || '-'}</b> · ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
+    el('periodInfo').innerHTML = `📅 <b>${data.period?.display || data.period?.label || '-'}</b> · ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
     el('generatedInfo').innerHTML = `🕐 생성 ${fmtDate(data.generated_at)}`;
 
     // Status banner: 계정 상태 or 화폐 환기
@@ -292,7 +292,7 @@
     </div>`);
 
     // === 핵심 지표: ROAS · CPA · 지출 (기간 요약, 우선순위 카드) ===
-    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.label || ''}</div>`);
+    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.display || data.period?.label || ''}</div>`);
     html.push(`<div class="kpi-grid hero">
       <div class="kpi hero ${s.roas>=2?'ok':s.roas>=1?'warn':'err'}">
         <div class="label">ROAS</div>
