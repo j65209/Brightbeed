@@ -13076,13 +13076,11 @@
     const rows=_vmCSVParse(text);
     const out=[];
     let cur=null;
-    const _isClosingRow = (r) => {
-      const lbl=(r[7]||'').trim();
-      if(lbl==='총매출금액') return true;
-      const noItem = !(r[1]||'').trim() && !(r[2]||'').trim() && !(r[3]||'').trim();
-      const hasTotal = !!((r[6]||'').trim()) || !!((r[8]||'').trim());
-      return noItem && hasTotal;
-    };
+    // 마감 행 판정 — col7 라벨이 "총매출금액"일 때만 진짜 마감으로 취급.
+    // (예전엔 noItem+hasTotal 휴리스틱을 썼는데, "블로그페이 ₩0/₩0" 같은
+    //  대기 정산 placeholder가 오탐되어 그 월의 total이 ₩0으로 덮여 씌워지는
+    //  버그가 있었음. 이제 라벨 명시 행만 인정.)
+    const _isClosingRow = (r) => (r[7]||'').trim() === '총매출금액';
     const _parseMonthLbl = (lbl) => {
       if(!lbl) return null;
       let m=lbl.match(/^(\d{4})[.\-\/](\d{1,2})월?$/);
