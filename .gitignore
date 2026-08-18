@@ -218,4 +218,7 @@ __marimo__/
 .streamlit/secrets.toml
 
 # Claude Code 로컬 프리뷰 도구 (배포 대상 아님)
-.claude/
+.claude/*
+# 단, 에이전트 정의는 GitHub 백업 대상
+!.claude/agents/
+!.claude/agents/**
