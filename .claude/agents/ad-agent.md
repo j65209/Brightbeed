@@ -135,6 +135,23 @@ cd ~/projects/fb-ads && python3 insights.py --preset last_7d && python3 report.p
 python3 insights.py --since 2026-08-01 --until 2026-08-17 --level ad
 ```
 
+## 🚨 절대 잊지 말 것 — FB Purchase 중복 리포트 함정 (2026-08-18)
+
+**FB Marketing API 는 같은 구매 1건을 7개의 action_type 으로 중복 리포트한다:**
+- `purchase`, `omni_purchase`, `offsite_conversion.fb_pixel_purchase`
+- `onsite_web_purchase`, `onsite_web_app_purchase`
+- `web_in_store_purchase`, `web_app_in_store_purchase`
+
+전부 같은 이벤트/같은 value. 여러 개 sum 하면 **N배 뻥튀기**.
+
+**정답**: `omni_purchase` 하나만 사용 (Meta 권장 — dedup된 omni-channel 값). 없을 때만 fallback (`offsite_conversion.fb_pixel_purchase` → `purchase`).
+
+**코드 구현**: `PURCHASE_KEYS_PRIORITY` 리스트 순회하며 첫 매칭 action_type 만 사용 (`build_dashboard_report.py`, `insights.py` 양쪽 동일 패턴). `add_to_cart`, `initiate_checkout` 도 같은 dedup 패턴.
+
+**증상 확인법**: FB 픽셀 매출 vs MD 실 매출 비교. FB 픽셀이 실 매출 대비 2-3배 이상 크게 나오면 중복 리포트 의심. 정상은 FB 픽셀이 MD 매출의 60-90% (attribution 못 잡는 케이스 존재).
+
+**사장님 질문 "FB가 왜 이렇게 크죠?" → 첫 번째로 이 중복 리포트 여부부터 확인**.
+
 ## ⚠️ 안전 규칙
 
 1. **토큰은 절대 대화·커밋에 노출 금지**. `.env` 는 `.gitignore` 처리됨. 만약 노출됐다면 즉시 사장님에게 알리고 재발급 요청.
