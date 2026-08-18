@@ -5740,7 +5740,7 @@
                 <th>상품명</th>
                 <th>정가<br><small>I열</small></th>
                 <th>공홈 할인가<br><small>G열</small></th>
-                <th>플랫폼 최저가<br><small>K열</small></th>
+                <th>플랫폼 최저가<br><small>min(K~O열)</small></th>
                 <th>마진율<br><small>F열</small></th>
               </tr>
             </thead>
@@ -13950,10 +13950,12 @@
         const name=(r[2]||'').trim();
         if(!name || seen.has(name)) continue;
         const cat=(r[1]||'').trim();
-        const marginRaw=(r[5]||'').trim();          // "79%"
-        const homeSale=_pcNum(r[6]);                 // G열 공홈 할인가
-        const listPrice=_pcNum(r[8]);                // I열 정가
-        const platformMin=_pcNum(r[10]);             // K열 플랫폼 최저가
+        const marginRaw=(r[5]||'').trim();          // F열 공홈 마진율 "79%"
+        const homeSale=_pcNum(r[6]);                 // G열 공홈 최저 판매가
+        const listPrice=_pcNum(r[8]);                // I열 최종 판매가 (정가)
+        // 플랫폼 최저가 = K~O열 (ably/zig/29w/쿠팡/스스) 중 값이 있는 것의 최소
+        const platformPrices=[r[10],r[11],r[12],r[13],r[14]].map(_pcNum).filter(n=>n>0);
+        const platformMin=platformPrices.length ? Math.min(...platformPrices) : 0;
         if(!listPrice) continue; // skip if no list price
         seen.add(name);
         items.push({cat, name, marginRaw, marginPct:_pcNum(marginRaw), homeSale, listPrice, platformMin});
@@ -14283,7 +14285,7 @@
               <th>할인되는 금액<br><small>에이블리 쿠폰 (A)</small></th>
               <th>중복쿠폰 할인금액<br><small>추가 쿠폰 (B)</small></th>
               <th>쿠폰 적용가<br><small>세팅가 − A − B</small></th>
-              <th class="pc-col-platmin">플랫폼 최저가<br><small>K열</small></th>
+              <th class="pc-col-platmin">플랫폼 최저가<br><small>min(ably/zig/29w/쿠팡/스스)</small></th>
               <th class="pc-col-homesale">공홈 판매가<br><small>G열</small></th>
               <th class="pc-col-homeplus">공홈+3,500<br><small>배송비 포함</small></th>
               <th>셀러 쿠폰 부담금<br><small>min(A×½, 세팅가5%)+B</small></th>
