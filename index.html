@@ -10962,20 +10962,37 @@
         const data = await r.json();
         const genDate = data.generated_at ? new Date(data.generated_at) : null;
         const dateStr = _metaadsFmtDate(genDate) || '업로드됨';
-        const roas = data.summary?.roas ?? '—';
-        _metaadsMeta[brand] = { ready:true, dateStr, roas };
-        subEl.textContent = `${dateStr} · ROAS ${roas}`;
+        const summary = data.summary || {};
+        const spend = summary.spend ?? 0;
+        let roasText;
+        if(spend === 0){
+          roasText = '광고 미집행';
+          subEl.textContent = `${dateStr} · ${roasText}`;
+          subEl.style.color = 'var(--text-3)';
+        } else if(summary.sixshop_available === true && summary.sixshop_roas != null){
+          const roasVal = Number(summary.sixshop_roas).toFixed(2);
+          roasText = `자사몰 ROAS ${roasVal}`;
+          subEl.textContent = `${dateStr} · ${roasText}`;
+          subEl.style.color = '';
+        } else {
+          roasText = '자사몰 연동 대기';
+          subEl.textContent = `${dateStr} · ${roasText}`;
+          subEl.style.color = '#f59e0b';
+        }
+        _metaadsMeta[brand] = { ready:true, dateStr, roasText };
         tagEl.textContent = 'READY';
         cardEl.dataset.ready = '1';
       } else {
         _metaadsMeta[brand] = { ready:false };
         subEl.textContent = '아직 연결 안 됨';
+        subEl.style.color = '';
         tagEl.textContent = '준비중';
         cardEl.dataset.ready = '0';
       }
     }catch(e){
       _metaadsMeta[brand] = { ready:false };
       subEl.textContent = '상태 확인 실패';
+      subEl.style.color = '';
       tagEl.textContent = '—';
       cardEl.dataset.ready = '0';
     }
