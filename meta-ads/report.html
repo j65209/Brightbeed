@@ -92,6 +92,66 @@
   .status-badge.active { background:rgba(34,197,94,.18); color:var(--ok) }
   .status-badge.paused { background:rgba(139,145,158,.18); color:var(--muted) }
 
+  /* Ads accordion expander */
+  .expand-toggle {
+    display:inline-block; width:16px; text-align:center; margin-right:4px;
+    cursor:pointer; color:var(--muted); font-size:10px;
+    transition:transform .18s, color .12s; user-select:none;
+    vertical-align:middle;
+  }
+  .expand-toggle:hover { color:var(--accent) }
+  .expand-toggle.open { transform:rotate(90deg); color:var(--accent) }
+  .expand-toggle.hidden { visibility:hidden }
+
+  tr.ads-expand-row td {
+    padding:0; border-bottom:1px solid var(--border);
+    background:rgba(15,21,36,.5);
+  }
+  .ads-expand-inner {
+    padding:14px 16px; border-left:3px solid var(--accent);
+    display:none;
+  }
+  .ads-expand-inner.open { display:block }
+  .ads-expand-title {
+    font-size:11px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:.5px; font-weight:700; margin-bottom:10px;
+  }
+  .ads-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+    gap:12px;
+  }
+  .ad-card {
+    background:var(--panel-2); border:1px solid var(--border);
+    border-radius:8px; overflow:hidden;
+    display:flex; flex-direction:column;
+    transition:transform .12s, border-color .12s;
+  }
+  .ad-card:hover { transform:translateY(-2px); border-color:var(--accent) }
+  .ad-thumb {
+    position:relative; width:100%; aspect-ratio:1;
+    background:linear-gradient(135deg, #1a2233, #0f1524);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--muted); font-size:11px;
+  }
+  .ad-thumb img { width:100%; height:100%; object-fit:cover; display:block }
+  .ad-thumb .video-badge {
+    position:absolute; top:6px; right:6px;
+    background:rgba(0,0,0,.7); color:#fff; padding:2px 6px;
+    border-radius:4px; font-size:9.5px; font-weight:700;
+    display:flex; align-items:center; gap:3px;
+  }
+  .ad-thumb .no-thumb {
+    text-align:center; padding:8px;
+  }
+  .ad-info { padding:8px 10px; display:flex; flex-direction:column; gap:4px }
+  .ad-name {
+    font-size:11.5px; font-weight:600; color:var(--text);
+    line-height:1.35; word-break:break-word;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .ad-meta { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--muted) }
+
   /* Grade badge (캠페인 등급) */
   .grade-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10.5px; font-weight:800; margin-left:6px; vertical-align:middle; letter-spacing:.2px }
   .grade-badge.excellent { background:rgba(34,197,94,.22); color:#4ade80 }
@@ -495,9 +555,11 @@
         ? `<span class="grade-badge ${r.grade}">${r.grade_icon || ''} ${escapeHtml(r.grade_label || '')}</span>`
         : '';
       const nameCls = 'campaign-name-wrap has-tip';
+      const toggleCls = activeAds.length ? 'expand-toggle' : 'expand-toggle hidden';
       return `
-      <tr>
+      <tr data-camp-row="${idx}">
         <td class="name-col">
+          <span class="${toggleCls}" data-toggle-idx="${idx}" title="집행중 광고 ${activeAds.length}개 펼치기">▶</span>
           <span class="${nameCls}" data-camp-idx="${idx}" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}${gradeBadge}${statusBadge}</span>
         </td>
         <td class="num">${roasTag(r.roas)}</td>
@@ -510,9 +572,47 @@
         <td class="num">${fmt.int(r.clicks)}</td>
         <td class="num">${fmt.int(r.impressions)}</td>
       </tr>
+      <tr class="ads-expand-row" data-expand-idx="${idx}"><td colspan="10">
+        <div class="ads-expand-inner" data-inner-idx="${idx}">
+          <div class="ads-expand-title">🟢 집행중 광고 ${activeAds.length}개</div>
+          <div class="ads-grid">${activeAds.map(renderAdCard).join('') || '<div style="color:var(--muted);font-style:italic">활성 광고 없음</div>'}</div>
+        </div>
+      </td></tr>
     `; }).join('') || '<tr><td colspan="10" class="center" style="padding:32px;color:var(--muted)">표시할 캠페인이 없습니다.</td></tr>';
 
     attachHoverTips(rows);
+    attachAdExpanders();
+  }
+
+  function renderAdCard(ad){
+    const thumb = ad.thumbnail_url || ad.image_url;
+    const videoBadge = ad.is_video ? '<span class="video-badge">▶ 영상</span>' : '';
+    const thumbInner = thumb
+      ? `<img src="${escapeHtml(thumb)}" alt="${escapeHtml(ad.name||'')}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-thumb\\'>🖼 이미지 로드 실패</div>'">`
+      : `<div class="no-thumb">🖼 썸네일 없음</div>`;
+    return `
+      <div class="ad-card">
+        <div class="ad-thumb">${thumbInner}${videoBadge}</div>
+        <div class="ad-info">
+          <div class="ad-name" title="${escapeHtml(ad.name||'')}">${escapeHtml(ad.name||'(무명)')}</div>
+          <div class="ad-meta"><span class="status-badge active">${escapeHtml(ad.status||'ACTIVE')}</span></div>
+        </div>
+      </div>`;
+  }
+
+  function attachAdExpanders(){
+    document.querySelectorAll('.expand-toggle:not(.hidden)').forEach(tog => {
+      tog.addEventListener('click', ev => {
+        ev.stopPropagation();
+        const idx = tog.dataset.toggleIdx;
+        const inner = document.querySelector(`.ads-expand-inner[data-inner-idx="${idx}"]`);
+        if (!inner) return;
+        const opening = !inner.classList.contains('open');
+        inner.classList.toggle('open', opening);
+        tog.classList.toggle('open', opening);
+        tog.textContent = opening ? '▼' : '▶';
+      });
+    });
   }
 
   function attachHoverTips(rows){
