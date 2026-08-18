@@ -2301,28 +2301,6 @@
   .sub-module.m-promo .sub-module-icon{color:#06b6d4}
   .sub-module.m-promo .sub-module-tag{color:#06b6d4;border-color:rgba(6,182,212,.45);border-style:solid}
 
-  /* 브랜드 분석 리포트 — 8 브랜드 (매출 순위 순서) */
-  .sub-modules-analysis::before{background:linear-gradient(90deg,#22d3ee 0%,#22c55e 15%,#a78bfa 30%,#f59e0b 45%,#f472b6 60%,#818cf8 75%,#fb7185 90%,#14b8a6 100%)}
-  .sub-module.m-analysis-6a  {--m-color:#22d3ee;--m-border:rgba(34,211,238,.45)}
-  .sub-module.m-analysis-6a  .sub-module-tag{color:#22d3ee;border-color:rgba(34,211,238,.45);border-style:solid}
-  .sub-module.m-analysis-ct  {--m-color:#22c55e;--m-border:rgba(34,197,94,.45)}
-  .sub-module.m-analysis-ct  .sub-module-tag{color:#22c55e;border-color:rgba(34,197,94,.45);border-style:solid}
-  .sub-module.m-analysis-yar {--m-color:#a78bfa;--m-border:rgba(167,139,250,.45)}
-  .sub-module.m-analysis-yar .sub-module-tag{color:#a78bfa;border-color:rgba(167,139,250,.45);border-style:solid}
-  .sub-module.m-analysis-pp  {--m-color:#f59e0b;--m-border:rgba(245,158,11,.45)}
-  .sub-module.m-analysis-pp  .sub-module-tag{color:#f59e0b;border-color:rgba(245,158,11,.45);border-style:solid}
-  .sub-module.m-analysis-akoi{--m-color:#f472b6;--m-border:rgba(244,114,182,.45)}
-  .sub-module.m-analysis-akoi .sub-module-tag{color:#f472b6;border-color:rgba(244,114,182,.45);border-style:solid}
-  .sub-module.m-analysis-kop {--m-color:#818cf8;--m-border:rgba(129,140,248,.45)}
-  .sub-module.m-analysis-kop .sub-module-tag{color:#818cf8;border-color:rgba(129,140,248,.45);border-style:solid}
-  .sub-module.m-analysis-apt {--m-color:#fb7185;--m-border:rgba(251,113,133,.45)}
-  .sub-module.m-analysis-apt .sub-module-tag{color:#fb7185;border-color:rgba(251,113,133,.45);border-style:solid}
-  .sub-module.m-analysis-koz {--m-color:#14b8a6;--m-border:rgba(20,184,166,.45)}
-  .sub-module.m-analysis-koz .sub-module-tag{color:#14b8a6;border-color:rgba(20,184,166,.45);border-style:solid}
-  .sub-module.m-analysis[data-ready="0"]{opacity:.6;cursor:default}
-  .sub-module.m-analysis[data-ready="0"]:hover{transform:none;background:var(--bg-1)}
-  .sub-module.m-analysis[data-ready="0"] .sub-module-tag{color:var(--text-3);border-color:var(--line-2);border-style:dashed}
-
   /* 메타 광고 분석 리포트 — 8 브랜드 (Facebook Marketing API) */
   .sub-modules-metaads::before{background:linear-gradient(90deg,#22d3ee 0%,#22c55e 15%,#a78bfa 30%,#f59e0b 45%,#f472b6 60%,#818cf8 75%,#fb7185 90%,#14b8a6 100%)}
   .sub-module.m-metaads-6a  {--m-color:#22d3ee;--m-border:rgba(34,211,238,.45)}
@@ -4437,65 +4415,6 @@
           <span id="vendorBtnLabel">벤더팀</span>
         </button>
       </section>
-    </div>
-
-    <!-- 브랜드 분석 리포트 (폴더 스타일 — 8 브랜드, 매출 순위 순서 · 매일 08:00 자동 업로드; 클릭 시 새 창) -->
-    <div class="sub-modules-section sub-modules-analysis">
-      <div class="sub-modules-eyebrow">
-        <span class="folder-icon">📊</span>
-        <span class="folder-label">브랜드 분석 리포트</span>
-        <span class="folder-meta"><b>매일 08:00</b> 자동 업로드 · 클릭 시 새 창</span>
-      </div>
-      <div class="sub-modules">
-        <div class="sub-module m-analysis m-analysis-6a" onclick="openBrandAnalysis('6a')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22d3ee;box-shadow:0 0 12px rgba(34,211,238,.7)"></span></div>
-          <div class="sub-module-title">식스에이</div>
-          <div class="sub-module-sub" id="analysisSub_6a">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_6a">—</div>
-        </div>
-        <div class="sub-module m-analysis m-analysis-ct" onclick="openBrandAnalysis('ct')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.7)"></span></div>
-          <div class="sub-module-title">클리어타입</div>
-          <div class="sub-module-sub" id="analysisSub_ct">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_ct">—</div>
-        </div>
-        <div class="sub-module m-analysis m-analysis-yar" onclick="openBrandAnalysis('yar')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#a78bfa;box-shadow:0 0 12px rgba(167,139,250,.7)"></span></div>
-          <div class="sub-module-title">야르</div>
-          <div class="sub-module-sub" id="analysisSub_yar">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_yar">—</div>
-        </div>
-        <div class="sub-module m-analysis m-analysis-pp" onclick="openBrandAnalysis('pp')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.7)"></span></div>
-          <div class="sub-module-title">프로덕트피알</div>
-          <div class="sub-module-sub" id="analysisSub_pp">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_pp">—</div>
-        </div>
-        <div class="sub-module m-analysis m-analysis-akoi" onclick="openBrandAnalysis('akoi')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f472b6;box-shadow:0 0 12px rgba(244,114,182,.7)"></span></div>
-          <div class="sub-module-title">아코이하우스</div>
-          <div class="sub-module-sub" id="analysisSub_akoi">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_akoi">—</div>
-        </div>
-        <div class="sub-module m-analysis m-analysis-kop" onclick="openBrandAnalysis('kop')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#818cf8;box-shadow:0 0 12px rgba(129,140,248,.7)"></span></div>
-          <div class="sub-module-title">코페리</div>
-          <div class="sub-module-sub" id="analysisSub_kop">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_kop">—</div>
-        </div>
-        <div class="sub-module m-analysis m-analysis-apt" onclick="openBrandAnalysis('apt')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#fb7185;box-shadow:0 0 12px rgba(251,113,133,.7)"></span></div>
-          <div class="sub-module-title">아페티</div>
-          <div class="sub-module-sub" id="analysisSub_apt">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_apt">—</div>
-        </div>
-        <div class="sub-module m-analysis m-analysis-koz" onclick="openBrandAnalysis('koz')">
-          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#14b8a6;box-shadow:0 0 12px rgba(20,184,166,.7)"></span></div>
-          <div class="sub-module-title">코즈미</div>
-          <div class="sub-module-sub" id="analysisSub_koz">파일 확인 중…</div>
-          <div class="sub-module-tag" id="analysisTag_koz">—</div>
-        </div>
-      </div>
     </div>
 
     <!-- 메타 광고 분석 리포트 (Facebook Marketing API — 브랜드별 성과·피드백; 클릭 시 새 창) -->
@@ -11000,12 +10919,10 @@
   renderSalesPptView();
   renderSalesUpdatedTag();
 
-  /* ===== 브랜드 분석 리포트 (홈 — 8 브랜드, 매출 순위 순서 · 매일 08:00 업로드) =====
-     파일 경로: data/analysis/{brand}.pdf (덮어쓰기).
-     status 체크: raw URL HEAD → 존재하면 GitHub API commits 로 최근 업로드 시각 조회.
-     아직 없으면 "준비중" 표시 + 클릭 비활성. */
-  const ANALYSIS_BRANDS=[
-    // 사장님 지정 순서 (2026-08-13): 6a → ct → yar → pp → akoi → kop → apt → koz
+  /* ===== 메타 광고 분석 리포트 (Facebook Marketing API — 브랜드별 JSON 존재 여부 체크) =====
+     JSON 경로: data/meta-ads/{brand}.json (build_dashboard_report.py 로 생성)
+     뷰어 경로: meta-ads/report.html?brand={brand} */
+  const METAADS_BRANDS = [
     {id:'6a',   name:'식스에이'},
     {id:'ct',   name:'클리어타입'},
     {id:'yar',  name:'야르'},
@@ -11015,26 +10932,9 @@
     {id:'apt',  name:'아페티'},
     {id:'koz',  name:'코즈미'},
   ];
-  const _analysisMeta={}; // { kop:{ready:true, dateStr:'8/14 08:03', url:'...'}, ... }
+  const _metaadsMeta = {};
 
-  function _analysisFilePath(brand){ return `data/analysis/${brand}.pdf`; }
-  function _analysisRawUrl(brand, cb){
-    return `https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${_analysisFilePath(brand)}${cb?`?cb=${cb}`:''}`;
-  }
-
-  async function _analysisFetchLastCommit(brand){
-    // GitHub API로 해당 파일의 최근 commit 시각 조회. 실패해도 무해 (dateStr 생략).
-    try{
-      const api=`https://api.github.com/repos/${PO_REPO}/commits?path=${encodeURIComponent(_analysisFilePath(brand))}&per_page=1`;
-      const r=await fetch(api, { headers:{'Accept':'application/vnd.github+json'} });
-      if(!r.ok) return null;
-      const arr=await r.json();
-      const d=arr && arr[0] && arr[0].commit && (arr[0].commit.committer?.date || arr[0].commit.author?.date);
-      return d ? new Date(d) : null;
-    }catch(e){ return null }
-  }
-
-  function _analysisFmtDate(d){
+  function _metaadsFmtDate(d){
     if(!(d instanceof Date) || isNaN(d)) return '';
     const now=new Date();
     const sameDay = d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
@@ -11043,61 +10943,6 @@
     if(sameDay) return `오늘 ${hh}:${mm}`;
     return `${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
   }
-
-  async function _analysisCheckOne(brand){
-    const subEl=document.getElementById(`analysisSub_${brand}`);
-    const tagEl=document.getElementById(`analysisTag_${brand}`);
-    const cardEl=document.querySelector(`.m-analysis-${brand}`);
-    if(!subEl || !tagEl || !cardEl) return;
-    try{
-      // raw URL HEAD 로 존재 여부만 우선 확인
-      const rawR=await fetch(_analysisRawUrl(brand, Date.now()), { method:'HEAD', cache:'no-cache' });
-      if(rawR.ok){
-        const commit=await _analysisFetchLastCommit(brand);
-        const dateStr=_analysisFmtDate(commit) || '업로드됨';
-        _analysisMeta[brand]={ ready:true, dateStr, url:_analysisRawUrl(brand, commit ? commit.getTime() : Date.now()) };
-        subEl.textContent=dateStr;
-        tagEl.textContent='READY';
-        cardEl.dataset.ready='1';
-      } else {
-        _analysisMeta[brand]={ ready:false };
-        subEl.textContent='아직 업로드되지 않음';
-        tagEl.textContent='준비중';
-        cardEl.dataset.ready='0';
-      }
-    }catch(e){
-      _analysisMeta[brand]={ ready:false };
-      subEl.textContent='상태 확인 실패';
-      tagEl.textContent='—';
-      cardEl.dataset.ready='0';
-    }
-  }
-
-  function checkBrandAnalysisStatus(){
-    ANALYSIS_BRANDS.forEach(b=>_analysisCheckOne(b.id));
-  }
-  window.checkBrandAnalysisStatus=checkBrandAnalysisStatus;
-
-  function openBrandAnalysis(brand){
-    const meta=_analysisMeta[brand];
-    if(!meta || !meta.ready){
-      toast('아직 오늘 분석 리포트가 업로드되지 않았습니다','err');
-      return;
-    }
-    window.open(meta.url, '_blank', 'noopener,noreferrer');
-  }
-  window.openBrandAnalysis=openBrandAnalysis;
-
-  // 초기 로드 + 홈 진입/포커스 시 재검사 (매일 08:00 이후 자동 반영)
-  checkBrandAnalysisStatus();
-  window.addEventListener('focus', ()=>{ checkBrandAnalysisStatus() });
-
-  /* ===== 메타 광고 분석 리포트 (Facebook Marketing API — 브랜드별 JSON 존재 여부 체크) =====
-     JSON 경로: data/meta-ads/{brand}.json (build_dashboard_report.py 로 생성)
-     뷰어 경로: meta-ads/report.html?brand={brand} */
-  const METAADS_BRANDS = ANALYSIS_BRANDS;
-  const _metaadsMeta = {};
-
   function _metaadsJsonPath(brand){ return `data/meta-ads/${brand}.json`; }
   function _metaadsRawUrl(brand, cb){
     return `https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${_metaadsJsonPath(brand)}${cb?`?cb=${cb}`:''}`;
@@ -11112,12 +10957,11 @@
     const cardEl = document.querySelector(`.m-metaads-${brand}`);
     if(!subEl || !tagEl || !cardEl) return;
     try{
-      // JSON 존재 여부 확인 (내용에서 generated_at + ROAS 요약 읽기)
       const r = await fetch(_metaadsRawUrl(brand, Date.now()), { cache:'no-cache' });
       if(r.ok){
         const data = await r.json();
         const genDate = data.generated_at ? new Date(data.generated_at) : null;
-        const dateStr = _analysisFmtDate(genDate) || '업로드됨';
+        const dateStr = _metaadsFmtDate(genDate) || '업로드됨';
         const roas = data.summary?.roas ?? '—';
         _metaadsMeta[brand] = { ready:true, dateStr, roas };
         subEl.textContent = `${dateStr} · ROAS ${roas}`;
