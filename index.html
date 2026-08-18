@@ -4275,8 +4275,8 @@
   <div class="lock-card">
     <div class="lock-brand">브라이트비드&샤인비드 오피스 · 보안 접속</div>
     <div class="lock-title">접근 인증이 필요합니다</div>
-    <div class="lock-sub">6자리 접속 코드를 입력해 주세요.</div>
-    <input class="lock-input" id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••">
+    <div class="lock-sub">4자리 접속 코드를 입력해 주세요.</div>
+    <input class="lock-input" id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
     <button class="lock-btn" id="unlock">인증하기</button>
     <div class="lock-err" id="err"></div>
   </div>
@@ -5710,8 +5710,8 @@
 <div class="toast-area" id="toastArea"></div>
 
 <script>
-  const PIN_VIEWER='670200';   // 보기 전용
-  const PIN_MASTER='6702';     // 수정 권한
+  const PIN_VIEWER='6702';     // 보기 전용
+  const PIN_MASTER='0000';     // 수정 권한
   const KEY='brightbeed_unlocked';
   const ROLE_KEY='brightbeed_role';
   const lock=document.getElementById('lock');
