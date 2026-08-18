@@ -13109,22 +13109,26 @@
       const parsed=_parseMonthLbl(monthLbl);
 
       if(parsed){
-        // 새 월 라벨 — 이전 cur 마무리
-        if(cur && cur.items.length) out.push(cur);
+        // 새 월 라벨 — 이전 cur 마무리 (다음 월 시작으로 확정됐으니 pending 해제)
+        if(cur && cur.items.length){
+          cur.pending=false;
+          out.push(cur);
+        }
         cur=_newSection(parsed, monthLbl);
       }
 
       if(!cur) continue; // 첫 월 라벨 만나기 전은 전부 무시
 
       if(_isClosingRow(r)){
-        // 마감 뒤 유의미한 items(마진/매출 있음)가 이어지는지 lookahead.
-        // 이어지면 같은 월 진행 중 확장, 아니면 정상 마감.
+        // 마감 뒤 후속 items(값 有 또는 placeholder)가 이어지는지 lookahead.
+        // 이어지면 같은 월 진행 중, 아니면 정상 마감.
+        // placeholder(제품·셀러만 채워지고 값 없음)도 "다음 정산 대기" 신호로 취급.
         let hasFollowingItems=false;
         for(let j=i+1;j<rows.length;j++){
           const nr=rows[j];
           if(_parseMonthLbl((nr[0]||'').trim())) break;
           if(_isClosingRow(nr)) break;
-          if(nr.slice(1,10).some(c=>(c||'').trim()) && _hasVal(nr)){hasFollowingItems=true; break;}
+          if(((nr[1]||'').trim() || (nr[2]||'').trim())){hasFollowingItems=true; break;}
         }
         cur.totalMargin=(r[6]||'').trim();
         cur.totalSales=(r[8]||'').trim();
@@ -13272,14 +13276,12 @@
     }
     if(!_vMargin.loaded){ wrap.innerHTML=''; return; }
 
-    // 최근월 상단으로 정렬 — pending(정산 전, 진행 월) 항상 맨 위. year 우선.
+    // 최근월 상단으로 정렬 — year+month DESC 단일 기준.
+    // pending 여부는 진행 중 배지/잠정 라벨 표시용, 정렬엔 사용 X (구월이 확장돼도 시간순 유지).
     const _now=new Date();
     const _fallbackYear=_now.getFullYear();
     const _sortKey=(m)=>((m.year||_fallbackYear)*100)+m.monthNum;
-    const sorted=[..._vMargin.months].sort((a,b)=>{
-      if(a.pending!==b.pending) return a.pending?-1:1;
-      return _sortKey(b)-_sortKey(a);
-    });
+    const sorted=[..._vMargin.months].sort((a,b)=>_sortKey(b)-_sortKey(a));
 
     // 매출/마진 합계 계산 (시트에 총매출금액 행이 없는 진행 월용)
     const _krwParse=s=>{const n=Number(String(s||'').replace(/[^\d.-]/g,'')); return isFinite(n)?n:0;};
