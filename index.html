@@ -10971,7 +10971,7 @@
           subEl.style.color = 'var(--text-3)';
         } else if(summary.sixshop_available === true && summary.sixshop_roas != null){
           const roasVal = Number(summary.sixshop_roas).toFixed(2);
-          roasText = `자사몰 ROAS ${roasVal}`;
+          roasText = `자사몰 ROAS ${roasVal} (지난 7일)`;
           subEl.textContent = `${dateStr} · ${roasText}`;
           subEl.style.color = '';
         } else {
