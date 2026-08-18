@@ -51,6 +51,13 @@
   .kpi.emph { border-color:rgba(79,124,255,.4); background:linear-gradient(180deg, rgba(79,124,255,.08), var(--panel)) }
   .kpi.spend-today { border-color:rgba(34,211,238,.4); background:linear-gradient(180deg, rgba(34,211,238,.08), var(--panel)) }
   .kpi.spend-yesterday { border-color:rgba(139,145,158,.35); background:linear-gradient(180deg, rgba(139,145,158,.06), var(--panel)) }
+  .kpi.budget-realtime { border-color:rgba(34,197,94,.4); background:linear-gradient(180deg, rgba(34,197,94,.08), var(--panel)) }
+
+  /* Budget progress bar */
+  .budget-bar { display:block; margin-top:8px; background:var(--panel-2); height:8px; border-radius:6px; overflow:hidden; position:relative }
+  .budget-bar-fill { height:100%; border-radius:6px; transition:width .3s ease; background:linear-gradient(90deg, var(--ok), #06d6a0) }
+  .budget-bar-fill.warn { background:linear-gradient(90deg, var(--warn), #fbbf24) }
+  .budget-bar-fill.err { background:linear-gradient(90deg, var(--err), #f87171) }
   .mini-roas { display:inline-block; padding:1px 6px; border-radius:4px; font-size:11px; font-weight:700 }
   .mini-roas.ok { background:rgba(34,197,94,.15); color:var(--ok) }
   .mini-roas.warn { background:rgba(245,158,11,.15); color:var(--warn) }
@@ -249,9 +256,23 @@
 
     const html = [];
 
-    // === 오늘 · 어제 (hero) — 지출 + MD 실 매출 ===
+    // === 오늘 지출 · 어제 지출 · 실시간 예산 (hero 3-column) ===
+    const bs = data.budget_summary || {};
+    const usedPct = Math.min(100, bs.used_pct || 0);
+    const barCls = usedPct >= 90 ? 'err' : usedPct >= 70 ? 'warn' : '';
+    const budgetTopCamp = (bs.campaigns || []).slice(0, 3).map(c =>
+      `${escapeHtml(c.name)} $${(c.budget||0).toFixed(0)}`
+    ).join(' · ');
+    const budgetSub = bs.daily_budget_total > 0
+      ? `<div style="display:flex;flex-direction:column;gap:3px">
+          <div><b style="font-size:13px">${fmt.money(bs.remaining)}</b> <span style="color:var(--muted);font-size:11px">남음 · ${usedPct.toFixed(0)}% 소진</span></div>
+          <div class="budget-bar"><div class="budget-bar-fill ${barCls}" style="width:${usedPct}%"></div></div>
+          <div style="color:var(--muted);font-size:10.5px;margin-top:2px">${bs.active_campaign_count}개 캠페인${budgetTopCamp?` · ${budgetTopCamp}`:''}</div>
+        </div>`
+      : `<span style="color:var(--muted)">예산 데이터 없음</span>`;
+
     const mdSourceBadge = md.source_file ? `<span style="color:var(--muted);font-size:10px;margin-left:6px">MD · 환율 1$=₩${md.usd_krw_rate}</span>` : '';
-    html.push(`<div class="kpi-section-title">🕐 실시간 지출 & MD 실 매출 ${mdSourceBadge}</div>`);
+    html.push(`<div class="kpi-section-title">🕐 실시간 지출 & 예산 ${mdSourceBadge}</div>`);
     html.push(`<div class="kpi-grid hero">
       <div class="kpi hero spend-today">
         <div class="label">오늘 지출 (KST)</div>
@@ -262,6 +283,11 @@
         <div class="label">어제 지출</div>
         <div class="value">${fmt.money(yesterday.spend)}</div>
         <div class="sub">${mdSub(mdYst, yesterday.spend, yesterday.roas, yesterday.purchase_value)}</div>
+      </div>
+      <div class="kpi hero budget-realtime">
+        <div class="label">실시간 예산 (일 총합)</div>
+        <div class="value">${fmt.money(bs.daily_budget_total || 0)}</div>
+        <div class="sub">${budgetSub}</div>
       </div>
     </div>`);
 
