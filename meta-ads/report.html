@@ -66,21 +66,57 @@
   /* KPI label description (한글 설명) */
   .kpi .label-ko { color:var(--muted); font-weight:500; font-size:10.5px; text-transform:none; letter-spacing:0; margin-left:5px }
 
-  /* Period filter tabs */
-  .period-tabs { display:inline-flex; gap:2px; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:3px; margin-right:10px }
+  /* === 공통 날짜 필터 바 === */
+  .date-filter-bar {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    background:var(--panel-2); border:1px solid var(--border);
+    border-radius:10px; padding:10px 14px; margin-bottom:16px;
+  }
+  .date-filter-bar .filter-label {
+    font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-right:4px; white-space:nowrap;
+  }
+  .period-tabs { display:inline-flex; gap:2px; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:3px }
   .period-tabs button { background:transparent; color:var(--muted); border:0; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all .12s }
   .period-tabs button:hover { color:var(--text); background:rgba(255,255,255,.04) }
   .period-tabs button.active { background:var(--accent); color:#fff }
   .period-tabs button:disabled { opacity:.35; cursor:not-allowed }
 
-  /* Filter bar layout expanded */
-  .filter-bar .right { display:flex; align-items:center; gap:12px; flex-wrap:wrap }
-  .period-info { font-size:11px; color:var(--muted) }
-  .period-info b { color:var(--text) }
+  /* 커스텀 날짜 구간 */
+  .custom-range-wrap {
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:3px 10px;
+  }
+  .custom-range-wrap label { font-size:11px; color:var(--muted); white-space:nowrap }
+  .custom-date-input {
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    border-radius:5px; padding:4px 7px; font-size:12px; font-family:inherit;
+    outline:none; cursor:pointer; width:110px;
+  }
+  .custom-date-input:focus { border-color:var(--accent) }
+  .custom-date-input::-webkit-calendar-picker-indicator { filter:invert(.7) }
+  .apply-custom-btn {
+    background:var(--accent); color:#fff; border:none; border-radius:5px;
+    padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap;
+  }
+  .apply-custom-btn:hover { opacity:.85 }
+  .apply-custom-btn:disabled { opacity:.4; cursor:not-allowed }
+
+  /* 필터 적용 인디케이터 */
+  .custom-active-badge {
+    display:none; align-items:center; gap:5px;
+    background:rgba(79,124,255,.18); border:1px solid rgba(79,124,255,.4);
+    color:var(--accent); border-radius:6px; padding:3px 9px; font-size:11px; font-weight:700;
+  }
+  .custom-active-badge.show { display:inline-flex }
+  .custom-active-badge .clear-custom { cursor:pointer; opacity:.7; margin-left:3px }
+  .custom-active-badge .clear-custom:hover { opacity:1 }
 
   /* Filter bar */
   .filter-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap }
   .filter-bar .left { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--muted) }
+  .filter-bar .right { display:flex; align-items:center; gap:12px; flex-wrap:wrap }
+  .period-info { font-size:11px; color:var(--muted) }
+  .period-info b { color:var(--text) }
   .toggle { display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border:1px solid var(--border); border-radius:999px; background:var(--panel-2); cursor:pointer; font-size:12px; color:var(--text); user-select:none }
   .toggle input { appearance:none; width:32px; height:18px; background:var(--border); border-radius:999px; position:relative; cursor:pointer; transition:background .18s }
   .toggle input::after { content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .18s }
@@ -92,7 +128,7 @@
   .status-badge.active { background:rgba(34,197,94,.18); color:var(--ok) }
   .status-badge.paused { background:rgba(139,145,158,.18); color:var(--muted) }
 
-  /* Ads accordion expander */
+  /* Expand toggle (arrow for accordion) */
   .expand-toggle {
     display:inline-block; width:16px; text-align:center; margin-right:4px;
     cursor:pointer; color:var(--muted); font-size:10px;
@@ -100,18 +136,68 @@
     vertical-align:middle;
   }
   .expand-toggle:hover { color:var(--accent) }
-  .expand-toggle.open { transform:rotate(90deg); color:var(--accent) }
+  .expand-toggle.open { color:var(--accent) }
   .expand-toggle.hidden { visibility:hidden }
 
-  tr.ads-expand-row td {
+  /* Campaign accordion row */
+  tr.camp-expand-row td {
     padding:0; border-bottom:1px solid var(--border);
-    background:rgba(15,21,36,.5);
+    background:rgba(10,13,20,.7);
   }
-  .ads-expand-inner {
-    padding:14px 16px; border-left:3px solid var(--accent);
+  .camp-expand-inner {
+    padding:16px 18px 18px; border-left:3px solid var(--accent);
     display:none;
   }
-  .ads-expand-inner.open { display:block }
+  .camp-expand-inner.open { display:block }
+
+  /* Campaign feedback block (inside accordion) */
+  .camp-feedback {
+    display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;
+  }
+  @media (max-width:700px) { .camp-feedback { grid-template-columns:1fr } }
+
+  .camp-fb-block {
+    background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:12px 14px;
+  }
+  .camp-fb-block .fb-block-title {
+    font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px;
+    font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:5px;
+  }
+  .camp-fb-block .verdict {
+    font-size:13.5px; font-weight:700; line-height:1.4; margin-bottom:6px;
+  }
+  .camp-fb-block .verdict.ok { color:var(--ok) }
+  .camp-fb-block .verdict.warn { color:var(--warn) }
+  .camp-fb-block .verdict.err { color:var(--err) }
+  .camp-fb-block .verdict.muted { color:var(--muted) }
+  .camp-fb-points { list-style:none; margin:0; padding:0 }
+  .camp-fb-points li {
+    font-size:12px; color:var(--muted); line-height:1.5; padding:4px 0;
+    border-bottom:1px dashed rgba(38,49,74,.7);
+    display:flex; gap:6px; align-items:flex-start;
+  }
+  .camp-fb-points li:last-child { border-bottom:none }
+  .camp-fb-points li b { color:var(--text); font-weight:600 }
+  .camp-fb-points li .pt-icon { flex-shrink:0; margin-top:1px }
+
+  /* Today vs Yesterday direction */
+  .direction-block {
+    background:var(--panel-2); border:1px solid var(--border); border-radius:8px;
+    padding:10px 14px; margin-bottom:12px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .direction-block .dir-label {
+    font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap;
+  }
+  .direction-block .dir-verdict {
+    font-size:13px; font-weight:700; flex:1;
+  }
+  .direction-block .dir-verdict.up { color:var(--ok) }
+  .direction-block .dir-verdict.down { color:var(--err) }
+  .direction-block .dir-verdict.flat { color:var(--warn) }
+  .direction-block .dir-detail { font-size:11px; color:var(--muted); white-space:nowrap }
+
+  /* Ads grid (active ads thumbnails) */
   .ads-expand-title {
     font-size:11px; color:var(--muted); text-transform:uppercase;
     letter-spacing:.5px; font-weight:700; margin-bottom:10px;
@@ -140,9 +226,7 @@
     border-radius:4px; font-size:9.5px; font-weight:700;
     display:flex; align-items:center; gap:3px;
   }
-  .ad-thumb .no-thumb {
-    text-align:center; padding:8px;
-  }
+  .ad-thumb .no-thumb { text-align:center; padding:8px }
   .ad-info { padding:8px 10px; display:flex; flex-direction:column; gap:4px }
   .ad-name {
     font-size:11.5px; font-weight:600; color:var(--text);
@@ -152,7 +236,7 @@
   }
   .ad-meta { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--muted) }
 
-  /* Grade badge (캠페인 등급) */
+  /* Grade badge */
   .grade-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10.5px; font-weight:800; margin-left:6px; vertical-align:middle; letter-spacing:.2px }
   .grade-badge.excellent { background:rgba(34,197,94,.22); color:#4ade80 }
   .grade-badge.good      { background:rgba(34,197,94,.15); color:var(--ok) }
@@ -161,26 +245,31 @@
   .grade-badge.critical  { background:rgba(239,68,68,.18); color:var(--err) }
   .grade-badge.learning  { background:rgba(139,145,158,.15); color:var(--muted) }
 
-  /* Feedback grid (3-column for scale/improve/reduce) */
+  /* Severity badge (for sort order hint) */
+  .severity-dot {
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    margin-right:6px; flex-shrink:0; vertical-align:middle;
+  }
+  .severity-dot.sev5 { background:var(--err) }
+  .severity-dot.sev4 { background:#fb923c }
+  .severity-dot.sev3 { background:var(--warn) }
+  .severity-dot.sev2 { background:var(--ok) }
+  .severity-dot.sev1 { background:#4ade80 }
+
+  /* Feedback cards (overall) */
   .feedback-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px }
   @media (max-width:1100px) { .feedback-grid-3 { grid-template-columns:1fr } }
   .fb-card.average h3 { color:var(--warn) }
   .fb-item .advice-list { margin-top:4px; padding-left:0; list-style:none }
   .fb-item .advice-list li { color:var(--muted); font-size:11.5px; line-height:1.5; padding:2px 0 }
   .fb-item .advice-list li b { color:var(--text); font-weight:600 }
-
-  /* ROAS target line 표시 */
   .kpi .roas-target { font-size:11px; color:var(--muted); margin-top:4px }
   .kpi .roas-target b { color:var(--text); font-weight:600 }
 
-  /* Ads tooltip (fixed positioning so it escapes table overflow) */
+  /* Ads tooltip (fixed) */
   .campaign-name-wrap { display:inline-block; max-width:100%; }
-  .has-ads { cursor:help }
-  .has-ads::after { content:'💬'; font-size:10px; margin-left:5px; opacity:.55 }
   #adsFloatingTip {
-    display:none;
-    position:fixed;
-    z-index:9999;
+    display:none; position:fixed; z-index:9999;
     min-width:260px; max-width:420px;
     background:#0f1524; border:1px solid var(--accent);
     border-radius:8px; padding:10px 12px;
@@ -197,7 +286,7 @@
   h2 { font-size:15px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px; color:var(--text) }
   h2 .count { color:var(--muted); font-weight:500; font-size:12px }
 
-  /* Feedback cards */
+  /* Overall feedback cards */
   .feedback-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px }
   @media (max-width:800px) { .feedback-grid { grid-template-columns:1fr } }
   .fb-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:var(--shadow) }
@@ -231,10 +320,24 @@
   .roas-tag.mid { background:rgba(245,158,11,.15); color:var(--warn) }
   .roas-tag.lo { background:rgba(239,68,68,.15); color:var(--err) }
 
+  /* Period info bar (below filter) */
+  .period-info-bar {
+    font-size:11.5px; color:var(--muted); margin-bottom:10px; line-height:1.6;
+  }
+  .period-info-bar b { color:var(--text) }
+
   /* Loading / error */
   .center { text-align:center; padding:60px 20px; color:var(--muted) }
   .spinner { display:inline-block; width:24px; height:24px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite }
   @keyframes spin { to { transform:rotate(360deg) } }
+
+  /* Custom range loading state */
+  .loading-overlay {
+    display:none; position:fixed; inset:0; background:rgba(10,13,20,.55);
+    z-index:8000; align-items:center; justify-content:center;
+  }
+  .loading-overlay.show { display:flex }
+  .loading-overlay .spinner { width:36px; height:36px; border-width:4px }
 </style>
 </head>
 <body>
@@ -258,6 +361,7 @@
   </div>
 </div>
 <div id="adsFloatingTip"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 
 <script>
   const params = new URLSearchParams(location.search);
@@ -266,7 +370,6 @@
   const el = id => document.getElementById(id);
 
   const fmt = {
-    // 사장님 요청: 모두 달러 표시
     money: (v) => '$' + (v||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     moneyBig: (v) => '$' + (v||0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
     int: v => (v||0).toLocaleString('en-US'),
@@ -289,12 +392,140 @@
     } catch { return iso }
   }
 
-  // 전역: 필터 상태
+  // === 전역 상태 ===
   let showActiveOnly = true;
-  let currentPeriod = null; // 기본은 data.default_preset 로 초기화
+  let currentPeriod = null;
+  let customSince = null, customUntil = null; // 커스텀 기간 (ISO date string)
   let lastRenderedData = null;
+  let currentSortKey = 'severity', currentSortDir = 'desc';
 
   function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // ── severity 점수: 캠페인 정렬 기준 (높을수록 "즉시 조치 필요")
+  function severityScore(r) {
+    const grade = r.grade || '';
+    let base = 0;
+    if (grade === 'critical')  base = 500;
+    else if (grade === 'poor') base = 300;
+    else if (grade === 'average') base = 200;
+    else if (grade === 'learning') base = 100;
+    else if (grade === 'good') base = 50;
+    else if (grade === 'excellent') base = 10;
+    // 지출 비율로 미세 조정 (같은 등급이면 큰 캠페인 먼저)
+    return base + (r.spend || 0) / 10000;
+  }
+
+  // ── 캠페인별 인라인 피드백 블록 HTML 생성 (7일 기준)
+  function buildCampFeedbackHtml(r, todayCamp, yesterdayCamp) {
+    const roas = r.roas || 0;
+    const ctr = r.ctr || 0;
+    const cpc = r.cpc || 0;
+    const cpm = r.cpm || 0;
+    const freq = r.frequency || 0;
+    const purchases = r.purchases || 0;
+    const spend = r.spend || 0;
+    const ctpPct = r.click_to_purchase_pct || 0;
+    const grade = r.grade || 'learning';
+
+    // ── 진단 포인트 (최대 3개, 임팩트 있는 것만)
+    const points = [];
+
+    // 1. ROAS 상태
+    if (grade === 'critical') {
+      points.push({ icon:'🔴', text:`ROAS <b>${roas}</b> — 손실 구간. 크리에이티브·오디언스 즉시 교체 or 일시중지.` });
+    } else if (grade === 'poor') {
+      const gap = (2.0 - roas).toFixed(2);
+      points.push({ icon:'🟠', text:`ROAS <b>${roas}</b> — 목표 2.0까지 ${gap} 부족. 아래 병목 해결이 우선.` });
+    } else if (grade === 'average') {
+      points.push({ icon:'🟡', text:`ROAS <b>${roas}</b> — 목표 근접. 한두 가지 개선으로 달성 가능.` });
+    } else if (grade === 'excellent' || grade === 'good') {
+      points.push({ icon:'✅', text:`ROAS <b>${roas}</b> — 목표 달성. 예산 확대 최적 구간.` });
+    }
+
+    // 2. CTR 문제 (1% 미만 = 크리에이티브 이슈)
+    if (ctr < 1.0 && (r.impressions || 0) > 5000) {
+      points.push({ icon:'🎨', text:`CTR <b>${ctr}%</b> — 낮음 (기준 1%+). 썸네일·첫 3초 hook·카피 교체 필요.` });
+    } else if (ctr < 1.5 && (r.impressions || 0) > 10000 && ['average','poor','critical'].includes(grade)) {
+      points.push({ icon:'🎨', text:`CTR <b>${ctr}%</b> — 개선 여지. 상위 크리에이티브 스타일 벤치마크.` });
+    }
+
+    // 3. 전환율 (클릭은 오는데 안 사는 경우)
+    if (ctr >= 1.5 && (r.clicks || 0) > 100 && ctpPct < 1.0) {
+      points.push({ icon:'🛒', text:`전환율 <b>${ctpPct}%</b> — 클릭은 오지만 구매 없음. 랜딩·상세페이지 UX·가격·리뷰 점검.` });
+    }
+
+    // 4. Frequency 피로 (3.5 초과)
+    if (freq >= 3.5) {
+      points.push({ icon:'🔁', text:`Frequency <b>${freq}</b> — 오디언스 피로. 크리에이티브 교체 or 룩얼라이크 확장 시급.` });
+    } else if (freq >= 2.8 && ['poor','critical'].includes(grade)) {
+      points.push({ icon:'🔁', text:`Frequency <b>${freq}</b> — 피로 임박. 곧 CPA 상승 구간. 새 소재 준비.` });
+    }
+
+    // 5. 구매 0건
+    if (purchases === 0 && spend >= 20) {
+      points.push({ icon:'⏸', text:`구매 <b>0건</b> (지출 ${fmt.money(spend)}) — 픽셀 이벤트·랜딩 즉시 점검.` });
+    }
+
+    // 포인트 최대 3개만
+    const shownPoints = points.slice(0, 3);
+
+    // ── 오늘 vs 어제 방향성
+    let dirHtml = '';
+    const tRoas = todayCamp ? (todayCamp.roas || 0) : null;
+    const yRoas = yesterdayCamp ? (yesterdayCamp.roas || 0) : null;
+    const tSpend = todayCamp ? (todayCamp.spend || 0) : 0;
+    const ySpend = yesterdayCamp ? (yesterdayCamp.spend || 0) : 0;
+
+    if (tRoas !== null && yRoas !== null) {
+      let dirClass, dirVerdict, dirDetail;
+      const diff = tRoas - yRoas;
+      if (diff > 0.3) {
+        dirClass = 'up';
+        dirVerdict = `오늘이 더 좋다 — ROAS ${fmt.dec(tRoas)} vs 어제 ${fmt.dec(yRoas)} (+${fmt.dec(diff)})`;
+        dirDetail = `지출 오늘 ${fmt.money(tSpend)} / 어제 ${fmt.money(ySpend)}`;
+      } else if (diff < -0.3) {
+        dirClass = 'down';
+        dirVerdict = `어제보다 나빠졌다 — ROAS ${fmt.dec(tRoas)} vs 어제 ${fmt.dec(yRoas)} (${fmt.dec(diff)})`;
+        dirDetail = `오늘 페이스 모니터링 필요`;
+      } else if (tSpend < 10) {
+        dirClass = 'flat';
+        dirVerdict = `오늘 아직 초반 — 지출 ${fmt.money(tSpend)}. 경과 지켜보자.`;
+        dirDetail = `어제 ROAS ${fmt.dec(yRoas)}`;
+      } else {
+        dirClass = 'flat';
+        dirVerdict = `어제와 비슷한 흐름 — ROAS ${fmt.dec(tRoas)} vs 어제 ${fmt.dec(yRoas)}`;
+        dirDetail = `안정권, 유지하며 지켜보자`;
+      }
+      dirHtml = `<div class="direction-block">
+        <span class="dir-label">오늘 vs 어제</span>
+        <span class="dir-verdict ${dirClass}">${dirVerdict}</span>
+        <span class="dir-detail">${dirDetail}</span>
+      </div>`;
+    } else if (tRoas === null) {
+      dirHtml = `<div class="direction-block">
+        <span class="dir-label">오늘 vs 어제</span>
+        <span class="dir-verdict flat">오늘 데이터 없음 — 아직 집행 전</span>
+      </div>`;
+    }
+
+    // ── 7일 진단 타이틀 색상
+    const verdictCls = grade === 'critical' ? 'err' : grade === 'poor' ? 'err' : grade === 'average' ? 'warn' : grade === 'learning' ? 'muted' : 'ok';
+
+    const sevenDayBlock = `<div class="camp-fb-block" style="grid-column:1/-1">
+      <div class="fb-block-title">📊 7일 진단</div>
+      <div class="verdict ${verdictCls}">${escapeHtml(r.headline || '')}</div>
+      ${shownPoints.length ? `<ul class="camp-fb-points">${shownPoints.map(p =>
+        `<li><span class="pt-icon">${p.icon}</span><span>${p.text}</span></li>`
+      ).join('')}</ul>` : '<div style="color:var(--muted);font-size:12px;margin-top:4px">특이사항 없음 — 현행 유지</div>'}
+    </div>`;
+
+    const dirSection = dirHtml ? `<div style="grid-column:1/-1">${dirHtml}</div>` : '';
+
+    return `<div class="camp-feedback">
+      ${dirSection}
+      ${sevenDayBlock}
+    </div>`;
+  }
 
   function render(data){
     lastRenderedData = data;
@@ -310,7 +541,6 @@
 
     const activeCount = data.active_campaign_count ?? (data.campaigns||[]).filter(c => c.is_active).length;
 
-    // MD 매출 서브텍스트 (실 매출 USD + KRW · 실 ROAS)
     const mdSub = (mdSlice, adSpend) => {
       if (!mdSlice.usd) return `<span style="color:var(--muted)">매출 데이터 없음</span>`;
       const realRoas = adSpend ? (mdSlice.usd / adSpend) : 0;
@@ -326,7 +556,6 @@
     el('periodInfo').innerHTML = `📅 ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
     el('generatedInfo').innerHTML = `🕐 ${fmtDate(data.generated_at)}`;
 
-    // Status banner: 계정 상태만 (심각한 경우만)
     if (acct.status_code && acct.status_code !== 1) {
       const cls = [101, 100, 2].includes(acct.status_code) ? 'err' : 'warn';
       const banner = el('statusBanner');
@@ -334,9 +563,39 @@
       banner.innerHTML = `⚠ ${acct.status_label}`;
     }
 
+    if (!currentPeriod) currentPeriod = data.default_preset || 'last_7d';
+
+    // 날짜 필터 공통 HTML
+    const periodOptions = data.period_options || [];
+    const today_str = new Date().toISOString().slice(0,10);
+    const minDate = '2024-01-01';
+
+    function buildDateFilterHtml(uid) {
+      const tabsHtml = periodOptions.length
+        ? `<div class="period-tabs" id="periodTabs_${uid}">${periodOptions.map(p =>
+            `<button data-period="${p.key}" ${p.key===currentPeriod&&!customSince?'class="active"':''} ${!p.available?'disabled title="데이터 없음"':''}>${p.label}</button>`
+          ).join('')}</div>`
+        : '';
+      return `<div class="date-filter-bar" id="filterBar_${uid}">
+        <span class="filter-label">기간</span>
+        ${tabsHtml}
+        <div class="custom-range-wrap">
+          <label>직접 선택</label>
+          <input type="date" class="custom-date-input" id="customSince_${uid}" min="${minDate}" max="${today_str}" value="${customSince||''}">
+          <span style="color:var(--muted);font-size:11px">~</span>
+          <input type="date" class="custom-date-input" id="customUntil_${uid}" min="${minDate}" max="${today_str}" value="${customUntil||''}">
+          <button class="apply-custom-btn" id="applyCustom_${uid}">적용</button>
+        </div>
+        <span class="custom-active-badge ${customSince?'show':''}" id="customBadge_${uid}">
+          커스텀: ${customSince||''} ~ ${customUntil||''}
+          <span class="clear-custom" data-uid="${uid}" title="커스텀 기간 해제">✕</span>
+        </span>
+      </div>`;
+    }
+
     const html = [];
 
-    // === 오늘 지출 · 어제 지출 · 실시간 예산 (hero 3-column) ===
+    // === 오늘 지출 · 어제 지출 · 실시간 예산 (항상 고정, 필터 무관) ===
     const bs = data.budget_summary || {};
     const usedPct = Math.min(100, bs.used_pct || 0);
     const barCls = usedPct >= 90 ? 'err' : usedPct >= 70 ? 'warn' : '';
@@ -369,32 +628,221 @@
       </div>
     </div>`);
 
-    // === 핵심 지표: ROAS · CPA · 지출 (목표 ROAS 2.0 기준) ===
+    // === 핵심 지표 섹션 (날짜 필터 포함) ===
+    const targetRoas = data.target_roas || 2.0;
+    html.push(`<section id="kpiSection">
+      <h2>🎯 핵심 지표 <span class="count">· 목표 ROAS ${targetRoas.toFixed(1)}</span></h2>
+      ${buildDateFilterHtml('kpi')}
+      <div id="kpiCards"></div>
+      <div class="kpi-section-title" style="margin-top:14px">📊 보조 지표</div>
+      <div id="subKpiCards"></div>
+    </section>`);
+
+    // === 캠페인 상세 (보조지표 바로 밑 — 피드백 섹션보다 먼저) ===
+    html.push(`<section id="campSection">
+      <h2>📋 캠페인 상세 <span class="count" id="campCount"></span></h2>
+      ${buildDateFilterHtml('camp')}
+      <div class="period-info-bar" id="periodInfoBar"></div>
+      <div class="filter-bar">
+        <div class="left"></div>
+        <div class="right">
+          <label class="toggle" for="activeOnly">
+            <input type="checkbox" id="activeOnly" ${showActiveOnly ? 'checked' : ''}>
+            <span>집행중만</span>
+          </label>
+        </div>
+      </div>
+      <div class="table-wrap"><div class="table-scroll"><table id="campTbl">
+        <thead><tr>
+          <th class="name-col" data-key="name">캠페인 <span class="arrow">↕</span></th>
+          <th data-key="severity" class="sort-desc">우선순위 <span class="arrow">▼</span></th>
+          <th data-key="roas">ROAS <span class="arrow">↕</span></th>
+          <th data-key="cpa">구매당 가격 <span class="arrow">↕</span></th>
+          <th data-key="spend">지출 <span class="arrow">↕</span></th>
+          <th data-key="purchase_value">매출 <span class="arrow">↕</span></th>
+          <th data-key="purchases">구매 <span class="arrow">↕</span></th>
+          <th data-key="ctr">CTR <span class="arrow">↕</span></th>
+          <th data-key="cpc">CPC <span class="arrow">↕</span></th>
+          <th data-key="impressions">노출 <span class="arrow">↕</span></th>
+        </tr></thead>
+        <tbody id="campBody"></tbody>
+      </table></div></div>
+    </section>`);
+
+    // === 종합 피드백 섹션 (캠페인 상세 아래) ===
+    const renderCampItem = x => `
+      <div class="fb-item">
+        <div class="name">${escapeHtml(x.name)}</div>
+        <div class="reason">${x.reason}</div>
+        ${(x.advice && x.advice.length) ? `<ul class="advice-list">${x.advice.slice(0,3).map(a=>`<li>${a}</li>`).join('')}</ul>` : ''}
+      </div>`;
+
+    html.push(`<section style="margin-top:24px">
+      <h2>💡 종합 피드백 & 액션</h2>
+      <div class="feedback-grid" style="margin-bottom:14px">
+        <div class="fb-card action"><h3>📌 액션 아이템</h3>
+          ${(fb.actions && fb.actions.length) ? fb.actions.map(a=>`<div class="fb-item action">${a}</div>`).join('') : '<div class="fb-empty">특별한 액션 없음</div>'}
+        </div>
+        <div class="fb-card info"><h3>🔍 데이터 인사이트</h3>
+          ${(fb.insights && fb.insights.length) ? fb.insights.map(i=>`<div class="fb-item insight">${i}</div>`).join('') : '<div class="fb-empty">인사이트 없음</div>'}
+        </div>
+      </div>
+      <h2>🎯 캠페인 최적화 제안 <span class="count">· 목표 ROAS ${targetRoas.toFixed(1)}</span></h2>
+      <div class="feedback-grid-3">
+        <div class="fb-card ok"><h3>🚀 예산 확대 (목표 달성)</h3>
+          ${(fb.scale_up && fb.scale_up.length) ? fb.scale_up.map(renderCampItem).join('') : '<div class="fb-empty">목표 달성 캠페인 없음</div>'}
+        </div>
+        <div class="fb-card average"><h3>⏫ 개선 필요 (목표 근접)</h3>
+          ${(fb.improve && fb.improve.length) ? fb.improve.map(renderCampItem).join('') : '<div class="fb-empty">개선 대상 없음</div>'}
+        </div>
+        <div class="fb-card err"><h3>🚨 즉시 조치</h3>
+          ${(fb.reduce_or_kill && fb.reduce_or_kill.length) ? fb.reduce_or_kill.map(renderCampItem).join('') : '<div class="fb-empty">위험 캠페인 없음</div>'}
+        </div>
+      </div>
+    </section>`);
+
+    el('content').innerHTML = html.join('');
+
+    // KPI 초기 렌더
+    renderKpiCards(data);
+
+    // 테이블 초기 렌더
+    renderTable('severity', 'desc');
+    setupSort();
+
+    // 필터 토글
+    const toggle = el('activeOnly');
+    if (toggle) toggle.addEventListener('change', e => {
+      showActiveOnly = e.target.checked;
+      renderTable(currentSortKey, currentSortDir);
+    });
+
+    // 날짜 필터 이벤트 연결 (kpi + camp 양쪽)
+    ['kpi', 'camp'].forEach(uid => {
+      // 프리셋 탭
+      const tabsEl = el(`periodTabs_${uid}`);
+      if (tabsEl) {
+        tabsEl.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            customSince = null; customUntil = null;
+            currentPeriod = btn.dataset.period;
+            syncAllFilters();
+            renderKpiCards(lastRenderedData);
+            renderTable(currentSortKey, currentSortDir);
+          });
+        });
+      }
+      // 커스텀 날짜 적용
+      const applyBtn = el(`applyCustom_${uid}`);
+      if (applyBtn) {
+        applyBtn.addEventListener('click', () => {
+          const s = el(`customSince_${uid}`).value;
+          const u = el(`customUntil_${uid}`).value;
+          if (!s || !u) { alert('시작일과 종료일을 모두 선택하세요.'); return; }
+          if (s > u) { alert('시작일이 종료일보다 늦을 수 없습니다.'); return; }
+          customSince = s; customUntil = u;
+          syncAllFilters();
+          renderKpiCards(lastRenderedData);
+          renderTable(currentSortKey, currentSortDir);
+        });
+      }
+      // 커스텀 해제 버튼
+      const badge = el(`customBadge_${uid}`);
+      if (badge) {
+        badge.querySelector('.clear-custom')?.addEventListener('click', () => {
+          customSince = null; customUntil = null;
+          syncAllFilters();
+          renderKpiCards(lastRenderedData);
+          renderTable(currentSortKey, currentSortDir);
+        });
+      }
+    });
+  }
+
+  // 두 필터 바의 UI를 현재 상태와 동기화
+  function syncAllFilters() {
+    ['kpi', 'camp'].forEach(uid => {
+      // 프리셋 탭 active 상태
+      const tabsEl = el(`periodTabs_${uid}`);
+      if (tabsEl) {
+        tabsEl.querySelectorAll('button').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.period === currentPeriod && !customSince);
+        });
+      }
+      // 날짜 input 값
+      const sinceEl = el(`customSince_${uid}`);
+      const untilEl = el(`customUntil_${uid}`);
+      if (sinceEl) sinceEl.value = customSince || '';
+      if (untilEl) untilEl.value = customUntil || '';
+      // 커스텀 badge
+      const badge = el(`customBadge_${uid}`);
+      if (badge) {
+        badge.classList.toggle('show', !!customSince);
+        if (customSince) badge.innerHTML = `커스텀: ${customSince} ~ ${customUntil} <span class="clear-custom" data-uid="${uid}" title="커스텀 기간 해제">✕</span>`;
+        // 이벤트 재연결
+        badge.querySelector('.clear-custom')?.addEventListener('click', () => {
+          customSince = null; customUntil = null;
+          syncAllFilters();
+          renderKpiCards(lastRenderedData);
+          renderTable(currentSortKey, currentSortDir);
+        });
+      }
+    });
+  }
+
+  // 현재 기간에 맞는 summary 가져오기
+  function getCurrentSummary() {
+    if (!lastRenderedData) return lastRenderedData?.summary || {};
+    if (customSince) {
+      // 커스텀 기간: 선택된 preset 중 가장 가까운 것 사용 (커스텀 API 미지원 시 안내)
+      // 현재는 pre-aggregated 데이터만 있으므로 closest preset 사용 + 안내
+      return (lastRenderedData.summaries_by_period || {})[currentPeriod] || lastRenderedData.summary || {};
+    }
+    return (lastRenderedData.summaries_by_period || {})[currentPeriod] || lastRenderedData.summary || {};
+  }
+
+  // 핵심 + 보조 KPI 카드 렌더
+  function renderKpiCards(data) {
+    if (!data) return;
+    const s = getCurrentSummary();
     const targetRoas = data.target_roas || 2.0;
     const roasPct = Math.round((s.roas / targetRoas) * 100);
     const roasCls = s.roas>=targetRoas ? 'ok' : s.roas>=1 ? 'warn' : 'err';
-    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.display || ''} · 목표 ROAS ${targetRoas.toFixed(1)}</div>`);
-    html.push(`<div class="kpi-grid hero">
-      <div class="kpi hero ${roasCls}">
-        <div class="label">ROAS</div>
-        <div class="value">${fmt.dec(s.roas)}</div>
-        <div class="roas-target">목표 <b>${targetRoas.toFixed(1)}</b> 대비 <b>${roasPct}%</b></div>
-      </div>
-      <div class="kpi hero emph">
-        <div class="label">구매당 가격</div>
-        <div class="value">${fmt.money(s.cpa)}</div>
-        <div class="sub">구매 ${fmt.int(s.purchases)}건</div>
-      </div>
-      <div class="kpi hero emph">
-        <div class="label">지출</div>
-        <div class="value">${fmt.money(s.spend)}</div>
-        <div class="sub">매출 ${fmt.money(s.purchase_value)} · ${activeCount}/${(data.campaigns||[]).length}개 집행중</div>
-      </div>
-    </div>`);
+    const activeCount = data.active_campaign_count ?? (data.campaigns||[]).filter(c => c.is_active).length;
 
-    // === 보조 지표 ===
-    html.push(`<div class="kpi-section-title">📊 보조 지표</div>`);
-    html.push(`<div class="kpi-grid">
+    // 기간 라벨
+    let periodLabel = '';
+    if (customSince) {
+      periodLabel = `${customSince} ~ ${customUntil} (커스텀 — 가장 근접 프리셋 기준)`;
+    } else {
+      const meta = (data.period_meta || {})[currentPeriod];
+      periodLabel = meta ? `${meta.label} (${meta.since} ~ ${meta.until})` : currentPeriod;
+    }
+
+    const kpiEl = el('kpiCards');
+    if (kpiEl) kpiEl.innerHTML = `
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">📅 ${periodLabel}</div>
+      <div class="kpi-grid hero">
+        <div class="kpi hero ${roasCls}">
+          <div class="label">ROAS</div>
+          <div class="value">${fmt.dec(s.roas)}</div>
+          <div class="roas-target">목표 <b>${targetRoas.toFixed(1)}</b> 대비 <b>${roasPct}%</b></div>
+        </div>
+        <div class="kpi hero emph">
+          <div class="label">구매당 가격</div>
+          <div class="value">${fmt.money(s.cpa)}</div>
+          <div class="sub">구매 ${fmt.int(s.purchases)}건</div>
+        </div>
+        <div class="kpi hero emph">
+          <div class="label">지출</div>
+          <div class="value">${fmt.money(s.spend)}</div>
+          <div class="sub">매출 ${fmt.money(s.purchase_value)} · ${activeCount}개 집행중</div>
+        </div>
+      </div>`;
+
+    const subEl = el('subKpiCards');
+    if (subEl) subEl.innerHTML = `<div class="kpi-grid">
       <div class="kpi">
         <div class="label">CTR <span class="label-ko">클릭률</span></div>
         <div class="value">${fmt.pct(s.ctr)}</div>
@@ -412,137 +860,67 @@
         <div class="label">노출</div>
         <div class="value">${fmt.int(s.impressions)}</div>
       </div>
-    </div>`);
-
-    // Feedback: Actions + Insights top row
-    html.push(`<section style="margin-top:24px"><h2>💡 액션 & 인사이트</h2><div class="feedback-grid">
-      <div class="fb-card action"><h3>📌 액션 아이템</h3>
-        ${(fb.actions && fb.actions.length) ? fb.actions.map(a=>`<div class="fb-item action">${a}</div>`).join('') : '<div class="fb-empty">특별한 액션 없음</div>'}
-      </div>
-      <div class="fb-card info"><h3>🔍 데이터 인사이트</h3>
-        ${(fb.insights && fb.insights.length) ? fb.insights.map(i=>`<div class="fb-item insight">${i}</div>`).join('') : '<div class="fb-empty">인사이트 없음</div>'}
-      </div>
-    </div></section>`);
-
-    // Feedback: Scale up + Improve + Reduce (3-column, 목표 ROAS 2.0 기준)
-    const renderCampItem = x => `
-      <div class="fb-item">
-        <div class="name">${escapeHtml(x.name)}</div>
-        <div class="reason">${x.reason}</div>
-        ${(x.advice && x.advice.length) ? `<ul class="advice-list">${x.advice.slice(0,3).map(a=>`<li>${a}</li>`).join('')}</ul>` : ''}
-      </div>`;
-
-    html.push(`<section><h2>🎯 캠페인 최적화 제안 <span class="count">· 목표 ROAS ${targetRoas.toFixed(1)}</span></h2><div class="feedback-grid-3">
-      <div class="fb-card ok"><h3>🚀 예산 확대 (목표 달성)</h3>
-        ${(fb.scale_up && fb.scale_up.length) ? fb.scale_up.map(renderCampItem).join('') : '<div class="fb-empty">목표 달성 캠페인 없음</div>'}
-      </div>
-      <div class="fb-card average"><h3>⏫ 개선 필요 (목표 근접)</h3>
-        ${(fb.improve && fb.improve.length) ? fb.improve.map(renderCampItem).join('') : '<div class="fb-empty">개선 대상 없음</div>'}
-      </div>
-      <div class="fb-card err"><h3>🚨 즉시 조치</h3>
-        ${(fb.reduce_or_kill && fb.reduce_or_kill.length) ? fb.reduce_or_kill.map(renderCampItem).join('') : '<div class="fb-empty">위험 캠페인 없음</div>'}
-      </div>
-    </div></section>`);
-
-    // Filter bar + Full campaigns table
-    if (!currentPeriod) currentPeriod = data.default_preset || 'last_7d';
-    const periodOptions = data.period_options || [];
-    const periodTabsHtml = periodOptions.length
-      ? `<div class="period-tabs">${periodOptions.map(p =>
-          `<button data-period="${p.key}" ${p.key===currentPeriod?'class="active"':''} ${!p.available?'disabled title="데이터 없음"':''}>${p.label}</button>`
-        ).join('')}</div>`
-      : '';
-
-    html.push(`<section>
-      <h2>📋 캠페인 상세 <span class="count" id="campCount"></span></h2>
-      <div class="filter-bar">
-        <div class="left"></div>
-        <div class="right">
-          ${periodTabsHtml}
-          <label class="toggle" for="activeOnly">
-            <input type="checkbox" id="activeOnly" ${showActiveOnly ? 'checked' : ''}>
-            <span>집행중만</span>
-          </label>
-        </div>
-      </div>
-      <div class="period-info" id="periodInfoBar" style="margin-bottom:10px"></div>
-      <div class="table-wrap"><div class="table-scroll"><table id="campTbl">
-        <thead><tr>
-          <th class="name-col" data-key="name">캠페인 <span class="arrow">↕</span></th>
-          <th data-key="roas" class="sort-desc">ROAS <span class="arrow">▼</span></th>
-          <th data-key="cpa">구매당 가격 <span class="arrow">↕</span></th>
-          <th data-key="spend">지출 <span class="arrow">↕</span></th>
-          <th data-key="purchase_value">매출 <span class="arrow">↕</span></th>
-          <th data-key="purchases">구매 <span class="arrow">↕</span></th>
-          <th data-key="ctr">CTR <span class="arrow">↕</span></th>
-          <th data-key="cpc">CPC <span class="arrow">↕</span></th>
-          <th data-key="clicks">클릭 <span class="arrow">↕</span></th>
-          <th data-key="impressions">노출 <span class="arrow">↕</span></th>
-        </tr></thead>
-        <tbody id="campBody"></tbody>
-      </table></div></div>
-    </section>`);
-
-    el('content').innerHTML = html.join('');
-
-    // 초기 정렬: ROAS 내림차순 (핵심 지표 우선 노출)
-    renderTable('roas', 'desc');
-    setupSort();
-
-    // 필터 토글
-    const toggle = el('activeOnly');
-    if (toggle) toggle.addEventListener('change', e => {
-      showActiveOnly = e.target.checked;
-      renderTable(currentSortKey, currentSortDir);
-    });
-
-    // 기간 탭
-    document.querySelectorAll('.period-tabs button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.disabled) return;
-        currentPeriod = btn.dataset.period;
-        document.querySelectorAll('.period-tabs button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderTable(currentSortKey, currentSortDir);
-      });
-    });
+    </div>`;
   }
-
-  let currentSortKey = 'roas', currentSortDir = 'desc';
 
   function renderTable(sortKey, dir){
     currentSortKey = sortKey; currentSortDir = dir;
     if (!lastRenderedData) return;
 
-    // 선택된 기간 데이터 우선. 없으면 기본 campaigns fallback.
-    const periodCampaigns = lastRenderedData.campaigns_by_period || {};
-    const periodMeta = lastRenderedData.period_meta || {};
-    const periodRows = (currentPeriod && periodCampaigns[currentPeriod]) || lastRenderedData.campaigns || [];
-    let rows = [...periodRows];
+    const data = lastRenderedData;
+    const periodCampaigns = data.campaigns_by_period || {};
+    const periodMeta = data.period_meta || {};
+
+    let rows;
+    if (customSince) {
+      // 커스텀 기간: 지원 안됨 → 현재 선택 프리셋 사용 + 상단 안내
+      rows = [...((periodCampaigns[currentPeriod]) || data.campaigns || [])];
+    } else {
+      rows = [...((currentPeriod && periodCampaigns[currentPeriod]) || data.campaigns || [])];
+    }
+
     if (showActiveOnly) rows = rows.filter(r => r.is_active);
 
-    rows.sort((a,b) => {
-      const av = a[sortKey] ?? 0, bv = b[sortKey] ?? 0;
+    // 오늘/어제 캠페인 맵 (accordion 피드백용)
+    const todayMap = {};
+    const yesterdayMap = {};
+    (periodCampaigns['today'] || []).forEach(c => { todayMap[c.name] = c; });
+    (periodCampaigns['yesterday'] || []).forEach(c => { yesterdayMap[c.name] = c; });
+
+    // severity 점수 계산 (정렬 전)
+    rows.forEach(r => { r._severity = severityScore(r); });
+
+    rows.sort((a, b) => {
+      let av, bv;
+      if (sortKey === 'severity') {
+        av = a._severity ?? 0; bv = b._severity ?? 0;
+      } else if (sortKey === 'name') {
+        av = a.name || ''; bv = b.name || '';
+      } else {
+        av = a[sortKey] ?? 0; bv = b[sortKey] ?? 0;
+      }
       if (typeof av === 'string') return dir==='asc' ? av.localeCompare(bv) : bv.localeCompare(av);
       return dir==='asc' ? av - bv : bv - av;
     });
 
-    const totalAll = periodRows.length;
-    const activeAll = periodRows.filter(r => r.is_active).length;
+    const totalAll = (customSince ? periodCampaigns[currentPeriod] : (currentPeriod && periodCampaigns[currentPeriod])) || data.campaigns || [];
+    const activeAll = [...totalAll].filter(r => r.is_active).length;
     const countEl = el('campCount');
     if (countEl) countEl.textContent = showActiveOnly
-      ? `· 집행중 ${rows.length}/${activeAll}개 표시 (전체 ${totalAll}개)`
+      ? `· 집행중 ${rows.length}/${activeAll}개 표시 (전체 ${totalAll.length}개)`
       : `· 전체 ${rows.length}개 (집행중 ${activeAll}개)`;
 
     // 기간 요약 정보 바
     const infoBar = el('periodInfoBar');
     if (infoBar) {
-      const meta = periodMeta[currentPeriod];
-      const psum = (lastRenderedData.summaries_by_period || {})[currentPeriod];
-      if (meta && psum) {
-        infoBar.innerHTML = `📅 <b>${meta.label}</b> (${meta.since} ~ ${meta.until}) · 지출 <b>${fmt.money(psum.spend)}</b> · 매출 <b>${fmt.money(psum.purchase_value)}</b> · ROAS <b>${fmt.dec(psum.roas)}</b> · 구매 ${fmt.int(psum.purchases)}건`;
+      if (customSince) {
+        infoBar.innerHTML = `📅 커스텀 기간 <b>${customSince} ~ ${customUntil}</b> — 사전 집계 데이터가 없어 가장 근접한 프리셋(<b>${currentPeriod}</b>) 기준으로 표시됩니다.`;
       } else {
-        infoBar.innerHTML = '';
+        const meta = periodMeta[currentPeriod];
+        const psum = (data.summaries_by_period || {})[currentPeriod];
+        if (meta && psum) {
+          infoBar.innerHTML = `📅 <b>${meta.label}</b> (${meta.since} ~ ${meta.until}) · 지출 <b>${fmt.money(psum.spend)}</b> · 매출 <b>${fmt.money(psum.purchase_value)}</b> · ROAS <b>${fmt.dec(psum.roas)}</b> · 구매 ${fmt.int(psum.purchases)}건`;
+        } else { infoBar.innerHTML = ''; }
       }
     }
 
@@ -554,13 +932,25 @@
       const gradeBadge = r.grade
         ? `<span class="grade-badge ${r.grade}">${r.grade_icon || ''} ${escapeHtml(r.grade_label || '')}</span>`
         : '';
-      const nameCls = 'campaign-name-wrap has-tip';
-      const toggleCls = activeAds.length ? 'expand-toggle' : 'expand-toggle hidden';
+
+      // 심각도 점 색상
+      const sevCls = r.grade === 'critical' ? 'sev5' : r.grade === 'poor' ? 'sev4' : r.grade === 'average' ? 'sev3' : r.grade === 'good' ? 'sev2' : 'sev1';
+
+      // 캠페인별 피드백 블록 (accordion 안)
+      const feedbackHtml = buildCampFeedbackHtml(r, todayMap[r.name] || null, yesterdayMap[r.name] || null);
+
+      const hasContent = activeAds.length > 0 || true; // 항상 accordion 허용 (피드백 있으므로)
+      const toggleCls = 'expand-toggle';
+
       return `
       <tr data-camp-row="${idx}">
         <td class="name-col">
-          <span class="${toggleCls}" data-toggle-idx="${idx}" title="집행중 광고 ${activeAds.length}개 펼치기">▶</span>
-          <span class="${nameCls}" data-camp-idx="${idx}" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}${gradeBadge}${statusBadge}</span>
+          <span class="${toggleCls}" data-toggle-idx="${idx}" title="캠페인 상세 펼치기">▶</span>
+          <span class="campaign-name-wrap" data-camp-idx="${idx}" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}${gradeBadge}${statusBadge}</span>
+        </td>
+        <td class="num" style="text-align:center">
+          <span class="severity-dot ${sevCls}" title="${escapeHtml(r.grade_label||'')}"></span>
+          <span style="font-size:11px;color:var(--muted)">${escapeHtml(r.grade_label||'')}</span>
         </td>
         <td class="num">${roasTag(r.roas)}</td>
         <td class="num">${r.cpa ? fmt.money(r.cpa) : '—'}</td>
@@ -569,19 +959,19 @@
         <td class="num">${fmt.int(r.purchases)}</td>
         <td class="num">${fmt.pct(r.ctr)}</td>
         <td class="num">${fmt.money(r.cpc)}</td>
-        <td class="num">${fmt.int(r.clicks)}</td>
         <td class="num">${fmt.int(r.impressions)}</td>
       </tr>
-      <tr class="ads-expand-row" data-expand-idx="${idx}"><td colspan="10">
-        <div class="ads-expand-inner" data-inner-idx="${idx}">
-          <div class="ads-expand-title">🟢 집행중 광고 ${activeAds.length}개</div>
-          <div class="ads-grid">${activeAds.map(renderAdCard).join('') || '<div style="color:var(--muted);font-style:italic">활성 광고 없음</div>'}</div>
+      <tr class="camp-expand-row" data-expand-idx="${idx}"><td colspan="10">
+        <div class="camp-expand-inner" data-inner-idx="${idx}">
+          ${feedbackHtml}
+          ${activeAds.length ? `<div class="ads-expand-title">🟢 집행중 광고 ${activeAds.length}개</div>
+          <div class="ads-grid">${activeAds.map(renderAdCard).join('')}</div>` : '<div style="color:var(--muted);font-size:12px;font-style:italic">활성 광고 없음</div>'}
         </div>
       </td></tr>
     `; }).join('') || '<tr><td colspan="10" class="center" style="padding:32px;color:var(--muted)">표시할 캠페인이 없습니다.</td></tr>';
 
     attachHoverTips(rows);
-    attachAdExpanders();
+    attachExpanders();
   }
 
   function renderAdCard(ad){
@@ -600,12 +990,12 @@
       </div>`;
   }
 
-  function attachAdExpanders(){
-    document.querySelectorAll('.expand-toggle:not(.hidden)').forEach(tog => {
+  function attachExpanders(){
+    document.querySelectorAll('.expand-toggle').forEach(tog => {
       tog.addEventListener('click', ev => {
         ev.stopPropagation();
         const idx = tog.dataset.toggleIdx;
-        const inner = document.querySelector(`.ads-expand-inner[data-inner-idx="${idx}"]`);
+        const inner = document.querySelector(`.camp-expand-inner[data-inner-idx="${idx}"]`);
         if (!inner) return;
         const opening = !inner.classList.contains('open');
         inner.classList.toggle('open', opening);
@@ -623,40 +1013,22 @@
         const idx = parseInt(el.dataset.campIdx, 10);
         const r = rows[idx];
         if (!r) return;
-
         const parts = [];
-
-        // 진단 헤드라인 & 조언 (모든 캠페인)
-        if (r.headline) {
-          parts.push(`<div class="tip-title" style="color:var(--text)">${r.headline}</div>`);
-        }
+        if (r.headline) parts.push(`<div class="tip-title" style="color:var(--text)">${r.headline}</div>`);
         if (r.advice && r.advice.length) {
-          parts.push(`<div style="margin-bottom:8px">`);
-          r.advice.forEach(a => {
-            parts.push(`<div class="tip-item" style="padding:4px 0;font-size:11.5px;line-height:1.5;color:var(--muted)"><span style="color:var(--text)">${a}</span></div>`);
-          });
-          parts.push(`</div>`);
+          r.advice.forEach(a => { parts.push(`<div class="tip-item" style="padding:4px 0;font-size:11.5px;color:var(--muted)"><span style="color:var(--text)">${a}</span></div>`); });
         }
-
-        // 집행중 광고 리스트 (하단)
         const ads = r.active_ads || [];
         if (ads.length) {
           parts.push(`<div class="tip-title" style="margin-top:4px">🟢 집행중 광고 ${ads.length}개</div>`);
-          ads.forEach(a => {
-            parts.push(`<div class="tip-item">• ${escapeHtml(a.name)}</div>`);
-          });
-        } else if (r.is_active) {
-          parts.push(`<div class="tip-title" style="margin-top:4px">집행중 광고</div><div class="tip-empty">활성 광고 없음</div>`);
+          ads.forEach(a => { parts.push(`<div class="tip-item">• ${escapeHtml(a.name)}</div>`); });
         }
-
         if (!parts.length) { tip.style.display = 'none'; return; }
         tip.innerHTML = parts.join('');
         tip.style.display = 'block';
         positionTip(tip, el);
       });
-      el.addEventListener('mousemove', ev => {
-        if (tip.style.display === 'block') positionTip(tip, el);
-      });
+      el.addEventListener('mousemove', () => { if (tip.style.display === 'block') positionTip(tip, el); });
       el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
     });
   }
