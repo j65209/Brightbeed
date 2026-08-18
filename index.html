@@ -6363,7 +6363,7 @@
     const today=s.today||{}, yst=s.yesterday||{}, td=s.thirtyDays||{};
     const cards=[
       {label:'오늘',      rev:today.revenue, ord:today.orders, cls:'', usd:true},
-      {label:'어제',      rev:yst.revenue,   ord:yst.orders,   cls:''},
+      {label:'어제',      rev:yst.revenue,   ord:yst.orders,   cls:'', usd:true},
       {label:'최근 30일', rev:td.revenue,    ord:td.orders,    cls:' is-secondary'},
     ];
     return cards.map(c=>{
