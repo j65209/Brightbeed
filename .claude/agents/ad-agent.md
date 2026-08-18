@@ -45,11 +45,12 @@ model: sonnet
 
 ### 1. 리포트 갱신 (가장 흔함)
 ```bash
-bash ~/projects/fb-ads/refresh_dashboard.sh last_7d ct     # Cleartype 지난 7일
-bash ~/projects/fb-ads/refresh_dashboard.sh yesterday ct   # 어제
-bash ~/projects/fb-ads/refresh_dashboard.sh last_30d ct    # 지난 30일
+bash ~/projects/fb-ads/refresh_dashboard.sh last_7d ct     # Cleartype 기본 지난 7일
+bash ~/projects/fb-ads/refresh_dashboard.sh yesterday ct   # 기본 어제
+bash ~/projects/fb-ads/refresh_dashboard.sh last_30d ct    # 기본 지난 30일
 ```
 → 자동으로 push, 30초~1분 후 대시보드 반영. 완료되면 대시보드 URL 제시.
+→ **모든 5개 preset (today/yesterday/last_7d/last_30d/maximum) 을 매번 fetch** 해서 리포트 UI 기간 필터에 다 담김. 첫 인자는 초기 표시 preset만 결정.
 
 ### 2. 새 브랜드 활성화
 1. 사장님이 해당 브랜드 페북 시스템 사용자 토큰 발급 완료 확인
@@ -68,6 +69,22 @@ bash ~/projects/fb-ads/refresh_dashboard.sh last_30d ct    # 지난 30일
 **모두 USD 표시**:
 - `fmt.money` / `fmt.moneyBig` 는 화폐 코드 무관하게 `$` prefix + 2자리 소수점 (2026-08-18 사장님 요청)
 - 새 브랜드가 KRW 등 non-USD면 향후 환율 변환 필요 (현재는 그대로 표시)
+
+**캠페인 상세 기간 필터** (2026-08-18):
+- 리포트 상세 표 위에 탭: 오늘 · 어제 · 지난 7일 · 지난 30일 · 전체 기간
+- `refresh_dashboard.sh` 가 5개 preset 모두 fetch → `data.campaigns_by_period[preset]` / `summaries_by_period[preset]`
+- UI 는 `currentPeriod` 상태로 스위치, 각 기간의 요약 (지출·매출·ROAS·구매) 이 정보 바에 표시
+- `default_preset` 은 CLI 첫 인자 (예: `refresh_dashboard.sh last_30d ct` → 초기 탭 = 지난 30일)
+
+**퍼포먼스 마케터 심층 피드백** (2026-08-18):
+- `build_feedback` 이 12개 인사이트 진단: ROAS 등급, CTR/CPC/CPM 벤치마크, 클릭→구매 전환, ATC→구매, AOV, 집중도, 구매 0건, Frequency 피로도, FB 픽셀 vs MD 매출 gap, 오늘 vs 어제 페이스
+- 액션 아이템도 구체적 수치: `예산 +30% ($199 → $259, 하루 +$60) — 매출 +$319 예상 (ROAS 유지 가정)`
+- 임계값은 함수 상수로 정리: `_grade_ctr / _grade_cpc / _grade_cpm` — 벤치마크 조정 시 이 함수만 편집
+- 커머스 기준 CPC 벤치마크 사용 ($0.3/0.7/1.5 구간)
+
+**보조 지표 한글 설명** (2026-08-18):
+- CTR / CPC / CPM / 노출 각 라벨 옆에 `.label-ko` 로 작은 회색 설명 표기 (사장님이 매번 지표명 해석 안 해도 되게)
+- 편집: `report.html` `.kpi` 카드 렌더링 부분
 
 **MD 실 매출 연동** (2026-08-18):
 - `build_dashboard_report.py` `load_md_sales()` 가 `~/server/brightbeed-proxy/out/{pro_ct_sales.json | admin_6a_sales.json | ...}` 캐시 로드

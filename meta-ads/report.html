@@ -56,6 +56,21 @@
   .mini-roas.warn { background:rgba(245,158,11,.15); color:var(--warn) }
   .mini-roas.err { background:rgba(239,68,68,.15); color:var(--err) }
 
+  /* KPI label description (한글 설명) */
+  .kpi .label-ko { color:var(--muted); font-weight:500; font-size:10.5px; text-transform:none; letter-spacing:0; margin-left:5px }
+
+  /* Period filter tabs */
+  .period-tabs { display:inline-flex; gap:2px; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:3px; margin-right:10px }
+  .period-tabs button { background:transparent; color:var(--muted); border:0; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all .12s }
+  .period-tabs button:hover { color:var(--text); background:rgba(255,255,255,.04) }
+  .period-tabs button.active { background:var(--accent); color:#fff }
+  .period-tabs button:disabled { opacity:.35; cursor:not-allowed }
+
+  /* Filter bar layout expanded */
+  .filter-bar .right { display:flex; align-items:center; gap:12px; flex-wrap:wrap }
+  .period-info { font-size:11px; color:var(--muted) }
+  .period-info b { color:var(--text) }
+
   /* Filter bar */
   .filter-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap }
   .filter-bar .left { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--muted) }
@@ -186,8 +201,9 @@
     } catch { return iso }
   }
 
-  // 전역: active-only 필터 상태
+  // 전역: 필터 상태
   let showActiveOnly = true;
+  let currentPeriod = null; // 기본은 data.default_preset 로 초기화
   let lastRenderedData = null;
 
   function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -269,13 +285,29 @@
       </div>
     </div>`);
 
-    // === 보조 지표 ===
+    // === 보조 지표 (한글 설명 병기) ===
     html.push(`<div class="kpi-section-title">📊 보조 지표</div>`);
     html.push(`<div class="kpi-grid">
-      <div class="kpi"><div class="label">CTR</div><div class="value">${fmt.pct(s.ctr)}</div><div class="sub">${fmt.int(s.clicks)} / ${fmt.int(s.impressions)}</div></div>
-      <div class="kpi"><div class="label">CPC</div><div class="value">${fmt.money(s.cpc)}</div><div class="sub">클릭당 비용</div></div>
-      <div class="kpi"><div class="label">CPM</div><div class="value">${fmt.money(s.cpm)}</div><div class="sub">1,000회 노출당</div></div>
-      <div class="kpi"><div class="label">노출</div><div class="value">${fmt.int(s.impressions)}</div><div class="sub">클릭 ${fmt.int(s.clicks)}</div></div>
+      <div class="kpi">
+        <div class="label">CTR <span class="label-ko">클릭률 · 노출→클릭</span></div>
+        <div class="value">${fmt.pct(s.ctr)}</div>
+        <div class="sub">${fmt.int(s.clicks)} 클릭 / ${fmt.int(s.impressions)} 노출</div>
+      </div>
+      <div class="kpi">
+        <div class="label">CPC <span class="label-ko">클릭당 비용</span></div>
+        <div class="value">${fmt.money(s.cpc)}</div>
+        <div class="sub">한 번의 클릭에 드는 광고비</div>
+      </div>
+      <div class="kpi">
+        <div class="label">CPM <span class="label-ko">노출당 비용 (1,000회)</span></div>
+        <div class="value">${fmt.money(s.cpm)}</div>
+        <div class="sub">1,000명에게 광고 보여주는 비용</div>
+      </div>
+      <div class="kpi">
+        <div class="label">노출 <span class="label-ko">본 사람 수</span></div>
+        <div class="value">${fmt.int(s.impressions)}</div>
+        <div class="sub">클릭 ${fmt.int(s.clicks)}</div>
+      </div>
     </div>`);
 
     // Feedback: Actions + Insights top row
@@ -303,17 +335,29 @@
     </div></section>`);
 
     // Filter bar + Full campaigns table
+    if (!currentPeriod) currentPeriod = data.default_preset || 'last_7d';
+    const periodOptions = data.period_options || [];
+    const periodTabsHtml = periodOptions.length
+      ? `<div class="period-tabs">${periodOptions.map(p =>
+          `<button data-period="${p.key}" ${p.key===currentPeriod?'class="active"':''} ${!p.available?'disabled title="데이터 없음"':''}>${p.label}</button>`
+        ).join('')}</div>`
+      : '';
+
     html.push(`<section>
       <h2>📋 캠페인 상세 <span class="count" id="campCount"></span></h2>
       <div class="filter-bar">
         <div class="left">
           <span>💡 캠페인명 위에 마우스를 올리면 <b>집행중인 광고 목록</b>이 표시됩니다.</span>
         </div>
-        <label class="toggle" for="activeOnly">
-          <input type="checkbox" id="activeOnly" ${showActiveOnly ? 'checked' : ''}>
-          <span>집행중인 캠페인만 보기</span>
-        </label>
+        <div class="right">
+          ${periodTabsHtml}
+          <label class="toggle" for="activeOnly">
+            <input type="checkbox" id="activeOnly" ${showActiveOnly ? 'checked' : ''}>
+            <span>집행중만</span>
+          </label>
+        </div>
       </div>
+      <div class="period-info" id="periodInfoBar" style="margin-bottom:10px"></div>
       <div class="table-wrap"><div class="table-scroll"><table id="campTbl">
         <thead><tr>
           <th class="name-col" data-key="name">캠페인 <span class="arrow">↕</span></th>
@@ -343,6 +387,17 @@
       showActiveOnly = e.target.checked;
       renderTable(currentSortKey, currentSortDir);
     });
+
+    // 기간 탭
+    document.querySelectorAll('.period-tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        currentPeriod = btn.dataset.period;
+        document.querySelectorAll('.period-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderTable(currentSortKey, currentSortDir);
+      });
+    });
   }
 
   let currentSortKey = 'roas', currentSortDir = 'desc';
@@ -350,7 +405,12 @@
   function renderTable(sortKey, dir){
     currentSortKey = sortKey; currentSortDir = dir;
     if (!lastRenderedData) return;
-    let rows = [...(lastRenderedData.campaigns || [])];
+
+    // 선택된 기간 데이터 우선. 없으면 기본 campaigns fallback.
+    const periodCampaigns = lastRenderedData.campaigns_by_period || {};
+    const periodMeta = lastRenderedData.period_meta || {};
+    const periodRows = (currentPeriod && periodCampaigns[currentPeriod]) || lastRenderedData.campaigns || [];
+    let rows = [...periodRows];
     if (showActiveOnly) rows = rows.filter(r => r.is_active);
 
     rows.sort((a,b) => {
@@ -359,12 +419,24 @@
       return dir==='asc' ? av - bv : bv - av;
     });
 
-    const totalAll = (lastRenderedData.campaigns || []).length;
-    const activeAll = (lastRenderedData.campaigns || []).filter(r => r.is_active).length;
+    const totalAll = periodRows.length;
+    const activeAll = periodRows.filter(r => r.is_active).length;
     const countEl = el('campCount');
     if (countEl) countEl.textContent = showActiveOnly
       ? `· 집행중 ${rows.length}/${activeAll}개 표시 (전체 ${totalAll}개)`
       : `· 전체 ${rows.length}개 (집행중 ${activeAll}개)`;
+
+    // 기간 요약 정보 바
+    const infoBar = el('periodInfoBar');
+    if (infoBar) {
+      const meta = periodMeta[currentPeriod];
+      const psum = (lastRenderedData.summaries_by_period || {})[currentPeriod];
+      if (meta && psum) {
+        infoBar.innerHTML = `📅 <b>${meta.label}</b> (${meta.since} ~ ${meta.until}) · 지출 <b>${fmt.money(psum.spend)}</b> · 매출 <b>${fmt.money(psum.purchase_value)}</b> · ROAS <b>${fmt.dec(psum.roas)}</b> · 구매 ${fmt.int(psum.purchases)}건`;
+      } else {
+        infoBar.innerHTML = '';
+      }
+    }
 
     el('campBody').innerHTML = rows.map((r, idx) => {
       const activeAds = r.active_ads || [];
