@@ -203,31 +203,60 @@
     letter-spacing:.5px; font-weight:700; margin-bottom:10px;
   }
   .ads-grid {
-    display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
-    gap:12px;
+    display:flex; flex-wrap:wrap; gap:12px;
   }
   .ad-card {
     background:var(--panel-2); border:1px solid var(--border);
     border-radius:8px; overflow:hidden;
-    display:flex; flex-direction:column;
-    transition:transform .12s, border-color .12s;
+    display:flex; flex-direction:row; align-items:flex-start;
+    transition:border-color .12s;
+    width:100%;
   }
-  .ad-card:hover { transform:translateY(-2px); border-color:var(--accent) }
-  .ad-thumb {
-    position:relative; width:100%; aspect-ratio:1;
+  .ad-card:hover { border-color:var(--accent) }
+
+  /* 썸네일: 기본 작게 (72px), hover 시 팝오버 */
+  .ad-thumb-wrap {
+    position:relative; flex-shrink:0;
+    width:72px; height:72px;
+  }
+  .ad-thumb-wrap .ad-thumb-img {
+    width:72px; height:72px; object-fit:cover; border-radius:6px 0 0 6px;
+    display:block; cursor:zoom-in;
+  }
+  .ad-thumb-wrap .ad-thumb-placeholder {
+    width:72px; height:72px; border-radius:6px 0 0 6px;
     background:linear-gradient(135deg, #1a2233, #0f1524);
     display:flex; align-items:center; justify-content:center;
-    color:var(--muted); font-size:11px;
+    color:var(--muted); font-size:10px; text-align:center; padding:4px;
+    line-height:1.3;
   }
-  .ad-thumb img { width:100%; height:100%; object-fit:cover; display:block }
-  .ad-thumb .video-badge {
-    position:absolute; top:6px; right:6px;
-    background:rgba(0,0,0,.7); color:#fff; padding:2px 6px;
-    border-radius:4px; font-size:9.5px; font-weight:700;
-    display:flex; align-items:center; gap:3px;
+  .ad-thumb-wrap .video-badge {
+    position:absolute; bottom:4px; left:4px;
+    background:rgba(0,0,0,.75); color:#fff; padding:1px 5px;
+    border-radius:3px; font-size:9px; font-weight:700;
+    pointer-events:none;
   }
-  .ad-thumb .no-thumb { text-align:center; padding:8px }
-  .ad-info { padding:8px 10px; display:flex; flex-direction:column; gap:4px }
+
+  /* 썸네일 hover 팝오버 (fixed, z-index 최상위) */
+  #thumbPopover {
+    display:none; position:fixed; z-index:10000;
+    background:#0a0d14; border:1px solid var(--accent);
+    border-radius:10px; overflow:hidden;
+    box-shadow:0 16px 40px rgba(0,0,0,.7);
+    pointer-events:none;
+    transition:opacity .12s;
+  }
+  #thumbPopover img {
+    display:block; max-width:340px; max-height:340px;
+    object-fit:contain;
+  }
+  #thumbPopover .popover-cap {
+    padding:6px 10px; font-size:11px; color:var(--muted);
+    border-top:1px solid var(--border); background:var(--panel);
+    max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  .ad-info { padding:8px 10px; display:flex; flex-direction:column; gap:5px; flex:1; min-width:0 }
   .ad-name {
     font-size:11.5px; font-weight:600; color:var(--text);
     line-height:1.35; word-break:break-word;
@@ -235,6 +264,26 @@
     overflow:hidden;
   }
   .ad-meta { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--muted) }
+
+  /* 광고 효율 지표 (ad-level insights) */
+  .ad-kpi-row {
+    display:flex; flex-wrap:wrap; gap:6px; margin-top:3px;
+  }
+  .ad-kpi-pill {
+    display:inline-flex; flex-direction:column; align-items:center;
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:5px; padding:3px 7px; min-width:52px;
+  }
+  .ad-kpi-pill .pill-label {
+    font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; font-weight:700; white-space:nowrap;
+  }
+  .ad-kpi-pill .pill-val {
+    font-size:11.5px; font-weight:700; color:var(--text); letter-spacing:-.3px;
+  }
+  .ad-kpi-pill.ok .pill-val { color:var(--ok) }
+  .ad-kpi-pill.warn .pill-val { color:var(--warn) }
+  .ad-kpi-pill.err .pill-val { color:var(--err) }
+  .ad-kpi-pill.info .pill-val { color:var(--info) }
 
   /* Grade badge */
   .grade-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10.5px; font-weight:800; margin-left:6px; vertical-align:middle; letter-spacing:.2px }
@@ -361,6 +410,7 @@
   </div>
 </div>
 <div id="adsFloatingTip"></div>
+<div id="thumbPopover"><img id="thumbPopoverImg" src="" alt=""><div class="popover-cap" id="thumbPopoverCap"></div></div>
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 
 <script>
@@ -972,22 +1022,90 @@
 
     attachHoverTips(rows);
     attachExpanders();
+    attachThumbPopovers();
   }
 
   function renderAdCard(ad){
     const thumb = ad.thumbnail_url || ad.image_url;
     const videoBadge = ad.is_video ? '<span class="video-badge">▶ 영상</span>' : '';
-    const thumbInner = thumb
-      ? `<img src="${escapeHtml(thumb)}" alt="${escapeHtml(ad.name||'')}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-thumb\\'>🖼 이미지 로드 실패</div>'">`
-      : `<div class="no-thumb">🖼 썸네일 없음</div>`;
+    const thumbHtml = thumb
+      ? `<img class="ad-thumb-img" src="${escapeHtml(thumb)}" alt="${escapeHtml(ad.name||'')}" loading="lazy"
+           data-fullsrc="${escapeHtml(thumb)}" data-adname="${escapeHtml(ad.name||'')}"
+           onerror="this.outerHTML='<div class=\\'ad-thumb-placeholder\\'>이미지<br>없음</div>'">`
+      : `<div class="ad-thumb-placeholder">썸네일<br>없음</div>`;
+
+    // 효율 지표 (ad-level insights가 있을 때만)
+    let kpiHtml = '';
+    const ins = ad.insights;
+    if (ins) {
+      const roasCls = ins.roas >= 2 ? 'ok' : ins.roas >= 1 ? 'warn' : 'err';
+      const ctrCls  = ins.ctr  >= 2 ? 'ok' : ins.ctr  >= 1 ? 'warn' : 'err';
+      const pills = [
+        { label:'지출',   val: ins.spend > 0 ? fmt.money(ins.spend) : '—',      cls:'' },
+        { label:'구매',   val: ins.purchases > 0 ? fmt.int(ins.purchases)+'건' : '0건', cls: ins.purchases > 0 ? 'ok' : 'err' },
+        { label:'매출',   val: ins.purchase_value > 0 ? fmt.money(ins.purchase_value) : '—', cls:'' },
+        { label:'ROAS',   val: ins.spend > 0 ? fmt.dec(ins.roas) : '—',          cls: ins.spend > 0 ? roasCls : '' },
+        { label:'CTR',    val: ins.impressions > 0 ? fmt.pct(ins.ctr) : '—',     cls: ins.impressions > 0 ? ctrCls : '' },
+        { label:'CPM',    val: ins.impressions > 0 ? fmt.money(ins.cpm) : '—',   cls:'' },
+      ];
+      kpiHtml = `<div class="ad-kpi-row">${pills.map(p =>
+        `<div class="ad-kpi-pill ${p.cls}"><span class="pill-label">${p.label}</span><span class="pill-val">${p.val}</span></div>`
+      ).join('')}</div>`;
+    }
+
+    const titleLine = ad.title ? `<div style="font-size:10.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(ad.title)}">${escapeHtml(ad.title)}</div>` : '';
+
     return `
       <div class="ad-card">
-        <div class="ad-thumb">${thumbInner}${videoBadge}</div>
+        <div class="ad-thumb-wrap">${thumbHtml}${videoBadge}</div>
         <div class="ad-info">
           <div class="ad-name" title="${escapeHtml(ad.name||'')}">${escapeHtml(ad.name||'(무명)')}</div>
+          ${titleLine}
           <div class="ad-meta"><span class="status-badge active">${escapeHtml(ad.status||'ACTIVE')}</span></div>
+          ${kpiHtml}
         </div>
       </div>`;
+  }
+
+  // 썸네일 팝오버 — 모든 ad-thumb-img 에 마우스 이벤트
+  function attachThumbPopovers() {
+    const popover = document.getElementById('thumbPopover');
+    const popImg  = document.getElementById('thumbPopoverImg');
+    const popCap  = document.getElementById('thumbPopoverCap');
+    if (!popover) return;
+
+    document.querySelectorAll('.ad-thumb-img').forEach(img => {
+      img.addEventListener('mouseenter', () => {
+        const src = img.dataset.fullsrc;
+        if (!src) return;
+        popImg.src = src;
+        popCap.textContent = img.dataset.adname || '';
+        popover.style.display = 'block';
+        positionPopover(popover, img);
+      });
+      img.addEventListener('mousemove', () => {
+        if (popover.style.display === 'block') positionPopover(popover, img);
+      });
+      img.addEventListener('mouseleave', () => {
+        popover.style.display = 'none';
+        popImg.src = '';
+      });
+    });
+  }
+
+  function positionPopover(pop, anchor) {
+    const r = anchor.getBoundingClientRect();
+    const pw = Math.min(pop.offsetWidth || 340, 340);
+    const ph = pop.offsetHeight || 200;
+    let left = r.right + 10;
+    let top  = r.top;
+    // 오른쪽 공간 부족 시 왼쪽으로
+    if (left + pw > window.innerWidth - 10) left = r.left - pw - 10;
+    // 아래 공간 부족 시 위로 올림
+    if (top + ph > window.innerHeight - 10) top = window.innerHeight - ph - 10;
+    if (top < 10) top = 10;
+    pop.style.left = left + 'px';
+    pop.style.top  = top  + 'px';
   }
 
   function attachExpanders(){
@@ -1001,6 +1119,8 @@
         inner.classList.toggle('open', opening);
         tog.classList.toggle('open', opening);
         tog.textContent = opening ? '▼' : '▶';
+        // 펼칠 때마다 새로 렌더된 썸네일에 팝오버 재연결
+        if (opening) attachThumbPopovers();
       });
     });
   }
