@@ -3684,6 +3684,16 @@
     padding:8px 4px;font-size:11.5px;color:var(--text-3);text-align:center;
     font-family:var(--mono);
   }
+  .leave-recent-more{
+    margin-top:8px;width:100%;
+    padding:8px 10px;font-size:12px;font-weight:500;
+    color:var(--text-2);background:var(--bg-2);
+    border:1px solid var(--line);border-radius:6px;
+    cursor:pointer;font-family:var(--sans);letter-spacing:.02em;
+    transition:background .12s,color .12s,border-color .12s;
+  }
+  .leave-recent-more:hover{background:var(--bg-1);color:var(--text-0);border-color:var(--line-2)}
+  .leave-recent-more[hidden]{display:none}
   @media (max-width:600px){
     .leave-recent{padding:12px 14px 14px}
     .leave-recent-item{
@@ -4766,15 +4776,6 @@
       </div>
     </form>
 
-    <!-- 최근 연차 신청 내역 -->
-    <div class="leave-recent" id="leaveRecent" hidden>
-      <div class="leave-recent-head">
-        <span class="leave-recent-title">📋 최근 연차 신청 내역</span>
-        <span class="leave-recent-meta" id="leaveRecentMeta"></span>
-      </div>
-      <div class="leave-recent-list" id="leaveRecentList"></div>
-    </div>
-
     <!-- 연차 달력 -->
     <div class="leave-cal" id="leaveCal">
       <div class="leave-cal-head">
@@ -4794,6 +4795,16 @@
         <span><i class="t-mat"></i>출산휴가</span>
         <span><i class="t-fam"></i>경조사휴가</span>
       </div>
+    </div>
+
+    <!-- 최근 연차 신청 내역 -->
+    <div class="leave-recent" id="leaveRecent" hidden>
+      <div class="leave-recent-head">
+        <span class="leave-recent-title">📋 최근 연차 신청 내역</span>
+        <span class="leave-recent-meta" id="leaveRecentMeta"></span>
+      </div>
+      <div class="leave-recent-list" id="leaveRecentList"></div>
+      <button class="leave-recent-more" id="leaveRecentMoreBtn" type="button" hidden onclick="toggleLeaveRecentExpanded()"></button>
     </div>
 
     <!-- 연차/반차 규정 안내 -->
@@ -8657,12 +8668,21 @@
     renderLeaveCalendar();
   }
 
-  /* 최근 연차 신청 내역 — 신청서로 들어온 항목(submittedAt 있는 것) 중 올해 신청만 최신순 전체
+  /* 최근 연차 신청 내역 — 신청서로 들어온 항목(submittedAt 있는 것) 중 올해 신청만 최신순
+     · 기본 5건까지 노출, "더 보기 ▾" / "접기 ▴" 토글로 전체 열람
      · 연도 바뀌면(예: 2027-01-01) 작년 항목은 자동으로 안 보이고 비어보임 */
+  const RECENT_LEAVE_PREVIEW=5;
+  let _recentLeaveExpanded=false;
+  function toggleLeaveRecentExpanded(){
+    _recentLeaveExpanded=!_recentLeaveExpanded;
+    renderRecentLeaveLog();
+  }
+  window.toggleLeaveRecentExpanded=toggleLeaveRecentExpanded;
   function renderRecentLeaveLog(){
     const wrap=document.getElementById('leaveRecent');
     const list=document.getElementById('leaveRecentList');
     const meta=document.getElementById('leaveRecentMeta');
+    const moreBtn=document.getElementById('leaveRecentMoreBtn');
     const titleEl=wrap?.querySelector('.leave-recent-title');
     if(!wrap||!list) return;
     const data=loadLeaveData();
@@ -8684,11 +8704,13 @@
       wrap.hidden=false;
       list.innerHTML=`<div class="leave-recent-empty">${currentYear}년 신청 내역이 없어요</div>`;
       if(meta) meta.textContent='';
+      if(moreBtn) moreBtn.hidden=true;
       return;
     }
     wrap.hidden=false;
     if(meta) meta.textContent=`총 ${items.length}건`;
-    list.innerHTML=items.map(it=>{
+    const shown=_recentLeaveExpanded?items:items.slice(0,RECENT_LEAVE_PREVIEW);
+    list.innerHTML=shown.map(it=>{
       const cls=it.type==='생일반차'?'t-bday':(it.type==='출산휴가'?'t-mat':(it.type==='경조사휴가'?'t-fam':(it.type==='연차'?'t-annual':'t-half')));
       const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
@@ -8704,6 +8726,15 @@
         ${delBtn}
       </div>`;
     }).join('');
+    if(moreBtn){
+      if(items.length>RECENT_LEAVE_PREVIEW){
+        moreBtn.hidden=false;
+        const hidden=items.length-RECENT_LEAVE_PREVIEW;
+        moreBtn.textContent=_recentLeaveExpanded?'접기 ▴':`더 보기 (+${hidden}) ▾`;
+      }else{
+        moreBtn.hidden=true;
+      }
+    }
   }
   /* "5/14" 또는 "5/10~14" / "5/30~6/3" 같은 짧은 날짜 라벨 */
   function _fmtLeaveDateRange(start,end){
