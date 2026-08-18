@@ -92,6 +92,27 @@
   .status-badge.active { background:rgba(34,197,94,.18); color:var(--ok) }
   .status-badge.paused { background:rgba(139,145,158,.18); color:var(--muted) }
 
+  /* Grade badge (캠페인 등급) */
+  .grade-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10.5px; font-weight:800; margin-left:6px; vertical-align:middle; letter-spacing:.2px }
+  .grade-badge.excellent { background:rgba(34,197,94,.22); color:#4ade80 }
+  .grade-badge.good      { background:rgba(34,197,94,.15); color:var(--ok) }
+  .grade-badge.average   { background:rgba(245,158,11,.15); color:var(--warn) }
+  .grade-badge.poor      { background:rgba(249,115,22,.15); color:#fb923c }
+  .grade-badge.critical  { background:rgba(239,68,68,.18); color:var(--err) }
+  .grade-badge.learning  { background:rgba(139,145,158,.15); color:var(--muted) }
+
+  /* Feedback grid (3-column for scale/improve/reduce) */
+  .feedback-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px }
+  @media (max-width:1100px) { .feedback-grid-3 { grid-template-columns:1fr } }
+  .fb-card.average h3 { color:var(--warn) }
+  .fb-item .advice-list { margin-top:4px; padding-left:0; list-style:none }
+  .fb-item .advice-list li { color:var(--muted); font-size:11.5px; line-height:1.5; padding:2px 0 }
+  .fb-item .advice-list li b { color:var(--text); font-weight:600 }
+
+  /* ROAS target line 표시 */
+  .kpi .roas-target { font-size:11px; color:var(--muted); margin-top:4px }
+  .kpi .roas-target b { color:var(--text); font-weight:600 }
+
   /* Ads tooltip (fixed positioning so it escapes table overflow) */
   .campaign-name-wrap { display:inline-block; max-width:100%; }
   .has-ads { cursor:help }
@@ -288,12 +309,16 @@
       </div>
     </div>`);
 
-    // === 핵심 지표: ROAS · CPA · 지출 ===
-    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.display || ''}</div>`);
+    // === 핵심 지표: ROAS · CPA · 지출 (목표 ROAS 2.0 기준) ===
+    const targetRoas = data.target_roas || 2.0;
+    const roasPct = Math.round((s.roas / targetRoas) * 100);
+    const roasCls = s.roas>=targetRoas ? 'ok' : s.roas>=1 ? 'warn' : 'err';
+    html.push(`<div class="kpi-section-title">🎯 핵심 지표 · ${data.period?.display || ''} · 목표 ROAS ${targetRoas.toFixed(1)}</div>`);
     html.push(`<div class="kpi-grid hero">
-      <div class="kpi hero ${s.roas>=2?'ok':s.roas>=1?'warn':'err'}">
+      <div class="kpi hero ${roasCls}">
         <div class="label">ROAS</div>
         <div class="value">${fmt.dec(s.roas)}</div>
+        <div class="roas-target">목표 <b>${targetRoas.toFixed(1)}</b> 대비 <b>${roasPct}%</b></div>
       </div>
       <div class="kpi hero emph">
         <div class="label">구매당 가격</div>
@@ -339,17 +364,23 @@
       </div>
     </div></section>`);
 
-    // Feedback: Scale up + Reduce
-    html.push(`<section><h2>🎯 캠페인 최적화 제안</h2><div class="feedback-grid">
-      <div class="fb-card ok"><h3>🟢 예산 확대 후보</h3>
-        ${(fb.scale_up && fb.scale_up.length) ? fb.scale_up.map(x=>`
-          <div class="fb-item"><div class="name">${escapeHtml(x.name)}</div><div class="reason">${x.reason}</div></div>
-        `).join('') : '<div class="fb-empty">기준 충족 캠페인 없음</div>'}
+    // Feedback: Scale up + Improve + Reduce (3-column, 목표 ROAS 2.0 기준)
+    const renderCampItem = x => `
+      <div class="fb-item">
+        <div class="name">${escapeHtml(x.name)}</div>
+        <div class="reason">${x.reason}</div>
+        ${(x.advice && x.advice.length) ? `<ul class="advice-list">${x.advice.slice(0,3).map(a=>`<li>${a}</li>`).join('')}</ul>` : ''}
+      </div>`;
+
+    html.push(`<section><h2>🎯 캠페인 최적화 제안 <span class="count">· 목표 ROAS ${targetRoas.toFixed(1)}</span></h2><div class="feedback-grid-3">
+      <div class="fb-card ok"><h3>🚀 예산 확대 (목표 달성)</h3>
+        ${(fb.scale_up && fb.scale_up.length) ? fb.scale_up.map(renderCampItem).join('') : '<div class="fb-empty">목표 달성 캠페인 없음</div>'}
       </div>
-      <div class="fb-card err"><h3>🔴 정리/재검토 후보</h3>
-        ${(fb.reduce_or_kill && fb.reduce_or_kill.length) ? fb.reduce_or_kill.map(x=>`
-          <div class="fb-item"><div class="name">${escapeHtml(x.name)}</div><div class="reason">${x.reason}</div></div>
-        `).join('') : '<div class="fb-empty">저효율 캠페인 없음</div>'}
+      <div class="fb-card average"><h3>⏫ 개선 필요 (목표 근접)</h3>
+        ${(fb.improve && fb.improve.length) ? fb.improve.map(renderCampItem).join('') : '<div class="fb-empty">개선 대상 없음</div>'}
+      </div>
+      <div class="fb-card err"><h3>🚨 즉시 조치</h3>
+        ${(fb.reduce_or_kill && fb.reduce_or_kill.length) ? fb.reduce_or_kill.map(renderCampItem).join('') : '<div class="fb-empty">위험 캠페인 없음</div>'}
       </div>
     </div></section>`);
 
@@ -457,14 +488,17 @@
 
     el('campBody').innerHTML = rows.map((r, idx) => {
       const activeAds = r.active_ads || [];
-      const badge = r.is_active
+      const statusBadge = r.is_active
         ? '<span class="status-badge active">집행중</span>'
         : `<span class="status-badge paused">${escapeHtml(r.effective_status || '중지')}</span>`;
-      const nameCls = 'campaign-name-wrap' + (activeAds.length ? ' has-ads' : '');
+      const gradeBadge = r.grade
+        ? `<span class="grade-badge ${r.grade}">${r.grade_icon || ''} ${escapeHtml(r.grade_label || '')}</span>`
+        : '';
+      const nameCls = 'campaign-name-wrap has-tip';
       return `
       <tr>
         <td class="name-col">
-          <span class="${nameCls}" data-camp-idx="${idx}" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}${badge}</span>
+          <span class="${nameCls}" data-camp-idx="${idx}" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}${gradeBadge}${statusBadge}</span>
         </td>
         <td class="num">${roasTag(r.roas)}</td>
         <td class="num">${r.cpa ? fmt.money(r.cpa) : '—'}</td>
@@ -489,11 +523,34 @@
         const idx = parseInt(el.dataset.campIdx, 10);
         const r = rows[idx];
         if (!r) return;
+
+        const parts = [];
+
+        // 진단 헤드라인 & 조언 (모든 캠페인)
+        if (r.headline) {
+          parts.push(`<div class="tip-title" style="color:var(--text)">${r.headline}</div>`);
+        }
+        if (r.advice && r.advice.length) {
+          parts.push(`<div style="margin-bottom:8px">`);
+          r.advice.forEach(a => {
+            parts.push(`<div class="tip-item" style="padding:4px 0;font-size:11.5px;line-height:1.5;color:var(--muted)"><span style="color:var(--text)">${a}</span></div>`);
+          });
+          parts.push(`</div>`);
+        }
+
+        // 집행중 광고 리스트 (하단)
         const ads = r.active_ads || [];
-        if (!ads.length && !r.is_active) { tip.style.display = 'none'; return; }
-        tip.innerHTML = ads.length
-          ? `<div class="tip-title">🟢 집행중 광고 ${ads.length}개</div>` + ads.map(a=>`<div class="tip-item">• ${escapeHtml(a.name)}</div>`).join('')
-          : `<div class="tip-title">집행중 광고</div><div class="tip-empty">활성 광고 없음</div>`;
+        if (ads.length) {
+          parts.push(`<div class="tip-title" style="margin-top:4px">🟢 집행중 광고 ${ads.length}개</div>`);
+          ads.forEach(a => {
+            parts.push(`<div class="tip-item">• ${escapeHtml(a.name)}</div>`);
+          });
+        } else if (r.is_active) {
+          parts.push(`<div class="tip-title" style="margin-top:4px">집행중 광고</div><div class="tip-empty">활성 광고 없음</div>`);
+        }
+
+        if (!parts.length) { tip.style.display = 'none'; return; }
+        tip.innerHTML = parts.join('');
         tip.style.display = 'block';
         positionTip(tip, el);
       });
