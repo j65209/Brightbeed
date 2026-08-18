@@ -51,6 +51,10 @@
   .kpi.emph { border-color:rgba(79,124,255,.4); background:linear-gradient(180deg, rgba(79,124,255,.08), var(--panel)) }
   .kpi.spend-today { border-color:rgba(34,211,238,.4); background:linear-gradient(180deg, rgba(34,211,238,.08), var(--panel)) }
   .kpi.spend-yesterday { border-color:rgba(139,145,158,.35); background:linear-gradient(180deg, rgba(139,145,158,.06), var(--panel)) }
+  .mini-roas { display:inline-block; padding:1px 6px; border-radius:4px; font-size:11px; font-weight:700 }
+  .mini-roas.ok { background:rgba(34,197,94,.15); color:var(--ok) }
+  .mini-roas.warn { background:rgba(245,158,11,.15); color:var(--warn) }
+  .mini-roas.err { background:rgba(239,68,68,.15); color:var(--err) }
 
   /* Filter bar */
   .filter-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap }
@@ -195,9 +199,24 @@
     const fb = data.feedback || {};
     const today = data.today || {};
     const yesterday = data.yesterday || {};
+    const md = data.md_sales || {};
+    const mdToday = md.today || {};
+    const mdYst = md.yesterday || {};
     const currency = acct.currency || '';
 
     const activeCount = data.active_campaign_count ?? (data.campaigns||[]).filter(c => c.is_active).length;
+
+    // MD 매출 서브텍스트 (실 매출 USD + KRW 병기, 실 ROAS, FB 픽셀 대비)
+    const mdSub = (mdSlice, adSpend, fbRoas, fbRev) => {
+      if (!mdSlice.usd) return `<span style="color:var(--muted)">MD 매출 데이터 없음</span>`;
+      const realRoas = adSpend ? (mdSlice.usd / adSpend) : 0;
+      const roasCls = realRoas>=2 ? 'ok' : realRoas>=1 ? 'warn' : 'err';
+      const krw = '₩' + (mdSlice.krw||0).toLocaleString('en-US');
+      return `<div style="display:flex;flex-direction:column;gap:2px">
+        <div><b style="color:var(--text);font-size:13px">MD 매출 ${fmt.money(mdSlice.usd)}</b> <span style="color:var(--muted);font-size:11px">(${krw} · ${mdSlice.orders}건)</span></div>
+        <div><span class="mini-roas ${roasCls}">실 ROAS ${fmt.dec(realRoas)}</span> <span style="color:var(--muted);font-size:11px;margin-left:8px">FB픽셀 ${fmt.money(fbRev)} · ROAS ${fmt.dec(fbRoas)}</span></div>
+      </div>`;
+    };
 
     el('brandName').textContent = `${data.brand_name || acct.name || brand} · 메타 광고 분석 리포트`;
     el('periodInfo').innerHTML = `📅 <b>${data.period?.label || '-'}</b> · ${data.period?.since || ''} ~ ${data.period?.until || ''}`;
@@ -214,18 +233,19 @@
 
     const html = [];
 
-    // === 오늘 · 어제 (hero) ===
-    html.push(`<div class="kpi-section-title">🕐 실시간 지출</div>`);
+    // === 오늘 · 어제 (hero) — 지출 + MD 실 매출 ===
+    const mdSourceBadge = md.source_file ? `<span style="color:var(--muted);font-size:10px;margin-left:6px">MD · 환율 1$=₩${md.usd_krw_rate}</span>` : '';
+    html.push(`<div class="kpi-section-title">🕐 실시간 지출 & MD 실 매출 ${mdSourceBadge}</div>`);
     html.push(`<div class="kpi-grid hero">
       <div class="kpi hero spend-today">
         <div class="label">오늘 지출 (KST)</div>
         <div class="value">${fmt.money(today.spend)}</div>
-        <div class="sub">구매 ${fmt.int(today.purchases)}건 · 매출 ${fmt.money(today.purchase_value)} · ROAS ${fmt.dec(today.roas)}</div>
+        <div class="sub">${mdSub(mdToday, today.spend, today.roas, today.purchase_value)}</div>
       </div>
       <div class="kpi hero spend-yesterday">
         <div class="label">어제 지출</div>
         <div class="value">${fmt.money(yesterday.spend)}</div>
-        <div class="sub">구매 ${fmt.int(yesterday.purchases)}건 · 매출 ${fmt.money(yesterday.purchase_value)} · ROAS ${fmt.dec(yesterday.roas)}</div>
+        <div class="sub">${mdSub(mdYst, yesterday.spend, yesterday.roas, yesterday.purchase_value)}</div>
       </div>
     </div>`);
 

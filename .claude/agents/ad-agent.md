@@ -69,6 +69,15 @@ bash ~/projects/fb-ads/refresh_dashboard.sh last_30d ct    # 지난 30일
 - `fmt.money` / `fmt.moneyBig` 는 화폐 코드 무관하게 `$` prefix + 2자리 소수점 (2026-08-18 사장님 요청)
 - 새 브랜드가 KRW 등 non-USD면 향후 환율 변환 필요 (현재는 그대로 표시)
 
+**MD 실 매출 연동** (2026-08-18):
+- `build_dashboard_report.py` `load_md_sales()` 가 `~/server/brightbeed-proxy/out/{pro_ct_sales.json | admin_6a_sales.json | ...}` 캐시 로드
+- KRW → USD 변환 (`USD_KRW=1400`, 대시보드 index.html `_USD_KRW` 와 동기화 필수)
+- 매월 초 네이버 환율 확인 후 두 파일 모두 갱신 (fb-ads/build_dashboard_report.py + Brightbeed/index.html)
+- `data.md_sales.today.usd` / `yesterday.usd` / `thirty_days.usd` 노출
+- `today.real_roas` / `real_cpa` — MD 실 매출 기준 (FB 픽셀 attribution 과 차이 나면 여기가 진실)
+- 브랜드별 캐시 매핑: `BRAND_SALES_CACHE` dict 참조 (Pro=ct/pp/koz/akoi, admin=6a/yar/kop/apt)
+- 리포트 hero 카드가 실 매출 USD + KRW 병기 + "실 ROAS" (MD) + "FB 픽셀 ROAS" (attribution) 를 모두 표시
+
 **집행중 캠페인 필터**:
 - 기본 ON (`showActiveOnly = true`), 토글 UI로 사용자가 끌 수 있음
 - 필터 기준: `campaign.is_active === true` (Graph API `effective_status === "ACTIVE"`)
