@@ -1076,8 +1076,16 @@
       <tr class="camp-expand-row" data-expand-idx="${idx}"><td colspan="10">
         <div class="camp-expand-inner" data-inner-idx="${idx}">
           ${feedbackHtml}
-          ${activeAds.length ? `<div class="ads-expand-title">🟢 집행중 광고 ${activeAds.length}개</div>
-          <div class="ads-grid">${activeAds.map(renderAdCard).join('')}</div>` : '<div style="color:var(--muted);font-size:12px;font-style:italic">활성 광고 없음</div>'}
+          <div class="ads-section" data-camp-idx="${idx}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <div class="ads-expand-title" style="margin-bottom:0">집행중 광고 <span class="ads-count-label">${activeAds.length}개</span></div>
+              ${(r.all_ad_count || 0) > (r.active_ad_count || 0) ? `<label class="toggle ads-toggle" style="padding:4px 10px;font-size:11px;border-radius:6px" for="adToggle_${idx}">
+                <input type="checkbox" id="adToggle_${idx}" data-camp-idx="${idx}">
+                <span>일시정지 포함</span>
+              </label>` : ''}
+            </div>
+            <div class="ads-grid" id="adsGrid_${idx}">${activeAds.map(renderAdCard).join('') || '<div style="color:var(--muted);font-size:12px;font-style:italic">활성 광고 없음</div>'}</div>
+          </div>
         </div>
       </td></tr>
     `; }).join('') || '<tr><td colspan="10" class="center" style="padding:32px;color:var(--muted)">표시할 캠페인이 없습니다.</td></tr>';
@@ -1102,12 +1110,14 @@
     if (ins) {
       const roasCls = ins.roas >= 2 ? 'ok' : ins.roas >= 1 ? 'warn' : 'err';
       const ctrCls  = ins.ctr  >= 2 ? 'ok' : ins.ctr  >= 1 ? 'warn' : 'err';
+      const cpcCls  = ins.cpc <= 0.3 ? 'ok' : ins.cpc <= 0.7 ? '' : ins.cpc <= 1.5 ? 'warn' : 'err';
       const pills = [
         { label:'지출',   val: ins.spend > 0 ? fmt.money(ins.spend) : '—',      cls:'' },
-        { label:'구매',   val: ins.purchases > 0 ? fmt.int(ins.purchases)+'건' : '0건', cls: ins.purchases > 0 ? 'ok' : 'err' },
         { label:'매출',   val: ins.purchase_value > 0 ? fmt.money(ins.purchase_value) : '—', cls:'' },
+        { label:'구매',   val: ins.purchases > 0 ? fmt.int(ins.purchases)+'건' : '0건', cls: ins.purchases > 0 ? 'ok' : 'err' },
         { label:'ROAS',   val: ins.spend > 0 ? fmt.dec(ins.roas) : '—',          cls: ins.spend > 0 ? roasCls : '' },
         { label:'CTR',    val: ins.impressions > 0 ? fmt.pct(ins.ctr) : '—',     cls: ins.impressions > 0 ? ctrCls : '' },
+        { label:'CPC',    val: ins.clicks > 0 ? fmt.money(ins.cpc) : '—',        cls: ins.clicks > 0 ? cpcCls : '' },
         { label:'CPM',    val: ins.impressions > 0 ? fmt.money(ins.cpm) : '—',   cls:'' },
       ];
       kpiHtml = `<div class="ad-kpi-row">${pills.map(p =>
@@ -1117,13 +1127,20 @@
 
     const titleLine = ad.title ? `<div style="font-size:10.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(ad.title)}">${escapeHtml(ad.title)}</div>` : '';
 
+    const adStatus = (ad.status || 'ACTIVE').toUpperCase();
+    const isAdActive = adStatus === 'ACTIVE';
+    const adStatusBadgeCls = isAdActive ? 'active' : 'paused';
+    const adStatusLabel = isAdActive ? 'ACTIVE' : adStatus;
+    // 일시정지/보관 광고는 카드 테두리를 흐리게
+    const adCardStyle = isAdActive ? '' : 'opacity:0.6;border-color:rgba(38,49,74,0.5)';
+
     return `
-      <div class="ad-card">
+      <div class="ad-card" style="${adCardStyle}">
         <div class="ad-thumb-wrap">${thumbHtml}${videoBadge}</div>
         <div class="ad-info">
           <div class="ad-name" title="${escapeHtml(ad.name||'')}">${escapeHtml(ad.name||'(무명)')}</div>
           ${titleLine}
-          <div class="ad-meta"><span class="status-badge active">${escapeHtml(ad.status||'ACTIVE')}</span></div>
+          <div class="ad-meta"><span class="status-badge ${adStatusBadgeCls}">${escapeHtml(adStatusLabel)}</span></div>
           ${kpiHtml}
         </div>
       </div>`;
@@ -1183,6 +1200,24 @@
         tog.textContent = opening ? '▼' : '▶';
         // 펼칠 때마다 새로 렌더된 썸네일에 팝오버 재연결
         if (opening) attachThumbPopovers();
+      });
+    });
+
+    // 광고 일시정지 포함 토글
+    document.querySelectorAll('.ads-toggle input[type=checkbox]').forEach(chk => {
+      chk.addEventListener('change', () => {
+        const campIdx = parseInt(chk.dataset.campIdx, 10);
+        const row = (lastRenderedData?.campaigns_by_period?.[currentPeriod] || lastRenderedData?.campaigns || [])[campIdx];
+        if (!row) return;
+        const grid = document.getElementById(`adsGrid_${campIdx}`);
+        const countLabel = chk.closest('.ads-section')?.querySelector('.ads-count-label');
+        if (!grid) return;
+
+        const showAll = chk.checked;
+        const ads = showAll ? (row.all_ads || row.active_ads || []) : (row.active_ads || []);
+        grid.innerHTML = ads.map(renderAdCard).join('') || '<div style="color:var(--muted);font-size:12px;font-style:italic">광고 없음</div>';
+        if (countLabel) countLabel.textContent = `${ads.length}개${showAll ? ' (일시정지 포함)' : ''}`;
+        attachThumbPopovers();
       });
     });
   }
