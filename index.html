@@ -2573,58 +2573,125 @@
     .tp-btn{padding:10px 14px;font-size:12.5px;flex:1 1 auto}
   }
 
-  /* ===== 기획전 계산기 (에이블리 · 코페리) ===== */
-  .pc-wrap{max-width:960px;margin:0 auto;padding:8px 18px 32px;display:flex;flex-direction:column;gap:14px}
+  /* ===== 기획전 계산기 v2 ===== */
+  .pc-wrap{max-width:1240px;margin:0 auto;padding:8px 18px 32px;display:flex;flex-direction:column;gap:14px}
   .pc-panel{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
-  .pc-panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px}
+  .pc-panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
   .pc-panel-title{font-size:14px;font-weight:700;color:var(--text-1);letter-spacing:.02em}
   .pc-panel-meta{font-size:11.5px;color:var(--text-3);font-family:var(--mono)}
-  .pc-grid{display:grid;gap:12px}
-  .pc-grid-product{grid-template-columns:2fr 1fr 1fr 1fr}
-  .pc-grid-fee{grid-template-columns:1fr}
-  @media(max-width:700px){
-    .pc-grid-product{grid-template-columns:1fr 1fr}
-    .pc-grid-product .pc-ctl-wide{grid-column:1 / -1}
-  }
-  .pc-ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
-  .pc-ctl-label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.03em}
-  .pc-ctl-hint{font-size:10.5px;color:var(--text-3);font-family:var(--mono);margin-top:2px}
+  .pc-panel-meta.err{color:#dc2626;font-weight:600}
+
   .pc-input{
     background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
     padding:9px 11px;font-size:13px;color:var(--text-1);width:100%;box-sizing:border-box;
     font-family:inherit;transition:border-color .12s
   }
   .pc-input:focus{outline:none;border-color:#06b6d4;background:var(--bg-1)}
-  .pc-input-sm{max-width:110px}
-  .pc-readout{
-    background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
-    padding:9px 11px;font-size:13px;font-weight:700;color:var(--text-1);
-    font-family:var(--mono);min-height:37px;display:flex;align-items:center
+  .pc-input-sm{max-width:120px}
+  .pc-textarea{min-height:80px;resize:vertical;line-height:1.5;font-family:inherit}
+  .pc-btn{
+    background:#06b6d4;color:#fff;border:none;border-radius:8px;
+    padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;
+    letter-spacing:.02em;transition:background .12s
   }
-  .pc-note{font-size:11px;color:var(--text-3);margin-top:10px;font-style:italic}
-  .pc-scenarios{display:grid;grid-template-columns:1fr;gap:10px}
-  .pc-scenario{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-  .pc-scenario-head{font-size:12px;font-weight:700;color:#06b6d4;letter-spacing:.05em}
-  .pc-scenario-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-  .pc-ctl-inline{font-size:11.5px;color:var(--text-2);display:inline-flex;align-items:center;gap:6px;font-weight:600}
-  .pc-empty{color:var(--text-3);font-size:12.5px;text-align:center;padding:22px 12px}
-  .pc-rec{padding:14px 16px;border-radius:10px;font-size:13px;line-height:1.55;margin-bottom:14px}
-  .pc-rec-ok{background:rgba(6,182,212,.10);border:1px solid rgba(6,182,212,.35);color:var(--text-1)}
-  .pc-rec-warn{background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);color:var(--text-1)}
-  .pc-rec b{color:#0891b2}
-  .pc-rec-warn b{color:#d97706}
-  .pc-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
-  .pc-table th,.pc-table td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line)}
-  .pc-table th{font-size:10.5px;font-weight:700;color:var(--text-2);letter-spacing:.04em;text-transform:uppercase;background:var(--bg-2)}
-  .pc-table th:first-child,.pc-table td:first-child{text-align:left}
-  .pc-table th small{display:block;font-size:9px;color:var(--text-3);text-transform:none;letter-spacing:0;font-weight:500;margin-top:1px}
-  .pc-table tr.pc-baseline td{color:var(--text-3);background:rgba(0,0,0,.02)}
-  .pc-table tr.pc-ok td{color:var(--text-1)}
-  .pc-table tr.pc-ok td:last-child{color:#059669;font-weight:700}
-  .pc-table tr.pc-ng td:last-child{color:#dc2626;font-weight:700}
+  .pc-btn:hover{background:#0891b2}
+  .pc-btn.ghost{background:transparent;color:var(--text-2);border:1px solid var(--line)}
+  .pc-btn.ghost:hover{background:var(--bg-2);color:var(--text-1)}
+  .pc-btn.warn{background:#dc2626}
+  .pc-btn.warn:hover{background:#b91c1c}
+
+  /* Section 1: product picker */
+  .pc-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .pc-toolbar .pc-input{max-width:200px}
+  .pc-toolbar-spacer{flex:1}
+  .pc-count{font-size:12px;color:#06b6d4;font-weight:700;font-family:var(--mono)}
+  .pc-product-table-wrap{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg-2)}
+  .pc-product-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
+  .pc-product-table thead th{
+    position:sticky;top:0;z-index:2;background:var(--bg-1);
+    padding:9px 10px;text-align:right;font-size:10.5px;font-weight:700;
+    color:var(--text-2);letter-spacing:.04em;text-transform:uppercase;
+    border-bottom:1px solid var(--line);white-space:nowrap
+  }
+  .pc-product-table th:first-child,.pc-product-table td:first-child{text-align:center;width:40px}
+  .pc-product-table th:nth-child(2),.pc-product-table td:nth-child(2){text-align:left;width:90px;color:var(--text-3)}
+  .pc-product-table th:nth-child(3),.pc-product-table td:nth-child(3){text-align:left;min-width:200px}
+  .pc-product-table td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  .pc-product-table tr:last-child td{border-bottom:none}
+  .pc-product-table tr:hover td{background:rgba(6,182,212,.06)}
+  .pc-product-table tr.selected td{background:rgba(6,182,212,.12)}
+  .pc-product-table input[type=checkbox]{cursor:pointer;width:16px;height:16px;accent-color:#06b6d4}
+  .pc-product-empty{padding:40px 12px;text-align:center;color:var(--text-3);font-size:12.5px}
+
+  /* Section 2: conditions */
+  .pc-cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:820px){.pc-cond-grid{grid-template-columns:1fr}}
+  .pc-cond-col{display:flex;flex-direction:column;gap:14px}
+  .pc-field{display:flex;flex-direction:column;gap:5px}
+  .pc-field-label{font-size:11px;font-weight:700;color:var(--text-2);letter-spacing:.04em;text-transform:uppercase}
+  .pc-field-hint{font-size:10.5px;color:var(--text-3);margin-top:2px;font-style:italic}
+  .pc-inline-row{display:flex;gap:10px;flex-wrap:wrap}
+  .pc-inline-row .pc-field{flex:1 1 140px;min-width:0}
+
+  /* Image upload */
+  .pc-drop{
+    border:1.5px dashed var(--line-2);border-radius:10px;background:var(--bg-2);
+    padding:20px 14px;text-align:center;cursor:pointer;color:var(--text-3);
+    font-size:12px;line-height:1.5;transition:all .15s;min-height:80px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px
+  }
+  .pc-drop:hover,.pc-drop.drag{border-color:#06b6d4;background:rgba(6,182,212,.05);color:#06b6d4}
+  .pc-drop-preview{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    padding:8px;text-align:center;position:relative
+  }
+  .pc-drop-preview img{max-width:100%;max-height:220px;border-radius:6px;display:block;margin:0 auto}
+  .pc-drop-preview .pc-btn{position:absolute;top:8px;right:8px;padding:5px 10px;font-size:11px}
+
+  /* Section 3: result */
+  .pc-result-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .pc-warn-banner{
+    padding:10px 14px;border-radius:10px;font-size:12.5px;font-weight:600;
+    background:rgba(220,38,38,.10);border:1px solid rgba(220,38,38,.35);
+    color:#dc2626;margin-bottom:10px;display:flex;align-items:center;gap:8px
+  }
+  .pc-note{font-size:11.5px;color:var(--text-3);margin-top:10px;font-style:italic;line-height:1.5}
+  .pc-empty{color:var(--text-3);font-size:12.5px;text-align:center;padding:36px 12px}
+
+  .pc-result-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg-2)}
+  .pc-result-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);min-width:1080px}
+  .pc-result-table thead th{
+    position:sticky;top:0;z-index:2;background:var(--bg-1);
+    padding:9px 8px;text-align:right;font-size:10.5px;font-weight:700;
+    color:var(--text-2);letter-spacing:.04em;text-transform:uppercase;
+    border-bottom:1px solid var(--line);white-space:nowrap
+  }
+  .pc-result-table th:first-child,.pc-result-table td:first-child{text-align:left;min-width:180px;position:sticky;left:0;background:var(--bg-2);z-index:1}
+  .pc-result-table thead th:first-child{background:var(--bg-1);z-index:3}
+  .pc-result-table th small{display:block;font-size:9px;color:var(--text-3);text-transform:none;letter-spacing:0;font-weight:500;margin-top:1px}
+  .pc-result-table td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  .pc-result-table tr:last-child td{border-bottom:none}
+  .pc-result-table tr.violate td{background:rgba(220,38,38,.10);color:#991b1b}
+  .pc-result-table tr.violate td:first-child{background:rgba(220,38,38,.10);color:#991b1b;font-weight:700}
+  .pc-result-table td.core{background:rgba(6,182,212,.14);font-weight:700;color:#0e7490}
+  .pc-result-table tr.violate td.core{background:rgba(220,38,38,.20);color:#991b1b}
+  .pc-result-table td.profit-pos{color:#059669;font-weight:700}
+  .pc-result-table td.profit-neg{color:#dc2626;font-weight:700}
+  .pc-setting-input{
+    background:transparent;border:1px solid transparent;border-radius:6px;
+    padding:4px 6px;font-size:12px;font-family:var(--mono);
+    color:inherit;width:90px;text-align:right;font-weight:700
+  }
+  .pc-setting-input:hover{border-color:rgba(6,182,212,.35)}
+  .pc-setting-input:focus{outline:none;border-color:#06b6d4;background:var(--bg-1)}
+  .pc-margin-cell{display:flex;flex-direction:column;align-items:flex-end;gap:0}
+  .pc-margin-cell small{font-size:10px;color:var(--text-3);font-weight:500}
+
   @media(max-width:600px){
-    .pc-table{font-size:10.5px}
-    .pc-table th,.pc-table td{padding:6px 5px}
+    .pc-panel{padding:14px}
+    .pc-product-table,.pc-result-table{font-size:11px}
+    .pc-product-table td,.pc-product-table th{padding:6px 5px}
+    .pc-result-table td,.pc-result-table th{padding:6px 5px}
   }
 
   /* ===== 이미지 배지 합성 도구 ===== */
@@ -5602,101 +5669,144 @@
     </div>
   </div>
 
-  <!-- ============ 기획전 계산기 (에이블리 · 코페리) ============ -->
+  <!-- ============ 기획전 계산기 v2 ============ -->
   <div class="view" id="viewPromoCalc" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">기획전 계산기<span class="view-title-sub">/ 에이블리 · 코페리</span></h1>
+      <h1 class="view-title">기획전 계산기<span class="view-title-sub">/ 에이블리 · 코페리 등</span></h1>
     </div>
 
     <div class="pc-wrap">
-      <!-- 상품 & 매입가 -->
+      <!-- ==== 1. 상품 선택 ==== -->
       <div class="pc-panel">
         <div class="pc-panel-head">
           <div class="pc-panel-title">1. 상품 선택</div>
           <div class="pc-panel-meta" id="pcCatalogStatus">불러오는 중…</div>
         </div>
-        <div class="pc-grid pc-grid-product">
-          <div class="pc-ctl pc-ctl-wide">
-            <div class="pc-ctl-label">코페리 상품</div>
-            <select id="pcProduct" class="pc-input" onchange="pcOnProductChange()">
-              <option value="">— 상품 목록 로딩중 —</option>
-            </select>
-          </div>
-          <div class="pc-ctl">
-            <div class="pc-ctl-label">정가</div>
-            <div class="pc-readout" id="pcPrice">—</div>
-          </div>
-          <div class="pc-ctl">
-            <div class="pc-ctl-label">매입가 (₩)</div>
-            <input id="pcCost" class="pc-input" type="number" inputmode="numeric" min="0" step="100" placeholder="예: 15000" oninput="pcSaveCost()">
-          </div>
-          <div class="pc-ctl">
-            <div class="pc-ctl-label">목표 이익률 (%)</div>
-            <input id="pcTarget" class="pc-input" type="number" inputmode="numeric" min="0" step="1" value="20" oninput="pcCompute()">
-          </div>
+        <div class="pc-toolbar">
+          <input id="pcSearch" class="pc-input" type="text" placeholder="상품명 검색..." oninput="pcRenderProductTable()">
+          <select id="pcCatFilter" class="pc-input" onchange="pcRenderProductTable()">
+            <option value="">전체 카테고리</option>
+          </select>
+          <div class="pc-toolbar-spacer"></div>
+          <div class="pc-count" id="pcSelCount">0개 선택됨</div>
+          <button class="pc-btn ghost" onclick="pcReloadCatalog()">↻ 새로고침</button>
         </div>
-        <div class="pc-note">매입가는 상품별로 브라우저에 저장돼서 다음 방문 때 자동으로 채워집니다.</div>
+        <div class="pc-product-table-wrap">
+          <table class="pc-product-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="pcSelectAll" onchange="pcToggleSelectAll(this.checked)" title="전체 선택"></th>
+                <th>카테고리</th>
+                <th>상품명</th>
+                <th>정가<br><small>I열</small></th>
+                <th>공홈 할인가<br><small>G열</small></th>
+                <th>플랫폼 최저가<br><small>K열</small></th>
+                <th>마진율<br><small>F열</small></th>
+              </tr>
+            </thead>
+            <tbody id="pcProductBody">
+              <tr><td colspan="7" class="pc-product-empty">시트를 불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pc-note">
+          Google Sheet에서 자동 로딩 (C열=상품명 기준 dedupe, 82개 예상).
+          체크박스로 다중 선택하면 아래 결과 테이블에 자동 반영됩니다.
+        </div>
       </div>
 
-      <!-- 에이블리 고정 조건 -->
+      <!-- ==== 2. 기획전 조건 ==== -->
       <div class="pc-panel">
         <div class="pc-panel-head">
-          <div class="pc-panel-title">2. 에이블리 조건 (고정)</div>
-          <div class="pc-panel-meta">배송비 무료 · 셀러스 기준</div>
+          <div class="pc-panel-title">2. 기획전 조건 (가정)</div>
+          <div class="pc-panel-meta">브라우저에 자동 저장</div>
         </div>
-        <div class="pc-grid pc-grid-fee">
-          <div class="pc-ctl">
-            <div class="pc-ctl-label">에이블리 수수료 (%)</div>
-            <input id="pcFee" class="pc-input" type="number" inputmode="decimal" min="0" step="0.01" value="6.96" oninput="pcCompute()">
-            <div class="pc-ctl-hint">플랫폼 3% + 결제 3.96% (VAT 별도)</div>
+        <div class="pc-cond-grid">
+          <div class="pc-cond-col">
+            <div class="pc-field">
+              <div class="pc-field-label">기획전 이미지 (스크린샷 등)</div>
+              <div id="pcImgArea">
+                <div class="pc-drop" id="pcImgDrop" onclick="document.getElementById('pcImgFile').click()">
+                  <div style="font-size:22px">📷</div>
+                  <div>이미지를 드래그하거나 클릭해서 업로드<br><span style="font-size:11px;color:var(--text-3)">PNG/JPG · 브라우저에만 저장됨</span></div>
+                </div>
+                <input type="file" id="pcImgFile" accept="image/*" hidden onchange="pcOnImgFile(event)">
+              </div>
+            </div>
+            <div class="pc-field">
+              <div class="pc-field-label">기획전 조건 텍스트</div>
+              <textarea id="pcCondText" class="pc-input pc-textarea" placeholder="예: 에이블리 여름 세일 · 카테고리 전 상품 5% 즉시할인 · 브랜드 쿠폰 10% (분담 50/50)" oninput="pcSaveConditions()"></textarea>
+              <div class="pc-field-hint">자유 서식 · 이미지와 텍스트 병기 가능</div>
+            </div>
+          </div>
+
+          <div class="pc-cond-col">
+            <div class="pc-inline-row">
+              <div class="pc-field">
+                <div class="pc-field-label">수수료율 (%)</div>
+                <input id="pcFee" class="pc-input" type="number" inputmode="decimal" min="0" step="0.01" value="6.96" oninput="pcSaveConditions();pcCompute()">
+                <div class="pc-field-hint">기획전마다 다를 수 있음</div>
+              </div>
+              <div class="pc-field">
+                <div class="pc-field-label">고정 비용 (원)</div>
+                <input id="pcFixCost" class="pc-input" type="number" inputmode="numeric" min="0" step="100" value="2699" oninput="pcSaveConditions();pcCompute()">
+                <div class="pc-field-hint">이익 계산 시 차감</div>
+              </div>
+            </div>
+            <div class="pc-inline-row">
+              <div class="pc-field">
+                <div class="pc-field-label">쿠폰 할인율 (%)</div>
+                <input id="pcCouponPct" class="pc-input" type="number" inputmode="decimal" min="0" step="0.5" placeholder="예: 10" oninput="pcSaveConditions();pcCompute()">
+                <div class="pc-field-hint">정률 쿠폰</div>
+              </div>
+              <div class="pc-field">
+                <div class="pc-field-label">쿠폰 금액 (원)</div>
+                <input id="pcCouponWon" class="pc-input" type="number" inputmode="numeric" min="0" step="100" placeholder="예: 3000" oninput="pcSaveConditions();pcCompute()">
+                <div class="pc-field-hint">정액 쿠폰 (둘 중 하나)</div>
+              </div>
+              <div class="pc-field">
+                <div class="pc-field-label">쿠폰 분담 (%)</div>
+                <input id="pcCouponShare" class="pc-input" type="number" inputmode="numeric" min="0" max="100" step="5" placeholder="예: 50" oninput="pcSaveConditions();pcCompute()">
+                <div class="pc-field-hint">브랜드 부담 비율</div>
+              </div>
+            </div>
+            <div class="pc-field">
+              <div class="pc-field-label">특수 조건 · AI에게 추가 설명</div>
+              <textarea id="pcAiNote" class="pc-input pc-textarea" placeholder="예: 특정 상품군 수수료 3%, 쿠폰 분담 100% 등 자유롭게 작성하세요. 계산에는 자동 반영되지 않지만 저장됩니다." oninput="pcSaveConditions()"></textarea>
+              <div class="pc-field-hint">저장만 되며 결과에는 자동 반영 안 됨 (추후 AI 연동 예정)</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 가정 3개 -->
+      <!-- ==== 3. 분석 결과 ==== -->
       <div class="pc-panel">
         <div class="pc-panel-head">
-          <div class="pc-panel-title">3. 기획전 조건 (가정)</div>
-          <div class="pc-panel-meta">할인율 % 또는 판매가 원 중 하나만 입력</div>
+          <div class="pc-panel-title">3. 분석 결과</div>
+          <div class="pc-panel-meta" id="pcResultMeta">상품을 선택하면 자동 계산</div>
         </div>
-        <div class="pc-scenarios">
-          <div class="pc-scenario">
-            <div class="pc-scenario-head">가정 1</div>
-            <input id="pcMemo1" class="pc-input" type="text" placeholder="메모 (예: 15,000원 이하 존)" oninput="pcCompute()">
-            <div class="pc-scenario-row">
-              <label class="pc-ctl-inline">할인율 % <input id="pcDisc1" class="pc-input pc-input-sm" type="number" inputmode="decimal" min="0" step="0.5" placeholder="예: 30" oninput="pcCompute()"></label>
-              <label class="pc-ctl-inline">판매가 원 <input id="pcSale1" class="pc-input pc-input-sm" type="number" inputmode="numeric" min="0" step="100" placeholder="예: 9900" oninput="pcCompute()"></label>
-            </div>
-          </div>
-          <div class="pc-scenario">
-            <div class="pc-scenario-head">가정 2</div>
-            <input id="pcMemo2" class="pc-input" type="text" placeholder="메모 (예: 15,000원 이상)" oninput="pcCompute()">
-            <div class="pc-scenario-row">
-              <label class="pc-ctl-inline">할인율 % <input id="pcDisc2" class="pc-input pc-input-sm" type="number" inputmode="decimal" min="0" step="0.5" placeholder="예: 10" oninput="pcCompute()"></label>
-              <label class="pc-ctl-inline">판매가 원 <input id="pcSale2" class="pc-input pc-input-sm" type="number" inputmode="numeric" min="0" step="100" placeholder="예: 15000" oninput="pcCompute()"></label>
-            </div>
-          </div>
-          <div class="pc-scenario">
-            <div class="pc-scenario-head">가정 3</div>
-            <input id="pcMemo3" class="pc-input" type="text" placeholder="메모 (예: 브랜드 자체 쿠폰 5%)" oninput="pcCompute()">
-            <div class="pc-scenario-row">
-              <label class="pc-ctl-inline">할인율 % <input id="pcDisc3" class="pc-input pc-input-sm" type="number" inputmode="decimal" min="0" step="0.5" placeholder="예: 5" oninput="pcCompute()"></label>
-              <label class="pc-ctl-inline">판매가 원 <input id="pcSale3" class="pc-input pc-input-sm" type="number" inputmode="numeric" min="0" step="100" oninput="pcCompute()"></label>
-            </div>
-          </div>
+        <div id="pcWarnBanner"></div>
+        <div class="pc-result-toolbar">
+          <button class="pc-btn" onclick="pcCopyTable()">📋 전체 복사 (엑셀 붙여넣기)</button>
+          <button class="pc-btn ghost" onclick="pcResetSettings()">세팅가 자동 재계산</button>
+          <div class="pc-toolbar-spacer"></div>
         </div>
-      </div>
-
-      <!-- 결과 -->
-      <div class="pc-panel pc-panel-result">
-        <div class="pc-panel-head">
-          <div class="pc-panel-title">4. 분석 결과</div>
+        <div id="pcResult">
+          <div class="pc-empty">위에서 상품을 선택하면 계산 결과가 여기에 표시됩니다.</div>
         </div>
-        <div id="pcResult"><div class="pc-empty">상품 선택 & 매입가를 입력하면 계산 결과가 여기에 표시됩니다.</div></div>
+        <div class="pc-note">
+          <b>계산 공식</b><br>
+          · 세팅가(제출가) = 사장님이 각 상품별 입력 (기본값 = 플랫폼 최저가)<br>
+          · 쿠폰 적용가 = 세팅가 − 쿠폰 (쿠폰 할인율 우선, 없으면 쿠폰 금액)<br>
+          · 수수료 = 세팅가 × 수수료율<br>
+          · 이익 = 세팅가 − 수수료 − 고정비용(기본 2,699원)<br>
+          · 공홈+3500 = G열 공홈 할인가 + 3,500원 (배송비 포함)<br>
+          · <span style="color:#dc2626;font-weight:700">빨간 행</span> = (정가 − 쿠폰) &lt; 플랫폼 최저가 (플랫폼 최저가 위반 위험)
+        </div>
       </div>
     </div>
   </div>
@@ -13705,175 +13815,461 @@
   window.downloadBadge=downloadBadge;
   window.clearBadge=clearBadge;
 
-  /* ===== 기획전 계산기 (에이블리 · 코페리) ===== */
-  window._pc = {catalog:null, loading:false, sel:null};
+  /* ===== 기획전 계산기 v2 (Google Sheet 기반 · 다중선택 · 세팅가 인라인 편집) ===== */
+  const PC_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1bnKosG3_Ytjg-maMKt1SeaO-ojeQemKp_mzyjnWscD0/gviz/tq?tqx=out:csv&gid=0';
+  const PC_LS = {
+    selected: 'promoCalcV2_selected',    // JSON array of product names
+    settings: 'promoCalcV2_settings',    // {productName: settingPrice}
+    cond:     'promoCalcV2_cond',        // {fee, fixCost, couponPct, couponWon, couponShare, condText, aiNote}
+    img:      'promoCalcV2_img'          // base64 dataURL
+  };
+  window._pcv2 = {
+    catalog: [],       // [{cat, name, marginPct, homeSale, listPrice, platformMin, marginRaw}]
+    loading: false,
+    lastLoadedAt: null,
+    selected: new Set(),
+    settings: {},      // {name: settingPrice}
+  };
+
+  function _pcEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function _pcNum(s){
+    // "44,000" → 44000, "79%" → 79, "" → 0
+    if(s==null) return 0;
+    const t=String(s).replace(/[,\s%₩]/g,'').trim();
+    if(!t) return 0;
+    const n=Number(t);
+    return isFinite(n)?n:0;
+  }
+  function _pcFmt(n){return `₩${Math.round(Number(n)||0).toLocaleString('ko-KR')}`;}
+  function _pcFmtPct(n){
+    if(n==null||!isFinite(n)) return '—';
+    return (Math.round(n*10)/10)+'%';
+  }
+
+  // --- CSV parser (handles quoted fields with commas) ---
+  function _pcParseCSV(text){
+    const rows=[]; let row=[]; let cur=''; let inQ=false;
+    for(let i=0;i<text.length;i++){
+      const c=text[i];
+      if(inQ){
+        if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else {inQ=false;} }
+        else cur+=c;
+      } else {
+        if(c===','){row.push(cur);cur='';}
+        else if(c==='\n'){row.push(cur);cur='';rows.push(row);row=[];}
+        else if(c==='\r'){/* skip */}
+        else if(c==='"'){inQ=true;}
+        else cur+=c;
+      }
+    }
+    if(cur.length||row.length){row.push(cur);rows.push(row);}
+    return rows;
+  }
 
   async function pcInit(){
-    pcRestoreForm();
+    pcRestoreConditions();
+    pcRestoreImage();
     await pcLoadCatalog();
     pcCompute();
   }
 
-  async function pcLoadCatalog(){
-    const s=window._pc;
+  async function pcLoadCatalog(force){
+    const s=window._pcv2;
     const stEl=document.getElementById('pcCatalogStatus');
     if(s.loading) return;
-    if(s.catalog){ pcRenderProductSelect(); if(stEl) stEl.textContent=`${s.catalog.length}개 상품`; return; }
+    if(!force && s.catalog.length){ pcPopulateCatFilter(); pcRenderProductTable(); return; }
     s.loading=true;
-    if(stEl){stEl.textContent='불러오는 중…'; stEl.style.color='';}
+    if(stEl){stEl.textContent='시트 불러오는 중...'; stEl.className='pc-panel-meta';}
     try{
-      const base=await loadProxyBase();
-      if(!base) throw new Error('proxy unavailable');
-      const r=await fetch(`${base}/sx/catalog?brand=kop`,{headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
+      const r=await fetch(PC_SHEET_URL,{cache:'no-cache'});
       if(!r.ok) throw new Error('HTTP '+r.status);
-      const d=await r.json();
-      const raw=d.products||d.items||[];
-      const items=raw.filter(x=>x.status==='selling' && (x.price||0)>0);
-      items.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+      const csv=await r.text();
+      const rows=_pcParseCSV(csv);
+      // First row is header (mostly empty), skip it
+      const dataRows=rows.slice(1);
+      const seen=new Set();
+      const items=[];
+      for(const r of dataRows){
+        if(r.length<11) continue;
+        const name=(r[2]||'').trim();
+        if(!name || seen.has(name)) continue;
+        const cat=(r[1]||'').trim();
+        const marginRaw=(r[5]||'').trim();          // "79%"
+        const homeSale=_pcNum(r[6]);                 // G열 공홈 할인가
+        const listPrice=_pcNum(r[8]);                // I열 정가
+        const platformMin=_pcNum(r[10]);             // K열 플랫폼 최저가
+        if(!listPrice) continue; // skip if no list price
+        seen.add(name);
+        items.push({cat, name, marginRaw, marginPct:_pcNum(marginRaw), homeSale, listPrice, platformMin});
+      }
+      items.sort((a,b)=>a.name.localeCompare(b.name,'ko'));
       s.catalog=items;
-      pcRenderProductSelect();
-      if(stEl) stEl.textContent=`${items.length}개 상품`;
+      s.lastLoadedAt=new Date();
+      pcRestoreSelection();
+      pcPopulateCatFilter();
+      pcRenderProductTable();
+      const hh=String(s.lastLoadedAt.getHours()).padStart(2,'0');
+      const mm=String(s.lastLoadedAt.getMinutes()).padStart(2,'0');
+      if(stEl){stEl.textContent=`${items.length}개 상품 로드됨 · ${hh}:${mm}`; stEl.className='pc-panel-meta';}
     }catch(e){
       console.error('pcLoadCatalog',e);
-      if(stEl){stEl.textContent='⚠ 로드 실패'; stEl.style.color='#dc2626';}
+      if(stEl){
+        stEl.innerHTML='⚠ 시트 로드 실패 — <button class="pc-btn ghost" style="padding:3px 10px;font-size:11px" onclick="pcReloadCatalog()">재시도</button>';
+        stEl.className='pc-panel-meta err';
+      }
+      const tb=document.getElementById('pcProductBody');
+      if(tb) tb.innerHTML='<tr><td colspan="7" class="pc-product-empty">시트 로드 실패. 인터넷 연결 또는 시트 공개 여부를 확인하세요.</td></tr>';
     }finally{s.loading=false;}
   }
 
-  function pcRenderProductSelect(){
-    const sel=document.getElementById('pcProduct'); if(!sel) return;
-    const s=window._pc;
-    const prev=sel.value || localStorage.getItem('promoCalc_lastProduct') || '';
-    sel.innerHTML='<option value="">— 상품을 선택하세요 —</option>' +
-      (s.catalog||[]).map(p=>`<option value="${p.productNo}" data-price="${p.price}" data-name="${_pcEsc(p.name||'')}">${_pcEsc(p.name||'')} · ₩${(p.price||0).toLocaleString('ko-KR')}</option>`).join('');
-    if(prev && [...sel.options].some(o=>o.value===prev)){ sel.value=prev; pcOnProductChange(); }
+  function pcReloadCatalog(){ pcLoadCatalog(true); }
+
+  function pcPopulateCatFilter(){
+    const sel=document.getElementById('pcCatFilter'); if(!sel) return;
+    const s=window._pcv2;
+    const cats=[...new Set(s.catalog.map(x=>x.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+    const cur=sel.value||'';
+    sel.innerHTML='<option value="">전체 카테고리</option>'+cats.map(c=>`<option value="${_pcEsc(c)}"${c===cur?' selected':''}>${_pcEsc(c)}</option>`).join('');
   }
 
-  function pcOnProductChange(){
-    const sel=document.getElementById('pcProduct');
-    const opt=sel.selectedOptions[0];
-    if(!opt || !opt.value){
-      window._pc.sel=null;
-      document.getElementById('pcPrice').textContent='—';
-      document.getElementById('pcCost').value='';
-      pcCompute();
-      return;
+  function pcFilteredCatalog(){
+    const s=window._pcv2;
+    const q=(document.getElementById('pcSearch')?.value||'').trim().toLowerCase();
+    const cat=(document.getElementById('pcCatFilter')?.value||'').trim();
+    return s.catalog.filter(p=>{
+      if(cat && p.cat!==cat) return false;
+      if(q && !p.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+
+  function pcRenderProductTable(){
+    const tb=document.getElementById('pcProductBody'); if(!tb) return;
+    const s=window._pcv2;
+    const list=pcFilteredCatalog();
+    if(!list.length){
+      tb.innerHTML='<tr><td colspan="7" class="pc-product-empty">검색 결과 없음</td></tr>';
+    } else {
+      tb.innerHTML=list.map(p=>{
+        const chk=s.selected.has(p.name)?' checked':'';
+        const cls=s.selected.has(p.name)?' class="selected"':'';
+        return `<tr${cls}>
+          <td><input type="checkbox" data-name="${_pcEsc(p.name)}"${chk} onchange="pcToggleOne(this)"></td>
+          <td>${_pcEsc(p.cat||'—')}</td>
+          <td>${_pcEsc(p.name)}</td>
+          <td>${_pcFmt(p.listPrice)}</td>
+          <td>${_pcFmt(p.homeSale)}</td>
+          <td>${_pcFmt(p.platformMin)}</td>
+          <td>${p.marginRaw||'—'}</td>
+        </tr>`;
+      }).join('');
     }
-    const price=parseInt(opt.dataset.price,10)||0;
-    const pno=opt.value;
-    const name=opt.dataset.name||'';
-    window._pc.sel={productNo:pno, name, price};
-    document.getElementById('pcPrice').textContent=`₩${price.toLocaleString('ko-KR')}`;
-    const cost=localStorage.getItem('promoCalc_cost_'+pno);
-    document.getElementById('pcCost').value=cost||'';
-    try{ localStorage.setItem('promoCalc_lastProduct', pno); }catch(e){}
-    pcCompute();
+    // select-all state
+    const sa=document.getElementById('pcSelectAll');
+    if(sa){
+      const total=list.length;
+      const checked=list.filter(p=>s.selected.has(p.name)).length;
+      sa.checked=(total>0 && checked===total);
+      sa.indeterminate=(checked>0 && checked<total);
+    }
+    pcUpdateSelCount();
   }
 
-  function pcSaveCost(){
-    const s=window._pc.sel; if(!s){ pcCompute(); return; }
-    const v=(document.getElementById('pcCost').value||'').trim();
-    if(v && parseInt(v,10)>0) localStorage.setItem('promoCalc_cost_'+s.productNo, v);
-    else if(!v) localStorage.removeItem('promoCalc_cost_'+s.productNo);
-    pcCompute();
+  function pcToggleOne(cb){
+    const name=cb.dataset.name; const s=window._pcv2;
+    if(cb.checked) s.selected.add(name); else s.selected.delete(name);
+    pcSaveSelection(); pcRenderProductTable(); pcCompute();
   }
 
-  function pcRestoreForm(){
+  function pcToggleSelectAll(on){
+    const s=window._pcv2;
+    const list=pcFilteredCatalog();
+    if(on) list.forEach(p=>s.selected.add(p.name));
+    else   list.forEach(p=>s.selected.delete(p.name));
+    pcSaveSelection(); pcRenderProductTable(); pcCompute();
+  }
+
+  function pcUpdateSelCount(){
+    const c=document.getElementById('pcSelCount'); if(!c) return;
+    c.textContent=`${window._pcv2.selected.size}개 선택됨`;
+  }
+
+  function pcSaveSelection(){
+    try{ localStorage.setItem(PC_LS.selected, JSON.stringify([...window._pcv2.selected])); }catch(e){}
+  }
+
+  function pcRestoreSelection(){
     try{
-      const t=localStorage.getItem('promoCalc_target'); if(t) document.getElementById('pcTarget').value=t;
-      const f=localStorage.getItem('promoCalc_fee'); if(f) document.getElementById('pcFee').value=f;
-      for(let i=1;i<=3;i++){
-        const m=localStorage.getItem('promoCalc_memo'+i); if(m) document.getElementById('pcMemo'+i).value=m;
-        const d=localStorage.getItem('promoCalc_disc'+i); if(d) document.getElementById('pcDisc'+i).value=d;
-        const s=localStorage.getItem('promoCalc_sale'+i); if(s) document.getElementById('pcSale'+i).value=s;
+      const raw=localStorage.getItem(PC_LS.selected); if(!raw) return;
+      const arr=JSON.parse(raw); if(!Array.isArray(arr)) return;
+      const s=window._pcv2;
+      const valid=new Set(s.catalog.map(p=>p.name));
+      s.selected=new Set(arr.filter(n=>valid.has(n)));
+    }catch(e){}
+    // Restore settings
+    try{
+      const raw=localStorage.getItem(PC_LS.settings); if(raw){
+        const obj=JSON.parse(raw); if(obj && typeof obj==='object') window._pcv2.settings=obj;
       }
     }catch(e){}
+  }
+
+  function pcSaveConditions(){
+    try{
+      const cond={
+        fee: document.getElementById('pcFee')?.value||'',
+        fixCost: document.getElementById('pcFixCost')?.value||'',
+        couponPct: document.getElementById('pcCouponPct')?.value||'',
+        couponWon: document.getElementById('pcCouponWon')?.value||'',
+        couponShare: document.getElementById('pcCouponShare')?.value||'',
+        condText: document.getElementById('pcCondText')?.value||'',
+        aiNote: document.getElementById('pcAiNote')?.value||'',
+      };
+      localStorage.setItem(PC_LS.cond, JSON.stringify(cond));
+    }catch(e){}
+  }
+
+  function pcRestoreConditions(){
+    try{
+      const raw=localStorage.getItem(PC_LS.cond); if(!raw) return;
+      const c=JSON.parse(raw); if(!c) return;
+      const set=(id,v)=>{const el=document.getElementById(id); if(el && v!==undefined && v!=='') el.value=v;};
+      set('pcFee', c.fee);
+      set('pcFixCost', c.fixCost);
+      set('pcCouponPct', c.couponPct);
+      set('pcCouponWon', c.couponWon);
+      set('pcCouponShare', c.couponShare);
+      set('pcCondText', c.condText);
+      set('pcAiNote', c.aiNote);
+    }catch(e){}
+  }
+
+  // --- Image upload ---
+  function pcOnImgFile(ev){
+    const f=ev.target.files&&ev.target.files[0]; if(!f) return;
+    if(f.size>4*1024*1024){ alert('이미지가 너무 큽니다 (4MB 이하 권장).'); return; }
+    const rd=new FileReader();
+    rd.onload=e=>{ pcSetImg(e.target.result); };
+    rd.readAsDataURL(f);
+  }
+
+  function pcSetImg(dataUrl){
+    try{ localStorage.setItem(PC_LS.img, dataUrl); }catch(e){ alert('이미지 저장 실패 (용량 초과)'); return; }
+    pcRestoreImage();
+  }
+
+  function pcClearImg(){
+    try{ localStorage.removeItem(PC_LS.img); }catch(e){}
+    const inp=document.getElementById('pcImgFile'); if(inp) inp.value='';
+    pcRestoreImage();
+  }
+
+  function pcRestoreImage(){
+    const area=document.getElementById('pcImgArea'); if(!area) return;
+    const data=localStorage.getItem(PC_LS.img);
+    if(data){
+      area.innerHTML=`<div class="pc-drop-preview">
+        <img src="${data}" alt="기획전 이미지">
+        <button class="pc-btn warn" onclick="pcClearImg()">✕ 삭제</button>
+      </div>`;
+    } else {
+      area.innerHTML=`<div class="pc-drop" id="pcImgDrop" onclick="document.getElementById('pcImgFile').click()">
+          <div style="font-size:22px">📷</div>
+          <div>이미지를 드래그하거나 클릭해서 업로드<br><span style="font-size:11px;color:var(--text-3)">PNG/JPG · 브라우저에만 저장됨</span></div>
+        </div>
+        <input type="file" id="pcImgFile" accept="image/*" hidden onchange="pcOnImgFile(event)">`;
+      const drop=document.getElementById('pcImgDrop');
+      if(drop){
+        drop.addEventListener('dragover',e=>{e.preventDefault(); drop.classList.add('drag');});
+        drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));
+        drop.addEventListener('drop',e=>{
+          e.preventDefault(); drop.classList.remove('drag');
+          const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(!f) return;
+          const rd=new FileReader(); rd.onload=ev=>pcSetImg(ev.target.result); rd.readAsDataURL(f);
+        });
+      }
+    }
+  }
+
+  // --- Compute ---
+  function _pcConditions(){
+    return {
+      fee:parseFloat(document.getElementById('pcFee')?.value)||0,
+      fixCost:parseFloat(document.getElementById('pcFixCost')?.value)||0,
+      couponPct:parseFloat(document.getElementById('pcCouponPct')?.value)||0,
+      couponWon:parseFloat(document.getElementById('pcCouponWon')?.value)||0,
+      couponShare:parseFloat(document.getElementById('pcCouponShare')?.value)||0,
+    };
+  }
+
+  function _pcApplyCoupon(price, cond){
+    // 쿠폰 할인율 우선, 없으면 쿠폰 금액. 브랜드 부담 비율은 계산에는 참고용
+    if(cond.couponPct>0) return Math.max(0, Math.round(price*(1-cond.couponPct/100)));
+    if(cond.couponWon>0) return Math.max(0, Math.round(price-cond.couponWon));
+    return price;
+  }
+
+  function _pcSettingFor(product){
+    // 세팅가: 사장님이 편집한 값 있으면 사용, 없으면 플랫폼 최저가 기본값
+    const s=window._pcv2;
+    const v=s.settings[product.name];
+    if(v!=null && v!==''){
+      const n=parseInt(String(v).replace(/[,\s]/g,''),10);
+      if(!isNaN(n) && n>0) return n;
+    }
+    return product.platformMin>0 ? product.platformMin : product.listPrice;
+  }
+
+  function pcOnSettingInput(inp){
+    const name=inp.dataset.name;
+    const raw=inp.value.replace(/[,\s]/g,'');
+    const s=window._pcv2;
+    if(raw==='' || isNaN(parseInt(raw,10))){
+      delete s.settings[name];
+    } else {
+      s.settings[name]=parseInt(raw,10);
+    }
+    try{ localStorage.setItem(PC_LS.settings, JSON.stringify(s.settings)); }catch(e){}
+    pcCompute();
+  }
+
+  function pcResetSettings(){
+    if(!confirm('선택한 상품의 세팅가를 모두 기본값(플랫폼 최저가)으로 되돌립니다.\n계속할까요?')) return;
+    const s=window._pcv2;
+    for(const name of s.selected) delete s.settings[name];
+    try{ localStorage.setItem(PC_LS.settings, JSON.stringify(s.settings)); }catch(e){}
+    pcCompute();
   }
 
   function pcCompute(){
-    const s=window._pc.sel;
-    const price=s?.price||0;
-    const cost=parseInt((document.getElementById('pcCost')||{}).value,10)||0;
-    const target=parseFloat((document.getElementById('pcTarget')||{}).value)||0;
-    const fee=parseFloat((document.getElementById('pcFee')||{}).value)||0;
-    try{
-      localStorage.setItem('promoCalc_target', String(target||''));
-      localStorage.setItem('promoCalc_fee', String(fee||''));
-      for(let i=1;i<=3;i++){
-        const memo=(document.getElementById('pcMemo'+i)||{}).value?.trim()||'';
-        const disc=(document.getElementById('pcDisc'+i)||{}).value||'';
-        const sale=(document.getElementById('pcSale'+i)||{}).value||'';
-        memo?localStorage.setItem('promoCalc_memo'+i, memo):localStorage.removeItem('promoCalc_memo'+i);
-        disc?localStorage.setItem('promoCalc_disc'+i, disc):localStorage.removeItem('promoCalc_disc'+i);
-        sale?localStorage.setItem('promoCalc_sale'+i, sale):localStorage.removeItem('promoCalc_sale'+i);
-      }
-    }catch(e){}
-    const rows=[];
-    if(price>0) rows.push(_pcCalc('정가 (할인 없음)', price, price, cost, fee, 0));
-    for(let i=1;i<=3;i++){
-      const memo=(document.getElementById('pcMemo'+i)||{}).value?.trim()||'';
-      const discRaw=(document.getElementById('pcDisc'+i)||{}).value;
-      const saleRaw=(document.getElementById('pcSale'+i)||{}).value;
-      const disc=parseFloat(discRaw); const sale=parseFloat(saleRaw);
-      let sellPrice=null, discPct=null;
-      if(saleRaw!=='' && sale>=0){ sellPrice=sale; discPct=price>0?((1-sale/price)*100):0; }
-      else if(discRaw!=='' && !isNaN(disc)){ sellPrice=Math.max(0, Math.round(price*(1-disc/100))); discPct=disc; }
-      else continue;
-      rows.push(_pcCalc(`가정 ${i}${memo?' · '+memo:''}`, price, sellPrice, cost, fee, discPct));
-    }
-    pcRenderResult(rows, target, cost, price);
-  }
-
-  function _pcCalc(label, listPrice, sellPrice, cost, feeRate, discPct){
-    const fee=Math.round(sellPrice*feeRate/100);
-    const net=sellPrice-fee;
-    const profit=cost>0?(net-cost):0;
-    const rateOnCost=cost>0?(profit/cost*100):0;
-    return {label, sellPrice, fee, net, cost, profit, rateOnCost, disc:discPct};
-  }
-
-  function pcRenderResult(rows, target, cost, price){
+    const s=window._pcv2;
     const wrap=document.getElementById('pcResult'); if(!wrap) return;
-    if(!price){ wrap.innerHTML='<div class="pc-empty">상품을 선택해주세요.</div>'; return; }
-    if(!cost){ wrap.innerHTML='<div class="pc-empty">매입가를 입력하면 계산 결과가 표시됩니다.</div>'; return; }
-    const fmt=n=>`₩${Math.round(n).toLocaleString('ko-KR')}`;
-    const rateFmt=n=>(Math.round(n*10)/10)+'%';
-    const discFmt=n=>n>0?(Math.round(n*10)/10)+'%':'—';
-    const table=`
-      <table class="pc-table">
-        <thead><tr><th>가정</th><th>할인</th><th>판매가</th><th>수수료</th><th>실수령</th><th>이익</th><th>이익률<br><small>매입가 대비</small></th></tr></thead>
-        <tbody>
-          ${rows.map((r,i)=>{
-            const ok=r.rateOnCost>=target;
-            const cls=i===0?'pc-baseline':(ok?'pc-ok':'pc-ng');
-            return `<tr class="${cls}"><td>${_pcEsc(r.label)}</td><td>${discFmt(r.disc)}</td><td>${fmt(r.sellPrice)}</td><td>-${fmt(r.fee)}</td><td>${fmt(r.net)}</td><td>${fmt(r.profit)}</td><td>${rateFmt(r.rateOnCost)}${i>0?(ok?' ✓':' ✗'):''}</td></tr>`;
-          }).join('')}
-        </tbody>
-      </table>`;
-    const scenarios=rows.slice(1);
-    let rec='';
-    if(scenarios.length===0){
-      rec='<div class="pc-rec pc-rec-warn">💡 가정 1~3 중 하나 이상에 할인율(%) 또는 판매가(원)를 입력해주세요.</div>';
-    } else {
-      const passing=scenarios.filter(r=>r.rateOnCost>=target);
-      if(passing.length>0){
-        const rec1=[...passing].sort((a,b)=>a.sellPrice-b.sellPrice)[0];
-        const alt=passing.length>1?[...passing].sort((a,b)=>b.rateOnCost-a.rateOnCost)[0]:null;
-        const altHtml=(alt && alt.label!==rec1.label)?`<br><span style="color:var(--text-3);font-size:12px">더 큰 이익을 원하면: <b>${_pcEsc(alt.label)}</b> (이익률 ${rateFmt(alt.rateOnCost)})</span>`:'';
-        rec=`<div class="pc-rec pc-rec-ok">💡 <b>${_pcEsc(rec1.label)}</b> (할인 ${discFmt(rec1.disc)}, 판매가 ${fmt(rec1.sellPrice)}) 로 신청하세요.<br>이익 ${fmt(rec1.profit)} · 이익률 <b>${rateFmt(rec1.rateOnCost)}</b> — 목표 ${target}% 달성 ✓${altHtml}</div>`;
-      } else {
-        const best=[...scenarios].sort((a,b)=>b.rateOnCost-a.rateOnCost)[0];
-        rec=`<div class="pc-rec pc-rec-warn">⚠ 목표 이익률 ${target}% 를 달성하는 조건이 없습니다.<br>가장 좋은 것은 <b>${_pcEsc(best.label)}</b> (이익률 ${rateFmt(best.rateOnCost)}). 매입가 재협의 또는 할인 폭 축소 검토 필요.</div>`;
-      }
+    const meta=document.getElementById('pcResultMeta');
+    const banner=document.getElementById('pcWarnBanner');
+    const selNames=[...s.selected];
+    if(!selNames.length){
+      wrap.innerHTML='<div class="pc-empty">위에서 상품을 선택하면 계산 결과가 여기에 표시됩니다.</div>';
+      if(meta) meta.textContent='상품을 선택하면 자동 계산';
+      if(banner) banner.innerHTML='';
+      return;
     }
-    wrap.innerHTML=rec+table;
+    const byName=new Map(s.catalog.map(p=>[p.name,p]));
+    const cond=_pcConditions();
+    const rows=[];
+    let violates=0;
+    for(const name of selNames){
+      const p=byName.get(name); if(!p) continue;
+      const setting=_pcSettingFor(p);
+      const fee=Math.round(setting*cond.fee/100);
+      const couponApplied=_pcApplyCoupon(setting, cond);
+      const profit=setting - fee - cond.fixCost;
+      const discAmt=p.listPrice - setting; // 정가 대비 할인
+      const homePlus=p.homeSale + 3500;
+      // Violation check: (정가 - 쿠폰) < 플랫폼 최저가
+      const listAfterCoupon=_pcApplyCoupon(p.listPrice, cond);
+      const violate = (p.platformMin>0 && listAfterCoupon < p.platformMin);
+      if(violate) violates++;
+      rows.push({p, setting, fee, couponApplied, profit, discAmt, homePlus, violate});
+    }
+    if(meta) meta.textContent=`${rows.length}개 상품 계산됨`;
+    if(banner){
+      banner.innerHTML = violates>0
+        ? `<div class="pc-warn-banner">⚠ ${violates}개 상품이 <b>플랫폼 최저가 위반 위험</b>: (정가 − 쿠폰) &lt; 플랫폼 최저가</div>`
+        : '';
+    }
+    const html=`
+      <div class="pc-result-wrap">
+        <table class="pc-result-table" id="pcResultTable">
+          <thead>
+            <tr>
+              <th>상품명</th>
+              <th>수수료<br><small>세팅가 × ${cond.fee||0}%</small></th>
+              <th>할인되는 금액<br><small>정가 − 세팅가</small></th>
+              <th>정가<br><small>I열</small></th>
+              <th>세팅가 (제출가)<br><small>★핵심</small></th>
+              <th>쿠폰 적용가<br><small>세팅가 − 쿠폰</small></th>
+              <th>플랫폼 최저가<br><small>K열 (F열 %)</small></th>
+              <th>이익<br><small>세팅가 − 수수료 − ${(cond.fixCost||0).toLocaleString('ko-KR')}</small></th>
+              <th>공홈 판매가<br><small>G열</small></th>
+              <th>공홈+3500<br><small>배송비 포함</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r=>{
+              const cls=r.violate?'violate':'';
+              const profitCls=r.profit>=0?'profit-pos':'profit-neg';
+              return `<tr class="${cls}">
+                <td title="${_pcEsc(r.p.cat)}">${_pcEsc(r.p.name)}</td>
+                <td>${_pcFmt(r.fee)}</td>
+                <td>${_pcFmt(r.discAmt)}</td>
+                <td>${_pcFmt(r.p.listPrice)}</td>
+                <td class="core"><input class="pc-setting-input" type="text" inputmode="numeric" value="${r.setting.toLocaleString('ko-KR')}" data-name="${_pcEsc(r.p.name)}" oninput="pcOnSettingInput(this)"></td>
+                <td>${_pcFmt(r.couponApplied)}</td>
+                <td><div class="pc-margin-cell"><span>${_pcFmt(r.p.platformMin)}</span><small>${r.p.marginRaw||''}</small></div></td>
+                <td class="${profitCls}">${_pcFmt(r.profit)}</td>
+                <td>${_pcFmt(r.p.homeSale)}</td>
+                <td>${_pcFmt(r.homePlus)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    wrap.innerHTML=html;
   }
-  function _pcEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  // --- Copy table (tab-separated) ---
+  function pcCopyTable(){
+    const s=window._pcv2;
+    const selNames=[...s.selected];
+    if(!selNames.length){ alert('선택된 상품이 없습니다.'); return; }
+    const byName=new Map(s.catalog.map(p=>[p.name,p]));
+    const cond=_pcConditions();
+    const headers=['상품명','카테고리','수수료','할인되는 금액','정가','세팅가 (제출가)','쿠폰 적용가','플랫폼 최저가','마진율','이익','공홈 판매가','공홈+3500'];
+    const lines=[headers.join('\t')];
+    for(const name of selNames){
+      const p=byName.get(name); if(!p) continue;
+      const setting=_pcSettingFor(p);
+      const fee=Math.round(setting*cond.fee/100);
+      const couponApplied=_pcApplyCoupon(setting, cond);
+      const profit=setting - fee - cond.fixCost;
+      const discAmt=p.listPrice - setting;
+      const homePlus=p.homeSale + 3500;
+      lines.push([
+        p.name, p.cat||'',
+        fee, discAmt, p.listPrice, setting, couponApplied,
+        p.platformMin, p.marginRaw||'',
+        profit, p.homeSale, homePlus
+      ].join('\t'));
+    }
+    const text=lines.join('\n');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(
+        ()=>{ if(typeof toast==='function') toast(`${selNames.length}개 행 복사됨. 엑셀에 붙여넣으세요.`); else alert(`${selNames.length}개 행 복사됨.`); },
+        ()=>_pcCopyFallback(text)
+      );
+    } else _pcCopyFallback(text);
+  }
+  function _pcCopyFallback(text){
+    const ta=document.createElement('textarea'); ta.value=text;
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); if(typeof toast==='function') toast('복사됨.'); else alert('복사됨.'); }
+    catch(e){ alert('복사 실패. 브라우저 권한을 확인하세요.'); }
+    ta.remove();
+  }
 
   window.triggerPromoCalc=triggerPromoCalc;
   window.pcInit=pcInit;
-  window.pcOnProductChange=pcOnProductChange;
-  window.pcSaveCost=pcSaveCost;
+  window.pcReloadCatalog=pcReloadCatalog;
+  window.pcRenderProductTable=pcRenderProductTable;
+  window.pcToggleOne=pcToggleOne;
+  window.pcToggleSelectAll=pcToggleSelectAll;
+  window.pcSaveConditions=pcSaveConditions;
+  window.pcOnImgFile=pcOnImgFile;
+  window.pcClearImg=pcClearImg;
+  window.pcOnSettingInput=pcOnSettingInput;
+  window.pcResetSettings=pcResetSettings;
   window.pcCompute=pcCompute;
+  window.pcCopyTable=pcCopyTable;
 
   init();
 </script>
