@@ -11178,7 +11178,20 @@
           subEl.style.color = '#f59e0b';
         }
         _metaadsMeta[brand] = { ready:true, dateStr, roasText };
-        tagEl.textContent = 'READY';
+        const adsFetchStatus = data.ads_fetch_status || 'ok';
+        if(adsFetchStatus === 'failed'){
+          tagEl.textContent = 'READY⚠';
+          tagEl.title = '광고 소재 수집 실패 — 다음 갱신 시 재시도';
+          tagEl.style.color = 'var(--err, #b91c1c)';
+        } else if(adsFetchStatus === 'partial'){
+          tagEl.textContent = 'READY⚠';
+          tagEl.title = '광고 소재 일부 미수집 — 다음 갱신 시 재시도';
+          tagEl.style.color = 'var(--warn, #b45309)';
+        } else {
+          tagEl.textContent = 'READY';
+          tagEl.style.color = '';
+          tagEl.title = '';
+        }
         cardEl.dataset.ready = '1';
       } else {
         _metaadsMeta[brand] = { ready:false };

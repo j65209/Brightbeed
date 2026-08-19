@@ -613,6 +613,21 @@
       banner.innerHTML = `⚠ ${acct.status_label}`;
     }
 
+    // 광고 소재 수집 실패 배지
+    const adsFetchStatus = data.ads_fetch_status || 'ok';
+    if (adsFetchStatus === 'partial' || adsFetchStatus === 'failed') {
+      const issues = data.ads_fetch_issues || [];
+      const failedPresets = issues.map(i => i.preset).join(', ');
+      const failedCampCount = (data.campaigns || []).filter(c => c.ads_fetch_failed).length;
+      const fetchBanner = document.createElement('div');
+      fetchBanner.className = 'status-banner ' + (adsFetchStatus === 'failed' ? 'err' : 'warn');
+      fetchBanner.id = 'adsFetchBanner';
+      fetchBanner.innerHTML = adsFetchStatus === 'failed'
+        ? `⚠️ 광고 소재 수집 전체 실패 — 캠페인 소재 정보가 표시되지 않습니다 (기간: ${failedPresets || '전체'})`
+        : `⚠️ 광고 소재 수집 부분 실패 — ${failedCampCount > 0 ? failedCampCount + '개 캠페인' : '일부 기간'} 미수집 (${failedPresets})`;
+      el('statusBanner').insertAdjacentElement('afterend', fetchBanner);
+    }
+
     // 초기 로드 시 항상 today — MD팀 실시간 매출과 동일 기준으로 맞춤
     if (!currentPeriod) currentPeriod = 'today';
 
@@ -1084,7 +1099,11 @@
                 <span>일시정지 포함</span>
               </label>` : ''}
             </div>
-            <div class="ads-grid" id="adsGrid_${idx}">${activeAds.map(renderAdCard).join('') || '<div style="color:var(--muted);font-size:12px;font-style:italic">활성 광고 없음</div>'}</div>
+            <div class="ads-grid" id="adsGrid_${idx}">${
+              r.ads_fetch_failed
+                ? '<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:6px;padding:8px 12px;color:#fbbf24;font-size:12px">⚠️ 소재 데이터 수집 실패 (다음 갱신 시 재시도)</div>'
+                : (activeAds.map(renderAdCard).join('') || '<div style="color:var(--muted);font-size:12px;font-style:italic">활성 광고 없음</div>')
+            }</div>
           </div>
         </div>
       </td></tr>
