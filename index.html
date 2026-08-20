@@ -11161,7 +11161,10 @@
         const genDate = data.generated_at ? new Date(data.generated_at) : null;
         const dateStr = _metaadsFmtDate(genDate) || '업로드됨';
         const today = (data.summaries_by_period || {}).today || data.summary || {};
+        const yday  = (data.summaries_by_period || {}).yesterday || {};
         const spend = today.spend ?? 0;
+        const mdSales = data.md_sales || {};
+        const hasMdSales = !!(mdSales.source_file);
         let roasText;
         if(spend === 0){
           roasText = '오늘 광고 미집행';
@@ -11172,8 +11175,19 @@
           roasText = `자사몰 ROAS ${roasVal} (오늘)`;
           subEl.textContent = `${dateStr} · ${roasText}`;
           subEl.style.color = '';
+        } else if(hasMdSales && yday.sixshop_available === true && yday.sixshop_roas != null){
+          // 오늘 매출 없지만 연동은 OK — 어제 ROAS 표시
+          const roasVal = Number(yday.sixshop_roas).toFixed(2);
+          roasText = `어제 자사몰 ROAS ${roasVal}`;
+          subEl.textContent = `${dateStr} · ${roasText}`;
+          subEl.style.color = 'var(--text-2)';
+        } else if(hasMdSales){
+          // 연동은 되어있으나 오늘·어제 매출 없음
+          roasText = '광고 집행 중 · 오늘 매출 없음';
+          subEl.textContent = `${dateStr} · ${roasText}`;
+          subEl.style.color = 'var(--text-3)';
         } else {
-          roasText = '자사몰 연동 대기';
+          roasText = '자사몰 미연동';
           subEl.textContent = `${dateStr} · ${roasText}`;
           subEl.style.color = '#f59e0b';
         }
