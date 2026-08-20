@@ -11175,14 +11175,8 @@
           roasText = `자사몰 ROAS ${roasVal} (오늘)`;
           subEl.textContent = `${dateStr} · ${roasText}`;
           subEl.style.color = '';
-        } else if(hasMdSales && yday.sixshop_available === true && yday.sixshop_roas != null){
-          // 오늘 매출 없지만 연동은 OK — 어제 ROAS 표시
-          const roasVal = Number(yday.sixshop_roas).toFixed(2);
-          roasText = `어제 자사몰 ROAS ${roasVal}`;
-          subEl.textContent = `${dateStr} · ${roasText}`;
-          subEl.style.color = 'var(--text-2)';
         } else if(hasMdSales){
-          // 연동은 되어있으나 오늘·어제 매출 없음
+          // 오늘 매출 없음 (연동은 되어있음)
           roasText = '광고 집행 중 · 오늘 매출 없음';
           subEl.textContent = `${dateStr} · ${roasText}`;
           subEl.style.color = 'var(--text-3)';
