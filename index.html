@@ -5772,8 +5772,9 @@
         </div>
 
         <div class="bdg-field">
-          <span class="bdg-label">배지 크기 <span style="font-weight:400;color:var(--text-3);font-size:11px">(선택된 배지)</span> <span id="bdgSizeVal" style="font-weight:400;color:var(--text-3)">보통</span></span>
-          <input type="range" class="bdg-slider" id="bdgSize" min="60" max="180" value="115" step="1">
+          <span class="bdg-label">배지 크기 <span style="font-weight:400;color:var(--text-3);font-size:11px">(선택된 배지)</span> <span id="bdgSizeVal" style="font-weight:400;color:var(--text-3)">—</span></span>
+          <input type="range" class="bdg-slider" id="bdgSize" min="1" max="10" value="5" step="1" list="bdgSizeTicks">
+          <datalist id="bdgSizeTicks"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option><option value="7"></option><option value="8"></option><option value="9"></option><option value="10"></option></datalist>
         </div>
 
         <div class="bdg-actions">
@@ -13763,6 +13764,9 @@
     bl:'↙ 좌하', bc:'⬇ 하중', br:'↘ 우하',
     custom:'✥ 사용자'
   };
+  // 배지 크기 단계 1~10 → 실제 % (5단계 = 기본 115%)
+  const BADGE_SIZE_PCT=[null, 55, 70, 85, 100, 115, 130, 145, 160, 175, 190];
+  const BADGE_SIZE_DEFAULT=5;
   function _bdgLoadWords(){
     try{ const o=JSON.parse(localStorage.getItem(BADGE_WORDS_LS)||'null'); if(o&&typeof o==='object') return Object.assign({},BADGE_WORDS_DEFAULT,o); }catch(e){}
     return Object.assign({},BADGE_WORDS_DEFAULT);
@@ -13790,7 +13794,8 @@
 
     const st=BADGE_STYLES[badge.style]||BADGE_STYLES.A;
     const S=Math.min(W,H);
-    const scale=(badge.size||115)/100;
+    const level=Math.max(1,Math.min(10, badge.size||BADGE_SIZE_DEFAULT));
+    const scale=(BADGE_SIZE_PCT[level]||115)/100;
     const fontSize=Math.max(12,Math.round(S*0.05*scale));
     ctx.font="800 "+fontSize+"px 'Pretendard','Inter',-apple-system,sans-serif";
     ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -14095,7 +14100,8 @@
     if(!_bdg.img){
       // 이미지 없어도 배지는 추가 가능 (이미지 후에 표시). 하지만 사용자 혼동 방지 위해 안내.
     }
-    const size=parseInt((document.getElementById('bdgSize')||{}).value,10)||115;
+    const sizeVal=parseInt((document.getElementById('bdgSize')||{}).value,10);
+    const size=(sizeVal>=1&&sizeVal<=10) ? sizeVal : BADGE_SIZE_DEFAULT;
     const b={
       id:++_bdgIdSeq,
       wordKey,
@@ -14163,7 +14169,7 @@
       txt.textContent=(_bdgWords[b.wordKey]||'').trim()||'(비움)';
       const meta=document.createElement('span');
       meta.className='bdg-list-meta';
-      meta.textContent=(BADGE_CORNER_LABELS[b.corner]||b.corner)+' · '+b.size+'%';
+      meta.textContent=(BADGE_CORNER_LABELS[b.corner]||b.corner)+' · '+b.size+'단계';
       const del=document.createElement('button');
       del.type='button'; del.className='bdg-list-del'; del.textContent='✕'; del.title='이 배지 삭제';
       del.addEventListener('click',ev=>{ ev.stopPropagation(); _bdgRemoveBadge(b.id); });
@@ -14234,8 +14240,8 @@
     if(!el) return;
     const sel=_bdgSelected();
     if(!sel){ el.textContent='—'; return; }
-    const v=parseInt((size||{}).value,10)||sel.size||115;
-    el.textContent = v<90?'작게' : v>140?'크게' : '보통';
+    const v=parseInt((size||{}).value,10)||sel.size||BADGE_SIZE_DEFAULT;
+    el.textContent = v+'단계 / 10';
   }
 
   function initBadgeView(){
@@ -14270,7 +14276,7 @@
     }
     if(size) size.addEventListener('input',()=>{
       const sel=_bdgSelected();
-      if(sel){ sel.size=parseInt(size.value,10)||115; _bdgSizeLabel(); _bdgRenderBadgeList(); _bdgScheduleRender(); }
+      if(sel){ const v=parseInt(size.value,10); sel.size=(v>=1&&v<=10)?v:BADGE_SIZE_DEFAULT; _bdgSizeLabel(); _bdgRenderBadgeList(); _bdgScheduleRender(); }
     });
     if(corners) corners.addEventListener('click',e=>{
       const btn=e.target.closest('.bdg-corner'); if(!btn||btn.disabled) return;
