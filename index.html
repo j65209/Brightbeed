@@ -2821,6 +2821,12 @@
   .bdg-ratio.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
   .bdg-ratio-sub{display:block;font-size:9.5px;font-weight:500;color:var(--text-3);font-family:var(--mono);margin-top:2px;letter-spacing:.02em}
   .bdg-ratio.is-active .bdg-ratio-sub{color:#0ea5e9}
+  .bdg-sizes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .bdg-esize{padding:9px 4px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:12px;font-weight:600;color:var(--text-2);transition:all .12s;text-align:center;line-height:1.2;font-family:var(--sans)}
+  .bdg-esize:hover{border-color:var(--line-2)}
+  .bdg-esize.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
+  .bdg-esize-sub{display:block;font-size:9.5px;font-weight:500;color:var(--text-3);font-family:var(--mono);margin-top:2px}
+  .bdg-esize.is-active .bdg-esize-sub{color:#0ea5e9}
   .bdg-word{position:relative}
   .bdg-word-count{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;background:#0ea5e9;color:#fff;font-size:10px;font-weight:800;border-radius:8px;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 3px rgba(14,165,233,.4)}
   .bdg-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
@@ -5795,6 +5801,17 @@
             <button type="button" class="bdg-ratio" data-ratio="1:1" title="정사각형 (중앙 크롭)">1:1<span class="bdg-ratio-sub">정사각</span></button>
             <button type="button" class="bdg-ratio" data-ratio="2:3" title="세로형 2:3 (중앙 크롭)">2:3<span class="bdg-ratio-sub">세로</span></button>
             <button type="button" class="bdg-ratio" data-ratio="3:4" title="세로형 3:4 (중앙 크롭)">3:4<span class="bdg-ratio-sub">세로</span></button>
+          </div>
+        </div>
+
+        <div class="bdg-field">
+          <span class="bdg-label">저장 크기 <span style="font-weight:400;color:var(--text-3);font-size:11px">(짧은 변 기준)</span></span>
+          <div class="bdg-sizes" id="bdgSizes">
+            <button type="button" class="bdg-esize is-active" data-esize="original" title="원본 이미지 크기 그대로">원본<span class="bdg-esize-sub">그대로</span></button>
+            <button type="button" class="bdg-esize" data-esize="800" title="짧은 변 800px">800<span class="bdg-esize-sub">px</span></button>
+            <button type="button" class="bdg-esize" data-esize="1000" title="짧은 변 1000px (스마트스토어)">1000<span class="bdg-esize-sub">px</span></button>
+            <button type="button" class="bdg-esize" data-esize="1500" title="짧은 변 1500px">1500<span class="bdg-esize-sub">px</span></button>
+            <button type="button" class="bdg-esize" data-esize="2000" title="짧은 변 2000px (고화질)">2000<span class="bdg-esize-sub">px</span></button>
           </div>
         </div>
 
@@ -13795,7 +13812,7 @@
   function _bdgSaveWords(){ try{ localStorage.setItem(BADGE_WORDS_LS,JSON.stringify(_bdgWords)); }catch(e){} }
   const _bdgWords=_bdgLoadWords();
   // badges: [{id, wordKey, style, size, corner:'tr'|'tl'|'br'|'bl'|'custom', custom:{xr,yr}|null, _rect:{x,y,w,h}}]
-  const _bdg={img:null, name:'image', style:'A', badges:[], selectedId:null, ratio:'original'};
+  const _bdg={img:null, name:'image', style:'A', badges:[], selectedId:null, ratio:'original', exportSize:'original'};
   let _bdgBound=false, _bdgRenderT=null, _bdgEditWords=false, _bdgIdSeq=0, _bdgDrag=null, _bdgDragRAF=0, _bdgGroupMove=false;
 
   function _bdgSelected(){ return _bdg.badges.find(x=>x.id===_bdg.selectedId)||null; }
@@ -13901,9 +13918,22 @@
     }
     const img=_bdg.img;
     const crop=_bdgCropRect(img, _bdg.ratio);
-    const W=crop.sw, H=crop.sh;
+    // exportSize (짧은 변 기준) 스케일 적용
+    let W=crop.sw, H=crop.sh;
+    const es=_bdg.exportSize;
+    if(es && es!=='original'){
+      const target=parseInt(es,10);
+      if(target>0){
+        const shortSide=Math.min(crop.sw, crop.sh);
+        const scale=target/shortSide;
+        W=Math.max(1,Math.round(crop.sw*scale));
+        H=Math.max(1,Math.round(crop.sh*scale));
+      }
+    }
     canvas.width=W; canvas.height=H;
     const ctx=canvas.getContext('2d');
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality='high';
     ctx.clearRect(0,0,W,H);
     ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, W, H);
     if(wrap) wrap.removeAttribute('hidden');
@@ -14365,6 +14395,15 @@
       renderBadgeCanvas();
     });
 
+    const sizes=document.getElementById('bdgSizes');
+    if(sizes) sizes.addEventListener('click',e=>{
+      const btn=e.target.closest('.bdg-esize');
+      if(!btn) return;
+      _bdg.exportSize=btn.dataset.esize||'original';
+      sizes.querySelectorAll('.bdg-esize').forEach(x=>x.classList.toggle('is-active',x===btn));
+      renderBadgeCanvas();
+    });
+
     if(drop&&file){
       drop.addEventListener('click',()=>file.click());
       file.addEventListener('change',e=>{ if(e.target.files&&e.target.files[0]) _bdgLoadFile(e.target.files[0]); });
@@ -14419,18 +14458,21 @@
       if(!blob) return;
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a');
-      const suf=(_bdg.ratio&&_bdg.ratio!=='original') ? '_'+_bdg.ratio.replace(':','x') : '';
-      a.href=url; a.download=(_bdg.name||'image')+'_badge'+suf+'.png';
+      const rSuf=(_bdg.ratio&&_bdg.ratio!=='original') ? '_'+_bdg.ratio.replace(':','x') : '';
+      const sSuf=(_bdg.exportSize&&_bdg.exportSize!=='original') ? '_'+_bdg.exportSize+'px' : '';
+      a.href=url; a.download=(_bdg.name||'image')+'_badge'+rSuf+sSuf+'.png';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),1000);
     },'image/png');
   }
 
   function clearBadge(){
-    _bdg.img=null; _bdg.name='image'; _bdg.badges=[]; _bdg.selectedId=null; _bdg.ratio='original';
+    _bdg.img=null; _bdg.name='image'; _bdg.badges=[]; _bdg.selectedId=null; _bdg.ratio='original'; _bdg.exportSize='original';
     const file=document.getElementById('bdgFile'); if(file) file.value='';
     const ratios=document.getElementById('bdgRatios');
     if(ratios) ratios.querySelectorAll('.bdg-ratio').forEach(x=>x.classList.toggle('is-active', x.dataset.ratio==='original'));
+    const sizes=document.getElementById('bdgSizes');
+    if(sizes) sizes.querySelectorAll('.bdg-esize').forEach(x=>x.classList.toggle('is-active', x.dataset.esize==='original'));
     const meta=document.getElementById('bdgRatioMeta'); if(meta) meta.textContent='—';
     _bdgRenderWords();
     _bdgRenderBadgeList();
