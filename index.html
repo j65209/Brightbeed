@@ -11170,11 +11170,11 @@
         // 오늘 ROAS 텍스트
         let todayPart;
         if(spend === 0){
-          todayPart = '오늘: 미집행';
+          todayPart = '오늘 -';
         } else if(today.sixshop_available === true && today.sixshop_roas != null){
-          todayPart = `오늘: ${Number(today.sixshop_roas).toFixed(2)}`;
+          todayPart = `오늘 ${Number(today.sixshop_roas).toFixed(2)}`;
         } else if(hasMdSales){
-          todayPart = '오늘: 매출없음';
+          todayPart = '오늘 -';
         } else {
           todayPart = null; // 미연동
         }
@@ -11182,11 +11182,11 @@
         // 어제 ROAS 텍스트
         let ydayPart;
         if(ydaySpend === 0){
-          ydayPart = '어제: 미집행';
+          ydayPart = '어제 -';
         } else if(yday.sixshop_available === true && yday.sixshop_roas != null){
-          ydayPart = `어제: ${Number(yday.sixshop_roas).toFixed(2)}`;
+          ydayPart = `어제 ${Number(yday.sixshop_roas).toFixed(2)}`;
         } else if(hasMdSales){
-          ydayPart = '어제: 매출없음';
+          ydayPart = '어제 -';
         } else {
           ydayPart = null;
         }
@@ -11194,13 +11194,13 @@
         let roasText;
         if(todayPart === null && ydayPart === null){
           // 완전 미연동
-          roasText = '자사몰 미연동';
-          subEl.textContent = `${dateStr} · ${roasText}`;
+          roasText = '미연동';
+          subEl.textContent = roasText;
           subEl.style.color = '#f59e0b';
         } else {
           const parts = [todayPart, ydayPart].filter(Boolean);
-          roasText = `자사몰 ROAS ${parts.join(' · ')}`;
-          subEl.textContent = `${dateStr} · ${roasText}`;
+          roasText = `ROAS ${parts.join(' · ')}`;
+          subEl.textContent = roasText;
           // 오늘 집행 중이면 기본색, 미집행이면 흐리게
           subEl.style.color = (spend === 0) ? 'var(--text-3)' : '';
         }
