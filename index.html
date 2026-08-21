@@ -2799,12 +2799,17 @@
   .bdg-row{display:flex;gap:10px}
   .bdg-row .bdg-field{flex:1}
   .bdg-slider{width:100%;accent-color:#0ea5e9;cursor:pointer}
-  .bdg-corners{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
-  .bdg-corner{padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:11.5px;color:var(--text-2);transition:all .12s}
+  .bdg-corners{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .bdg-corner{padding:9px 4px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:14px;font-weight:700;color:var(--text-2);transition:all .12s;text-align:center;line-height:1;font-family:-apple-system,'Segoe UI Emoji','Apple Color Emoji',sans-serif}
   .bdg-corner:hover:not(:disabled){border-color:var(--line-2)}
   .bdg-corner:disabled{opacity:.45;cursor:not-allowed}
-  .bdg-corner.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;font-weight:600;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
-  .bdg-corner.is-custom{grid-column:1/-1}
+  .bdg-corner.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
+  .bdg-corner.is-custom{grid-column:1/-1;font-size:11.5px;font-weight:500;padding:8px;font-family:var(--sans)}
+  .bdg-autos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .bdg-auto{padding:8px 4px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:11px;font-weight:600;color:var(--text-2);transition:all .12s;text-align:center;line-height:1.3;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;font-family:var(--sans)}
+  .bdg-auto:hover:not(:disabled){border-color:#0ea5e9;background:var(--bg-1);color:#0ea5e9}
+  .bdg-auto:disabled{opacity:.45;cursor:not-allowed}
+  .bdg-auto-icon{font-size:15px;color:#0ea5e9;font-weight:800;line-height:1}
   .bdg-word{position:relative}
   .bdg-word-count{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;background:#0ea5e9;color:#fff;font-size:10px;font-weight:800;border-radius:8px;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 3px rgba(14,165,233,.4)}
   .bdg-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
@@ -5734,12 +5739,35 @@
           <div class="bdg-field">
             <span class="bdg-label">위치 <span style="font-weight:400;color:var(--text-3);font-size:11px">(선택된 배지)</span></span>
             <div class="bdg-corners" id="bdgCorners">
-              <button type="button" class="bdg-corner" data-corner="tl">좌측 상단</button>
-              <button type="button" class="bdg-corner" data-corner="tr">우측 상단</button>
-              <button type="button" class="bdg-corner" data-corner="bl">좌측 하단</button>
-              <button type="button" class="bdg-corner" data-corner="br">우측 하단</button>
+              <button type="button" class="bdg-corner" data-corner="tl" title="좌측 상단">↖</button>
+              <button type="button" class="bdg-corner" data-corner="tc" title="상단 중앙">⬆</button>
+              <button type="button" class="bdg-corner" data-corner="tr" title="우측 상단">↗</button>
+              <button type="button" class="bdg-corner" data-corner="lc" title="좌측 중앙">⬅</button>
+              <button type="button" class="bdg-corner" data-corner="c" title="정중앙">●</button>
+              <button type="button" class="bdg-corner" data-corner="rc" title="우측 중앙">➡</button>
+              <button type="button" class="bdg-corner" data-corner="bl" title="좌측 하단">↙</button>
+              <button type="button" class="bdg-corner" data-corner="bc" title="하단 중앙">⬇</button>
+              <button type="button" class="bdg-corner" data-corner="br" title="우측 하단">↘</button>
               <button type="button" class="bdg-corner is-custom" data-corner="custom">✥ 사용자 지정 (드래그로 이동)</button>
             </div>
+          </div>
+        </div>
+
+        <div class="bdg-field">
+          <span class="bdg-label">자동 배치 <span style="font-weight:400;color:var(--text-3);font-size:11px">(전체 배지 한 번에)</span></span>
+          <div class="bdg-autos" id="bdgAutos">
+            <button type="button" class="bdg-auto" data-auto="vstack-center" title="이미지 중앙에 세로로 균등 배치">
+              <span class="bdg-auto-icon">⇕</span>
+              <span>세로 중앙</span>
+            </button>
+            <button type="button" class="bdg-auto" data-auto="hstack-center" title="이미지 중앙에 가로로 균등 배치">
+              <span class="bdg-auto-icon">⇔</span>
+              <span>가로 중앙</span>
+            </button>
+            <button type="button" class="bdg-auto" data-auto="corners" title="순서대로 좌상 · 우상 · 좌하 · 우하 4코너에 배치">
+              <span class="bdg-auto-icon">⊞</span>
+              <span>4코너</span>
+            </button>
           </div>
         </div>
 
@@ -13729,7 +13757,12 @@
   const BADGE_WORD_KEYS=['A','B','C','D','E','F'];
   const BADGE_WORDS_DEFAULT={A:'A Style',B:'B Style',C:'C Style',D:'D Style',E:'E Style',F:'F Style'};
   const BADGE_WORDS_LS='bdgPresetWords_v2';
-  const BADGE_CORNER_LABELS={tr:'↗ 우상', tl:'↖ 좌상', br:'↘ 우하', bl:'↙ 좌하', custom:'✥ 사용자'};
+  const BADGE_CORNER_LABELS={
+    tl:'↖ 좌상', tc:'⬆ 상중', tr:'↗ 우상',
+    lc:'⬅ 좌중', c:'● 정중앙', rc:'➡ 우중',
+    bl:'↙ 좌하', bc:'⬇ 하중', br:'↘ 우하',
+    custom:'✥ 사용자'
+  };
   function _bdgLoadWords(){
     try{ const o=JSON.parse(localStorage.getItem(BADGE_WORDS_LS)||'null'); if(o&&typeof o==='object') return Object.assign({},BADGE_WORDS_DEFAULT,o); }catch(e){}
     return Object.assign({},BADGE_WORDS_DEFAULT);
@@ -13775,10 +13808,17 @@
       y=Math.round(badge.custom.yr*H - bh/2);
       x=Math.max(0, Math.min(W-bw, x));
       y=Math.max(0, Math.min(H-bh, y));
-    } else if(badge.corner==='tl'){ x=margin; y=margin; }
-    else if(badge.corner==='br'){ x=W-margin-bw; y=H-margin-bh; }
-    else if(badge.corner==='bl'){ x=margin; y=H-margin-bh; }
-    else { x=W-margin-bw; y=margin; } // tr (default)
+    } else {
+      const c=badge.corner;
+      // 가로 축
+      if(c==='tl'||c==='lc'||c==='bl') x=margin;
+      else if(c==='tc'||c==='c'||c==='bc') x=Math.round((W-bw)/2);
+      else x=W-margin-bw; // tr, rc, br (기본)
+      // 세로 축
+      if(c==='tl'||c==='tc'||c==='tr') y=margin;
+      else if(c==='lc'||c==='c'||c==='rc') y=Math.round((H-bh)/2);
+      else y=H-margin-bh; // bl, bc, br
+    }
 
     const rad=bh*st.radius;
 
@@ -14070,6 +14110,7 @@
     _bdgRenderWords();
     _bdgRenderBadgeList();
     _bdgRenderPosButtons();
+    _bdgRenderAutos();
     _bdgRenderSizeSlider();
     renderBadgeCanvas();
   }
@@ -14084,6 +14125,7 @@
     _bdgRenderWords();
     _bdgRenderBadgeList();
     _bdgRenderPosButtons();
+    _bdgRenderAutos();
     _bdgRenderSizeSlider();
     renderBadgeCanvas();
   }
@@ -14145,6 +14187,38 @@
     });
   }
 
+  function _bdgRenderAutos(){
+    const autos=document.getElementById('bdgAutos');
+    if(!autos) return;
+    const enabled = _bdg.badges.length>0;
+    autos.querySelectorAll('.bdg-auto').forEach(b=>{ b.disabled=!enabled; });
+  }
+
+  function _bdgAutoLayout(mode){
+    if(!_bdg.badges.length) return;
+    const n=_bdg.badges.length;
+    if(mode==='vstack-center'){
+      _bdg.badges.forEach((b,i)=>{
+        b.corner='custom';
+        b.custom={xr:0.5, yr:(i+1)/(n+1)};
+      });
+    } else if(mode==='hstack-center'){
+      _bdg.badges.forEach((b,i)=>{
+        b.corner='custom';
+        b.custom={xr:(i+1)/(n+1), yr:0.5};
+      });
+    } else if(mode==='corners'){
+      const spots=['tl','tr','bl','br'];
+      _bdg.badges.forEach((b,i)=>{
+        if(i<4){ b.corner=spots[i]; b.custom=null; }
+        else { b.corner='custom'; b.custom={xr:0.5, yr:0.5}; }
+      });
+    }
+    _bdgRenderBadgeList();
+    _bdgRenderPosButtons();
+    renderBadgeCanvas();
+  }
+
   function _bdgRenderSizeSlider(){
     const size=document.getElementById('bdgSize');
     if(!size) return;
@@ -14169,6 +14243,7 @@
     _bdgRenderWords();
     _bdgRenderBadgeList();
     _bdgRenderPosButtons();
+    _bdgRenderAutos();
     _bdgRenderSizeSlider();
     if(_bdgBound){ renderBadgeCanvas(); return; }
     _bdgBound=true;
@@ -14176,8 +14251,15 @@
     const file=document.getElementById('bdgFile');
     const size=document.getElementById('bdgSize');
     const corners=document.getElementById('bdgCorners');
+    const autos=document.getElementById('bdgAutos');
     const wordEdit=document.getElementById('bdgWordEdit');
     if(wordEdit) wordEdit.addEventListener('click',_bdgToggleEditWords);
+
+    if(autos) autos.addEventListener('click',e=>{
+      const btn=e.target.closest('.bdg-auto');
+      if(!btn||btn.disabled) return;
+      _bdgAutoLayout(btn.dataset.auto);
+    });
 
     if(drop&&file){
       drop.addEventListener('click',()=>file.click());
@@ -14245,6 +14327,7 @@
     _bdgRenderWords();
     _bdgRenderBadgeList();
     _bdgRenderPosButtons();
+    _bdgRenderAutos();
     _bdgRenderSizeSlider();
     renderBadgeCanvas();
   }
