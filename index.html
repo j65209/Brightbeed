@@ -2801,8 +2801,30 @@
   .bdg-slider{width:100%;accent-color:#0ea5e9;cursor:pointer}
   .bdg-corners{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
   .bdg-corner{padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:11.5px;color:var(--text-2);transition:all .12s}
-  .bdg-corner:hover{border-color:var(--line-2)}
+  .bdg-corner:hover:not(:disabled){border-color:var(--line-2)}
+  .bdg-corner:disabled{opacity:.45;cursor:not-allowed}
   .bdg-corner.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;font-weight:600;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
+  .bdg-corner.is-custom{grid-column:1/-1}
+  .bdg-word{position:relative}
+  .bdg-word-count{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;background:#0ea5e9;color:#fff;font-size:10px;font-weight:800;border-radius:8px;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 3px rgba(14,165,233,.4)}
+  .bdg-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+  .bdg-list-empty{padding:14px;text-align:center;font-size:12px;color:var(--text-3);border:1px dashed var(--line-2);border-radius:8px;background:var(--bg-2)}
+  .bdg-list-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg-2);cursor:pointer;transition:all .12s}
+  .bdg-list-item:hover{border-color:var(--line-2)}
+  .bdg-list-item.is-active{border-color:#0ea5e9;background:#fff;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
+  .bdg-list-num{flex:0 0 20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-3);background:var(--bg-1);border-radius:4px}
+  .bdg-list-item.is-active .bdg-list-num{color:#0ea5e9;background:rgba(14,165,233,.12)}
+  .bdg-list-text{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bdg-list-meta{font-size:10.5px;color:var(--text-3);font-family:var(--mono);white-space:nowrap;letter-spacing:.02em}
+  .bdg-list-del{width:22px;height:22px;border:none;background:transparent;color:var(--text-3);font-size:14px;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0}
+  .bdg-list-del:hover{background:rgba(239,68,68,.12);color:#ef4444}
+  .bdg-canvas-wrap{position:relative;display:inline-block;max-width:100%;line-height:0}
+  .bdg-canvas-wrap canvas{max-width:100%;max-height:70vh;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.15);display:block}
+  .bdg-overlays{position:absolute;inset:0;pointer-events:none}
+  .bdg-overlay{position:absolute;box-sizing:border-box;border:1.5px dashed rgba(14,165,233,.5);pointer-events:auto;cursor:move;transition:border-color .12s,box-shadow .12s;touch-action:none;background:transparent}
+  .bdg-overlay:hover{border-color:rgba(14,165,233,.9)}
+  .bdg-overlay.is-selected{border-color:#0ea5e9;border-style:solid;box-shadow:0 0 0 2px rgba(14,165,233,.28)}
+  .bdg-slider:disabled{opacity:.45;cursor:not-allowed}
   .bdg-actions{display:flex;gap:10px;flex-wrap:wrap}
   .bdg-btn{padding:11px 18px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans);border:1px solid transparent;transition:transform .12s,box-shadow .15s,background .15s}
   .bdg-btn:disabled{opacity:.4;cursor:not-allowed}
@@ -5694,7 +5716,7 @@
         </div>
 
         <div class="bdg-field">
-          <span class="bdg-label" style="display:flex;align-items:center;gap:8px">배지 문구<button type="button" class="bdg-edit-toggle" id="bdgWordEdit">편집</button></span>
+          <span class="bdg-label" style="display:flex;align-items:center;gap:8px">배지 문구 <span style="font-weight:400;color:var(--text-3);font-size:11px">(눌러서 추가)</span><button type="button" class="bdg-edit-toggle" id="bdgWordEdit">편집</button></span>
           <div class="bdg-words" id="bdgWords"></div>
         </div>
 
@@ -5703,20 +5725,26 @@
           <div class="bdg-styles" id="bdgStyles"></div>
         </div>
 
+        <div class="bdg-field">
+          <span class="bdg-label" style="display:flex;align-items:center;gap:8px">추가된 배지 <span id="bdgListCount" style="font-weight:400;color:var(--text-3);font-family:var(--mono)">0</span></span>
+          <div class="bdg-list" id="bdgList"></div>
+        </div>
+
         <div class="bdg-row">
           <div class="bdg-field">
-            <span class="bdg-label">위치</span>
+            <span class="bdg-label">위치 <span style="font-weight:400;color:var(--text-3);font-size:11px">(선택된 배지)</span></span>
             <div class="bdg-corners" id="bdgCorners">
-              <button type="button" class="bdg-corner is-active" data-corner="tr">우측 상단</button>
               <button type="button" class="bdg-corner" data-corner="tl">좌측 상단</button>
-              <button type="button" class="bdg-corner" data-corner="br">우측 하단</button>
+              <button type="button" class="bdg-corner" data-corner="tr">우측 상단</button>
               <button type="button" class="bdg-corner" data-corner="bl">좌측 하단</button>
+              <button type="button" class="bdg-corner" data-corner="br">우측 하단</button>
+              <button type="button" class="bdg-corner is-custom" data-corner="custom">✥ 사용자 지정 (드래그로 이동)</button>
             </div>
           </div>
         </div>
 
         <div class="bdg-field">
-          <span class="bdg-label">배지 크기 <span id="bdgSizeVal" style="font-weight:400;color:var(--text-3)">보통</span></span>
+          <span class="bdg-label">배지 크기 <span style="font-weight:400;color:var(--text-3);font-size:11px">(선택된 배지)</span> <span id="bdgSizeVal" style="font-weight:400;color:var(--text-3)">보통</span></span>
           <input type="range" class="bdg-slider" id="bdgSize" min="60" max="180" value="115" step="1">
         </div>
 
@@ -5730,7 +5758,10 @@
         <div class="bdg-preview-empty" id="bdgPreviewEmpty">
           이미지를 넣으면<br>여기에 배지 합성 결과가 실시간으로 표시됩니다.
         </div>
-        <canvas id="bdgCanvas" hidden></canvas>
+        <div class="bdg-canvas-wrap" id="bdgCanvasWrap" hidden>
+          <canvas id="bdgCanvas"></canvas>
+          <div class="bdg-overlays" id="bdgOverlays"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -13698,14 +13729,18 @@
   const BADGE_WORD_KEYS=['A','B','C','D','E','F'];
   const BADGE_WORDS_DEFAULT={A:'A Style',B:'B Style',C:'C Style',D:'D Style',E:'E Style',F:'F Style'};
   const BADGE_WORDS_LS='bdgPresetWords_v2';
+  const BADGE_CORNER_LABELS={tr:'↗ 우상', tl:'↖ 좌상', br:'↘ 우하', bl:'↙ 좌하', custom:'✥ 사용자'};
   function _bdgLoadWords(){
     try{ const o=JSON.parse(localStorage.getItem(BADGE_WORDS_LS)||'null'); if(o&&typeof o==='object') return Object.assign({},BADGE_WORDS_DEFAULT,o); }catch(e){}
     return Object.assign({},BADGE_WORDS_DEFAULT);
   }
   function _bdgSaveWords(){ try{ localStorage.setItem(BADGE_WORDS_LS,JSON.stringify(_bdgWords)); }catch(e){} }
   const _bdgWords=_bdgLoadWords();
-  const _bdg={img:null, name:'image', style:'A', corner:'tr', wordKey:'A'};
-  let _bdgBound=false, _bdgRenderT=null, _bdgEditWords=false;
+  // badges: [{id, wordKey, style, size, corner:'tr'|'tl'|'br'|'bl'|'custom', custom:{xr,yr}|null, _rect:{x,y,w,h}}]
+  const _bdg={img:null, name:'image', style:'A', badges:[], selectedId:null};
+  let _bdgBound=false, _bdgRenderT=null, _bdgEditWords=false, _bdgIdSeq=0, _bdgDrag=null, _bdgDragRAF=0;
+
+  function _bdgSelected(){ return _bdg.badges.find(x=>x.id===_bdg.selectedId)||null; }
 
   function _bdgRoundRect(ctx,x,y,w,h,r){
     r=Math.min(r,w/2,h/2);
@@ -13715,33 +13750,14 @@
     ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
   }
 
-  function renderBadgeCanvas(){
-    const canvas=document.getElementById('bdgCanvas');
-    const empty=document.getElementById('bdgPreviewEmpty');
-    const dl=document.getElementById('bdgDownload');
-    if(!canvas) return;
-    if(!_bdg.img){
-      canvas.setAttribute('hidden','');
-      if(empty) empty.style.display='';
-      if(dl) dl.disabled=true;
-      return;
-    }
-    const img=_bdg.img, W=img.naturalWidth, H=img.naturalHeight;
-    canvas.width=W; canvas.height=H;
-    const ctx=canvas.getContext('2d');
-    ctx.clearRect(0,0,W,H);
-    ctx.drawImage(img,0,0,W,H);
-    canvas.removeAttribute('hidden');
-    if(empty) empty.style.display='none';
-    if(dl) dl.disabled=false;
-
-    const word=(_bdgWords[_bdg.wordKey]||'').trim();
+  function _bdgDrawOne(ctx, badge, W, H){
+    const word=(_bdgWords[badge.wordKey]||'').trim();
     const lines=word.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,4);
-    if(!lines.length) return; // 선택 문구 비어있으면 배지 없음
+    if(!lines.length){ badge._rect=null; return; }
 
-    const st=BADGE_STYLES[_bdg.style]||BADGE_STYLES.A;
+    const st=BADGE_STYLES[badge.style]||BADGE_STYLES.A;
     const S=Math.min(W,H);
-    const scale=(parseInt((document.getElementById('bdgSize')||{}).value,10)||115)/100;
+    const scale=(badge.size||115)/100;
     const fontSize=Math.max(12,Math.round(S*0.05*scale));
     ctx.font="800 "+fontSize+"px 'Pretendard','Inter',-apple-system,sans-serif";
     ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -13754,14 +13770,18 @@
     const margin=Math.round(S*0.038);
 
     let x,y;
-    if(_bdg.corner==='tr'){ x=W-margin-bw; y=margin; }
-    else if(_bdg.corner==='tl'){ x=margin; y=margin; }
-    else if(_bdg.corner==='br'){ x=W-margin-bw; y=H-margin-bh; }
-    else { x=margin; y=H-margin-bh; }
+    if(badge.corner==='custom' && badge.custom){
+      x=Math.round(badge.custom.xr*W - bw/2);
+      y=Math.round(badge.custom.yr*H - bh/2);
+      x=Math.max(0, Math.min(W-bw, x));
+      y=Math.max(0, Math.min(H-bh, y));
+    } else if(badge.corner==='tl'){ x=margin; y=margin; }
+    else if(badge.corner==='br'){ x=W-margin-bw; y=H-margin-bh; }
+    else if(badge.corner==='bl'){ x=margin; y=H-margin-bh; }
+    else { x=W-margin-bw; y=margin; } // tr (default)
 
     const rad=bh*st.radius;
 
-    // 배경 (그림자 포함)
     ctx.save();
     if(st.shadow){ ctx.shadowColor='rgba(0,0,0,.30)'; ctx.shadowBlur=fontSize*0.4; ctx.shadowOffsetY=Math.round(fontSize*0.12); }
     _bdgRoundRect(ctx,x,y,bw,bh,rad);
@@ -13773,7 +13793,6 @@
     ctx.fill();
     ctx.restore();
 
-    // 테두리
     if(st.border){
       _bdgRoundRect(ctx,x,y,bw,bh,rad);
       ctx.lineWidth=Math.max(2,fontSize*0.07);
@@ -13781,16 +13800,165 @@
       ctx.stroke();
     }
 
-    // 텍스트
     ctx.fillStyle=st.fg;
     const cx=x+bw/2;
     let cy=y+padY+fontSize/2;
     lines.forEach(l=>{ ctx.fillText(l,cx,cy); cy+=fontSize+lineGap; });
+
+    badge._rect={x,y,w:bw,h:bh};
+  }
+
+  function renderBadgeCanvas(){
+    const canvas=document.getElementById('bdgCanvas');
+    const empty=document.getElementById('bdgPreviewEmpty');
+    const wrap=document.getElementById('bdgCanvasWrap');
+    const dl=document.getElementById('bdgDownload');
+    if(!canvas) return;
+    if(!_bdg.img){
+      if(wrap) wrap.setAttribute('hidden','');
+      if(empty) empty.style.display='';
+      if(dl) dl.disabled=true;
+      _bdgRenderOverlays();
+      return;
+    }
+    const img=_bdg.img, W=img.naturalWidth, H=img.naturalHeight;
+    canvas.width=W; canvas.height=H;
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(img,0,0,W,H);
+    if(wrap) wrap.removeAttribute('hidden');
+    if(empty) empty.style.display='none';
+    if(dl) dl.disabled=_bdg.badges.length===0;
+
+    _bdg.badges.forEach(b=>_bdgDrawOne(ctx,b,W,H));
+
+    if(_bdgDrag) _bdgUpdateOverlayPositions();
+    else _bdgRenderOverlays();
+  }
+
+  function _bdgUpdateOverlayPositions(){
+    const wrap=document.getElementById('bdgOverlays');
+    const canvas=document.getElementById('bdgCanvas');
+    if(!wrap||!canvas||!canvas.width) return;
+    const scale=canvas.clientWidth/canvas.width;
+    wrap.querySelectorAll('.bdg-overlay').forEach(div=>{
+      const id=Number(div.dataset.id);
+      const b=_bdg.badges.find(x=>x.id===id);
+      if(!b||!b._rect){ div.style.display='none'; return; }
+      div.style.display='';
+      div.style.left=(b._rect.x*scale)+'px';
+      div.style.top=(b._rect.y*scale)+'px';
+      div.style.width=(b._rect.w*scale)+'px';
+      div.style.height=(b._rect.h*scale)+'px';
+    });
+  }
+
+  function _bdgRenderOverlays(){
+    const wrap=document.getElementById('bdgOverlays');
+    const canvas=document.getElementById('bdgCanvas');
+    if(!wrap) return;
+    wrap.innerHTML='';
+    if(!canvas||!_bdg.img||!canvas.width) return;
+    const scale=canvas.clientWidth/canvas.width;
+    _bdg.badges.forEach(b=>{
+      if(!b._rect) return;
+      const div=document.createElement('div');
+      div.className='bdg-overlay'+(b.id===_bdg.selectedId?' is-selected':'');
+      div.dataset.id=b.id;
+      div.style.left=(b._rect.x*scale)+'px';
+      div.style.top=(b._rect.y*scale)+'px';
+      div.style.width=(b._rect.w*scale)+'px';
+      div.style.height=(b._rect.h*scale)+'px';
+      div.title='드래그로 이동';
+      div.addEventListener('pointerdown',_bdgDragStart);
+      wrap.appendChild(div);
+    });
+  }
+
+  function _bdgDragStart(e){
+    const div=e.currentTarget;
+    const id=Number(div.dataset.id);
+    const b=_bdg.badges.find(x=>x.id===id);
+    if(!b||!b._rect) return;
+    const canvas=document.getElementById('bdgCanvas');
+    if(!canvas||!canvas.clientWidth) return;
+
+    const wasSelected=_bdg.selectedId===id;
+    _bdg.selectedId=id;
+
+    // 프리셋 위치를 사용자지정으로 승격 (현재 그린 중심을 그대로 이어받기)
+    if(b.corner!=='custom'||!b.custom){
+      b.corner='custom';
+      b.custom={
+        xr:(b._rect.x+b._rect.w/2)/canvas.width,
+        yr:(b._rect.y+b._rect.h/2)/canvas.height,
+      };
+    }
+
+    _bdgDrag={
+      id,
+      startX:e.clientX,
+      startY:e.clientY,
+      startXR:b.custom.xr,
+      startYR:b.custom.yr,
+      cssW:canvas.clientWidth,
+      cssH:canvas.clientHeight,
+      moved:false,
+    };
+
+    try{ div.setPointerCapture(e.pointerId); }catch(_){}
+    div.addEventListener('pointermove',_bdgDragMove);
+    div.addEventListener('pointerup',_bdgDragEnd);
+    div.addEventListener('pointercancel',_bdgDragEnd);
+    e.preventDefault();
+
+    // 오버레이 재생성 없이 강조만 스왑 (pointer capture 유지)
+    document.querySelectorAll('.bdg-overlay').forEach(x=>{
+      x.classList.toggle('is-selected',Number(x.dataset.id)===id);
+    });
+    if(!wasSelected){
+      _bdgRenderBadgeList();
+      _bdgRenderPosButtons();
+      _bdgRenderSizeSlider();
+    } else {
+      _bdgRenderPosButtons(); // custom으로 바뀌었을 수 있음
+      _bdgRenderBadgeList();
+    }
+  }
+
+  function _bdgDragMove(e){
+    if(!_bdgDrag) return;
+    const b=_bdg.badges.find(x=>x.id===_bdgDrag.id);
+    if(!b||!b.custom) return;
+    const dx=e.clientX-_bdgDrag.startX;
+    const dy=e.clientY-_bdgDrag.startY;
+    if(Math.abs(dx)>1||Math.abs(dy)>1) _bdgDrag.moved=true;
+    b.custom.xr=Math.max(0,Math.min(1,_bdgDrag.startXR+dx/_bdgDrag.cssW));
+    b.custom.yr=Math.max(0,Math.min(1,_bdgDrag.startYR+dy/_bdgDrag.cssH));
+    b.corner='custom';
+    if(!_bdgDragRAF){
+      _bdgDragRAF=requestAnimationFrame(()=>{
+        _bdgDragRAF=0;
+        renderBadgeCanvas();
+      });
+    }
+  }
+
+  function _bdgDragEnd(e){
+    const div=e.currentTarget;
+    div.removeEventListener('pointermove',_bdgDragMove);
+    div.removeEventListener('pointerup',_bdgDragEnd);
+    div.removeEventListener('pointercancel',_bdgDragEnd);
+    try{ div.releasePointerCapture(e.pointerId); }catch(_){}
+    _bdgDrag=null;
+    if(_bdgDragRAF){ cancelAnimationFrame(_bdgDragRAF); _bdgDragRAF=0; }
+    renderBadgeCanvas();
+    _bdgRenderBadgeList();
   }
 
   function _bdgScheduleRender(){
     clearTimeout(_bdgRenderT);
-    _bdgRenderT=setTimeout(renderBadgeCanvas,80);
+    _bdgRenderT=setTimeout(renderBadgeCanvas,60);
   }
 
   function _bdgLoadFile(file){
@@ -13807,6 +13975,7 @@
     const wrap=document.getElementById('bdgStyles');
     if(!wrap) return;
     wrap.innerHTML='';
+    const previewKey=(_bdgSelected()||{}).wordKey||'A';
     Object.entries(BADGE_STYLES).forEach(([k,st])=>{
       const btn=document.createElement('div');
       btn.className='bdg-style'+(k===_bdg.style?' is-active':'');
@@ -13817,14 +13986,16 @@
       else sw.style.background=st.bg;
       sw.style.color=st.fg;
       if(st.border) sw.style.boxShadow='inset 0 0 0 1.5px '+st.border;
-      sw.textContent=(_bdgWords[_bdg.wordKey]||'BEST').split('\n')[0]||'BEST';
+      sw.textContent=(_bdgWords[previewKey]||'BEST').split('\n')[0]||'BEST';
       const nm=document.createElement('div');
       nm.className='bdg-style-name'; nm.textContent=st.name;
       btn.appendChild(sw); btn.appendChild(nm);
       btn.onclick=()=>{
         _bdg.style=k;
         wrap.querySelectorAll('.bdg-style').forEach(e=>e.classList.toggle('is-active',e.dataset.style===k));
-        renderBadgeCanvas();
+        // 선택된 배지의 스타일도 함께 갱신 (직관적)
+        const sel=_bdgSelected();
+        if(sel){ sel.style=k; renderBadgeCanvas(); _bdgRenderBadgeList(); }
       };
       wrap.appendChild(btn);
     });
@@ -13846,29 +14017,33 @@
         inp.maxLength=14; inp.placeholder='(비움)'; inp.autocomplete='off'; inp.spellcheck=false;
         inp.addEventListener('input',()=>{
           _bdgWords[k]=inp.value; _bdgSaveWords();
-          if(_bdg.wordKey===k){ _bdgRenderStylePicker(); renderBadgeCanvas(); }
+          // 이 문구를 쓰는 배지가 있으면 다시 그림
+          if(_bdg.badges.some(b=>b.wordKey===k)){ _bdgRenderStylePicker(); _bdgRenderBadgeList(); _bdgScheduleRender(); }
         });
         cell.appendChild(key); cell.appendChild(inp);
         wrap.appendChild(cell);
       } else {
         const btn=document.createElement('button');
         btn.type='button';
-        btn.className='bdg-word'+(k===_bdg.wordKey?' is-active':'');
+        btn.className='bdg-word';
         btn.dataset.key=k;
         const key=document.createElement('span');
         key.className='bdg-word-key'; key.textContent=num;
         const txt=document.createElement('span');
         txt.className='bdg-word-text'; txt.textContent=(_bdgWords[k]||'').trim()||'(비움)';
         btn.appendChild(key); btn.appendChild(txt);
-        btn.onclick=()=>{
-          _bdg.wordKey=k;
-          wrap.querySelectorAll('.bdg-word').forEach(e=>e.classList.toggle('is-active',e.dataset.key===k));
-          _bdgRenderStylePicker(); renderBadgeCanvas();
-        };
+        const cnt=_bdg.badges.filter(b=>b.wordKey===k).length;
+        if(cnt>0){
+          const cb=document.createElement('span');
+          cb.className='bdg-word-count'; cb.textContent=cnt;
+          btn.appendChild(cb);
+        }
+        btn.onclick=()=>_bdgAddBadge(k);
         wrap.appendChild(btn);
       }
     });
   }
+
   function _bdgToggleEditWords(){
     _bdgEditWords=!_bdgEditWords;
     const t=document.getElementById('bdgWordEdit');
@@ -13876,16 +14051,125 @@
     _bdgRenderWords();
   }
 
+  function _bdgAddBadge(wordKey){
+    if(!_bdg.img){
+      // 이미지 없어도 배지는 추가 가능 (이미지 후에 표시). 하지만 사용자 혼동 방지 위해 안내.
+    }
+    const size=parseInt((document.getElementById('bdgSize')||{}).value,10)||115;
+    const b={
+      id:++_bdgIdSeq,
+      wordKey,
+      style:_bdg.style,
+      size,
+      corner:'tr',
+      custom:null,
+      _rect:null,
+    };
+    _bdg.badges.push(b);
+    _bdg.selectedId=b.id;
+    _bdgRenderWords();
+    _bdgRenderBadgeList();
+    _bdgRenderPosButtons();
+    _bdgRenderSizeSlider();
+    renderBadgeCanvas();
+  }
+
+  function _bdgRemoveBadge(id){
+    const idx=_bdg.badges.findIndex(x=>x.id===id);
+    if(idx<0) return;
+    _bdg.badges.splice(idx,1);
+    if(_bdg.selectedId===id){
+      _bdg.selectedId=_bdg.badges.length ? _bdg.badges[Math.max(0,idx-1)].id : null;
+    }
+    _bdgRenderWords();
+    _bdgRenderBadgeList();
+    _bdgRenderPosButtons();
+    _bdgRenderSizeSlider();
+    renderBadgeCanvas();
+  }
+
+  function _bdgSelectBadge(id){
+    if(_bdg.selectedId===id) return;
+    _bdg.selectedId=id;
+    _bdgRenderBadgeList();
+    _bdgRenderPosButtons();
+    _bdgRenderSizeSlider();
+    _bdgRenderOverlays();
+  }
+
+  function _bdgRenderBadgeList(){
+    const wrap=document.getElementById('bdgList');
+    const cnt=document.getElementById('bdgListCount');
+    if(cnt) cnt.textContent=_bdg.badges.length;
+    if(!wrap) return;
+    wrap.innerHTML='';
+    if(!_bdg.badges.length){
+      const em=document.createElement('div');
+      em.className='bdg-list-empty';
+      em.textContent='문구를 눌러 배지를 추가하세요.';
+      wrap.appendChild(em);
+      return;
+    }
+    _bdg.badges.forEach((b,i)=>{
+      const item=document.createElement('div');
+      item.className='bdg-list-item'+(b.id===_bdg.selectedId?' is-active':'');
+      item.dataset.id=b.id;
+      const num=document.createElement('span');
+      num.className='bdg-list-num'; num.textContent=String(i+1);
+      const txt=document.createElement('span');
+      txt.className='bdg-list-text';
+      txt.textContent=(_bdgWords[b.wordKey]||'').trim()||'(비움)';
+      const meta=document.createElement('span');
+      meta.className='bdg-list-meta';
+      meta.textContent=(BADGE_CORNER_LABELS[b.corner]||b.corner)+' · '+b.size+'%';
+      const del=document.createElement('button');
+      del.type='button'; del.className='bdg-list-del'; del.textContent='✕'; del.title='이 배지 삭제';
+      del.addEventListener('click',ev=>{ ev.stopPropagation(); _bdgRemoveBadge(b.id); });
+      item.appendChild(num);
+      item.appendChild(txt);
+      item.appendChild(meta);
+      item.appendChild(del);
+      item.addEventListener('click',()=>_bdgSelectBadge(b.id));
+      wrap.appendChild(item);
+    });
+  }
+
+  function _bdgRenderPosButtons(){
+    const corners=document.getElementById('bdgCorners');
+    if(!corners) return;
+    const sel=_bdgSelected();
+    corners.querySelectorAll('.bdg-corner').forEach(b=>{
+      const active = !!sel && b.dataset.corner===sel.corner;
+      b.classList.toggle('is-active',active);
+      b.disabled = !sel;
+    });
+  }
+
+  function _bdgRenderSizeSlider(){
+    const size=document.getElementById('bdgSize');
+    if(!size) return;
+    const sel=_bdgSelected();
+    size.disabled = !sel;
+    if(sel) size.value=sel.size;
+    _bdgSizeLabel();
+  }
+
   function _bdgSizeLabel(){
-    const v=parseInt((document.getElementById('bdgSize')||{}).value,10)||115;
+    const size=document.getElementById('bdgSize');
     const el=document.getElementById('bdgSizeVal');
-    if(el) el.textContent = v<90?'작게' : v>140?'크게' : '보통';
+    if(!el) return;
+    const sel=_bdgSelected();
+    if(!sel){ el.textContent='—'; return; }
+    const v=parseInt((size||{}).value,10)||sel.size||115;
+    el.textContent = v<90?'작게' : v>140?'크게' : '보통';
   }
 
   function initBadgeView(){
     _bdgRenderStylePicker();
     _bdgRenderWords();
-    _bdgSizeLabel();
+    _bdgRenderBadgeList();
+    _bdgRenderPosButtons();
+    _bdgRenderSizeSlider();
     if(_bdgBound){ renderBadgeCanvas(); return; }
     _bdgBound=true;
     const drop=document.getElementById('bdgDrop');
@@ -13902,13 +14186,36 @@
       ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.remove('is-drag'); }));
       drop.addEventListener('drop',e=>{ const f=e.dataTransfer&&e.dataTransfer.files[0]; if(f) _bdgLoadFile(f); });
     }
-    if(size) size.addEventListener('input',()=>{ _bdgSizeLabel(); _bdgScheduleRender(); });
+    if(size) size.addEventListener('input',()=>{
+      const sel=_bdgSelected();
+      if(sel){ sel.size=parseInt(size.value,10)||115; _bdgSizeLabel(); _bdgRenderBadgeList(); _bdgScheduleRender(); }
+    });
     if(corners) corners.addEventListener('click',e=>{
-      const b=e.target.closest('.bdg-corner'); if(!b) return;
-      _bdg.corner=b.dataset.corner;
-      corners.querySelectorAll('.bdg-corner').forEach(x=>x.classList.toggle('is-active',x===b));
+      const btn=e.target.closest('.bdg-corner'); if(!btn||btn.disabled) return;
+      const sel=_bdgSelected(); if(!sel) return;
+      const c=btn.dataset.corner;
+      if(c==='custom'){
+        if(!sel.custom){
+          const canvas=document.getElementById('bdgCanvas');
+          if(sel._rect && canvas && canvas.width){
+            sel.custom={
+              xr:(sel._rect.x+sel._rect.w/2)/canvas.width,
+              yr:(sel._rect.y+sel._rect.h/2)/canvas.height,
+            };
+          } else {
+            sel.custom={xr:.5,yr:.5};
+          }
+        }
+      } else {
+        sel.custom=null;
+      }
+      sel.corner=c;
+      _bdgRenderPosButtons();
+      _bdgRenderBadgeList();
       renderBadgeCanvas();
     });
+    // 리사이즈 시 오버레이 위치 재계산
+    window.addEventListener('resize',()=>{ if(_bdg.img) _bdgUpdateOverlayPositions(); });
     // 붙여넣기 (배지 뷰가 보일 때만)
     document.addEventListener('paste',e=>{
       const view=document.getElementById('viewBadge');
@@ -13933,8 +14240,12 @@
   }
 
   function clearBadge(){
-    _bdg.img=null; _bdg.name='image';
+    _bdg.img=null; _bdg.name='image'; _bdg.badges=[]; _bdg.selectedId=null;
     const file=document.getElementById('bdgFile'); if(file) file.value='';
+    _bdgRenderWords();
+    _bdgRenderBadgeList();
+    _bdgRenderPosButtons();
+    _bdgRenderSizeSlider();
     renderBadgeCanvas();
   }
 
