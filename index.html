@@ -2821,12 +2821,15 @@
   .bdg-ratio.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
   .bdg-ratio-sub{display:block;font-size:9.5px;font-weight:500;color:var(--text-3);font-family:var(--mono);margin-top:2px;letter-spacing:.02em}
   .bdg-ratio.is-active .bdg-ratio-sub{color:#0ea5e9}
-  .bdg-sizes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-  .bdg-esize{padding:9px 4px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:12px;font-weight:600;color:var(--text-2);transition:all .12s;text-align:center;line-height:1.2;font-family:var(--sans)}
-  .bdg-esize:hover{border-color:var(--line-2)}
-  .bdg-esize.is-active{border-color:#0ea5e9;background:#fff;color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
-  .bdg-esize-sub{display:block;font-size:9.5px;font-weight:500;color:var(--text-3);font-family:var(--mono);margin-top:2px}
-  .bdg-esize.is-active .bdg-esize-sub{color:#0ea5e9}
+  .bdg-imgpos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .bdg-imgpos-cell{display:flex;flex-direction:column;gap:5px}
+  .bdg-imgpos-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em}
+  .bdg-imgpos-head b{color:var(--text-2);font-weight:600}
+  .bdg-imgpos input[type=range]{width:100%;accent-color:#0ea5e9;cursor:pointer}
+  .bdg-imgpos input[type=range]:disabled{opacity:.45;cursor:not-allowed}
+  .bdg-imgpos-reset{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--text-3);background:none;border:1px solid var(--line);border-radius:5px;padding:2px 8px;cursor:pointer;font-family:var(--sans);transition:all .12s}
+  .bdg-imgpos-reset:hover:not(:disabled){color:#0ea5e9;border-color:#0ea5e9}
+  .bdg-imgpos-reset:disabled{opacity:.45;cursor:not-allowed}
   .bdg-word{position:relative}
   .bdg-word-count{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;background:#0ea5e9;color:#fff;font-size:10px;font-weight:800;border-radius:8px;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 3px rgba(14,165,233,.4)}
   .bdg-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
@@ -5805,13 +5808,19 @@
         </div>
 
         <div class="bdg-field">
-          <span class="bdg-label">저장 크기 <span style="font-weight:400;color:var(--text-3);font-size:11px">(짧은 변 기준)</span></span>
-          <div class="bdg-sizes" id="bdgSizes">
-            <button type="button" class="bdg-esize is-active" data-esize="original" title="원본 이미지 크기 그대로">원본<span class="bdg-esize-sub">그대로</span></button>
-            <button type="button" class="bdg-esize" data-esize="800" title="짧은 변 800px">800<span class="bdg-esize-sub">px</span></button>
-            <button type="button" class="bdg-esize" data-esize="1000" title="짧은 변 1000px (스마트스토어)">1000<span class="bdg-esize-sub">px</span></button>
-            <button type="button" class="bdg-esize" data-esize="1500" title="짧은 변 1500px">1500<span class="bdg-esize-sub">px</span></button>
-            <button type="button" class="bdg-esize" data-esize="2000" title="짧은 변 2000px (고화질)">2000<span class="bdg-esize-sub">px</span></button>
+          <span class="bdg-label" style="display:flex;align-items:center;gap:8px">
+            이미지 위치 <span style="font-weight:400;color:var(--text-3);font-size:11px">(크롭 영역 안에서 이동)</span>
+            <button type="button" class="bdg-imgpos-reset" id="bdgImgReset" title="중앙 (50/50)으로 리셋">↺ 중앙</button>
+          </span>
+          <div class="bdg-imgpos" id="bdgImgPos">
+            <div class="bdg-imgpos-cell">
+              <div class="bdg-imgpos-head"><span>← 좌우 →</span><b id="bdgImgXVal">50</b></div>
+              <input type="range" id="bdgImgX" min="0" max="100" value="50" step="1">
+            </div>
+            <div class="bdg-imgpos-cell">
+              <div class="bdg-imgpos-head"><span>↑ 상하 ↓</span><b id="bdgImgYVal">50</b></div>
+              <input type="range" id="bdgImgY" min="0" max="100" value="50" step="1">
+            </div>
           </div>
         </div>
 
@@ -13812,7 +13821,7 @@
   function _bdgSaveWords(){ try{ localStorage.setItem(BADGE_WORDS_LS,JSON.stringify(_bdgWords)); }catch(e){} }
   const _bdgWords=_bdgLoadWords();
   // badges: [{id, wordKey, style, size, corner:'tr'|'tl'|'br'|'bl'|'custom', custom:{xr,yr}|null, _rect:{x,y,w,h}}]
-  const _bdg={img:null, name:'image', style:'A', badges:[], selectedId:null, ratio:'original', exportSize:'original'};
+  const _bdg={img:null, name:'image', style:'A', badges:[], selectedId:null, ratio:'original', imgOffsetX:50, imgOffsetY:50};
   let _bdgBound=false, _bdgRenderT=null, _bdgEditWords=false, _bdgIdSeq=0, _bdgDrag=null, _bdgDragRAF=0, _bdgGroupMove=false;
 
   function _bdgSelected(){ return _bdg.badges.find(x=>x.id===_bdg.selectedId)||null; }
@@ -13826,7 +13835,10 @@
     let sw,sh;
     if(src>tgt){ sh=H; sw=Math.round(H*tgt); }
     else { sw=W; sh=Math.round(W/tgt); }
-    return {sx:Math.round((W-sw)/2), sy:Math.round((H-sh)/2), sw, sh};
+    // 이미지 위치 오프셋 반영 (0~100 → 0~1 : 여백 대비 좌/우, 상/하 위치)
+    const px=Math.max(0,Math.min(100, _bdg.imgOffsetX ?? 50))/100;
+    const py=Math.max(0,Math.min(100, _bdg.imgOffsetY ?? 50))/100;
+    return {sx:Math.round((W-sw)*px), sy:Math.round((H-sh)*py), sw, sh};
   }
 
   function _bdgRoundRect(ctx,x,y,w,h,r){
@@ -13918,18 +13930,7 @@
     }
     const img=_bdg.img;
     const crop=_bdgCropRect(img, _bdg.ratio);
-    // exportSize (짧은 변 기준) 스케일 적용
-    let W=crop.sw, H=crop.sh;
-    const es=_bdg.exportSize;
-    if(es && es!=='original'){
-      const target=parseInt(es,10);
-      if(target>0){
-        const shortSide=Math.min(crop.sw, crop.sh);
-        const scale=target/shortSide;
-        W=Math.max(1,Math.round(crop.sw*scale));
-        H=Math.max(1,Math.round(crop.sh*scale));
-      }
-    }
+    const W=crop.sw, H=crop.sh;
     canvas.width=W; canvas.height=H;
     const ctx=canvas.getContext('2d');
     ctx.imageSmoothingEnabled=true;
@@ -14120,7 +14121,7 @@
     _bdg.name=(file.name||'image').replace(/\.[^.]+$/,'');
     const url=URL.createObjectURL(file);
     const im=new Image();
-    im.onload=()=>{ _bdg.img=im; URL.revokeObjectURL(url); renderBadgeCanvas(); };
+    im.onload=()=>{ _bdg.img=im; URL.revokeObjectURL(url); _bdg.imgOffsetX=50; _bdg.imgOffsetY=50; _bdgRenderImgPos(); renderBadgeCanvas(); };
     im.onerror=()=>{ URL.revokeObjectURL(url); };
     im.src=url;
   }
@@ -14302,6 +14303,15 @@
     });
   }
 
+  function _bdgRenderImgPos(){
+    const active = !!_bdg.img && !!_bdg.ratio && _bdg.ratio!=='original';
+    const x=document.getElementById('bdgImgX'); if(x){ x.disabled=!active; x.value=String(_bdg.imgOffsetX); }
+    const y=document.getElementById('bdgImgY'); if(y){ y.disabled=!active; y.value=String(_bdg.imgOffsetY); }
+    const r=document.getElementById('bdgImgReset'); if(r) r.disabled=!active;
+    const xv=document.getElementById('bdgImgXVal'); if(xv) xv.textContent=String(_bdg.imgOffsetX);
+    const yv=document.getElementById('bdgImgYVal'); if(yv) yv.textContent=String(_bdg.imgOffsetY);
+  }
+
   function _bdgRenderAutos(){
     const autos=document.getElementById('bdgAutos');
     if(!autos) return;
@@ -14392,17 +14402,21 @@
       if(!btn) return;
       _bdg.ratio=btn.dataset.ratio||'original';
       ratios.querySelectorAll('.bdg-ratio').forEach(x=>x.classList.toggle('is-active',x===btn));
+      _bdgRenderImgPos();
       renderBadgeCanvas();
     });
 
-    const sizes=document.getElementById('bdgSizes');
-    if(sizes) sizes.addEventListener('click',e=>{
-      const btn=e.target.closest('.bdg-esize');
-      if(!btn) return;
-      _bdg.exportSize=btn.dataset.esize||'original';
-      sizes.querySelectorAll('.bdg-esize').forEach(x=>x.classList.toggle('is-active',x===btn));
+    const imgX=document.getElementById('bdgImgX');
+    const imgY=document.getElementById('bdgImgY');
+    const imgReset=document.getElementById('bdgImgReset');
+    if(imgX) imgX.addEventListener('input',()=>{ const v=parseInt(imgX.value,10); _bdg.imgOffsetX=Number.isFinite(v)?v:50; _bdgRenderImgPos(); _bdgScheduleRender(); });
+    if(imgY) imgY.addEventListener('input',()=>{ const v=parseInt(imgY.value,10); _bdg.imgOffsetY=Number.isFinite(v)?v:50; _bdgRenderImgPos(); _bdgScheduleRender(); });
+    if(imgReset) imgReset.addEventListener('click',()=>{
+      _bdg.imgOffsetX=50; _bdg.imgOffsetY=50;
+      _bdgRenderImgPos();
       renderBadgeCanvas();
     });
+    _bdgRenderImgPos();
 
     if(drop&&file){
       drop.addEventListener('click',()=>file.click());
@@ -14459,20 +14473,18 @@
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a');
       const rSuf=(_bdg.ratio&&_bdg.ratio!=='original') ? '_'+_bdg.ratio.replace(':','x') : '';
-      const sSuf=(_bdg.exportSize&&_bdg.exportSize!=='original') ? '_'+_bdg.exportSize+'px' : '';
-      a.href=url; a.download=(_bdg.name||'image')+'_badge'+rSuf+sSuf+'.png';
+      a.href=url; a.download=(_bdg.name||'image')+'_badge'+rSuf+'.png';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),1000);
     },'image/png');
   }
 
   function clearBadge(){
-    _bdg.img=null; _bdg.name='image'; _bdg.badges=[]; _bdg.selectedId=null; _bdg.ratio='original'; _bdg.exportSize='original';
+    _bdg.img=null; _bdg.name='image'; _bdg.badges=[]; _bdg.selectedId=null; _bdg.ratio='original'; _bdg.imgOffsetX=50; _bdg.imgOffsetY=50;
     const file=document.getElementById('bdgFile'); if(file) file.value='';
     const ratios=document.getElementById('bdgRatios');
     if(ratios) ratios.querySelectorAll('.bdg-ratio').forEach(x=>x.classList.toggle('is-active', x.dataset.ratio==='original'));
-    const sizes=document.getElementById('bdgSizes');
-    if(sizes) sizes.querySelectorAll('.bdg-esize').forEach(x=>x.classList.toggle('is-active', x.dataset.esize==='original'));
+    _bdgRenderImgPos();
     const meta=document.getElementById('bdgRatioMeta'); if(meta) meta.textContent='—';
     _bdgRenderWords();
     _bdgRenderBadgeList();
