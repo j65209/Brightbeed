@@ -11163,27 +11163,46 @@
         const today = (data.summaries_by_period || {}).today || data.summary || {};
         const yday  = (data.summaries_by_period || {}).yesterday || {};
         const spend = today.spend ?? 0;
+        const ydaySpend = yday.spend ?? 0;
         const mdSales = data.md_sales || {};
         const hasMdSales = !!(mdSales.source_file);
-        let roasText;
+
+        // 오늘 ROAS 텍스트
+        let todayPart;
         if(spend === 0){
-          roasText = '오늘 광고 미집행';
-          subEl.textContent = `${dateStr} · ${roasText}`;
-          subEl.style.color = 'var(--text-3)';
+          todayPart = '오늘: 미집행';
         } else if(today.sixshop_available === true && today.sixshop_roas != null){
-          const roasVal = Number(today.sixshop_roas).toFixed(2);
-          roasText = `자사몰 ROAS ${roasVal} (오늘)`;
-          subEl.textContent = `${dateStr} · ${roasText}`;
-          subEl.style.color = '';
+          todayPart = `오늘: ${Number(today.sixshop_roas).toFixed(2)}`;
         } else if(hasMdSales){
-          // 오늘 매출 없음 (연동은 되어있음)
-          roasText = '광고 집행 중 · 오늘 매출 없음';
-          subEl.textContent = `${dateStr} · ${roasText}`;
-          subEl.style.color = 'var(--text-3)';
+          todayPart = '오늘: 매출없음';
         } else {
+          todayPart = null; // 미연동
+        }
+
+        // 어제 ROAS 텍스트
+        let ydayPart;
+        if(ydaySpend === 0){
+          ydayPart = '어제: 미집행';
+        } else if(yday.sixshop_available === true && yday.sixshop_roas != null){
+          ydayPart = `어제: ${Number(yday.sixshop_roas).toFixed(2)}`;
+        } else if(hasMdSales){
+          ydayPart = '어제: 매출없음';
+        } else {
+          ydayPart = null;
+        }
+
+        let roasText;
+        if(todayPart === null && ydayPart === null){
+          // 완전 미연동
           roasText = '자사몰 미연동';
           subEl.textContent = `${dateStr} · ${roasText}`;
           subEl.style.color = '#f59e0b';
+        } else {
+          const parts = [todayPart, ydayPart].filter(Boolean);
+          roasText = `자사몰 ROAS ${parts.join(' · ')}`;
+          subEl.textContent = `${dateStr} · ${roasText}`;
+          // 오늘 집행 중이면 기본색, 미집행이면 흐리게
+          subEl.style.color = (spend === 0) ? 'var(--text-3)' : '';
         }
         _metaadsMeta[brand] = { ready:true, dateStr, roasText };
         const adsFetchStatus = data.ads_fetch_status || 'ok';
