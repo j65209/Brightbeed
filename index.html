@@ -11230,8 +11230,8 @@
           subEl.style.color = '#f59e0b';
         } else {
           const parts = [todayPart, ydayPart].filter(Boolean);
-          roasText = `ROAS ${parts.join(' · ')}`;
-          subEl.textContent = roasText;
+          roasText = `${parts.join(' · ')} (ROAS)`;
+          subEl.innerHTML = `${parts.join(' · ')} <span style="font-size:0.85em;opacity:0.65">(ROAS)</span>`;
           // 오늘 집행 중이면 기본색, 미집행이면 흐리게
           subEl.style.color = (spend === 0) ? 'var(--text-3)' : '';
         }
