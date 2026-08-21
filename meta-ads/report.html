@@ -362,6 +362,9 @@
   th .arrow { opacity:.4; font-size:9px; margin-left:2px }
   th.sort-asc .arrow, th.sort-desc .arrow { opacity:1; color:var(--accent) }
   th.name-col, td.name-col { text-align:left; max-width:280px; overflow:hidden; text-overflow:ellipsis }
+  @media (max-width:767px) {
+    td.name-col { white-space:normal; word-break:break-word; min-width:160px }
+  }
   td.num { font-variant-numeric:tabular-nums }
   tr:hover td { background:rgba(255,255,255,.03) }
   .roas-tag { display:inline-block; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:700 }
