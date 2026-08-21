@@ -2,9 +2,14 @@
   "brand": "pp",
   "brand_name": "프로덕트피알",
   "target_roas": 2.0,
-  "generated_at": "2026-08-21T18:34:32",
-  "ads_fetch_status": "ok",
-  "ads_fetch_issues": [],
+  "generated_at": "2026-08-21T18:43:08",
+  "ads_fetch_status": "partial",
+  "ads_fetch_issues": [
+    {
+      "preset": "last_7d",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    }
+  ],
   "account": {
     "id": "act_4093346057650683",
     "name": "produktpr",
@@ -16,7 +21,7 @@
   "period": {
     "label": "last_7d",
     "display": "지난 7일",
-    "level": "ad",
+    "level": "campaign",
     "since": null,
     "until": null
   },
@@ -134,7 +139,7 @@
     "usd_krw_rate": 1400,
     "source_file": "pro_pp_sales.json",
     "store_name": "produktepr",
-    "fetched_at_ms": 1787304415246,
+    "fetched_at_ms": 1787304985111,
     "daily": [
       {
         "date": "2026-07-22",
