@@ -2809,7 +2809,12 @@
   .bdg-auto{padding:8px 4px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:11px;font-weight:600;color:var(--text-2);transition:all .12s;text-align:center;line-height:1.3;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;font-family:var(--sans)}
   .bdg-auto:hover:not(:disabled){border-color:#0ea5e9;background:var(--bg-1);color:#0ea5e9}
   .bdg-auto:disabled{opacity:.45;cursor:not-allowed}
+  .bdg-auto.is-full{grid-column:1/-1;flex-direction:row;gap:8px;padding:9px 6px}
   .bdg-auto-icon{font-size:15px;color:#0ea5e9;font-weight:800;line-height:1}
+  .bdg-group-toggle{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--text-3);cursor:pointer;padding:3px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg-2);margin-left:auto;transition:all .12s;user-select:none}
+  .bdg-group-toggle:hover{border-color:var(--line-2)}
+  .bdg-group-toggle:has(input:checked){border-color:#0ea5e9;color:#0ea5e9;background:rgba(14,165,233,.09);font-weight:600}
+  .bdg-group-toggle input{margin:0;accent-color:#0ea5e9;cursor:pointer}
   .bdg-word{position:relative}
   .bdg-word-count{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;background:#0ea5e9;color:#fff;font-size:10px;font-weight:800;border-radius:8px;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 3px rgba(14,165,233,.4)}
   .bdg-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
@@ -5754,20 +5759,20 @@
         </div>
 
         <div class="bdg-field">
-          <span class="bdg-label">자동 배치 <span style="font-weight:400;color:var(--text-3);font-size:11px">(전체 배지 한 번에)</span></span>
+          <span class="bdg-label" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            자동 배치 <span style="font-weight:400;color:var(--text-3);font-size:11px">(전체 배지 한 번에)</span>
+            <label class="bdg-group-toggle" title="켜면 배지 하나를 드래그할 때 나머지 배지도 같은 방향으로 함께 이동">
+              <input type="checkbox" id="bdgGroupMove"> <span>🔗 그룹 이동</span>
+            </label>
+          </span>
           <div class="bdg-autos" id="bdgAutos">
-            <button type="button" class="bdg-auto" data-auto="vstack-center" title="이미지 중앙에 세로로 균등 배치">
-              <span class="bdg-auto-icon">⇕</span>
-              <span>세로 중앙</span>
-            </button>
-            <button type="button" class="bdg-auto" data-auto="hstack-center" title="이미지 중앙에 가로로 균등 배치">
-              <span class="bdg-auto-icon">⇔</span>
-              <span>가로 중앙</span>
-            </button>
-            <button type="button" class="bdg-auto" data-auto="corners" title="순서대로 좌상 · 우상 · 좌하 · 우하 4코너에 배치">
-              <span class="bdg-auto-icon">⊞</span>
-              <span>4코너</span>
-            </button>
+            <button type="button" class="bdg-auto" data-auto="stack-left" title="모든 배지를 좌측 라인에 세로로 균등 배치"><span class="bdg-auto-icon">←</span><span>좌측 나열</span></button>
+            <button type="button" class="bdg-auto" data-auto="vstack-center" title="세로 중앙 라인에 균등 배치"><span class="bdg-auto-icon">⇕</span><span>세로 중앙</span></button>
+            <button type="button" class="bdg-auto" data-auto="stack-right" title="모든 배지를 우측 라인에 세로로 균등 배치"><span class="bdg-auto-icon">→</span><span>우측 나열</span></button>
+            <button type="button" class="bdg-auto" data-auto="stack-top" title="모든 배지를 상단 라인에 가로로 균등 배치"><span class="bdg-auto-icon">↑</span><span>상단 나열</span></button>
+            <button type="button" class="bdg-auto" data-auto="hstack-center" title="가로 중앙 라인에 균등 배치"><span class="bdg-auto-icon">⇔</span><span>가로 중앙</span></button>
+            <button type="button" class="bdg-auto" data-auto="stack-bottom" title="모든 배지를 하단 라인에 가로로 균등 배치"><span class="bdg-auto-icon">↓</span><span>하단 나열</span></button>
+            <button type="button" class="bdg-auto is-full" data-auto="corners" title="순서대로 좌상 · 우상 · 좌하 · 우하 4코너에 배치"><span class="bdg-auto-icon">⊞</span><span>4코너 자동 배치</span></button>
           </div>
         </div>
 
@@ -13775,7 +13780,7 @@
   const _bdgWords=_bdgLoadWords();
   // badges: [{id, wordKey, style, size, corner:'tr'|'tl'|'br'|'bl'|'custom', custom:{xr,yr}|null, _rect:{x,y,w,h}}]
   const _bdg={img:null, name:'image', style:'A', badges:[], selectedId:null};
-  let _bdgBound=false, _bdgRenderT=null, _bdgEditWords=false, _bdgIdSeq=0, _bdgDrag=null, _bdgDragRAF=0;
+  let _bdgBound=false, _bdgRenderT=null, _bdgEditWords=false, _bdgIdSeq=0, _bdgDrag=null, _bdgDragRAF=0, _bdgGroupMove=false;
 
   function _bdgSelected(){ return _bdg.badges.find(x=>x.id===_bdg.selectedId)||null; }
 
@@ -13949,7 +13954,29 @@
       cssW:canvas.clientWidth,
       cssH:canvas.clientHeight,
       moved:false,
+      groupStarts:null,
     };
+
+    // 그룹 이동: 모든 배지를 custom으로 승격하고 시작 위치 + 배지 반크기 스냅샷
+    if(_bdgGroupMove && _bdg.badges.length>1){
+      _bdgDrag.groupStarts=_bdg.badges.map(bb=>{
+        if(bb.corner!=='custom' || !bb.custom){
+          if(bb._rect){
+            bb.corner='custom';
+            bb.custom={
+              xr:(bb._rect.x+bb._rect.w/2)/canvas.width,
+              yr:(bb._rect.y+bb._rect.h/2)/canvas.height,
+            };
+          } else {
+            bb.corner='custom';
+            bb.custom={xr:0.5, yr:0.5};
+          }
+        }
+        const hxr = bb._rect ? (bb._rect.w/2)/canvas.width : 0.05;
+        const hyr = bb._rect ? (bb._rect.h/2)/canvas.height : 0.05;
+        return {id:bb.id, xr:bb.custom.xr, yr:bb.custom.yr, hxr, hyr};
+      });
+    }
 
     try{ div.setPointerCapture(e.pointerId); }catch(_){}
     div.addEventListener('pointermove',_bdgDragMove);
@@ -13978,9 +14005,29 @@
     const dx=e.clientX-_bdgDrag.startX;
     const dy=e.clientY-_bdgDrag.startY;
     if(Math.abs(dx)>1||Math.abs(dy)>1) _bdgDrag.moved=true;
-    b.custom.xr=Math.max(0,Math.min(1,_bdgDrag.startXR+dx/_bdgDrag.cssW));
-    b.custom.yr=Math.max(0,Math.min(1,_bdgDrag.startYR+dy/_bdgDrag.cssH));
-    b.corner='custom';
+    const dxr=dx/_bdgDrag.cssW;
+    const dyr=dy/_bdgDrag.cssH;
+    if(_bdgDrag.groupStarts){
+      // 그룹 clamp: 배지 반크기까지 감안해 어떤 배지도 이미지 밖으로 나가지 않게 offset 축소
+      let eDxr=dxr, eDyr=dyr;
+      _bdgDrag.groupStarts.forEach(gs=>{
+        const minX=gs.hxr-gs.xr, maxX=(1-gs.hxr)-gs.xr;
+        const minY=gs.hyr-gs.yr, maxY=(1-gs.hyr)-gs.yr;
+        if(maxX>=minX){ eDxr=Math.max(minX,Math.min(maxX,eDxr)); }
+        if(maxY>=minY){ eDyr=Math.max(minY,Math.min(maxY,eDyr)); }
+      });
+      _bdgDrag.groupStarts.forEach(gs=>{
+        const bb=_bdg.badges.find(x=>x.id===gs.id);
+        if(!bb||!bb.custom) return;
+        bb.custom.xr=gs.xr+eDxr;
+        bb.custom.yr=gs.yr+eDyr;
+        bb.corner='custom';
+      });
+    } else {
+      b.custom.xr=Math.max(0,Math.min(1,_bdgDrag.startXR+dxr));
+      b.custom.yr=Math.max(0,Math.min(1,_bdgDrag.startYR+dyr));
+      b.corner='custom';
+    }
     if(!_bdgDragRAF){
       _bdgDragRAF=requestAnimationFrame(()=>{
         _bdgDragRAF=0;
@@ -14203,16 +14250,23 @@
   function _bdgAutoLayout(mode){
     if(!_bdg.badges.length) return;
     const n=_bdg.badges.length;
+    // 균등 분포 위치 (i번째 배지, 0~1 사이) — 양 끝에서 살짝 여유
+    const step=(i,pad)=>{
+      if(n===1) return 0.5;
+      return pad + (i*(1-2*pad))/(n-1);
+    };
     if(mode==='vstack-center'){
-      _bdg.badges.forEach((b,i)=>{
-        b.corner='custom';
-        b.custom={xr:0.5, yr:(i+1)/(n+1)};
-      });
+      _bdg.badges.forEach((b,i)=>{ b.corner='custom'; b.custom={xr:0.5, yr:(i+1)/(n+1)}; });
     } else if(mode==='hstack-center'){
-      _bdg.badges.forEach((b,i)=>{
-        b.corner='custom';
-        b.custom={xr:(i+1)/(n+1), yr:0.5};
-      });
+      _bdg.badges.forEach((b,i)=>{ b.corner='custom'; b.custom={xr:(i+1)/(n+1), yr:0.5}; });
+    } else if(mode==='stack-left'){
+      _bdg.badges.forEach((b,i)=>{ b.corner='custom'; b.custom={xr:0.08, yr:step(i,0.08)}; });
+    } else if(mode==='stack-right'){
+      _bdg.badges.forEach((b,i)=>{ b.corner='custom'; b.custom={xr:0.92, yr:step(i,0.08)}; });
+    } else if(mode==='stack-top'){
+      _bdg.badges.forEach((b,i)=>{ b.corner='custom'; b.custom={xr:step(i,0.08), yr:0.08}; });
+    } else if(mode==='stack-bottom'){
+      _bdg.badges.forEach((b,i)=>{ b.corner='custom'; b.custom={xr:step(i,0.08), yr:0.92}; });
     } else if(mode==='corners'){
       const spots=['tl','tr','bl','br'];
       _bdg.badges.forEach((b,i)=>{
@@ -14266,6 +14320,9 @@
       if(!btn||btn.disabled) return;
       _bdgAutoLayout(btn.dataset.auto);
     });
+
+    const groupCheck=document.getElementById('bdgGroupMove');
+    if(groupCheck) groupCheck.addEventListener('change',()=>{ _bdgGroupMove=groupCheck.checked; });
 
     if(drop&&file){
       drop.addEventListener('click',()=>file.click());
