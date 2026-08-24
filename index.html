@@ -10316,14 +10316,14 @@
         return;
       }
       if(j.ok===false){
-        const tail=(j.log_tail||'').split('\n').filter(Boolean).slice(-3).join(' · ') || j.stderr || '알 수 없는 오류';
-        toast(`동기화 실패 (code ${j.returncode ?? '?'}) ${tail}`,'err');
+        const msg=j.message || j.reason || '알 수 없는 오류';
+        toast('동기화 실패: '+msg,'err');
         return;
       }
       await loadArchive();
       const cnt=Number(j.product_count)||0;
-      const changed=(j.log_tail||'').includes('변경 없음') ? ' (변경 없음)' : '';
-      toast(`✓ 동기화 완료 — ${cnt.toLocaleString()}개 상품${changed}`,'ok');
+      const tag=j.changed===false ? ' (변경 없음)' : '';
+      toast(`✓ 동기화 완료 — ${cnt.toLocaleString()}개 상품${tag}`,'ok');
     }catch(e){
       toast('동기화 오류: '+e.message,'err');
     }finally{
