@@ -5139,6 +5139,10 @@
             </select>
             <span id="arUpdated"></span>
             <span id="arCount">0건</span>
+            <button class="kd-refresh-btn master-only" id="arSyncBtn" onclick="syncOrdersFromDropbox()" title="서버 Dropbox 발주서 폴더를 즉시 재파싱해서 카탈로그 갱신 (자동 08:05 외 수동 트리거)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              동기화
+            </button>
             <button class="kd-refresh-btn" id="arResetBtn" onclick="resetAutoOverrides()" style="display:none" title="자동 매칭한 상품명을 원래대로 되돌립니다">
               🤖 자동매칭 초기화 <span id="arAutoCount" style="color:var(--text-3);font-weight:500;margin-left:3px"></span>
             </button>
@@ -10283,6 +10287,54 @@
   window.setArchiveSort=setArchiveSort;
   window.loadMoreArchive=loadMoreArchive;
   window.loadArchive=loadArchive;
+
+  /* ===== 발주 상품 카탈로그 수동 동기화 (서버 Dropbox 재파싱 트리거) =====
+     proxy /orders-parse → ~/.local/bin/brightbeed-orders-parse.sh
+     (git pull → parse_orders.py → orders.json diff 있으면 push).
+     자동 스케줄은 launchd KST 08:05. 물류팀이 발주서 새로 넣고 바로 반영하고 싶을 때 사용. */
+  async function syncOrdersFromDropbox(){
+    if(!requireMaster('발주 상품 동기화')) return;
+    const btn=document.getElementById('arSyncBtn');
+    let origHTML=null;
+    if(btn){
+      origHTML=btn.innerHTML;
+      btn.disabled=true;
+      btn.innerHTML='<span style="display:inline-block;animation:spin 1s linear infinite">⟳</span> 동기화 중…';
+    }
+    try{
+      const base=await loadProxyBase();
+      if(!base) throw new Error('서버 프록시를 찾을 수 없습니다 (tunnel.json)');
+      const r=await fetch(base+'/orders-parse',{
+        method:'POST',
+        headers:{'X-Brightbeed-PIN':PIN_MASTER,'Accept':'application/json'},
+      });
+      let j={};
+      try{ j=await r.json(); }catch{}
+      if(!r.ok){
+        const detail=j.error||`HTTP ${r.status}`;
+        toast('동기화 실패: '+detail,'err');
+        return;
+      }
+      if(j.ok===false){
+        const tail=(j.log_tail||'').split('\n').filter(Boolean).slice(-3).join(' · ') || j.stderr || '알 수 없는 오류';
+        toast(`동기화 실패 (code ${j.returncode ?? '?'}) ${tail}`,'err');
+        return;
+      }
+      await loadArchive();
+      const cnt=Number(j.product_count)||0;
+      const changed=(j.log_tail||'').includes('변경 없음') ? ' (변경 없음)' : '';
+      toast(`✓ 동기화 완료 — ${cnt.toLocaleString()}개 상품${changed}`,'ok');
+    }catch(e){
+      toast('동기화 오류: '+e.message,'err');
+    }finally{
+      if(btn){
+        btn.disabled=false;
+        if(origHTML!=null) btn.innerHTML=origHTML;
+      }
+    }
+  }
+  window.syncOrdersFromDropbox=syncOrdersFromDropbox;
+
   loadArchive();
 
   // 물류팀 뷰 탭 전환 (최근 발주 내역 ↔ 발주서 리스트)
