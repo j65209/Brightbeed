@@ -6339,15 +6339,18 @@
     const pctTxt = pct===null?'전일 비교 불가':`전일 대비 ${pct>0?'+':''}${pct}%`;
     const urgent=(d.counts&&d.counts.urgent)||0;
 
+    const isPro=d.platform==='pro';
+    const revLbl=isPro?'어제 공홈 매출':'어제 매출';
+    const ordLbl=isPro?'어제 공홈 주문':'어제 주문';
     const kpis=`
       <div class="brep-kpis">
         <div class="brep-kpi">
-          <div class="brep-kpi-label">어제 매출</div>
+          <div class="brep-kpi-label">${revLbl}</div>
           <div class="brep-kpi-val">${_brepWon(rev)}</div>
           <div class="brep-kpi-delta ${pctCls}">${pctTxt}</div>
         </div>
         <div class="brep-kpi">
-          <div class="brep-kpi-label">어제 주문</div>
+          <div class="brep-kpi-label">${ordLbl}</div>
           <div class="brep-kpi-val">${(Number(sy.orders)||0).toLocaleString()}<small>건</small></div>
           <div class="brep-kpi-delta flat">그저께 ${(Number(sd.orders)||0).toLocaleString()}건</div>
         </div>
