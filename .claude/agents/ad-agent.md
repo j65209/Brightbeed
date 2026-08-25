@@ -63,7 +63,8 @@ bash ~/projects/fb-ads/refresh_dashboard.sh last_30d ct    # 기본 지난 30일
 
 **KPI 카드 추가·제거·순서 변경**:
 - `~/projects/Brightbeed/meta-ads/report.html` 안 `.kpi-grid.hero` (오늘/어제 · 핵심지표) / `.kpi-grid` (보조지표) 블록 편집
-- 세 개 그룹으로 나눔: (1) 실시간 지출 (오늘·어제) → (2) 핵심 지표 (ROAS·CPA·지출) → (3) 보조 지표 (CTR·CPC·CPM·노출)
+- 세 개 그룹으로 나눔: (1) 실시간 지출 (오늘·어제) → (2) 핵심 지표 (ROAS·CPA·지출·매출) → (3) 보조 지표
+- 보조지표 8개 (2026-08-25): CTR·CPC·CPM·빈도수(Frequency)·클릭→구매·ATC→구매·도달·AOV
 - 새 필드는 `build_dashboard_report.py` `summary` 또는 `enrich_row`에도 계산 로직 추가
 
 **모두 USD 표시**:
@@ -76,15 +77,35 @@ bash ~/projects/fb-ads/refresh_dashboard.sh last_30d ct    # 기본 지난 30일
 - UI 는 `currentPeriod` 상태로 스위치, 각 기간의 요약 (지출·매출·ROAS·구매) 이 정보 바에 표시
 - `default_preset` 은 CLI 첫 인자 (예: `refresh_dashboard.sh last_30d ct` → 초기 탭 = 지난 30일)
 
-**퍼포먼스 마케터 심층 피드백** (2026-08-18):
+**퍼포먼스 마케터 심층 피드백** (2026-08-18, 2026-08-25 대개편):
 - `build_feedback` 이 12개 인사이트 진단: ROAS 등급, CTR/CPC/CPM 벤치마크, 클릭→구매 전환, ATC→구매, AOV, 집중도, 구매 0건, Frequency 피로도, FB 픽셀 vs MD 매출 gap, 오늘 vs 어제 페이스
 - 액션 아이템도 구체적 수치: `예산 +30% ($199 → $259, 하루 +$60) — 매출 +$319 예상 (ROAS 유지 가정)`
 - 임계값은 함수 상수로 정리: `_grade_ctr / _grade_cpc / _grade_cpm` — 벤치마크 조정 시 이 함수만 편집
 - 커머스 기준 CPC 벤치마크 사용 ($0.3/0.7/1.5 구간)
+- 타겟팅 분석 카드 (`build_feedback` → `targeting_insights`): 룩얼라이크·CA·관심사 진단, 타겟 다양성 체크
+
+**소재(광고)별 verdict 배지 + 3-라인 액션플랜** (2026-08-25):
+- `_ad_verdict(ins, camp_spend)` 함수가 소재 단위 판정 (build_dashboard_report.py)
+- 배지 5종: 즉시OFF(🔴) / 증액후보(🟠) / 리프레시(🔵) / 유지(🟢) / 학습중(📘)
+- 판정 로직: ROAS < 1.0 + 지출 임계 → OFF / ROAS >= 목표 + 빈도 < 2.5 → 증액 / 빈도 >= 3.0 + CTR < 1.5% → 리프레시
+- 각 verdict 에 오늘/내일/7일 3-라인 액션플랜 자동 생성 (`action_today`, `action_tomorrow`, `action_7d`)
+- 소재 KPI pill 에도 빈도수(Frequency) 추가 + 컬러 경보
+
+**캠페인 accordion 심층 진단** (2026-08-25):
+- 진단 포인트 5개까지 노출 (ROAS·CTR·랜딩전환·오디언스미스매치·빈도피로·CPM·구매0건)
+- 오늘/내일/7일 액션플랜 블록 자동 생성 (등급별로 다른 문구)
+- 타겟팅 정보 블록: 연령/성별/국가/타겟팅방식/유사타겟/CA/관심사/플랫폼
+- 캠페인 목표(`campaign_objective`) 표기
+
+**타겟팅 정보 수집** (2026-08-25):
+- `insights.py` 가 `fetch_adsets_meta()` 로 adset 단위 targeting 서브필드 pull (age/gender/geo/interests/CA/lookalike/platforms)
+- `build_dashboard_report.py` `parse_targeting()` 이 사람 읽기 쉬운 dict 로 변환
+- `campaigns[i].targeting_summary` / `campaigns[i].adsets[]` 에 저장
+- 기존 JSON 파일은 adsets_meta 없음 → 다음 `refresh_dashboard.sh` 실행 시부터 자동 반영
 
 **보조 지표 한글 설명** (2026-08-18):
-- CTR / CPC / CPM / 노출 각 라벨 옆에 `.label-ko` 로 작은 회색 설명 표기 (사장님이 매번 지표명 해석 안 해도 되게)
-- 편집: `report.html` `.kpi` 카드 렌더링 부분
+- 각 카드 라벨 옆에 `.label-ko` 로 작은 회색 설명 표기 (사장님이 지표명 해석 안 해도 되게)
+- 편집: `report.html` `renderKpiCards` 함수 내 subEl 블록
 
 **MD 실 매출 연동** (2026-08-18):
 - `build_dashboard_report.py` `load_md_sales()` 가 `~/server/brightbeed-proxy/out/{pro_ct_sales.json | admin_6a_sales.json | ...}` 캐시 로드
