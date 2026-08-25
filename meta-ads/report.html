@@ -265,6 +265,28 @@
   }
   .ad-meta { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--muted) }
 
+  /* 소재 verdict 배지 + 액션플랜 */
+  .ad-verdict-block {
+    margin-top:8px; padding:8px 10px;
+    background:var(--bg); border:1px solid var(--border); border-radius:6px;
+  }
+  .ad-verdict-badge {
+    display:inline-block; padding:2px 8px; border-radius:4px;
+    font-size:11px; font-weight:800; white-space:nowrap; flex-shrink:0;
+  }
+  .ad-action-plan {
+    display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--muted); line-height:1.5;
+    margin-top:5px; padding-top:5px; border-top:1px dashed rgba(38,49,74,.6);
+  }
+  .ad-action-plan div { display:flex; gap:6px; align-items:flex-start }
+  .ap-label {
+    display:inline-block; font-size:10px; font-weight:700; padding:0 5px; border-radius:3px;
+    white-space:nowrap; margin-top:1px; flex-shrink:0;
+  }
+  .ap-today    { background:rgba(245,158,11,.2); color:var(--warn) }
+  .ap-tomorrow { background:rgba(34,211,238,.15); color:var(--info) }
+  .ap-7d       { background:rgba(139,145,158,.15); color:var(--muted) }
+
   /* 광고 효율 지표 (ad-level insights) */
   .ad-kpi-row {
     display:flex; flex-wrap:wrap; gap:6px; margin-top:3px;
@@ -468,8 +490,8 @@
     return base + (r.spend || 0) / 10000;
   }
 
-  // ── 캠페인별 인라인 피드백 블록 HTML 생성 (7일 기준)
-  function buildCampFeedbackHtml(r, todayCamp, yesterdayCamp) {
+  // ── 캠페인별 인라인 피드백 블록 HTML 생성 (퍼포먼스 마케터 심층 진단)
+  function buildCampFeedbackHtml(r, todayCamp, yesterdayCamp, budgetSummary) {
     const roas = r.roas || 0;
     const ctr = r.ctr || 0;
     const cpc = r.cpc || 0;
@@ -479,48 +501,62 @@
     const spend = r.spend || 0;
     const ctpPct = r.click_to_purchase_pct || 0;
     const grade = r.grade || 'learning';
+    const objective = r.campaign_objective || '';
+    const targeting = r.targeting_summary || {};
 
-    // ── 진단 포인트 (최대 3개, 임팩트 있는 것만)
+    // ── 진단 포인트 — 최대 5개, 임팩트 순
     const points = [];
 
-    // 1. ROAS 상태
+    // 1. ROAS 상태 (핵심)
     if (grade === 'critical') {
-      points.push({ icon:'🔴', text:`ROAS <b>${roas}</b> — 손실 구간. 크리에이티브·오디언스 즉시 교체 or 일시중지.` });
+      const loss = Math.max(0, spend - (r.purchase_value||0));
+      points.push({ icon:'🔴', text:`ROAS <b>${fmt.dec(roas)}</b> — 손실 $${loss.toFixed(0)} 진행 중. 크리에이티브·오디언스 즉시 교체 or 일시중지.` });
     } else if (grade === 'poor') {
       const gap = (2.0 - roas).toFixed(2);
-      points.push({ icon:'🟠', text:`ROAS <b>${roas}</b> — 목표 2.0까지 ${gap} 부족. 아래 병목 해결이 우선.` });
+      const needed = Math.max(0, spend * 2.0 - (r.purchase_value||0));
+      points.push({ icon:'🟠', text:`ROAS <b>${fmt.dec(roas)}</b> — 목표 2.0까지 ${gap} 부족. 매출 $${needed.toFixed(0)} 추가 필요. 병목 즉시 해결.` });
     } else if (grade === 'average') {
-      points.push({ icon:'🟡', text:`ROAS <b>${roas}</b> — 목표 근접. 한두 가지 개선으로 달성 가능.` });
+      points.push({ icon:'🟡', text:`ROAS <b>${fmt.dec(roas)}</b> — 목표 근접 (${r.target_pct||0}%). 한두 가지 개선으로 달성 가능.` });
     } else if (grade === 'excellent' || grade === 'good') {
-      points.push({ icon:'✅', text:`ROAS <b>${roas}</b> — 목표 달성. 예산 확대 최적 구간.` });
+      const proj = (spend * 0.3 * roas).toFixed(0);
+      points.push({ icon:'✅', text:`ROAS <b>${fmt.dec(roas)}</b> — 목표 달성 (${r.target_pct||0}%). 예산 +30% 시 매출 +$${proj} 예상.` });
     }
 
-    // 2. CTR 문제 (1% 미만 = 크리에이티브 이슈)
+    // 2. CTR 병목
     if (ctr < 1.0 && (r.impressions || 0) > 5000) {
-      points.push({ icon:'🎨', text:`CTR <b>${ctr}%</b> — 낮음 (기준 1%+). 썸네일·첫 3초 hook·카피 교체 필요.` });
+      points.push({ icon:'🎨', text:`<b>크리에이티브 병목</b> — CTR <b>${fmt.pct(ctr)}</b> (기준 2%+). 첫 3초 hook·썸네일·카피 전면 개편. 3-5안 A/B 필수.` });
     } else if (ctr < 1.5 && (r.impressions || 0) > 10000 && ['average','poor','critical'].includes(grade)) {
-      points.push({ icon:'🎨', text:`CTR <b>${ctr}%</b> — 개선 여지. 상위 크리에이티브 스타일 벤치마크.` });
+      points.push({ icon:'🎨', text:`CTR <b>${fmt.pct(ctr)}</b> — 개선 여지. 상위 크리에이티브 스타일 벤치마크 후 이식.` });
     }
 
-    // 3. 전환율 (클릭은 오는데 안 사는 경우)
+    // 3. 랜딩 전환율 병목
     if (ctr >= 1.5 && (r.clicks || 0) > 100 && ctpPct < 1.0) {
-      points.push({ icon:'🛒', text:`전환율 <b>${ctpPct}%</b> — 클릭은 오지만 구매 없음. 랜딩·상세페이지 UX·가격·리뷰 점검.` });
+      points.push({ icon:'🛒', text:`<b>랜딩 병목</b> — CTR ${fmt.pct(ctr)} 양호하나 클릭→구매 전환율 <b>${fmt.pct(ctpPct)}</b>. 상세페이지 로딩속도·UX·가격·리뷰·결제 friction 점검.` });
     }
 
-    // 4. Frequency 피로 (3.5 초과)
+    // 4. CPC + CTR 동시 이슈 = 오디언스 미스매치
+    if (cpc >= 0.7 && ctr < 1.2 && (r.impressions || 0) > 5000) {
+      points.push({ icon:'🎯', text:`<b>오디언스 미스매치</b> — CPC ${fmt.money(cpc)} 높음 + CTR ${fmt.pct(ctr)} 낮음. 현 오디언스와 광고 메시지 불일치. 룩얼라이크 재구성 or 관심사 신규 세그먼트 테스트.` });
+    }
+
+    // 5. Frequency 피로
     if (freq >= 3.5) {
-      points.push({ icon:'🔁', text:`Frequency <b>${freq}</b> — 오디언스 피로. 크리에이티브 교체 or 룩얼라이크 확장 시급.` });
+      points.push({ icon:'🔁', text:`<b>노출 피로</b> — Frequency <b>${fmt.dec(freq,2)}</b> (기준 3.5+). 동일 오디언스 반복 노출로 CPA 상승 시작. 소재 교체 or 오디언스 확장 시급.` });
     } else if (freq >= 2.8 && ['poor','critical'].includes(grade)) {
-      points.push({ icon:'🔁', text:`Frequency <b>${freq}</b> — 피로 임박. 곧 CPA 상승 구간. 새 소재 준비.` });
+      points.push({ icon:'🔁', text:`Frequency <b>${fmt.dec(freq,2)}</b> — 피로 임박. 곧 CPA 상승 구간 진입. 신규 소재 미리 준비.` });
     }
 
-    // 5. 구매 0건
+    // 6. 구매 0건
     if (purchases === 0 && spend >= 20) {
-      points.push({ icon:'⏸', text:`구매 <b>0건</b> (지출 ${fmt.money(spend)}) — 픽셀 이벤트·랜딩 즉시 점검.` });
+      points.push({ icon:'⏸', text:`구매 <b>0건</b> (지출 ${fmt.money(spend)}) — FB 픽셀 이벤트 발화 확인 후 랜딩·오디언스 점검.` });
     }
 
-    // 포인트 최대 3개만
-    const shownPoints = points.slice(0, 3);
+    // 7. CPM 높음 + 성과 저조
+    if (cpm >= 15 && ['poor','critical'].includes(grade)) {
+      points.push({ icon:'📢', text:`CPM ${fmt.money(cpm)} — 높음. 오디언스 경쟁 심함. 브로드 오디언스·틈새 시간대 실험으로 CPM 인하 검토.` });
+    }
+
+    const shownPoints = points.slice(0, 5);
 
     // ── 오늘 vs 어제 방향성
     let dirHtml = '';
@@ -528,26 +564,29 @@
     const yRoas = yesterdayCamp ? (yesterdayCamp.roas || 0) : null;
     const tSpend = todayCamp ? (todayCamp.spend || 0) : 0;
     const ySpend = yesterdayCamp ? (yesterdayCamp.spend || 0) : 0;
+    const tPurch = todayCamp ? (todayCamp.purchases || 0) : 0;
+    const yPurch = yesterdayCamp ? (yesterdayCamp.purchases || 0) : 0;
 
     if (tRoas !== null && yRoas !== null) {
       let dirClass, dirVerdict, dirDetail;
       const diff = tRoas - yRoas;
+      const spendDiff = ySpend > 0 ? ((tSpend/ySpend - 1)*100).toFixed(0) : null;
       if (diff > 0.3) {
         dirClass = 'up';
         dirVerdict = `오늘이 더 좋다 — ROAS ${fmt.dec(tRoas)} vs 어제 ${fmt.dec(yRoas)} (+${fmt.dec(diff)})`;
-        dirDetail = `지출 오늘 ${fmt.money(tSpend)} / 어제 ${fmt.money(ySpend)}`;
+        dirDetail = `지출 ${fmt.money(tSpend)} (어제 ${fmt.money(ySpend)}) · 구매 ${tPurch}건`;
       } else if (diff < -0.3) {
         dirClass = 'down';
-        dirVerdict = `어제보다 나빠졌다 — ROAS ${fmt.dec(tRoas)} vs 어제 ${fmt.dec(yRoas)} (${fmt.dec(diff)})`;
-        dirDetail = `오늘 페이스 모니터링 필요`;
+        dirVerdict = `어제보다 나빠짐 — ROAS ${fmt.dec(tRoas)} vs 어제 ${fmt.dec(yRoas)} (${fmt.dec(diff)})`;
+        dirDetail = `오늘 페이스 모니터링 필요 · 지출 ${fmt.money(tSpend)}`;
       } else if (tSpend < 10) {
         dirClass = 'flat';
-        dirVerdict = `오늘 아직 초반 — 지출 ${fmt.money(tSpend)}. 경과 지켜보자.`;
-        dirDetail = `어제 ROAS ${fmt.dec(yRoas)}`;
+        dirVerdict = `오늘 아직 초반 — 지출 ${fmt.money(tSpend)}. 경과 지켜보자`;
+        dirDetail = `어제 ROAS ${fmt.dec(yRoas)} · 구매 ${yPurch}건`;
       } else {
         dirClass = 'flat';
         dirVerdict = `어제와 비슷한 흐름 — ROAS ${fmt.dec(tRoas)} vs 어제 ${fmt.dec(yRoas)}`;
-        dirDetail = `안정권, 유지하며 지켜보자`;
+        dirDetail = spendDiff ? `지출 ${spendDiff > 0 ? '+' : ''}${spendDiff}% 변화` : '안정권';
       }
       dirHtml = `<div class="direction-block">
         <span class="dir-label">오늘 vs 어제</span>
@@ -561,11 +600,81 @@
       </div>`;
     }
 
-    // ── 7일 진단 타이틀 색상
+    // ── 3-라인 액션플랜 (캠페인 단위)
+    let actionPlanHtml = '';
+    const advices = r.advice || [];
+    if (advices.length) {
+      // 오늘/내일/7일 플랜 자동 생성
+      let actionToday = '', actionTomorrow = '', action7d = '';
+      if (grade === 'critical') {
+        const loss = Math.max(0, spend - (r.purchase_value||0));
+        actionToday = `즉시 일시중지 검토 (현재 손실 $${loss.toFixed(0)}) — 우수 캠페인에 예산 재배분`;
+        actionTomorrow = `크리에이티브 3안 이상 새로 제작 후 소규모 테스트 ($10/일부터 시작)`;
+        action7d = `7일 신규 소재·오디언스 A/B 결과 리뷰 → ROAS 2.0+ 달성 시에만 재확대`;
+      } else if (grade === 'poor') {
+        const needed = Math.max(0, spend * 2.0 - (r.purchase_value||0));
+        actionToday = `CTR·전환율 병목 1순위 수정 (매출 $${needed.toFixed(0)} 추가 필요)`;
+        actionTomorrow = `크리에이티브 교체 or 랜딩 A/B 테스트 결과 확인 후 조정`;
+        action7d = `1주 데드라인 — ROAS 1.5 미달 시 예산 50% 삭감 + 신규 캠페인 구조로 재출발`;
+      } else if (grade === 'average') {
+        actionToday = `CTR ${fmt.pct(ctr)} → 2%+ 목표 크리에이티브 1-2안 즉시 테스트 투입`;
+        actionTomorrow = `테스트 소재 성과 확인 (24시간) — 우위 소재 예산 집중`;
+        action7d = `7일 ROAS 2.0 달성 시 예산 +20% 확대, 미달 시 오디언스 재정의`;
+      } else if (grade === 'excellent') {
+        const proj = (spend * 0.3 * roas).toFixed(0);
+        actionToday = `예산 +30% 즉시 집행 (예상 추가 매출 +$${proj}) — 3일 CPA 모니터링`;
+        actionTomorrow = `CPA 변화 24시간 추적 — 유지 시 추가 +20% 검토`;
+        action7d = `룩얼라이크 1% → 3% 오디언스 확장 + 이 크리에이티브를 다른 캠페인에 이식`;
+      } else if (grade === 'good') {
+        actionToday = `예산 +15-20% 소폭 확대 — Frequency ${fmt.dec(freq,2)} 모니터링 병행`;
+        actionTomorrow = `Frequency 2.5 접근 전 신규 소재 준비 시작`;
+        action7d = `7일 트렌드 안정 확인 후 브로드 오디언스 확장 실험`;
+      } else {
+        actionToday = `현행 유지 — 최소 5-7일 데이터 축적 대기`;
+        actionTomorrow = `내일 노출 3,000+ 넘으면 CTR·ROAS 첫 판단`;
+        action7d = `7일 후 데이터 충분하면 등급 재평가 후 스케일 결정`;
+      }
+      actionPlanHtml = `<div class="camp-fb-block" style="grid-column:1/-1;margin-top:10px">
+        <div class="fb-block-title">📅 액션 플랜</div>
+        <div style="display:grid;grid-template-columns:56px 1fr;gap:6px 10px;font-size:12px;line-height:1.5;margin-top:4px">
+          <span style="color:var(--warn);font-weight:700;white-space:nowrap">오늘</span><span>${escapeHtml(actionToday)}</span>
+          <span style="color:var(--info);font-weight:700;white-space:nowrap">내일</span><span>${escapeHtml(actionTomorrow)}</span>
+          <span style="color:var(--muted);font-weight:700;white-space:nowrap">7일</span><span>${escapeHtml(action7d)}</span>
+        </div>
+      </div>`;
+    }
+
+    // ── 타겟팅 정보 블록
+    let targetingHtml = '';
+    if (targeting && Object.keys(targeting).length > 0) {
+      const parts = [];
+      if (targeting.age) parts.push(`<span style="color:var(--text)">연령</span> ${escapeHtml(targeting.age)}`);
+      if (targeting.gender) parts.push(`<span style="color:var(--text)">성별</span> ${escapeHtml(targeting.gender)}`);
+      if (targeting.countries && targeting.countries.length) parts.push(`<span style="color:var(--text)">국가</span> ${targeting.countries.map(escapeHtml).join(', ')}`);
+      if (targeting.targeting_method) parts.push(`<span style="color:var(--text)">방식</span> <b>${escapeHtml(targeting.targeting_method)}</b>`);
+      if (targeting.lookalike && targeting.lookalike.length) parts.push(`<span style="color:var(--text)">유사타겟</span> ${targeting.lookalike.map(escapeHtml).join(' / ')}`);
+      if (targeting.custom_audiences && targeting.custom_audiences.length) parts.push(`<span style="color:var(--text)">CA</span> ${targeting.custom_audiences.map(escapeHtml).join(', ')}`);
+      if (targeting.interests && targeting.interests.length) parts.push(`<span style="color:var(--text)">관심사</span> ${targeting.interests.slice(0,5).map(escapeHtml).join(' · ')}`);
+      if (targeting.platforms && targeting.platforms.length) parts.push(`<span style="color:var(--text)">플랫폼</span> ${targeting.platforms.map(escapeHtml).join(', ')}`);
+
+      if (parts.length) {
+        targetingHtml = `<div class="camp-fb-block" style="grid-column:1/-1;margin-top:10px">
+          <div class="fb-block-title">🎯 타겟팅 정보</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.6">
+            ${parts.map(p => `<span>${p}</span>`).join('')}
+          </div>
+          ${objective ? `<div style="margin-top:6px;font-size:11px;color:var(--muted)">캠페인 목표: <b style="color:var(--text)">${escapeHtml(objective)}</b></div>` : ''}
+        </div>`;
+      }
+    } else if (objective) {
+      targetingHtml = `<div style="margin-top:8px;font-size:11.5px;color:var(--muted)">캠페인 목표: <b style="color:var(--text)">${escapeHtml(objective)}</b> · 타겟팅 정보는 다음 갱신 시 자동 추가됩니다.</div>`;
+    }
+
+    // ── 7일 진단 블록
     const verdictCls = grade === 'critical' ? 'err' : grade === 'poor' ? 'err' : grade === 'average' ? 'warn' : grade === 'learning' ? 'muted' : 'ok';
 
     const sevenDayBlock = `<div class="camp-fb-block" style="grid-column:1/-1">
-      <div class="fb-block-title">📊 7일 진단</div>
+      <div class="fb-block-title">📊 진단 (기간 기준)</div>
       <div class="verdict ${verdictCls}">${escapeHtml(r.headline || '')}</div>
       ${shownPoints.length ? `<ul class="camp-fb-points">${shownPoints.map(p =>
         `<li><span class="pt-icon">${p.icon}</span><span>${p.text}</span></li>`
@@ -577,6 +686,8 @@
     return `<div class="camp-feedback">
       ${dirSection}
       ${sevenDayBlock}
+      ${actionPlanHtml}
+      ${targetingHtml}
     </div>`;
   }
 
@@ -726,11 +837,12 @@
           <th class="name-col" data-key="name">캠페인 <span class="arrow">↕</span></th>
           <th data-key="severity" class="sort-desc">우선순위 <span class="arrow">▼</span></th>
           <th data-key="roas">ROAS <span class="arrow">↕</span></th>
-          <th data-key="cpa">구매당 가격 <span class="arrow">↕</span></th>
+          <th data-key="cpa">CPA <span class="arrow">↕</span></th>
           <th data-key="spend">지출 <span class="arrow">↕</span></th>
           <th data-key="purchase_value">매출 <span class="arrow">↕</span></th>
           <th data-key="purchases">구매 <span class="arrow">↕</span></th>
           <th data-key="ctr">CTR <span class="arrow">↕</span></th>
+          <th data-key="frequency">빈도수 <span class="arrow">↕</span></th>
           <th data-key="cpc">CPC <span class="arrow">↕</span></th>
           <th data-key="impressions">노출 <span class="arrow">↕</span></th>
         </tr></thead>
@@ -746,6 +858,7 @@
         ${(x.advice && x.advice.length) ? `<ul class="advice-list">${x.advice.slice(0,3).map(a=>`<li>${a}</li>`).join('')}</ul>` : ''}
       </div>`;
 
+    const targetingInsights = (fb.targeting_insights || []);
     html.push(`<section style="margin-top:24px">
       <h2>💡 종합 피드백 & 액션</h2>
       <div class="feedback-grid" style="margin-bottom:14px">
@@ -756,6 +869,9 @@
           ${(fb.insights && fb.insights.length) ? fb.insights.map(i=>`<div class="fb-item insight">${i}</div>`).join('') : '<div class="fb-empty">인사이트 없음</div>'}
         </div>
       </div>
+      ${targetingInsights.length ? `<div class="fb-card" style="margin-bottom:14px;border-color:rgba(79,124,255,.35)"><h3 style="color:var(--accent)">🎯 타겟팅 분석</h3>
+        ${targetingInsights.map(i=>`<div class="fb-item insight">${i}</div>`).join('')}
+      </div>` : ''}
       <h2>🎯 캠페인 최적화 제안 <span class="count">· 목표 ROAS ${targetRoas.toFixed(1)}</span></h2>
       <div class="feedback-grid-3">
         <div class="fb-card ok"><h3>🚀 예산 확대 (목표 달성)</h3>
@@ -965,24 +1081,58 @@
         </div>
       </div>`;
 
+    // ── 보조 지표 (퍼마 실무자 즉시 파악용 — frequency 포함)
+    const freq = s.frequency || 0;
+    const freqCls = freq >= 3.5 ? 'err' : freq >= 2.5 ? 'warn' : 'ok';
+    const ctrCls2 = s.ctr >= 2 ? 'ok' : s.ctr >= 1 ? 'warn' : 'err';
+    const cpcCls2 = s.cpc <= 0.3 ? 'ok' : s.cpc <= 0.7 ? '' : s.cpc <= 1.5 ? 'warn' : 'err';
+    const cpmCls2 = s.cpm < 5 ? 'ok' : s.cpm < 15 ? '' : 'warn';
+    const ctpPct = s.click_to_purchase_pct || 0;
+    const ctpCls = ctpPct >= 1.5 ? 'ok' : ctpPct >= 0.5 ? 'warn' : 'err';
+    const atcPct = s.atc_to_purchase_pct || 0;
+    const atcCls = atcPct >= 40 ? 'ok' : atcPct >= 20 ? 'warn' : 'err';
+
     const subEl = el('subKpiCards');
     if (subEl) subEl.innerHTML = `<div class="kpi-grid">
-      <div class="kpi">
+      <div class="kpi ${ctrCls2}">
         <div class="label">CTR <span class="label-ko">클릭률</span></div>
         <div class="value">${fmt.pct(s.ctr)}</div>
-        <div class="sub">${fmt.int(s.clicks)} 클릭 / ${fmt.int(s.impressions)} 노출</div>
+        <div class="sub">${fmt.int(s.clicks)} 클릭 · 기준 2%+</div>
       </div>
-      <div class="kpi">
+      <div class="kpi ${cpcCls2}">
         <div class="label">CPC <span class="label-ko">클릭당 비용</span></div>
         <div class="value">${fmt.money(s.cpc)}</div>
+        <div class="sub">기준 $0.70 이하</div>
       </div>
-      <div class="kpi">
+      <div class="kpi ${cpmCls2}">
         <div class="label">CPM <span class="label-ko">1,000노출당 비용</span></div>
         <div class="value">${fmt.money(s.cpm)}</div>
+        <div class="sub">${fmt.int(s.impressions)} 노출</div>
+      </div>
+      <div class="kpi ${freqCls}">
+        <div class="label">빈도수 <span class="label-ko">Frequency · 동일인 반복 노출</span></div>
+        <div class="value">${fmt.dec(freq, 2)}</div>
+        <div class="sub">${freq >= 3.5 ? '🔴 피로 구간 — 소재 교체 시급' : freq >= 2.5 ? '🟠 피로 임박 — 신규 소재 준비' : '🟢 여유 구간'}</div>
+      </div>
+      <div class="kpi ${ctpCls}">
+        <div class="label">클릭→구매 <span class="label-ko">랜딩 전환율</span></div>
+        <div class="value">${fmt.pct(ctpPct)}</div>
+        <div class="sub">${fmt.int(s.purchases)}건 구매 · 기준 1.5%+</div>
+      </div>
+      <div class="kpi ${atcCls}">
+        <div class="label">장바구니→구매 <span class="label-ko">ATC 전환율</span></div>
+        <div class="value">${s.add_to_cart > 0 ? fmt.pct(atcPct) : '—'}</div>
+        <div class="sub">${fmt.int(s.add_to_cart)} ATC · 기준 40%+</div>
       </div>
       <div class="kpi">
-        <div class="label">노출</div>
-        <div class="value">${fmt.int(s.impressions)}</div>
+        <div class="label">도달 <span class="label-ko">순 도달 인원</span></div>
+        <div class="value">${fmt.int(s.reach || 0)}</div>
+        <div class="sub">${fmt.int(s.impressions)} 노출</div>
+      </div>
+      <div class="kpi">
+        <div class="label">AOV <span class="label-ko">평균 구매금액</span></div>
+        <div class="value">${s.purchases > 0 ? fmt.money(s.aov || 0) : '—'}</div>
+        <div class="sub">${fmt.int(s.purchases)}건 기준</div>
       </div>
     </div>`;
   }
@@ -1067,7 +1217,7 @@
       const sevCls = r.grade === 'critical' ? 'sev5' : r.grade === 'poor' ? 'sev4' : r.grade === 'average' ? 'sev3' : r.grade === 'good' ? 'sev2' : 'sev1';
 
       // 캠페인별 피드백 블록 (accordion 안)
-      const feedbackHtml = buildCampFeedbackHtml(r, todayMap[r.name] || null, yesterdayMap[r.name] || null);
+      const feedbackHtml = buildCampFeedbackHtml(r, todayMap[r.name] || null, yesterdayMap[r.name] || null, data.budget_summary || {});
 
       const hasContent = activeAds.length > 0 || true; // 항상 accordion 허용 (피드백 있으므로)
       const toggleCls = 'expand-toggle';
@@ -1088,10 +1238,11 @@
         <td class="num">${fmt.money(r.purchase_value)}</td>
         <td class="num">${fmt.int(r.purchases)}</td>
         <td class="num">${fmt.pct(r.ctr)}</td>
+        <td class="num" style="color:${(r.frequency||0)>=3.5?'var(--err)':(r.frequency||0)>=2.5?'var(--warn)':'inherit'}">${fmt.dec(r.frequency||0,2)}</td>
         <td class="num">${fmt.money(r.cpc)}</td>
         <td class="num">${fmt.int(r.impressions)}</td>
       </tr>
-      <tr class="camp-expand-row" data-expand-idx="${idx}"><td colspan="10">
+      <tr class="camp-expand-row" data-expand-idx="${idx}"><td colspan="11">
         <div class="camp-expand-inner" data-inner-idx="${idx}">
           ${feedbackHtml}
           <div class="ads-section" data-camp-idx="${idx}">
@@ -1110,7 +1261,7 @@
           </div>
         </div>
       </td></tr>
-    `; }).join('') || '<tr><td colspan="10" class="center" style="padding:32px;color:var(--muted)">표시할 캠페인이 없습니다.</td></tr>';
+    `; }).join('') || '<tr><td colspan="11" class="center" style="padding:32px;color:var(--muted)">표시할 캠페인이 없습니다.</td></tr>';
 
     attachHoverTips(rows);
     attachExpanders();
@@ -1126,19 +1277,21 @@
            onerror="this.outerHTML='<div class=\\'ad-thumb-placeholder\\'>이미지<br>없음</div>'">`
       : `<div class="ad-thumb-placeholder">썸네일<br>없음</div>`;
 
-    // 효율 지표 (ad-level insights가 있을 때만)
+    // ── 효율 지표 (ad-level insights가 있을 때만)
     let kpiHtml = '';
     const ins = ad.insights;
     if (ins) {
       const roasCls = ins.roas >= 2 ? 'ok' : ins.roas >= 1 ? 'warn' : 'err';
       const ctrCls  = ins.ctr  >= 2 ? 'ok' : ins.ctr  >= 1 ? 'warn' : 'err';
       const cpcCls  = ins.cpc <= 0.3 ? 'ok' : ins.cpc <= 0.7 ? '' : ins.cpc <= 1.5 ? 'warn' : 'err';
+      const freqCls2 = (ins.frequency||0) >= 3.5 ? 'err' : (ins.frequency||0) >= 2.5 ? 'warn' : 'ok';
       const pills = [
         { label:'지출',   val: ins.spend > 0 ? fmt.money(ins.spend) : '—',      cls:'' },
         { label:'매출',   val: ins.purchase_value > 0 ? fmt.money(ins.purchase_value) : '—', cls:'' },
         { label:'구매',   val: ins.purchases > 0 ? fmt.int(ins.purchases)+'건' : '0건', cls: ins.purchases > 0 ? 'ok' : 'err' },
         { label:'ROAS',   val: ins.spend > 0 ? fmt.dec(ins.roas) : '—',          cls: ins.spend > 0 ? roasCls : '' },
         { label:'CTR',    val: ins.impressions > 0 ? fmt.pct(ins.ctr) : '—',     cls: ins.impressions > 0 ? ctrCls : '' },
+        { label:'빈도',   val: ins.impressions > 0 ? fmt.dec(ins.frequency||0,2) : '—', cls: ins.impressions > 0 ? freqCls2 : '' },
         { label:'CPC',    val: ins.clicks > 0 ? fmt.money(ins.cpc) : '—',        cls: ins.clicks > 0 ? cpcCls : '' },
         { label:'CPM',    val: ins.impressions > 0 ? fmt.money(ins.cpm) : '—',   cls:'' },
       ];
@@ -1147,13 +1300,40 @@
       ).join('')}</div>`;
     }
 
+    // ── 소재 verdict 배지 + 3-라인 액션플랜
+    let verdictHtml = '';
+    const vd = ad.verdict;
+    if (vd && vd.verdict) {
+      const vColorMap = { '즉시OFF':'err', '증액후보':'warn', '리프레시':'info', '유지':'ok', '학습중':'muted' };
+      const vCls = vColorMap[vd.verdict] || 'muted';
+      const vBadgeStyleMap = {
+        '즉시OFF': 'background:rgba(239,68,68,.18);color:var(--err)',
+        '증액후보': 'background:rgba(245,158,11,.18);color:var(--warn)',
+        '리프레시': 'background:rgba(34,211,238,.15);color:var(--info)',
+        '유지':    'background:rgba(34,197,94,.15);color:var(--ok)',
+        '학습중':  'background:rgba(139,145,158,.15);color:var(--muted)',
+      };
+      const vStyle = vBadgeStyleMap[vd.verdict] || '';
+      const hasAction = vd.action_today || vd.action_tomorrow || vd.action_7d;
+      verdictHtml = `<div class="ad-verdict-block">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span class="ad-verdict-badge" style="${vStyle}">${vd.verdict_badge || ''} ${escapeHtml(vd.verdict)}</span>
+          <span style="font-size:11px;color:var(--muted);flex:1">${escapeHtml(vd.verdict_reason || '')}</span>
+        </div>
+        ${hasAction ? `<div class="ad-action-plan">
+          ${vd.action_today ? `<div><span class="ap-label ap-today">오늘</span>${escapeHtml(vd.action_today)}</div>` : ''}
+          ${vd.action_tomorrow ? `<div><span class="ap-label ap-tomorrow">내일</span>${escapeHtml(vd.action_tomorrow)}</div>` : ''}
+          ${vd.action_7d ? `<div><span class="ap-label ap-7d">7일</span>${escapeHtml(vd.action_7d)}</div>` : ''}
+        </div>` : ''}
+      </div>`;
+    }
+
     const titleLine = ad.title ? `<div style="font-size:10.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(ad.title)}">${escapeHtml(ad.title)}</div>` : '';
 
     const adStatus = (ad.status || 'ACTIVE').toUpperCase();
     const isAdActive = adStatus === 'ACTIVE';
     const adStatusBadgeCls = isAdActive ? 'active' : 'paused';
     const adStatusLabel = isAdActive ? 'ACTIVE' : adStatus;
-    // 일시정지/보관 광고는 카드 테두리를 흐리게
     const adCardStyle = isAdActive ? '' : 'opacity:0.6;border-color:rgba(38,49,74,0.5)';
 
     return `
@@ -1164,6 +1344,7 @@
           ${titleLine}
           <div class="ad-meta"><span class="status-badge ${adStatusBadgeCls}">${escapeHtml(adStatusLabel)}</span></div>
           ${kpiHtml}
+          ${verdictHtml}
         </div>
       </div>`;
   }
