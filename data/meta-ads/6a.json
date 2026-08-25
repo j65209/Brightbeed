@@ -2,7 +2,7 @@
   "brand": "6a",
   "brand_name": "식스에이",
   "target_roas": 2.0,
-  "generated_at": "2026-08-25T16:56:13",
+  "generated_at": "2026-08-25T17:16:19",
   "ads_fetch_status": "ok",
   "ads_fetch_issues": [],
   "account": {
@@ -16,7 +16,7 @@
   "period": {
     "label": "last_7d",
     "display": "지난 7일",
-    "level": "ad",
+    "level": "campaign",
     "since": "2026-08-18",
     "until": "2026-08-24"
   },
@@ -81,8 +81,8 @@
     "purchase_value": 688.51,
     "roas": 1.59,
     "cpa": 10.86,
-    "real_roas": 1.91,
-    "real_cpa": 8.52
+    "real_roas": 2.06,
+    "real_cpa": 8.04
   },
   "yesterday": {
     "spend": 613.19,
@@ -132,9 +132,9 @@
   },
   "md_sales": {
     "today": {
-      "krw": 1162200.0,
-      "usd": 830.14,
-      "orders": 51,
+      "krw": 1251700.0,
+      "usd": 894.07,
+      "orders": 54,
       "gross_krw": 0.0,
       "cancel_krw": 0.0
     },
@@ -151,16 +151,16 @@
       "orders": 480
     },
     "thirty_days": {
-      "krw": 38645960.0,
-      "usd": 27604.26,
-      "orders": 1805,
+      "krw": 38735460.0,
+      "usd": 27668.19,
+      "orders": 1808,
       "gross_krw": 0.0,
       "cancel_krw": 0.0
     },
     "usd_krw_rate": 1400,
     "source_file": "admin_6a_sales.json",
     "store_name": "6a",
-    "fetched_at_ms": 1787643623372,
+    "fetched_at_ms": 1787645461438,
     "daily": [
       {
         "date": "2026-07-26",
@@ -314,8 +314,8 @@
       },
       {
         "date": "2026-08-25",
-        "krw": 1162200,
-        "orders": 51
+        "krw": 1251700,
+        "orders": 54
       }
     ]
   },
@@ -954,8 +954,77 @@
       "active_ad_count": 6,
       "all_ad_count": 12,
       "campaign_objective": "OUTCOME_SALES",
-      "adsets": [],
-      "targeting_summary": {},
+      "adsets": [
+        {
+          "id": "120247771286780393",
+          "name": "구영_여성타겟",
+          "status": "ACTIVE",
+          "targeting": {
+            "age": "18–65",
+            "gender": "전체",
+            "countries": [
+              "KR"
+            ],
+            "platforms": [
+              "facebook",
+              "instagram",
+              "messenger",
+              "threads"
+            ],
+            "fb_positions": [
+              "feed",
+              "instream_video",
+              "story",
+              "search",
+              "facebook_reels",
+              "facebook_reels_overlay",
+              "profile_feed",
+              "notification"
+            ],
+            "ig_positions": [
+              "stream",
+              "story",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "targeting_method": "브로드"
+          }
+        }
+      ],
+      "targeting_summary": {
+        "age": "18–65",
+        "gender": "전체",
+        "countries": [
+          "KR"
+        ],
+        "platforms": [
+          "facebook",
+          "instagram",
+          "messenger",
+          "threads"
+        ],
+        "fb_positions": [
+          "feed",
+          "instream_video",
+          "story",
+          "search",
+          "facebook_reels",
+          "facebook_reels_overlay",
+          "profile_feed",
+          "notification"
+        ],
+        "ig_positions": [
+          "stream",
+          "story",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search"
+        ],
+        "targeting_method": "브로드"
+      },
       "grade": "poor",
       "grade_label": "부진",
       "grade_icon": "🟠",
@@ -1563,8 +1632,51 @@
       "active_ad_count": 6,
       "all_ad_count": 11,
       "campaign_objective": "OUTCOME_SALES",
-      "adsets": [],
-      "targeting_summary": {},
+      "adsets": [
+        {
+          "id": "120247873295960393",
+          "name": "BEST 탭",
+          "status": "ACTIVE",
+          "targeting": {
+            "age": "18–65",
+            "gender": "여성",
+            "countries": [
+              "KR"
+            ],
+            "platforms": [
+              "instagram"
+            ],
+            "ig_positions": [
+              "stream",
+              "story",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "targeting_method": "브로드"
+          }
+        }
+      ],
+      "targeting_summary": {
+        "age": "18–65",
+        "gender": "여성",
+        "countries": [
+          "KR"
+        ],
+        "platforms": [
+          "instagram"
+        ],
+        "ig_positions": [
+          "stream",
+          "story",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search"
+        ],
+        "targeting_method": "브로드"
+      },
       "grade": "good",
       "grade_label": "양호",
       "grade_icon": "⭐",
@@ -2295,8 +2407,75 @@
       "active_ad_count": 3,
       "all_ad_count": 22,
       "campaign_objective": "OUTCOME_SALES",
-      "adsets": [],
-      "targeting_summary": {},
+      "adsets": [
+        {
+          "id": "120247868782530393",
+          "name": "Ypan _ WOMAN",
+          "status": "PAUSED",
+          "targeting": {
+            "age": "18–65",
+            "gender": "여성",
+            "countries": [
+              "KR"
+            ],
+            "platforms": [
+              "instagram"
+            ],
+            "ig_positions": [
+              "stream",
+              "story",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "targeting_method": "브로드"
+          }
+        },
+        {
+          "id": "120247799035300393",
+          "name": "Best 목걸이",
+          "status": "ACTIVE",
+          "targeting": {
+            "age": "18–65",
+            "gender": "전체",
+            "countries": [
+              "KR"
+            ],
+            "platforms": [
+              "instagram"
+            ],
+            "ig_positions": [
+              "stream",
+              "story",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "targeting_method": "브로드"
+          }
+        }
+      ],
+      "targeting_summary": {
+        "age": "18–65",
+        "gender": "여성",
+        "countries": [
+          "KR"
+        ],
+        "platforms": [
+          "instagram"
+        ],
+        "ig_positions": [
+          "stream",
+          "story",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search"
+        ],
+        "targeting_method": "브로드"
+      },
       "grade": "poor",
       "grade_label": "부진",
       "grade_icon": "🟠",
@@ -2902,8 +3081,51 @@
       "active_ad_count": 9,
       "all_ad_count": 10,
       "campaign_objective": "OUTCOME_SALES",
-      "adsets": [],
-      "targeting_summary": {},
+      "adsets": [
+        {
+          "id": "120247927766480393",
+          "name": "0812_01",
+          "status": "ACTIVE",
+          "targeting": {
+            "age": "18–65",
+            "gender": "전체",
+            "countries": [
+              "KR"
+            ],
+            "platforms": [
+              "instagram"
+            ],
+            "ig_positions": [
+              "stream",
+              "story",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "targeting_method": "브로드"
+          }
+        }
+      ],
+      "targeting_summary": {
+        "age": "18–65",
+        "gender": "전체",
+        "countries": [
+          "KR"
+        ],
+        "platforms": [
+          "instagram"
+        ],
+        "ig_positions": [
+          "stream",
+          "story",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search"
+        ],
+        "targeting_method": "브로드"
+      },
       "grade": "critical",
       "grade_label": "심각",
       "grade_icon": "🔴",
@@ -3524,8 +3746,29 @@
       "active_ad_count": 5,
       "all_ad_count": 13,
       "campaign_objective": "OUTCOME_SALES",
-      "adsets": [],
-      "targeting_summary": {},
+      "adsets": [
+        {
+          "id": "120247965159600393",
+          "name": "0813_25~34",
+          "status": "ACTIVE",
+          "targeting": {
+            "age": "18–65",
+            "gender": "전체",
+            "countries": [
+              "KR"
+            ],
+            "targeting_method": "브로드"
+          }
+        }
+      ],
+      "targeting_summary": {
+        "age": "18–65",
+        "gender": "전체",
+        "countries": [
+          "KR"
+        ],
+        "targeting_method": "브로드"
+      },
       "grade": "poor",
       "grade_label": "부진",
       "grade_icon": "🟠",
@@ -3789,8 +4032,51 @@
       "active_ad_count": 2,
       "all_ad_count": 8,
       "campaign_objective": "OUTCOME_SALES",
-      "adsets": [],
-      "targeting_summary": {},
+      "adsets": [
+        {
+          "id": "120247870988930393",
+          "name": "Eramam",
+          "status": "ACTIVE",
+          "targeting": {
+            "age": "18–65",
+            "gender": "여성",
+            "countries": [
+              "KR"
+            ],
+            "platforms": [
+              "instagram"
+            ],
+            "ig_positions": [
+              "stream",
+              "story",
+              "reels",
+              "explore_home",
+              "profile_feed",
+              "ig_search"
+            ],
+            "targeting_method": "브로드"
+          }
+        }
+      ],
+      "targeting_summary": {
+        "age": "18–65",
+        "gender": "여성",
+        "countries": [
+          "KR"
+        ],
+        "platforms": [
+          "instagram"
+        ],
+        "ig_positions": [
+          "stream",
+          "story",
+          "reels",
+          "explore_home",
+          "profile_feed",
+          "ig_search"
+        ],
+        "targeting_method": "브로드"
+      },
       "grade": "good",
       "grade_label": "양호",
       "grade_icon": "⭐",
@@ -4290,8 +4576,75 @@
         "active_ad_count": 3,
         "all_ad_count": 22,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247868782530393",
+            "name": "Ypan _ WOMAN",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120247799035300393",
+            "name": "Best 목걸이",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -4847,8 +5200,51 @@
         "active_ad_count": 6,
         "all_ad_count": 11,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247873295960393",
+            "name": "BEST 탭",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "good",
         "grade_label": "양호",
         "grade_icon": "⭐",
@@ -5365,8 +5761,77 @@
         "active_ad_count": 6,
         "all_ad_count": 12,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247771286780393",
+            "name": "구영_여성타겟",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram",
+                "messenger",
+                "threads"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "facebook",
+            "instagram",
+            "messenger",
+            "threads"
+          ],
+          "fb_positions": [
+            "feed",
+            "instream_video",
+            "story",
+            "search",
+            "facebook_reels",
+            "facebook_reels_overlay",
+            "profile_feed",
+            "notification"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -5631,8 +6096,51 @@
         "active_ad_count": 2,
         "all_ad_count": 8,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247870988930393",
+            "name": "Eramam",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "good",
         "grade_label": "양호",
         "grade_icon": "⭐",
@@ -6123,8 +6631,29 @@
         "active_ad_count": 5,
         "all_ad_count": 13,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247965159600393",
+            "name": "0813_25~34",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -6782,8 +7311,51 @@
         "active_ad_count": 9,
         "all_ad_count": 10,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247927766480393",
+            "name": "0812_01",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -7359,8 +7931,75 @@
         "active_ad_count": 3,
         "all_ad_count": 22,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247868782530393",
+            "name": "Ypan _ WOMAN",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120247799035300393",
+            "name": "Best 목걸이",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -7916,8 +8555,51 @@
         "active_ad_count": 6,
         "all_ad_count": 11,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247873295960393",
+            "name": "BEST 탭",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "excellent",
         "grade_label": "우수",
         "grade_icon": "🏆",
@@ -8512,8 +9194,77 @@
         "active_ad_count": 6,
         "all_ad_count": 12,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247771286780393",
+            "name": "구영_여성타겟",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram",
+                "messenger",
+                "threads"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "facebook",
+            "instagram",
+            "messenger",
+            "threads"
+          ],
+          "fb_positions": [
+            "feed",
+            "instream_video",
+            "story",
+            "search",
+            "facebook_reels",
+            "facebook_reels_overlay",
+            "profile_feed",
+            "notification"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "average",
         "grade_label": "보통",
         "grade_icon": "🟡",
@@ -9055,8 +9806,29 @@
         "active_ad_count": 5,
         "all_ad_count": 13,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247965159600393",
+            "name": "0813_25~34",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "average",
         "grade_label": "보통",
         "grade_icon": "🟡",
@@ -9320,8 +10092,51 @@
         "active_ad_count": 2,
         "all_ad_count": 8,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247870988930393",
+            "name": "Eramam",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "excellent",
         "grade_label": "우수",
         "grade_icon": "🏆",
@@ -9928,8 +10743,51 @@
         "active_ad_count": 9,
         "all_ad_count": 10,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247927766480393",
+            "name": "0812_01",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -10577,8 +11435,77 @@
         "active_ad_count": 6,
         "all_ad_count": 12,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247771286780393",
+            "name": "구영_여성타겟",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram",
+                "messenger",
+                "threads"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "facebook",
+            "instagram",
+            "messenger",
+            "threads"
+          ],
+          "fb_positions": [
+            "feed",
+            "instream_video",
+            "story",
+            "search",
+            "facebook_reels",
+            "facebook_reels_overlay",
+            "profile_feed",
+            "notification"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -11186,8 +12113,51 @@
         "active_ad_count": 6,
         "all_ad_count": 11,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247873295960393",
+            "name": "BEST 탭",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "good",
         "grade_label": "양호",
         "grade_icon": "⭐",
@@ -11918,8 +12888,75 @@
         "active_ad_count": 3,
         "all_ad_count": 22,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247868782530393",
+            "name": "Ypan _ WOMAN",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120247799035300393",
+            "name": "Best 목걸이",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -12525,8 +13562,51 @@
         "active_ad_count": 9,
         "all_ad_count": 10,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247927766480393",
+            "name": "0812_01",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -13147,8 +14227,29 @@
         "active_ad_count": 5,
         "all_ad_count": 13,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247965159600393",
+            "name": "0813_25~34",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -13412,8 +14513,51 @@
         "active_ad_count": 2,
         "all_ad_count": 8,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247870988930393",
+            "name": "Eramam",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "good",
         "grade_label": "양호",
         "grade_icon": "⭐",
@@ -14140,8 +15284,77 @@
         "active_ad_count": 6,
         "all_ad_count": 12,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247771286780393",
+            "name": "구영_여성타겟",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram",
+                "messenger",
+                "threads"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "facebook",
+            "instagram",
+            "messenger",
+            "threads"
+          ],
+          "fb_positions": [
+            "feed",
+            "instream_video",
+            "story",
+            "search",
+            "facebook_reels",
+            "facebook_reels_overlay",
+            "profile_feed",
+            "notification"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -14751,8 +15964,185 @@
         "active_ad_count": 0,
         "all_ad_count": 41,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120239740844210393",
+            "name": "260317_woman_sale (Guyeong)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238908057510393",
+            "name": "0225_season_off",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237537161730393",
+            "name": "0120_BEST",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120236535667540393",
+            "name": "1223_01(18~24/25~34)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120235285469830393",
+            "name": "1127_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120234092400450393",
+            "name": "251106_woman (Ring set)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233858276590393",
+            "name": "1031_starly",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -15426,8 +16816,263 @@
         "active_ad_count": 0,
         "all_ad_count": 42,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120241771252530393",
+            "name": "260423_all (영상)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241275893610393",
+            "name": "260415_all (영상)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241275354430393",
+            "name": "260415_all (이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237067091420393",
+            "name": "0107_ch_new",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120235885353640393",
+            "name": "1209_contents",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120235174689020393",
+            "name": "1125_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233981994790393",
+            "name": "1103_NEW",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233358388900393",
+            "name": "1023_CH_02",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120232182534110393",
+            "name": "1002_ch 광고 세트 - 사본",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231766014490393",
+            "name": "250924_woman (Sale)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231323162060393",
+            "name": "0915_ch_02",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231322715530393",
+            "name": "0915_ch_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -16184,8 +17829,75 @@
         "active_ad_count": 3,
         "all_ad_count": 22,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247868782530393",
+            "name": "Ypan _ WOMAN",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120247799035300393",
+            "name": "Best 목걸이",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -16871,8 +18583,51 @@
         "active_ad_count": 6,
         "all_ad_count": 11,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247873295960393",
+            "name": "BEST 탭",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "good",
         "grade_label": "양호",
         "grade_icon": "⭐",
@@ -17479,8 +19234,51 @@
         "active_ad_count": 9,
         "all_ad_count": 10,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247927766480393",
+            "name": "0812_01",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -18205,8 +20003,29 @@
         "active_ad_count": 5,
         "all_ad_count": 13,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247965159600393",
+            "name": "0813_25~34",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -18626,8 +20445,51 @@
         "active_ad_count": 2,
         "all_ad_count": 8,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247870988930393",
+            "name": "Eramam",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "average",
         "grade_label": "보통",
         "grade_icon": "🟡",
@@ -19010,8 +20872,81 @@
         "active_ad_count": 0,
         "all_ad_count": 20,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247466620570393",
+            "name": "260727_woman (프로모션 ver5)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120242967169870393",
+            "name": "260512_all (프로모션 ver4)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241839415750393",
+            "name": "260424_all (프로모션 ver3)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241268582040393",
+            "name": "260415_all (프로모션 ver2)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120239474398860393",
+            "name": "260312_woman (프로모션 ver1)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -19089,8 +21024,29 @@
         "active_ad_count": 0,
         "all_ad_count": 1,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120246662764650393",
+            "name": "260702_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -19507,8 +21463,146 @@
         "active_ad_count": 0,
         "all_ad_count": 27,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120242122132420393",
+            "name": "260428_all_YOKNIS Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241690852600393",
+            "name": "260422_all_Tiny Cross Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238820746150393",
+            "name": "260223_woman_YOKNIS Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238135933140393",
+            "name": "260205_woman_Eramam Ring",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237019399330393",
+            "name": "0106_02",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237017744530393",
+            "name": "260106_woman_Tiny Cross Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -19623,8 +21717,29 @@
         "active_ad_count": 0,
         "all_ad_count": 2,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120246613065280393",
+            "name": "260701_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -19702,8 +21817,29 @@
         "active_ad_count": 0,
         "all_ad_count": 1,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247107501600393",
+            "name": "260720",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -19857,8 +21993,77 @@
         "active_ad_count": 0,
         "all_ad_count": 3,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247791153610393",
+            "name": "C.H 링 여성타겟",
+            "status": "CAMPAIGN_PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram",
+                "messenger",
+                "threads"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "facebook",
+            "instagram",
+            "messenger",
+            "threads"
+          ],
+          "fb_positions": [
+            "feed",
+            "instream_video",
+            "story",
+            "search",
+            "facebook_reels",
+            "facebook_reels_overlay",
+            "profile_feed",
+            "notification"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -19996,8 +22201,42 @@
         "active_ad_count": 0,
         "all_ad_count": 6,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120244632378070393",
+            "name": "260604_all(남자)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120244626475060393",
+            "name": "260604_all(여자)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -20111,8 +22350,42 @@
         "active_ad_count": 0,
         "all_ad_count": 4,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120243452629090393",
+            "name": "260519_all(이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120243441298160393",
+            "name": "260519_all(영상)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -21750,8 +24023,263 @@
         "active_ad_count": 0,
         "all_ad_count": 42,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120241771252530393",
+            "name": "260423_all (영상)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241275893610393",
+            "name": "260415_all (영상)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241275354430393",
+            "name": "260415_all (이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237067091420393",
+            "name": "0107_ch_new",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120235885353640393",
+            "name": "1209_contents",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120235174689020393",
+            "name": "1125_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233981994790393",
+            "name": "1103_NEW",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233358388900393",
+            "name": "1023_CH_02",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120232182534110393",
+            "name": "1002_ch 광고 세트 - 사본",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231766014490393",
+            "name": "250924_woman (Sale)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231323162060393",
+            "name": "0915_ch_02",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231322715530393",
+            "name": "0915_ch_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -23389,8 +25917,185 @@
         "active_ad_count": 0,
         "all_ad_count": 41,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120239740844210393",
+            "name": "260317_woman_sale (Guyeong)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238908057510393",
+            "name": "0225_season_off",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237537161730393",
+            "name": "0120_BEST",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120236535667540393",
+            "name": "1223_01(18~24/25~34)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120235285469830393",
+            "name": "1127_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120234092400450393",
+            "name": "251106_woman (Ring set)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233858276590393",
+            "name": "1031_starly",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -25941,8 +28646,237 @@
         "active_ad_count": 0,
         "all_ad_count": 64,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120237801845050393",
+            "name": "0127_Psychotherapeutische",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120234029055690393",
+            "name": "1104_maximum_(25~34/35~44)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233011971310393",
+            "name": "1+1_(18~24/25~34)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120232072116950393",
+            "name": "0930",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231858383560393",
+            "name": "0926_6A",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231728562900393",
+            "name": "other ring_crown",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231357922800393",
+            "name": "0916_HIGHT",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231318846310393",
+            "name": "0915_video",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231317408070393",
+            "name": "image_(25~34/18~24)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231316043070393",
+            "name": "0915_a01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "explore",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search",
+            "profile_reels"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -27087,8 +30021,146 @@
         "active_ad_count": 0,
         "all_ad_count": 27,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120242122132420393",
+            "name": "260428_all_YOKNIS Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241690852600393",
+            "name": "260422_all_Tiny Cross Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238820746150393",
+            "name": "260223_woman_YOKNIS Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238135933140393",
+            "name": "260205_woman_Eramam Ring",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237019399330393",
+            "name": "0106_02",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237017744530393",
+            "name": "260106_woman_Tiny Cross Necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -27927,8 +30999,81 @@
         "active_ad_count": 0,
         "all_ad_count": 20,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247466620570393",
+            "name": "260727_woman (프로모션 ver5)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120242967169870393",
+            "name": "260512_all (프로모션 ver4)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241839415750393",
+            "name": "260424_all (프로모션 ver3)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241268582040393",
+            "name": "260415_all (프로모션 ver2)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120239474398860393",
+            "name": "260312_woman (프로모션 ver1)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -28542,8 +31687,68 @@
         "active_ad_count": 0,
         "all_ad_count": 13,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120242572843480393",
+            "name": "260506_Marquise_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120240997242800393",
+            "name": "260409_all_Ypan necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120240503922560393",
+            "name": "260331_woman_Marquise necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120240502142380393",
+            "name": "260331_woman_Alvastra necklace",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -29460,8 +32665,133 @@
         "active_ad_count": 0,
         "all_ad_count": 18,
         "campaign_objective": "OUTCOME_TRAFFIC",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120235814904510393",
+            "name": "1208_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120235285929230393",
+            "name": "1127_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120233972766380393",
+            "name": "1103_1+1",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120231723181570393",
+            "name": "0923_트래픽",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "explore",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search",
+            "profile_reels"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -30111,8 +33441,107 @@
         "active_ad_count": 0,
         "all_ad_count": 14,
         "campaign_objective": "OUTCOME_TRAFFIC",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120241269274350393",
+            "name": "260415_all_Sale (Guyeong)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120239861923620393",
+            "name": "0320_mudi",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120239735913910393",
+            "name": "260317_all_Sale (Guyeong)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238426675420393",
+            "name": "0213_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238095303550393",
+            "name": "0204_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -31033,8 +34462,107 @@
         "active_ad_count": 0,
         "all_ad_count": 18,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120238135085620393",
+            "name": "0205_Mustafakemalpaşa",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237623568350393",
+            "name": "0122_ch/starly",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120237278628060393",
+            "name": "0113_eramam/crown",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "explore",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search",
+            "profile_reels"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -31419,8 +34947,42 @@
         "active_ad_count": 0,
         "all_ad_count": 4,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120243452629090393",
+            "name": "260519_all(이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120243441298160393",
+            "name": "260519_all(영상)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -31727,8 +35289,81 @@
         "active_ad_count": 0,
         "all_ad_count": 6,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120238908629130393",
+            "name": "0225_ring",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120238819278300393",
+            "name": "0223_ypan",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "explore",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search",
+            "profile_reels"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -32149,8 +35784,42 @@
         "active_ad_count": 0,
         "all_ad_count": 6,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120244632378070393",
+            "name": "260604_all(남자)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120244626475060393",
+            "name": "260604_all(여자)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -32952,8 +36621,77 @@
         "active_ad_count": 6,
         "all_ad_count": 12,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247771286780393",
+            "name": "구영_여성타겟",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram",
+                "messenger",
+                "threads"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "facebook",
+            "instagram",
+            "messenger",
+            "threads"
+          ],
+          "fb_positions": [
+            "feed",
+            "instream_video",
+            "story",
+            "search",
+            "facebook_reels",
+            "facebook_reels_overlay",
+            "profile_feed",
+            "notification"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -33221,8 +36959,42 @@
         "active_ad_count": 0,
         "all_ad_count": 6,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120241851489400393",
+            "name": "260424_all (CH)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120241850302200393",
+            "name": "260424_all (Guyeong)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -34059,8 +37831,75 @@
         "active_ad_count": 3,
         "all_ad_count": 22,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247868782530393",
+            "name": "Ypan _ WOMAN",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120247799035300393",
+            "name": "Best 목걸이",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -34176,8 +38015,29 @@
         "active_ad_count": 0,
         "all_ad_count": 1,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120246662764650393",
+            "name": "260702_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -34294,8 +38154,29 @@
         "active_ad_count": 0,
         "all_ad_count": 2,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120246613065280393",
+            "name": "260701_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -35021,8 +38902,51 @@
         "active_ad_count": 6,
         "all_ad_count": 11,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247873295960393",
+            "name": "BEST 탭",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "good",
         "grade_label": "양호",
         "grade_icon": "⭐",
@@ -35772,8 +39696,51 @@
         "active_ad_count": 9,
         "all_ad_count": 10,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247927766480393",
+            "name": "0812_01",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -35930,8 +39897,55 @@
         "active_ad_count": 0,
         "all_ad_count": 1,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120238430207860393",
+            "name": "0213_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "explore",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "explore",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search",
+            "profile_reels"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -36656,8 +40670,29 @@
         "active_ad_count": 5,
         "all_ad_count": 13,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247965159600393",
+            "name": "0813_25~34",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -37077,8 +41112,51 @@
         "active_ad_count": 2,
         "all_ad_count": 8,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247870988930393",
+            "name": "Eramam",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "average",
         "grade_label": "보통",
         "grade_icon": "🟡",
@@ -37155,8 +41233,29 @@
         "active_ad_count": 0,
         "all_ad_count": 1,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120246631152000393",
+            "name": "260702_woman",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -37235,8 +41334,79 @@
         "active_ad_count": 0,
         "all_ad_count": 1,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120240044525300393",
+            "name": "0324_two_ball",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120239194147900393",
+            "name": "0305_MALE",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120239193227590393",
+            "name": "0305_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search",
+                "profile_reels"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
@@ -37703,8 +41873,29 @@
         "active_ad_count": 0,
         "all_ad_count": 2,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120245999309850393",
+            "name": "260622_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -37822,8 +42013,29 @@
         "active_ad_count": 0,
         "all_ad_count": 1,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247107501600393",
+            "name": "260720",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -38094,8 +42306,77 @@
         "active_ad_count": 0,
         "all_ad_count": 3,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120247791153610393",
+            "name": "C.H 링 여성타겟",
+            "status": "CAMPAIGN_PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "여성",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram",
+                "messenger",
+                "threads"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "여성",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "facebook",
+            "instagram",
+            "messenger",
+            "threads"
+          ],
+          "fb_positions": [
+            "feed",
+            "instream_video",
+            "story",
+            "search",
+            "facebook_reels",
+            "facebook_reels_overlay",
+            "profile_feed",
+            "notification"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -38529,8 +42810,29 @@
         "active_ad_count": 0,
         "all_ad_count": 3,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120241756200660393",
+            "name": "260423_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -42712,11 +47014,11 @@
       "aov": 17.21,
       "click_to_purchase_pct": 2.65,
       "atc_to_purchase_pct": 12.94,
-      "sixshop_revenue": 830.14,
-      "sixshop_revenue_krw": 1162200.0,
-      "sixshop_orders": 51,
-      "sixshop_roas": 1.92,
-      "sixshop_cpa": 8.49,
+      "sixshop_revenue": 894.07,
+      "sixshop_revenue_krw": 1251700.0,
+      "sixshop_orders": 54,
+      "sixshop_roas": 2.07,
+      "sixshop_cpa": 8.02,
       "sixshop_available": true
     },
     "yesterday": {
@@ -42787,11 +47089,11 @@
       "aov": 15.78,
       "click_to_purchase_pct": 0.84,
       "atc_to_purchase_pct": 9.83,
-      "sixshop_revenue": 27604.26,
-      "sixshop_revenue_krw": 38645960.0,
-      "sixshop_orders": 1805,
+      "sixshop_revenue": 27668.19,
+      "sixshop_revenue_krw": 38735460.0,
+      "sixshop_orders": 1808,
       "sixshop_roas": 1.72,
-      "sixshop_cpa": 8.91,
+      "sixshop_cpa": 8.9,
       "sixshop_available": true
     },
     "maximum": {
@@ -42953,8 +47255,6 @@
       "🟢 <b>0810_Eramam  판매 캠페인</b> 예산 +20% — ROAS 2.01 안정권. 상위 캠페인과 오디언스 겹침 없으면 병행 확대.",
       "🔴 <b>0812_CH_증대기여</b> 즉시 중지 — 손실 $142. 이 예산을 상위 캠페인에 재분배 시 ROAS 개선 즉효. 대안: 크리에이티브 3안 이상 새로 테스트."
     ],
-    "targeting_insights": [
-      "ℹ 광고세트 타겟팅 정보 없음 — 다음 갱신 시 adsets_meta 포함 여부 확인."
-    ]
+    "targeting_insights": []
   }
 }
