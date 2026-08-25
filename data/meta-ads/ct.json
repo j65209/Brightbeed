@@ -2,7 +2,7 @@
   "brand": "ct",
   "brand_name": "Cleartype",
   "target_roas": 2.0,
-  "generated_at": "2026-08-25T17:02:14",
+  "generated_at": "2026-08-25T17:13:16",
   "ads_fetch_status": "partial",
   "ads_fetch_issues": [
     {
@@ -86,8 +86,8 @@
     "purchase_value": 354.46,
     "roas": 1.15,
     "cpa": 10.67,
-    "real_roas": 1.38,
-    "real_cpa": 11.05
+    "real_roas": 1.46,
+    "real_cpa": 10.67
   },
   "yesterday": {
     "spend": 423.83,
@@ -137,10 +137,10 @@
   },
   "md_sales": {
     "today": {
-      "krw": 598600.0,
-      "usd": 427.57,
-      "orders": 28,
-      "gross_krw": 637600.0,
+      "krw": 632600.0,
+      "usd": 451.86,
+      "orders": 29,
+      "gross_krw": 671600.0,
       "cancel_krw": 39000.0
     },
     "yesterday": {
@@ -156,16 +156,16 @@
       "orders": 315
     },
     "thirty_days": {
-      "krw": 23039960.0,
-      "usd": 16457.11,
-      "orders": 1062,
-      "gross_krw": 24530060.0,
+      "krw": 23073960.0,
+      "usd": 16481.4,
+      "orders": 1063,
+      "gross_krw": 24564060.0,
       "cancel_krw": 1490100.0
     },
     "usd_krw_rate": 1400,
     "source_file": "pro_ct_sales.json",
     "store_name": "cleartype1",
-    "fetched_at_ms": 1787643310910,
+    "fetched_at_ms": 1787645180938,
     "daily": [
       {
         "date": "2026-07-28",
@@ -309,8 +309,8 @@
       },
       {
         "date": "2026-08-25",
-        "krw": 598600,
-        "orders": 28
+        "krw": 632600,
+        "orders": 29
       }
     ]
   },
@@ -2912,22 +2912,22 @@
       {
         "campaign_id": "120250075010320219",
         "name": "0807_4s-woman",
-        "spend": 86.79,
-        "impressions": 17497,
-        "reach": 16079,
+        "spend": 87.87,
+        "impressions": 17733,
+        "reach": 16276,
         "frequency": 1.09,
-        "clicks": 209,
-        "ctr": 1.19,
-        "cpc": 0.42,
+        "clicks": 212,
+        "ctr": 1.2,
+        "cpc": 0.41,
         "cpm": 4.96,
         "purchases": 12,
         "purchase_value": 148.16,
-        "roas": 1.71,
-        "cpa": 7.23,
+        "roas": 1.69,
+        "cpa": 7.32,
         "add_to_cart": 67,
         "initiate_checkout": 16,
         "aov": 12.35,
-        "click_to_purchase_pct": 5.74,
+        "click_to_purchase_pct": 5.66,
         "effective_status": "ACTIVE",
         "is_active": true,
         "active_ads": [],
@@ -2935,41 +2935,84 @@
         "active_ad_count": 0,
         "all_ad_count": 0,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120250075010300219",
+            "name": "0807_01",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "average",
         "grade_label": "보통",
         "grade_icon": "🟡",
         "grade_color": "warn",
-        "roas_gap": 0.29,
-        "target_pct": 86,
+        "roas_gap": 0.31,
+        "target_pct": 84,
         "advice": [
-          "⏫ <b>목표 도달 gap</b>: 매출 $25 추가 필요 (현재 매출 $148 → 목표 $174)",
-          "🎨 CTR 1.19% 개선 여지 — 상위 캠페인 크리에이티브 스타일 벤치마크",
+          "⏫ <b>목표 도달 gap</b>: 매출 $28 추가 필요 (현재 매출 $148 → 목표 $176)",
+          "🎨 CTR 1.2% 개선 여지 — 상위 캠페인 크리에이티브 스타일 벤치마크",
           "💵 AOV $12.35 낮음 — 세트 상품·업셀 크로스셀로 객단가 15-20% 인상 시 ROAS 자동 개선"
         ],
-        "headline": "🟡 보통 · ROAS 1.71 — 목표까지 17% 개선 필요",
+        "headline": "🟡 보통 · ROAS 1.69 — 목표까지 18% 개선 필요",
         "ads_fetch_failed": true
       },
       {
         "campaign_id": "120250162367490219",
         "name": "0811_Candy",
-        "spend": 68.38,
-        "impressions": 8371,
-        "reach": 7797,
-        "frequency": 1.07,
-        "clicks": 353,
-        "ctr": 4.22,
+        "spend": 70.32,
+        "impressions": 8599,
+        "reach": 7873,
+        "frequency": 1.09,
+        "clicks": 366,
+        "ctr": 4.26,
         "cpc": 0.19,
-        "cpm": 8.17,
+        "cpm": 8.18,
         "purchases": 4,
         "purchase_value": 90.04,
-        "roas": 1.32,
-        "cpa": 17.09,
+        "roas": 1.28,
+        "cpa": 17.58,
         "add_to_cart": 23,
         "initiate_checkout": 7,
         "aov": 22.51,
-        "click_to_purchase_pct": 1.13,
+        "click_to_purchase_pct": 1.09,
         "effective_status": "ACTIVE",
         "is_active": true,
         "active_ads": [],
@@ -2977,39 +3020,106 @@
         "active_ad_count": 0,
         "all_ad_count": 0,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120250169883530219",
+            "name": "0811_02",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120250162367500219",
+            "name": "0811_01",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "poor",
         "grade_label": "부진",
         "grade_icon": "🟠",
         "grade_color": "warn",
-        "roas_gap": 0.68,
-        "target_pct": 66,
+        "roas_gap": 0.72,
+        "target_pct": 64,
         "advice": [
-          "⚠ <b>1주 데드라인 개선안 실행</b>: 매출 $47 부족. 아래 병목 즉시 수정"
+          "⚠ <b>1주 데드라인 개선안 실행</b>: 매출 $51 부족. 아래 병목 즉시 수정"
         ],
-        "headline": "🟠 부진 · ROAS 1.32 — 목표 2.0의 66%, 손익분기 근접",
+        "headline": "🟠 부진 · ROAS 1.28 — 목표 2.0의 64%, 손익분기 근접",
         "ads_fetch_failed": true
       },
       {
         "campaign_id": "120250482637630219",
         "name": "0824_4s_남/여",
-        "spend": 52.51,
-        "impressions": 8407,
-        "reach": 6958,
+        "spend": 53.41,
+        "impressions": 8569,
+        "reach": 7059,
         "frequency": 1.21,
-        "clicks": 109,
-        "ctr": 1.3,
+        "clicks": 112,
+        "ctr": 1.31,
         "cpc": 0.48,
-        "cpm": 6.25,
+        "cpm": 6.23,
         "purchases": 4,
         "purchase_value": 32.22,
-        "roas": 0.61,
-        "cpa": 13.13,
+        "roas": 0.6,
+        "cpa": 13.35,
         "add_to_cart": 13,
         "initiate_checkout": 9,
         "aov": 8.05,
-        "click_to_purchase_pct": 3.67,
+        "click_to_purchase_pct": 3.57,
         "effective_status": "ACTIVE",
         "is_active": true,
         "active_ads": [],
@@ -3017,35 +3127,78 @@
         "active_ad_count": 0,
         "all_ad_count": 0,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120250482637740219",
+            "name": "0824",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
         "grade_color": "err",
-        "roas_gap": 1.39,
+        "roas_gap": 1.4,
         "target_pct": 30,
         "advice": [
           "🚨 <b>즉시 일시중지 강력 권장</b> — 현 페이스 유지 시 손실 계속 누적. 남은 예산 우수 캠페인에 재분배"
         ],
-        "headline": "🔴 심각 · ROAS 0.61 — 목표 2.0의 30%, 손실 $20.0",
+        "headline": "🔴 심각 · ROAS 0.6 — 목표 2.0의 30%, 손실 $21.0",
         "ads_fetch_failed": true
       },
       {
         "campaign_id": "120250183377820219",
         "name": "0812_sale_newtarget",
-        "spend": 52.1,
-        "impressions": 8340,
-        "reach": 7492,
-        "frequency": 1.11,
+        "spend": 52.91,
+        "impressions": 8496,
+        "reach": 7551,
+        "frequency": 1.13,
         "clicks": 161,
-        "ctr": 1.93,
-        "cpc": 0.32,
-        "cpm": 6.25,
+        "ctr": 1.9,
+        "cpc": 0.33,
+        "cpm": 6.23,
         "purchases": 1,
         "purchase_value": 6.8,
         "roas": 0.13,
-        "cpa": 52.1,
+        "cpa": 52.91,
         "add_to_cart": 25,
         "initiate_checkout": 3,
         "aov": 6.8,
@@ -3057,8 +3210,51 @@
         "active_ad_count": 0,
         "all_ad_count": 0,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
+        "adsets": [
+          {
+            "id": "120250183377830219",
+            "name": "0812_sale",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
         "grade": "critical",
         "grade_label": "심각",
         "grade_icon": "🔴",
@@ -3069,28 +3265,28 @@
           "🚨 <b>즉시 일시중지 강력 권장</b> — 현 페이스 유지 시 손실 계속 누적. 남은 예산 우수 캠페인에 재분배",
           "🛒 <b>랜딩페이지 병목</b>: 클릭 잘 오는데 전환율 0.62% (목표 1.5%+). 상세페이지 로딩속도·모바일 UX·가격표시·리뷰·결제 friction 점검"
         ],
-        "headline": "🔴 심각 · ROAS 0.13 — 목표 2.0의 6%, 손실 $45.0",
+        "headline": "🔴 심각 · ROAS 0.13 — 목표 2.0의 6%, 손실 $46.0",
         "ads_fetch_failed": true
       },
       {
         "campaign_id": "120243596400970219",
         "name": "0407_ThreadDuo Necklace",
-        "spend": 50.93,
-        "impressions": 7642,
-        "reach": 6901,
+        "spend": 51.72,
+        "impressions": 7765,
+        "reach": 6969,
         "frequency": 1.11,
-        "clicks": 178,
-        "ctr": 2.33,
+        "clicks": 180,
+        "ctr": 2.32,
         "cpc": 0.29,
         "cpm": 6.66,
         "purchases": 8,
         "purchase_value": 77.25,
-        "roas": 1.52,
-        "cpa": 6.37,
+        "roas": 1.49,
+        "cpa": 6.46,
         "add_to_cart": 30,
         "initiate_checkout": 12,
         "aov": 9.66,
-        "click_to_purchase_pct": 4.49,
+        "click_to_purchase_pct": 4.44,
         "effective_status": "ACTIVE",
         "is_active": true,
         "active_ads": [],
@@ -3098,18 +3294,245 @@
         "active_ad_count": 0,
         "all_ad_count": 0,
         "campaign_objective": "OUTCOME_SALES",
-        "adsets": [],
-        "targeting_summary": {},
-        "grade": "average",
-        "grade_label": "보통",
-        "grade_icon": "🟡",
-        "grade_color": "warn",
-        "roas_gap": 0.48,
-        "target_pct": 76,
-        "advice": [
-          "⏫ <b>목표 도달 gap</b>: 매출 $25 추가 필요 (현재 매출 $77 → 목표 $102)"
+        "adsets": [
+          {
+            "id": "120250163358520219",
+            "name": "260811_all1 (이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120249819051830219",
+            "name": "260729_all (이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120248766403400219",
+            "name": "260626_all1 (이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120245093772720219",
+            "name": "260504_ThreadDuo_all",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120244283303810219",
+            "name": "260420_all1 (이미지)_35~44",
+            "status": "ACTIVE",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram"
+              ],
+              "fb_positions": [
+                "feed",
+                "instream_video",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120244283116810219",
+            "name": "260420_all2 (영상)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "facebook",
+                "instagram"
+              ],
+              "fb_positions": [
+                "feed",
+                "right_hand_column",
+                "instream_video",
+                "marketplace",
+                "story",
+                "search",
+                "facebook_reels",
+                "facebook_reels_overlay",
+                "profile_feed",
+                "notification"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          },
+          {
+            "id": "120243597443170219",
+            "name": "260407_all (이미지)",
+            "status": "PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
         ],
-        "headline": "🟡 보통 · ROAS 1.52 — 목표까지 32% 개선 필요",
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "targeting_method": "브로드"
+        },
+        "grade": "poor",
+        "grade_label": "부진",
+        "grade_icon": "🟠",
+        "grade_color": "warn",
+        "roas_gap": 0.51,
+        "target_pct": 74,
+        "advice": [
+          "⚠ <b>1주 데드라인 개선안 실행</b>: 매출 $26 부족. 아래 병목 즉시 수정"
+        ],
+        "headline": "🟠 부진 · ROAS 1.49 — 목표 2.0의 74%, 손익분기 근접",
+        "ads_fetch_failed": true
+      },
+      {
+        "campaign_id": "120250074265960219",
+        "name": "0807_4s_man",
+        "spend": 0.0,
+        "impressions": 0,
+        "reach": 0,
+        "frequency": 0.0,
+        "clicks": 0,
+        "ctr": 0,
+        "cpc": 0,
+        "cpm": 0,
+        "purchases": 0,
+        "purchase_value": 0.0,
+        "roas": 0,
+        "cpa": 0,
+        "add_to_cart": 0,
+        "initiate_checkout": 0,
+        "aov": 0,
+        "click_to_purchase_pct": 0,
+        "effective_status": "PAUSED",
+        "is_active": false,
+        "active_ads": [],
+        "all_ads": [],
+        "active_ad_count": 0,
+        "all_ad_count": 0,
+        "campaign_objective": "OUTCOME_SALES",
+        "adsets": [
+          {
+            "id": "120250074265970219",
+            "name": "0807_01",
+            "status": "CAMPAIGN_PAUSED",
+            "targeting": {
+              "age": "18–65",
+              "gender": "전체",
+              "countries": [
+                "KR"
+              ],
+              "platforms": [
+                "instagram"
+              ],
+              "ig_positions": [
+                "stream",
+                "story",
+                "reels",
+                "explore_home",
+                "profile_feed",
+                "ig_search"
+              ],
+              "targeting_method": "브로드"
+            }
+          }
+        ],
+        "targeting_summary": {
+          "age": "18–65",
+          "gender": "전체",
+          "countries": [
+            "KR"
+          ],
+          "platforms": [
+            "instagram"
+          ],
+          "ig_positions": [
+            "stream",
+            "story",
+            "reels",
+            "explore_home",
+            "profile_feed",
+            "ig_search"
+          ],
+          "targeting_method": "브로드"
+        },
+        "grade": "learning",
+        "grade_label": "학습중",
+        "grade_icon": "📚",
+        "grade_color": "muted",
+        "roas_gap": null,
+        "advice": [
+          "📚 학습 단계 (노출 3천 미만) — 최소 5-7일 데이터 축적 후 판단"
+        ],
+        "headline": "학습중 — 아직 데이터 부족",
         "ads_fetch_failed": true
       }
     ],
@@ -20328,28 +20751,28 @@
   },
   "summaries_by_period": {
     "today": {
-      "spend": 310.71,
-      "impressions": 50257,
-      "reach": 45227,
-      "frequency": 1.11,
-      "clicks": 1010,
+      "spend": 316.23,
+      "impressions": 51162,
+      "reach": 45728,
+      "frequency": 1.12,
+      "clicks": 1031,
       "purchases": 29,
       "purchase_value": 354.47,
       "add_to_cart": 158,
       "initiate_checkout": 47,
-      "ctr": 2.01,
+      "ctr": 2.02,
       "cpc": 0.31,
       "cpm": 6.18,
-      "roas": 1.14,
-      "cpa": 10.71,
+      "roas": 1.12,
+      "cpa": 10.9,
       "aov": 12.22,
-      "click_to_purchase_pct": 2.87,
+      "click_to_purchase_pct": 2.81,
       "atc_to_purchase_pct": 18.35,
-      "sixshop_revenue": 427.57,
-      "sixshop_revenue_krw": 598600.0,
-      "sixshop_orders": 28,
-      "sixshop_roas": 1.38,
-      "sixshop_cpa": 11.1,
+      "sixshop_revenue": 451.86,
+      "sixshop_revenue_krw": 632600.0,
+      "sixshop_orders": 29,
+      "sixshop_roas": 1.43,
+      "sixshop_cpa": 10.9,
       "sixshop_available": true
     },
     "yesterday": {
@@ -20420,11 +20843,11 @@
       "aov": 11.33,
       "click_to_purchase_pct": 1.21,
       "atc_to_purchase_pct": 21.31,
-      "sixshop_revenue": 16457.11,
-      "sixshop_revenue_krw": 23039960.0,
-      "sixshop_orders": 1062,
-      "sixshop_roas": 1.5,
-      "sixshop_cpa": 10.31,
+      "sixshop_revenue": 16481.4,
+      "sixshop_revenue_krw": 23073960.0,
+      "sixshop_orders": 1063,
+      "sixshop_roas": 1.51,
+      "sixshop_cpa": 10.3,
       "sixshop_available": true
     },
     "maximum": {
@@ -20459,7 +20882,7 @@
       "since": "2026-08-25",
       "until": "2026-08-25",
       "active_count": 5,
-      "total_count": 5
+      "total_count": 6
     },
     "yesterday": {
       "label": "어제",
