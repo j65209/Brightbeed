@@ -2344,72 +2344,24 @@
 
   /* ===== 브랜드 리포트 (viewBrandReport) — 어제 TOP10 / 리오더 / 급상승 ===== */
   .brep-wrap{max-width:1420px;margin:0 auto;padding:4px 18px 60px}
+
+  /* 브랜드 탭: 데스크톱 wrap, 모바일은 가로 스크롤 (한 줄 유지) */
   .brep-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
   .brep-tab{
     display:inline-flex;align-items:center;gap:7px;padding:8px 14px;cursor:pointer;
     background:var(--bg-1);border:1px solid var(--line);border-radius:999px;
     font-size:13px;font-weight:600;color:var(--text-2);transition:.15s;
+    white-space:nowrap;
   }
   .brep-tab:hover{background:var(--bg-2);transform:translateY(-1px)}
   .brep-tab .brep-dot{width:8px;height:8px;border-radius:50%;flex:none}
   .brep-tab[data-on="1"]{background:var(--text-0);color:#fff;border-color:var(--text-0)}
   .brep-tab[data-on="1"] .brep-dot{box-shadow:0 0 8px currentColor}
 
-  /* 브랜드별 어제 TOP 1 고정 스트립 (viewBrandReport 상단) */
-  .brep-pinned{margin-bottom:18px}
-  .brep-pinned-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-  .brep-pinned-ico{font-size:15px;line-height:1}
-  .brep-pinned-title{font-size:13px;font-weight:800;color:var(--text-0)}
-  .brep-pinned-note{font-size:11px;font-weight:500;color:var(--text-3)}
-  .brep-pinned-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-    gap:10px;
-  }
-  .brep-pinned-card{
-    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
-    padding:9px 12px;display:flex;flex-direction:column;gap:7px;transition:.15s;
-  }
-  .brep-pinned-card[data-current="1"]{border-color:var(--text-0);box-shadow:0 0 0 1px var(--text-0)}
-  .brep-pinned-brand{
-    display:inline-flex;align-items:center;gap:7px;cursor:pointer;
-    font-size:11px;font-weight:700;color:var(--text-2);text-decoration:none;
-  }
-  .brep-pinned-brand:hover{color:var(--text-0)}
-  .brep-pinned-brand .brep-dot{width:8px;height:8px;border-radius:50%;flex:none}
-  .brep-pinned-body{
-    display:flex;align-items:center;gap:10px;
-    text-decoration:none;color:inherit;min-height:44px;
-  }
-  .brep-pinned-body.is-loading,
-  .brep-pinned-body.is-empty{
-    font-size:11px;color:var(--text-3);justify-content:center;text-align:center;
-  }
-  .brep-pinned-thumb{
-    width:40px;height:40px;border-radius:6px;object-fit:cover;flex:none;
-    background:var(--bg-3);border:1px solid var(--line);
-  }
-  .brep-pinned-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
-  .brep-pinned-name{
-    font-size:12px;font-weight:700;color:var(--text-0);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  .brep-pinned-fallback{
-    display:inline-block;margin-left:5px;font-size:9px;font-weight:700;
-    color:var(--text-3);padding:1px 5px;border-radius:4px;background:var(--bg-3);
-    vertical-align:middle;
-  }
-  .brep-pinned-qty{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--text-0);line-height:1}
-  .brep-pinned-qty small{font-size:10px;font-weight:600;color:var(--text-3);margin-left:1px}
-
   .brep-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
   .brep-date{font-size:13px;font-weight:700;color:var(--text-1)}
   .brep-date b{font-family:var(--mono)}
   .brep-stamp{font-size:11px;color:var(--text-3)}
-  .brep-channels{
-    font-size:11px;font-weight:700;color:var(--text-2);
-    padding:3px 9px;border-radius:999px;background:var(--bg-3);
-  }
   .brep-refresh{
     margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;cursor:pointer;
     background:var(--bg-1);border:1px solid var(--line);border-radius:7px;
@@ -2418,7 +2370,8 @@
   .brep-refresh:hover{background:var(--bg-2)}
   .brep-refresh[disabled]{opacity:.5;cursor:default}
 
-  .brep-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+  /* KPI: 데스크톱 4 컬럼, 태블릿 2x2, 모바일 2x2 유지 (1 컬럼은 스크롤 길어짐) */
+  .brep-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
   .brep-kpi{background:var(--bg-1);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
   .brep-kpi-label{font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.02em;margin-bottom:5px}
   .brep-kpi-val{font-family:var(--mono);font-size:23px;font-weight:800;color:var(--text-0);line-height:1.15}
@@ -2446,10 +2399,6 @@
   .brep-card-count.is-alert{background:#dc2626;color:#fff}
   .brep-card-count.is-hot{background:var(--neon-2);color:#fff}
   .brep-rows{padding:5px}
-  .brep-notebar{
-    display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:11px;font-weight:600;
-    color:#b45309;background:rgba(245,158,11,.11);border-bottom:1px solid var(--line);
-  }
   .brep-hint{
     padding:6px 14px;font-size:11px;color:var(--text-3);background:var(--bg-2);
     border-bottom:1px solid var(--line);line-height:1.45;
@@ -2465,19 +2414,21 @@
   .brep-row:hover{background:var(--bg-2)}
   .brep-rank{
     font-family:var(--mono);font-size:13px;font-weight:800;text-align:center;
-    color:var(--text-3);
+    color:var(--text-3);opacity:.65;
   }
-  .brep-row[data-top="1"] .brep-rank{color:#b45309;font-size:15px}
+  .brep-row[data-top="1"] .brep-rank{color:#b45309;font-size:16px;opacity:1}
   .brep-thumb{
     width:42px;height:42px;border-radius:7px;object-fit:cover;flex:none;
     background:var(--bg-3);border:1px solid var(--line);
   }
-  .brep-main{min-width:0}
+  .brep-main{min-width:0;overflow:hidden}
   .brep-name{
+    display:block;
     font-size:13px;font-weight:700;color:var(--text-0);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .brep-sub{font-size:11px;color:var(--text-3);margin-top:2px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .brep-row[data-top="1"] .brep-name{font-size:14px}
+  .brep-sub{font-size:11px;color:var(--text-3);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
   .brep-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
   .brep-qty{font-family:var(--mono);font-size:19px;font-weight:800;color:var(--text-0);line-height:1}
   .brep-qty small{font-size:11px;font-weight:600;color:var(--text-3);margin-left:1px}
@@ -2495,6 +2446,8 @@
   .brep-chip.warn{background:rgba(245,158,11,.18);color:#b45309}
   .brep-chip.watch{background:var(--bg-3);color:var(--text-3)}
   .brep-chip.free{background:var(--bg-3);color:var(--text-3)}
+  /* 잡음 감소: 재고관리 안 함 chip 은 아예 숨김 (표시 가치 없음) */
+  .brep-chip.free{display:none}
 
   /* 리오더 — 심각도에 따라 행 전체 강조 */
   .brep-row[data-sev="out"]{background:rgba(220,38,38,.07);box-shadow:inset 3px 0 0 #dc2626}
@@ -2505,6 +2458,63 @@
   .brep-optline{
     grid-column:2 / -1;font-size:10.5px;color:#b91c1c;margin-top:2px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+
+  /* ─── 모바일: 좁은 화면에서 한 손 스크롤 최적화 ─── */
+  @media(max-width:720px){
+    .brep-wrap{padding:2px 10px 40px}
+    /* 탭은 가로 스크롤로 한 줄 유지 (스와이프) */
+    .brep-tabs{
+      flex-wrap:nowrap;overflow-x:auto;margin:0 -10px 12px;padding:2px 10px 6px;
+      scrollbar-width:none;
+    }
+    .brep-tabs::-webkit-scrollbar{display:none}
+    .brep-tab{padding:7px 12px;font-size:12.5px}
+    .brep-bar{gap:8px;margin-bottom:10px}
+    .brep-date{font-size:12.5px}
+    .brep-stamp{font-size:10.5px}
+    .brep-refresh{padding:6px 11px;font-size:11.5px}
+    .brep-kpis{gap:8px;margin-bottom:12px}
+    .brep-kpi{padding:11px 12px;border-radius:10px}
+    .brep-kpi-label{font-size:10.5px;margin-bottom:3px}
+    .brep-kpi-val{font-size:19px}
+    .brep-kpi-val small{font-size:11px}
+    .brep-kpi-delta{font-size:10.5px}
+    .brep-grid{gap:12px}
+    .brep-col{gap:12px}
+    .brep-card{border-radius:11px}
+    .brep-card-head{padding:10px 12px;gap:7px}
+    .brep-card-title{font-size:13.5px}
+    .brep-card-note{font-size:10.5px}
+    .brep-hint{padding:6px 12px;font-size:10.5px}
+    .brep-rows{padding:3px}
+    .brep-row{
+      grid-template-columns:22px 40px minmax(0,1fr) auto;
+      gap:9px;padding:8px 8px;
+    }
+    .brep-rank{font-size:12px}
+    .brep-row[data-top="1"] .brep-rank{font-size:14px}
+    .brep-thumb{width:40px;height:40px;border-radius:6px}
+    .brep-name{font-size:12.5px}
+    .brep-row[data-top="1"] .brep-name{font-size:13.5px}
+    .brep-sub{font-size:10.5px;gap:5px;margin-top:3px}
+    .brep-chip{font-size:9.5px;padding:2px 5px}
+    .brep-qty{font-size:17px}
+    .brep-qty small{font-size:10px}
+    .brep-optline{font-size:10px}
+  }
+  @media(max-width:420px){
+    .brep-wrap{padding:2px 8px 32px}
+    /* KPI 2x2 명시 (극단적으로 좁아도 4개가 세로로 늘어지지 않게) */
+    .brep-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+    .brep-kpi{padding:10px 11px}
+    .brep-kpi-val{font-size:17px}
+    .brep-kpi-val small{font-size:10px}
+    .brep-card-head{padding:9px 11px}
+    /* 극도 좁은 폰: 썸네일 살짝 축소, name 우선 */
+    .brep-row{grid-template-columns:20px 36px minmax(0,1fr) auto;gap:8px;padding:7px 7px}
+    .brep-thumb{width:36px;height:36px}
+    .brep-qty{font-size:16px}
   }
 
   /* ===== 텍스트 토핑 도구 ===== */
@@ -5479,7 +5489,6 @@
     </div>
 
     <div class="brep-wrap">
-      <div id="brepPinned"><!-- brand-별 어제 TOP1 고정 스트립 --></div>
       <div class="brep-tabs" id="brepTabs"><!-- brand tabs by JS --></div>
       <div id="brepBody"><!-- report by JS --></div>
     </div>
@@ -6223,91 +6232,15 @@
        </div>`).join('');
   }
 
-  function _brepPinnedCardHTML(brand){
-    const data=_brepCache[brand.key];
-    const cur=brand.key===_brepBrand?1:0;
-    const brandLink=`<a class="brep-pinned-brand" href="#" onclick="event.preventDefault();brepSelect('${brand.key}')">
-        <span class="brep-dot" style="background:${brand.dot}"></span><b>${_brepEsc(brand.display)}</b>
-      </a>`;
-    let body;
-    if(!data){
-      body=`<div class="brep-pinned-body is-loading">불러오는 중…</div>`;
-    }else if(!data.ok){
-      body=`<div class="brep-pinned-body is-empty">데이터 없음</div>`;
-    }else{
-      const items=data.yesterdayTop10||[];
-      const top=items[0];
-      if(!top){
-        const day=_brepEsc(_brepDate(data.dates&&data.dates.yesterday));
-        body=`<div class="brep-pinned-body is-empty">${day||'어제'} 판매 없음</div>`;
-      }else{
-        const is30=data.topSource==='30days';
-        const thumb=top.thumb
-          ?`<img class="brep-pinned-thumb" src="${_brepEsc(top.thumb)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`
-          :`<span class="brep-pinned-thumb"></span>`;
-        const tag=top.url?'a':'div';
-        const href=top.url?` href="${_brepEsc(top.url)}" target="_blank" rel="noopener"`:'';
-        const fb=is30?'<span class="brep-pinned-fallback">최근 30일</span>':'';
-        body=`<${tag} class="brep-pinned-body"${href}>
-          ${thumb}
-          <span class="brep-pinned-info">
-            <span class="brep-pinned-name">${_brepEsc(top.name||'(이름 없음)')}${fb}</span>
-            <span class="brep-pinned-qty">${(Number(top.count)||0).toLocaleString()}<small>개</small></span>
-          </span>
-        </${tag}>`;
-      }
-    }
-    return `<div class="brep-pinned-card" data-brand="${brand.key}" data-current="${cur}">${brandLink}${body}</div>`;
-  }
-
-  function brepRenderPinned(){
-    const el=document.getElementById('brepPinned');
-    if(!el) return;
-    el.innerHTML=`
-      <div class="brep-pinned-head">
-        <span class="brep-pinned-ico">🏆</span>
-        <span class="brep-pinned-title">브랜드별 어제 TOP 1</span>
-        <span class="brep-pinned-note">모든 브랜드 한눈에</span>
-      </div>
-      <div class="brep-pinned-grid">
-        ${BREP_BRANDS.map(_brepPinnedCardHTML).join('')}
-      </div>`;
-  }
-
-  function brepUpdatePinnedCard(brandKey){
-    const wrap=document.getElementById('brepPinned');
-    if(!wrap) return;
-    const brand=BREP_BRANDS.find(b=>b.key===brandKey);
-    if(!brand) return;
-    const el=wrap.querySelector(`.brep-pinned-card[data-brand="${brandKey}"]`);
-    if(!el) return;
-    el.outerHTML=_brepPinnedCardHTML(brand);
-  }
-
-  async function brepPreloadAll(){
-    await Promise.all(BREP_BRANDS.map(async b=>{
-      if(_brepCache[b.key]){ brepUpdatePinnedCard(b.key); return; }
-      try{
-        const r=await sxFetch('/report?brand='+b.key,{method:'GET'});
-        _brepCache[b.key]=await r.json();
-      }catch(e){
-        _brepCache[b.key]={ok:false,error:String(e&&e.message||e)};
-      }
-      brepUpdatePinnedCard(b.key);
-    }));
-  }
-
   function brepSelect(k){
     if(_brepBusy) return;
-    _brepBrand=k; brepRenderTabs(); brepRenderPinned(); brepLoad(k);
+    _brepBrand=k; brepRenderTabs(); brepLoad(k);
   }
   function triggerBrandReport(brand){
     if(brand) _brepBrand=brand;
     showView('viewBrandReport');
     brepRenderTabs();
-    brepRenderPinned();
     brepLoad(_brepBrand);
-    brepPreloadAll();
   }
 
   async function brepLoad(k, force){
@@ -6321,7 +6254,6 @@
       const r=await sxFetch('/report?brand='+k,{method:'GET'});
       const j=await r.json();
       _brepCache[k]=j;
-      brepUpdatePinnedCard(k);
       if(k===_brepBrand) brepRender(j);
     }catch(e){
       body.innerHTML=`<div class="brep-card"><div class="brep-empty"><b>불러오지 못했습니다</b>${_brepEsc(e&&e.message||e)}</div></div>`;
@@ -6367,15 +6299,9 @@
         </div>
       </div>`;
 
-    const ch=(d.channels||[]).filter(c=>Number(c.orders)>0);
-    const chTxt = ch.some(c=>c.id!=='commerce')
-      ? ch.map(c=>`${_brepEsc(c.label)} ${Number(c.orders).toLocaleString()}건`).join(' · ')
-      : '';
-
     const bar=`
       <div class="brep-bar">
         <span class="brep-date">기준일 <b>${_brepEsc(_brepDate(d.dates&&d.dates.yesterday))}</b></span>
-        ${chTxt?`<span class="brep-channels">${chTxt}</span>`:''}
         <span class="brep-stamp">${d.fetchedAt?new Date(d.fetchedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 갱신':''}</span>
         <button class="brep-refresh" onclick="brepRefresh()" ${_brepBusy?'disabled':''}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -6409,20 +6335,20 @@
   function brepCardTop(d){
     const items=d.yesterdayTop10||[];
     const is30=d.topSource==='30days';
-    const title=is30?'최근 30일 잘 팔린 제품':'어제 제일 잘 팔린 제품';
+    const isPro=d.platform==='pro';
+    const title=is30?'최근 30일 잘 팔린 제품':(isPro?'어제 자사몰 잘 팔린 제품':'어제 제일 잘 팔린 제품');
     const head=`<div class="brep-card-head">
         <span class="brep-card-ico">🏆</span>
         <span class="brep-card-title">${title}</span>
         <span class="brep-card-note">TOP 10</span>
         <span class="brep-card-count">${items.length}</span>
       </div>`;
-    const note=d.topNote?`<div class="brep-notebar">ℹ️ ${_brepEsc(d.topNote)}</div>`:'';
     if(!items.length){
       const day=_brepEsc(_brepDate(d.dates&&d.dates.yesterday));
-      const [t,why]=d.topNote
+      const [t,why]=isPro
         ? ['자사몰 판매 없음',`${day} 자사몰 주문이 없어 상품별 순위를 낼 수 없습니다`]
         : ['어제 판매 없음',`${day}에 판매된 상품이 없습니다`];
-      return `<div class="brep-card">${head}${note}<div class="brep-empty"><b>${t}</b>${why}</div></div>`;
+      return `<div class="brep-card">${head}<div class="brep-empty"><b>${t}</b>${why}</div></div>`;
     }
     const rows=items.map(t=>{
       let sub;
@@ -6436,7 +6362,7 @@
           ? `<span class="brep-chip up">신규 진입</span>`
           : (dl>0?`<span class="brep-chip up">▲ ${dl}</span>`
                 : dl<0?`<span class="brep-chip down">▼ ${Math.abs(dl)}</span>`
-                      :`<span class="brep-chip">전일과 동일</span>`);
+                      :'');
         sub=`${deltaChip}${_brepStock(t.stock)}${t.amount?`<span class="brep-chip">${_brepWon(t.amount).replace(/<\/?small>/g,'')}</span>`:''}`;
       }
       return _brepRow({
@@ -6445,7 +6371,7 @@
         right:`<span class="brep-qty">${(Number(t.count)||0).toLocaleString()}<small>개</small></span>`,
       });
     }).join('');
-    return `<div class="brep-card">${head}${note}<div class="brep-rows">${rows}</div></div>`;
+    return `<div class="brep-card">${head}<div class="brep-rows">${rows}</div></div>`;
   }
 
   function brepCardReorder(d){
