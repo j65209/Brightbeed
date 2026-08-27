@@ -7948,14 +7948,23 @@
       const label = window._kdBrand === 'shinebeed' ? '샤인비드' : '브라이트비드';
       titleEl.innerHTML = `물류팀 <span class="view-title-brand">${label}</span><span class="view-title-sub">/ 발주 관리</span>`;
     }
-    // 발주 상품 카탈로그 탭은 브라이트비드 전용 (샤인비드는 최근 발주 내역만).
-    const archiveTab = document.querySelector('.lg-tab[data-tab="archive"]');
-    if(archiveTab){
-      archiveTab.style.display = (window._kdBrand === 'shinebeed') ? 'none' : '';
-      if(window._kdBrand === 'shinebeed') switchLgTab('recent');
-    }
+    // 발주 상품 리스트 탭 라벨/뱃지도 브랜드에 맞춰 갱신 (샤인비드는 KD 실시간 dedupe 소스).
+    _refreshArchiveTabLabel();
     showView('viewLg');
     if(typeof renderKDOrders==='function') renderKDOrders({force:true}).catch(()=>{});
+    // 샤인비드로 진입해서 아카이브 탭이 이미 활성 상태면 즉시 재렌더.
+    if(document.querySelector('.lg-tab.active[data-tab="archive"]')) refreshArchivePane();
+  }
+
+  function _refreshArchiveTabLabel(){
+    const badge = document.getElementById('lgTabArchiveBadge');
+    if(!badge) return;
+    if(window._kdBrand === 'shinebeed'){
+      // filtered 는 applyArchive 실행 후에만 채워지므로 all 로 대체
+      const n = (typeof _arStateSB !== 'undefined' && _arStateSB.all.length) || 0;
+      badge.textContent = n ? n.toLocaleString('ko-KR') : '—';
+    }
+    // 브라이트비드는 기존 arState 값을 arSearch/loadArchive 흐름이 이미 세팅.
   }
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
@@ -9622,6 +9631,20 @@
     }
     // 발주 품목 없는 신청서는 표시 안 함 (콰이디에어에서 취소/빈 신청서 등)
     const orders=(data.orders||[]).filter(o => Array.isArray(o.items) && o.items.length > 0);
+    // 샤인비드는 KD orders 를 클라이언트측에서 dedupe해서 카탈로그로 서빙.
+    // 이 자리에서 자동 재빌드 → 아카이브 탭 진입 시 즉시 최신.
+    if((window._kdBrand||'brightbeed') === 'shinebeed'){
+      _arStateSB.all = buildShineCatalog(orders);
+      const ts=data.fetched_at?new Date(data.fetched_at*1000):null;
+      window._shineArUpdated = ts ? `${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}-${String(ts.getDate()).padStart(2,'0')} ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}` : '';
+      // 아카이브 탭이 활성 상태면 즉시 재렌더
+      if(document.querySelector('.lg-tab.active[data-tab="archive"]') && arState.brand === 'shinebeed'){
+        applyArchive();
+        const upd = document.getElementById('arUpdated');
+        if(upd) upd.textContent = window._shineArUpdated || '';
+      }
+      _refreshArchiveTabLabel();
+    }
     // dedup-check: same data → skip rerender for cheaper polling
     const hash = JSON.stringify({n:orders.length, t:data.fetched_at, first:orders[0]&&orders[0].ord_no, err:data._error&&data._error.ts});
     const tsTxt = (()=>{
@@ -9890,7 +9913,12 @@
   /* ===== 발주 상품 카탈로그 (products 배열 로드) =====
      scripts/parse_orders.py 가 xlsx 아이템 6천개를 link/img 기준 dedupe해서
      1,100+ 개 고유 상품으로 집계한 것을 3열 그리드로 렌더. */
-  const arState={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{}};
+  // arState는 브랜드 별로 두 벌 유지하고 브랜드 스위치 시 통째로 스왑한다.
+  // BB(브라이트비드)는 dropbox orders.json + name overrides GitHub 저장이 있고,
+  // SB(샤인비드)는 KD 실시간 orders만 dedupe한 read-only 카탈로그.
+  let arState={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{},brand:'brightbeed',readonly:false};
+  const _arStateBB=arState;
+  const _arStateSB={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{},brand:'shinebeed',readonly:true};
   let _arOverridesSha=null;
   const AR_OVERRIDES_API='https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json';
   function arEscape(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
@@ -10173,6 +10201,7 @@
   window.approveAutoName=approveAutoName;
   window.rejectAutoName=rejectAutoName;
   function renderProductCard(p){
+    const readonly = !!arState.readonly;
     const overrideName=arState.overrides[p.id];
     const autoName=arState.autoOverrides?.[p.id]?.name;
     const displayName=overrideName || autoName || p.kor || p.cn || '—';
@@ -10189,7 +10218,7 @@
            <img class="ar-thumb-zoom" referrerpolicy="no-referrer" src="${arEscape(displayImg)}" alt="">
          </span>`
       : '<span class="ar-no-img">×</span>';
-    const imgEditBtn=`<button class="ar-img-edit${displayImg?'':' ar-img-edit-solid'}" title="${displayImg?'이미지 URL 수정':'이미지 URL 추가'}" data-pid="${arEscape(p.id)}" data-img="${arEscape(overrideImg||p.img||'')}">
+    const imgEditBtn=readonly ? '' : `<button class="ar-img-edit${displayImg?'':' ar-img-edit-solid'}" title="${displayImg?'이미지 URL 수정':'이미지 URL 추가'}" data-pid="${arEscape(p.id)}" data-img="${arEscape(overrideImg||p.img||'')}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
     </button>`;
     const img=`<div class="ar-img-slot${displayImg?'':' ar-img-slot-empty'}">${imgBody}${imgEditBtn}</div>`;
@@ -10201,16 +10230,10 @@
       ? `¥${p.price_latest}`
       : (p.price_avg != null ? `¥${p.price_avg}` : '—');
     const recentLabel = p.latest_date ? p.latest_date.slice(2).replace(/-/g,'.') : '—';
-    return `
-      <div class="ar-prod">
-        <button class="ar-card-del" title="이 상품을 목록에서 숨김" data-pid="${arEscape(p.id)}" data-name="${arEscape(displayName)}">
+    const delBtn = readonly ? '' : `<button class="ar-card-del" title="이 상품을 목록에서 숨김" data-pid="${arEscape(p.id)}" data-name="${arEscape(displayName)}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-        </button>
-        <div class="ar-prod-img">${img}</div>
-        <div class="ar-prod-body">
-          <div class="ar-prod-name">
-            <span class="ar-name-text${overrideName?' ar-name-edited':''}${isAuto?' ar-name-auto':''}">${arEscape(displayName)}${isAuto?' <span class="ar-auto-badge" title="자동 매칭 – 확인 후 승인/취소">🤖</span>':''}</span>
-            ${isAuto ? `
+        </button>`;
+    const nameEditBlock = readonly ? '' : (isAuto ? `
               <div class="ar-auto-actions">
                 <button class="ar-btn-approve" title="이 이름 승인 (수동 편집으로 승격)" data-pid="${arEscape(p.id)}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
@@ -10223,7 +10246,15 @@
               <button class="ar-name-edit" title="상품명 편집" data-pid="${arEscape(p.id)}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </button>
-            `}
+            `);
+    return `
+      <div class="ar-prod">
+        ${delBtn}
+        <div class="ar-prod-img">${img}</div>
+        <div class="ar-prod-body">
+          <div class="ar-prod-name">
+            <span class="ar-name-text${overrideName?' ar-name-edited':''}${isAuto?' ar-name-auto':''}">${arEscape(displayName)}${isAuto?' <span class="ar-auto-badge" title="자동 매칭 – 확인 후 승인/취소">🤖</span>':''}</span>
+            ${nameEditBlock}
           </div>
           ${sub?`<div class="ar-prod-sub">${arEscape(sub)}</div>`:''}
           <div class="ar-prod-stats">
@@ -10310,6 +10341,109 @@
   // 다른 팀만 쓰는 사장님/직원한테는 평생 다운로드 안 나감.
   let _arLoaded=false;
 
+  /* ===== 샤인비드 발주 상품 카탈로그 (KD orders → 클라이언트측 dedupe) =====
+     브라이트비드는 dropbox 발주서 xlsx 를 서버가 파싱한 data/orders.json 을 쓰는 반면,
+     샤인비드는 콰이디에어 최근 60일 신청서만이 소스이므로 클라이언트에서 실시간 집계.
+     dedupe key 우선순위: product_url → image_url → memo (전부 없으면 스킵). */
+  function _shineNormId(it){
+    if(it.product_url) return 'u:'+it.product_url.split('?')[0];
+    if(it.image_url)   return 'i:'+it.image_url.split('?')[0];
+    const m=(it.memo||'').replace(/\s+/g,' ').trim();
+    return m ? 'm:'+m : '';
+  }
+  function _shineParseCny(v){
+    const n=parseFloat(String(v||'').replace(/[^\d.]/g,''));
+    return isFinite(n) ? n : 0;
+  }
+  function _shineParseQty(v){
+    const n=parseInt(String(v||'').replace(/[^\d]/g,''),10);
+    return isFinite(n) ? n : 0;
+  }
+  function _shineCleanName(memo){
+    // 샤인비드 메모 구조 예시:
+    //   "9号开口戒指[아페티] 반지Baby ring-B라고 표기해주세요 (수량 표기 포함) /1 26일입고/에어요청"
+    // 규칙 (사장님 실제 발주 메모 관찰):
+    //   1. "XX라고 표기해주세요" 매칭시 XX 를 대표 이름으로 (사장님이 명시한 표기명)
+    //   2. 아니면 옵션 마커("옵션:"/"색상:"/한중 마커) 이전만
+    //   3. 처리 요청 문구 ("(수량...)", "/N일 입고", "에어요청" 등) 제거
+    //   4. 앞쪽 중국어 옵션 프리픽스 ("N号XXX", "N色XXX") 제거
+    //   5. 정리 후 비면 원본 그대로 유지
+    const raw=String(memo||'').replace(/\s+/g,' ').trim();
+    if(!raw) return '';
+    let s=raw;
+    const named=s.match(/^(.*?)\s*라고\s*표기(?:해)?\s*주세요/);
+    if(named){
+      s=named[1];
+    }else{
+      s=s.split(/(?:옵션|색상|사이즈|규격|款式|颜色|尺寸|规格)\s*[:：]/)[0];
+      s=s.replace(/\s*\([^)]*\)/g,'')                     // (수량 표기 포함) 등 괄호 문구
+         .replace(/\s*\/\s*\d+\s*[일日]?\s*\d*\s*[일日]\s*입고/g,'') // "/1 26일 입고"
+         .replace(/에어요청|일반요청|선편|일반\s*배송/g,'');
+    }
+    // 앞쪽 중국어 옵션 프리픽스 제거 (예: "9号开口戒指", "红色包" 등 옵션 성격)
+    s=s.replace(/^\s*\d+号[^\s\[]*\s*/,'')
+       .replace(/^\s*[红蓝白黑绿灰粉黄紫棕][色]?\s*/,'');
+    s=s.trim().replace(/[·•,;、|]+\s*$/,'');
+    return s || raw;
+  }
+  function buildShineCatalog(orders){
+    const byId={};
+    for(const o of (orders||[])){
+      const date=o.order_date||o.date||'';
+      for(const it of (o.items||[])){
+        const id=_shineNormId(it);
+        if(!id) continue;
+        const qty=_shineParseQty(it.qty);
+        const price=_shineParseCny(it.price_cny);
+        const name=_shineCleanName(it.memo);
+        let p=byId[id];
+        if(!p){
+          p=byId[id]={
+            id,
+            kor:name, cn:'',
+            img: it.image_url||'',
+            link: it.product_url||'',
+            total_qty:0, order_count:0,
+            price_avg:0, _price_sum:0, _price_n:0,
+            price_latest:0, latest_date:'',
+            memos:[], _memoSet:new Set(),
+            _ords:new Set(),
+          };
+        }
+        // 이미지/링크는 첫 값이 유효하면 유지, 비어있으면 다음 값으로 채움
+        if(!p.img && it.image_url) p.img=it.image_url;
+        if(!p.link && it.product_url) p.link=it.product_url;
+        if(!p.kor && name) p.kor=name;
+        // 신청서 단위 발주 횟수 (같은 신청서 안 같은 상품 여러 라인이면 1회)
+        const ordKey=o.ord_no||('nop:'+Math.random());
+        p._ords.add(ordKey);
+        p.total_qty += qty;
+        if(price>0){ p._price_sum += price*qty; p._price_n += qty; }
+        // 가장 최근 발주 단가/날짜
+        if(date && date > p.latest_date){
+          p.latest_date=date;
+          if(price>0) p.price_latest=price;
+        }
+        const memoLine=(it.memo||'').trim();
+        if(memoLine && !p._memoSet.has(memoLine)){
+          p._memoSet.add(memoLine);
+          p.memos.push(memoLine);
+        }
+      }
+    }
+    const arr=Object.values(byId).map(p=>({
+      id:p.id, kor:p.kor, cn:'',
+      img:p.img, link:p.link,
+      total_qty:p.total_qty,
+      order_count:p._ords.size,
+      price_avg: p._price_n>0 ? Math.round((p._price_sum/p._price_n)*100)/100 : null,
+      price_latest: p.price_latest>0 ? Math.round(p.price_latest*100)/100 : null,
+      latest_date:p.latest_date,
+      memos:p.memos,
+    }));
+    return arr;
+  }
+
   // 물류팀 뷰 탭 전환 (최근 발주 내역 ↔ 발주서 리스트)
   function switchLgTab(name){
     document.querySelectorAll('.lg-tab').forEach(btn=>{
@@ -10324,13 +10458,43 @@
     const vh=document.getElementById('viewLg');
     if(vh) vh.scrollTop=0;
     window.scrollTo({top:0,behavior:'instant'});
-    // 발주 상품 카탈로그는 처음 진입할 때만 로드
-    if(name==='archive' && !_arLoaded){
-      _arLoaded=true;
-      loadArchive();
-    }
+    // 발주 상품 카탈로그는 처음 진입할 때만 로드 (브랜드별 데이터 소스 분기)
+    if(name==='archive') refreshArchivePane();
   }
   window.switchLgTab=switchLgTab;
+
+  function refreshArchivePane(){
+    const brand = window._kdBrand || 'brightbeed';
+    // arState 스왑 (참조 갈아치우기 — 하위 함수들이 모두 arState.xxx 로 참조)
+    arState = (brand === 'shinebeed') ? _arStateSB : _arStateBB;
+    // Pane 제목 + 브라이트비드 전용 버튼 표시/숨김
+    const titleEl = document.querySelector('.lg-pane[data-pane="archive"] .po-section-title');
+    if(titleEl) titleEl.textContent = (brand === 'shinebeed')
+      ? '샤인비드 발주 상품 카탈로그'
+      : '브라이트비드 발주 상품 카탈로그';
+    const syncBtn = document.getElementById('arSyncBtn');
+    const resetBtn = document.getElementById('arResetBtn');
+    const restoreBtn = document.getElementById('arRestoreBtn');
+    if(syncBtn) syncBtn.style.display = (brand === 'shinebeed') ? 'none' : '';
+    if(resetBtn && brand === 'shinebeed') resetBtn.style.display = 'none';
+    if(restoreBtn && brand === 'shinebeed') restoreBtn.style.display = 'none';
+    // 검색/정렬 UI 를 현재 상태로 복원
+    const sb = document.getElementById('arSearch');
+    if(sb) sb.value = arState.q || '';
+    const sel = document.getElementById('arSort');
+    if(sel) sel.value = arState.sort || 'recent';
+    if(brand === 'shinebeed'){
+      // SB는 renderKDOrders 가 최신 KD orders 를 받아 arStateSB.all 을 채워둔다. 즉시 렌더.
+      const upd = document.getElementById('arUpdated');
+      if(upd) upd.textContent = window._shineArUpdated || '';
+      applyArchive();
+    }else{
+      if(!_arLoaded){ _arLoaded=true; loadArchive(); }
+      else applyArchive();
+    }
+  }
+  window.refreshArchivePane=refreshArchivePane;
+
   // 상품 카탈로그 갯수를 탭 뱃지에 반영
   const _origApply=applyArchive;
   applyArchive=function(){
