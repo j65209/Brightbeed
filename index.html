@@ -47,10 +47,10 @@
     --neon:#ff2e93;
     --neon-2:#ff6b35;
     --neon-glow:rgba(255,46,147,.45);
-    /* 인사팀 — 비비드 오렌지 (사람·온기) */
-    --neon-hr:#ea580c;
-    --neon-hr-2:#c2410c;
-    --neon-hr-glow:rgba(234,88,12,.4);
+    /* 인사팀 — 산호핑크 → 오렌지 선셋 (온기·활력, 흰 볼드 폰트 대비 유지) */
+    --neon-hr:#ff5f7a;
+    --neon-hr-2:#ff8a3d;
+    --neon-hr-glow:rgba(255,95,122,.45);
     /* 물류팀 — 비비드 바이올렛/마젠타 (이동·속도) */
     --neon-lg:#7c3aed;
     --neon-lg-2:#be185d;
@@ -400,24 +400,24 @@
   .btn-neon.spin svg{animation:spin .9s linear infinite}
   .hero-hint{margin-top:14px;font-size:12px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em;line-height:1.6}
 
-  /* 히어로 — 인사팀 (앰버) */
-  .hero.hero-hr .hero-eyebrow{color:#f97316;text-shadow:0 0 12px var(--neon-hr-glow)}
+  /* 히어로 — 인사팀 (산호핑크 → 오렌지 선셋) */
+  .hero.hero-hr .hero-eyebrow{color:#ff5f7a;text-shadow:0 0 12px var(--neon-hr-glow)}
   .btn-neon.btn-hr{
     background:linear-gradient(135deg,var(--neon-hr) 0%,var(--neon-hr-2) 100%);
     color:#ffffff;
-    border-color:rgba(255,179,71,.5);
+    border-color:rgba(255,138,158,.55);
     box-shadow:
-      0 0 0 1px rgba(255,179,71,.35),
-      0 0 24px rgba(255,179,71,.45),
-      0 0 64px rgba(255,122,71,.28),
-      inset 0 1px 0 rgba(255,255,255,.35);
+      0 0 0 1px rgba(255,138,158,.35),
+      0 0 24px rgba(255,138,158,.5),
+      0 0 64px rgba(255,138,61,.28),
+      inset 0 1px 0 rgba(255,255,255,.4);
   }
   .btn-neon.btn-hr:hover:not(:disabled){
     box-shadow:
-      0 0 0 1px rgba(255,179,71,.55),
-      0 0 32px rgba(255,179,71,.65),
-      0 0 96px rgba(255,122,71,.4),
-      inset 0 1px 0 rgba(255,255,255,.45);
+      0 0 0 1px rgba(255,138,158,.6),
+      0 0 32px rgba(255,138,158,.7),
+      0 0 96px rgba(255,138,61,.42),
+      inset 0 1px 0 rgba(255,255,255,.5);
   }
 
   /* 히어로 — 물류팀 (바이올렛/마젠타) */
