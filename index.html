@@ -329,7 +329,13 @@
   /* 히어로 카드 — 인사팀/물류팀/브랜드별 재고관리 3개 나란히 */
   .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
   .hero-row-2{grid-template-columns:repeat(2,1fr)}
+  .hero-row-3{grid-template-columns:repeat(3,1fr)}
   .hero-row-4{grid-template-columns:repeat(4,1fr)}
+  /* 물류팀 카드: label 아래 회사명 작게 (btn-neon-stacked) */
+  .btn-neon.btn-lg-stacked{padding:14px 28px}
+  .btn-neon-stack{display:inline-flex;flex-direction:column;align-items:center;gap:2px;line-height:1.15}
+  .btn-neon-main{font-size:16px;font-weight:600;letter-spacing:.02em}
+  .btn-neon-sub{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
   .hero{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:36px 20px 30px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;text-align:center}
   .hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--neon);letter-spacing:.22em;text-transform:uppercase;margin-bottom:18px;text-shadow:0 0 12px var(--neon-glow)}
   .btn-neon{
@@ -3568,6 +3574,12 @@
   .btn-back:hover{color:var(--text-0);border-color:var(--line-2);background:var(--bg-2)}
   .view-title{font-size:18px;font-weight:600;letter-spacing:-.01em;min-width:0;word-break:keep-all}
   .view-title .view-title-sub{font-weight:500;color:var(--text-3);margin-left:8px;font-size:14px}
+  .view-title .view-title-brand{
+    display:inline-block;margin-left:8px;padding:3px 9px;border-radius:999px;
+    font-size:12px;font-weight:700;letter-spacing:.04em;
+    background:linear-gradient(135deg,var(--neon-lg,#8b5cf6),var(--neon-lg-2,#ec4899));color:#fff;
+    vertical-align:middle;
+  }
 
   /* ===== 조직도 (SVG) ===== */
   .org-chart-wrap{overflow-x:auto;padding:28px 20px 24px;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:24px}
@@ -4318,7 +4330,7 @@
     .container{padding:20px}
     .topbar{padding:12px 20px}
     .hero-row{grid-template-columns:1fr;gap:12px;margin-bottom:32px}
-    .hero-row-2,.hero-row-4{grid-template-columns:repeat(2,1fr)}
+    .hero-row-2,.hero-row-3,.hero-row-4{grid-template-columns:repeat(2,1fr)}
     .hero{padding:32px 16px 28px}
     .btn-neon{padding:18px 36px;font-size:16px}
     .po-table th,.po-table td{padding:10px 6px;font-size:12px}
@@ -4553,8 +4565,8 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
-    <!-- 팀 카드 1행: 인사팀 / 물류팀 -->
-    <div class="hero-row hero-row-2">
+    <!-- 팀 카드 1행: 인사팀 / 물류팀(브라이트비드) / 물류팀(샤인비드) -->
+    <div class="hero-row hero-row-3">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
         <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
@@ -4564,10 +4576,24 @@
       </section>
 
       <section class="hero hero-lg">
-        <div class="hero-eyebrow">LOGISTICS</div>
-        <button class="btn-neon btn-lg" id="lgBtn" onclick="triggerLogistics()">
+        <div class="hero-eyebrow">LOGISTICS · BRIGHTBEED</div>
+        <button class="btn-neon btn-lg btn-lg-stacked" id="lgBtn" onclick="triggerLogistics('brightbeed')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          <span id="lgBtnLabel">물류팀</span>
+          <span class="btn-neon-stack">
+            <span class="btn-neon-main">물류팀</span>
+            <span class="btn-neon-sub">브라이트비드</span>
+          </span>
+        </button>
+      </section>
+
+      <section class="hero hero-lg">
+        <div class="hero-eyebrow">LOGISTICS · SHINEBEED</div>
+        <button class="btn-neon btn-lg btn-lg-stacked" id="lgBtnShine" onclick="triggerLogistics('shinebeed')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <span class="btn-neon-stack">
+            <span class="btn-neon-main">물류팀</span>
+            <span class="btn-neon-sub">샤인비드</span>
+          </span>
         </button>
       </section>
     </div>
@@ -7914,7 +7940,24 @@
   }
 
   function triggerHR(){ showView('viewHr'); if(typeof autoArchiveCycles==='function') autoArchiveCycles(); }
-  function triggerLogistics(){ showView('viewLg'); if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{}); }
+  function triggerLogistics(brand){
+    window._kdBrand = (brand === 'shinebeed') ? 'shinebeed' : 'brightbeed';
+    _kdLastHash = ''; // 브랜드 스위치 시 dedup 캐시 초기화 → 강제 재렌더
+    // 뷰 헤더에 브랜드 표시
+    const titleEl = document.querySelector('#viewLg .view-title');
+    if(titleEl){
+      const label = window._kdBrand === 'shinebeed' ? '샤인비드' : '브라이트비드';
+      titleEl.innerHTML = `물류팀 <span class="view-title-brand">${label}</span><span class="view-title-sub">/ 발주 관리</span>`;
+    }
+    // 발주 상품 카탈로그 탭은 브라이트비드 전용 (샤인비드는 최근 발주 내역만).
+    const archiveTab = document.querySelector('.lg-tab[data-tab="archive"]');
+    if(archiveTab){
+      archiveTab.style.display = (window._kdBrand === 'shinebeed') ? 'none' : '';
+      if(window._kdBrand === 'shinebeed') switchLgTab('recent');
+    }
+    showView('viewLg');
+    if(typeof renderKDOrders==='function') renderKDOrders({force:true}).catch(()=>{});
+  }
   function triggerNotice(){ showView('viewNotice'); }
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
@@ -9541,8 +9584,10 @@
     opts=opts||{};
     const base=await loadProxyBase();
     if(!base) throw new Error('proxy unavailable');
-    const sep = opts.refresh ? '?refresh=1&' : '?';
-    const url = base+'/kd/orders'+sep+'cb='+Date.now();
+    const brand = window._kdBrand || 'brightbeed';
+    const parts = ['brand='+encodeURIComponent(brand), 'cb='+Date.now()];
+    if(opts.refresh) parts.push('refresh=1');
+    const url = base+'/kd/orders?'+parts.join('&');
     const r=await fetch(url, {headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
     if(!r.ok) return null;
     return await r.json();
