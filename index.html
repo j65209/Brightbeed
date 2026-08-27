@@ -1469,42 +1469,122 @@
     .sales-updated-tag{display:block;margin:4px 0 0;font-size:10px}
   }
 
-  /* 사내 공지사항 — 자유양식 에디터 */
-  .notice-btn{color:#be185d !important;background:rgba(255,107,181,.06) !important;border-color:rgba(255,107,181,.35) !important}
-  .notice-btn:hover{background:rgba(255,107,181,.12) !important;border-color:rgba(255,107,181,.55) !important}
-  .notice-btn-save{color:#ff6b35 !important;background:rgba(255,107,53,.08) !important;border-color:rgba(255,107,53,.4) !important}
-  .notice-btn-save:hover{background:rgba(255,107,53,.16) !important;border-color:rgba(255,107,53,.6) !important}
+  /* 사내 공지사항 — 자격증명 관리 (아이디·비밀번호·토큰) */
+  .cred-wrap{padding:20px}
+  .cred-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;padding:12px 14px;background:var(--bg-2);border:1px solid var(--line);border-radius:6px}
+  .cred-search-box{flex:1;min-width:180px;position:relative}
+  .cred-search-box input{width:100%;padding:8px 12px 8px 32px;font-size:13px;background:var(--bg-1);color:var(--text-0);border:1px solid var(--line);border-radius:4px;font-family:var(--sans);outline:none;transition:border-color .15s}
+  .cred-search-box input:focus{border-color:#ff2e93}
+  .cred-search-box::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;opacity:.6}
+  .cred-toolbar-filter{display:flex;gap:4px}
+  .cred-filter-chip{padding:6px 10px;font-size:11px;font-family:var(--sans);color:var(--text-2);background:var(--bg-1);border:1px solid var(--line);border-radius:4px;cursor:pointer;transition:all .12s}
+  .cred-filter-chip.active{color:#fff;background:linear-gradient(90deg,#ff2e93,#ff6b35);border-color:transparent}
+  .cred-filter-chip:hover:not(.active){color:var(--text-0);background:var(--bg-3)}
+  .cred-toolbar-actions{display:flex;gap:6px}
+  .cred-btn-add{padding:7px 12px;font-size:12px;font-weight:500;font-family:var(--sans);cursor:pointer;border-radius:4px;transition:all .12s;display:inline-flex;align-items:center;gap:4px}
+  .cred-btn-add-login{color:#0369a1;background:rgba(3,105,161,.08);border:1px solid rgba(3,105,161,.35)}
+  .cred-btn-add-login:hover{background:rgba(3,105,161,.14);border-color:rgba(3,105,161,.55)}
+  .cred-btn-add-custom{color:#be185d;background:rgba(255,107,181,.08);border:1px solid rgba(255,107,181,.35)}
+  .cred-btn-add-custom:hover{background:rgba(255,107,181,.16);border-color:rgba(255,107,181,.55)}
 
-  .notice-toolbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:10px 20px;border-bottom:1px solid var(--line);background:var(--bg-2)}
-  .notice-toolbar button{min-width:30px;height:28px;padding:0 8px;font-size:12px;color:var(--text-2);background:var(--bg-1);border:1px solid var(--line);border-radius:3px;cursor:pointer;font-family:var(--sans);transition:all .12s;display:inline-flex;align-items:center;justify-content:center}
-  .notice-toolbar button:hover{color:var(--text-0);background:var(--bg-3);border-color:var(--text-3)}
-  .notice-toolbar button:active{background:var(--bg-3);transform:scale(.97)}
-  .notice-toolbar-sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+  .cred-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+  .cred-empty{text-align:center;padding:60px 20px;color:var(--text-2)}
+  .cred-empty-icon{font-size:40px;margin-bottom:12px;opacity:.6}
+  .cred-empty-text{font-size:14px;font-weight:600;color:var(--text-1)}
+  .cred-empty-sub{margin-top:6px;font-size:12px;color:var(--text-3)}
 
-  .notice-content{padding:24px 28px;min-height:240px;color:var(--text-1);font-size:14px;line-height:1.7;font-family:var(--sans);outline:none;word-break:break-word}
-  .notice-content[contenteditable="true"]{cursor:text;background:var(--bg-1);box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s}
-  .notice-content[contenteditable="true"]:focus{box-shadow:inset 0 0 0 1px rgba(255,107,181,.35)}
-  .notice-content h1,.notice-content h2,.notice-content h3{margin:18px 0 10px;color:var(--text-0);font-weight:600;letter-spacing:-.01em}
-  .notice-content h1{font-size:20px}
-  .notice-content h2{font-size:17px;border-bottom:1px solid var(--line);padding-bottom:6px}
-  .notice-content h3{font-size:14px;color:var(--text-1)}
-  .notice-content p{margin:8px 0}
-  .notice-content ul,.notice-content ol{margin:8px 0 8px 22px;padding:0}
-  .notice-content li{margin:3px 0}
-  .notice-content a{color:#ff2e93;text-decoration:underline;text-underline-offset:2px}
-  .notice-content a:hover{color:#ff6b35}
-  .notice-content blockquote{margin:10px 0;padding:6px 14px;border-left:3px solid #be185d;color:var(--text-2);background:var(--bg-2);border-radius:0 4px 4px 0}
-  .notice-content code{font-family:var(--mono);font-size:12px;background:var(--bg-2);padding:1px 6px;border-radius:3px;color:#ff6b35}
-  .notice-content hr{border:none;border-top:1px dashed var(--line);margin:18px 0}
-  .notice-content[contenteditable="true"]:empty::before,
-  .notice-content[contenteditable="true"] p:only-child:empty::before{content:"공지 내용을 입력하세요...";color:var(--text-3);font-style:italic;pointer-events:none}
+  .cred-card{background:var(--bg-2);border:1px solid var(--line);border-radius:6px;overflow:hidden;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column}
+  .cred-card:hover{border-color:rgba(255,107,181,.4);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .cred-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--bg-3);border-bottom:1px solid var(--line)}
+  .cred-card-title-wrap{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+  .cred-card-name{font-size:13px;font-weight:600;color:var(--text-0);letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+  .cred-card-type{font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+  .cred-card-type-login{color:#0369a1;background:rgba(3,105,161,.1)}
+  .cred-card-type-custom{color:#be185d;background:rgba(255,107,181,.14)}
+  .cred-card-actions{display:flex;gap:4px;flex-shrink:0}
+  .cred-card-actions button{width:24px;height:24px;padding:0;background:var(--bg-1);border:1px solid var(--line);border-radius:3px;color:var(--text-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:11px;transition:all .12s}
+  .cred-card-actions button:hover{color:var(--text-0);background:var(--bg-3);border-color:var(--text-3)}
+  .cred-card-actions .cred-card-del:hover{color:#dc2626;border-color:#dc2626;background:rgba(220,38,38,.05)}
+  .cred-card-body{padding:6px 0;flex:1}
+  .cred-field{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:12px;border-bottom:1px solid rgba(0,0,0,.04);min-height:34px}
+  .cred-field:last-child{border-bottom:0}
+  .cred-field-label{min-width:74px;max-width:100px;color:var(--text-2);font-size:11px;font-weight:500;font-family:var(--sans);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cred-field-value{flex:1;color:var(--text-0);font-family:var(--mono);word-break:break-all;line-height:1.4;user-select:all;min-width:0}
+  .cred-field-value.masked{letter-spacing:.15em;color:var(--text-2);user-select:none}
+  .cred-field-btns{display:flex;gap:3px;flex-shrink:0}
+  .cred-field-btn{width:24px;height:24px;padding:0;background:transparent;border:1px solid transparent;border-radius:3px;color:var(--text-3);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:11px;transition:all .12s}
+  .cred-field-btn:hover{color:var(--text-0);background:var(--bg-1);border-color:var(--line)}
+  .cred-field-btn.copied{color:#16a34a;background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.3)}
+  .cred-card-memo{padding:8px 14px;font-size:11px;color:var(--text-2);border-top:1px dashed var(--line);background:var(--bg-1);white-space:pre-wrap;word-break:break-word;line-height:1.5}
+
+  /* Modal */
+  .cred-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:credFade .15s ease-out}
+  .cred-modal[hidden]{display:none}
+  @keyframes credFade{from{opacity:0}to{opacity:1}}
+  .cred-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+  .cred-modal-panel{position:relative;width:min(540px,100%);max-height:90vh;overflow:hidden;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.35);display:flex;flex-direction:column}
+  .cred-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .cred-modal-head h3{margin:0;font-size:15px;font-weight:600;color:var(--text-0)}
+  .cred-modal-close{width:28px;height:28px;padding:0;background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px}
+  .cred-modal-close:hover{background:var(--bg-3);color:var(--text-0)}
+  .cred-modal-tabs{display:flex;padding:0 12px;border-bottom:1px solid var(--line);background:var(--bg-2)}
+  .cred-tab{padding:12px 16px;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--text-2);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:all .12s;margin-bottom:-1px}
+  .cred-tab.active{color:#be185d;border-bottom-color:#ff6b35}
+  .cred-tab:hover:not(.active){color:var(--text-0)}
+  .cred-modal-body{padding:18px;flex:1;overflow:auto}
+  .cred-form-row{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .cred-form-row label{font-size:12px;font-weight:500;color:var(--text-1)}
+  .cred-form-row input, .cred-form-row textarea{padding:9px 11px;font-size:13px;background:var(--bg-1);color:var(--text-0);border:1px solid var(--line);border-radius:4px;font-family:var(--sans);outline:none;transition:border-color .15s}
+  .cred-form-row input:focus, .cred-form-row textarea:focus{border-color:#ff2e93}
+  .cred-form-row textarea{resize:vertical;min-height:52px;font-family:var(--sans);line-height:1.5}
+  .cred-form-row input.mono{font-family:var(--mono);font-size:12px}
+  .cred-fields-editor{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+  .cred-field-editor{display:grid;grid-template-columns:120px 1fr auto auto;gap:6px;align-items:center}
+  .cred-field-editor input{padding:7px 9px;font-size:12px;background:var(--bg-1);color:var(--text-0);border:1px solid var(--line);border-radius:3px;font-family:var(--sans);outline:none}
+  .cred-field-editor input.val-input{font-family:var(--mono)}
+  .cred-field-editor input:focus{border-color:#ff2e93}
+  .cred-field-editor .cred-field-secret,
+  .cred-field-editor .cred-field-del{width:28px;height:28px;padding:0;background:var(--bg-2);border:1px solid var(--line);border-radius:3px;color:var(--text-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all .12s}
+  .cred-field-editor .cred-field-secret.active{color:#ff6b35;background:rgba(255,107,53,.1);border-color:rgba(255,107,53,.4)}
+  .cred-field-editor .cred-field-del:hover{color:#dc2626;border-color:#dc2626;background:rgba(220,38,38,.06)}
+  .cred-add-field{width:100%;font-size:12px;padding:8px;background:var(--bg-2);border:1px dashed var(--line);color:var(--text-2);border-radius:4px;cursor:pointer;font-family:var(--sans);transition:all .12s}
+  .cred-add-field:hover{color:var(--text-0);border-color:var(--text-3);background:var(--bg-3)}
+  .cred-modal-actions{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);background:var(--bg-2)}
+  .cred-modal-actions button{padding:8px 16px;font-size:13px;font-weight:500;font-family:var(--sans);cursor:pointer;border-radius:4px;transition:all .12s}
+  .cred-btn-cancel{color:var(--text-1);background:var(--bg-1);border:1px solid var(--line)}
+  .cred-btn-cancel:hover{background:var(--bg-3)}
+  .cred-btn-save{color:#fff;background:linear-gradient(90deg,#ff2e93,#ff6b35);border:1px solid transparent}
+  .cred-btn-save:hover{filter:brightness(1.08)}
+
+  .cred-legacy{margin-top:20px;background:var(--bg-2);border:1px dashed var(--line);border-radius:6px;overflow:hidden}
+  .cred-legacy[hidden]{display:none}
+  .cred-legacy summary{padding:10px 14px;cursor:pointer;color:var(--text-2);font-size:12px;font-weight:500;user-select:none;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .cred-legacy summary::-webkit-details-marker{display:none}
+  .cred-legacy summary::before{content:"▸ ";margin-right:4px;transition:transform .15s;display:inline-block}
+  .cred-legacy[open] summary::before{transform:rotate(90deg)}
+  .cred-legacy summary:hover{color:var(--text-0)}
+  .cred-legacy-content{padding:14px 16px;background:var(--bg-1);color:var(--text-2);font-size:12px;line-height:1.7;max-height:400px;overflow:auto;border-top:1px solid var(--line);word-break:break-word;font-family:var(--sans)}
+  .cred-legacy-content p, .cred-legacy-content div{margin:2px 0}
+  .cred-legacy-content a{color:#ff2e93}
+  .cred-legacy-actions{display:flex;justify-content:flex-end;padding:8px 14px;border-top:1px solid var(--line)}
+  .cred-legacy-actions button{padding:6px 12px;font-size:11px;color:#dc2626;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.35);border-radius:4px;cursor:pointer;font-family:var(--sans)}
+  .cred-legacy-actions button:hover{background:rgba(220,38,38,.12)}
 
   body.role-viewer .master-only-text{display:none !important}
+  body.role-viewer .cred-toolbar-actions,
+  body.role-viewer .cred-card-actions,
+  body.role-viewer .cred-legacy-actions{display:none !important}
 
   @media(max-width:600px){
-    .notice-toolbar{padding:8px 14px;gap:3px}
-    .notice-toolbar button{min-width:26px;height:26px;padding:0 6px;font-size:11px}
-    .notice-content{padding:18px 16px;font-size:13px;min-height:180px}
+    .cred-wrap{padding:12px}
+    .cred-toolbar{padding:10px;gap:8px}
+    .cred-toolbar-actions{width:100%}
+    .cred-btn-add{flex:1;justify-content:center}
+    .cred-list{grid-template-columns:1fr}
+    .cred-modal{padding:0}
+    .cred-modal-panel{max-height:100vh;height:100%;border-radius:0;width:100%}
+    .cred-field-editor{grid-template-columns:1fr 1fr auto auto}
+    .cred-field-label{min-width:60px}
   }
 
   /* 매출 보고서 — PDF 슬라이드 뷰어 (이미지 풀블리드 + 좌우 화살표 + 우상단 전체화면) */
@@ -4854,9 +4934,9 @@
       </div>
       <div class="sub-modules">
         <div class="sub-module m-notice" onclick="triggerNotice()">
-          <div class="sub-module-icon">📌</div>
+          <div class="sub-module-icon">🔐</div>
           <div class="sub-module-title">사내 공지사항</div>
-          <div class="sub-module-sub">공지 · 일정 · 업무 안내</div>
+          <div class="sub-module-sub">아이디 · 비밀번호 · 토큰 관리</div>
         </div>
         <div class="sub-module m-namegen" onclick="triggerNamegen()">
           <div class="sub-module-icon">🌍</div>
@@ -5586,56 +5666,94 @@
     </div>
   </div>
 
-  <!-- ============ 사내 공지사항 (자유양식) ============ -->
+  <!-- ============ 사내 공지사항 (자격증명 관리) ============ -->
   <div class="view" id="viewNotice" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">사내 공지사항<span class="view-title-sub">/ 공지 · 일정</span><span id="noticeUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">사내 공지사항<span class="view-title-sub">/ 아이디 · 비밀번호 · 토큰</span><span id="noticeUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
-    <div class="po-wrap">
-      <div class="po-section">
-        <div class="po-section-head">
-          <div class="po-section-title">공지사항</div>
-          <div class="po-section-meta">
-            <button class="btn po-import notice-btn" id="noticeEditBtn" onclick="enterNoticeEdit()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-              편집
-            </button>
-            <button class="btn po-import notice-btn-save" id="noticeSaveBtn" onclick="saveNoticeEdit()" style="display:none">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
-              저장
-            </button>
-            <button class="po-clear" id="noticeCancelBtn" onclick="cancelNoticeEdit()" style="display:none">취소</button>
+    <div class="cred-wrap">
+      <div class="cred-toolbar">
+        <div class="cred-search-box">
+          <input type="search" id="credSearch" placeholder="서비스명, 아이디, 값 검색..." autocomplete="off" spellcheck="false">
+        </div>
+        <div class="cred-toolbar-filter">
+          <button class="cred-filter-chip active" data-filter="all">전체</button>
+          <button class="cred-filter-chip" data-filter="login">로그인</button>
+          <button class="cred-filter-chip" data-filter="custom">사용자지정</button>
+        </div>
+        <div class="cred-toolbar-actions">
+          <button class="cred-btn-add cred-btn-add-login" onclick="openCredEditor('login')">＋ 로그인</button>
+          <button class="cred-btn-add cred-btn-add-custom" onclick="openCredEditor('custom')">＋ 사용자지정</button>
+        </div>
+      </div>
+
+      <div class="cred-list" id="credList"></div>
+
+      <div class="cred-empty" id="credEmpty" hidden>
+        <div class="cred-empty-icon">🔐</div>
+        <div class="cred-empty-text">저장된 항목이 없습니다</div>
+        <div class="cred-empty-sub">우측 상단 <b>＋ 로그인</b> 또는 <b>＋ 사용자지정</b>으로 추가하세요</div>
+      </div>
+
+      <details class="cred-legacy" id="credLegacy" hidden>
+        <summary>레거시 자유양식 원본 보기 (자동 변환 이전 원본)</summary>
+        <div class="cred-legacy-content" id="credLegacyContent"></div>
+        <div class="cred-legacy-actions">
+          <button onclick="deleteCredLegacy()">레거시 원본 영구 삭제</button>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ============ 자격증명 편집 모달 ============ -->
+  <div class="cred-modal" id="credModal" hidden>
+    <div class="cred-modal-backdrop" onclick="closeCredEditor()"></div>
+    <div class="cred-modal-panel">
+      <div class="cred-modal-head">
+        <h3 id="credModalTitle">항목 추가</h3>
+        <button class="cred-modal-close" onclick="closeCredEditor()" aria-label="닫기">✕</button>
+      </div>
+      <div class="cred-modal-tabs" id="credModalTabs">
+        <button type="button" class="cred-tab active" data-tab="login">로그인 (아이디 · 비밀번호)</button>
+        <button type="button" class="cred-tab" data-tab="custom">사용자지정</button>
+      </div>
+      <div class="cred-modal-body">
+        <div class="cred-form-row">
+          <label for="credEditName">서비스명</label>
+          <input type="text" id="credEditName" placeholder="예: 구글, 에이블리 (6A), 클리어타입 토큰" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="cred-form-login" id="credFormLogin">
+          <div class="cred-form-row">
+            <label for="credEditUsername">아이디</label>
+            <input type="text" id="credEditUsername" class="mono" placeholder="아이디 / 이메일" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="cred-form-row">
+            <label for="credEditPassword">비밀번호</label>
+            <input type="text" id="credEditPassword" class="mono" placeholder="비밀번호" autocomplete="off" spellcheck="false">
           </div>
         </div>
-        <div class="notice-toolbar" id="noticeToolbar" style="display:none">
-          <button type="button" data-cmd="bold" title="굵게 (Ctrl+B)"><b>B</b></button>
-          <button type="button" data-cmd="italic" title="기울임 (Ctrl+I)"><i>I</i></button>
-          <button type="button" data-cmd="underline" title="밑줄 (Ctrl+U)"><u>U</u></button>
-          <span class="notice-toolbar-sep"></span>
-          <button type="button" data-cmd="formatBlock" data-arg="H2" title="제목">H2</button>
-          <button type="button" data-cmd="formatBlock" data-arg="H3" title="소제목">H3</button>
-          <button type="button" data-cmd="formatBlock" data-arg="P" title="본문">¶</button>
-          <span class="notice-toolbar-sep"></span>
-          <button type="button" data-cmd="insertUnorderedList" title="리스트">•</button>
-          <button type="button" data-cmd="insertOrderedList" title="번호 리스트">1.</button>
-          <button type="button" data-cmd="formatBlock" data-arg="BLOCKQUOTE" title="인용">”</button>
-          <span class="notice-toolbar-sep"></span>
-          <button type="button" data-cmd="link" title="링크">🔗</button>
-          <button type="button" data-cmd="hr" title="구분선">—</button>
-          <button type="button" data-cmd="removeFormat" title="서식 제거">⟲</button>
-        </div>
-        <div class="po-empty" id="noticeEmpty">
-          <div class="po-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg>
+
+        <div class="cred-form-custom" id="credFormCustom" hidden>
+          <div class="cred-form-row">
+            <label>필드 (라벨 · 값 · 마스킹)</label>
+            <div class="cred-fields-editor" id="credFieldsEditor"></div>
+            <button type="button" class="cred-add-field" onclick="addCredCustomField()">＋ 필드 추가</button>
           </div>
-          <div class="po-empty-text">아직 공지사항이 없습니다</div>
-          <div class="po-empty-sub">우측 상단 <b>편집</b> 버튼으로 작성하세요</div>
         </div>
-        <div class="notice-content" id="noticeContent" contenteditable="false"></div>
+
+        <div class="cred-form-row">
+          <label for="credEditMemo">메모 (선택)</label>
+          <textarea id="credEditMemo" rows="2" placeholder="추가 설명, 계정 소유자, 광고계정 ID 등"></textarea>
+        </div>
+      </div>
+      <div class="cred-modal-actions">
+        <button type="button" class="cred-btn-cancel" onclick="closeCredEditor()">취소</button>
+        <button type="button" class="cred-btn-save" onclick="saveCredEntry()">저장</button>
       </div>
     </div>
   </div>
@@ -6183,7 +6301,7 @@
 <script>
   const PIN_VIEWER='6702';     // 보기 전용
   const PIN_MASTER='0000';     // 수정 권한
-  const AUTH_VERSION='2';      // PIN 회전 시 bump → 모든 기기 강제 재로그인
+  const AUTH_VERSION='3';      // PIN 회전 시 bump → 모든 기기 강제 재로그인
   const KEY='brightbeed_unlocked';
   const ROLE_KEY='brightbeed_role';
   const VER_KEY='brightbeed_auth_ver';
@@ -11739,17 +11857,207 @@
   window.addEventListener('focus', ()=>{ checkMetaAdsStatus() });
 
   /* ===================================================== */
-  /* ============ 사내 공지사항 (자유양식 + GitHub 동기화) ============ */
+  /* ============ 사내 공지사항 — 자격증명 관리 (GitHub 동기화) ============ */
   /* ===================================================== */
   const NOTICE_KEY='brightbeed_notice';
   const NOTICE_PATH='data/notice.json';
   const NOTICE_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${NOTICE_PATH}`;
   const NOTICE_API=`https://api.github.com/repos/${PO_REPO}/contents/${NOTICE_PATH}`;
   let _notice_lastHash=null;
-  let _notice_editing=false;
-  let _notice_origHtml='';
+  let _cred_filter='all';    // all | login | custom
+  let _cred_search='';
+  let _cred_editorState=null; // {mode:'add'|'edit', type:'login'|'custom', id?, fields:[]}
+  let _cred_modalOpen=false;
 
-  function loadNotice(){try{return JSON.parse(localStorage.getItem(NOTICE_KEY)||'null')}catch(e){return null}}
+  function credUid(){return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+
+  function credEmptyState(){return {entries:[], legacyHtml:'', updatedAt:0}}
+
+  function loadNotice(){
+    try{
+      const raw=JSON.parse(localStorage.getItem(NOTICE_KEY)||'null');
+      if(!raw) return credEmptyState();
+      return normalizeNotice(raw);
+    }catch(e){return credEmptyState()}
+  }
+
+  /* 스키마 정규화 + 레거시 html 자동 마이그레이션 */
+  function normalizeNotice(raw){
+    if(!raw || typeof raw!=='object') return credEmptyState();
+    const out={
+      entries: Array.isArray(raw.entries) ? raw.entries.map(normalizeEntry).filter(Boolean) : [],
+      legacyHtml: typeof raw.legacyHtml==='string' ? raw.legacyHtml : '',
+      updatedAt: typeof raw.updatedAt==='number' ? raw.updatedAt : 0
+    };
+    // 최초 마이그레이션 — entries 비어있고 legacy html이 raw.html에 있으면 파싱
+    if(out.entries.length===0 && typeof raw.html==='string' && raw.html.trim()){
+      const migrated=migrateLegacyHtmlToEntries(raw.html);
+      if(migrated.length>0){
+        out.entries=migrated;
+        if(!out.legacyHtml) out.legacyHtml=raw.html;
+      } else {
+        out.legacyHtml=raw.html;
+      }
+    }
+    return out;
+  }
+
+  function normalizeEntry(e){
+    if(!e || typeof e!=='object') return null;
+    const type=(e.type==='custom')?'custom':'login';
+    const fields=Array.isArray(e.fields)?e.fields.map(f=>({
+      label: typeof f.label==='string'?f.label:'',
+      value: typeof f.value==='string'?f.value:'',
+      secret: !!f.secret
+    })):[];
+    return {
+      id: typeof e.id==='string' && e.id ? e.id : credUid(),
+      type,
+      name: typeof e.name==='string'?e.name:'',
+      fields,
+      memo: typeof e.memo==='string'?e.memo:''
+    };
+  }
+
+  /* 레거시 자유양식 HTML → entries 자동 파싱 */
+  function migrateLegacyHtmlToEntries(html){
+    if(!html) return [];
+    // HTML → 텍스트 (블록 요소는 개행 유지)
+    const wrap=document.createElement('div');
+    wrap.innerHTML=html;
+    // <p>/<div> 끝의 trailing <br>은 시각 여백용 — 제거 (인접 dash 라인 오분리 방지)
+    wrap.querySelectorAll('p, div').forEach(el=>{
+      while(el.lastChild && el.lastChild.nodeType===1 && el.lastChild.tagName==='BR'){
+        el.removeChild(el.lastChild);
+      }
+    });
+    // <br> → \n
+    wrap.querySelectorAll('br').forEach(el=>el.replaceWith('\n'));
+    // <p>, <div> 끝에 \n 추가
+    wrap.querySelectorAll('p, div').forEach(el=>{
+      el.appendChild(document.createTextNode('\n'));
+    });
+    const text=(wrap.textContent||'').replace(/ /g,' ');
+    const blocks=text.split(/\n{2,}/).map(b=>b.trim()).filter(Boolean);
+
+    const entries=[];
+    let pendingName=null;      // 명시적으로 이름만 나온 블록에서 온 이름 (스티키: 후속 dash-only에 상속)
+    let lastGroupName=null;    // 마지막으로 이름이 확정된 로그인 항목의 그룹명
+
+    const isTokenLike=v=>/^[A-Za-z0-9_+\/=-]{40,}$/.test(v);
+    const isHeader=v=>/^브라이트비드\s*오피스\s*아이디\s*비밀번호/.test(v) || /^\S+\s+아이디\s+비밀번호\s*$/.test(v);
+
+    for(const block of blocks){
+      const lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
+      if(lines.length===0) continue;
+
+      const dashes=[];
+      const nonDashes=[];
+      for(const l of lines){
+        if(l.startsWith('-')) dashes.push(l.replace(/^-\s*/,''));
+        else nonDashes.push(l);
+      }
+
+      // 헤더-only 블록 스킵
+      if(nonDashes.length>=1 && dashes.length===0 && isHeader(nonDashes[0]) && nonDashes.length===1){
+        continue;
+      }
+
+      // dash 없는 블록: 이름만 있거나 토큰 블록
+      if(dashes.length===0){
+        // 광고계정 전용 블록 → 직전 custom(토큰) 항목에 병합
+        if(nonDashes.length && /^광고계정/.test(nonDashes[0]) && entries.length && entries[entries.length-1].type==='custom'){
+          for(const v of nonDashes){
+            if(/^광고계정/.test(v)){
+              const m=v.match(/(\d{5,})/);
+              entries[entries.length-1].fields.push({label:'광고계정 ID', value: m?m[1]:v.replace(/^광고계정\s*(아디|아이디)?:?\s*/,''), secret:false});
+            } else if(isTokenLike(v)){
+              entries[entries.length-1].fields.push({label:'토큰', value:v, secret:true});
+            }
+          }
+          continue;
+        }
+        // 이름 + 토큰 값들이 함께 있는 케이스
+        const rest=nonDashes.slice(1);
+        if(rest.length>0 && (rest.some(isTokenLike) || /토큰|token/i.test(nonDashes[0]))){
+          const name=nonDashes[0];
+          const fields=[];
+          for(const v of rest){
+            if(isTokenLike(v)) fields.push({label:'토큰', value:v, secret:true});
+            else if(/^광고계정/.test(v)){
+              const m=v.match(/(\d{5,})/);
+              fields.push({label:'광고계정 ID', value: m?m[1]:v.replace(/^광고계정\s*(아디|아이디)?:?\s*/,''), secret:false});
+            } else {
+              fields.push({label:'값', value:v, secret:false});
+            }
+          }
+          entries.push({id:credUid(), type:'custom', name, fields, memo:''});
+          pendingName=null;
+          lastGroupName=null;
+          continue;
+        }
+        // 순수 이름 → 다음 블록에 붙임
+        if(nonDashes.length===1){
+          pendingName=nonDashes[0];
+          lastGroupName=nonDashes[0];
+          continue;
+        }
+        // 여러 non-dash 라인 — 각각을 값으로 취급
+        const name=nonDashes[0];
+        const fields=nonDashes.slice(1).map(v=>({label:'값', value:v, secret:isTokenLike(v)}));
+        entries.push({id:credUid(), type:'custom', name, fields, memo:''});
+        pendingName=null;
+        lastGroupName=null;
+        continue;
+      }
+
+      // dash가 있는 블록: 로그인 항목
+      let name;
+      let extraLines=[];
+
+      if(nonDashes.length>=1){
+        // 헤더 패턴: "브라이트비드 오피스 아이디 비밀번호\n구글" → name="구글"
+        if(isHeader(nonDashes[0]) && nonDashes.length>=2){
+          name=nonDashes[1];
+          extraLines=nonDashes.slice(2);
+        } else {
+          name=nonDashes[0];
+          extraLines=nonDashes.slice(1);
+        }
+        lastGroupName=name.replace(/\s*\([^)]*\)\s*$/,''); // 괄호 서픽스 제거한 그룹명
+        pendingName=name;
+      } else if(pendingName || lastGroupName){
+        // dash-only 블록 — 이전 그룹명 상속, username 안의 (suffix) 로 구분
+        const base=pendingName || lastGroupName;
+        const suffix=(dashes[0]||'').match(/\(([^)]+)\)/);
+        name=suffix?`${base} (${suffix[1]})`:base;
+        // pendingName은 유지 (다음 dash-only 블록에도 상속)
+      } else {
+        name='(이름 없음)';
+      }
+
+      const username=dashes[0]||'';
+      const password=dashes[1]||'';
+      const extraDashes=dashes.slice(2);
+      const memoParts=[];
+      if(extraLines.length) memoParts.push(...extraLines);
+      if(extraDashes.length) memoParts.push(...extraDashes.map(d=>'- '+d));
+
+      entries.push({
+        id: credUid(),
+        type: 'login',
+        name,
+        fields:[
+          {label:'아이디', value:username, secret:false},
+          {label:'비밀번호', value:password, secret:true}
+        ],
+        memo: memoParts.join('\n')
+      });
+    }
+
+    return entries;
+  }
+
   function saveNoticeLocal(n){
     if(n){const j=JSON.stringify(n);localStorage.setItem(NOTICE_KEY,j);_notice_lastHash=j}
     else{localStorage.removeItem(NOTICE_KEY);_notice_lastHash='null'}
@@ -11761,44 +12069,158 @@
       if(r.status===404) return {empty:true};
       if(!r.ok) return null;
       const data=await r.json();
-      return (data && typeof data==='object' && typeof data.html==='string') ? data : {empty:true};
+      return (data && typeof data==='object') ? data : {empty:true};
     }catch(e){return null}
   }
 
   async function syncNoticeFromRemote(){
-    if(_notice_editing) return; // 편집 중이면 덮어쓰기 방지
+    if(_cred_modalOpen) return; // 편집 중이면 덮어쓰기 방지
     const remote=await fetchNoticeFromRemote();
     if(remote===null) return;
     if(remote.empty){
-      if(loadNotice()){saveNoticeLocal(null);renderNotice();renderNoticeUpdatedTag()}
-      else{_notice_lastHash='null'}
+      const cur=loadNotice();
+      if(cur.entries.length>0 || cur.legacyHtml){
+        saveNoticeLocal(credEmptyState());
+        renderCredentials();
+        renderNoticeUpdatedTag();
+      } else {
+        _notice_lastHash='null';
+      }
       return;
     }
-    const json=JSON.stringify(remote);
+    const normalized=normalizeNotice(remote);
+    const json=JSON.stringify(normalized);
     if(json===_notice_lastHash) return;
     _notice_lastHash=json;
     localStorage.setItem(NOTICE_KEY,json);
-    renderNotice();
+    renderCredentials();
     renderNoticeUpdatedTag();
   }
   window.syncNoticeFromRemote=syncNoticeFromRemote;
 
-  function renderNotice(){
-    if(_notice_editing) return; // 편집 모드 보존
-    const empty=document.getElementById('noticeEmpty');
-    const content=document.getElementById('noticeContent');
-    if(!content) return;
+  function credEscape(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+  function renderCredentials(){
+    if(_cred_modalOpen) return;
+    const list=document.getElementById('credList');
+    const empty=document.getElementById('credEmpty');
+    const legacy=document.getElementById('credLegacy');
+    const legacyContent=document.getElementById('credLegacyContent');
+    if(!list) return;
+
     const n=loadNotice();
-    const hasContent = n && n.html && n.html.replace(/<[^>]*>/g,'').trim() !== '';
-    if(!hasContent){
-      if(empty) empty.style.display='block';
-      content.innerHTML='';
-      content.style.display='none';
+
+    // 레거시 원본
+    if(legacy && legacyContent){
+      if(n.legacyHtml){
+        legacy.hidden=false;
+        legacyContent.innerHTML=n.legacyHtml;
+      } else {
+        legacy.hidden=true;
+        legacyContent.innerHTML='';
+      }
+    }
+
+    // 필터 & 검색
+    const q=_cred_search.trim().toLowerCase();
+    const filtered=n.entries.filter(e=>{
+      if(_cred_filter!=='all' && e.type!==_cred_filter) return false;
+      if(!q) return true;
+      const hay=[e.name, e.memo, ...(e.fields||[]).map(f=>f.label+' '+f.value)].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+
+    if(filtered.length===0){
+      list.innerHTML='';
+      list.style.display='none';
+      if(empty){
+        empty.hidden=false;
+        if(n.entries.length===0){
+          empty.querySelector('.cred-empty-text').textContent='저장된 항목이 없습니다';
+          empty.querySelector('.cred-empty-sub').innerHTML='우측 상단 <b>＋ 로그인</b> 또는 <b>＋ 사용자지정</b>으로 추가하세요';
+        } else {
+          empty.querySelector('.cred-empty-text').textContent='검색 결과가 없습니다';
+          empty.querySelector('.cred-empty-sub').textContent='다른 검색어를 시도하거나 필터를 변경하세요';
+        }
+      }
       return;
     }
-    if(empty) empty.style.display='none';
-    content.style.display='block';
-    content.innerHTML=n.html;
+
+    if(empty) empty.hidden=true;
+    list.style.display='grid';
+    list.innerHTML=filtered.map(e=>renderCredCard(e)).join('');
+  }
+
+  function renderCredCard(e){
+    const typeCls = e.type==='custom' ? 'cred-card-type-custom' : 'cred-card-type-login';
+    const typeLabel = e.type==='custom' ? '사용자지정' : '로그인';
+    const fieldsHtml=(e.fields||[]).map((f,i)=>renderCredField(e.id, i, f)).join('');
+    const memoHtml=e.memo?`<div class="cred-card-memo">${credEscape(e.memo)}</div>`:'';
+    return `<div class="cred-card" data-id="${credEscape(e.id)}">
+      <div class="cred-card-head">
+        <div class="cred-card-title-wrap">
+          <span class="cred-card-name" title="${credEscape(e.name)}">${credEscape(e.name||'(이름 없음)')}</span>
+          <span class="cred-card-type ${typeCls}">${typeLabel}</span>
+        </div>
+        <div class="cred-card-actions">
+          <button class="cred-card-edit" onclick="editCredEntry('${credEscape(e.id)}')" title="편집" aria-label="편집">✎</button>
+          <button class="cred-card-del" onclick="deleteCredEntry('${credEscape(e.id)}')" title="삭제" aria-label="삭제">🗑</button>
+        </div>
+      </div>
+      <div class="cred-card-body">${fieldsHtml || '<div class="cred-field"><span class="cred-field-label">—</span><span class="cred-field-value">필드 없음</span></div>'}</div>
+      ${memoHtml}
+    </div>`;
+  }
+
+  function renderCredField(entryId, idx, f){
+    const secret=!!f.secret;
+    const valueRaw=f.value||'';
+    const shown = secret ? '•'.repeat(Math.min(12, Math.max(4, valueRaw.length))) : valueRaw;
+    const maskedCls = secret ? 'masked' : '';
+    return `<div class="cred-field">
+      <span class="cred-field-label" title="${credEscape(f.label)}">${credEscape(f.label||'(라벨)')}</span>
+      <span class="cred-field-value ${maskedCls}" data-secret="${secret?'1':'0'}" data-raw="${credEscape(valueRaw)}">${credEscape(shown)}</span>
+      <span class="cred-field-btns">
+        ${secret?`<button class="cred-field-btn cred-field-toggle" onclick="toggleCredSecret(this)" title="표시/숨기기">👁</button>`:''}
+        <button class="cred-field-btn cred-field-copy" onclick="copyCredValue(this)" title="복사">📋</button>
+      </span>
+    </div>`;
+  }
+
+  function toggleCredSecret(btn){
+    const field=btn.closest('.cred-field');
+    if(!field) return;
+    const valEl=field.querySelector('.cred-field-value');
+    if(!valEl) return;
+    const secret=valEl.dataset.secret==='1';
+    if(!secret) return;
+    const raw=valEl.dataset.raw||'';
+    if(valEl.classList.contains('masked')){
+      valEl.classList.remove('masked');
+      valEl.textContent=raw;
+      btn.textContent='🙈';
+    } else {
+      valEl.classList.add('masked');
+      valEl.textContent='•'.repeat(Math.min(12, Math.max(4, raw.length)));
+      btn.textContent='👁';
+    }
+  }
+
+  async function copyCredValue(btn){
+    const field=btn.closest('.cred-field');
+    if(!field) return;
+    const valEl=field.querySelector('.cred-field-value');
+    const raw=valEl?.dataset.raw||valEl?.textContent||'';
+    if(!raw) return;
+    try{
+      await navigator.clipboard.writeText(raw);
+      btn.classList.add('copied');
+      const orig=btn.textContent;
+      btn.textContent='✓';
+      setTimeout(()=>{btn.classList.remove('copied');btn.textContent=orig;},1200);
+    }catch(e){
+      toast('복사 실패','err');
+    }
   }
 
   function renderNoticeUpdatedTag(){
@@ -11810,126 +12232,240 @@
     tag.textContent=`(${d.getMonth()+1}월${d.getDate()}일${d.getHours()}시 최신화완료)`;
   }
 
-  function enterNoticeEdit(){
-    const content=document.getElementById('noticeContent');
-    const empty=document.getElementById('noticeEmpty');
-    const editBtn=document.getElementById('noticeEditBtn');
-    const saveBtn=document.getElementById('noticeSaveBtn');
-    const cancelBtn=document.getElementById('noticeCancelBtn');
-    const toolbar=document.getElementById('noticeToolbar');
-    if(!content) return;
+  /* ============ 편집 모달 ============ */
+  function openCredEditor(type){
+    _cred_modalOpen=true;
+    _cred_editorState={mode:'add', type, id:null, fields:[]};
+    document.getElementById('credModalTitle').textContent='항목 추가';
+    document.getElementById('credEditName').value='';
+    document.getElementById('credEditUsername').value='';
+    document.getElementById('credEditPassword').value='';
+    document.getElementById('credEditMemo').value='';
+    setCredEditorTab(type);
+    if(type==='custom' && _cred_editorState.fields.length===0){
+      _cred_editorState.fields.push({label:'토큰', value:'', secret:true});
+    }
+    renderCredFieldsEditor();
+    document.getElementById('credModal').hidden=false;
+    setTimeout(()=>document.getElementById('credEditName').focus(),50);
+  }
+  window.openCredEditor=openCredEditor;
+
+  function editCredEntry(id){
     const n=loadNotice();
-    _notice_origHtml=(n&&n.html)||'';
-    _notice_editing=true;
-    content.innerHTML=_notice_origHtml || '<p><br></p>';
-    content.contentEditable='true';
-    content.style.display='block';
-    if(empty) empty.style.display='none';
-    if(editBtn) editBtn.style.display='none';
-    if(saveBtn) saveBtn.style.display='';
-    if(cancelBtn) cancelBtn.style.display='';
-    if(toolbar) toolbar.style.display='flex';
+    const entry=n.entries.find(e=>e.id===id);
+    if(!entry){toast('항목을 찾을 수 없습니다','err');return}
+    _cred_modalOpen=true;
+    _cred_editorState={mode:'edit', type:entry.type, id, fields:JSON.parse(JSON.stringify(entry.fields||[]))};
+    document.getElementById('credModalTitle').textContent='항목 편집';
+    document.getElementById('credEditName').value=entry.name||'';
+    document.getElementById('credEditMemo').value=entry.memo||'';
+    if(entry.type==='login'){
+      document.getElementById('credEditUsername').value=entry.fields?.[0]?.value||'';
+      document.getElementById('credEditPassword').value=entry.fields?.[1]?.value||'';
+    } else {
+      document.getElementById('credEditUsername').value='';
+      document.getElementById('credEditPassword').value='';
+    }
+    setCredEditorTab(entry.type);
+    renderCredFieldsEditor();
+    document.getElementById('credModal').hidden=false;
+    setTimeout(()=>document.getElementById('credEditName').focus(),50);
+  }
+  window.editCredEntry=editCredEntry;
+
+  function closeCredEditor(){
+    _cred_modalOpen=false;
+    _cred_editorState=null;
+    document.getElementById('credModal').hidden=true;
+  }
+  window.closeCredEditor=closeCredEditor;
+
+  function setCredEditorTab(type){
+    if(!_cred_editorState) return;
+    _cred_editorState.type=type;
+    document.querySelectorAll('#credModalTabs .cred-tab').forEach(t=>{
+      t.classList.toggle('active', t.dataset.tab===type);
+    });
+    document.getElementById('credFormLogin').hidden = type!=='login';
+    document.getElementById('credFormCustom').hidden = type!=='custom';
+  }
+
+  function renderCredFieldsEditor(){
+    const box=document.getElementById('credFieldsEditor');
+    if(!box || !_cred_editorState) return;
+    const fields=_cred_editorState.fields;
+    box.innerHTML=fields.map((f,i)=>`<div class="cred-field-editor" data-idx="${i}">
+      <input type="text" class="lbl-input" data-idx="${i}" data-key="label" value="${credEscape(f.label||'')}" placeholder="라벨 (예: 토큰)">
+      <input type="text" class="val-input" data-idx="${i}" data-key="value" value="${credEscape(f.value||'')}" placeholder="값" autocomplete="off" spellcheck="false">
+      <button type="button" class="cred-field-secret ${f.secret?'active':''}" data-idx="${i}" title="마스킹 토글" aria-label="마스킹">🔒</button>
+      <button type="button" class="cred-field-del" data-idx="${i}" title="삭제" aria-label="삭제">✕</button>
+    </div>`).join('');
+    // 이벤트 바인딩
+    box.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        const idx=+e.target.dataset.idx, key=e.target.dataset.key;
+        if(_cred_editorState.fields[idx]) _cred_editorState.fields[idx][key]=e.target.value;
+      });
+    });
+    box.querySelectorAll('.cred-field-secret').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        const idx=+e.currentTarget.dataset.idx;
+        if(_cred_editorState.fields[idx]){
+          _cred_editorState.fields[idx].secret=!_cred_editorState.fields[idx].secret;
+          e.currentTarget.classList.toggle('active', _cred_editorState.fields[idx].secret);
+        }
+      });
+    });
+    box.querySelectorAll('.cred-field-del').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        const idx=+e.currentTarget.dataset.idx;
+        _cred_editorState.fields.splice(idx,1);
+        renderCredFieldsEditor();
+      });
+    });
+  }
+
+  function addCredCustomField(){
+    if(!_cred_editorState) return;
+    _cred_editorState.fields.push({label:'', value:'', secret:false});
+    renderCredFieldsEditor();
+    // 마지막 라벨 input에 포커스
     setTimeout(()=>{
-      content.focus();
-      try{
-        const r=document.createRange();
-        r.selectNodeContents(content);
-        r.collapse(false);
-        const s=window.getSelection();
-        s.removeAllRanges();
-        s.addRange(r);
-      }catch(e){}
-    },30);
+      const inputs=document.querySelectorAll('#credFieldsEditor .lbl-input');
+      const last=inputs[inputs.length-1];
+      if(last) last.focus();
+    },10);
   }
+  window.addCredCustomField=addCredCustomField;
 
-  function exitNoticeEditMode(){
-    _notice_editing=false;
-    const content=document.getElementById('noticeContent');
-    const editBtn=document.getElementById('noticeEditBtn');
-    const saveBtn=document.getElementById('noticeSaveBtn');
-    const cancelBtn=document.getElementById('noticeCancelBtn');
-    const toolbar=document.getElementById('noticeToolbar');
-    if(content) content.contentEditable='false';
-    if(editBtn) editBtn.style.display='';
-    if(saveBtn) saveBtn.style.display='none';
-    if(cancelBtn) cancelBtn.style.display='none';
-    if(toolbar) toolbar.style.display='none';
-  }
-
-  async function saveNoticeEdit(){
-    const content=document.getElementById('noticeContent');
-    if(!content) return;
+  async function saveCredEntry(){
+    if(!_cred_editorState) return;
     if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
-    let html=content.innerHTML.trim();
-    if(html==='<p><br></p>' || html==='<br>' || html==='') html='';
-    const meta={html, updatedAt:Date.now()};
-    toast('공지 저장 중...','ok');
-    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta,null,2))));
-    const r=await ghPut(NOTICE_API, b64, `chore: 사내 공지 갱신`, {forceMaster:true});
-    if(!r.ok){
-      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
-      if(r.reason==='too_large'){toast('공지가 너무 깁니다','err');return}
-      toast(`저장 실패: ${r.reason}`,'err');return;
+    const name=document.getElementById('credEditName').value.trim();
+    if(!name){toast('서비스명을 입력하세요','err');return}
+    const memo=document.getElementById('credEditMemo').value.trim();
+    const type=_cred_editorState.type;
+
+    let fields;
+    if(type==='login'){
+      const username=document.getElementById('credEditUsername').value.trim();
+      const password=document.getElementById('credEditPassword').value;
+      if(!username && !password){toast('아이디 또는 비밀번호를 입력하세요','err');return}
+      fields=[
+        {label:'아이디', value:username, secret:false},
+        {label:'비밀번호', value:password, secret:true}
+      ];
+    } else {
+      fields=_cred_editorState.fields
+        .filter(f=>f.label.trim() || f.value.trim())
+        .map(f=>({label:f.label.trim()||'값', value:f.value, secret:!!f.secret}));
+      if(fields.length===0){toast('최소 1개 필드를 입력하세요','err');return}
     }
-    saveNoticeLocal(meta);
-    exitNoticeEditMode();
-    renderNotice();
+
+    const n=loadNotice();
+    if(_cred_editorState.mode==='edit'){
+      const idx=n.entries.findIndex(e=>e.id===_cred_editorState.id);
+      if(idx<0){toast('원본을 찾을 수 없어 신규 추가로 저장합니다','err')}
+      const updated={id: _cred_editorState.id || credUid(), type, name, fields, memo};
+      if(idx>=0) n.entries[idx]=updated;
+      else n.entries.push(updated);
+    } else {
+      n.entries.push({id:credUid(), type, name, fields, memo});
+    }
+    n.updatedAt=Date.now();
+
+    const ok=await pushNoticeToRemote(n);
+    if(!ok) return;
+    saveNoticeLocal(n);
+    closeCredEditor();
+    renderCredentials();
     renderNoticeUpdatedTag();
-    toast('✓ 공지 저장 완료','ok');
+    toast('✓ 저장 완료','ok');
+  }
+  window.saveCredEntry=saveCredEntry;
+
+  async function deleteCredEntry(id){
+    const n=loadNotice();
+    const entry=n.entries.find(e=>e.id===id);
+    if(!entry) return;
+    if(!confirm(`"${entry.name}" 항목을 삭제하시겠습니까?`)) return;
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+    n.entries=n.entries.filter(e=>e.id!==id);
+    n.updatedAt=Date.now();
+    const ok=await pushNoticeToRemote(n);
+    if(!ok) return;
+    saveNoticeLocal(n);
+    renderCredentials();
+    renderNoticeUpdatedTag();
+    toast('✓ 삭제 완료','ok');
+  }
+  window.deleteCredEntry=deleteCredEntry;
+
+  async function deleteCredLegacy(){
+    if(!confirm('레거시 원본을 영구 삭제합니다. 계속하시겠습니까?')) return;
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+    const n=loadNotice();
+    n.legacyHtml='';
+    n.updatedAt=Date.now();
+    const ok=await pushNoticeToRemote(n);
+    if(!ok) return;
+    saveNoticeLocal(n);
+    renderCredentials();
+    renderNoticeUpdatedTag();
+    toast('✓ 레거시 원본 삭제 완료','ok');
+  }
+  window.deleteCredLegacy=deleteCredLegacy;
+
+  async function pushNoticeToRemote(n){
+    toast('저장 중...','ok');
+    const payload={entries:n.entries, legacyHtml:n.legacyHtml||'', updatedAt:n.updatedAt||Date.now()};
+    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2))));
+    const r=await ghPut(NOTICE_API, b64, `chore: 자격증명 갱신`, {forceMaster:true});
+    if(!r.ok){
+      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return false}
+      if(r.reason==='too_large'){toast('데이터가 너무 큽니다','err');return false}
+      toast(`저장 실패: ${r.reason}`,'err');
+      return false;
+    }
+    return true;
   }
 
-  function cancelNoticeEdit(){
-    if(!_notice_editing) return;
-    const content=document.getElementById('noticeContent');
-    const cur=content?content.innerHTML.trim():'';
-    if(cur && cur !== _notice_origHtml.trim()){
-      if(!confirm('변경사항이 저장되지 않습니다. 취소하시겠습니까?')) return;
-    }
-    exitNoticeEditMode();
-    renderNotice();
-  }
-
-  function execNoticeCmd(cmd, arg){
-    const content=document.getElementById('noticeContent');
-    if(!content) return;
-    content.focus();
-    if(cmd==='link'){
-      const url=prompt('링크 URL을 입력하세요 (https://...)');
-      if(url){
-        const safe=/^https?:\/\//i.test(url)?url:('https://'+url);
-        document.execCommand('createLink', false, safe);
-      }
-      return;
-    }
-    if(cmd==='hr'){
-      document.execCommand('insertHorizontalRule', false, null);
-      return;
-    }
-    document.execCommand(cmd, false, arg||null);
-  }
-
-  // 툴바 위임 (mousedown으로 선택영역 보존)
-  const _noticeToolbar=document.getElementById('noticeToolbar');
-  if(_noticeToolbar){
-    _noticeToolbar.addEventListener('mousedown', e=>{
-      if(e.target.closest('button[data-cmd]')) e.preventDefault();
+  /* ============ 툴바 이벤트 (검색, 필터, 탭) ============ */
+  const _credSearchInput=document.getElementById('credSearch');
+  if(_credSearchInput){
+    _credSearchInput.addEventListener('input', e=>{
+      _cred_search=e.target.value;
+      renderCredentials();
     });
-    _noticeToolbar.addEventListener('click', e=>{
-      const btn=e.target.closest('button[data-cmd]');
-      if(!btn) return;
-      e.preventDefault();
-      execNoticeCmd(btn.dataset.cmd, btn.dataset.arg);
-    });
   }
+  document.querySelectorAll('.cred-filter-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.cred-filter-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      _cred_filter=chip.dataset.filter;
+      renderCredentials();
+    });
+  });
+  document.querySelectorAll('#credModalTabs .cred-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      setCredEditorTab(tab.dataset.tab);
+    });
+  });
+  // ESC로 모달 닫기
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && _cred_modalOpen){
+      closeCredEditor();
+    }
+  });
 
-  window.enterNoticeEdit=enterNoticeEdit;
-  window.saveNoticeEdit=saveNoticeEdit;
-  window.cancelNoticeEdit=cancelNoticeEdit;
-  window.execNoticeCmd=execNoticeCmd;
-  window.renderNotice=renderNotice;
+  window.renderNotice=renderCredentials;      // 다른 sync 훅에서 호출 호환
+  window.renderCredentials=renderCredentials;
   window.renderNoticeUpdatedTag=renderNoticeUpdatedTag;
+  window.toggleCredSecret=toggleCredSecret;
+  window.copyCredValue=copyCredValue;
 
-  renderNotice();
+  renderCredentials();
   renderNoticeUpdatedTag();
 
   /* ===================================================== */
