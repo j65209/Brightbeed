@@ -359,6 +359,8 @@
 
   /* 히어로 카드 — 인사팀/물류팀/브랜드별 재고관리 3개 나란히 */
   .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+  .hero-row + .hero-row{margin-top:-24px}  /* 인접 row 간격 축소 (인사팀-물류팀 사이) */
+  .hero-row-1{grid-template-columns:minmax(0,420px);justify-content:center}
   .hero-row-2{grid-template-columns:repeat(2,1fr)}
   .hero-row-3{grid-template-columns:repeat(3,1fr)}
   .hero-row-4{grid-template-columns:repeat(4,1fr)}
@@ -4380,6 +4382,7 @@
     .container{padding:20px}
     .topbar{padding:12px 20px}
     .hero-row{grid-template-columns:1fr;gap:12px;margin-bottom:32px}
+    .hero-row-1{grid-template-columns:minmax(0,320px)}
     .hero-row-2,.hero-row-3,.hero-row-4{grid-template-columns:repeat(2,1fr)}
     .hero{padding:32px 16px 28px}
     .btn-neon{padding:18px 36px;font-size:16px}
@@ -4615,8 +4618,8 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
-    <!-- 팀 카드 1행: 인사팀 / 물류팀(브라이트비드) / 물류팀(샤인비드) -->
-    <div class="hero-row hero-row-3">
+    <!-- 팀 카드 1행: 인사팀 (단독, 중앙 정렬) -->
+    <div class="hero-row hero-row-1">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
         <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
@@ -4624,7 +4627,10 @@
           <span id="hrBtnLabel">인사팀</span>
         </button>
       </section>
+    </div>
 
+    <!-- 팀 카드 2행: 물류팀 브라이트비드 / 샤인비드 (가로 나란히) -->
+    <div class="hero-row hero-row-2">
       <section class="hero hero-lg">
         <div class="hero-eyebrow">LOGISTICS · BRIGHTBEED</div>
         <button class="btn-neon btn-lg btn-lg-stacked" id="lgBtn" onclick="triggerLogistics('brightbeed')">
