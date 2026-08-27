@@ -249,6 +249,37 @@
   .best-refresh.spin svg{animation:spin .9s linear infinite}
   .best-refresh svg{width:12px;height:12px}
 
+  /* 기간 선택 — 프리셋 칩 + 날짜 두 개 (start ~ end). 마케팅팀 뷰 판매순위 패널 전용. */
+  .best-range{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .best-range-preset{
+    display:inline-flex;align-items:center;padding:5px 10px;border-radius:6px;
+    background:var(--bg-2);border:1px solid var(--line);color:var(--text-2);
+    font-size:11.5px;font-family:var(--mono);cursor:pointer;transition:all .12s;letter-spacing:.02em;
+  }
+  .best-range-preset:hover{background:var(--bg-3);border-color:var(--line-2);color:var(--text-0)}
+  .best-range-preset.is-active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 10px var(--neon-glow)}
+  .best-range-sep{color:var(--text-3);font-size:11px;padding:0 2px}
+  .best-range-date{
+    padding:5px 8px;border-radius:6px;background:var(--bg-2);border:1px solid var(--line);
+    color:var(--text-1);font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;
+    color-scheme:dark;
+  }
+  .best-range-date:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .best-range-apply{
+    padding:5px 10px;border-radius:6px;background:var(--accent);border:1px solid var(--accent);color:#fff;
+    font-size:11.5px;font-family:var(--mono);cursor:pointer;transition:all .12s;letter-spacing:.02em;
+  }
+  .best-range-apply:hover:not(:disabled){filter:brightness(1.1);box-shadow:0 0 12px var(--neon-glow)}
+  .best-range-apply:disabled{opacity:.5;cursor:not-allowed}
+  .best-coverage{
+    font-family:var(--mono);font-size:11px;color:#f59e0b;letter-spacing:.02em;
+    padding:3px 8px;border-radius:5px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);
+  }
+  @media (max-width:720px){
+    .best-range{width:100%;justify-content:flex-start}
+    .best-range-date{font-size:11px;padding:4px 6px}
+  }
+
   .best-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
   .best-col{
     background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
@@ -5250,9 +5281,19 @@
       <div class="best-head">
         <div class="best-head-left">
           <span class="best-eyebrow">TOP 10</span>
-          <span class="best-title">브랜드별 판매 순위<span class="best-title-sub">/ 식스샵 지난 30일</span></span>
+          <span class="best-title">브랜드별 판매 순위<span class="best-title-sub" id="bestSubtitle">/ 식스샵 지난 30일</span></span>
         </div>
         <div class="best-head-right">
+          <div class="best-range" id="bestRange">
+            <button type="button" class="best-range-preset is-active" data-days="30" onclick="bestApplyPreset(30)">30일</button>
+            <button type="button" class="best-range-preset" data-days="7" onclick="bestApplyPreset(7)">7일</button>
+            <button type="button" class="best-range-preset" data-days="90" onclick="bestApplyPreset(90)">90일</button>
+            <input type="date" class="best-range-date" id="bestRangeStart" onchange="bestOnDateChange()" title="시작일">
+            <span class="best-range-sep">~</span>
+            <input type="date" class="best-range-date" id="bestRangeEnd" onchange="bestOnDateChange()" title="종료일">
+            <button type="button" class="best-range-apply" id="bestRangeApply" onclick="bestApplyCustom()">적용</button>
+          </div>
+          <span class="best-coverage" id="bestCoverage" hidden></span>
           <span class="best-updated" id="bestUpdated"></span>
           <button class="best-refresh" id="bestRefresh" type="button" onclick="loadBestsellers(true)" title="새로고침">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -6502,18 +6543,28 @@
     }).join('');
     return `<div class="best-col">${head}<ul class="best-list">${rows}</ul></div>`;
   }
+  // 현재 선택된 기간. null = 지난 30일 (salesDataset default). 커스텀은 {start,end,label}.
+  let _bestRange=null;
+  function _bestFmtDate(iso){ return iso.slice(5).replace('-','.'); }   // 2026-08-01 → 08.01
   async function loadBestsellers(force){
     const grid=document.getElementById('bestGrid');
     const btn=document.getElementById('bestRefresh');
     const upd=document.getElementById('bestUpdated');
+    const sub=document.getElementById('bestSubtitle');
+    const cov=document.getElementById('bestCoverage');
     if(!grid) return;
     if(_bestBusy) return;
-    // 캐시 30분 (사용자가 새로고침 버튼 누르면 force=true)
+    // 캐시 30분 (사용자가 새로고침 버튼 누르면 force=true). 기간이 바뀌면 캐시 무시.
     if(!force && Date.now()-_bestLastFetch < 30*60*1000) return;
     _bestBusy=true;
     if(btn){btn.disabled=true;btn.classList.add('spin')}
     try{
-      const r=await sxFetch('/bestsellers?brand=all',{method:'GET'});
+      let url='/bestsellers?brand=all';
+      if(_bestRange){
+        url+=`&start=${encodeURIComponent(_bestRange.start)}&end=${encodeURIComponent(_bestRange.end)}`;
+      }
+      // 커스텀 구간(admin=히스토리, pro=item/top 재쿼리)은 각 브랜드마다 로그인이 필요해 5~15초.
+      const r=await sxFetch(url,{method:'GET'});
       if(!r.ok){
         grid.innerHTML=`<div class="best-col" style="grid-column:1/-1"><div class="best-err">서버 프록시 오류 (HTTP ${r.status})</div></div>`;
         return;
@@ -6536,6 +6587,28 @@
         const mm=String(t.getMinutes()).padStart(2,'0');
         upd.textContent=`${hh}:${mm} 갱신`;
       }
+      // 서브타이틀: 지난 30일 vs 커스텀 구간
+      if(sub){
+        sub.textContent = _bestRange
+          ? `/ 식스샵 ${_bestFmtDate(_bestRange.start)} ~ ${_bestFmtDate(_bestRange.end)}`
+          : '/ 식스샵 지난 30일';
+      }
+      // 커버리지 경고 — admin 히스토리에 없는 날이 있으면 노랑 뱃지 표시
+      if(cov){
+        const missing=[];
+        for(const b of brands){
+          const m=b&&b.coverage&&b.coverage.missing;
+          if(Array.isArray(m)&&m.length){ missing.push(...m); }
+        }
+        if(missing.length){
+          const uniq=[...new Set(missing)].sort();
+          cov.textContent = `히스토리 없는 날 ${uniq.length}일`;
+          cov.title = `admin_report.py 히스토리에 없는 날짜:\n${uniq.join(', ')}`;
+          cov.hidden = false;
+        } else {
+          cov.hidden = true;
+        }
+      }
     }catch(e){
       grid.innerHTML=`<div class="best-col" style="grid-column:1/-1"><div class="best-err">${_bestEsc(e.message||e)}</div></div>`;
     }finally{
@@ -6544,6 +6617,57 @@
     }
   }
   window.loadBestsellers=loadBestsellers;
+
+  /* 기간 선택 — 프리셋 (7/30/90일) 또는 사용자 지정 날짜 두 개.
+     - 프리셋 30일 = null (기본 salesDataset), 나머지는 커스텀 구간으로 fetch.
+     - 사용자가 시작/종료일을 손으로 바꾸면 프리셋 하이라이트 해제. */
+  function _bestTodayISO(){
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function _bestDaysAgoISO(days){
+    const d=new Date(); d.setDate(d.getDate()-days);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function _bestSetPresetActive(days){
+    const wrap=document.getElementById('bestRange'); if(!wrap) return;
+    wrap.querySelectorAll('.best-range-preset').forEach(b=>{
+      b.classList.toggle('is-active', String(b.dataset.days)===String(days));
+    });
+  }
+  function bestApplyPreset(days){
+    const end=_bestTodayISO();
+    const start=_bestDaysAgoISO(days);
+    const s=document.getElementById('bestRangeStart'); if(s) s.value=start;
+    const e=document.getElementById('bestRangeEnd'); if(e) e.value=end;
+    _bestSetPresetActive(days);
+    // 30일 프리셋 = 기본 salesDataset (더 정확 & 빠름), 7/90일 = 커스텀 구간.
+    _bestRange = (days===30) ? null : {start, end};
+    loadBestsellers(true);
+  }
+  function bestOnDateChange(){
+    // 사용자가 date input을 만졌으면 프리셋 하이라이트 해제 (적용 버튼을 눌러야 반영).
+    _bestSetPresetActive(null);
+  }
+  function bestApplyCustom(){
+    const s=document.getElementById('bestRangeStart').value;
+    const e=document.getElementById('bestRangeEnd').value;
+    if(!s||!e){ alert('시작일과 종료일을 모두 선택해주세요'); return; }
+    if(s>e){ alert('시작일이 종료일보다 늦습니다'); return; }
+    _bestRange={start:s, end:e};
+    loadBestsellers(true);
+  }
+  window.bestApplyPreset=bestApplyPreset;
+  window.bestApplyCustom=bestApplyCustom;
+  window.bestOnDateChange=bestOnDateChange;
+
+  // 초기 date input 값 세팅 (뷰 진입 전에도 30일 프리셋 표시 상태로).
+  (function _bestInitDateInputs(){
+    const s=document.getElementById('bestRangeStart');
+    const e=document.getElementById('bestRangeEnd');
+    if(s && !s.value) s.value=_bestDaysAgoISO(30);
+    if(e && !e.value) e.value=_bestTodayISO();
+  })();
 
   /* 호버 미리보기 위치 — 컬럼/화면 크기 관계없이 뷰포트 안에 딱 맞게 클램프 */
   function _bestPositionPreview(wrap){
@@ -9914,13 +10038,23 @@
      scripts/parse_orders.py 가 xlsx 아이템 6천개를 link/img 기준 dedupe해서
      1,100+ 개 고유 상품으로 집계한 것을 3열 그리드로 렌더. */
   // arState는 브랜드 별로 두 벌 유지하고 브랜드 스위치 시 통째로 스왑한다.
-  // BB(브라이트비드)는 dropbox orders.json + name overrides GitHub 저장이 있고,
-  // SB(샤인비드)는 KD 실시간 orders만 dedupe한 read-only 카탈로그.
+  // BB는 dropbox orders.json + product-name-overrides.json,
+  // SB는 KD 실시간 orders(dedupe) + product-name-overrides-shinebeed.json.
+  // 두 브랜드 모두 오버라이드 편집(제품명·이미지·삭제) 지원.
   let arState={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{},brand:'brightbeed',readonly:false};
   const _arStateBB=arState;
-  const _arStateSB={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{},brand:'shinebeed',readonly:true};
+  const _arStateSB={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{},brand:'shinebeed',readonly:false};
+  // 브랜드별 오버라이드 파일 (GitHub contents API) + PUT용 sha 캐시
+  const AR_OVERRIDES_APIS={
+    brightbeed:'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json',
+    shinebeed :'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides-shinebeed.json',
+  };
+  const _arOverridesShaMap={brightbeed:null, shinebeed:null};
+  function _arCurBrand(){ return (arState && arState.brand) || 'brightbeed'; }
+  function _arCurOverridesApi(){ return AR_OVERRIDES_APIS[_arCurBrand()] || AR_OVERRIDES_APIS.brightbeed; }
+  // 하위호환: 다른 곳에서 참조하던 이름 유지
   let _arOverridesSha=null;
-  const AR_OVERRIDES_API='https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json';
+  const AR_OVERRIDES_API=AR_OVERRIDES_APIS.brightbeed;
   function arEscape(s){return (s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
   function arFmtInt(n){if(n==null||isNaN(n))return '—';return Math.round(n).toLocaleString('ko-KR');}
   async function loadArchive(opts){
@@ -9981,9 +10115,15 @@
   window.getOfferHistory=(url)=>_offerHistory[_extractOfferId(url)]||[];
 
   async function loadNameOverrides(){
+    const brand=_arCurBrand();
+    const api=_arCurOverridesApi();
     try{
-      const r=await ghFetch(AR_OVERRIDES_API,{cache:'no-cache'});
-      if(!r.ok){ arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; arState.deletedIds={}; return; }
+      const r=await ghFetch(api,{cache:'no-cache'});
+      if(!r.ok){
+        arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; arState.deletedIds={};
+        _arOverridesShaMap[brand]=null; _arOverridesSha=null;
+        return;
+      }
       const j=await r.json();
       const raw=decodeURIComponent(escape(atob(j.content||'')));
       const d=JSON.parse(raw||'{}');
@@ -9991,20 +10131,28 @@
       arState.autoOverrides=d.auto_overrides||{};
       arState.imgOverrides=d.img_overrides||{};
       arState.deletedIds=d.deleted_ids||{};
-      _arOverridesSha=j.sha||null;
-    }catch(e){ arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; arState.deletedIds={}; }
+      _arOverridesShaMap[brand]=j.sha||null;
+      _arOverridesSha=_arOverridesShaMap[brand]; // 하위호환
+    }catch(e){
+      arState.overrides={}; arState.autoOverrides={}; arState.imgOverrides={}; arState.deletedIds={};
+    }
   }
 
   async function _saveOverridesPayload(nextOverrides, nextAuto, msg, nextImg, nextDeleted){
     if(nextImg===undefined) nextImg=arState.imgOverrides||{};
     if(nextDeleted===undefined) nextDeleted=arState.deletedIds||{};
-    const payload={version:1, description:'대시보드에서 사장님이 직접 수정한 상품명·이미지·숨김. product.id 를 key 로 사용.', overrides:nextOverrides, auto_overrides:nextAuto, img_overrides:nextImg, deleted_ids:nextDeleted};
+    const brand=_arCurBrand();
+    const api=_arCurOverridesApi();
+    const desc = brand==='shinebeed'
+      ? '샤인비드 발주 상품 카탈로그 수동 오버라이드. product.id (콰이디에어 offer URL 기준) 를 key 로 사용.'
+      : '대시보드에서 사장님이 직접 수정한 상품명·이미지·숨김. product.id 를 key 로 사용.';
+    const payload={version:1, description:desc, overrides:nextOverrides, auto_overrides:nextAuto, img_overrides:nextImg, deleted_ids:nextDeleted};
     const body={message:msg, content: btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))), branch:'main'};
-    if(_arOverridesSha) body.sha=_arOverridesSha;
-    const r=await ghFetch(AR_OVERRIDES_API,{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    if(_arOverridesShaMap[brand]) body.sha=_arOverridesShaMap[brand];
+    const r=await ghFetch(api,{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j=await r.json();
-    if(j.content?.sha) _arOverridesSha=j.content.sha;
+    if(j.content?.sha){ _arOverridesShaMap[brand]=j.content.sha; _arOverridesSha=j.content.sha; }
     arState.overrides=nextOverrides;
     arState.autoOverrides=nextAuto;
     arState.imgOverrides=nextImg;
@@ -10487,7 +10635,13 @@
       // SB는 renderKDOrders 가 최신 KD orders 를 받아 arStateSB.all 을 채워둔다. 즉시 렌더.
       const upd = document.getElementById('arUpdated');
       if(upd) upd.textContent = window._shineArUpdated || '';
-      applyArchive();
+      // 첫 진입에 오버라이드(제품명/이미지/삭제) 로드 후 applyArchive
+      if(!window._shineOverridesLoaded){
+        window._shineOverridesLoaded=true;
+        loadNameOverrides().finally(()=>applyArchive());
+      }else{
+        applyArchive();
+      }
     }else{
       if(!_arLoaded){ _arLoaded=true; loadArchive(); }
       else applyArchive();
