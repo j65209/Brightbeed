@@ -5463,7 +5463,7 @@
     <div class="po-wrap lg-pane" data-pane="postez" style="display:none">
       <div class="po-section">
         <div class="po-section-head">
-          <div class="po-section-title">우체국 국제 출고 <span class="kd-section-sub">EZ 등기 송장 모니터링</span></div>
+          <div class="po-section-title">우체국 국제 출고 <span class="kd-section-sub">국제 등기·EMS 송장 모니터링</span></div>
           <div class="po-section-meta">
             <input type="search" id="ezSearch" class="kd-search" placeholder="송장번호 · 메모 검색" oninput="filterPostEz(this.value)" />
             <span id="ezUpdated"></span>
@@ -5478,9 +5478,10 @@
         <!-- 입력 영역 -->
         <div class="ez-input-wrap">
           <div class="ez-input-hint">
-            <b>1)</b> 아래 칸에 <b>EZ로 시작하는 등기 송장</b>을 여러 개 붙여넣기 → <b>2)</b> 큰 핑크 버튼 <b>[송장 등록하기]</b> 클릭. 줄바꿈·쉼표·공백 어떻게 섞여도 자동 인식.
+            <b>1)</b> 아래 칸에 <b>국제 등기·EMS 송장</b>을 여러 개 붙여넣기 → <b>2)</b> 큰 핑크 버튼 <b>[송장 등록하기]</b> 클릭.<br>
+            국가·우편사 무관 <b>2글자+9자리(+국가코드)</b> 형태면 다 인식 (예: <code>LP407854234CN</code>, <code>EZ123456789KR</code>). 줄바꿈·쉼표·공백·하이픈 뭐든 섞여도 OK.
           </div>
-          <textarea id="ezInput" class="ez-input" rows="4" placeholder="예)&#10;EZ123456789KR&#10;EZ234567890KR EZ345678901KR&#10;EZ456789012KR, EZ567890123KR"></textarea>
+          <textarea id="ezInput" class="ez-input" rows="4" placeholder="예)&#10;LP407854234CN&#10;EZ123456789KR EZ234567890KR&#10;RR456789012KR, LX567890123CN"></textarea>
           <div class="ez-input-actions">
             <span id="ezPreview" class="ez-preview">인식된 송장: 0개 — 위에 붙여넣기 하세요</span>
           </div>
@@ -10992,12 +10993,12 @@
   };
 
   /* ===================================================== */
-  /* ============ 우체국 출고 (EZ 등기 송장) ============
-     여러 EZ 송장을 한 번에 붙여넣고 상태 모니터링.
-     저장: localStorage (브랜드별 분리). 다른 기기와 공유 필요시 GitHub JSON 로 확장 가능.
-     Format: EZ + 9 digits + KR (예: EZ123456789KR)
-     — 실제 붙여넣기엔 공백/줄바꿈/하이픈이 섞이거나 KR 국가코드가 빠질 수 있어서
-     토큰 단위로 정규화 후 매칭. 8~13자리 숫자까지 허용. */
+  /* ============ 우체국 출고 (국제 등기·EMS 송장) ============
+     UPU 국제우편 송장 = 2글자 접두사 + 9자리 숫자 + 2글자 국가코드
+     예) EZ123456789KR (한국우편 K-Packet), LP407854234CN (중국우편),
+         RR..KR, EE..KR, LX..CN, RB..JP 등 각국 우편사 코드 모두 커버.
+     실제 붙여넣기엔 공백/줄바꿈/하이픈/점 섞이거나 국가코드가 빠질 수 있어서
+     토큰 단위 병합 + 원문 정규식 이중 매칭. 8~13자리 숫자까지 허용. */
   const EZ_KEY_PREFIX='brightbeed_post_ez_';
   let _ezState={items:[], filter:'all', q:''};
 
@@ -11025,38 +11026,41 @@
     if(!text) return [];
     const seen=new Set();
     const out=[];
-    // 알파벳/숫자 이외(공백·줄바꿈·쉼표·하이픈·점·탭·괄호 등)로 분리
-    const tokens=String(text).toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean);
-    // 인접 토큰 합치기 — EZ 뒤로 연속 숫자 토큰들을 8~13자리 될 때까지 이어붙임.
-    // "EZ 123 456 789 KR", "EZ-234-567-890-KR", "EZ12345 6789KR" 등 모두 처리.
-    const merged=[];
+    const add=(code)=>{ if(!seen.has(code)){seen.add(code); out.push(code)} };
+    const raw=String(text).toUpperCase();
+
+    // Pass 1: 원문에서 붙어있는 형태 매칭 — "LP407854234CN", "EZ123456789KR" 등.
+    // 국제 UPU 송장 형태: 2글자 + 8~13자리 숫자 + 2글자 국가코드 (또는 코드 없음).
+    // 국가코드가 있는 형태를 먼저 잡아야 뒤 2글자가 잘려나가지 않음.
+    const withCountry=/[A-Z]{2}\d{8,13}[A-Z]{2}/g;
+    (raw.match(withCountry)||[]).forEach(add);
+    // 앞서 매칭된 부분을 지운 뒤 나머지에서 국가코드 없는 형태 추출
+    const remaining=raw.replace(withCountry, ' ');
+    const noCountry=/(?<![A-Z0-9])[A-Z]{2}\d{8,13}(?![A-Z0-9])/g;
+    (remaining.match(noCountry)||[]).forEach(add);
+
+    // Pass 2: 토큰 분리 → 병합 (공백·하이픈·점 등으로 조각난 형태).
+    // 예: "LP 407 854 234 CN", "EZ-123-456-789-KR"
+    const tokens=raw.split(/[^A-Z0-9]+/).filter(Boolean);
     for(let i=0;i<tokens.length;i++){
-      let t=tokens[i];
-      if(/^EZ$/.test(t)){
-        let digits='';
-        let j=i+1;
-        while(j<tokens.length && /^\d+$/.test(tokens[j]) && digits.length<13){
-          digits+=tokens[j];
-          j++;
-        }
-        // 넘치면 앞 13자리만
-        if(digits.length>13) digits=digits.slice(0,13);
-        if(digits.length>=8){
-          t='EZ'+digits;
-          i=j-1;
-          // KR 국가코드만 붙임 — 다른 2글자 코드는 잘못하면 인접 EZ 을 삼킴
-          if(/^KR$/.test(tokens[i+1]||'')){ t+=tokens[i+1]; i++; }
-        }
+      if(!/^[A-Z]{2}$/.test(tokens[i])) continue;
+      const prefix=tokens[i];
+      let digits='';
+      let j=i+1;
+      while(j<tokens.length && /^\d+$/.test(tokens[j]) && digits.length<13){
+        digits+=tokens[j];
+        j++;
       }
-      merged.push(t);
+      if(digits.length>13) digits=digits.slice(0,13);
+      if(digits.length<8) continue;
+      let country='';
+      if(j<tokens.length && /^[A-Z]{2}$/.test(tokens[j])){
+        country=tokens[j];
+        j++;
+      }
+      add(prefix+digits+country);
+      i=j-1;
     }
-    merged.forEach(tok=>{
-      // 유효 형태: EZ + 8~13자리 숫자 + 옵션 KR
-      const m=tok.match(/^(EZ\d{8,13})(KR)?$/);
-      if(!m) return;
-      const normalized = m[1] + (m[2] || 'KR');
-      if(!seen.has(normalized)){seen.add(normalized); out.push(normalized)}
-    });
     return out;
   }
 
@@ -11093,7 +11097,7 @@
     if(!ta) return;
     const nums=_ezParse(ta.value);
     if(!nums.length){
-      if(typeof toast==='function') toast('EZ로 시작하는 송장을 인식하지 못했어요','warn');
+      if(typeof toast==='function') toast('국제 송장 형태(2글자+9자리)를 인식하지 못했어요','warn');
       return;
     }
     const existing=new Set(_ezState.items.map(it=>it.tracking));
@@ -11183,8 +11187,9 @@
     return s==='shipped'?'배송중':(s==='delivered'?'배송완료':'발송대기');
   }
   function _ezTrackUrl(t){
-    // 한국 우체국 국제등기 조회 (EZ...KR)
-    return `https://service.epost.go.kr/trace.RetrieveEmsRigiTraceList.comm?displayHeader=N&POST_CODE=${encodeURIComponent(t)}`;
+    // 17track 유니버설 국제 트래킹 — 국가/우편사 자동 판별 (LP...CN, EZ...KR, RR...JP 등).
+    // 우체국 사이트는 KR 코드만 지원해서 CN/JP 등에서 안 열리기 때문에 17track 로 전환.
+    return `https://t.17track.net/en#nums=${encodeURIComponent(t)}`;
   }
 
   function renderPostEz(newIds){
