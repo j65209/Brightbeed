@@ -3183,6 +3183,7 @@
   .ig-panel{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
   .ig-field{display:flex;flex-direction:column;gap:7px}
   .ig-field[hidden]{display:none}
+  .ig-fixed-block{background:linear-gradient(180deg,rgba(236,72,153,.05),rgba(139,92,246,.04));border:1px solid rgba(236,72,153,.18);border-radius:10px;padding:11px 12px;gap:8px}
   .ig-label{font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:.02em;display:flex;align-items:center;gap:7px}
   .ig-label-sub{font-weight:400;color:var(--text-3);font-size:11px}
   .ig-drop{border:1.5px dashed var(--line-2);border-radius:10px;background:var(--bg-2);padding:20px 14px;text-align:center;cursor:pointer;color:var(--text-3);font-size:12.5px;line-height:1.5;transition:all .15s}
@@ -3231,6 +3232,7 @@
   .ig-overlay-del{width:22px;height:22px;border:none;background:transparent;color:var(--text-3);font-size:14px;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0}
   .ig-overlay-del:hover{background:rgba(239,68,68,.12);color:#ef4444}
   .ig-selected-edit{background:var(--bg-2);border:1px solid var(--line);border-radius:9px;padding:11px;display:flex;flex-direction:column;gap:9px}
+  .ig-selected-edit[hidden]{display:none}
   .ig-selected-edit-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;font-weight:700}
   .ig-selected-edit-head b{color:var(--text-1);font-weight:700;text-transform:none;letter-spacing:0;font-size:12px}
   .ig-mini-label{font-size:10.5px;color:var(--text-3);font-weight:600;letter-spacing:.02em}
@@ -6434,22 +6436,49 @@
           </div>
         </div>
 
-        <div class="ig-field">
-          <span class="ig-label">브랜드 워터마크</span>
+        <div class="ig-field ig-fixed-block">
+          <span class="ig-label">상단 고정 배지 <span class="ig-label-sub">(템플릿 기본)</span>
+            <label class="ig-toggle" style="margin-left:auto">
+              <input type="checkbox" id="igTopBadgeOn" checked>
+              <span>표시</span>
+            </label>
+          </span>
+          <div class="ig-row-inline">
+            <input type="text" class="ig-input" id="igTopBadgeText" value="NOW ON" maxlength="20" placeholder="예: NOW ON · EVENT">
+          </div>
+          <div class="ig-row-inline">
+            <span class="ig-mini-label" style="flex:0 0 44px">글자</span>
+            <input type="color" class="ig-color" id="igTopBadgeColor" value="#ffffff">
+            <span class="ig-mini-label" style="flex:0 0 44px;padding-left:8px">배경</span>
+            <input type="color" class="ig-color" id="igTopBadgeBg" value="#a3e635">
+          </div>
+          <div class="ig-corners" id="igTopBadgeCorners">
+            <button type="button" class="ig-corner is-active" data-corner="tl" title="좌측 상단">↖</button>
+            <button type="button" class="ig-corner" data-corner="tc" title="상단 중앙">⬆</button>
+            <button type="button" class="ig-corner" data-corner="tr" title="우측 상단">↗</button>
+          </div>
+          <div class="ig-slider-row">
+            <span class="ig-mini-label">크기</span>
+            <input type="range" class="ig-slider" id="igTopBadgeSize" min="1" max="8" value="3">
+            <b id="igTopBadgeSizeVal">3</b>
+          </div>
+        </div>
+
+        <div class="ig-field ig-fixed-block">
+          <span class="ig-label">하단 브랜드 워터마크 <span class="ig-label-sub">(템플릿 기본)</span>
+            <label class="ig-toggle" style="margin-left:auto">
+              <input type="checkbox" id="igBrandOn" checked>
+              <span>표시</span>
+            </label>
+          </span>
           <div class="ig-row-inline">
             <input type="text" class="ig-input" id="igBrandText" value="Brightbeed" maxlength="40" placeholder="브랜드명">
             <input type="color" class="ig-color" id="igBrandColor" value="#ffffff">
           </div>
           <div class="ig-corners" id="igBrandCorners">
-            <button type="button" class="ig-corner" data-corner="tl" title="좌측 상단">↖</button>
-            <button type="button" class="ig-corner" data-corner="tc" title="상단 중앙">⬆</button>
-            <button type="button" class="ig-corner" data-corner="tr" title="우측 상단">↗</button>
-            <button type="button" class="ig-corner" data-corner="cl" title="좌측 중앙">⬅</button>
-            <button type="button" class="ig-corner" data-corner="cc" title="정중앙">●</button>
-            <button type="button" class="ig-corner" data-corner="cr" title="우측 중앙">➡</button>
             <button type="button" class="ig-corner" data-corner="bl" title="좌측 하단">↙</button>
-            <button type="button" class="ig-corner" data-corner="bc" title="하단 중앙">⬇</button>
-            <button type="button" class="ig-corner is-active" data-corner="br" title="우측 하단">↘</button>
+            <button type="button" class="ig-corner is-active" data-corner="bc" title="하단 중앙">⬇</button>
+            <button type="button" class="ig-corner" data-corner="br" title="우측 하단">↘</button>
           </div>
           <div class="ig-slider-row">
             <span class="ig-mini-label">크기</span>
@@ -16279,7 +16308,8 @@
     ready:false,
     ratio:'4:5',
     bg:{ color:'#111827', image:null, x:50, y:50, dim:true },
-    brand:{ text:'Brightbeed', color:'#ffffff', corner:'br', size:4 },
+    topBadge:{ enabled:true, text:'NOW ON', color:'#ffffff', bg:'#a3e635', corner:'tl', size:3 },
+    brand:{ enabled:true, text:'Brightbeed', color:'#ffffff', corner:'bc', size:4 },
     overlays:[],   // {id, kind:'badge'|'text', text, corner, color, bg, size}
     selectedId:null,
     _idSeq:1
@@ -16336,7 +16366,24 @@
       }
     });
 
+    // Top fixed badge controls
+    document.getElementById('igTopBadgeOn').addEventListener('change',e=>{ _ig.topBadge.enabled = e.target.checked; _igRender(); });
+    document.getElementById('igTopBadgeText').addEventListener('input',e=>{ _ig.topBadge.text = e.target.value; _igRender(); });
+    document.getElementById('igTopBadgeColor').addEventListener('input',e=>{ _ig.topBadge.color = e.target.value; _igRender(); });
+    document.getElementById('igTopBadgeBg').addEventListener('input',e=>{ _ig.topBadge.bg = e.target.value; _igRender(); });
+    document.querySelectorAll('#igTopBadgeCorners .ig-corner').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('#igTopBadgeCorners .ig-corner').forEach(b=>b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        _ig.topBadge.corner = btn.dataset.corner;
+        _igRender();
+      });
+    });
+    const tbSize = document.getElementById('igTopBadgeSize');
+    tbSize.addEventListener('input',e=>{ _ig.topBadge.size = +e.target.value; document.getElementById('igTopBadgeSizeVal').textContent = e.target.value; _igRender(); });
+
     // Brand watermark controls
+    document.getElementById('igBrandOn').addEventListener('change',e=>{ _ig.brand.enabled = e.target.checked; _igRender(); });
     document.getElementById('igBrandText').addEventListener('input',e=>{ _ig.brand.text = e.target.value; _igRender(); });
     document.getElementById('igBrandColor').addEventListener('input',e=>{ _ig.brand.color = e.target.value; _igRender(); });
     document.querySelectorAll('#igBrandCorners .ig-corner').forEach(btn=>{
@@ -16632,8 +16679,14 @@
       });
     });
 
-    // 5) Brand watermark — always on top
-    if(_ig.brand.text && _ig.brand.text.trim()){
+    // 5) Top fixed badge (template default) — rectangular chip
+    if(_ig.topBadge.enabled && _ig.topBadge.text && _ig.topBadge.text.trim()){
+      const anc = _igCornerXY(_ig.topBadge.corner, cw, ch, pad);
+      _igDrawTopBadge(ctx, _ig.topBadge, anc, cw);
+    }
+
+    // 6) Brand watermark — always on top
+    if(_ig.brand.enabled && _ig.brand.text && _ig.brand.text.trim()){
       const anc = _igCornerXY(_ig.brand.corner, cw, ch, pad);
       const px = _igScaleToPx(_ig.brand.size, cw, 'brand');
       ctx.font = `700 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
@@ -16647,6 +16700,30 @@
       ctx.fillText(_ig.brand.text, anc.x, anc.y);
       ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
     }
+  }
+
+  function _igDrawTopBadge(ctx, tb, anc, cw){
+    // Rectangular chip with slight rounding — matches @brightbeed feed style
+    const px = _igScaleToPx(tb.size, cw, 'badge');
+    const padH = Math.round(px * 0.62);
+    const padV = Math.round(px * 0.28);
+    ctx.font = `800 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
+    const tw = ctx.measureText(tb.text).width;
+    const w = Math.round(tw + padH*2);
+    const h = Math.round(px + padV*2);
+    let rx = anc.x;
+    if(anc.anchorX==='center') rx = anc.x - w/2;
+    else if(anc.anchorX==='right') rx = anc.x - w;
+    let ry = anc.y;
+    if(anc.anchorY==='middle') ry = anc.y - h/2;
+    else if(anc.anchorY==='bottom') ry = anc.y - h;
+    ctx.fillStyle = tb.bg;
+    _igRoundRect(ctx, rx, ry, w, h, Math.round(h * 0.14));
+    ctx.fill();
+    ctx.fillStyle = tb.color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(tb.text, rx + w/2, ry + h/2 + Math.round(px*0.05));
   }
 
   function _igOverlayHeight(ctx, ov, cw){
@@ -16758,9 +16835,10 @@
   }
 
   function igReset(){
-    if(!confirm('배경 이미지 · 브랜드 · 배지 · 텍스트를 모두 초기화합니다.\n계속할까요?')) return;
+    if(!confirm('배경 이미지 · 배지 · 텍스트를 모두 초기화합니다.\n(상단 NOW ON · 하단 Brightbeed 는 템플릿 기본값으로 복원)\n계속할까요?')) return;
     _ig.bg = { color:'#111827', image:null, x:50, y:50, dim:true };
-    _ig.brand = { text:'Brightbeed', color:'#ffffff', corner:'br', size:4 };
+    _ig.topBadge = { enabled:true, text:'NOW ON', color:'#ffffff', bg:'#a3e635', corner:'tl', size:3 };
+    _ig.brand = { enabled:true, text:'Brightbeed', color:'#ffffff', corner:'bc', size:4 };
     _ig.overlays = [];
     _ig.selectedId = null;
     _ig._idSeq = 1;
@@ -16777,12 +16855,24 @@
     drop.classList.remove('is-loaded');
     drop.innerHTML = '이미지를 <b>드래그</b>하거나 <b>클릭</b><br>(Ctrl+V 붙여넣기 가능)';
     document.getElementById('igFile').value = '';
+    // Top badge
+    document.getElementById('igTopBadgeOn').checked = _ig.topBadge.enabled;
+    document.getElementById('igTopBadgeText').value = _ig.topBadge.text;
+    document.getElementById('igTopBadgeColor').value = _ig.topBadge.color;
+    document.getElementById('igTopBadgeBg').value = _ig.topBadge.bg;
+    document.getElementById('igTopBadgeSize').value = _ig.topBadge.size;
+    document.getElementById('igTopBadgeSizeVal').textContent = _ig.topBadge.size;
+    document.querySelectorAll('#igTopBadgeCorners .ig-corner').forEach(b=>{
+      b.classList.toggle('is-active', b.dataset.corner==='tl');
+    });
+    // Brand
+    document.getElementById('igBrandOn').checked = _ig.brand.enabled;
     document.getElementById('igBrandText').value = _ig.brand.text;
     document.getElementById('igBrandColor').value = _ig.brand.color;
     document.getElementById('igBrandSize').value = _ig.brand.size;
     document.getElementById('igBrandSizeVal').textContent = _ig.brand.size;
     document.querySelectorAll('#igBrandCorners .ig-corner').forEach(b=>{
-      b.classList.toggle('is-active', b.dataset.corner==='br');
+      b.classList.toggle('is-active', b.dataset.corner==='bc');
     });
     document.querySelectorAll('#igRatios .ig-ratio').forEach(b=>{
       b.classList.toggle('is-active', b.dataset.ratio==='4:5');
