@@ -4153,30 +4153,42 @@
   .diary-today-btn:hover{background:#f4f0e3;color:#1c1917}
   .diary-today-btn.active{background:#1c1917;color:#fff}
 
-  /* 상단 요약 스탯 — 애플 통계 카드 감성 */
-  .diary-overview{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;
+  /* 미작성 알림 배너 (평일 18시↑, 오늘만) */
+  .diary-alert{
+    background:linear-gradient(180deg,#fffbeb 0%,#fff 55%);
+    border:1px solid #f6d99a;border-radius:14px;
+    padding:14px 18px 16px;margin-bottom:20px;
+    display:flex;flex-direction:column;gap:10px;
   }
-  .diary-ov{
-    background:#fff;border:1px solid #eae7dc;border-radius:14px;
-    padding:18px 20px 20px;display:flex;flex-direction:column;gap:6px;
-    transition:border-color .18s ease,transform .18s ease;
+  .diary-alert-head{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px;font-weight:600;color:#a16207;letter-spacing:-.01em;
   }
-  .diary-ov:hover{border-color:#d5cfb8}
-  .diary-ov-lbl{
-    font-size:11px;color:#a8a29e;font-weight:500;
-    letter-spacing:.04em;text-transform:uppercase;
+  .diary-alert-head svg{color:#eab308}
+  .diary-alert-count{
+    margin-left:auto;font-size:11px;color:#a16207;font-weight:500;
+    background:rgba(234,179,8,.14);padding:3px 9px;border-radius:999px;
+    letter-spacing:-.01em;font-variant-numeric:tabular-nums;
   }
-  .diary-ov-num{
-    font-size:30px;font-weight:700;color:#1c1917;letter-spacing:-.035em;
-    font-variant-numeric:tabular-nums;line-height:1.1;
+  .diary-alert-list{display:flex;flex-wrap:wrap;gap:6px}
+  .diary-alert-item{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:5px 11px 5px 5px;border-radius:999px;
+    background:#fff;border:1px solid #f6d99a;
+    font-size:12.5px;color:#1c1917;font-weight:500;letter-spacing:-.01em;
+    transition:all .15s ease;
   }
-  .diary-ov-accent{
-    background:linear-gradient(180deg,#fffbeb 0%,#fff 60%);
-    border-color:#f6d99a;
+  .diary-alert-item:hover{border-color:#eab308;background:#fffbeb}
+  .diary-alert-avatar{
+    width:20px;height:20px;border-radius:50%;
+    background:#f0ebda;color:#78716c;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:600;letter-spacing:0;
   }
-  .diary-ov-accent .diary-ov-num{color:#a16207}
-  .diary-ov-accent .diary-ov-lbl{color:#a16207;opacity:.85}
+  .diary-alert-avatar.c-logi{background:#ede9fe;color:#5b21b6}
+  .diary-alert-avatar.c-mkt{background:#ecfccb;color:#3f6212}
+  .diary-alert-avatar.c-md2{background:#ffe4e6;color:#9f1239}
+  .diary-alert-avatar.c-share{background:#e0f2fe;color:#075985}
 
   /* 전 직원 카드 그리드 */
   .diary-board{
@@ -4317,17 +4329,6 @@
   .dcs-task:hover .dcs-task-del{opacity:.7}
   .dcs-task-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
-  /* 메모 */
-  .dcs-memo{
-    min-height:56px;padding:10px 12px;border-radius:8px;
-    background:#faf7ed;border:1px solid transparent;
-    font-size:13px;line-height:1.6;color:#1c1917;
-    outline:none;white-space:pre-wrap;word-break:break-word;
-    transition:all .15s ease;letter-spacing:-.01em;
-  }
-  .dcs-memo:focus{border-color:#f6d99a;background:#fffbeb}
-  .dcs-memo:empty::before{content:attr(data-placeholder);color:#a8a29e}
-
   .dcs-sec-empty{
     padding:10px 12px;text-align:center;color:#a8a29e;font-size:11.5px;
     background:#faf7ed;border-radius:6px;letter-spacing:-.005em;
@@ -4336,17 +4337,14 @@
 
   /* 모바일 */
   @media (max-width:900px){
-    .diary-overview{grid-template-columns:repeat(2,1fr);gap:10px}
     .diary-board{grid-template-columns:1fr}
     #viewDiary .view-title{font-size:22px}
   }
   @media (max-width:600px){
     .diary-head-actions{width:100%}
     .diary-date-nav{flex:1;justify-content:space-between}
-    .diary-overview{gap:8px}
-    .diary-ov{padding:14px 16px}
-    .diary-ov-num{font-size:24px}
     .dcs{padding:16px 18px 18px}
+    .diary-alert{padding:12px 14px 14px}
   }
 
   /* ===== 연차 (인사팀 뷰) ===== */
@@ -5791,12 +5789,14 @@
       </div>
     </div>
 
-    <!-- 요약 스탯 -->
-    <div class="diary-overview">
-      <div class="diary-ov"><span class="diary-ov-lbl">Members</span><span class="diary-ov-num" id="diaryOvStaff">0</span></div>
-      <div class="diary-ov diary-ov-accent"><span class="diary-ov-lbl">Active today</span><span class="diary-ov-num" id="diaryOvActive">0</span></div>
-      <div class="diary-ov"><span class="diary-ov-lbl">Tasks done</span><span class="diary-ov-num" id="diaryOvTasks">0 / 0</span></div>
-      <div class="diary-ov"><span class="diary-ov-lbl">Open requests</span><span class="diary-ov-num" id="diaryOvReqs">0</span></div>
+    <!-- 미작성 알림 (평일 · 오후 6시 이후 · 오늘만) -->
+    <div class="diary-alert" id="diaryAlert" hidden>
+      <div class="diary-alert-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+        <span>오늘 업무일지 미작성</span>
+        <span class="diary-alert-count" id="diaryAlertCount">0명</span>
+      </div>
+      <div class="diary-alert-list" id="diaryAlertList"></div>
     </div>
 
     <!-- 전 직원 카드 그리드 -->
@@ -9807,29 +9807,57 @@
     _diaryState.saveTimers[name] = setTimeout(()=>{
       _diaryPersistStaff(name);
       _diaryFlashSave();
-      _diaryUpdateOverview();
+      _diaryUpdateAlert();
     }, 250);
   }
 
   // 현재 화면에 그려진 각 직원의 entry를 캐싱 (in-memory)
   let _diaryEntries = {};
 
-  function _diaryUpdateOverview(){
-    let taskDone = 0, taskTotal = 0, reqOpen = 0, actives = 0;
-    STAFF.forEach(st=>{
+  /* 오늘 · 평일 · 오후 6시 이후 조건일 때 미작성자 명단 표시 */
+  function _diaryUpdateAlert(){
+    const alert = document.getElementById('diaryAlert');
+    const list = document.getElementById('diaryAlertList');
+    const cnt = document.getElementById('diaryAlertCount');
+    if(!alert) return;
+
+    const today = _diaryTodayStr();
+    const isToday = (_diaryState.date === today);
+    const now = new Date();
+    const dow = now.getDay();      // 0=일, 6=토
+    const isWeekday = (dow >= 1 && dow <= 5);
+    const isAfter6 = (now.getHours() >= 18);
+
+    if(!(isToday && isWeekday && isAfter6)){
+      alert.hidden = true;
+      return;
+    }
+
+    const missing = STAFF.filter(st=>{
       const e = _diaryEntries[st.name];
-      if(!e) return;
-      const td = (e.tasks||[]).filter(t=>t.done).length;
-      const tt = (e.tasks||[]).length;
-      const ro = (e.reqs||[]).filter(r=>!r.done).length;
-      taskDone += td; taskTotal += tt; reqOpen += ro;
-      const has = tt>0 || (e.reqs||[]).length>0 || (e.memo && e.memo.trim());
-      if(has) actives++;
+      if(!e) return true;
+      const hasReq  = (e.reqs||[]).length > 0;
+      const hasTask = (e.tasks||[]).length > 0;
+      return !hasReq && !hasTask;
     });
-    document.getElementById('diaryOvStaff').textContent = STAFF.length;
-    document.getElementById('diaryOvActive').textContent = actives;
-    document.getElementById('diaryOvTasks').textContent = `${taskDone} / ${taskTotal}`;
-    document.getElementById('diaryOvReqs').textContent = reqOpen;
+
+    if(missing.length === 0){
+      alert.hidden = true;
+      return;
+    }
+
+    alert.hidden = false;
+    cnt.textContent = `${missing.length}명`;
+    list.innerHTML = '';
+    missing.forEach(st=>{
+      const chip = document.createElement('span');
+      chip.className = 'diary-alert-item';
+      chip.innerHTML = `
+        <span class="diary-alert-avatar ${_diaryStaffColorClass(st.color)}">${_diaryStaffInitial(st.name)}</span>
+        <span>${_esc(st.name)}</span>
+      `;
+      list.appendChild(chip);
+    });
   }
 
   function _diaryRenderBoard(){
@@ -9851,7 +9879,7 @@
     STAFF.forEach(st=>{
       board.appendChild(_diaryBuildStaffCard(st));
     });
-    _diaryUpdateOverview();
+    _diaryUpdateAlert();
   }
 
   function _diaryBuildStaffCard(st){
@@ -9892,19 +9920,11 @@
         <div class="dcs-task-list"></div>
         <div class="dcs-sec-empty" data-task-empty hidden>No tasks yet</div>
       </section>
-
-      <section class="dcs-sec">
-        <div class="dcs-sec-head">
-          <div class="dcs-sec-title">Notes</div>
-        </div>
-        <div class="dcs-memo" contenteditable="true" data-placeholder="오늘의 메모"></div>
-      </section>
     `;
 
     // 초기 컨텐츠 채우기
     _diaryCardRenderReqs(card, st);
     _diaryCardRenderTasks(card, st);
-    card.querySelector('.dcs-memo').innerText = entry.memo || '';
     _diaryCardUpdateStat(card, st);
 
     // 이벤트 바인딩
@@ -9920,12 +9940,6 @@
       _diaryCardUpdateStat(card, st);
       _diaryScheduleSaveFor(name);
     };
-    const memo = card.querySelector('.dcs-memo');
-    memo.addEventListener('input', ()=>{
-      entry.memo = memo.innerText;
-      _diaryCardUpdateStat(card, st);
-      _diaryScheduleSaveFor(name);
-    });
 
     return card;
   }
@@ -9935,20 +9949,17 @@
     const done = (entry.tasks||[]).filter(t=>t.done).length;
     const total = (entry.tasks||[]).length;
     const openReq = (entry.reqs||[]).filter(r=>!r.done).length;
-    const hasMemo = !!(entry.memo && entry.memo.trim());
     const stat = card.querySelector('[data-stat]');
     if(total>0){
       stat.textContent = `${done} / ${total}`;
     } else if(openReq>0){
       stat.textContent = `요청 ${openReq}`;
-    } else if(hasMemo){
-      stat.textContent = '메모';
     } else {
       stat.textContent = '—';
     }
     card.classList.toggle('dcs-active', (total>0 && done<total) || openReq>0);
     card.classList.toggle('dcs-complete', total>0 && done===total);
-    card.classList.toggle('dcs-empty', total===0 && openReq===0 && !hasMemo);
+    card.classList.toggle('dcs-empty', total===0 && openReq===0);
   }
 
   function _diaryCardRenderReqs(card, st, focusLast){
