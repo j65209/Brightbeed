@@ -4117,55 +4117,66 @@
   .om-div.om-vendor .om-team.om-md2 .om-team-name{color:#b91c1c;background:rgba(255,140,112,.10);border:1px solid rgba(255,140,112,.30)}
   .om-div.om-vendor .om-team.om-md2 .om-mem{color:#991b1b;border-color:rgba(255,140,112,.30);background:rgba(255,140,112,.06)}
 
-  /* ===== 업무일지 뷰 — 전 직원 대시보드 ===== */
-  .diary-head-actions{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  /* ===== 업무일지 뷰 — 애플/노션 감성 미니멀 대시보드 ===== */
+  #viewDiary .view-title{font-size:26px;font-weight:700;letter-spacing:-.03em}
+  #viewDiary .view-title-sub{font-size:13px;color:#a8a29e;font-weight:500;letter-spacing:-.01em;margin-left:10px}
+
+  .diary-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .diary-save-tag{
     display:inline-flex;align-items:center;gap:6px;
-    padding:4px 10px;border-radius:999px;
-    font-size:11px;color:#15803d;background:rgba(245,158,11,.12);
-    border:1px solid rgba(245,158,11,.30);
-    font-variant-numeric:tabular-nums;letter-spacing:.02em;
+    padding:5px 11px;border-radius:999px;
+    font-size:11px;color:#57534e;background:#f4f0e3;
+    border:1px solid transparent;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em;font-weight:500;
   }
-  .diary-save-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.65)}
-  .diary-date-nav{display:flex;align-items:center;gap:6px}
+  .diary-save-tag::before{content:'';width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+  .diary-date-nav{display:inline-flex;align-items:center;gap:4px;padding:3px;border:1px solid #eae7dc;border-radius:9px;background:#fff}
   .diary-nav-btn{
-    width:30px;height:30px;border-radius:6px;border:1px solid var(--line);
-    background:var(--bg-1);color:var(--text-2);
+    width:26px;height:26px;border-radius:6px;border:none;
+    background:transparent;color:#78716c;
     display:flex;align-items:center;justify-content:center;
-    transition:all .12s;
+    transition:all .15s ease;
   }
-  .diary-nav-btn:hover{background:var(--bg-2);color:var(--text-0);border-color:var(--line-2)}
+  .diary-nav-btn:hover{background:#f4f0e3;color:#1c1917}
   .diary-date-input{
-    padding:6px 10px;border:1px solid var(--line);border-radius:6px;
-    background:var(--bg-1);color:var(--text-0);font-size:13px;
-    font-family:var(--mono);font-variant-numeric:tabular-nums;
-    outline:none;transition:border-color .12s;cursor:pointer;
+    padding:4px 10px;border:none;border-radius:6px;
+    background:transparent;color:#1c1917;font-size:13px;
+    font-family:var(--sans);font-variant-numeric:tabular-nums;font-weight:500;
+    outline:none;cursor:pointer;letter-spacing:-.01em;
   }
-  .diary-date-input:focus{border-color:var(--neon-diary)}
+  .diary-date-input:focus{background:#f4f0e3}
   .diary-today-btn{
-    padding:6px 12px;border-radius:6px;border:1px solid var(--line);
-    background:var(--bg-1);color:var(--text-2);font-size:12px;font-weight:500;
-    transition:all .12s;
+    padding:5px 12px;border-radius:6px;border:none;
+    background:transparent;color:#57534e;font-size:12px;font-weight:500;
+    transition:all .15s ease;letter-spacing:-.01em;
   }
-  .diary-today-btn:hover{background:var(--bg-2);color:var(--text-0)}
-  .diary-today-btn.active{background:linear-gradient(135deg,var(--neon-diary),var(--neon-diary-2));color:#fff;border-color:transparent}
+  .diary-today-btn:hover{background:#f4f0e3;color:#1c1917}
+  .diary-today-btn.active{background:#1c1917;color:#fff}
 
-  /* 상단 요약 스탯 */
+  /* 상단 요약 스탯 — 애플 통계 카드 감성 */
   .diary-overview{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;
   }
   .diary-ov{
-    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
-    padding:14px 16px;display:flex;flex-direction:column;gap:4px;
+    background:#fff;border:1px solid #eae7dc;border-radius:14px;
+    padding:18px 20px 20px;display:flex;flex-direction:column;gap:6px;
+    transition:border-color .18s ease,transform .18s ease;
+  }
+  .diary-ov:hover{border-color:#d5cfb8}
+  .diary-ov-lbl{
+    font-size:11px;color:#a8a29e;font-weight:500;
+    letter-spacing:.04em;text-transform:uppercase;
   }
   .diary-ov-num{
-    font-size:22px;font-weight:700;color:var(--text-0);letter-spacing:-.01em;
-    font-variant-numeric:tabular-nums;
+    font-size:30px;font-weight:700;color:#1c1917;letter-spacing:-.035em;
+    font-variant-numeric:tabular-nums;line-height:1.1;
   }
-  .diary-ov-lbl{font-size:11px;color:var(--text-3);letter-spacing:.04em;font-weight:500}
-  .diary-ov:nth-child(2) .diary-ov-num{color:#a16207}
-  .diary-ov:nth-child(3) .diary-ov-num{color:#15803d}
-  .diary-ov:nth-child(4) .diary-ov-num{color:#b45309}
+  .diary-ov-accent{
+    background:linear-gradient(180deg,#fffbeb 0%,#fff 60%);
+    border-color:#f6d99a;
+  }
+  .diary-ov-accent .diary-ov-num{color:#a16207}
+  .diary-ov-accent .diary-ov-lbl{color:#a16207;opacity:.85}
 
   /* 전 직원 카드 그리드 */
   .diary-board{
@@ -4173,156 +4184,169 @@
     align-items:start;
   }
 
-  /* 각 직원 카드 */
+  /* 각 직원 카드 — 노션 페이지 감성 */
   .dcs{
-    background:var(--bg-1);border:1px solid var(--line);border-radius:12px;
-    padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;
-    transition:border-color .12s,box-shadow .12s;
+    background:#fff;border:1px solid #eae7dc;border-radius:14px;
+    padding:20px 22px 22px;display:flex;flex-direction:column;gap:18px;
+    transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
   }
-  .dcs.dcs-active{border-color:rgba(245,158,11,.45);box-shadow:0 0 0 3px rgba(245,158,11,.08)}
-  .dcs.dcs-empty{opacity:.85}
+  .dcs:hover{border-color:#d5cfb8}
+  .dcs.dcs-active{border-color:#f6d99a;box-shadow:0 1px 0 rgba(234,179,8,.06),0 8px 20px -12px rgba(234,179,8,.28)}
+  .dcs.dcs-complete{border-color:#bbf7d0;box-shadow:0 1px 0 rgba(34,197,94,.05),0 8px 20px -12px rgba(34,197,94,.22)}
+  .dcs.dcs-empty{opacity:.72}
+  .dcs.dcs-empty:hover{opacity:1}
 
   .dcs-head{
-    display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
-    padding-bottom:10px;border-bottom:1px solid var(--line);
+    display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    padding-bottom:16px;border-bottom:1px solid #f0ebda;
   }
   .dcs-avatar{
-    flex-shrink:0;width:34px;height:34px;border-radius:50%;
-    background:linear-gradient(135deg,#f59e0b,#16a34a);color:#fff;
+    flex-shrink:0;width:34px;height:34px;border-radius:9px;
+    background:#f0ebda;color:#78716c;
     display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:600;letter-spacing:0;
+    font-size:11.5px;font-weight:600;letter-spacing:-.01em;
   }
-  .dcs-avatar.c-logi{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
-  .dcs-avatar.c-mkt{background:linear-gradient(135deg,#84cc16,#4d7c0f)}
-  .dcs-avatar.c-md2{background:linear-gradient(135deg,#e11d48,#9f1239)}
-  .dcs-avatar.c-share{background:linear-gradient(135deg,#0ea5e9,#0369a1)}
+  .dcs-avatar.c-logi{background:#ede9fe;color:#5b21b6}
+  .dcs-avatar.c-mkt{background:#ecfccb;color:#3f6212}
+  .dcs-avatar.c-md2{background:#ffe4e6;color:#9f1239}
+  .dcs-avatar.c-share{background:#e0f2fe;color:#075985}
   .dcs-info{min-width:0}
-  .dcs-name{font-size:14px;font-weight:600;color:var(--text-0);letter-spacing:-.01em}
-  .dcs-team{font-size:10.5px;color:var(--text-3);margin-top:2px;letter-spacing:.02em}
+  .dcs-name{font-size:15px;font-weight:600;color:#1c1917;letter-spacing:-.02em}
+  .dcs-team{font-size:11px;color:#a8a29e;margin-top:3px;letter-spacing:-.005em;font-weight:500}
   .dcs-stat{
-    display:flex;align-items:center;gap:6px;
-    font-size:11px;color:var(--text-2);
-    padding:4px 10px;border-radius:999px;background:var(--bg-2);
-    font-variant-numeric:tabular-nums;font-weight:500;
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:11px;color:#78716c;
+    padding:4px 9px;border-radius:999px;background:#f4f0e3;
+    font-variant-numeric:tabular-nums;font-weight:500;letter-spacing:-.01em;
   }
-  .dcs.dcs-active .dcs-stat{background:rgba(245,158,11,.14);color:#a16207}
-  .dcs.dcs-complete .dcs-stat{background:rgba(22,163,74,.14);color:#15803d}
+  .dcs-stat-dot{width:5px;height:5px;border-radius:50%;background:#d5cfb8;flex-shrink:0}
+  .dcs.dcs-active .dcs-stat{background:#fef3c7;color:#a16207}
+  .dcs.dcs-active .dcs-stat-dot{background:#eab308;box-shadow:0 0 0 3px rgba(234,179,8,.15)}
+  .dcs.dcs-complete .dcs-stat{background:#dcfce7;color:#15803d}
+  .dcs.dcs-complete .dcs-stat-dot{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
 
   /* 카드 내부 섹션 */
-  .dcs-sec{display:flex;flex-direction:column;gap:6px}
+  .dcs-sec{display:flex;flex-direction:column;gap:8px}
   .dcs-sec-head{
     display:flex;justify-content:space-between;align-items:center;
-    font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.04em;
+    font-size:11px;color:#a8a29e;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   }
-  .dcs-sec-title{display:flex;align-items:center;gap:5px}
+  .dcs-sec-title{display:inline-flex;align-items:center;gap:6px}
   .dcs-sec-title-count{
-    color:var(--text-2);font-weight:500;
-    padding:1px 6px;border-radius:999px;background:var(--bg-2);
+    color:#78716c;font-weight:500;
+    padding:1px 7px;border-radius:999px;background:#f4f0e3;
     font-variant-numeric:tabular-nums;margin-left:4px;
+    font-size:10.5px;letter-spacing:0;text-transform:none;
   }
   .dcs-add{
-    padding:2px 8px;border-radius:5px;border:1px dashed var(--line-2);
-    background:transparent;color:var(--text-3);font-size:11px;font-weight:500;
-    transition:all .12s;
+    width:22px;height:22px;border-radius:6px;border:none;
+    background:transparent;color:#a8a29e;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:all .15s ease;
   }
-  .dcs-add:hover{border-color:var(--neon-diary);color:#a16207;background:rgba(245,158,11,.08)}
+  .dcs-add svg{width:12px;height:12px}
+  .dcs-add:hover{background:#f4f0e3;color:#1c1917}
 
-  /* 요청 리스트 (컴팩트) */
-  .dcs-req-list{display:flex;flex-direction:column;gap:4px}
+  /* 요청 리스트 */
+  .dcs-req-list{display:flex;flex-direction:column;gap:5px}
   .dcs-req{
-    display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;
-    padding:5px 8px;border-radius:6px;border:1px solid var(--line);
-    background:var(--bg-1);
+    display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;
+    padding:7px 10px;border-radius:8px;border:1px solid #f0ebda;
+    background:#fff;transition:all .15s ease;
   }
-  .dcs-req.done{opacity:.55;background:var(--bg-2)}
-  .dcs-req.done .dcs-req-text{text-decoration:line-through;color:var(--text-3)}
+  .dcs-req:hover{border-color:#eae7dc;background:#fdfbf3}
+  .dcs-req.done{opacity:.5;background:#faf7ed;border-color:#f0ebda}
+  .dcs-req.done .dcs-req-text{text-decoration:line-through;color:#a8a29e}
   .dcs-req-check{
-    width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line-2);
-    background:var(--bg-1);cursor:pointer;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;transition:all .12s;
+    width:16px;height:16px;border-radius:5px;border:1.5px solid #d5cfb8;
+    background:#fff;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;transition:all .15s ease;
   }
-  .dcs-req-check:hover{border-color:var(--neon-diary)}
-  .dcs-req.done .dcs-req-check{background:var(--neon-diary);border-color:var(--neon-diary);color:#fff}
-  .dcs-req-check svg{width:9px;height:9px;opacity:0}
+  .dcs-req-check:hover{border-color:#eab308;background:#fffbeb}
+  .dcs-req.done .dcs-req-check{background:#22c55e;border-color:#22c55e;color:#fff}
+  .dcs-req-check svg{width:10px;height:10px;opacity:0;transition:opacity .12s}
   .dcs-req.done .dcs-req-check svg{opacity:1}
   .dcs-req-text{
-    font-size:12.5px;color:var(--text-0);line-height:1.45;outline:none;
-    word-break:break-word;padding:1px 2px;border-radius:3px;
+    font-size:13px;color:#1c1917;line-height:1.45;outline:none;
+    word-break:break-word;padding:1px 2px;border-radius:4px;letter-spacing:-.01em;
   }
-  .dcs-req-text:empty::before{content:'요청 내용';color:var(--text-3)}
-  .dcs-req-text:focus{background:rgba(245,158,11,.06)}
+  .dcs-req-text:empty::before{content:'요청 내용';color:#a8a29e}
+  .dcs-req-text:focus{background:#fffbeb}
   .dcs-req-from{
-    font-size:10.5px;color:#166534;font-weight:600;
-    padding:1px 6px;border-radius:4px;background:rgba(22,163,74,.12);
-    outline:none;min-width:34px;text-align:center;
-    border:1px solid transparent;
+    font-size:10.5px;color:#57534e;font-weight:500;
+    padding:2px 7px;border-radius:5px;background:#f4f0e3;
+    outline:none;min-width:36px;text-align:center;
+    border:1px solid transparent;transition:all .15s ease;letter-spacing:-.005em;
   }
-  .dcs-req-from:focus{border-color:var(--neon-diary);background:rgba(245,158,11,.14)}
-  .dcs-req-from:empty::before{content:'요청자';color:var(--text-3);font-weight:500}
+  .dcs-req-from:focus{border-color:#eab308;background:#fffbeb;color:#a16207}
+  .dcs-req-from:empty::before{content:'요청자';color:#a8a29e;font-weight:500}
   .dcs-req-del{
-    background:none;color:var(--text-3);padding:2px 4px;border-radius:4px;
-    opacity:0;transition:all .12s;font-size:11px;
+    background:none;color:#a8a29e;padding:2px 5px;border-radius:5px;
+    opacity:0;transition:all .15s ease;font-size:12px;
   }
-  .dcs-req:hover .dcs-req-del{opacity:.6}
-  .dcs-req-del:hover{background:rgba(185,28,28,.10);color:#b91c1c;opacity:1}
+  .dcs-req:hover .dcs-req-del{opacity:.7}
+  .dcs-req-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
-  /* 할 일 (체크리스트, 컴팩트) */
+  /* 할 일 (체크리스트) */
   .dcs-task-list{display:flex;flex-direction:column;gap:2px}
   .dcs-task{
-    display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center;
-    padding:3px 4px;border-radius:5px;transition:background .12s;
+    display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
+    padding:4px 6px;border-radius:6px;transition:background .15s ease;
   }
-  .dcs-task:hover{background:var(--bg-2)}
-  .dcs-task.done .dcs-task-text{text-decoration:line-through;color:var(--text-3)}
+  .dcs-task:hover{background:#faf7ed}
+  .dcs-task.done .dcs-task-text{text-decoration:line-through;color:#a8a29e}
   .dcs-task-check{
-    width:15px;height:15px;border-radius:3px;border:1.5px solid var(--line-2);
-    background:var(--bg-1);cursor:pointer;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;transition:all .12s;
+    width:16px;height:16px;border-radius:5px;border:1.5px solid #d5cfb8;
+    background:#fff;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;transition:all .15s ease;
   }
-  .dcs-task-check:hover{border-color:var(--neon-diary)}
-  .dcs-task.done .dcs-task-check{background:var(--neon-diary);border-color:var(--neon-diary);color:#fff}
-  .dcs-task-check svg{width:9px;height:9px;opacity:0}
+  .dcs-task-check:hover{border-color:#eab308;background:#fffbeb}
+  .dcs-task.done .dcs-task-check{background:#22c55e;border-color:#22c55e;color:#fff}
+  .dcs-task-check svg{width:10px;height:10px;opacity:0;transition:opacity .12s}
   .dcs-task.done .dcs-task-check svg{opacity:1}
   .dcs-task-text{
-    font-size:12.5px;color:var(--text-0);line-height:1.5;outline:none;
-    word-break:break-word;padding:1px 3px;border-radius:3px;
+    font-size:13px;color:#1c1917;line-height:1.55;outline:none;
+    word-break:break-word;padding:2px 4px;border-radius:4px;letter-spacing:-.01em;
   }
-  .dcs-task-text:empty::before{content:'항목 (Enter로 추가)';color:var(--text-3)}
-  .dcs-task-text:focus{background:rgba(245,158,11,.08)}
+  .dcs-task-text:empty::before{content:'새 항목';color:#a8a29e}
+  .dcs-task-text:focus{background:#fffbeb}
   .dcs-task-del{
-    background:none;color:var(--text-3);padding:1px 3px;border-radius:3px;
-    opacity:0;transition:all .12s;font-size:11px;
+    background:none;color:#a8a29e;padding:2px 5px;border-radius:5px;
+    opacity:0;transition:all .15s ease;font-size:12px;
   }
-  .dcs-task:hover .dcs-task-del{opacity:.6}
-  .dcs-task-del:hover{background:rgba(185,28,28,.10);color:#b91c1c;opacity:1}
+  .dcs-task:hover .dcs-task-del{opacity:.7}
+  .dcs-task-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
   /* 메모 */
   .dcs-memo{
-    min-height:52px;padding:8px 10px;border-radius:6px;
-    background:var(--bg-2);border:1px solid transparent;
-    font-size:12.5px;line-height:1.55;color:var(--text-0);
+    min-height:56px;padding:10px 12px;border-radius:8px;
+    background:#faf7ed;border:1px solid transparent;
+    font-size:13px;line-height:1.6;color:#1c1917;
     outline:none;white-space:pre-wrap;word-break:break-word;
-    transition:all .12s;
+    transition:all .15s ease;letter-spacing:-.01em;
   }
-  .dcs-memo:focus{border-color:var(--neon-diary);background:#fffbeb}
-  .dcs-memo:empty::before{content:'오늘 메모';color:var(--text-3)}
+  .dcs-memo:focus{border-color:#f6d99a;background:#fffbeb}
+  .dcs-memo:empty::before{content:attr(data-placeholder);color:#a8a29e}
 
   .dcs-sec-empty{
-    padding:8px 10px;text-align:center;color:var(--text-3);font-size:11px;
-    background:var(--bg-2);border-radius:5px;border:1px dashed transparent;
+    padding:10px 12px;text-align:center;color:#a8a29e;font-size:11.5px;
+    background:#faf7ed;border-radius:6px;letter-spacing:-.005em;
+    font-weight:500;
   }
 
   /* 모바일 */
   @media (max-width:900px){
-    .diary-overview{grid-template-columns:repeat(2,1fr)}
+    .diary-overview{grid-template-columns:repeat(2,1fr);gap:10px}
     .diary-board{grid-template-columns:1fr}
+    #viewDiary .view-title{font-size:22px}
   }
   @media (max-width:600px){
     .diary-head-actions{width:100%}
-    .diary-date-nav{flex:1;justify-content:flex-start}
+    .diary-date-nav{flex:1;justify-content:space-between}
     .diary-overview{gap:8px}
-    .diary-ov{padding:12px 14px}
-    .diary-ov-num{font-size:19px}
+    .diary-ov{padding:14px 16px}
+    .diary-ov-num{font-size:24px}
+    .dcs{padding:16px 18px 18px}
   }
 
   /* ===== 연차 (인사팀 뷰) ===== */
@@ -5769,10 +5793,10 @@
 
     <!-- 요약 스탯 -->
     <div class="diary-overview">
-      <div class="diary-ov"><span class="diary-ov-num" id="diaryOvStaff">0</span><span class="diary-ov-lbl">전체 멤버</span></div>
-      <div class="diary-ov"><span class="diary-ov-num" id="diaryOvActive">0</span><span class="diary-ov-lbl">오늘 기록</span></div>
-      <div class="diary-ov"><span class="diary-ov-num" id="diaryOvTasks">0 / 0</span><span class="diary-ov-lbl">업무 완료</span></div>
-      <div class="diary-ov"><span class="diary-ov-num" id="diaryOvReqs">0</span><span class="diary-ov-lbl">진행 중 요청</span></div>
+      <div class="diary-ov"><span class="diary-ov-lbl">Members</span><span class="diary-ov-num" id="diaryOvStaff">0</span></div>
+      <div class="diary-ov diary-ov-accent"><span class="diary-ov-lbl">Active today</span><span class="diary-ov-num" id="diaryOvActive">0</span></div>
+      <div class="diary-ov"><span class="diary-ov-lbl">Tasks done</span><span class="diary-ov-num" id="diaryOvTasks">0 / 0</span></div>
+      <div class="diary-ov"><span class="diary-ov-lbl">Open requests</span><span class="diary-ov-num" id="diaryOvReqs">0</span></div>
     </div>
 
     <!-- 전 직원 카드 그리드 -->
@@ -9844,32 +9868,36 @@
           <div class="dcs-name">${_esc(name)}</div>
           <div class="dcs-team">${_esc(teamLabel)}</div>
         </div>
-        <div class="dcs-stat"><span data-stat></span></div>
+        <div class="dcs-stat"><span class="dcs-stat-dot"></span><span data-stat></span></div>
       </header>
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">📥 요청<span class="dcs-sec-title-count" data-req-cnt>0</span></div>
-          <button class="dcs-add" data-add="req">＋</button>
+          <div class="dcs-sec-title">Requests<span class="dcs-sec-title-count" data-req-cnt>0</span></div>
+          <button class="dcs-add" data-add="req" title="요청 추가">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
         </div>
         <div class="dcs-req-list"></div>
-        <div class="dcs-sec-empty" data-req-empty hidden>요청 없음</div>
+        <div class="dcs-sec-empty" data-req-empty hidden>No requests</div>
       </section>
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">✅ 할 일<span class="dcs-sec-title-count" data-task-cnt>0 / 0</span></div>
-          <button class="dcs-add" data-add="task">＋</button>
+          <div class="dcs-sec-title">Tasks<span class="dcs-sec-title-count" data-task-cnt>0 / 0</span></div>
+          <button class="dcs-add" data-add="task" title="할 일 추가">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
         </div>
         <div class="dcs-task-list"></div>
-        <div class="dcs-sec-empty" data-task-empty hidden>항목 없음</div>
+        <div class="dcs-sec-empty" data-task-empty hidden>No tasks yet</div>
       </section>
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">📝 메모</div>
+          <div class="dcs-sec-title">Notes</div>
         </div>
-        <div class="dcs-memo" contenteditable="true" data-placeholder="오늘 메모"></div>
+        <div class="dcs-memo" contenteditable="true" data-placeholder="오늘의 메모"></div>
       </section>
     `;
 
