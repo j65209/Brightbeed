@@ -3201,9 +3201,9 @@
   .ig-hint-line[hidden]{display:none}
   .ig-mini-btn{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--text-3);background:none;border:1px solid var(--line);border-radius:5px;padding:2px 8px;cursor:pointer;font-family:var(--sans);transition:all .12s}
   .ig-mini-btn:hover{color:#ec4899;border-color:#ec4899}
+  .ig-canvas-wrap canvas{cursor:default;touch-action:none}
   .ig-canvas-wrap.has-image canvas{cursor:grab}
-  .ig-canvas-wrap.has-image.is-dragging canvas{cursor:grabbing}
-  .ig-canvas-wrap canvas{touch-action:none}
+  .ig-canvas-wrap.is-dragging canvas{cursor:grabbing !important}
   .ig-label{font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:.02em;display:flex;align-items:center;gap:7px}
   .ig-label-sub{font-weight:400;color:var(--text-3);font-size:11px}
   .ig-drop{border:1.5px dashed var(--line-2);border-radius:10px;background:var(--bg-2);padding:20px 14px;text-align:center;cursor:pointer;color:var(--text-3);font-size:12.5px;line-height:1.5;transition:all .15s}
@@ -3233,6 +3233,10 @@
   .ig-corner:hover:not(:disabled){border-color:var(--line-2)}
   .ig-corner:disabled{opacity:.4;cursor:not-allowed}
   .ig-corner.is-active{border-color:#ec4899;background:#fff;color:#ec4899;box-shadow:0 0 0 2px rgba(236,72,153,.15)}
+  .ig-aligns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .ig-align{padding:9px 4px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);cursor:pointer;font-size:14px;font-weight:700;color:var(--text-2);transition:all .12s;text-align:center;line-height:1;font-family:-apple-system,'Segoe UI Emoji','Apple Color Emoji',sans-serif}
+  .ig-align:hover{border-color:var(--line-2)}
+  .ig-align.is-active{border-color:#ec4899;background:#fff;color:#ec4899;box-shadow:0 0 0 2px rgba(236,72,153,.15)}
   .ig-badges-preset{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   .ig-badge-pre{border:1px solid var(--line);border-radius:7px;padding:6px 4px;background:var(--bg-2);cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:34px;transition:all .12s;font-family:var(--sans)}
   .ig-badge-pre:hover{border-color:var(--line-2);transform:translateY(-1px)}
@@ -6464,17 +6468,11 @@
             <textarea class="ig-input" id="igSelText" rows="3" maxlength="200" style="resize:vertical;min-height:60px;font-family:var(--sans)"></textarea>
           </div>
           <div class="ig-field">
-            <span class="ig-mini-label">위치</span>
-            <div class="ig-corners" id="igSelCorners">
-              <button type="button" class="ig-corner" data-corner="tl">↖</button>
-              <button type="button" class="ig-corner" data-corner="tc">⬆</button>
-              <button type="button" class="ig-corner" data-corner="tr">↗</button>
-              <button type="button" class="ig-corner" data-corner="cl">⬅</button>
-              <button type="button" class="ig-corner" data-corner="cc">●</button>
-              <button type="button" class="ig-corner" data-corner="cr">➡</button>
-              <button type="button" class="ig-corner" data-corner="bl">↙</button>
-              <button type="button" class="ig-corner" data-corner="bc">⬇</button>
-              <button type="button" class="ig-corner" data-corner="br">↘</button>
+            <span class="ig-mini-label">정렬 <span style="color:var(--text-3);font-weight:400">(위치는 미리보기에서 드래그)</span></span>
+            <div class="ig-aligns" id="igSelAligns">
+              <button type="button" class="ig-align" data-align="left" title="좌측 정렬">⬅</button>
+              <button type="button" class="ig-align is-active" data-align="center" title="중앙 정렬">●</button>
+              <button type="button" class="ig-align" data-align="right" title="우측 정렬">➡</button>
             </div>
           </div>
           <div class="ig-row">
@@ -16352,10 +16350,10 @@
       document.getElementById('igSelSizeVal').textContent = e.target.value;
       _igRender();
     });
-    document.querySelectorAll('#igSelCorners .ig-corner').forEach(btn=>{
+    document.querySelectorAll('#igSelAligns .ig-align').forEach(btn=>{
       btn.addEventListener('click',()=>{
         const ov = _igSelected(); if(!ov) return;
-        ov.corner = btn.dataset.corner;
+        ov.align = btn.dataset.align;
         _igSyncSelectedEditor();
         _igRender();
       });
@@ -16368,38 +16366,68 @@
   function _igInstallCanvasDrag(){
     const c = _igCanvas();
     const wrap = document.getElementById('igCanvasWrap');
-    let dragging = false;
-    let startX = 0, startY = 0;
-    let startBgX = 50, startBgY = 50;
-    let scaleFactor = 1; // canvas natural px per screen px
+    let target = null;                // { kind:'text'|'image', ... }
+    let scaleFactor = 1;              // canvas natural px per screen px
 
     function pointerXY(ev){
       if(ev.touches && ev.touches[0]) return { x:ev.touches[0].clientX, y:ev.touches[0].clientY };
       return { x:ev.clientX, y:ev.clientY };
     }
 
+    function toCanvas(p, rect){
+      return {
+        x: (p.x - rect.left) * scaleFactor,
+        y: (p.y - rect.top)  * scaleFactor
+      };
+    }
+
     function onDown(ev){
-      if(!_ig.bg.image) return;
       const rect = c.getBoundingClientRect();
       scaleFactor = c.width / rect.width;
       const p = pointerXY(ev);
-      startX = p.x; startY = p.y;
-      startBgX = _ig.bg.x; startBgY = _ig.bg.y;
-      dragging = true;
+      const cp = toCanvas(p, rect);
+
+      // Prefer text overlay hit
+      const hit = _igHitTest(cp.x, cp.y);
+      if(hit){
+        _ig.selectedId = hit.id;
+        _igRenderOverlaysList();
+        _igSyncSelectedEditor();
+        target = { kind:'text', id:hit.id, startScreenX:p.x, startScreenY:p.y, startOvX:hit.x, startOvY:hit.y };
+        wrap.classList.add('is-dragging');
+        _igRender();
+        ev.preventDefault();
+        return;
+      }
+      // Fall through to image drag
+      if(!_ig.bg.image) return;
+      target = { kind:'image', startScreenX:p.x, startScreenY:p.y, startBgX:_ig.bg.x, startBgY:_ig.bg.y };
       wrap.classList.add('is-dragging');
       ev.preventDefault();
     }
+
     function onMove(ev){
-      if(!dragging) return;
+      if(!target) return;
       const p = pointerXY(ev);
-      const dxScreen = p.x - startX;
-      const dyScreen = p.y - startY;
-      // Convert screen delta → canvas-space delta → percentage adjustment
-      // Dragging right shows more of image's LEFT side → decrease bg.x
-      const dxPct = -(dxScreen * scaleFactor) / c.width * 100;
+      const dxScreen = p.x - target.startScreenX;
+      const dyScreen = p.y - target.startScreenY;
+
+      if(target.kind === 'text'){
+        const ov = _ig.overlays.find(o => o.id === target.id);
+        if(!ov) return;
+        const dxPct = (dxScreen * scaleFactor) / c.width  * 100;
+        const dyPct = (dyScreen * scaleFactor) / c.height * 100;
+        ov.x = Math.max(0, Math.min(100, target.startOvX + dxPct));
+        ov.y = Math.max(0, Math.min(100, target.startOvY + dyPct));
+        _igRender();
+        ev.preventDefault();
+        return;
+      }
+      // image (dragging right → show more of image's LEFT → decrease bg.x)
+      const dxPct = -(dxScreen * scaleFactor) / c.width  * 100;
       const dyPct = -(dyScreen * scaleFactor) / c.height * 100;
-      _ig.bg.x = Math.max(0, Math.min(100, startBgX + dxPct));
-      _ig.bg.y = Math.max(0, Math.min(100, startBgY + dyPct));
+      _ig.bg.x = Math.max(0, Math.min(100, target.startBgX + dxPct));
+      _ig.bg.y = Math.max(0, Math.min(100, target.startBgY + dyPct));
       document.getElementById('igImgX').value = _ig.bg.x;
       document.getElementById('igImgY').value = _ig.bg.y;
       document.getElementById('igImgXVal').textContent = Math.round(_ig.bg.x);
@@ -16407,9 +16435,10 @@
       _igRender();
       ev.preventDefault();
     }
+
     function onUp(){
-      if(!dragging) return;
-      dragging = false;
+      if(!target) return;
+      target = null;
       wrap.classList.remove('is-dragging');
     }
 
@@ -16445,13 +16474,14 @@
   }
 
   function igAddText(){
-    // Auto-pick a corner between the fixed NOW ON (top) and Brightbeed (bottom)
-    const used = new Set(_ig.overlays.map(o=>o.corner));
-    const seq = ['cc','cl','cr','tr','bl','br','tl','tc','bc'];
-    const corner = seq.find(c=>!used.has(c)) || 'cc';
+    // Spread new overlays vertically so they don't overlap on default
+    const n = _ig.overlays.length;
+    const y = 42 + (n % 5) * 7;   // 42, 49, 56, 63, 70, 42, ...
     const id = _ig._idSeq++;
     _ig.overlays.push({
-      id, kind:'text', text:'제품명을 입력하세요', corner,
+      id, kind:'text', text:'제품명을 입력하세요',
+      x:50, y,                    // percentages: center of text block
+      align:'center',
       color:'#ffffff', size:7, shadow:true
     });
     _ig.selectedId = id;
@@ -16523,8 +16553,9 @@
     document.getElementById('igSelShadow').checked = ov.shadow !== false;
     document.getElementById('igSelSize').value = ov.size;
     document.getElementById('igSelSizeVal').textContent = ov.size;
-    document.querySelectorAll('#igSelCorners .ig-corner').forEach(b=>{
-      b.classList.toggle('is-active', b.dataset.corner===ov.corner);
+    const align = ov.align || 'center';
+    document.querySelectorAll('#igSelAligns .ig-align').forEach(b=>{
+      b.classList.toggle('is-active', b.dataset.align===align);
     });
   }
 
@@ -16568,7 +16599,8 @@
     return { x:m[0], y:m[1], anchorX:m[2], anchorY:m[3] };
   }
 
-  function _igRender(){
+  function _igRender(preview){
+    if(preview === undefined) preview = true;
     const c = _igCanvas();
     if(!c) return;
     const ctx = c.getContext('2d');
@@ -16582,15 +16614,13 @@
       ctx.drawImage(_ig.bg.image, sx, sy, sw, sh, 0, 0, cw, ch);
     }
 
-    // 2) User text overlays
+    // 2) User text overlays (also computes hit-test bboxes)
     for(const ov of _ig.overlays){
-      const pad = Math.round(cw * 0.045);
-      const anc = _igCornerXY(ov.corner, cw, ch, pad);
-      _igDrawText(ctx, ov, anc.x, anc.y, anc.anchorX, anc.anchorY, cw);
+      const isSel = preview && ov.id === _ig.selectedId;
+      ov._bbox = _igDrawText(ctx, ov, cw, ch, isSel);
     }
 
     // 3) Fixed template elements — NOW ON top-left, Brightbeed bottom-center
-    //    Position/color/font locked to @brightbeed feed reference.
     _igDrawFixedTopBadge(ctx, cw, ch);
     _igDrawFixedBrand(ctx, cw, ch);
   }
@@ -16650,29 +16680,74 @@
     return out.length ? out : [''];
   }
 
-  function _igDrawText(ctx, ov, x, y, anchorX, anchorY, cw){
+  function _igDrawText(ctx, ov, cw, ch, selected){
     const px = _igScaleToPx(ov.size, cw, 'text');
     const maxW = cw * 0.86;
     const lines = _igTextWrapLines(ctx, ov.text || '', px, maxW);
     const lineH = Math.round(px * 1.18);
-    const totalH = lines.length * lineH;
+    const totalH = Math.max(lineH, lines.length * lineH);
     ctx.font = `800 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
+    const maxLineW = Math.max(1, ...lines.map(l => ctx.measureText(l).width));
+
+    const cx = Math.round(cw * (ov.x / 100));
+    const cy = Math.round(ch * (ov.y / 100));
+    const align = ov.align || 'center';
+
+    // Bounding box (center-anchored)
+    const bx = Math.round(cx - maxLineW/2);
+    const by = Math.round(cy - totalH/2);
+    const bw = Math.round(maxLineW);
+    const bh = totalH;
+
+    // Anchor for canvas textAlign
+    let anchorX = cx;
+    if(align === 'left') anchorX = bx;
+    else if(align === 'right') anchorX = bx + bw;
+
+    // Draw text
     ctx.fillStyle = ov.color || '#ffffff';
-    ctx.textAlign = anchorX;
+    ctx.textAlign = align;
     ctx.textBaseline = 'middle';
     if(ov.shadow !== false){
       ctx.shadowColor = 'rgba(0,0,0,0.55)';
       ctx.shadowBlur = Math.round(px * 0.35);
-      ctx.shadowOffsetX = 0; ctx.shadowOffsetY = Math.round(px * 0.06);
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = Math.round(px * 0.06);
     }
-    let startY;
-    if(anchorY === 'top') startY = y + lineH/2;
-    else if(anchorY === 'bottom') startY = y - totalH + lineH/2;
-    else startY = y - totalH/2 + lineH/2;
+    const startY = by + lineH/2;
     lines.forEach((line, i)=>{
-      ctx.fillText(line, x, startY + i*lineH);
+      ctx.fillText(line, anchorX, startY + i*lineH);
     });
     ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+    // Selection indicator (preview only — never in exported PNG)
+    const padHit = Math.round(cw * 0.02);
+    const hitBox = { x: bx - padHit, y: by - padHit, w: bw + padHit*2, h: bh + padHit*2 };
+    if(selected){
+      ctx.save();
+      ctx.strokeStyle = 'rgba(236,72,153,0.9)';
+      ctx.lineWidth = Math.max(2, cw/540);
+      const dash = Math.round(cw * 0.014);
+      ctx.setLineDash([dash, Math.round(dash*0.6)]);
+      ctx.strokeRect(hitBox.x, hitBox.y, hitBox.w, hitBox.h);
+      ctx.restore();
+    }
+
+    return hitBox;
+  }
+
+  function _igHitTest(canvasX, canvasY){
+    // Topmost overlay first (reverse order = drawn last = on top)
+    for(let i = _ig.overlays.length - 1; i >= 0; i--){
+      const ov = _ig.overlays[i];
+      const b = ov._bbox;
+      if(!b) continue;
+      if(canvasX >= b.x && canvasX <= b.x + b.w &&
+         canvasY >= b.y && canvasY <= b.y + b.h){
+        return ov;
+      }
+    }
+    return null;
   }
 
   function _igRoundRect(ctx, x, y, w, h, r){
@@ -16687,13 +16762,14 @@
   }
 
   function igDownload(){
-    _igRender();
+    _igRender(false);            // no selection outline in exported PNG
     const c = _igCanvas();
     const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
     const link = document.createElement('a');
     link.download = `brightbeed-insta-${ts}.png`;
     link.href = c.toDataURL('image/png');
     link.click();
+    _igRender(true);             // restore preview state
   }
 
   function igReset(){
