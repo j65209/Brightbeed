@@ -909,6 +909,115 @@
     .lg-tab-badge{font-size:9.5px;padding:1px 5px}
   }
 
+  /* ===== 우체국 출고 (ez-*) — EZ 국제 송장 입력·모니터링 ===== */
+  .ez-input-wrap{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    padding:14px 14px 12px;margin:0 4px 14px;
+    display:flex;flex-direction:column;gap:10px
+  }
+  .ez-input-hint{
+    font-size:12.5px;color:var(--text-2);line-height:1.55;letter-spacing:-.1px
+  }
+  .ez-input-hint b{color:var(--text-0);font-weight:700}
+  .ez-input{
+    width:100%;box-sizing:border-box;
+    font-family:var(--mono);font-size:13px;letter-spacing:.02em;line-height:1.55;
+    color:var(--text-0);background:var(--bg-0);
+    border:1px solid var(--line);border-radius:8px;
+    padding:10px 12px;resize:vertical;min-height:88px;
+    transition:border-color .12s,box-shadow .12s
+  }
+  .ez-input:focus{outline:none;border-color:var(--neon);box-shadow:0 0 0 3px rgba(255,46,147,.14)}
+  .ez-input::placeholder{color:var(--text-3);opacity:.75}
+  .ez-input-actions{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap
+  }
+  .ez-preview{
+    font-size:12px;color:var(--text-2);font-family:var(--mono);letter-spacing:.02em
+  }
+  .ez-preview.has{color:var(--neon);font-weight:700}
+  .ez-add-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 18px;font-size:13px;font-weight:700;color:#fff;
+    background:var(--neon);border:1px solid var(--neon);border-radius:8px;
+    cursor:pointer;transition:transform .06s,box-shadow .12s;
+    font-family:var(--sans);letter-spacing:-.1px
+  }
+  .ez-add-btn:hover{box-shadow:0 4px 12px rgba(255,46,147,.28)}
+  .ez-add-btn:active{transform:translateY(1px)}
+  .ez-add-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .ez-filters{
+    display:flex;gap:6px;flex-wrap:wrap;padding:0 4px 12px
+  }
+  .ez-filter{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 12px;font-size:12px;font-weight:600;color:var(--text-2);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:999px;
+    cursor:pointer;transition:all .12s;font-family:var(--sans)
+  }
+  .ez-filter:hover{background:var(--bg-2);color:var(--text-1)}
+  .ez-filter.active{background:var(--text-0);color:#fff;border-color:var(--text-0)}
+  .ez-filter-n{
+    font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;
+    background:rgba(0,0,0,.06);color:inherit;font-family:var(--mono)
+  }
+  .ez-filter.active .ez-filter-n{background:rgba(255,255,255,.22)}
+  .ez-table{width:100%}
+  .ez-table th.col-idx{width:44px;text-align:center}
+  .ez-table th.col-track{width:180px}
+  .ez-table th.col-status{width:140px}
+  .ez-table th.col-added{width:150px}
+  .ez-table th.col-memo{}
+  .ez-table th.col-actions{width:140px;text-align:right}
+  .ez-table td{vertical-align:middle}
+  .ez-track{font-family:var(--mono);font-weight:700;color:var(--text-0);letter-spacing:.02em}
+  .ez-status-sel{
+    font-family:var(--sans);font-size:12px;font-weight:600;
+    padding:5px 8px;border-radius:6px;border:1px solid var(--line);
+    background:var(--bg-1);color:var(--text-1);cursor:pointer
+  }
+  .ez-status-sel[data-s="pending"]{background:rgba(148,163,184,.14);color:#475569;border-color:rgba(100,116,139,.28)}
+  .ez-status-sel[data-s="shipped"]{background:rgba(59,130,246,.14);color:#1d4ed8;border-color:rgba(59,130,246,.3)}
+  .ez-status-sel[data-s="delivered"]{background:rgba(21,128,61,.14);color:#15803d;border-color:rgba(21,128,61,.3)}
+  .ez-added{font-size:12px;color:var(--text-2);font-family:var(--mono);white-space:nowrap}
+  .ez-memo-input{
+    width:100%;box-sizing:border-box;font-family:var(--sans);font-size:12.5px;
+    padding:5px 8px;border:1px solid transparent;background:transparent;
+    color:var(--text-1);border-radius:6px;transition:background .1s,border-color .1s
+  }
+  .ez-memo-input:hover{background:var(--bg-1);border-color:var(--line)}
+  .ez-memo-input:focus{outline:none;background:var(--bg-1);border-color:var(--neon)}
+  .ez-row-actions{display:flex;gap:6px;justify-content:flex-end;align-items:center}
+  .ez-link-btn{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:4px 9px;font-size:11.5px;font-weight:600;color:var(--text-1);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:6px;
+    text-decoration:none;cursor:pointer;transition:all .12s;
+    font-family:var(--sans)
+  }
+  .ez-link-btn:hover{background:var(--text-0);color:#fff;border-color:var(--text-0)}
+  .ez-del-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;padding:0;
+    background:transparent;border:1px solid var(--line);border-radius:6px;
+    color:var(--text-3);cursor:pointer;transition:all .12s
+  }
+  .ez-del-btn:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+  .ez-row-new{animation:ez-flash 1.4s ease-out}
+  @keyframes ez-flash{
+    0%{background:rgba(255,46,147,.18)}
+    100%{background:transparent}
+  }
+  @media (max-width:720px){
+    .ez-input-wrap{padding:12px;margin:0 8px 10px}
+    .ez-filters{padding:0 8px 10px}
+    .ez-table th.col-added,.ez-table td.col-added{display:none}
+    .ez-table th.col-idx,.ez-table td.col-idx{display:none}
+    .ez-table th.col-track{width:auto}
+    .ez-table th.col-status{width:auto}
+    .ez-add-btn{padding:9px 14px}
+  }
+
   /* ===== 발주 상품 카탈로그 (ar-*) — 3열 상품 카드 그리드 ===== */
   .ar-grid{
     display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
@@ -5254,6 +5363,11 @@
         발주 상품 리스트
         <span class="lg-tab-badge" id="lgTabArchiveBadge">—</span>
       </button>
+      <button class="lg-tab" data-tab="postez" onclick="switchLgTab('postez')" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/><rect x="4" y="4" width="7" height="7" rx="1"/></svg>
+        우체국 출고
+        <span class="lg-tab-badge" id="lgTabPostezBadge">—</span>
+      </button>
     </div>
 
     <!-- 최근 발주 내역 — 콰이디에어 실시간 -->
@@ -5333,6 +5447,69 @@
         <div id="arMore" style="display:none;text-align:center;padding:16px 0 4px">
           <button class="kd-refresh-btn" onclick="loadMoreArchive()">더 보기 (+40)</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ============ 우체국 출고 (EZ 국제 송장) ============ -->
+    <div class="po-wrap lg-pane" data-pane="postez" style="display:none">
+      <div class="po-section">
+        <div class="po-section-head">
+          <div class="po-section-title">우체국 국제 출고 <span class="kd-section-sub">EZ 등기 송장 모니터링</span></div>
+          <div class="po-section-meta">
+            <input type="search" id="ezSearch" class="kd-search" placeholder="송장번호 · 메모 검색" oninput="filterPostEz(this.value)" />
+            <span id="ezUpdated"></span>
+            <span id="ezCount">0건</span>
+            <button class="kd-refresh-btn" id="ezClearBtn" onclick="clearDeliveredPostEz()" title="배송완료 상태를 목록에서 정리합니다">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              완료건 정리
+            </button>
+          </div>
+        </div>
+
+        <!-- 입력 영역 -->
+        <div class="ez-input-wrap">
+          <div class="ez-input-hint">
+            <b>EZ로 시작하는 등기 송장</b>을 여러 개 한 번에 붙여넣으세요. 줄바꿈·쉼표·공백 무엇으로 구분하든 자동 인식합니다.
+          </div>
+          <textarea id="ezInput" class="ez-input" rows="4" placeholder="예)&#10;EZ123456789KR&#10;EZ234567890KR EZ345678901KR&#10;EZ456789012KR, EZ567890123KR"></textarea>
+          <div class="ez-input-actions">
+            <span id="ezPreview" class="ez-preview">인식된 송장: 0개</span>
+            <button class="ez-add-btn" id="ezAddBtn" onclick="addPostEzBatch()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              한번에 등록
+            </button>
+          </div>
+        </div>
+
+        <!-- 상태 필터 -->
+        <div class="ez-filters" id="ezFilters">
+          <button class="ez-filter active" data-status="all" onclick="setEzFilter('all')">전체 <span class="ez-filter-n" id="ezNAll">0</span></button>
+          <button class="ez-filter" data-status="pending" onclick="setEzFilter('pending')">발송대기 <span class="ez-filter-n" id="ezNPending">0</span></button>
+          <button class="ez-filter" data-status="shipped" onclick="setEzFilter('shipped')">배송중 <span class="ez-filter-n" id="ezNShipped">0</span></button>
+          <button class="ez-filter" data-status="delivered" onclick="setEzFilter('delivered')">배송완료 <span class="ez-filter-n" id="ezNDelivered">0</span></button>
+        </div>
+
+        <!-- 리스트 -->
+        <div id="ezEmpty" class="po-empty">
+          <div class="po-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M7 15h4"/></svg>
+          </div>
+          <div class="po-empty-text">등록된 우체국 송장이 없습니다</div>
+          <div class="po-empty-sub">위 입력창에 EZ로 시작하는 송장을 붙여넣고 등록해주세요</div>
+        </div>
+        <table class="po-table ez-table" id="ezTable" style="display:none">
+          <thead>
+            <tr>
+              <th class="col-idx">#</th>
+              <th class="col-track">송장번호</th>
+              <th class="col-status">상태</th>
+              <th class="col-added">입력일시</th>
+              <th class="col-memo">메모</th>
+              <th class="col-actions">조회 · 삭제</th>
+            </tr>
+          </thead>
+          <tbody id="ezBody"></tbody>
+        </table>
       </div>
     </div>
   </div><!-- /viewLg -->
@@ -8222,6 +8399,8 @@
     if(typeof renderKDOrders==='function') renderKDOrders({force:true}).catch(()=>{});
     // 샤인비드로 진입해서 아카이브 탭이 이미 활성 상태면 즉시 재렌더.
     if(document.querySelector('.lg-tab.active[data-tab="archive"]')) refreshArchivePane();
+    // 우체국 출고 탭이 활성 상태면 브랜드에 맞춰 재렌더
+    if(document.querySelector('.lg-tab.active[data-tab="postez"]') && typeof refreshPostEzPane==='function') refreshPostEzPane();
   }
 
   function _refreshArchiveTabLabel(){
@@ -10752,6 +10931,8 @@
     window.scrollTo({top:0,behavior:'instant'});
     // 발주 상품 카탈로그는 처음 진입할 때만 로드 (브랜드별 데이터 소스 분기)
     if(name==='archive') refreshArchivePane();
+    // 우체국 출고: 진입 시 브랜드에 맞춰 로드
+    if(name==='postez') refreshPostEzPane();
   }
   window.switchLgTab=switchLgTab;
 
@@ -10800,6 +10981,257 @@
     const b=document.getElementById('lgTabArchiveBadge');
     if(b) b.textContent=arState.filtered.length.toLocaleString('ko-KR');
   };
+
+  /* ===================================================== */
+  /* ============ 우체국 출고 (EZ 등기 송장) ============
+     여러 EZ 송장을 한 번에 붙여넣고 상태 모니터링.
+     저장: localStorage (브랜드별 분리). 다른 기기와 공유 필요시 GitHub JSON 로 확장 가능.
+     Format: EZ + 9 digits + KR (예: EZ123456789KR) */
+  const EZ_KEY_PREFIX='brightbeed_post_ez_';
+  const EZ_RE=/EZ\d{9}KR/gi;
+  let _ezState={items:[], filter:'all', q:''};
+
+  function _ezKey(){
+    const brand=(window._kdBrand==='shinebeed')?'shinebeed':'brightbeed';
+    return EZ_KEY_PREFIX+brand;
+  }
+  function loadPostEz(){
+    try{
+      const raw=localStorage.getItem(_ezKey());
+      const arr=raw?JSON.parse(raw):[];
+      return Array.isArray(arr)?arr:[];
+    }catch(e){return []}
+  }
+  function savePostEz(items){
+    try{localStorage.setItem(_ezKey(), JSON.stringify(items))}catch(e){}
+  }
+  function _ezFmtTs(iso){
+    if(!iso) return '';
+    const d=new Date(iso); if(isNaN(d)) return '';
+    const p=n=>String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function _ezParse(text){
+    if(!text) return [];
+    const seen=new Set();
+    const out=[];
+    const matches=String(text).toUpperCase().match(EZ_RE)||[];
+    matches.forEach(m=>{
+      const v=m.toUpperCase();
+      if(!seen.has(v)){seen.add(v); out.push(v)}
+    });
+    return out;
+  }
+
+  function refreshPostEzPane(){
+    _ezState.items=loadPostEz();
+    _ezState.q='';
+    _ezState.filter='all';
+    const s=document.getElementById('ezSearch'); if(s) s.value='';
+    document.querySelectorAll('.ez-filter').forEach(b=>{
+      b.classList.toggle('active', b.dataset.status==='all');
+    });
+    const ta=document.getElementById('ezInput'); if(ta){ta.value=''; _ezOnInput()}
+    renderPostEz();
+  }
+  window.refreshPostEzPane=refreshPostEzPane;
+
+  function _ezOnInput(){
+    const ta=document.getElementById('ezInput');
+    const p=document.getElementById('ezPreview');
+    const btn=document.getElementById('ezAddBtn');
+    if(!ta||!p) return;
+    const nums=_ezParse(ta.value);
+    p.textContent=`인식된 송장: ${nums.length}개`;
+    p.classList.toggle('has', nums.length>0);
+    if(btn) btn.disabled = nums.length===0;
+  }
+
+  function addPostEzBatch(){
+    const ta=document.getElementById('ezInput');
+    if(!ta) return;
+    const nums=_ezParse(ta.value);
+    if(!nums.length){
+      if(typeof toast==='function') toast('EZ로 시작하는 송장을 인식하지 못했어요','warn');
+      return;
+    }
+    const existing=new Set(_ezState.items.map(it=>it.tracking));
+    const addedIds=[];
+    let dup=0;
+    const now=new Date().toISOString();
+    nums.forEach(n=>{
+      if(existing.has(n)){dup++; return}
+      const id='ez_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+      _ezState.items.push({id, tracking:n, status:'pending', addedAt:now, memo:'', deliveredAt:null});
+      existing.add(n);
+      addedIds.push(id);
+    });
+    savePostEz(_ezState.items);
+    ta.value='';
+    _ezOnInput();
+    renderPostEz(addedIds);
+    if(typeof toast==='function'){
+      const msg = addedIds.length
+        ? `${addedIds.length}건 등록 완료${dup?` (중복 ${dup}건 제외)`:''}`
+        : `모두 이미 등록된 송장이에요 (중복 ${dup}건)`;
+      toast(msg, addedIds.length?'ok':'warn');
+    }
+  }
+  window.addPostEzBatch=addPostEzBatch;
+
+  function setEzFilter(status){
+    _ezState.filter=status;
+    document.querySelectorAll('.ez-filter').forEach(b=>{
+      b.classList.toggle('active', b.dataset.status===status);
+    });
+    renderPostEz();
+  }
+  window.setEzFilter=setEzFilter;
+
+  function filterPostEz(q){
+    _ezState.q=(q||'').trim().toLowerCase();
+    renderPostEz();
+  }
+  window.filterPostEz=filterPostEz;
+
+  function updateEzStatus(id, status){
+    const it=_ezState.items.find(x=>x.id===id);
+    if(!it) return;
+    it.status=status;
+    if(status==='delivered' && !it.deliveredAt) it.deliveredAt=new Date().toISOString();
+    if(status!=='delivered') it.deliveredAt=null;
+    savePostEz(_ezState.items);
+    renderPostEz();
+  }
+  window.updateEzStatus=updateEzStatus;
+
+  function updateEzMemo(id, memo){
+    const it=_ezState.items.find(x=>x.id===id);
+    if(!it) return;
+    it.memo=String(memo||'').slice(0,120);
+    savePostEz(_ezState.items);
+  }
+  window.updateEzMemo=updateEzMemo;
+
+  function deleteEz(id){
+    const it=_ezState.items.find(x=>x.id===id);
+    if(!it) return;
+    if(!confirm(`송장 ${it.tracking} 을(를) 목록에서 삭제할까요?`)) return;
+    _ezState.items=_ezState.items.filter(x=>x.id!==id);
+    savePostEz(_ezState.items);
+    renderPostEz();
+  }
+  window.deleteEz=deleteEz;
+
+  function clearDeliveredPostEz(){
+    const n=_ezState.items.filter(x=>x.status==='delivered').length;
+    if(!n){
+      if(typeof toast==='function') toast('배송완료 상태인 송장이 없어요','warn');
+      return;
+    }
+    if(!confirm(`배송완료 ${n}건을 목록에서 정리할까요? (되돌릴 수 없음)`)) return;
+    _ezState.items=_ezState.items.filter(x=>x.status!=='delivered');
+    savePostEz(_ezState.items);
+    renderPostEz();
+    if(typeof toast==='function') toast(`${n}건 정리 완료`,'ok');
+  }
+  window.clearDeliveredPostEz=clearDeliveredPostEz;
+
+  function _ezStatusLabel(s){
+    return s==='shipped'?'배송중':(s==='delivered'?'배송완료':'발송대기');
+  }
+  function _ezTrackUrl(t){
+    // 한국 우체국 국제등기 조회 (EZ...KR)
+    return `https://service.epost.go.kr/trace.RetrieveEmsRigiTraceList.comm?displayHeader=N&POST_CODE=${encodeURIComponent(t)}`;
+  }
+
+  function renderPostEz(newIds){
+    const items=_ezState.items||[];
+    // 카운트
+    const nAll=items.length;
+    const nPen=items.filter(x=>x.status==='pending').length;
+    const nShp=items.filter(x=>x.status==='shipped').length;
+    const nDlv=items.filter(x=>x.status==='delivered').length;
+    const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v};
+    set('ezNAll',nAll); set('ezNPending',nPen); set('ezNShipped',nShp); set('ezNDelivered',nDlv);
+    set('ezCount', `${nAll}건`);
+    const badge=document.getElementById('lgTabPostezBadge');
+    if(badge) badge.textContent = nAll ? nAll.toLocaleString('ko-KR') : '—';
+
+    // 필터
+    let list=items.slice();
+    if(_ezState.filter!=='all') list=list.filter(x=>x.status===_ezState.filter);
+    if(_ezState.q){
+      const q=_ezState.q;
+      list=list.filter(x=> x.tracking.toLowerCase().includes(q) || (x.memo||'').toLowerCase().includes(q));
+    }
+    // 정렬: 최근 입력이 위로
+    list.sort((a,b)=> (b.addedAt||'').localeCompare(a.addedAt||''));
+
+    const empty=document.getElementById('ezEmpty');
+    const table=document.getElementById('ezTable');
+    const body=document.getElementById('ezBody');
+    if(!body||!table||!empty) return;
+    if(!list.length){
+      table.style.display='none';
+      empty.style.display='';
+      const emptyText=empty.querySelector('.po-empty-text');
+      const emptySub=empty.querySelector('.po-empty-sub');
+      if(nAll===0){
+        if(emptyText) emptyText.textContent='등록된 우체국 송장이 없습니다';
+        if(emptySub) emptySub.textContent='위 입력창에 EZ로 시작하는 송장을 붙여넣고 등록해주세요';
+      }else{
+        if(emptyText) emptyText.textContent='조건에 맞는 송장이 없습니다';
+        if(emptySub) emptySub.textContent='필터·검색어를 확인해주세요';
+      }
+      return;
+    }
+    empty.style.display='none';
+    table.style.display='';
+    const flash=new Set(newIds||[]);
+    const rows=list.map((it,i)=>{
+      const url=_ezTrackUrl(it.tracking);
+      const memo=(it.memo||'').replace(/"/g,'&quot;');
+      return `<tr class="ez-row${flash.has(it.id)?' ez-row-new':''}" data-id="${it.id}">
+        <td class="col-idx" style="text-align:center;color:var(--text-3);font-family:var(--mono);font-size:12px">${i+1}</td>
+        <td class="col-track"><span class="ez-track">${it.tracking}</span></td>
+        <td class="col-status">
+          <select class="ez-status-sel" data-s="${it.status}" onchange="updateEzStatus('${it.id}', this.value)">
+            <option value="pending"${it.status==='pending'?' selected':''}>발송대기</option>
+            <option value="shipped"${it.status==='shipped'?' selected':''}>배송중</option>
+            <option value="delivered"${it.status==='delivered'?' selected':''}>배송완료</option>
+          </select>
+        </td>
+        <td class="col-added"><span class="ez-added">${_ezFmtTs(it.addedAt)}</span></td>
+        <td class="col-memo"><input type="text" class="ez-memo-input" value="${memo}" placeholder="메모" oninput="updateEzMemo('${it.id}', this.value)" maxlength="120"></td>
+        <td class="col-actions">
+          <div class="ez-row-actions">
+            <a class="ez-link-btn" href="${url}" target="_blank" rel="noopener" title="우체국 EMS 조회 새 창">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              조회
+            </a>
+            <button class="ez-del-btn" onclick="deleteEz('${it.id}')" title="삭제">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    body.innerHTML=rows;
+  }
+  window.renderPostEz=renderPostEz;
+
+  // 페이지 로드 후 뱃지에 반영 + textarea 입력 리스너
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const ta=document.getElementById('ezInput');
+    if(ta) ta.addEventListener('input', _ezOnInput);
+    // 처음 뱃지만 채워둠 (진입은 refreshPostEzPane 에서 처리)
+    try{
+      const items=loadPostEz();
+      const badge=document.getElementById('lgTabPostezBadge');
+      if(badge) badge.textContent = items.length ? items.length.toLocaleString('ko-KR') : '—';
+    }catch(e){}
+  });
 
   /* ===================================================== */
   /* ============ 매출 보고서 PPT (업로드 + GitHub 동기화) ============ */
