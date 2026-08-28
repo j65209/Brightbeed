@@ -3183,7 +3183,19 @@
   .ig-panel{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
   .ig-field{display:flex;flex-direction:column;gap:7px}
   .ig-field[hidden]{display:none}
-  .ig-fixed-block{background:linear-gradient(180deg,rgba(236,72,153,.05),rgba(139,92,246,.04));border:1px solid rgba(236,72,153,.18);border-radius:10px;padding:11px 12px;gap:8px}
+  .ig-fixed-info{border:1px solid var(--line);border-radius:9px;background:var(--bg-2);transition:background .12s}
+  .ig-fixed-info[open]{background:var(--bg-1);border-color:var(--line-2)}
+  .ig-fixed-info summary{list-style:none;display:flex;align-items:center;gap:8px;padding:9px 11px;cursor:pointer;user-select:none;font-size:12px;color:var(--text-2)}
+  .ig-fixed-info summary::-webkit-details-marker{display:none}
+  .ig-fixed-info summary:hover{color:var(--text-1)}
+  .ig-fixed-chevron{color:var(--text-3);font-size:10px;transition:transform .15s;flex-shrink:0;width:10px;display:inline-block;text-align:center}
+  .ig-fixed-info[open] .ig-fixed-chevron{transform:rotate(90deg)}
+  .ig-fixed-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+  .ig-fixed-title{flex:1;font-weight:500;color:var(--text-2)}
+  .ig-fixed-title b{font-weight:700;color:var(--text-1)}
+  .ig-fixed-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:4px;background:var(--bg-3);color:var(--text-3);text-transform:uppercase}
+  .ig-fixed-body{padding:0 12px 11px;font-size:11.5px;color:var(--text-3);line-height:1.55}
+  .ig-fixed-body code{font-family:var(--mono);font-size:10.5px;padding:1px 5px;background:var(--bg-2);border:1px solid var(--line);border-radius:3px;color:var(--text-2)}
   .ig-hint-line{font-size:11px;color:var(--text-3);padding:2px 2px 0;line-height:1.4}
   .ig-hint-line b{color:#ec4899;font-weight:700}
   .ig-hint-line[hidden]{display:none}
@@ -6483,6 +6495,30 @@
             <input type="range" class="ig-slider" id="igSelSize" min="1" max="10" value="5">
           </div>
         </div>
+
+        <details class="ig-fixed-info">
+          <summary>
+            <span class="ig-fixed-chevron">▸</span>
+            <span class="ig-fixed-swatch" style="background:#a3e635"></span>
+            <span class="ig-fixed-title">상단 배지 <b>NOW ON</b></span>
+            <span class="ig-fixed-tag">고정</span>
+          </summary>
+          <div class="ig-fixed-body">
+            좌측 상단 · 라임그린 <code>#a3e635</code> · 흰 글씨 · 위치·색상·크기 수정 불가
+          </div>
+        </details>
+
+        <details class="ig-fixed-info">
+          <summary>
+            <span class="ig-fixed-chevron">▸</span>
+            <span class="ig-fixed-swatch" style="background:#ffffff;border:1px solid var(--line)"></span>
+            <span class="ig-fixed-title">하단 워터마크 <b>Brightbeed</b></span>
+            <span class="ig-fixed-tag">고정</span>
+          </summary>
+          <div class="ig-fixed-body">
+            하단 중앙 · 흰 글씨 (그림자) · 위치·색상·크기 수정 불가
+          </div>
+        </details>
 
         <div class="ig-actions">
           <button type="button" class="ig-btn ig-btn-primary" id="igDownload" onclick="igDownload()">PNG 다운로드</button>
@@ -16244,9 +16280,10 @@
     xPct:50, yPct:87,       // bottom-center
     fontPx:38
   };
+  const IG_BG_COLOR = '#0f172a'; // fallback fill for gaps outside the cover-fit image
   const _ig = {
     ready:false,
-    bg:{ color:'#0f172a', image:null, x:50, y:50 },
+    bg:{ image:null, x:50, y:50 },
     overlays:[],   // {id, kind:'text', text, corner, color, size, shadow}
     selectedId:null,
     _idSeq:1
@@ -16257,9 +16294,6 @@
   function initInstaView(){
     if(_ig.ready){ _igRender(); return; }
     _ig.ready = true;
-
-    // Background color
-    document.getElementById('igBgColor').addEventListener('input',e=>{ _ig.bg.color = e.target.value; _igRender(); });
 
     // Image position sliders + reset
     const imgX = document.getElementById('igImgX'), imgY = document.getElementById('igImgY');
@@ -16541,7 +16575,7 @@
     const cw = c.width, ch = c.height;
 
     // 1) Background — solid fallback + cover-fit image
-    ctx.fillStyle = _ig.bg.color;
+    ctx.fillStyle = IG_BG_COLOR;
     ctx.fillRect(0, 0, cw, ch);
     if(_ig.bg.image){
       const {sx, sy, sw, sh} = _igCoverRect(_ig.bg.image, cw, ch, _ig.bg.x, _ig.bg.y);
@@ -16664,12 +16698,11 @@
 
   function igReset(){
     if(!confirm('배경 이미지 · 텍스트를 모두 초기화합니다.\n(상단 NOW ON · 하단 Brightbeed 는 템플릿 고정)\n계속할까요?')) return;
-    _ig.bg = { color:'#0f172a', image:null, x:50, y:50 };
+    _ig.bg = { image:null, x:50, y:50 };
     _ig.overlays = [];
     _ig.selectedId = null;
     _ig._idSeq = 1;
     // Reset UI
-    document.getElementById('igBgColor').value = _ig.bg.color;
     document.getElementById('igImgX').value = _ig.bg.x;
     document.getElementById('igImgY').value = _ig.bg.y;
     document.getElementById('igImgXVal').textContent = _ig.bg.x;
