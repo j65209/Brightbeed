@@ -3184,6 +3184,14 @@
   .ig-field{display:flex;flex-direction:column;gap:7px}
   .ig-field[hidden]{display:none}
   .ig-fixed-block{background:linear-gradient(180deg,rgba(236,72,153,.05),rgba(139,92,246,.04));border:1px solid rgba(236,72,153,.18);border-radius:10px;padding:11px 12px;gap:8px}
+  .ig-hint-line{font-size:11px;color:var(--text-3);padding:2px 2px 0;line-height:1.4}
+  .ig-hint-line b{color:#ec4899;font-weight:700}
+  .ig-hint-line[hidden]{display:none}
+  .ig-mini-btn{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--text-3);background:none;border:1px solid var(--line);border-radius:5px;padding:2px 8px;cursor:pointer;font-family:var(--sans);transition:all .12s}
+  .ig-mini-btn:hover{color:#ec4899;border-color:#ec4899}
+  .ig-canvas-wrap.has-image canvas{cursor:grab}
+  .ig-canvas-wrap.has-image.is-dragging canvas{cursor:grabbing}
+  .ig-canvas-wrap canvas{touch-action:none}
   .ig-label{font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:.02em;display:flex;align-items:center;gap:7px}
   .ig-label-sub{font-weight:400;color:var(--text-3);font-size:11px}
   .ig-drop{border:1.5px dashed var(--line-2);border-radius:10px;background:var(--bg-2);padding:20px 14px;text-align:center;cursor:pointer;color:var(--text-3);font-size:12.5px;line-height:1.5;transition:all .15s}
@@ -6393,37 +6401,18 @@
     <div class="ig-wrap">
       <div class="ig-panel">
         <div class="ig-field">
-          <span class="ig-label">배경 이미지 <span class="ig-label-sub">(선택 · 없으면 단색)</span></span>
+          <span class="ig-label">배경 이미지</span>
           <div class="ig-drop" id="igDrop">
             이미지를 <b>드래그</b>하거나 <b>클릭</b><br>(Ctrl+V 붙여넣기 가능)
           </div>
           <input type="file" id="igFile" accept="image/*" hidden>
-        </div>
-
-        <div class="ig-field">
-          <span class="ig-label">피드 사이즈</span>
-          <div class="ig-ratios" id="igRatios">
-            <button type="button" class="ig-ratio" data-ratio="1:1">1:1<span class="ig-ratio-sub">정사각</span></button>
-            <button type="button" class="ig-ratio is-active" data-ratio="4:5">4:5<span class="ig-ratio-sub">세로</span></button>
-            <button type="button" class="ig-ratio" data-ratio="9:16">9:16<span class="ig-ratio-sub">스토리</span></button>
-          </div>
-        </div>
-
-        <div class="ig-row">
-          <div class="ig-field">
-            <span class="ig-label">배경색</span>
-            <div class="ig-row-inline">
-              <input type="color" class="ig-color" id="igBgColor" value="#111827">
-              <label class="ig-toggle" title="이미지 위에 어두운 그라디언트를 얹어 텍스트 가독성을 높입니다">
-                <input type="checkbox" id="igDim" checked>
-                <span>어둡게 오버레이</span>
-              </label>
-            </div>
-          </div>
+          <span class="ig-hint-line" id="igDragHint" hidden>💡 미리보기에서 <b>드래그</b>하면 이미지 위치를 옮길 수 있어요</span>
         </div>
 
         <div class="ig-field" id="igImgPosField" hidden>
-          <span class="ig-label">이미지 위치 <span class="ig-label-sub">(크롭 안에서 이동)</span></span>
+          <span class="ig-label">이미지 위치 <span class="ig-label-sub">(캔버스 드래그 · 슬라이더)</span>
+            <button type="button" class="ig-mini-btn" id="igImgReset" title="중앙 정렬로 초기화">↺ 중앙</button>
+          </span>
           <div class="ig-slider-row">
             <span class="ig-mini-label">X</span>
             <input type="range" class="ig-slider" id="igImgX" min="0" max="100" value="50">
@@ -6436,81 +6425,33 @@
           </div>
         </div>
 
-        <div class="ig-field ig-fixed-block">
-          <span class="ig-label">상단 고정 배지 <span class="ig-label-sub">(템플릿 기본)</span>
-            <label class="ig-toggle" style="margin-left:auto">
-              <input type="checkbox" id="igTopBadgeOn" checked>
-              <span>표시</span>
-            </label>
-          </span>
+        <div class="ig-field">
+          <span class="ig-label">배경색 <span class="ig-label-sub">(이미지 없을 때 · 여백)</span></span>
           <div class="ig-row-inline">
-            <input type="text" class="ig-input" id="igTopBadgeText" value="NOW ON" maxlength="20" placeholder="예: NOW ON · EVENT">
-          </div>
-          <div class="ig-row-inline">
-            <span class="ig-mini-label" style="flex:0 0 44px">글자</span>
-            <input type="color" class="ig-color" id="igTopBadgeColor" value="#ffffff">
-            <span class="ig-mini-label" style="flex:0 0 44px;padding-left:8px">배경</span>
-            <input type="color" class="ig-color" id="igTopBadgeBg" value="#a3e635">
-          </div>
-          <div class="ig-corners" id="igTopBadgeCorners">
-            <button type="button" class="ig-corner is-active" data-corner="tl" title="좌측 상단">↖</button>
-            <button type="button" class="ig-corner" data-corner="tc" title="상단 중앙">⬆</button>
-            <button type="button" class="ig-corner" data-corner="tr" title="우측 상단">↗</button>
-          </div>
-          <div class="ig-slider-row">
-            <span class="ig-mini-label">크기</span>
-            <input type="range" class="ig-slider" id="igTopBadgeSize" min="1" max="8" value="3">
-            <b id="igTopBadgeSizeVal">3</b>
-          </div>
-        </div>
-
-        <div class="ig-field ig-fixed-block">
-          <span class="ig-label">하단 브랜드 워터마크 <span class="ig-label-sub">(템플릿 기본)</span>
-            <label class="ig-toggle" style="margin-left:auto">
-              <input type="checkbox" id="igBrandOn" checked>
-              <span>표시</span>
-            </label>
-          </span>
-          <div class="ig-row-inline">
-            <input type="text" class="ig-input" id="igBrandText" value="Brightbeed" maxlength="40" placeholder="브랜드명">
-            <input type="color" class="ig-color" id="igBrandColor" value="#ffffff">
-          </div>
-          <div class="ig-corners" id="igBrandCorners">
-            <button type="button" class="ig-corner" data-corner="bl" title="좌측 하단">↙</button>
-            <button type="button" class="ig-corner is-active" data-corner="bc" title="하단 중앙">⬇</button>
-            <button type="button" class="ig-corner" data-corner="br" title="우측 하단">↘</button>
-          </div>
-          <div class="ig-slider-row">
-            <span class="ig-mini-label">크기</span>
-            <input type="range" class="ig-slider" id="igBrandSize" min="2" max="10" value="4">
-            <b id="igBrandSizeVal">4</b>
+            <input type="color" class="ig-color" id="igBgColor" value="#0f172a">
           </div>
         </div>
 
         <div class="ig-field">
-          <span class="ig-label">배지 추가 <span class="ig-label-sub">(눌러서 오버레이 추가)</span></span>
-          <div class="ig-badges-preset" id="igBadgePresets"></div>
+          <span class="ig-label">텍스트 오버레이 <span class="ig-label-sub">(자유 문구)</span></span>
+          <button type="button" class="ig-add-text-btn" onclick="igAddText()">＋ 텍스트 추가</button>
         </div>
 
         <div class="ig-field">
-          <button type="button" class="ig-add-text-btn" onclick="igAddText()">＋ 텍스트 오버레이 추가</button>
-        </div>
-
-        <div class="ig-field">
-          <span class="ig-label">오버레이 목록 <span id="igOverlaysCount" class="ig-label-sub">0</span></span>
+          <span class="ig-label">텍스트 목록 <span id="igOverlaysCount" class="ig-label-sub">0</span></span>
           <div class="ig-overlays-list" id="igOverlaysList">
-            <div class="ig-overlay-empty">배지를 누르거나 텍스트를 추가하세요</div>
+            <div class="ig-overlay-empty">＋ 텍스트 추가 로 문구를 얹어보세요</div>
           </div>
         </div>
 
         <div class="ig-selected-edit" id="igSelectedEdit" hidden>
           <div class="ig-selected-edit-head">
-            <span>선택된 오버레이</span>
+            <span>선택된 텍스트</span>
             <b id="igSelectedName">—</b>
           </div>
           <div class="ig-field">
-            <span class="ig-mini-label">문구</span>
-            <input type="text" class="ig-input" id="igSelText" maxlength="60">
+            <span class="ig-mini-label">문구 <span style="color:var(--text-3);font-weight:400">(엔터로 줄바꿈)</span></span>
+            <textarea class="ig-input" id="igSelText" rows="3" maxlength="200" style="resize:vertical;min-height:60px;font-family:var(--sans)"></textarea>
           </div>
           <div class="ig-field">
             <span class="ig-mini-label">위치</span>
@@ -6531,13 +6472,16 @@
               <span class="ig-mini-label">글자색</span>
               <input type="color" class="ig-color" id="igSelColor" style="width:100%">
             </div>
-            <div class="ig-field" id="igSelBgField" style="flex:1">
-              <span class="ig-mini-label">배지색</span>
-              <input type="color" class="ig-color" id="igSelBg" style="width:100%">
+            <div class="ig-field" style="flex:1">
+              <span class="ig-mini-label">그림자 <span style="color:var(--text-3);font-weight:400">(가독성)</span></span>
+              <label class="ig-toggle" style="padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg-2);justify-content:center">
+                <input type="checkbox" id="igSelShadow" checked>
+                <span>ON</span>
+              </label>
             </div>
           </div>
           <div class="ig-field">
-            <span class="ig-mini-label"><span id="igSelSizeLabel">크기</span> <b id="igSelSizeVal" style="float:right;font-family:var(--mono);color:var(--text-2)">5</b></span>
+            <span class="ig-mini-label">크기 <b id="igSelSizeVal" style="float:right;font-family:var(--mono);color:var(--text-2)">5</b></span>
             <input type="range" class="ig-slider" id="igSelSize" min="1" max="10" value="5">
           </div>
         </div>
@@ -6549,9 +6493,9 @@
       </div>
 
       <div class="ig-preview" id="igPreview">
-        <div class="ig-canvas-wrap">
-          <canvas id="igCanvas" width="1080" height="1350"></canvas>
-          <div class="ig-hint">실시간 미리보기 · 저장은 원본 해상도 (1080px)</div>
+        <div class="ig-canvas-wrap" id="igCanvasWrap">
+          <canvas id="igCanvas" width="1080" height="1080"></canvas>
+          <div class="ig-hint">1:1 · 1080 × 1080 · 상단 NOW ON · 하단 Brightbeed 고정</div>
         </div>
       </div>
     </div>
@@ -16289,28 +16233,22 @@
   window.clearBadge=clearBadge;
 
   /* ===== 인스타 피드 템플릿 (Instagram feed template maker) ===== */
-  const IG_RATIOS = {
-    '1:1':  {w:1080, h:1080},
-    '4:5':  {w:1080, h:1350},
-    '9:16': {w:1080, h:1920}
+  const IG_SIZE = 1080; // fixed 1:1 canvas (1080 x 1080)
+  // Fixed template elements — position/style locked to @brightbeed feed reference
+  const IG_TOPBADGE = {
+    text:'NOW ON', bg:'#a3e635', color:'#ffffff',
+    xPct:14, yPct:12,      // top-left with padding
+    fontPx:44, padH:22, padV:12, radiusRatio:0.14
   };
-  const IG_BADGE_PRESETS = [
-    {key:'nowon',   text:'NOW ON',   bg:'#ec4899', color:'#ffffff'},
-    {key:'new',     text:'NEW',      bg:'#111827', color:'#ffffff'},
-    {key:'sale',    text:'SALE',     bg:'#e11d48', color:'#ffffff'},
-    {key:'best',    text:'BEST',     bg:'#fbbf24', color:'#111827'},
-    {key:'hot',     text:'HOT',      bg:'#f97316', color:'#ffffff'},
-    {key:'limited', text:'LIMITED',  bg:'#7c3aed', color:'#ffffff'},
-    {key:'event',   text:'EVENT',    bg:'#0ea5e9', color:'#ffffff'},
-    {key:'soldout', text:'SOLD OUT', bg:'#374151', color:'#ffffff'}
-  ];
+  const IG_BRAND = {
+    text:'Brightbeed', color:'#ffffff',
+    xPct:50, yPct:87,       // bottom-center
+    fontPx:38
+  };
   const _ig = {
     ready:false,
-    ratio:'4:5',
-    bg:{ color:'#111827', image:null, x:50, y:50, dim:true },
-    topBadge:{ enabled:true, text:'NOW ON', color:'#ffffff', bg:'#a3e635', corner:'tl', size:3 },
-    brand:{ enabled:true, text:'Brightbeed', color:'#ffffff', corner:'bc', size:4 },
-    overlays:[],   // {id, kind:'badge'|'text', text, corner, color, bg, size}
+    bg:{ color:'#0f172a', image:null, x:50, y:50 },
+    overlays:[],   // {id, kind:'text', text, corner, color, size, shadow}
     selectedId:null,
     _idSeq:1
   };
@@ -16321,25 +16259,20 @@
     if(_ig.ready){ _igRender(); return; }
     _ig.ready = true;
 
-    // Ratio buttons
-    document.querySelectorAll('#igRatios .ig-ratio').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('#igRatios .ig-ratio').forEach(b=>b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        _ig.ratio = btn.dataset.ratio;
-        _igApplyCanvasSize();
-        _igRender();
-      });
-    });
-
-    // Background color + dim
+    // Background color
     document.getElementById('igBgColor').addEventListener('input',e=>{ _ig.bg.color = e.target.value; _igRender(); });
-    document.getElementById('igDim').addEventListener('change',e=>{ _ig.bg.dim = e.target.checked; _igRender(); });
 
-    // Image position sliders
+    // Image position sliders + reset
     const imgX = document.getElementById('igImgX'), imgY = document.getElementById('igImgY');
     imgX.addEventListener('input',e=>{ _ig.bg.x = +e.target.value; document.getElementById('igImgXVal').textContent = e.target.value; _igRender(); });
     imgY.addEventListener('input',e=>{ _ig.bg.y = +e.target.value; document.getElementById('igImgYVal').textContent = e.target.value; _igRender(); });
+    document.getElementById('igImgReset').addEventListener('click',()=>{
+      _ig.bg.x = 50; _ig.bg.y = 50;
+      imgX.value = 50; imgY.value = 50;
+      document.getElementById('igImgXVal').textContent = '50';
+      document.getElementById('igImgYVal').textContent = '50';
+      _igRender();
+    });
 
     // Image upload (drop / click / paste)
     const drop = document.getElementById('igDrop');
@@ -16366,50 +16299,19 @@
       }
     });
 
-    // Top fixed badge controls
-    document.getElementById('igTopBadgeOn').addEventListener('change',e=>{ _ig.topBadge.enabled = e.target.checked; _igRender(); });
-    document.getElementById('igTopBadgeText').addEventListener('input',e=>{ _ig.topBadge.text = e.target.value; _igRender(); });
-    document.getElementById('igTopBadgeColor').addEventListener('input',e=>{ _ig.topBadge.color = e.target.value; _igRender(); });
-    document.getElementById('igTopBadgeBg').addEventListener('input',e=>{ _ig.topBadge.bg = e.target.value; _igRender(); });
-    document.querySelectorAll('#igTopBadgeCorners .ig-corner').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('#igTopBadgeCorners .ig-corner').forEach(b=>b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        _ig.topBadge.corner = btn.dataset.corner;
-        _igRender();
-      });
-    });
-    const tbSize = document.getElementById('igTopBadgeSize');
-    tbSize.addEventListener('input',e=>{ _ig.topBadge.size = +e.target.value; document.getElementById('igTopBadgeSizeVal').textContent = e.target.value; _igRender(); });
+    // Canvas drag-to-pan the image
+    _igInstallCanvasDrag();
 
-    // Brand watermark controls
-    document.getElementById('igBrandOn').addEventListener('change',e=>{ _ig.brand.enabled = e.target.checked; _igRender(); });
-    document.getElementById('igBrandText').addEventListener('input',e=>{ _ig.brand.text = e.target.value; _igRender(); });
-    document.getElementById('igBrandColor').addEventListener('input',e=>{ _ig.brand.color = e.target.value; _igRender(); });
-    document.querySelectorAll('#igBrandCorners .ig-corner').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('#igBrandCorners .ig-corner').forEach(b=>b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        _ig.brand.corner = btn.dataset.corner;
-        _igRender();
-      });
-    });
-    const brSize = document.getElementById('igBrandSize');
-    brSize.addEventListener('input',e=>{ _ig.brand.size = +e.target.value; document.getElementById('igBrandSizeVal').textContent = e.target.value; _igRender(); });
-
-    // Badge presets
-    _igRenderBadgePresets();
-
-    // Selected overlay editor bindings
+    // Selected text overlay editor bindings
     document.getElementById('igSelText').addEventListener('input',e=>{
       const ov = _igSelected(); if(!ov) return;
-      ov.text = e.target.value; _igRender(); _igRenderOverlaysList();
+      ov.text = e.target.value; _igRender(); _igRenderOverlaysList(); _igSyncSelectedName();
     });
     document.getElementById('igSelColor').addEventListener('input',e=>{
       const ov = _igSelected(); if(!ov) return; ov.color = e.target.value; _igRender();
     });
-    document.getElementById('igSelBg').addEventListener('input',e=>{
-      const ov = _igSelected(); if(!ov) return; ov.bg = e.target.value; _igRender();
+    document.getElementById('igSelShadow').addEventListener('change',e=>{
+      const ov = _igSelected(); if(!ov) return; ov.shadow = e.target.checked; _igRender();
     });
     document.getElementById('igSelSize').addEventListener('input',e=>{
       const ov = _igSelected(); if(!ov) return;
@@ -16426,9 +16328,64 @@
       });
     });
 
-    _igApplyCanvasSize();
     _igRenderOverlaysList();
     _igRender();
+  }
+
+  function _igInstallCanvasDrag(){
+    const c = _igCanvas();
+    const wrap = document.getElementById('igCanvasWrap');
+    let dragging = false;
+    let startX = 0, startY = 0;
+    let startBgX = 50, startBgY = 50;
+    let scaleFactor = 1; // canvas natural px per screen px
+
+    function pointerXY(ev){
+      if(ev.touches && ev.touches[0]) return { x:ev.touches[0].clientX, y:ev.touches[0].clientY };
+      return { x:ev.clientX, y:ev.clientY };
+    }
+
+    function onDown(ev){
+      if(!_ig.bg.image) return;
+      const rect = c.getBoundingClientRect();
+      scaleFactor = c.width / rect.width;
+      const p = pointerXY(ev);
+      startX = p.x; startY = p.y;
+      startBgX = _ig.bg.x; startBgY = _ig.bg.y;
+      dragging = true;
+      wrap.classList.add('is-dragging');
+      ev.preventDefault();
+    }
+    function onMove(ev){
+      if(!dragging) return;
+      const p = pointerXY(ev);
+      const dxScreen = p.x - startX;
+      const dyScreen = p.y - startY;
+      // Convert screen delta → canvas-space delta → percentage adjustment
+      // Dragging right shows more of image's LEFT side → decrease bg.x
+      const dxPct = -(dxScreen * scaleFactor) / c.width * 100;
+      const dyPct = -(dyScreen * scaleFactor) / c.height * 100;
+      _ig.bg.x = Math.max(0, Math.min(100, startBgX + dxPct));
+      _ig.bg.y = Math.max(0, Math.min(100, startBgY + dyPct));
+      document.getElementById('igImgX').value = _ig.bg.x;
+      document.getElementById('igImgY').value = _ig.bg.y;
+      document.getElementById('igImgXVal').textContent = Math.round(_ig.bg.x);
+      document.getElementById('igImgYVal').textContent = Math.round(_ig.bg.y);
+      _igRender();
+      ev.preventDefault();
+    }
+    function onUp(){
+      if(!dragging) return;
+      dragging = false;
+      wrap.classList.remove('is-dragging');
+    }
+
+    c.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    c.addEventListener('touchstart', onDown, {passive:false});
+    window.addEventListener('touchmove', onMove, {passive:false});
+    window.addEventListener('touchend', onUp);
   }
 
   function _igLoadFile(file){
@@ -16438,6 +16395,8 @@
       img.onload = () => {
         _ig.bg.image = img;
         document.getElementById('igImgPosField').hidden = false;
+        document.getElementById('igDragHint').hidden = false;
+        document.getElementById('igCanvasWrap').classList.add('has-image');
         const drop = document.getElementById('igDrop');
         drop.classList.add('is-loaded');
         drop.innerHTML = `이미지 로드됨 · <b>${file.name.length>28?file.name.slice(0,26)+'…':file.name}</b> · ${img.naturalWidth}×${img.naturalHeight}<br><span style="font-size:10.5px;color:var(--text-3)">다른 이미지로 교체하려면 클릭 · 붙여넣기</span>`;
@@ -16448,53 +16407,19 @@
     reader.readAsDataURL(file);
   }
 
-  function _igApplyCanvasSize(){
-    const c = _igCanvas();
-    const r = IG_RATIOS[_ig.ratio] || IG_RATIOS['4:5'];
-    c.width = r.w; c.height = r.h;
-  }
-
-  function _igRenderBadgePresets(){
-    const wrap = document.getElementById('igBadgePresets');
-    wrap.innerHTML = IG_BADGE_PRESETS.map(p=>{
-      const chip = `<span class="ig-badge-pre-chip" style="background:${p.bg};color:${p.color}">${p.text}</span>`;
-      return `<button type="button" class="ig-badge-pre" data-key="${p.key}" title="${p.text} 배지 추가">${chip}</button>`;
-    }).join('');
-    wrap.querySelectorAll('.ig-badge-pre').forEach(btn=>{
-      btn.addEventListener('click',()=>igAddBadge(btn.dataset.key));
-    });
-  }
-
   function _igSelected(){
     return _ig.overlays.find(o=>o.id===_ig.selectedId) || null;
   }
 
-  function igAddBadge(key){
-    const preset = IG_BADGE_PRESETS.find(p=>p.key===key) || IG_BADGE_PRESETS[0];
-    // Auto-choose an unused top corner: tl -> tr -> tc -> cl -> cr
-    const used = new Set(_ig.overlays.filter(o=>o.kind==='badge').map(o=>o.corner));
-    const seq = ['tl','tr','tc','cl','cr','bl','br','bc','cc'];
-    const corner = seq.find(c=>!used.has(c)) || 'tl';
-    const id = _ig._idSeq++;
-    _ig.overlays.push({
-      id, kind:'badge', text:preset.text, corner,
-      color:preset.color, bg:preset.bg, size:5
-    });
-    _ig.selectedId = id;
-    _igRenderOverlaysList();
-    _igSyncSelectedEditor();
-    _igRender();
-  }
-
   function igAddText(){
-    // Auto-pick a corner: prefer center-ish for text
-    const used = new Set(_ig.overlays.filter(o=>o.kind==='text').map(o=>o.corner));
-    const seq = ['cc','tc','bc','tl','tr','bl','br','cl','cr'];
+    // Auto-pick a corner between the fixed NOW ON (top) and Brightbeed (bottom)
+    const used = new Set(_ig.overlays.map(o=>o.corner));
+    const seq = ['cc','cl','cr','tr','bl','br','tl','tc','bc'];
     const corner = seq.find(c=>!used.has(c)) || 'cc';
     const id = _ig._idSeq++;
     _ig.overlays.push({
       id, kind:'text', text:'제품명을 입력하세요', corner,
-      color:'#ffffff', bg:'', size:7
+      color:'#ffffff', size:7, shadow:true
     });
     _ig.selectedId = id;
     _igRenderOverlaysList();
@@ -16524,16 +16449,15 @@
     const count = document.getElementById('igOverlaysCount');
     count.textContent = _ig.overlays.length;
     if(!_ig.overlays.length){
-      list.innerHTML = '<div class="ig-overlay-empty">배지를 누르거나 텍스트를 추가하세요</div>';
+      list.innerHTML = '<div class="ig-overlay-empty">＋ 텍스트 추가 로 문구를 얹어보세요</div>';
       return;
     }
     list.innerHTML = _ig.overlays.map(o=>{
       const isAct = o.id===_ig.selectedId ? ' is-active' : '';
-      const kindLbl = o.kind==='badge' ? '배지' : '텍스트';
-      const kindCls = o.kind==='badge' ? 'k-badge' : 'k-text';
+      const preview = (o.text || '').split('\n')[0] || '(빈 문구)';
       return `<div class="ig-overlay-item${isAct}" data-id="${o.id}">
-        <span class="ig-overlay-kind ${kindCls}">${kindLbl}</span>
-        <span class="ig-overlay-text">${_igEsc(o.text)||'(빈 문구)'}</span>
+        <span class="ig-overlay-kind k-text">텍스트</span>
+        <span class="ig-overlay-text">${_igEsc(preview)}</span>
         <button type="button" class="ig-overlay-del" data-id="${o.id}" title="삭제">×</button>
       </div>`;
     }).join('');
@@ -16548,25 +16472,24 @@
     });
   }
 
+  function _igSyncSelectedName(){
+    const ov = _igSelected();
+    if(!ov) return;
+    const preview = (ov.text || '').split('\n')[0] || '(빈 문구)';
+    document.getElementById('igSelectedName').textContent = preview;
+  }
+
   function _igSyncSelectedEditor(){
     const ov = _igSelected();
     const box = document.getElementById('igSelectedEdit');
     if(!ov){ box.hidden = true; return; }
     box.hidden = false;
-    document.getElementById('igSelectedName').textContent = (ov.kind==='badge'?'배지 · ':'텍스트 · ') + (ov.text || '(빈 문구)');
+    _igSyncSelectedName();
     document.getElementById('igSelText').value = ov.text || '';
     document.getElementById('igSelColor').value = ov.color || '#ffffff';
+    document.getElementById('igSelShadow').checked = ov.shadow !== false;
     document.getElementById('igSelSize').value = ov.size;
     document.getElementById('igSelSizeVal').textContent = ov.size;
-    document.getElementById('igSelSizeLabel').textContent = ov.kind==='badge'?'배지 크기':'글자 크기';
-    // Badges have a bg color, text overlays don't
-    const bgField = document.getElementById('igSelBgField');
-    if(ov.kind==='badge'){
-      bgField.style.display = '';
-      document.getElementById('igSelBg').value = ov.bg || '#111827';
-    }else{
-      bgField.style.display = 'none';
-    }
     document.querySelectorAll('#igSelCorners .ig-corner').forEach(b=>{
       b.classList.toggle('is-active', b.dataset.corner===ov.corner);
     });
@@ -16618,107 +16541,39 @@
     const ctx = c.getContext('2d');
     const cw = c.width, ch = c.height;
 
-    // 1) Background — solid color first (fallback + image edges)
+    // 1) Background — solid fallback + cover-fit image
     ctx.fillStyle = _ig.bg.color;
     ctx.fillRect(0, 0, cw, ch);
-
-    // 2) Image cover-fit
     if(_ig.bg.image){
       const {sx, sy, sw, sh} = _igCoverRect(_ig.bg.image, cw, ch, _ig.bg.x, _ig.bg.y);
       ctx.drawImage(_ig.bg.image, sx, sy, sw, sh, 0, 0, cw, ch);
     }
 
-    // 3) Dim gradient overlays for text legibility (top & bottom)
-    if(_ig.bg.dim){
-      const gTop = ctx.createLinearGradient(0, 0, 0, ch*0.35);
-      gTop.addColorStop(0, 'rgba(0,0,0,0.45)');
-      gTop.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = gTop; ctx.fillRect(0, 0, cw, ch*0.35);
-      const gBot = ctx.createLinearGradient(0, ch*0.55, 0, ch);
-      gBot.addColorStop(0, 'rgba(0,0,0,0)');
-      gBot.addColorStop(1, 'rgba(0,0,0,0.55)');
-      ctx.fillStyle = gBot; ctx.fillRect(0, ch*0.55, cw, ch*0.45);
-    }
-
-    // 4) Overlays (badges first, texts on top)
-    const pad = Math.round(cw * 0.045);
-    // Group by corner so multiple overlays in same corner stack
-    const grouped = {};
+    // 2) User text overlays
     for(const ov of _ig.overlays){
-      const key = ov.corner;
-      (grouped[key] = grouped[key] || []).push(ov);
-    }
-    Object.entries(grouped).forEach(([corner, list])=>{
-      const anc = _igCornerXY(corner, cw, ch, pad);
-      // Stack direction: top corners stack down, bottom corners stack up, middle centered
-      const stackDir = /^t/.test(corner) ? 1 : /^b/.test(corner) ? -1 : 1;
-      let cursorY = anc.y;
-      // For middle-y anchor, compute total height first to center-align stack
-      if(anc.anchorY==='middle'){
-        const heights = list.map(ov => _igOverlayHeight(ctx, ov, cw));
-        const gap = Math.round(cw * 0.018);
-        const total = heights.reduce((a,b)=>a+b,0) + gap * (list.length-1);
-        cursorY = anc.y - total/2;
-      }
-      list.forEach((ov, i)=>{
-        const h = _igOverlayHeight(ctx, ov, cw);
-        let drawY;
-        if(anc.anchorY==='middle'){
-          drawY = cursorY + h/2; // center of overlay row
-          cursorY += h + Math.round(cw * 0.018);
-        }else if(stackDir === 1){
-          // top: cursorY is top edge
-          drawY = cursorY + h/2;
-          cursorY += h + Math.round(cw * 0.018);
-        }else{
-          // bottom: cursorY is bottom edge
-          drawY = cursorY - h/2;
-          cursorY -= (h + Math.round(cw * 0.018));
-        }
-        _igDrawOverlay(ctx, ov, anc.x, drawY, anc.anchorX, cw);
-      });
-    });
-
-    // 5) Top fixed badge (template default) — rectangular chip
-    if(_ig.topBadge.enabled && _ig.topBadge.text && _ig.topBadge.text.trim()){
-      const anc = _igCornerXY(_ig.topBadge.corner, cw, ch, pad);
-      _igDrawTopBadge(ctx, _ig.topBadge, anc, cw);
+      const pad = Math.round(cw * 0.045);
+      const anc = _igCornerXY(ov.corner, cw, ch, pad);
+      _igDrawText(ctx, ov, anc.x, anc.y, anc.anchorX, anc.anchorY, cw);
     }
 
-    // 6) Brand watermark — always on top
-    if(_ig.brand.enabled && _ig.brand.text && _ig.brand.text.trim()){
-      const anc = _igCornerXY(_ig.brand.corner, cw, ch, pad);
-      const px = _igScaleToPx(_ig.brand.size, cw, 'brand');
-      ctx.font = `700 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
-      ctx.textAlign = anc.anchorX;
-      ctx.textBaseline = anc.anchorY;
-      // subtle shadow for legibility over any image
-      ctx.shadowColor = 'rgba(0,0,0,0.55)';
-      ctx.shadowBlur = Math.round(px * 0.35);
-      ctx.shadowOffsetX = 0; ctx.shadowOffsetY = Math.round(px * 0.06);
-      ctx.fillStyle = _ig.brand.color;
-      ctx.fillText(_ig.brand.text, anc.x, anc.y);
-      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-    }
+    // 3) Fixed template elements — NOW ON top-left, Brightbeed bottom-center
+    //    Position/color/font locked to @brightbeed feed reference.
+    _igDrawFixedTopBadge(ctx, cw, ch);
+    _igDrawFixedBrand(ctx, cw, ch);
   }
 
-  function _igDrawTopBadge(ctx, tb, anc, cw){
-    // Rectangular chip with slight rounding — matches @brightbeed feed style
-    const px = _igScaleToPx(tb.size, cw, 'badge');
-    const padH = Math.round(px * 0.62);
-    const padV = Math.round(px * 0.28);
+  function _igDrawFixedTopBadge(ctx, cw, ch){
+    const tb = IG_TOPBADGE;
+    const px = tb.fontPx;
+    const padH = tb.padH, padV = tb.padV;
     ctx.font = `800 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
     const tw = ctx.measureText(tb.text).width;
     const w = Math.round(tw + padH*2);
     const h = Math.round(px + padV*2);
-    let rx = anc.x;
-    if(anc.anchorX==='center') rx = anc.x - w/2;
-    else if(anc.anchorX==='right') rx = anc.x - w;
-    let ry = anc.y;
-    if(anc.anchorY==='middle') ry = anc.y - h/2;
-    else if(anc.anchorY==='bottom') ry = anc.y - h;
+    const rx = Math.round(cw * (tb.xPct/100));
+    const ry = Math.round(ch * (tb.yPct/100));
     ctx.fillStyle = tb.bg;
-    _igRoundRect(ctx, rx, ry, w, h, Math.round(h * 0.14));
+    _igRoundRect(ctx, rx, ry, w, h, Math.round(h * tb.radiusRatio));
     ctx.fill();
     ctx.fillStyle = tb.color;
     ctx.textAlign = 'center';
@@ -16726,20 +16581,22 @@
     ctx.fillText(tb.text, rx + w/2, ry + h/2 + Math.round(px*0.05));
   }
 
-  function _igOverlayHeight(ctx, ov, cw){
-    if(ov.kind==='badge'){
-      const px = _igScaleToPx(ov.size, cw, 'badge');
-      return Math.round(px * 1.55); // pill height with vertical padding
-    }
-    const px = _igScaleToPx(ov.size, cw, 'text');
-    // wrap: rough single-line height; multi-line detected later inside draw
-    const lines = _igTextWrapLines(ctx, ov.text||'', px, cw*0.86);
-    return lines.length * Math.round(px * 1.18);
+  function _igDrawFixedBrand(ctx, cw, ch){
+    const b = IG_BRAND;
+    const px = b.fontPx;
+    ctx.font = `700 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = Math.round(px * 0.28);
+    ctx.shadowOffsetX = 0; ctx.shadowOffsetY = Math.round(px * 0.05);
+    ctx.fillStyle = b.color;
+    ctx.fillText(b.text, cw * (b.xPct/100), ch * (b.yPct/100));
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
   }
 
   function _igTextWrapLines(ctx, text, px, maxW){
     ctx.font = `800 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
-    // Manual line breaks respected + word wrap
     const paragraphs = String(text||'').split(/\n/);
     const out = [];
     for(const para of paragraphs){
@@ -16760,38 +16617,7 @@
     return out.length ? out : [''];
   }
 
-  function _igDrawOverlay(ctx, ov, x, y, anchorX, cw){
-    if(ov.kind==='badge'){
-      _igDrawBadge(ctx, ov, x, y, anchorX, cw);
-    }else{
-      _igDrawText(ctx, ov, x, y, anchorX, cw);
-    }
-  }
-
-  function _igDrawBadge(ctx, ov, x, y, anchorX, cw){
-    const px = _igScaleToPx(ov.size, cw, 'badge');
-    const padH = Math.round(px * 0.7);
-    const padV = Math.round(px * 0.32);
-    ctx.font = `800 ${px}px "Inter","Pretendard",-apple-system,sans-serif`;
-    const tw = ctx.measureText(ov.text || '').width;
-    const w = Math.round(tw + padH*2);
-    const h = Math.round(px + padV*2);
-    let rx = x;
-    if(anchorX==='center') rx = x - w/2;
-    else if(anchorX==='right') rx = x - w;
-    const ry = Math.round(y - h/2);
-    // Pill shape
-    ctx.fillStyle = ov.bg || '#111827';
-    _igRoundRect(ctx, rx, ry, w, h, Math.round(h/2));
-    ctx.fill();
-    // Text
-    ctx.fillStyle = ov.color || '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(ov.text || '', rx + w/2, ry + h/2 + Math.round(px*0.05));
-  }
-
-  function _igDrawText(ctx, ov, x, y, anchorX, cw){
+  function _igDrawText(ctx, ov, x, y, anchorX, anchorY, cw){
     const px = _igScaleToPx(ov.size, cw, 'text');
     const maxW = cw * 0.86;
     const lines = _igTextWrapLines(ctx, ov.text || '', px, maxW);
@@ -16801,11 +16627,15 @@
     ctx.fillStyle = ov.color || '#ffffff';
     ctx.textAlign = anchorX;
     ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0,0,0,0.55)';
-    ctx.shadowBlur = Math.round(px * 0.35);
-    ctx.shadowOffsetX = 0; ctx.shadowOffsetY = Math.round(px * 0.06);
-    // Draw centered around y (multi-line)
-    const startY = y - totalH/2 + lineH/2;
+    if(ov.shadow !== false){
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = Math.round(px * 0.35);
+      ctx.shadowOffsetX = 0; ctx.shadowOffsetY = Math.round(px * 0.06);
+    }
+    let startY;
+    if(anchorY === 'top') startY = y + lineH/2;
+    else if(anchorY === 'bottom') startY = y - totalH + lineH/2;
+    else startY = y - totalH/2 + lineH/2;
     lines.forEach((line, i)=>{
       ctx.fillText(line, x, startY + i*lineH);
     });
@@ -16826,58 +16656,32 @@
   function igDownload(){
     _igRender();
     const c = _igCanvas();
-    const brand = (_ig.brand.text || 'brightbeed').toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-+|-+$/g,'') || 'insta';
     const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
     const link = document.createElement('a');
-    link.download = `${brand}-${_ig.ratio.replace(':','x')}-${ts}.png`;
+    link.download = `brightbeed-insta-${ts}.png`;
     link.href = c.toDataURL('image/png');
     link.click();
   }
 
   function igReset(){
-    if(!confirm('배경 이미지 · 배지 · 텍스트를 모두 초기화합니다.\n(상단 NOW ON · 하단 Brightbeed 는 템플릿 기본값으로 복원)\n계속할까요?')) return;
-    _ig.bg = { color:'#111827', image:null, x:50, y:50, dim:true };
-    _ig.topBadge = { enabled:true, text:'NOW ON', color:'#ffffff', bg:'#a3e635', corner:'tl', size:3 };
-    _ig.brand = { enabled:true, text:'Brightbeed', color:'#ffffff', corner:'bc', size:4 };
+    if(!confirm('배경 이미지 · 텍스트를 모두 초기화합니다.\n(상단 NOW ON · 하단 Brightbeed 는 템플릿 고정)\n계속할까요?')) return;
+    _ig.bg = { color:'#0f172a', image:null, x:50, y:50 };
     _ig.overlays = [];
     _ig.selectedId = null;
     _ig._idSeq = 1;
-    _ig.ratio = '4:5';
     // Reset UI
     document.getElementById('igBgColor').value = _ig.bg.color;
-    document.getElementById('igDim').checked = _ig.bg.dim;
     document.getElementById('igImgX').value = _ig.bg.x;
     document.getElementById('igImgY').value = _ig.bg.y;
     document.getElementById('igImgXVal').textContent = _ig.bg.x;
     document.getElementById('igImgYVal').textContent = _ig.bg.y;
     document.getElementById('igImgPosField').hidden = true;
+    document.getElementById('igDragHint').hidden = true;
+    document.getElementById('igCanvasWrap').classList.remove('has-image');
     const drop = document.getElementById('igDrop');
     drop.classList.remove('is-loaded');
     drop.innerHTML = '이미지를 <b>드래그</b>하거나 <b>클릭</b><br>(Ctrl+V 붙여넣기 가능)';
     document.getElementById('igFile').value = '';
-    // Top badge
-    document.getElementById('igTopBadgeOn').checked = _ig.topBadge.enabled;
-    document.getElementById('igTopBadgeText').value = _ig.topBadge.text;
-    document.getElementById('igTopBadgeColor').value = _ig.topBadge.color;
-    document.getElementById('igTopBadgeBg').value = _ig.topBadge.bg;
-    document.getElementById('igTopBadgeSize').value = _ig.topBadge.size;
-    document.getElementById('igTopBadgeSizeVal').textContent = _ig.topBadge.size;
-    document.querySelectorAll('#igTopBadgeCorners .ig-corner').forEach(b=>{
-      b.classList.toggle('is-active', b.dataset.corner==='tl');
-    });
-    // Brand
-    document.getElementById('igBrandOn').checked = _ig.brand.enabled;
-    document.getElementById('igBrandText').value = _ig.brand.text;
-    document.getElementById('igBrandColor').value = _ig.brand.color;
-    document.getElementById('igBrandSize').value = _ig.brand.size;
-    document.getElementById('igBrandSizeVal').textContent = _ig.brand.size;
-    document.querySelectorAll('#igBrandCorners .ig-corner').forEach(b=>{
-      b.classList.toggle('is-active', b.dataset.corner==='bc');
-    });
-    document.querySelectorAll('#igRatios .ig-ratio').forEach(b=>{
-      b.classList.toggle('is-active', b.dataset.ratio==='4:5');
-    });
-    _igApplyCanvasSize();
     _igRenderOverlaysList();
     _igSyncSelectedEditor();
     _igRender();
