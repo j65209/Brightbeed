@@ -4335,16 +4335,30 @@
     font-weight:500;
   }
 
-  /* 모바일 */
+  /* 모바일 — 카드 2열 유지 */
   @media (max-width:900px){
-    .diary-board{grid-template-columns:1fr}
+    .diary-board{grid-template-columns:repeat(2,1fr);gap:10px}
     #viewDiary .view-title{font-size:22px}
   }
   @media (max-width:600px){
     .diary-head-actions{width:100%}
     .diary-date-nav{flex:1;justify-content:space-between}
-    .dcs{padding:16px 18px 18px}
+    .diary-board{gap:8px}
+    .dcs{padding:14px 14px 16px;gap:14px}
+    .dcs-head{gap:10px;padding-bottom:12px}
+    .dcs-avatar{width:30px;height:30px;font-size:10.5px;border-radius:8px}
+    .dcs-name{font-size:13.5px}
+    .dcs-team{font-size:10px}
+    .dcs-stat{padding:3px 7px;font-size:10.5px}
+    .dcs-sec-title{font-size:10.5px;letter-spacing:.06em}
+    .dcs-sec-title-count{font-size:10px;padding:1px 6px}
+    .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto 1fr auto}
+    .dcs-req-from{grid-column:2;justify-self:start;font-size:10px}
+    .dcs-req-del{grid-row:1;grid-column:3}
+    .dcs-req-text,.dcs-task-text{font-size:12px}
     .diary-alert{padding:12px 14px 14px}
+    .diary-alert-item{font-size:11.5px;padding:4px 10px 4px 4px}
+    .diary-alert-avatar{width:18px;height:18px;font-size:9.5px}
   }
 
   /* ===== 연차 (인사팀 뷰) ===== */
