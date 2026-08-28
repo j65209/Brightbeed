@@ -4118,22 +4118,22 @@
   .om-div.om-vendor .om-team.om-md2 .om-mem{color:#991b1b;border-color:rgba(255,140,112,.30);background:rgba(255,140,112,.06)}
 
   /* ===== 업무일지 뷰 — 애플/노션 감성 미니멀 대시보드 ===== */
-  #viewDiary .view-title{font-size:26px;font-weight:700;letter-spacing:-.03em}
-  #viewDiary .view-title-sub{font-size:13px;color:#a8a29e;font-weight:500;letter-spacing:-.01em;margin-left:10px}
+  #viewDiary .view-title{font-size:26px;font-weight:700;letter-spacing:-.03em;color:#1c1917}
+  #viewDiary .view-title-sub{font-size:13px;color:#57534e;font-weight:500;letter-spacing:-.01em;margin-left:10px}
 
   .diary-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .diary-save-tag{
     display:inline-flex;align-items:center;gap:6px;
     padding:5px 11px;border-radius:999px;
-    font-size:11px;color:#57534e;background:#f4f0e3;
+    font-size:11px;color:#292524;background:#f4f0e3;
     border:1px solid transparent;
-    font-variant-numeric:tabular-nums;letter-spacing:-.01em;font-weight:500;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em;font-weight:600;
   }
   .diary-save-tag::before{content:'';width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
-  .diary-date-nav{display:inline-flex;align-items:center;gap:4px;padding:3px;border:1px solid #eae7dc;border-radius:9px;background:#fff}
+  .diary-date-nav{display:inline-flex;align-items:center;gap:4px;padding:3px;border:1px solid #d5cfb8;border-radius:9px;background:#fff}
   .diary-nav-btn{
     width:26px;height:26px;border-radius:6px;border:none;
-    background:transparent;color:#78716c;
+    background:transparent;color:#44403c;
     display:flex;align-items:center;justify-content:center;
     transition:all .15s ease;
   }
@@ -4141,13 +4141,13 @@
   .diary-date-input{
     padding:4px 10px;border:none;border-radius:6px;
     background:transparent;color:#1c1917;font-size:13px;
-    font-family:var(--sans);font-variant-numeric:tabular-nums;font-weight:500;
+    font-family:var(--sans);font-variant-numeric:tabular-nums;font-weight:600;
     outline:none;cursor:pointer;letter-spacing:-.01em;
   }
   .diary-date-input:focus{background:#f4f0e3}
   .diary-today-btn{
     padding:5px 12px;border-radius:6px;border:none;
-    background:transparent;color:#57534e;font-size:12px;font-weight:500;
+    background:transparent;color:#292524;font-size:12px;font-weight:600;
     transition:all .15s ease;letter-spacing:-.01em;
   }
   .diary-today-btn:hover{background:#f4f0e3;color:#1c1917}
@@ -4162,33 +4162,23 @@
   }
   .diary-alert-head{
     display:inline-flex;align-items:center;gap:8px;
-    font-size:12.5px;font-weight:600;color:#a16207;letter-spacing:-.01em;
+    font-size:13px;font-weight:700;color:#78350f;letter-spacing:-.01em;
   }
-  .diary-alert-head svg{color:#eab308}
+  .diary-alert-head svg{color:#b45309}
   .diary-alert-count{
-    margin-left:auto;font-size:11px;color:#a16207;font-weight:500;
-    background:rgba(234,179,8,.14);padding:3px 9px;border-radius:999px;
+    margin-left:auto;font-size:11.5px;color:#78350f;font-weight:700;
+    background:rgba(234,179,8,.2);padding:3px 10px;border-radius:999px;
     letter-spacing:-.01em;font-variant-numeric:tabular-nums;
   }
   .diary-alert-list{display:flex;flex-wrap:wrap;gap:6px}
   .diary-alert-item{
-    display:inline-flex;align-items:center;gap:7px;
-    padding:5px 11px 5px 5px;border-radius:999px;
+    display:inline-flex;align-items:center;
+    padding:6px 12px;border-radius:999px;
     background:#fff;border:1px solid #f6d99a;
-    font-size:12.5px;color:#1c1917;font-weight:500;letter-spacing:-.01em;
+    font-size:13px;color:#1c1917;font-weight:600;letter-spacing:-.01em;
     transition:all .15s ease;
   }
   .diary-alert-item:hover{border-color:#eab308;background:#fffbeb}
-  .diary-alert-avatar{
-    width:20px;height:20px;border-radius:50%;
-    background:#f0ebda;color:#78716c;
-    display:inline-flex;align-items:center;justify-content:center;
-    font-size:10px;font-weight:600;letter-spacing:0;
-  }
-  .diary-alert-avatar.c-logi{background:#ede9fe;color:#5b21b6}
-  .diary-alert-avatar.c-mkt{background:#ecfccb;color:#3f6212}
-  .diary-alert-avatar.c-md2{background:#ffe4e6;color:#9f1239}
-  .diary-alert-avatar.c-share{background:#e0f2fe;color:#075985}
 
   /* 전 직원 카드 그리드 */
   .diary-board{
@@ -4209,54 +4199,44 @@
   .dcs.dcs-empty:hover{opacity:1}
 
   .dcs-head{
-    display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
     padding-bottom:16px;border-bottom:1px solid #f0ebda;
   }
-  .dcs-avatar{
-    flex-shrink:0;width:34px;height:34px;border-radius:9px;
-    background:#f0ebda;color:#78716c;
-    display:flex;align-items:center;justify-content:center;
-    font-size:11.5px;font-weight:600;letter-spacing:-.01em;
-  }
-  .dcs-avatar.c-logi{background:#ede9fe;color:#5b21b6}
-  .dcs-avatar.c-mkt{background:#ecfccb;color:#3f6212}
-  .dcs-avatar.c-md2{background:#ffe4e6;color:#9f1239}
-  .dcs-avatar.c-share{background:#e0f2fe;color:#075985}
   .dcs-info{min-width:0}
-  .dcs-name{font-size:15px;font-weight:600;color:#1c1917;letter-spacing:-.02em}
-  .dcs-team{font-size:11px;color:#a8a29e;margin-top:3px;letter-spacing:-.005em;font-weight:500}
+  .dcs-name{font-size:16px;font-weight:700;color:#1c1917;letter-spacing:-.02em}
+  .dcs-team{font-size:11.5px;color:#57534e;margin-top:3px;letter-spacing:-.01em;font-weight:500}
   .dcs-stat{
     display:inline-flex;align-items:center;gap:6px;
-    font-size:11px;color:#78716c;
-    padding:4px 9px;border-radius:999px;background:#f4f0e3;
-    font-variant-numeric:tabular-nums;font-weight:500;letter-spacing:-.01em;
+    font-size:12px;color:#292524;
+    padding:4px 10px;border-radius:999px;background:#f4f0e3;
+    font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.01em;
   }
-  .dcs-stat-dot{width:5px;height:5px;border-radius:50%;background:#d5cfb8;flex-shrink:0}
-  .dcs.dcs-active .dcs-stat{background:#fef3c7;color:#a16207}
+  .dcs-stat-dot{width:5px;height:5px;border-radius:50%;background:#a8a29e;flex-shrink:0}
+  .dcs.dcs-active .dcs-stat{background:#fef3c7;color:#78350f}
   .dcs.dcs-active .dcs-stat-dot{background:#eab308;box-shadow:0 0 0 3px rgba(234,179,8,.15)}
-  .dcs.dcs-complete .dcs-stat{background:#dcfce7;color:#15803d}
+  .dcs.dcs-complete .dcs-stat{background:#dcfce7;color:#14532d}
   .dcs.dcs-complete .dcs-stat-dot{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
 
   /* 카드 내부 섹션 */
   .dcs-sec{display:flex;flex-direction:column;gap:8px}
   .dcs-sec-head{
     display:flex;justify-content:space-between;align-items:center;
-    font-size:11px;color:#a8a29e;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    font-size:12px;color:#292524;font-weight:700;letter-spacing:-.01em;
   }
   .dcs-sec-title{display:inline-flex;align-items:center;gap:6px}
   .dcs-sec-title-count{
-    color:#78716c;font-weight:500;
-    padding:1px 7px;border-radius:999px;background:#f4f0e3;
-    font-variant-numeric:tabular-nums;margin-left:4px;
-    font-size:10.5px;letter-spacing:0;text-transform:none;
+    color:#57534e;font-weight:600;
+    padding:1px 8px;border-radius:999px;background:#f4f0e3;
+    font-variant-numeric:tabular-nums;margin-left:6px;
+    font-size:11px;letter-spacing:0;
   }
   .dcs-add{
     width:22px;height:22px;border-radius:6px;border:none;
-    background:transparent;color:#a8a29e;
+    background:transparent;color:#57534e;
     display:inline-flex;align-items:center;justify-content:center;
     transition:all .15s ease;
   }
-  .dcs-add svg{width:12px;height:12px}
+  .dcs-add svg{width:12px;height:12px;stroke-width:2.5}
   .dcs-add:hover{background:#f4f0e3;color:#1c1917}
 
   /* 요청 리스트 */
@@ -4267,8 +4247,8 @@
     background:#fff;transition:all .15s ease;
   }
   .dcs-req:hover{border-color:#eae7dc;background:#fdfbf3}
-  .dcs-req.done{opacity:.5;background:#faf7ed;border-color:#f0ebda}
-  .dcs-req.done .dcs-req-text{text-decoration:line-through;color:#a8a29e}
+  .dcs-req.done{opacity:.55;background:#faf7ed;border-color:#f0ebda}
+  .dcs-req.done .dcs-req-text{text-decoration:line-through;color:#78716c}
   .dcs-req-check{
     width:16px;height:16px;border-radius:5px;border:1.5px solid #d5cfb8;
     background:#fff;cursor:pointer;flex-shrink:0;
@@ -4279,21 +4259,21 @@
   .dcs-req-check svg{width:10px;height:10px;opacity:0;transition:opacity .12s}
   .dcs-req.done .dcs-req-check svg{opacity:1}
   .dcs-req-text{
-    font-size:13px;color:#1c1917;line-height:1.45;outline:none;
-    word-break:break-word;padding:1px 2px;border-radius:4px;letter-spacing:-.01em;
+    font-size:13.5px;color:#1c1917;line-height:1.5;outline:none;
+    word-break:break-word;padding:1px 2px;border-radius:4px;letter-spacing:-.01em;font-weight:500;
   }
-  .dcs-req-text:empty::before{content:'요청 내용';color:#a8a29e}
+  .dcs-req-text:empty::before{content:'요청 내용';color:#78716c;font-weight:500}
   .dcs-req-text:focus{background:#fffbeb}
   .dcs-req-from{
-    font-size:10.5px;color:#57534e;font-weight:500;
-    padding:2px 7px;border-radius:5px;background:#f4f0e3;
-    outline:none;min-width:36px;text-align:center;
+    font-size:11px;color:#292524;font-weight:600;
+    padding:3px 8px;border-radius:5px;background:#f0ebda;
+    outline:none;min-width:38px;text-align:center;
     border:1px solid transparent;transition:all .15s ease;letter-spacing:-.005em;
   }
-  .dcs-req-from:focus{border-color:#eab308;background:#fffbeb;color:#a16207}
-  .dcs-req-from:empty::before{content:'요청자';color:#a8a29e;font-weight:500}
+  .dcs-req-from:focus{border-color:#eab308;background:#fffbeb;color:#78350f}
+  .dcs-req-from:empty::before{content:'요청자';color:#78716c;font-weight:500}
   .dcs-req-del{
-    background:none;color:#a8a29e;padding:2px 5px;border-radius:5px;
+    background:none;color:#57534e;padding:2px 5px;border-radius:5px;
     opacity:0;transition:all .15s ease;font-size:12px;
   }
   .dcs-req:hover .dcs-req-del{opacity:.7}
@@ -4306,7 +4286,7 @@
     padding:4px 6px;border-radius:6px;transition:background .15s ease;
   }
   .dcs-task:hover{background:#faf7ed}
-  .dcs-task.done .dcs-task-text{text-decoration:line-through;color:#a8a29e}
+  .dcs-task.done .dcs-task-text{text-decoration:line-through;color:#78716c}
   .dcs-task-check{
     width:16px;height:16px;border-radius:5px;border:1.5px solid #d5cfb8;
     background:#fff;cursor:pointer;flex-shrink:0;
@@ -4317,22 +4297,22 @@
   .dcs-task-check svg{width:10px;height:10px;opacity:0;transition:opacity .12s}
   .dcs-task.done .dcs-task-check svg{opacity:1}
   .dcs-task-text{
-    font-size:13px;color:#1c1917;line-height:1.55;outline:none;
-    word-break:break-word;padding:2px 4px;border-radius:4px;letter-spacing:-.01em;
+    font-size:13.5px;color:#1c1917;line-height:1.55;outline:none;
+    word-break:break-word;padding:2px 4px;border-radius:4px;letter-spacing:-.01em;font-weight:500;
   }
-  .dcs-task-text:empty::before{content:'새 항목';color:#a8a29e}
+  .dcs-task-text:empty::before{content:'새 항목';color:#78716c;font-weight:500}
   .dcs-task-text:focus{background:#fffbeb}
   .dcs-task-del{
-    background:none;color:#a8a29e;padding:2px 5px;border-radius:5px;
+    background:none;color:#57534e;padding:2px 5px;border-radius:5px;
     opacity:0;transition:all .15s ease;font-size:12px;
   }
   .dcs-task:hover .dcs-task-del{opacity:.7}
   .dcs-task-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
   .dcs-sec-empty{
-    padding:10px 12px;text-align:center;color:#a8a29e;font-size:11.5px;
-    background:#faf7ed;border-radius:6px;letter-spacing:-.005em;
-    font-weight:500;
+    padding:10px 12px;text-align:center;color:#57534e;font-size:12px;
+    background:#faf7ed;border-radius:6px;letter-spacing:-.01em;
+    font-weight:600;
   }
 
   /* 모바일 — 카드 2열 유지 */
@@ -9898,10 +9878,7 @@
     missing.forEach(st=>{
       const chip = document.createElement('span');
       chip.className = 'diary-alert-item';
-      chip.innerHTML = `
-        <span class="diary-alert-avatar ${_diaryStaffColorClass(st.color)}">${_diaryStaffInitial(st.name)}</span>
-        <span>${_esc(st.name)}</span>
-      `;
+      chip.textContent = st.name;
       list.appendChild(chip);
     });
   }
@@ -9943,7 +9920,6 @@
     const teamLabel = st.team ? `${st.dept} · ${st.team}` : (st.dept || '');
     card.innerHTML = `
       <header class="dcs-head">
-        <div class="dcs-avatar ${_diaryStaffColorClass(st.color)}">${_diaryStaffInitial(name)}</div>
         <div class="dcs-info">
           <div class="dcs-name">${_esc(name)}</div>
           <div class="dcs-team">${_esc(teamLabel)}</div>
