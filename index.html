@@ -5128,7 +5128,7 @@
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📦</span>
         <span class="folder-label">실시간 재고</span>
-        <span class="folder-meta"><b>7</b> 브랜드 · 식스샵 / 식스샵프로</span>
+        <span class="folder-meta"><b>8</b> 브랜드 · 식스샵 / 식스샵프로</span>
       </div>
       <div class="sub-modules">
         <div class="sub-module m-sixstock m-sixstock-6a" onclick="triggerSixStock()">
@@ -5149,6 +5149,11 @@
         <div class="sub-module m-sixstock m-sixstock-pp" onclick="triggerSixStock()">
           <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.7)"></span></div>
           <div class="sub-module-title">프로덕트피알</div>
+          <div class="sub-module-tag">LIVE</div>
+        </div>
+        <div class="sub-module m-sixstock m-sixstock-akoi" onclick="triggerSixStock()">
+          <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:#f472b6;box-shadow:0 0 12px rgba(244,114,182,.7)"></span></div>
+          <div class="sub-module-title">아코이하우스</div>
           <div class="sub-module-tag">LIVE</div>
         </div>
         <div class="sub-module m-sixstock m-sixstock-kop" onclick="triggerSixStock()">
@@ -6422,13 +6427,6 @@
             <span class="ig-mini-label">Y</span>
             <input type="range" class="ig-slider" id="igImgY" min="0" max="100" value="50">
             <b id="igImgYVal">50</b>
-          </div>
-        </div>
-
-        <div class="ig-field">
-          <span class="ig-label">배경색 <span class="ig-label-sub">(이미지 없을 때 · 여백)</span></span>
-          <div class="ig-row-inline">
-            <input type="color" class="ig-color" id="igBgColor" value="#0f172a">
           </div>
         </div>
 
@@ -8714,13 +8712,14 @@
     {key:'ct',  display:'클리어타입',   host:'store.sixshop.com/cleartype1',   endpoint:'/pro-stock?brand=ct',   proShape:true},
     {key:'yar', display:'야르',         host:'yarseoul.sixshop.com',          endpoint:'/catalog?brand=yar'},
     {key:'pp',  display:'프로덕트피알', host:'store.sixshop.com/produktepr',   endpoint:'/pro-stock?brand=pp',   proShape:true},
+    {key:'akoi',display:'아코이하우스', host:'store.sixshop.com/akoihaus1',    endpoint:'/pro-stock?brand=akoi', proShape:true},
     {key:'kop', display:'코페리',       host:'coferryworld.sixshop.com',      endpoint:'/catalog?brand=kop'},
     {key:'apt', display:'아페티',       host:'구글시트 (수기 관리)',            endpoint:'/catalog?brand=apt'},
     {key:'koz', display:'코즈미',       host:'store.sixshop.com/cos-mi',      endpoint:'/pro-stock?brand=koz',  proShape:true},
   ];
-  const _sixStockCache    = { '6a':null,  'ct':null,  'pp':null,  'yar':null,  'kop':null,  'apt':null,  'koz':null };
-  const _sixStockInflight = { '6a':false, 'ct':false, 'pp':false, 'yar':false, 'kop':false, 'apt':false, 'koz':false };
-  const _sixStockCollapsed= { '6a':false, 'ct':false, 'pp':false, 'yar':false, 'kop':false, 'apt':false, 'koz':false };
+  const _sixStockCache    = { '6a':null,  'ct':null,  'pp':null,  'akoi':null,  'yar':null,  'kop':null,  'apt':null,  'koz':null };
+  const _sixStockInflight = { '6a':false, 'ct':false, 'pp':false, 'akoi':false, 'yar':false, 'kop':false, 'apt':false, 'koz':false };
+  const _sixStockCollapsed= { '6a':false, 'ct':false, 'pp':false, 'akoi':false, 'yar':false, 'kop':false, 'apt':false, 'koz':false };
   let _sixStockOpened = false;
 
   function sixStockOpen(){
