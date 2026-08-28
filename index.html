@@ -10995,9 +10995,10 @@
   /* ============ 우체국 출고 (EZ 등기 송장) ============
      여러 EZ 송장을 한 번에 붙여넣고 상태 모니터링.
      저장: localStorage (브랜드별 분리). 다른 기기와 공유 필요시 GitHub JSON 로 확장 가능.
-     Format: EZ + 9 digits + KR (예: EZ123456789KR) */
+     Format: EZ + 9 digits + KR (예: EZ123456789KR)
+     — 실제 붙여넣기엔 공백/줄바꿈/하이픈이 섞이거나 KR 국가코드가 빠질 수 있어서
+     토큰 단위로 정규화 후 매칭. 8~13자리 숫자까지 허용. */
   const EZ_KEY_PREFIX='brightbeed_post_ez_';
-  const EZ_RE=/EZ\d{9}KR/gi;
   let _ezState={items:[], filter:'all', q:''};
 
   function _ezKey(){
@@ -11024,10 +11025,37 @@
     if(!text) return [];
     const seen=new Set();
     const out=[];
-    const matches=String(text).toUpperCase().match(EZ_RE)||[];
-    matches.forEach(m=>{
-      const v=m.toUpperCase();
-      if(!seen.has(v)){seen.add(v); out.push(v)}
+    // 알파벳/숫자 이외(공백·줄바꿈·쉼표·하이픈·점·탭·괄호 등)로 분리
+    const tokens=String(text).toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean);
+    // 인접 토큰 합치기 — EZ 뒤로 연속 숫자 토큰들을 8~13자리 될 때까지 이어붙임.
+    // "EZ 123 456 789 KR", "EZ-234-567-890-KR", "EZ12345 6789KR" 등 모두 처리.
+    const merged=[];
+    for(let i=0;i<tokens.length;i++){
+      let t=tokens[i];
+      if(/^EZ$/.test(t)){
+        let digits='';
+        let j=i+1;
+        while(j<tokens.length && /^\d+$/.test(tokens[j]) && digits.length<13){
+          digits+=tokens[j];
+          j++;
+        }
+        // 넘치면 앞 13자리만
+        if(digits.length>13) digits=digits.slice(0,13);
+        if(digits.length>=8){
+          t='EZ'+digits;
+          i=j-1;
+          // KR 국가코드만 붙임 — 다른 2글자 코드는 잘못하면 인접 EZ 을 삼킴
+          if(/^KR$/.test(tokens[i+1]||'')){ t+=tokens[i+1]; i++; }
+        }
+      }
+      merged.push(t);
+    }
+    merged.forEach(tok=>{
+      // 유효 형태: EZ + 8~13자리 숫자 + 옵션 KR
+      const m=tok.match(/^(EZ\d{8,13})(KR)?$/);
+      if(!m) return;
+      const normalized = m[1] + (m[2] || 'KR');
+      if(!seen.has(normalized)){seen.add(normalized); out.push(normalized)}
     });
     return out;
   }
@@ -11102,7 +11130,8 @@
   window.setEzFilter=setEzFilter;
 
   function filterPostEz(q){
-    _ezState.q=(q||'').trim().toLowerCase();
+    // 공백·하이픈·점 무시하고 소문자로 정규화 → 사용자가 "EZ 123 456" 로 검색해도 매칭
+    _ezState.q=(q||'').replace(/[\s.\-]+/g,'').toLowerCase();
     renderPostEz();
   }
   window.filterPostEz=filterPostEz;
@@ -11176,7 +11205,11 @@
     if(_ezState.filter!=='all') list=list.filter(x=>x.status===_ezState.filter);
     if(_ezState.q){
       const q=_ezState.q;
-      list=list.filter(x=> x.tracking.toLowerCase().includes(q) || (x.memo||'').toLowerCase().includes(q));
+      list=list.filter(x=>{
+        const t=(x.tracking||'').toLowerCase();
+        const m=(x.memo||'').replace(/[\s.\-]+/g,'').toLowerCase();
+        return t.includes(q) || m.includes(q);
+      });
     }
     // 정렬: 최근 입력이 위로
     list.sort((a,b)=> (b.addedAt||'').localeCompare(a.addedAt||''));
