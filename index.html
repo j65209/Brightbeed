@@ -5468,6 +5468,10 @@
             <input type="search" id="ezSearch" class="kd-search" placeholder="송장번호 · 메모 검색" oninput="filterPostEz(this.value)" />
             <span id="ezUpdated"></span>
             <span id="ezCount">0건</span>
+            <button class="kd-refresh-btn" id="ezBulkTrackBtn" onclick="openBulk17track()" title="현재 목록의 전체 송장을 17track 에서 한 페이지로 조회 (배송상태 일괄 확인)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/></svg>
+              17track 일괄 조회
+            </button>
             <button class="kd-refresh-btn" id="ezClearBtn" onclick="clearDeliveredPostEz()" title="배송완료 상태를 목록에서 정리합니다">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
               완료건 정리
@@ -5478,10 +5482,10 @@
         <!-- 입력 영역 -->
         <div class="ez-input-wrap">
           <div class="ez-input-hint">
-            <b>1)</b> 아래 칸에 <b>국제 등기·EMS 송장</b>을 여러 개 붙여넣기 → <b>2)</b> 큰 핑크 버튼 <b>[송장 등록하기]</b> 클릭.<br>
-            국가·우편사 무관 <b>2글자+9자리(+국가코드)</b> 형태면 다 인식 (예: <code>LP407854234CN</code>, <code>EZ123456789KR</code>). 줄바꿈·쉼표·공백·하이픈 뭐든 섞여도 OK.
+            <b>한 줄에 한 건씩</b> 붙여넣으면 송장은 코드로, <b>나머지(주문번호·박스·중량·담당자 등)는 메모로 자동 저장</b>돼요.<br>
+            송장 형식: <b>2글자+9자리(+국가코드)</b> — <code>LP407854234CN</code>, <code>EZ123456789KR</code> 등 다 인식. 공백·하이픈·점 섞여도 OK.
           </div>
-          <textarea id="ezInput" class="ez-input" rows="4" placeholder="예)&#10;LP407854234CN&#10;EZ123456789KR EZ234567890KR&#10;RR456789012KR, LX567890123CN"></textarea>
+          <textarea id="ezInput" class="ez-input" rows="5" placeholder="예)&#10;1번-202608240020 -소박스포함24000원 -1.3키로/ 전승훈 LP407854234CN&#10;2번-202608240022 -소박스포함24000원-2키로/김성군  LP407854251CN&#10;3번-202608240023-소박스포함24000원-2키로 /전승훈 LP407854265CN"></textarea>
           <div class="ez-input-actions">
             <span id="ezPreview" class="ez-preview">인식된 송장: 0개 — 위에 붙여넣기 하세요</span>
           </div>
@@ -11083,7 +11087,8 @@
     const btn=document.getElementById('ezAddBtn');
     const lbl=document.getElementById('ezAddBtnLabel');
     if(!ta||!p) return;
-    const nums=_ezParse(ta.value);
+    const rows=_ezParseLines(ta.value);
+    const nums=rows.map(r=>r.tracking);
     p.textContent = nums.length
       ? `인식된 송장: ${nums.length}개`
       : `인식된 송장: 0개 — 위에 붙여넣기 하세요`;
@@ -11092,23 +11097,61 @@
     if(lbl) lbl.textContent = nums.length ? `${nums.length}개 등록하기` : '송장 등록하기';
   }
 
+  // 줄 단위로 파싱: 각 줄에서 송장을 뽑고, 그 줄의 나머지 문자열을 메모로 저장.
+  // "1번-202608240020 -소박스포함24000원 -1.3키로/ 전승훈 LP407854234CN"
+  //   → {tracking:"LP407854234CN", memo:"1번-202608240020 -소박스포함24000원 -1.3키로/ 전승훈"}
+  function _ezParseLines(text){
+    if(!text) return [];
+    const out=[];
+    const seen=new Set();
+    String(text).split(/\r?\n/).forEach(line=>{
+      const trimmed=line.trim();
+      if(!trimmed) return;
+      const trackings=_ezParse(trimmed);
+      if(!trackings.length) return;
+      // 원문에서 각 송장의 등장 형태(공백/하이픈 포함 조각)를 걷어내기 위해
+      // 송장 문자들 사이에 non-alphanumeric 이 있어도 매칭되게 정규식 생성.
+      let memo=trimmed;
+      trackings.forEach(t=>{
+        const pattern=t.split('').map(c=>c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[^A-Za-z0-9]*');
+        try{ memo=memo.replace(new RegExp(pattern,'gi'),''); }catch(e){}
+      });
+      // 메모 정리: 연속 공백/구분자 제거
+      memo=memo.replace(/\s+/g,' ').trim();
+      memo=memo.replace(/^[\s\-,/·。•]+|[\s\-,/·。•]+$/g,'').trim();
+      trackings.forEach(t=>{
+        if(seen.has(t)) return;
+        seen.add(t);
+        out.push({tracking:t, memo});
+      });
+    });
+    return out;
+  }
+
   function addPostEzBatch(){
     const ta=document.getElementById('ezInput');
     if(!ta) return;
-    const nums=_ezParse(ta.value);
-    if(!nums.length){
+    const rows=_ezParseLines(ta.value);
+    if(!rows.length){
       if(typeof toast==='function') toast('국제 송장 형태(2글자+9자리)를 인식하지 못했어요','warn');
       return;
     }
-    const existing=new Set(_ezState.items.map(it=>it.tracking));
+    const existing=new Map(_ezState.items.map(it=>[it.tracking, it]));
     const addedIds=[];
-    let dup=0;
+    let dup=0, memoUpdated=0;
     const now=new Date().toISOString();
-    nums.forEach(n=>{
-      if(existing.has(n)){dup++; return}
+    rows.forEach(({tracking, memo})=>{
+      if(existing.has(tracking)){
+        // 이미 있는 송장인데 메모가 새로 들어왔으면 갱신
+        const it=existing.get(tracking);
+        if(memo && !it.memo){ it.memo=memo; memoUpdated++; }
+        dup++;
+        return;
+      }
       const id='ez_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
-      _ezState.items.push({id, tracking:n, status:'pending', addedAt:now, memo:'', deliveredAt:null});
-      existing.add(n);
+      const item={id, tracking, status:'pending', addedAt:now, memo:memo||'', deliveredAt:null};
+      _ezState.items.push(item);
+      existing.set(tracking, item);
       addedIds.push(id);
     });
     savePostEz(_ezState.items);
@@ -11116,10 +11159,12 @@
     _ezOnInput();
     renderPostEz(addedIds);
     if(typeof toast==='function'){
-      const msg = addedIds.length
-        ? `${addedIds.length}건 등록 완료${dup?` (중복 ${dup}건 제외)`:''}`
-        : `모두 이미 등록된 송장이에요 (중복 ${dup}건)`;
-      toast(msg, addedIds.length?'ok':'warn');
+      const bits=[];
+      if(addedIds.length) bits.push(`${addedIds.length}건 등록`);
+      if(memoUpdated) bits.push(`메모 ${memoUpdated}건 갱신`);
+      if(dup && !memoUpdated) bits.push(`중복 ${dup}건 제외`);
+      const msg = bits.length ? bits.join(' · ') : `모두 이미 등록된 송장이에요 (중복 ${dup}건)`;
+      toast(msg, addedIds.length||memoUpdated?'ok':'warn');
     }
   }
   window.addPostEzBatch=addPostEzBatch;
@@ -11168,6 +11213,28 @@
     renderPostEz();
   }
   window.deleteEz=deleteEz;
+
+  function openBulk17track(){
+    const nums=_ezState.items
+      .filter(x=>x.status!=='delivered') // 완료건 제외
+      .map(x=>x.tracking);
+    if(!nums.length){
+      if(typeof toast==='function') toast('조회할 미완료 송장이 없어요','warn');
+      return;
+    }
+    // 17track URL 은 콤마 구분, 실측상 40개까지 안정. 넘으면 40개씩 나눠 새 탭.
+    const CHUNK=40;
+    for(let i=0;i<nums.length;i+=CHUNK){
+      const slice=nums.slice(i,i+CHUNK);
+      const url=`https://t.17track.net/en#nums=${encodeURIComponent(slice.join(','))}`;
+      window.open(url,'_blank','noopener');
+    }
+    if(typeof toast==='function'){
+      const tabs=Math.ceil(nums.length/CHUNK);
+      toast(`${nums.length}건 조회 — 새 탭 ${tabs}개 열림`,'ok');
+    }
+  }
+  window.openBulk17track=openBulk17track;
 
   function clearDeliveredPostEz(){
     const n=_ezState.items.filter(x=>x.status==='delivered').length;
