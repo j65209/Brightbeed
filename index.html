@@ -9678,17 +9678,17 @@
     _leave_lastHash=j;
   }
 
-  /* ===== 업무일지 (Diary) — 노션 스타일 =====
-     저장 구조: { [staffName]: { [YYYY-MM-DD]: {reqs:[{id,text,from,done}], tasks:[{id,text,done}], memo:''} } }
-     · 자동저장: 편집 blur/디바운스 250ms → localStorage
-     · 다음 단계에서 Supabase diary_entries 테이블로 확장 예정 */
+  /* ===== 업무일지 (Diary) — 애플/노션 스타일 =====
+     저장 구조 (v2):
+       { [staffName]: {
+           reqs: [{id, text, from, done}, ...],       // 요청은 날짜 무관 · 완료 체크 전까지 이월
+           daily: { [YYYY-MM-DD]: {tasks:[{id,text,done}]} }
+       }}
+     · 자동저장: 편집 후 250ms 디바운스 → localStorage */
   const DIARY_KEY = 'brightbeed_diary_v1';
-  const DIARY_LAST_STAFF_KEY = 'brightbeed_diary_last_staff';
   let _diaryState = {
-    staff: null,      // 현재 선택된 직원명
-    date: null,       // 'YYYY-MM-DD'
-    entry: null,      // {reqs, tasks, memo}
-    saveTimer: null,
+    date: null,
+    saveTimers: null,
   };
   function _diaryTodayStr(){
     const d = new Date();
@@ -9702,36 +9702,52 @@
     const wk='일월화수목금토'[d.getDay()];
     return `${+m[2]}월 ${+m[3]}일 (${wk})`;
   }
+  function _diaryMigrate(raw){
+    const out = {};
+    Object.keys(raw||{}).forEach(name=>{
+      const s = raw[name];
+      if(!s || typeof s !== 'object') return;
+      // 이미 새 구조
+      if(Array.isArray(s.reqs) || (s.daily && typeof s.daily==='object')){
+        out[name] = {
+          reqs: Array.isArray(s.reqs) ? s.reqs : [],
+          daily: (s.daily && typeof s.daily==='object') ? s.daily : {},
+        };
+        return;
+      }
+      // 구 구조: {[date]: {reqs, tasks, memo}}
+      const reqs = [];
+      const seenReqIds = new Set();
+      const daily = {};
+      Object.keys(s).sort().forEach(date=>{
+        const e = s[date] || {};
+        if(Array.isArray(e.reqs)){
+          e.reqs.forEach(r=>{
+            const key = r.id || (r.text+'|'+(r.from||''));
+            if(seenReqIds.has(key)) return;
+            seenReqIds.add(key);
+            reqs.push({id: r.id || _diaryUid(), text: r.text||'', from: r.from||'', done: !!r.done});
+          });
+        }
+        if(Array.isArray(e.tasks) && e.tasks.length>0){
+          daily[date] = {tasks: e.tasks};
+        }
+      });
+      out[name] = {reqs, daily};
+    });
+    return out;
+  }
   function loadDiaryAll(){
-    try { return JSON.parse(localStorage.getItem(DIARY_KEY) || '{}') } catch(e){ return {} }
+    let raw;
+    try { raw = JSON.parse(localStorage.getItem(DIARY_KEY) || '{}') } catch(e){ raw = {} }
+    const migrated = _diaryMigrate(raw);
+    if(JSON.stringify(migrated) !== JSON.stringify(raw)){
+      try { localStorage.setItem(DIARY_KEY, JSON.stringify(migrated)) } catch(e){}
+    }
+    return migrated;
   }
   function saveDiaryAll(data){
     try { localStorage.setItem(DIARY_KEY, JSON.stringify(data)) } catch(e){}
-  }
-  function _diaryGetEntry(staff, date){
-    const all = loadDiaryAll();
-    const s = all[staff] || {};
-    const e = s[date] || {};
-    return {
-      reqs:  Array.isArray(e.reqs)  ? e.reqs  : [],
-      tasks: Array.isArray(e.tasks) ? e.tasks : [],
-      memo:  typeof e.memo === 'string' ? e.memo : '',
-    };
-  }
-  function _diaryPutEntry(staff, date, entry){
-    const all = loadDiaryAll();
-    if(!all[staff]) all[staff] = {};
-    // 빈 항목이면 삭제
-    const isEmpty = (!entry.reqs || entry.reqs.length===0)
-                 && (!entry.tasks || entry.tasks.length===0)
-                 && (!entry.memo || entry.memo.trim()==='');
-    if(isEmpty){
-      if(all[staff][date]) delete all[staff][date];
-      if(Object.keys(all[staff]).length===0) delete all[staff];
-    } else {
-      all[staff][date] = entry;
-    }
-    saveDiaryAll(all);
   }
   function _diaryUid(){ return 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6) }
 
@@ -9813,7 +9829,24 @@
     if(!name || !_diaryState.date) return;
     const entry = _diaryEntries[name];
     if(!entry) return;
-    _diaryPutEntry(name, _diaryState.date, entry);
+    const all = loadDiaryAll();
+    const s = all[name] || {reqs:[], daily:{}};
+    s.reqs = entry.reqs || [];
+    if(!s.daily) s.daily = {};
+    const dayTasks = entry.tasks || [];
+    if(dayTasks.length > 0){
+      s.daily[_diaryState.date] = {tasks: dayTasks};
+    } else if(s.daily[_diaryState.date]){
+      delete s.daily[_diaryState.date];
+    }
+    const hasReqs = s.reqs.length > 0;
+    const hasDaily = Object.keys(s.daily).length > 0;
+    if(!hasReqs && !hasDaily){
+      if(all[name]) delete all[name];
+    } else {
+      all[name] = s;
+    }
+    saveDiaryAll(all);
   }
   function _diaryScheduleSaveFor(name){
     _diaryState.saveTimers = _diaryState.saveTimers || {};
@@ -9847,12 +9880,11 @@
       return;
     }
 
+    // 오늘 '한 일'을 하나도 안 적은 사람 (요청은 이월되니 판단에서 제외)
     const missing = STAFF.filter(st=>{
       const e = _diaryEntries[st.name];
       if(!e) return true;
-      const hasReq  = (e.reqs||[]).length > 0;
-      const hasTask = (e.tasks||[]).length > 0;
-      return !hasReq && !hasTask;
+      return (e.tasks||[]).length === 0;
     });
 
     if(missing.length === 0){
@@ -9883,10 +9915,16 @@
     todayBtn.classList.toggle('active', _diaryState.date === _diaryTodayStr());
     document.getElementById('diaryTitleSub').textContent = '/ ' + _diaryFmtDate(_diaryState.date);
 
-    // 전체 entry 로드
+    // 전체 데이터 로드: 요청은 직원 단위(이월), 할일은 선택된 날짜 것만
     _diaryEntries = {};
+    const all = loadDiaryAll();
     STAFF.forEach(st=>{
-      _diaryEntries[st.name] = _diaryGetEntry(st.name, _diaryState.date);
+      const s = all[st.name] || {reqs:[], daily:{}};
+      const dayTasks = (s.daily[_diaryState.date] && s.daily[_diaryState.date].tasks) || [];
+      _diaryEntries[st.name] = {
+        reqs:  Array.isArray(s.reqs) ? s.reqs.slice() : [],
+        tasks: dayTasks.slice(),
+      };
     });
 
     board.innerHTML = '';
@@ -9915,24 +9953,24 @@
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">Requests<span class="dcs-sec-title-count" data-req-cnt>0</span></div>
+          <div class="dcs-sec-title">업무 요청<span class="dcs-sec-title-count" data-req-cnt>0</span></div>
           <button class="dcs-add" data-add="req" title="요청 추가">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
         <div class="dcs-req-list"></div>
-        <div class="dcs-sec-empty" data-req-empty hidden>No requests</div>
+        <div class="dcs-sec-empty" data-req-empty hidden>요청 없음</div>
       </section>
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">Tasks<span class="dcs-sec-title-count" data-task-cnt>0 / 0</span></div>
+          <div class="dcs-sec-title">오늘 한 일<span class="dcs-sec-title-count" data-task-cnt>0 / 0</span></div>
           <button class="dcs-add" data-add="task" title="할 일 추가">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
         <div class="dcs-task-list"></div>
-        <div class="dcs-sec-empty" data-task-empty hidden>No tasks yet</div>
+        <div class="dcs-sec-empty" data-task-empty hidden>기록 없음</div>
       </section>
     `;
 
