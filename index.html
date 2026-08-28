@@ -75,10 +75,10 @@
     --neon-mkt:#84cc16;
     --neon-mkt-2:#4d7c0f;
     --neon-mkt-glow:rgba(132,204,22,.4);
-    /* 업무일지 — 라벤더/딥퍼플 (기록·차분함, 노션 감성) */
-    --neon-diary:#a855f7;
-    --neon-diary-2:#6d28d9;
-    --neon-diary-glow:rgba(168,85,247,.42);
+    /* 업무일지 — 옐로우/네온그린 (형광·주목, 마케팅 라임과 구분) */
+    --neon-diary:#f59e0b;
+    --neon-diary-2:#16a34a;
+    --neon-diary-glow:rgba(245,158,11,.45);
     --ok:#15803d;
     --warn:#b45309;
     --danger:#b91c1c;
@@ -424,23 +424,23 @@
       inset 0 1px 0 rgba(255,255,255,.5);
   }
 
-  /* 히어로 — 업무일지 (라벤더/딥퍼플) */
-  .hero.hero-diary .hero-eyebrow{color:#c084fc;text-shadow:0 0 12px var(--neon-diary-glow)}
+  /* 히어로 — 업무일지 (앰버옐로우 → 네온그린) */
+  .hero.hero-diary .hero-eyebrow{color:#facc15;text-shadow:0 0 12px var(--neon-diary-glow)}
   .btn-neon.btn-diary{
     background:linear-gradient(135deg,var(--neon-diary) 0%,var(--neon-diary-2) 100%);
     color:#ffffff;
-    border-color:rgba(192,132,252,.55);
+    border-color:rgba(250,204,21,.55);
     box-shadow:
-      0 0 0 1px rgba(192,132,252,.35),
-      0 0 24px rgba(168,85,247,.5),
-      0 0 64px rgba(109,40,217,.28),
+      0 0 0 1px rgba(250,204,21,.35),
+      0 0 24px rgba(245,158,11,.5),
+      0 0 64px rgba(22,163,74,.28),
       inset 0 1px 0 rgba(255,255,255,.4);
   }
   .btn-neon.btn-diary:hover:not(:disabled){
     box-shadow:
-      0 0 0 1px rgba(192,132,252,.6),
-      0 0 32px rgba(168,85,247,.7),
-      0 0 96px rgba(109,40,217,.42),
+      0 0 0 1px rgba(250,204,21,.6),
+      0 0 32px rgba(245,158,11,.7),
+      0 0 96px rgba(22,163,74,.42),
       inset 0 1px 0 rgba(255,255,255,.5);
   }
 
@@ -4122,11 +4122,11 @@
   .diary-save-tag{
     display:inline-flex;align-items:center;gap:6px;
     padding:4px 10px;border-radius:999px;
-    font-size:11px;color:#6d28d9;background:rgba(168,85,247,.10);
-    border:1px solid rgba(168,85,247,.28);
+    font-size:11px;color:#15803d;background:rgba(245,158,11,.12);
+    border:1px solid rgba(245,158,11,.30);
     font-variant-numeric:tabular-nums;letter-spacing:.02em;
   }
-  .diary-save-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#a855f7;box-shadow:0 0 8px rgba(168,85,247,.6)}
+  .diary-save-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.65)}
 
   .diary-layout{
     display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;
@@ -4154,10 +4154,10 @@
     border:1px solid transparent;
   }
   .diary-staff-item:hover{background:var(--bg-2)}
-  .diary-staff-item.active{background:linear-gradient(135deg,rgba(168,85,247,.14),rgba(109,40,217,.10));border-color:rgba(168,85,247,.35);color:#4c1d95;font-weight:600}
+  .diary-staff-item.active{background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(22,163,74,.10));border-color:rgba(245,158,11,.40);color:#166534;font-weight:600}
   .diary-staff-avatar{
     flex-shrink:0;width:24px;height:24px;border-radius:50%;
-    background:linear-gradient(135deg,#a855f7,#6d28d9);
+    background:linear-gradient(135deg,#f59e0b,#16a34a);
     color:#fff;font-size:11px;font-weight:600;
     display:flex;align-items:center;justify-content:center;
     letter-spacing:0;
@@ -4171,7 +4171,7 @@
     padding:2px 6px;border-radius:6px;background:var(--bg-2);
     font-weight:500;letter-spacing:.02em;
   }
-  .diary-staff-item.active .diary-staff-team{background:rgba(168,85,247,.14);color:#6d28d9}
+  .diary-staff-item.active .diary-staff-team{background:rgba(245,158,11,.16);color:#166534}
 
   /* 메인 영역 */
   .diary-main{display:flex;flex-direction:column;gap:16px;min-width:0}
@@ -4246,7 +4246,7 @@
     background:transparent;color:var(--text-2);font-size:11.5px;font-weight:500;
     transition:all .12s;
   }
-  .diary-add-btn:hover{border-color:var(--neon-diary);color:var(--neon-diary);background:rgba(168,85,247,.06)}
+  .diary-add-btn:hover{border-color:var(--neon-diary);color:#a16207;background:rgba(245,158,11,.08)}
 
   .diary-empty{
     padding:22px 12px;text-align:center;color:var(--text-3);font-size:12px;
@@ -4278,12 +4278,12 @@
   .diary-req-text:empty::before{content:attr(data-placeholder);color:var(--text-3)}
   .diary-req-meta{font-size:11px;color:var(--text-3);display:flex;gap:10px;flex-wrap:wrap}
   .diary-req-from{
-    font-size:11px;color:#6d28d9;font-weight:500;
-    padding:2px 6px;border-radius:5px;background:rgba(168,85,247,.10);
+    font-size:11px;color:#166534;font-weight:600;
+    padding:2px 6px;border-radius:5px;background:rgba(22,163,74,.12);
     outline:none;min-width:40px;text-align:center;
     border:1px solid transparent;transition:border-color .12s;
   }
-  .diary-req-from:focus{border-color:var(--neon-diary);background:rgba(168,85,247,.14)}
+  .diary-req-from:focus{border-color:var(--neon-diary);background:rgba(245,158,11,.14)}
   .diary-req-from:empty::before{content:'요청자';color:var(--text-3);font-weight:500}
   .diary-req-del{
     background:none;color:var(--text-3);padding:4px 6px;border-radius:5px;
@@ -4315,7 +4315,7 @@
     word-break:break-word;padding:2px 4px;border-radius:4px;
   }
   .diary-task-text:empty::before{content:'새 항목 (Enter 로 추가 · Backspace 로 삭제)';color:var(--text-3)}
-  .diary-task-text:focus{background:rgba(168,85,247,.06)}
+  .diary-task-text:focus{background:rgba(245,158,11,.08)}
   .diary-task-del{
     background:none;color:var(--text-3);padding:3px 5px;border-radius:4px;
     opacity:0;transition:all .12s;
@@ -4331,7 +4331,7 @@
     outline:none;white-space:pre-wrap;word-break:break-word;
     transition:border-color .12s,background .12s;
   }
-  .diary-memo:focus{border-color:var(--neon-diary);background:#fefaff}
+  .diary-memo:focus{border-color:var(--neon-diary);background:#fffbeb}
   .diary-memo:empty::before{content:attr(data-placeholder);color:var(--text-3)}
 
   /* 최근 일지 */
@@ -4343,7 +4343,7 @@
     background:var(--bg-1);cursor:pointer;transition:all .12s;
     display:flex;flex-direction:column;gap:2px;
   }
-  .diary-recent-item:hover{border-color:var(--neon-diary);background:rgba(168,85,247,.04)}
+  .diary-recent-item:hover{border-color:var(--neon-diary);background:rgba(245,158,11,.06)}
   .diary-recent-date{
     font-size:12px;font-weight:600;color:var(--text-1);
     font-variant-numeric:tabular-nums;
