@@ -75,6 +75,10 @@
     --neon-mkt:#84cc16;
     --neon-mkt-2:#4d7c0f;
     --neon-mkt-glow:rgba(132,204,22,.4);
+    /* 업무일지 — 라벤더/딥퍼플 (기록·차분함, 노션 감성) */
+    --neon-diary:#a855f7;
+    --neon-diary-2:#6d28d9;
+    --neon-diary-glow:rgba(168,85,247,.42);
     --ok:#15803d;
     --warn:#b45309;
     --danger:#b91c1c;
@@ -360,7 +364,7 @@
   /* 히어로 카드 — 인사팀/물류팀/브랜드별 재고관리 3개 나란히 */
   .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
   .hero-row + .hero-row{margin-top:-24px}  /* 인접 row 간격 축소 (인사팀-물류팀 사이) */
-  .hero-row-1{grid-template-columns:minmax(0,420px);justify-content:center}
+  .hero-row-1{grid-template-columns:repeat(2,minmax(0,420px));justify-content:center}
   .hero-row-2{grid-template-columns:repeat(2,1fr)}
   .hero-row-3{grid-template-columns:repeat(3,1fr)}
   .hero-row-4{grid-template-columns:repeat(4,1fr)}
@@ -417,6 +421,26 @@
       0 0 0 1px rgba(255,138,158,.6),
       0 0 32px rgba(255,138,158,.7),
       0 0 96px rgba(255,138,61,.42),
+      inset 0 1px 0 rgba(255,255,255,.5);
+  }
+
+  /* 히어로 — 업무일지 (라벤더/딥퍼플) */
+  .hero.hero-diary .hero-eyebrow{color:#c084fc;text-shadow:0 0 12px var(--neon-diary-glow)}
+  .btn-neon.btn-diary{
+    background:linear-gradient(135deg,var(--neon-diary) 0%,var(--neon-diary-2) 100%);
+    color:#ffffff;
+    border-color:rgba(192,132,252,.55);
+    box-shadow:
+      0 0 0 1px rgba(192,132,252,.35),
+      0 0 24px rgba(168,85,247,.5),
+      0 0 64px rgba(109,40,217,.28),
+      inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .btn-neon.btn-diary:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(192,132,252,.6),
+      0 0 32px rgba(168,85,247,.7),
+      0 0 96px rgba(109,40,217,.42),
       inset 0 1px 0 rgba(255,255,255,.5);
   }
 
@@ -4093,6 +4117,254 @@
   .om-div.om-vendor .om-team.om-md2 .om-team-name{color:#b91c1c;background:rgba(255,140,112,.10);border:1px solid rgba(255,140,112,.30)}
   .om-div.om-vendor .om-team.om-md2 .om-mem{color:#991b1b;border-color:rgba(255,140,112,.30);background:rgba(255,140,112,.06)}
 
+  /* ===== 업무일지 뷰 (노션 스타일) ===== */
+  .diary-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .diary-save-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px;border-radius:999px;
+    font-size:11px;color:#6d28d9;background:rgba(168,85,247,.10);
+    border:1px solid rgba(168,85,247,.28);
+    font-variant-numeric:tabular-nums;letter-spacing:.02em;
+  }
+  .diary-save-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#a855f7;box-shadow:0 0 8px rgba(168,85,247,.6)}
+
+  .diary-layout{
+    display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;
+    align-items:start;
+  }
+
+  /* 좌측 사이드 */
+  .diary-side{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    padding:12px 10px;position:sticky;top:82px;max-height:calc(100vh - 110px);
+    overflow-y:auto;
+  }
+  .diary-side-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:4px 8px 8px;border-bottom:1px solid var(--line);margin-bottom:8px;
+  }
+  .diary-side-title{font-size:11px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+  .diary-side-count{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+  .diary-staff-list{display:flex;flex-direction:column;gap:2px}
+  .diary-staff-item{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 10px;border-radius:8px;cursor:pointer;
+    transition:background .12s,color .12s;
+    color:var(--text-1);font-size:13px;font-weight:500;
+    border:1px solid transparent;
+  }
+  .diary-staff-item:hover{background:var(--bg-2)}
+  .diary-staff-item.active{background:linear-gradient(135deg,rgba(168,85,247,.14),rgba(109,40,217,.10));border-color:rgba(168,85,247,.35);color:#4c1d95;font-weight:600}
+  .diary-staff-avatar{
+    flex-shrink:0;width:24px;height:24px;border-radius:50%;
+    background:linear-gradient(135deg,#a855f7,#6d28d9);
+    color:#fff;font-size:11px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+    letter-spacing:0;
+  }
+  .diary-staff-avatar.c-logi{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
+  .diary-staff-avatar.c-mkt{background:linear-gradient(135deg,#84cc16,#4d7c0f)}
+  .diary-staff-avatar.c-md2{background:linear-gradient(135deg,#e11d48,#9f1239)}
+  .diary-staff-avatar.c-share{background:linear-gradient(135deg,#0ea5e9,#0369a1)}
+  .diary-staff-team{
+    margin-left:auto;font-size:10px;color:var(--text-3);
+    padding:2px 6px;border-radius:6px;background:var(--bg-2);
+    font-weight:500;letter-spacing:.02em;
+  }
+  .diary-staff-item.active .diary-staff-team{background:rgba(168,85,247,.14);color:#6d28d9}
+
+  /* 메인 영역 */
+  .diary-main{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+  /* 상단 헤더바 */
+  .diary-topbar{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    padding:14px 18px;flex-wrap:wrap;
+  }
+  .diary-topbar-left{display:flex;align-items:center;gap:12px;min-width:0}
+  .diary-avatar{
+    flex-shrink:0;width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,#e2e8f0,#94a3b8);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:600;
+  }
+  .diary-avatar.c-logi{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
+  .diary-avatar.c-mkt{background:linear-gradient(135deg,#84cc16,#4d7c0f)}
+  .diary-avatar.c-md2{background:linear-gradient(135deg,#e11d48,#9f1239)}
+  .diary-avatar.c-share{background:linear-gradient(135deg,#0ea5e9,#0369a1)}
+  .diary-owner{font-size:15px;font-weight:600;color:var(--text-0)}
+  .diary-owner-sub{font-size:11px;color:var(--text-3);margin-top:2px;letter-spacing:.02em}
+  .diary-date-nav{display:flex;align-items:center;gap:6px}
+  .diary-nav-btn{
+    width:30px;height:30px;border-radius:6px;border:1px solid var(--line);
+    background:var(--bg-1);color:var(--text-2);
+    display:flex;align-items:center;justify-content:center;
+    transition:all .12s;
+  }
+  .diary-nav-btn:hover{background:var(--bg-2);color:var(--text-0);border-color:var(--line-2)}
+  .diary-date-input{
+    padding:6px 10px;border:1px solid var(--line);border-radius:6px;
+    background:var(--bg-1);color:var(--text-0);font-size:13px;
+    font-family:var(--mono);font-variant-numeric:tabular-nums;
+    outline:none;transition:border-color .12s;cursor:pointer;
+  }
+  .diary-date-input:focus{border-color:var(--neon-diary)}
+  .diary-today-btn{
+    padding:6px 12px;border-radius:6px;border:1px solid var(--line);
+    background:var(--bg-1);color:var(--text-2);font-size:12px;font-weight:500;
+    transition:all .12s;
+  }
+  .diary-today-btn:hover{background:var(--bg-2);color:var(--text-0)}
+  .diary-today-btn.active{background:linear-gradient(135deg,var(--neon-diary),var(--neon-diary-2));color:#fff;border-color:transparent}
+
+  /* 카드 공통 */
+  .diary-card{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    padding:14px 18px 16px;
+  }
+  .diary-card-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  .diary-card-title{
+    display:flex;align-items:center;gap:10px;
+    font-size:13px;font-weight:600;color:var(--text-0);letter-spacing:-.01em;
+  }
+  .diary-card-icon{
+    width:22px;height:22px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:#fff;
+  }
+  .diary-card-count{
+    font-size:11px;color:var(--text-3);font-weight:500;
+    padding:2px 8px;border-radius:999px;background:var(--bg-2);
+    font-variant-numeric:tabular-nums;
+  }
+  .diary-add-btn{
+    padding:5px 10px;border-radius:6px;border:1px dashed var(--line-2);
+    background:transparent;color:var(--text-2);font-size:11.5px;font-weight:500;
+    transition:all .12s;
+  }
+  .diary-add-btn:hover{border-color:var(--neon-diary);color:var(--neon-diary);background:rgba(168,85,247,.06)}
+
+  .diary-empty{
+    padding:22px 12px;text-align:center;color:var(--text-3);font-size:12px;
+    background:var(--bg-2);border-radius:8px;
+  }
+
+  /* 업무 요청 리스트 */
+  .diary-req-list{display:flex;flex-direction:column;gap:8px}
+  .diary-req{
+    display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;
+    padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+    background:var(--bg-1);transition:border-color .12s;
+  }
+  .diary-req:hover{border-color:var(--line-2)}
+  .diary-req.done{opacity:.55;background:var(--bg-2)}
+  .diary-req.done .diary-req-text{text-decoration:line-through;color:var(--text-3)}
+  .diary-req-status{
+    width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line-2);
+    background:var(--bg-1);cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .12s;
+  }
+  .diary-req-status:hover{border-color:var(--neon-diary)}
+  .diary-req.done .diary-req-status{background:var(--neon-diary);border-color:var(--neon-diary);color:#fff}
+  .diary-req-status svg{width:12px;height:12px;opacity:0}
+  .diary-req.done .diary-req-status svg{opacity:1}
+  .diary-req-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .diary-req-text{font-size:13px;color:var(--text-0);line-height:1.5;outline:none;word-break:break-word}
+  .diary-req-text:empty::before{content:attr(data-placeholder);color:var(--text-3)}
+  .diary-req-meta{font-size:11px;color:var(--text-3);display:flex;gap:10px;flex-wrap:wrap}
+  .diary-req-from{
+    font-size:11px;color:#6d28d9;font-weight:500;
+    padding:2px 6px;border-radius:5px;background:rgba(168,85,247,.10);
+    outline:none;min-width:40px;text-align:center;
+    border:1px solid transparent;transition:border-color .12s;
+  }
+  .diary-req-from:focus{border-color:var(--neon-diary);background:rgba(168,85,247,.14)}
+  .diary-req-from:empty::before{content:'요청자';color:var(--text-3);font-weight:500}
+  .diary-req-del{
+    background:none;color:var(--text-3);padding:4px 6px;border-radius:5px;
+    opacity:0;transition:all .12s;
+  }
+  .diary-req:hover .diary-req-del{opacity:.7}
+  .diary-req-del:hover{background:rgba(185,28,28,.10);color:#b91c1c;opacity:1}
+
+  /* 오늘 한 일 (체크리스트) */
+  .diary-task-list{display:flex;flex-direction:column;gap:4px}
+  .diary-task{
+    display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+    padding:6px 8px;border-radius:6px;transition:background .12s;
+  }
+  .diary-task:hover{background:var(--bg-2)}
+  .diary-task.done .diary-task-text{text-decoration:line-through;color:var(--text-3)}
+  .diary-task-check{
+    width:18px;height:18px;border-radius:4px;border:1.5px solid var(--line-2);
+    background:var(--bg-1);cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .12s;
+  }
+  .diary-task-check:hover{border-color:var(--neon-diary)}
+  .diary-task.done .diary-task-check{background:var(--neon-diary);border-color:var(--neon-diary);color:#fff}
+  .diary-task-check svg{width:11px;height:11px;opacity:0}
+  .diary-task.done .diary-task-check svg{opacity:1}
+  .diary-task-text{
+    font-size:14px;color:var(--text-0);line-height:1.6;outline:none;
+    word-break:break-word;padding:2px 4px;border-radius:4px;
+  }
+  .diary-task-text:empty::before{content:'새 항목 (Enter 로 추가 · Backspace 로 삭제)';color:var(--text-3)}
+  .diary-task-text:focus{background:rgba(168,85,247,.06)}
+  .diary-task-del{
+    background:none;color:var(--text-3);padding:3px 5px;border-radius:4px;
+    opacity:0;transition:all .12s;
+  }
+  .diary-task:hover .diary-task-del{opacity:.7}
+  .diary-task-del:hover{background:rgba(185,28,28,.10);color:#b91c1c;opacity:1}
+
+  /* 메모 */
+  .diary-memo{
+    min-height:160px;padding:14px 16px;border-radius:8px;
+    background:var(--bg-1);border:1px solid var(--line);
+    font-size:14px;line-height:1.7;color:var(--text-0);
+    outline:none;white-space:pre-wrap;word-break:break-word;
+    transition:border-color .12s,background .12s;
+  }
+  .diary-memo:focus{border-color:var(--neon-diary);background:#fefaff}
+  .diary-memo:empty::before{content:attr(data-placeholder);color:var(--text-3)}
+
+  /* 최근 일지 */
+  .diary-recent{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;
+  }
+  .diary-recent-item{
+    padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+    background:var(--bg-1);cursor:pointer;transition:all .12s;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .diary-recent-item:hover{border-color:var(--neon-diary);background:rgba(168,85,247,.04)}
+  .diary-recent-date{
+    font-size:12px;font-weight:600;color:var(--text-1);
+    font-variant-numeric:tabular-nums;
+  }
+  .diary-recent-summary{font-size:11px;color:var(--text-3);line-height:1.5}
+
+  /* 모바일 */
+  @media (max-width:900px){
+    .diary-layout{grid-template-columns:1fr;gap:14px}
+    .diary-side{position:static;max-height:none}
+    .diary-staff-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+    .diary-side-head{display:none}
+  }
+  @media (max-width:600px){
+    .diary-topbar{padding:12px 14px;gap:10px}
+    .diary-date-nav{width:100%;justify-content:space-between}
+    .diary-card{padding:12px 14px}
+    .diary-req{grid-template-columns:auto 1fr auto;gap:8px}
+    .diary-req-from{grid-column:2;justify-self:start;margin-top:4px}
+  }
+
   /* ===== 연차 (인사팀 뷰) ===== */
   .leave-cta{display:flex;justify-content:center;margin:8px 0 18px}
 
@@ -4722,7 +4994,7 @@
     .container{padding:20px}
     .topbar{padding:12px 20px}
     .hero-row{grid-template-columns:1fr;gap:12px;margin-bottom:32px}
-    .hero-row-1{grid-template-columns:minmax(0,320px)}
+    .hero-row-1{grid-template-columns:repeat(2,1fr)}
     .hero-row-2,.hero-row-3,.hero-row-4{grid-template-columns:repeat(2,1fr)}
     .hero{padding:32px 16px 28px}
     .btn-neon{padding:18px 36px;font-size:16px}
@@ -4958,13 +5230,21 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
-    <!-- 팀 카드 1행: 인사팀 (단독, 중앙 정렬) -->
+    <!-- 팀 카드 1행: 인사팀 · 업무일지 -->
     <div class="hero-row hero-row-1">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
         <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span id="hrBtnLabel">인사팀</span>
+        </button>
+      </section>
+
+      <section class="hero hero-diary">
+        <div class="hero-eyebrow">DAILY LOG</div>
+        <button class="btn-neon btn-diary" id="diaryBtn" onclick="triggerDiary()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4a2 2 0 0 1 2-2h10l4 4v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M16 2v4a2 2 0 0 0 2 2h4"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="14" y2="16"/></svg>
+          <span id="diaryBtnLabel">업무일지</span>
         </button>
       </section>
     </div>
@@ -5503,6 +5783,112 @@
       <div class="leave-hidden-panel master-only" id="leaveHiddenPanel" hidden></div>
     </div>
   </div><!-- /viewHr -->
+
+  <!-- ============ 업무일지 뷰 ============ -->
+  <div class="view" id="viewDiary" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">업무일지<span class="view-title-sub" id="diaryTitleSub">/ 오늘의 기록</span></h1>
+      <div class="diary-head-actions">
+        <span class="diary-save-tag" id="diarySaveTag" hidden></span>
+      </div>
+    </div>
+
+    <div class="diary-layout">
+      <!-- 좌측: 직원 리스트 -->
+      <aside class="diary-side">
+        <div class="diary-side-head">
+          <span class="diary-side-title">멤버</span>
+          <span class="diary-side-count" id="diaryStaffCount">0</span>
+        </div>
+        <div class="diary-staff-list" id="diaryStaffList"></div>
+      </aside>
+
+      <!-- 메인: 날짜 네비 + 3섹션 -->
+      <section class="diary-main">
+        <!-- 상단 헤더: 선택된 직원 + 날짜 네비 -->
+        <div class="diary-topbar">
+          <div class="diary-topbar-left">
+            <div class="diary-avatar" id="diaryAvatar">?</div>
+            <div class="diary-topbar-name">
+              <div class="diary-owner" id="diaryOwner">직원을 선택하세요</div>
+              <div class="diary-owner-sub" id="diaryOwnerSub"></div>
+            </div>
+          </div>
+          <div class="diary-date-nav">
+            <button class="diary-nav-btn" id="diaryPrevDay" title="이전 날짜">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <input type="date" id="diaryDate" class="diary-date-input">
+            <button class="diary-nav-btn" id="diaryNextDay" title="다음 날짜">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="diary-today-btn" id="diaryTodayBtn">오늘</button>
+          </div>
+        </div>
+
+        <!-- 업무 요청란 (누구 → 나에게, 상단) -->
+        <div class="diary-card diary-card-req">
+          <div class="diary-card-head">
+            <div class="diary-card-title">
+              <span class="diary-card-icon" style="background:linear-gradient(135deg,#f97316,#ef4444)">📥</span>
+              업무 요청
+              <span class="diary-card-count" id="diaryReqCount">0</span>
+            </div>
+            <button class="diary-add-btn" id="diaryReqAdd">+ 요청 추가</button>
+          </div>
+          <div class="diary-req-list" id="diaryReqList"></div>
+          <div class="diary-empty" id="diaryReqEmpty" hidden>
+            아직 요청된 업무가 없습니다.
+          </div>
+        </div>
+
+        <!-- 오늘 한 일 (체크리스트) -->
+        <div class="diary-card diary-card-task">
+          <div class="diary-card-head">
+            <div class="diary-card-title">
+              <span class="diary-card-icon" style="background:linear-gradient(135deg,var(--neon-diary),var(--neon-diary-2))">✅</span>
+              오늘 한 일
+              <span class="diary-card-count" id="diaryTaskCount">0 / 0</span>
+            </div>
+            <button class="diary-add-btn" id="diaryTaskAdd">+ 항목 추가</button>
+          </div>
+          <div class="diary-task-list" id="diaryTaskList"></div>
+          <div class="diary-empty" id="diaryTaskEmpty" hidden>
+            항목을 추가해 오늘 진행한 업무를 기록하세요.
+          </div>
+        </div>
+
+        <!-- 자유 메모 (노션 스타일 contentEditable) -->
+        <div class="diary-card diary-card-memo">
+          <div class="diary-card-head">
+            <div class="diary-card-title">
+              <span class="diary-card-icon" style="background:linear-gradient(135deg,#0ea5e9,#0369a1)">📝</span>
+              메모 / 회고
+            </div>
+          </div>
+          <div class="diary-memo" id="diaryMemo" contenteditable="true" data-placeholder="오늘의 이슈·회고·아이디어를 자유롭게 적어보세요"></div>
+        </div>
+
+        <!-- 최근 일자 -->
+        <div class="diary-card diary-card-recent">
+          <div class="diary-card-head">
+            <div class="diary-card-title">
+              <span class="diary-card-icon" style="background:linear-gradient(135deg,#64748b,#334155)">🗂</span>
+              최근 일지
+            </div>
+          </div>
+          <div class="diary-recent" id="diaryRecent"></div>
+          <div class="diary-empty" id="diaryRecentEmpty" hidden>
+            아직 다른 날짜에 작성된 기록이 없습니다.
+          </div>
+        </div>
+      </section>
+    </div>
+  </div><!-- /viewDiary -->
 
   <!-- ============ 물류팀 뷰: 발주 관리 ============ -->
   <div class="view" id="viewLg" hidden>
@@ -8619,8 +9005,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report'};
+  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -8681,6 +9067,9 @@
     if(id==='viewPromoCalc'){
       if(typeof pcInit==='function') pcInit();
     }
+    if(id==='viewDiary'){
+      if(typeof initDiaryView==='function') initDiaryView();
+    }
   }
 
   // showView: history에 push (사용자 클릭 진입). fromHistory=true면 popstate에서 호출된거라 push 생략.
@@ -8700,6 +9089,7 @@
   }
 
   function triggerHR(){ showView('viewHr'); if(typeof autoArchiveCycles==='function') autoArchiveCycles(); }
+  function triggerDiary(){ showView('viewDiary'); }
   function triggerLogistics(brand){
     window._kdBrand = (brand === 'shinebeed') ? 'shinebeed' : 'brightbeed';
     _kdLastHash = ''; // 브랜드 스위치 시 dedup 캐시 초기화 → 강제 재렌더
@@ -9360,6 +9750,350 @@
     const j=JSON.stringify(data);
     localStorage.setItem(LEAVE_KEY,j);
     _leave_lastHash=j;
+  }
+
+  /* ===== 업무일지 (Diary) — 노션 스타일 =====
+     저장 구조: { [staffName]: { [YYYY-MM-DD]: {reqs:[{id,text,from,done}], tasks:[{id,text,done}], memo:''} } }
+     · 자동저장: 편집 blur/디바운스 250ms → localStorage
+     · 다음 단계에서 Supabase diary_entries 테이블로 확장 예정 */
+  const DIARY_KEY = 'brightbeed_diary_v1';
+  const DIARY_LAST_STAFF_KEY = 'brightbeed_diary_last_staff';
+  let _diaryState = {
+    staff: null,      // 현재 선택된 직원명
+    date: null,       // 'YYYY-MM-DD'
+    entry: null,      // {reqs, tasks, memo}
+    saveTimer: null,
+  };
+  function _diaryTodayStr(){
+    const d = new Date();
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  function _diaryFmtDate(s){
+    if(!s) return '';
+    const m=s.match(/(\d{4})-(\d{2})-(\d{2})/); if(!m) return s;
+    const d=new Date(+m[1],+m[2]-1,+m[3]);
+    const wk='일월화수목금토'[d.getDay()];
+    return `${+m[2]}월 ${+m[3]}일 (${wk})`;
+  }
+  function loadDiaryAll(){
+    try { return JSON.parse(localStorage.getItem(DIARY_KEY) || '{}') } catch(e){ return {} }
+  }
+  function saveDiaryAll(data){
+    try { localStorage.setItem(DIARY_KEY, JSON.stringify(data)) } catch(e){}
+  }
+  function _diaryGetEntry(staff, date){
+    const all = loadDiaryAll();
+    const s = all[staff] || {};
+    const e = s[date] || {};
+    return {
+      reqs:  Array.isArray(e.reqs)  ? e.reqs  : [],
+      tasks: Array.isArray(e.tasks) ? e.tasks : [],
+      memo:  typeof e.memo === 'string' ? e.memo : '',
+    };
+  }
+  function _diaryPutEntry(staff, date, entry){
+    const all = loadDiaryAll();
+    if(!all[staff]) all[staff] = {};
+    // 빈 항목이면 삭제
+    const isEmpty = (!entry.reqs || entry.reqs.length===0)
+                 && (!entry.tasks || entry.tasks.length===0)
+                 && (!entry.memo || entry.memo.trim()==='');
+    if(isEmpty){
+      if(all[staff][date]) delete all[staff][date];
+      if(Object.keys(all[staff]).length===0) delete all[staff];
+    } else {
+      all[staff][date] = entry;
+    }
+    saveDiaryAll(all);
+  }
+  function _diaryUid(){ return 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6) }
+
+  function _diaryFlashSave(){
+    const tag = document.getElementById('diarySaveTag');
+    if(!tag) return;
+    const t = new Date();
+    const hh = String(t.getHours()).padStart(2,'0');
+    const mm = String(t.getMinutes()).padStart(2,'0');
+    tag.textContent = `저장됨 · ${hh}:${mm}`;
+    tag.hidden = false;
+    clearTimeout(tag._t);
+    tag._t = setTimeout(()=>{ tag.hidden = true }, 2200);
+  }
+  function _diaryScheduleSave(){
+    clearTimeout(_diaryState.saveTimer);
+    _diaryState.saveTimer = setTimeout(()=>{
+      if(!_diaryState.staff || !_diaryState.date) return;
+      _diaryPutEntry(_diaryState.staff, _diaryState.date, _diaryState.entry);
+      _diaryFlashSave();
+      _diaryRenderRecent();
+    }, 250);
+  }
+
+  function _diaryStaffColorClass(color){
+    return color ? 'c-'+color : '';
+  }
+  function _diaryStaffInitial(name){
+    if(!name) return '?';
+    return name.slice(-2); // 한글 성 제외, 이름 뒤 2글자
+  }
+
+  function initDiaryView(){
+    // 첫 진입 시 이벤트 바인딩 (한 번만)
+    if(!initDiaryView._bound){
+      initDiaryView._bound = true;
+      const dateInput = document.getElementById('diaryDate');
+      dateInput.addEventListener('change', ()=>{
+        _diaryState.date = dateInput.value || _diaryTodayStr();
+        _diaryLoadCurrent();
+      });
+      document.getElementById('diaryPrevDay').addEventListener('click', ()=>_diaryShiftDay(-1));
+      document.getElementById('diaryNextDay').addEventListener('click', ()=>_diaryShiftDay(1));
+      document.getElementById('diaryTodayBtn').addEventListener('click', ()=>{
+        _diaryState.date = _diaryTodayStr();
+        document.getElementById('diaryDate').value = _diaryState.date;
+        _diaryLoadCurrent();
+      });
+      document.getElementById('diaryReqAdd').addEventListener('click', ()=>{
+        _diaryState.entry.reqs.push({id:_diaryUid(), text:'', from:'', done:false});
+        _diaryRenderReqs(true);
+        _diaryScheduleSave();
+      });
+      document.getElementById('diaryTaskAdd').addEventListener('click', ()=>{
+        _diaryState.entry.tasks.push({id:_diaryUid(), text:'', done:false});
+        _diaryRenderTasks(true);
+        _diaryScheduleSave();
+      });
+      const memo = document.getElementById('diaryMemo');
+      memo.addEventListener('input', ()=>{
+        _diaryState.entry.memo = memo.innerText;
+        _diaryScheduleSave();
+      });
+    }
+
+    _diaryRenderStaffList();
+    // 이전 세션에서 마지막 직원 기억
+    const remembered = localStorage.getItem(DIARY_LAST_STAFF_KEY);
+    const initialStaff = remembered && STAFF.find(s=>s.name===remembered)
+      ? remembered
+      : (STAFF[0] && STAFF[0].name);
+    if(initialStaff && !_diaryState.staff){
+      _diaryState.staff = initialStaff;
+    }
+    if(!_diaryState.date) _diaryState.date = _diaryTodayStr();
+    document.getElementById('diaryDate').value = _diaryState.date;
+    _diaryLoadCurrent();
+  }
+
+  function _diaryShiftDay(delta){
+    const m = _diaryState.date.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return;
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    d.setDate(d.getDate() + delta);
+    const y=d.getFullYear(), mo=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0');
+    _diaryState.date = `${y}-${mo}-${da}`;
+    document.getElementById('diaryDate').value = _diaryState.date;
+    _diaryLoadCurrent();
+  }
+
+  function _diaryRenderStaffList(){
+    const wrap = document.getElementById('diaryStaffList');
+    if(!wrap) return;
+    // 정신혜 hire 없어도 STAFF 모두 노출 (연차 뷰와 동일 기준)
+    const visible = STAFF.slice();
+    document.getElementById('diaryStaffCount').textContent = visible.length;
+    wrap.innerHTML = '';
+    visible.forEach(st=>{
+      const el = document.createElement('div');
+      el.className = 'diary-staff-item' + (st.name===_diaryState.staff ? ' active' : '');
+      const teamLabel = st.team ? st.team : (st.dept || '');
+      el.innerHTML = `
+        <div class="diary-staff-avatar ${_diaryStaffColorClass(st.color)}">${_diaryStaffInitial(st.name)}</div>
+        <span class="diary-staff-name">${st.name}</span>
+        ${teamLabel ? `<span class="diary-staff-team">${teamLabel}</span>` : ''}
+      `;
+      el.onclick = ()=>{
+        _diaryState.staff = st.name;
+        localStorage.setItem(DIARY_LAST_STAFF_KEY, st.name);
+        _diaryRenderStaffList();
+        _diaryLoadCurrent();
+      };
+      wrap.appendChild(el);
+    });
+  }
+
+  function _diaryLoadCurrent(){
+    if(!_diaryState.staff){
+      document.getElementById('diaryOwner').textContent = '직원을 선택하세요';
+      document.getElementById('diaryOwnerSub').textContent = '';
+      document.getElementById('diaryAvatar').textContent = '?';
+      document.getElementById('diaryAvatar').className = 'diary-avatar';
+      _diaryState.entry = {reqs:[],tasks:[],memo:''};
+      _diaryRenderAll();
+      return;
+    }
+    const st = STAFF.find(s=>s.name===_diaryState.staff);
+    document.getElementById('diaryOwner').textContent = _diaryState.staff;
+    const teamStr = st ? (st.team ? `${st.dept} · ${st.team}` : (st.dept || '')) : '';
+    document.getElementById('diaryOwnerSub').textContent = teamStr;
+    const av = document.getElementById('diaryAvatar');
+    av.textContent = _diaryStaffInitial(_diaryState.staff);
+    av.className = 'diary-avatar ' + _diaryStaffColorClass(st && st.color);
+
+    // 오늘 버튼 활성화 표시
+    const todayBtn = document.getElementById('diaryTodayBtn');
+    todayBtn.classList.toggle('active', _diaryState.date === _diaryTodayStr());
+
+    // 서브타이틀 (날짜)
+    document.getElementById('diaryTitleSub').textContent = '/ ' + _diaryFmtDate(_diaryState.date);
+
+    _diaryState.entry = _diaryGetEntry(_diaryState.staff, _diaryState.date);
+    _diaryRenderAll();
+  }
+
+  function _diaryRenderAll(){
+    _diaryRenderReqs(false);
+    _diaryRenderTasks(false);
+    document.getElementById('diaryMemo').innerText = _diaryState.entry.memo || '';
+    _diaryRenderRecent();
+  }
+
+  function _diaryRenderReqs(focusLast){
+    const list = document.getElementById('diaryReqList');
+    const reqs = _diaryState.entry.reqs;
+    document.getElementById('diaryReqCount').textContent = reqs.length;
+    document.getElementById('diaryReqEmpty').hidden = reqs.length > 0;
+    list.innerHTML = '';
+    reqs.forEach((r, idx)=>{
+      const row = document.createElement('div');
+      row.className = 'diary-req' + (r.done ? ' done' : '');
+      row.innerHTML = `
+        <button class="diary-req-status" title="완료 표시">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="diary-req-body">
+          <div class="diary-req-text" contenteditable="true" data-placeholder="요청 내용을 입력하세요">${_esc(r.text||'')}</div>
+        </div>
+        <div class="diary-req-from" contenteditable="true">${_esc(r.from||'')}</div>
+        <button class="diary-req-del" title="삭제">✕</button>
+      `;
+      row.querySelector('.diary-req-status').onclick = ()=>{
+        r.done = !r.done;
+        row.classList.toggle('done', r.done);
+        _diaryScheduleSave();
+      };
+      const txt = row.querySelector('.diary-req-text');
+      txt.oninput = ()=>{ r.text = txt.innerText; _diaryScheduleSave(); };
+      const fr = row.querySelector('.diary-req-from');
+      fr.oninput = ()=>{ r.from = fr.innerText; _diaryScheduleSave(); };
+      row.querySelector('.diary-req-del').onclick = ()=>{
+        _diaryState.entry.reqs.splice(idx,1);
+        _diaryRenderReqs(false);
+        _diaryScheduleSave();
+      };
+      list.appendChild(row);
+    });
+    if(focusLast && reqs.length){
+      const last = list.querySelector('.diary-req:last-child .diary-req-text');
+      if(last) last.focus();
+    }
+  }
+
+  function _diaryRenderTasks(focusLast){
+    const list = document.getElementById('diaryTaskList');
+    const tasks = _diaryState.entry.tasks;
+    const doneN = tasks.filter(t=>t.done).length;
+    document.getElementById('diaryTaskCount').textContent = `${doneN} / ${tasks.length}`;
+    document.getElementById('diaryTaskEmpty').hidden = tasks.length > 0;
+    list.innerHTML = '';
+    tasks.forEach((t, idx)=>{
+      const row = document.createElement('div');
+      row.className = 'diary-task' + (t.done ? ' done' : '');
+      row.innerHTML = `
+        <button class="diary-task-check" title="완료">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="diary-task-text" contenteditable="true">${_esc(t.text||'')}</div>
+        <button class="diary-task-del" title="삭제">✕</button>
+      `;
+      row.querySelector('.diary-task-check').onclick = ()=>{
+        t.done = !t.done;
+        row.classList.toggle('done', t.done);
+        const dn = _diaryState.entry.tasks.filter(x=>x.done).length;
+        document.getElementById('diaryTaskCount').textContent = `${dn} / ${_diaryState.entry.tasks.length}`;
+        _diaryScheduleSave();
+      };
+      const txt = row.querySelector('.diary-task-text');
+      txt.oninput = ()=>{ t.text = txt.innerText; _diaryScheduleSave(); };
+      txt.onkeydown = (e)=>{
+        if(e.key==='Enter' && !e.shiftKey){
+          e.preventDefault();
+          _diaryState.entry.tasks.push({id:_diaryUid(), text:'', done:false});
+          _diaryRenderTasks(true);
+          _diaryScheduleSave();
+        } else if(e.key==='Backspace' && txt.innerText===''){
+          e.preventDefault();
+          _diaryState.entry.tasks.splice(idx,1);
+          _diaryRenderTasks(false);
+          _diaryScheduleSave();
+          // 이전 항목 포커스
+          const prev = list.querySelectorAll('.diary-task-text')[idx-1];
+          if(prev){ prev.focus(); _placeCaretAtEnd(prev); }
+        }
+      };
+      row.querySelector('.diary-task-del').onclick = ()=>{
+        _diaryState.entry.tasks.splice(idx,1);
+        _diaryRenderTasks(false);
+        _diaryScheduleSave();
+      };
+      list.appendChild(row);
+    });
+    if(focusLast && tasks.length){
+      const last = list.querySelector('.diary-task:last-child .diary-task-text');
+      if(last){ last.focus(); _placeCaretAtEnd(last); }
+    }
+  }
+
+  function _placeCaretAtEnd(el){
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function _esc(s){
+    return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  function _diaryRenderRecent(){
+    const wrap = document.getElementById('diaryRecent');
+    const empty = document.getElementById('diaryRecentEmpty');
+    if(!wrap || !_diaryState.staff){ if(wrap) wrap.innerHTML=''; return; }
+    const all = loadDiaryAll();
+    const s = all[_diaryState.staff] || {};
+    const dates = Object.keys(s).filter(d=>d!==_diaryState.date).sort().reverse().slice(0,12);
+    wrap.innerHTML = '';
+    empty.hidden = dates.length > 0;
+    dates.forEach(d=>{
+      const e = s[d];
+      const done = (e.tasks||[]).filter(t=>t.done).length;
+      const total = (e.tasks||[]).length;
+      const summary = total>0 ? `업무 ${done}/${total}` : (e.memo ? '메모 있음' : ((e.reqs||[]).length>0 ? `요청 ${e.reqs.length}건` : ''));
+      const item = document.createElement('div');
+      item.className = 'diary-recent-item';
+      item.innerHTML = `
+        <div class="diary-recent-date">${_diaryFmtDate(d)}</div>
+        <div class="diary-recent-summary">${summary}</div>
+      `;
+      item.onclick = ()=>{
+        _diaryState.date = d;
+        document.getElementById('diaryDate').value = d;
+        _diaryLoadCurrent();
+      };
+      wrap.appendChild(item);
+    });
   }
 
   /* 입사일 기준 1년 단위 사이클 — 매 anniversary마다 새 cycle 시작 (이전 미사용 폐기).
