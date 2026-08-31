@@ -4396,6 +4396,14 @@
   .leave-form-radio.fam input{accent-color:#c2410c}
   .leave-form-radio.comp{color:#3730a3}
   .leave-form-radio.comp input{accent-color:#4f46e5}
+  .leave-form-comp-sub{
+    grid-column:1 / -1;margin-top:2px;
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    padding:8px 12px;border:1px dashed rgba(99,102,241,.35);border-radius:6px;
+    background:rgba(99,102,241,.04);
+  }
+  .leave-form-comp-sub[hidden]{display:none}
+  .leave-form-comp-sub-label{font-size:12px;color:#3730a3;font-weight:600;letter-spacing:.005em}
   .leave-form-reason{
     grid-column:1 / -1;
     display:flex;flex-direction:column;gap:6px;margin-top:4px;
@@ -5646,6 +5654,12 @@
           <label class="leave-form-radio mat"><input type="radio" name="lfType" value="출산휴가" onchange="updateLeaveDays()">🤱 출산휴가 <span style="color:var(--text-3);font-size:11px">(차감 X)</span></label>
           <label class="leave-form-radio fam"><input type="radio" name="lfType" value="경조사휴가" onchange="updateLeaveDays()">💐 경조사휴가 <span style="color:var(--text-3);font-size:11px">(차감 X)</span></label>
           <label class="leave-form-radio comp master-only"><input type="radio" name="lfType" value="대체휴무" onchange="updateLeaveDays()">🎁 대체휴무 <span style="color:var(--text-3);font-size:11px">(관리자 부여 · 차감 X)</span></label>
+        </div>
+
+        <div class="leave-form-comp-sub" id="lfCompSub" hidden>
+          <span class="leave-form-comp-sub-label">부여 단위</span>
+          <label class="leave-form-radio comp"><input type="radio" name="lfCompUnit" value="연차" checked onchange="updateLeaveDays()">연차 (1일/일수만큼)</label>
+          <label class="leave-form-radio comp"><input type="radio" name="lfCompUnit" value="반차" onchange="updateLeaveDays()">반차 (0.5일)</label>
         </div>
 
         <div class="leave-form-reason" id="lfReasonWrap" hidden>
@@ -10389,7 +10403,9 @@
         ${history.map(h=>{
           const cls=_leaveTypeClass(h.type);
           const dlabel=_fmtLeaveDateRange(h.date,h.endDate);
-          const daySuffix=(h.endDate&&h.endDate!==h.date&&h.days)?` <span style="color:var(--text-3);font-size:11px">${h.days}일</span>`:'';
+          const isRange=h.endDate&&h.endDate!==h.date&&h.days;
+          const isCompDays=(h.type==='대체휴무'&&Number.isFinite(h.days));
+          const daySuffix=(isRange||isCompDays)?` <span style="color:var(--text-3);font-size:11px">${h.days}일</span>`:'';
           const rsn=h.reason?` <span class="leave-history-reason" title="${escapeHTML(h.reason)}">· ${escapeHTML(h.reason)}</span>`:'';
           let delBtn='';
           if(h._id){
@@ -10503,7 +10519,9 @@
       const cls=_leaveTypeClass(it.type);
       const dlabel=_fmtLeaveDateRange(it.date,it.endDate);
       const when=formatLeaveSubmittedAt(it.submittedAt);
-      const typeLabel=it.endDate&&it.endDate!==it.date&&it.days?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
+      const isRangeR=it.endDate&&it.endDate!==it.date&&it.days;
+      const isCompDaysR=(it.type==='대체휴무'&&Number.isFinite(it.days));
+      const typeLabel=(isRangeR||isCompDaysR)?`${escapeHTML(it.type)} ${it.days}일`:escapeHTML(it.type);
       const delBtn=it._id?`<button class="leave-recent-del" type="button" title="신청 취소" onclick="deleteLeaveEntry('${escapeHTML(it._id)}', '${escapeHTML(it.name)}', '${escapeHTML(dlabel)}', '${escapeHTML(it.type)}')">×</button>`:'';
       const rsn=it.reason?`<span class="leave-recent-reason" title="${escapeHTML(it.reason)}">· ${escapeHTML(it.reason)}</span>`:'';
       return `<div class="leave-recent-item">
@@ -10940,6 +10958,8 @@
     form.hidden=true;
     const rsnWrap=document.getElementById('lfReasonWrap');
     if(rsnWrap) rsnWrap.hidden=true;
+    const compSub=document.getElementById('lfCompSub');
+    if(compSub) compSub.hidden=true;
   }
 
   /* 날짜 범위 → 사용 일수 계산. 반차/생일반차는 단일일만 허용 (종료일=시작일 강제) */
@@ -10947,7 +10967,12 @@
     if(!type||!startStr) return {days:0,err:null};
     if(type==='오전반차'||type==='오후반차') return {days:0.5,err:null};
     if(type==='생일반차') return {days:0,err:null};
-    // 연차 / 출산휴가 / 경조사휴가 / 대체휴무 — 종료일 없거나 같으면 1일, 범위면 (end-start+1)
+    // 대체휴무 반차 (0.5일)
+    if(type==='대체휴무'){
+      const unit=document.querySelector('input[name="lfCompUnit"]:checked')?.value;
+      if(unit==='반차') return {days:0.5,err:null};
+    }
+    // 연차 / 출산휴가 / 경조사휴가 / 대체휴무(연차) — 종료일 없거나 같으면 1일, 범위면 (end-start+1)
     const end=endStr||startStr;
     const s=new Date(startStr+'T00:00:00');
     const e=new Date(end+'T00:00:00');
@@ -10971,8 +10996,11 @@
     const sub=document.getElementById('lfDaysSub');
     const type=document.querySelector('input[name="lfType"]:checked')?.value;
     if(!out) return;
-    // 반차/생일반차면 종료일 비활성화 + 시작일과 동일하게
-    const isHalf=(type==='오전반차'||type==='오후반차'||type==='생일반차');
+    // 대체휴무 반차 유닛도 단일일 강제
+    const compUnit=(type==='대체휴무')?(document.querySelector('input[name="lfCompUnit"]:checked')?.value||'연차'):null;
+    const isCompHalf=(type==='대체휴무'&&compUnit==='반차');
+    // 반차/생일반차/대체휴무(반차)면 종료일 비활성화 + 시작일과 동일하게
+    const isHalf=(type==='오전반차'||type==='오후반차'||type==='생일반차'||isCompHalf);
     if(endInput){
       endInput.disabled=isHalf;
       if(isHalf) endInput.value=start||'';
@@ -10986,12 +11014,22 @@
       out.innerHTML=`${r.days}일${wd}`;
     } else if(type==='생일반차'){
       out.innerHTML='0일 <span class="leave-form-days-sub">(차감 없음)</span>';
-    } else if(type==='출산휴가'||type==='경조사휴가'||type==='대체휴무'){
+    } else if(type==='대체휴무'){
+      if(isCompHalf){
+        out.innerHTML='0.5일 <span class="leave-form-days-sub">(부여 · 차감 없음)</span>';
+      } else {
+        const wd=r.weekdays!=null&&r.weekdays!==r.days?` <span class="leave-form-days-sub">(주말 포함, 평일 ${r.weekdays}일)</span>`:'';
+        out.innerHTML=`${r.days}일${wd} <span class="leave-form-days-sub">(부여 · 차감 없음)</span>`;
+      }
+    } else if(type==='출산휴가'||type==='경조사휴가'){
       const wd=r.weekdays!=null&&r.weekdays!==r.days?` <span class="leave-form-days-sub">(주말 포함, 평일 ${r.weekdays}일)</span>`:'';
       out.innerHTML=`${r.days}일${wd} <span class="leave-form-days-sub">(차감 없음)</span>`;
     } else {
       out.innerHTML='0.5일';
     }
+    // 대체휴무 하위 라디오 표시
+    const compSub=document.getElementById('lfCompSub');
+    if(compSub) compSub.hidden=(type!=='대체휴무');
     // 경조사·대체휴무 선택 시 사유 입력창 노출
     const rsnWrap=document.getElementById('lfReasonWrap');
     if(rsnWrap){
@@ -11032,8 +11070,11 @@
       const rsn=(document.getElementById('lfReason')?.value||'').trim();
       if(rsn) reason=rsn;
     }
-    // 반차/생일반차는 단일일 강제
-    const isHalf=(type==='오전반차'||type==='오후반차'||type==='생일반차');
+    // 대체휴무 하위 유닛
+    const compUnit=(type==='대체휴무')?(document.querySelector('input[name="lfCompUnit"]:checked')?.value||'연차'):null;
+    const isCompHalf=(type==='대체휴무'&&compUnit==='반차');
+    // 반차/생일반차/대체휴무(반차)는 단일일 강제
+    const isHalf=(type==='오전반차'||type==='오후반차'||type==='생일반차'||isCompHalf);
     const endDate=isHalf?startDate:(endDateRaw||startDate);
     const r=_calcLeaveDays(type,startDate,endDate);
     if(r.err==='end_before_start'){toast('종료일이 시작일보다 빠릅니다','err');return}
@@ -11042,11 +11083,14 @@
     const submitBtn=e.target.querySelector('button[type="submit"]');
     if(submitBtn) submitBtn.disabled=true;
 
+    // 대체휴무는 days 항상 저장 (0.5 or 1 or N) — 표시/집계용
+    const isMultiDay=(endDate&&endDate!==startDate);
+    const daysToStore=(type==='대체휴무')?r.days:(isMultiDay?r.days:null);
     const payload={
       staff_name:name,
       start_date:startDate,
-      end_date:(endDate&&endDate!==startDate)?endDate:null,
-      days:(endDate&&endDate!==startDate)?r.days:null,
+      end_date:isMultiDay?endDate:null,
+      days:daysToStore,
       leave_type:type,
       reason:reason
     };
@@ -11078,7 +11122,7 @@
         : (type==='경조사휴가'
           ? `💐 ${name} ${range} 경조사휴가 · ${reason} (차감 없음)`
           : (type==='대체휴무'
-            ? `🎁 ${name} ${range} 대체휴무 부여${reason?` · ${reason}`:''} (차감 없음)`
+            ? `🎁 ${name} ${range} 대체휴무 ${r.days}일 부여${reason?` · ${reason}`:''} (차감 없음)`
             : `✓ ${name} ${range} ${type} (-${delta}일)`)));
     toast(msg,'ok');
     closeLeaveForm();
