@@ -10532,6 +10532,7 @@
       const h=Array.isArray(data[name]?.history)?data[name].history:[];
       h.forEach(e=>{
         if(!e||!e.submittedAt) return;
+        if(e.type==='대체휴무') return; // 대체휴무는 부여(잔여+)라 신청 내역에 노출 안 함
         const y=new Date(e.submittedAt).getFullYear();
         if(y!==currentYear) return;
         items.push({name,date:e.date||'',endDate:e.endDate||'',days:e.days,type:e.type||'',reason:e.reason||'',submittedAt:e.submittedAt,_id:e._id});
