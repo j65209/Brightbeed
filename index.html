@@ -4036,12 +4036,18 @@
   .org-svg .t-md2{fill:#b91c1c;font-weight:600;font-size:14px}
   .org-svg .l-md2{stroke:rgba(255,140,112,.5)}
 
+  /* 디자인 — 시안 (창작 톤) */
+  .org-svg .b-design{fill:rgba(6,182,212,.08);stroke:rgba(6,182,212,.55);stroke-width:1}
+  .org-svg .t-design{fill:#0e7490;font-weight:600;font-size:14px}
+  .org-svg .l-design{stroke:rgba(6,182,212,.5)}
+
   /* 인원 — 박스 없이 텍스트, 팀 톤 (옅은 버전) */
   .org-svg .t-mem{font-weight:500;font-size:13px;letter-spacing:.01em}
   .org-svg .t-mem.m-logi  {fill:#9a3412}
   .org-svg .t-mem.m-mkt   {fill:#9d174d}
   .org-svg .t-mem.m-share {fill:#854d0e}
   .org-svg .t-mem.m-md2   {fill:#991b1b}
+  .org-svg .t-mem.m-design{fill:#155e75}
 
   @media (max-width:768px){
     .org-chart-wrap{padding:18px 10px 14px}
@@ -4107,10 +4113,12 @@
 
   .om-div.om-brand  {border-color:rgba(255,46,147,.35)}
   .om-div.om-brand  .om-div-name{color:#0d9488;border-bottom-color:rgba(255,46,147,.25)}
-  .om-div.om-brand  .om-team.om-mkt   .om-team-name{color:#be185d;background:rgba(255,107,181,.10);border:1px solid rgba(255,107,181,.30)}
-  .om-div.om-brand  .om-team.om-mkt   .om-mem{color:#9d174d;border-color:rgba(255,107,181,.30);background:rgba(255,107,181,.06)}
-  .om-div.om-brand  .om-team.om-share .om-team-name{color:#854d0e;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.30)}
-  .om-div.om-brand  .om-team.om-share .om-mem{color:#854d0e;border-color:rgba(212,175,55,.30);background:rgba(212,175,55,.06)}
+  .om-div.om-brand  .om-team.om-mkt    .om-team-name{color:#be185d;background:rgba(255,107,181,.10);border:1px solid rgba(255,107,181,.30)}
+  .om-div.om-brand  .om-team.om-mkt    .om-mem{color:#9d174d;border-color:rgba(255,107,181,.30);background:rgba(255,107,181,.06)}
+  .om-div.om-brand  .om-team.om-design .om-team-name{color:#0e7490;background:rgba(6,182,212,.10);border:1px solid rgba(6,182,212,.30)}
+  .om-div.om-brand  .om-team.om-design .om-mem{color:#155e75;border-color:rgba(6,182,212,.30);background:rgba(6,182,212,.06)}
+  .om-div.om-brand  .om-team.om-share  .om-team-name{color:#854d0e;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.30)}
+  .om-div.om-brand  .om-team.om-share  .om-mem{color:#854d0e;border-color:rgba(212,175,55,.30);background:rgba(212,175,55,.06)}
 
   .om-div.om-vendor {border-color:rgba(180,108,255,.40)}
   .om-div.om-vendor .om-div-name{color:#7c3aed;border-bottom-color:rgba(180,108,255,.30)}
@@ -5595,6 +5603,7 @@
           <option value="">선택해주세요</option>
           <option value="logi">물류</option>
           <option value="mkt">브랜드 · 마케팅</option>
+          <option value="design">브랜드 · 디자인</option>
           <option value="md_brand">브랜드 · MD팀</option>
           <option value="share">C/S (공유)</option>
           <option value="md_vendor">벤더 · MD</option>
@@ -5620,23 +5629,25 @@
         <path class="line l-brand"  d="M 540 84 V 110"/>
         <path class="line l-vendor" d="M 885 84 V 110"/>
 
-        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(375)/MD팀(485)/C/S(595) -->
-        <path class="line l-brand" d="M 540 152 V 200"/>
-        <path class="line l-brand" d="M 375 200 H 595"/>
-        <path class="line l-mkt"   d="M 375 200 V 230"/>
-        <path class="line l-md2"   d="M 485 200 V 230"/>
-        <path class="line l-share" d="M 595 200 V 230"/>
+        <!-- 브랜드(540,152) → 팀 버스(y=200) → 마케팅(320)/디자인(430)/MD팀(540)/C/S(650) -->
+        <path class="line l-brand"  d="M 540 152 V 200"/>
+        <path class="line l-brand"  d="M 320 200 H 650"/>
+        <path class="line l-mkt"    d="M 320 200 V 230"/>
+        <path class="line l-design" d="M 430 200 V 230"/>
+        <path class="line l-md2"    d="M 540 200 V 230"/>
+        <path class="line l-share"  d="M 650 200 V 230"/>
 
-        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(595, 공유)/MD(1000) -->
+        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(650, 공유)/MD(1000) -->
         <path class="line l-vendor" d="M 885 152 V 200"/>
-        <path class="line l-vendor" d="M 595 200 H 1000"/>
+        <path class="line l-vendor" d="M 650 200 H 1000"/>
         <path class="line l-md2"    d="M 1000 200 V 230"/>
 
         <!-- 팀 → 인원 (단일 드롭, 팀 색) -->
-        <path class="line l-mkt"   d="M 375 272 V 305"/>
-        <path class="line l-md2"   d="M 485 272 V 305"/>
-        <path class="line l-share" d="M 595 272 V 305"/>
-        <path class="line l-md2"   d="M 1000 272 V 305"/>
+        <path class="line l-mkt"    d="M 320 272 V 305"/>
+        <path class="line l-design" d="M 430 272 V 305"/>
+        <path class="line l-md2"    d="M 540 272 V 305"/>
+        <path class="line l-share"  d="M 650 272 V 305"/>
+        <path class="line l-md2"    d="M 1000 272 V 305"/>
 
         <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
         <path class="line l-logi" d="M 80 152 V 305"/>
@@ -5653,15 +5664,17 @@
         <rect class="b-vendor" x="845" y="110" width="80" height="42" rx="6"/>
         <text class="t-vendor" x="885" y="133">벤더</text>
 
-        <!-- 팀 (마케팅·MD팀·C/S공유·MD-벤더) — 각각 다른 색 -->
-        <rect class="b-mkt"   x="335" y="230" width="80" height="42" rx="6"/>
-        <text class="t-mkt"   x="375" y="253">마케팅</text>
-        <rect class="b-md2"   x="445" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"   x="485" y="253">MD팀</text>
-        <rect class="b-share" x="555" y="230" width="80" height="42" rx="6"/>
-        <text class="t-share" x="595" y="253">C/S</text>
-        <rect class="b-md2"   x="960" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"   x="1000" y="253">MD</text>
+        <!-- 팀 (마케팅·디자인·MD팀·C/S공유·MD-벤더) — 각각 다른 색 -->
+        <rect class="b-mkt"    x="280" y="230" width="80" height="42" rx="6"/>
+        <text class="t-mkt"    x="320" y="253">마케팅</text>
+        <rect class="b-design" x="390" y="230" width="80" height="42" rx="6"/>
+        <text class="t-design" x="430" y="253">디자인</text>
+        <rect class="b-md2"    x="500" y="230" width="80" height="42" rx="6"/>
+        <text class="t-md2"    x="540" y="253">MD팀</text>
+        <rect class="b-share"  x="610" y="230" width="80" height="42" rx="6"/>
+        <text class="t-share"  x="650" y="253">C/S</text>
+        <rect class="b-md2"    x="960" y="230" width="80" height="42" rx="6"/>
+        <text class="t-md2"    x="1000" y="253">MD</text>
 
         <!-- 인원 (텍스트만, 팀 톤 — 같은 팀 직원은 같은 색) -->
         <!-- 물류 -->
@@ -5669,14 +5682,15 @@
         <text class="t-mem m-logi"  x="80"   y="348">전준호</text>
         <text class="t-mem m-logi"  x="80"   y="376">이소영</text>
         <!-- 마케팅 -->
-        <text class="t-mem m-mkt"   x="375"  y="320">김수민</text>
-        <text class="t-mem m-mkt"   x="375"  y="348">이승원</text>
-        <text class="t-mem m-mkt"   x="375"  y="376">박규현</text>
+        <text class="t-mem m-mkt"   x="320"  y="320">김수민</text>
+        <text class="t-mem m-mkt"   x="320"  y="348">이승원</text>
+        <text class="t-mem m-mkt"   x="320"  y="376">박규현</text>
+        <!-- 디자인 (신규 팀 — 등록 시 renderOrgChartExtra에서 append) -->
         <!-- MD팀 (브랜드) -->
-        <text class="t-mem m-md2"   x="485"  y="320">김채원</text>
-        <text class="t-mem m-md2"   x="485"  y="348">지희선</text>
+        <text class="t-mem m-md2"   x="540"  y="320">김채원</text>
+        <text class="t-mem m-md2"   x="540"  y="348">지희선</text>
         <!-- C/S 공유 -->
-        <text class="t-mem m-share" x="595"  y="320">정신혜</text>
+        <text class="t-mem m-share" x="650"  y="320">정신혜</text>
         <!-- MD (벤더) -->
         <text class="t-mem m-md2"   x="1000" y="320">조혜인</text>
         <text class="t-mem m-md2"   x="1000" y="348">김완성</text>
@@ -5698,6 +5712,7 @@
             <div class="om-div-name">브랜드</div>
             <div class="om-teams">
               <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">김수민</span><span class="om-mem">서원진</span><span class="om-mem">이승원</span><span class="om-mem">박규현</span></div>
+              <div class="om-team om-design"><span class="om-team-name">디자인</span></div>
               <div class="om-team om-md2"><span class="om-team-name">MD팀</span><span class="om-mem">김채원</span><span class="om-mem">지희선</span></div>
               <div class="om-team om-share"><span class="om-team-name">C/S<small>공유</small></span><span class="om-mem">정신혜</span></div>
             </div>
@@ -12999,18 +13014,21 @@
   window.applyHiddenToOrgChart=applyHiddenToOrgChart;
 
   /* 신규 입사자(_extra=true) 를 SVG 조직도 · 모바일 카드에 append.
-     slotKey(dept+team) → SVG x좌표/CSS class 매핑. 팀별 하단에 28px 간격으로 쌓음. */
+     slotKey(dept+team) → SVG x좌표/CSS class 매핑. 팀별 하단에 28px 간격으로 쌓음.
+     x 좌표는 SVG 팀 박스 center 와 동일 (2026-09-01 디자인팀 신설로 재배치). */
   const ORG_SLOTS={
-    'logi':      {x:80,   cls:'m-logi',  base:376, mobile:'om-logi-list'},
-    'mkt':       {x:375,  cls:'m-mkt',   base:376, mobile:'om-mkt-list'},
-    'md_brand':  {x:485,  cls:'m-md2',   base:348, mobile:'om-mdb-list'},
-    'share':     {x:595,  cls:'m-share', base:320, mobile:'om-share-list'},
-    'md_vendor': {x:1000, cls:'m-md2',   base:348, mobile:'om-mdv-list'},
+    'logi':      {x:80,   cls:'m-logi',   base:376},
+    'mkt':       {x:320,  cls:'m-mkt',    base:376},
+    'design':    {x:430,  cls:'m-design', base:292}, // 아직 인원 0명 → 첫 인원 y=320
+    'md_brand':  {x:540,  cls:'m-md2',    base:348},
+    'share':     {x:650,  cls:'m-share',  base:320},
+    'md_vendor': {x:1000, cls:'m-md2',    base:348},
   };
   function _staffSlotKey(s){
     const dept=String(s.dept||''), team=String(s.team||'');
     if(dept==='물류') return 'logi';
     if(dept==='브랜드' && team==='마케팅') return 'mkt';
+    if(dept==='브랜드' && team==='디자인') return 'design';
     if(dept==='브랜드' && (team==='MD팀'||team==='MD')) return 'md_brand';
     if(team==='C/S') return 'share';
     if(dept==='벤더' && team==='MD') return 'md_vendor';
@@ -13055,6 +13073,7 @@
     const MOBILE_HOSTS={
       'logi':      '.org-mobile .om-logi .om-members',
       'mkt':       '.org-mobile .om-brand .om-team.om-mkt',
+      'design':    '.org-mobile .om-brand .om-team.om-design',
       'md_brand':  '.org-mobile .om-brand .om-team.om-md2',
       'share':     '.org-mobile .om-brand .om-team.om-share',
       'md_vendor': '.org-mobile .om-vendor .om-team.om-md2',
@@ -13095,6 +13114,7 @@
   const _ADD_STAFF_SLOTS={
     'logi':      {dept:'물류',      team:null,   color:'logi'},
     'mkt':       {dept:'브랜드',    team:'마케팅', color:'mkt'},
+    'design':    {dept:'브랜드',    team:'디자인', color:'design'},
     'md_brand':  {dept:'브랜드',    team:'MD팀',  color:'md2'},
     'share':     {dept:'브랜드/벤더', team:'C/S',  color:'share'},
     'md_vendor': {dept:'벤더',      team:'MD',    color:'md2'},
