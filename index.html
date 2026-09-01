@@ -4002,7 +4002,7 @@
   .org-svg{display:block;width:100%;max-width:1100px;height:auto;margin:0 auto;min-width:840px}
   .org-svg path.line{fill:none;stroke:var(--line-2);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
   .org-svg rect{shape-rendering:geometricPrecision}
-  .org-svg text{font-family:var(--sans);text-anchor:middle;dominant-baseline:middle;letter-spacing:-.005em}
+  .org-svg text{font-family:var(--sans);text-anchor:middle;dominant-baseline:central;letter-spacing:-.005em}
 
   /* 루트 — 골드 */
   .org-svg .b-root{fill:rgba(212,175,55,.10);stroke:rgba(212,175,55,.55);stroke-width:1.1}
@@ -5652,32 +5652,32 @@
         <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
         <path class="line l-logi" d="M 80 152 V 305"/>
 
-        <!-- 루트 — 시각 중심(x=540)에 맞춤. 정식 법인명 2사 병기 (2줄) -->
+        <!-- 루트 — 시각 중심(x=540)에 맞춤. 정식 법인명 2사 병기 (2줄, rect 중심 y=33) -->
         <rect class="b-root" x="365" y="6" width="350" height="54" rx="8"/>
-        <text class="t-root" x="540" y="18">
+        <text class="t-root" x="540" y="23">
           <tspan x="540" dy="0">Brightbeed Co., Ltd.</tspan>
           <tspan x="540" dy="20">Bead Universe Co., Ltd.</tspan>
         </text>
 
-        <!-- 본부 (물류·브랜드·벤더) -->
+        <!-- 본부 (물류·브랜드·벤더) — text y = rect 중심 131 -->
         <rect class="b-logi"   x="40"  y="110" width="80" height="42" rx="6"/>
-        <text class="t-logi"   x="80"  y="133">물류</text>
+        <text class="t-logi"   x="80"  y="131">물류</text>
         <rect class="b-brand"  x="500" y="110" width="80" height="42" rx="6"/>
-        <text class="t-brand"  x="540" y="133">브랜드</text>
+        <text class="t-brand"  x="540" y="131">브랜드</text>
         <rect class="b-vendor" x="845" y="110" width="80" height="42" rx="6"/>
-        <text class="t-vendor" x="885" y="133">벤더</text>
+        <text class="t-vendor" x="885" y="131">벤더</text>
 
-        <!-- 팀 (마케팅·디자인·MD팀·C/S공유·MD-벤더) — 각각 다른 색 -->
+        <!-- 팀 (마케팅·디자인·MD팀·C/S공유·MD-벤더) — text y = rect 중심 251 -->
         <rect class="b-mkt"    x="280" y="230" width="80" height="42" rx="6"/>
-        <text class="t-mkt"    x="320" y="253">마케팅</text>
+        <text class="t-mkt"    x="320" y="251">마케팅</text>
         <rect class="b-design" x="390" y="230" width="80" height="42" rx="6"/>
-        <text class="t-design" x="430" y="253">디자인</text>
+        <text class="t-design" x="430" y="251">디자인</text>
         <rect class="b-md2"    x="500" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"    x="540" y="253">MD팀</text>
+        <text class="t-md2"    x="540" y="251">MD팀</text>
         <rect class="b-share"  x="610" y="230" width="80" height="42" rx="6"/>
-        <text class="t-share"  x="650" y="253">C/S</text>
+        <text class="t-share"  x="650" y="251">C/S</text>
         <rect class="b-md2"    x="960" y="230" width="80" height="42" rx="6"/>
-        <text class="t-md2"    x="1000" y="253">MD</text>
+        <text class="t-md2"    x="1000" y="251">MD</text>
 
         <!-- 인원 (텍스트만, 팀 톤 — 같은 팀 직원은 같은 색) -->
         <!-- 물류 -->
