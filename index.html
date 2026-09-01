@@ -5605,7 +5605,7 @@
           <option value="mkt">브랜드 · 마케팅</option>
           <option value="design">브랜드 · 디자인</option>
           <option value="md_brand">브랜드 · MD팀</option>
-          <option value="share">C/S (공유)</option>
+          <option value="share">브랜드 · C/S</option>
           <option value="md_vendor">벤더 · MD</option>
         </select>
 
@@ -5637,9 +5637,9 @@
         <path class="line l-md2"    d="M 540 200 V 230"/>
         <path class="line l-share"  d="M 650 200 V 230"/>
 
-        <!-- 벤더(885,152) → 팀 버스(y=200) → C/S(650, 공유)/MD(1000) -->
+        <!-- 벤더(885,152) → MD(1000) 독립 라인 (C/S는 브랜드 전속으로 이관) -->
         <path class="line l-vendor" d="M 885 152 V 200"/>
-        <path class="line l-vendor" d="M 650 200 H 1000"/>
+        <path class="line l-vendor" d="M 885 200 H 1000"/>
         <path class="line l-md2"    d="M 1000 200 V 230"/>
 
         <!-- 팀 → 인원 (단일 드롭, 팀 색) -->
@@ -5714,7 +5714,7 @@
               <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">김수민</span><span class="om-mem">서원진</span><span class="om-mem">이승원</span><span class="om-mem">박규현</span></div>
               <div class="om-team om-design"><span class="om-team-name">디자인</span></div>
               <div class="om-team om-md2"><span class="om-team-name">MD팀</span><span class="om-mem">김채원</span><span class="om-mem">지희선</span></div>
-              <div class="om-team om-share"><span class="om-team-name">C/S<small>공유</small></span><span class="om-mem">정신혜</span></div>
+              <div class="om-team om-share"><span class="om-team-name">C/S</span><span class="om-mem">정신혜</span></div>
             </div>
           </div>
           <div class="om-div om-vendor">
@@ -9752,7 +9752,7 @@
     ]},
     {name:'이승원',dept:'브랜드',team:'마케팅',color:'mkt',hire:'2026-07-13',used:0},
     {name:'박규현',dept:'브랜드',team:'마케팅',color:'mkt',hire:'2026-08-10',used:0},
-    {name:'정신혜',dept:'브랜드/벤더',team:'C/S',color:'share',hire:'2026-05-14'},
+    {name:'정신혜',dept:'브랜드',team:'C/S',color:'share',hire:'2026-05-14'},
     {name:'조혜인',dept:'벤더',team:'MD',color:'md2',hire:'2025-10-27',used:6.5,history:[
       {date:'2026-01-02',type:'오후반차'},
       {date:'2026-01-20',type:'연차'},
@@ -13116,7 +13116,7 @@
     'mkt':       {dept:'브랜드',    team:'마케팅', color:'mkt'},
     'design':    {dept:'브랜드',    team:'디자인', color:'design'},
     'md_brand':  {dept:'브랜드',    team:'MD팀',  color:'md2'},
-    'share':     {dept:'브랜드/벤더', team:'C/S',  color:'share'},
+    'share':     {dept:'브랜드',    team:'C/S',   color:'share'},
     'md_vendor': {dept:'벤더',      team:'MD',    color:'md2'},
   };
   function toggleAddStaffForm(){
