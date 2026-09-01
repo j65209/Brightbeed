@@ -4454,6 +4454,65 @@
     .leave-form-radios{gap:10px 12px}
   }
 
+  /* 신규 입사자 등록 (마스터 전용) — HR 뷰 상단 */
+  .btn-add-staff{
+    margin-left:auto;display:inline-flex;align-items:center;gap:6px;
+    padding:6px 12px;font-size:12px;font-weight:600;letter-spacing:.005em;
+    color:#c2410c;background:rgba(255,179,71,.08);
+    border:1px solid rgba(255,179,71,.5);border-radius:6px;
+    cursor:pointer;transition:all .15s;font-family:var(--sans);
+  }
+  .btn-add-staff:hover{background:rgba(255,179,71,.16);box-shadow:0 0 12px rgba(255,179,71,.25)}
+  .btn-add-staff svg{width:12px;height:12px}
+  .add-staff-form{
+    max-width:520px;margin:0 auto 22px;
+    padding:18px 22px 20px;
+    background:linear-gradient(180deg,rgba(255,179,71,.07) 0%,rgba(255,179,71,.02) 100%);
+    border:1px solid rgba(255,179,71,.45);border-radius:10px;
+    box-shadow:0 0 24px rgba(255,179,71,.08);
+    animation:lfIn .22s ease-out;
+  }
+  .add-staff-form[hidden]{display:none}
+  .add-staff-title{
+    font-size:13px;font-weight:700;color:#c2410c;letter-spacing:.01em;
+    margin-bottom:14px;padding-bottom:10px;
+    border-bottom:1px dashed rgba(255,179,71,.3);
+    text-shadow:0 0 10px rgba(255,179,71,.4);
+  }
+  .add-staff-grid{
+    display:grid;grid-template-columns:78px 1fr;
+    gap:12px 14px;align-items:center;
+  }
+  .add-staff-label{font-size:12px;color:var(--text-2);font-weight:500}
+  .add-staff-input,.add-staff-select{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:4px;
+    padding:8px 10px;color:var(--text-0);font-size:13px;font-family:var(--sans);
+    outline:none;transition:border-color .15s;width:100%;
+  }
+  .add-staff-input:focus,.add-staff-select:focus{border-color:#c2410c}
+  .add-staff-hint{
+    margin-top:12px;font-size:11px;color:var(--text-3);line-height:1.55;
+  }
+  .add-staff-hint b{color:#c2410c;font-weight:600}
+  .add-staff-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+  .add-staff-btn{
+    padding:8px 18px;border-radius:4px;font-size:13px;font-weight:500;
+    cursor:pointer;transition:all .15s;font-family:var(--sans);
+  }
+  .add-staff-submit{
+    background:linear-gradient(135deg,#c2410c,#ea580c);
+    color:#ffffff;border:1px solid rgba(234,88,12,.6);font-weight:600;
+  }
+  .add-staff-submit:hover{filter:brightness(1.08);box-shadow:0 0 16px rgba(234,88,12,.4)}
+  .add-staff-cancel{background:transparent;color:var(--text-2);border:1px solid var(--line)}
+  .add-staff-cancel:hover{color:var(--text-0);border-color:var(--line-2);background:var(--bg-2)}
+  @media (max-width:600px){
+    .btn-add-staff{margin-left:0;order:3;flex:1;justify-content:center}
+    .add-staff-form{padding:14px 14px 16px}
+    .add-staff-grid{grid-template-columns:1fr;gap:4px 0}
+    .add-staff-label{margin-top:10px}
+  }
+
   /* 최근 연차 신청 내역 */
   .leave-recent{
     max-width:580px;margin:0 auto 28px;
@@ -5518,7 +5577,38 @@
         홈
       </button>
       <h1 class="view-title">인사팀<span class="view-title-sub">/ 조직도</span></h1>
+      <button type="button" class="btn-add-staff master-only" onclick="toggleAddStaffForm()" aria-label="신규 입사자 등록">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        신규 입사자 등록
+      </button>
     </div>
+
+    <!-- 신규 입사자 등록 폼 (마스터 전용, 접힘) -->
+    <form class="add-staff-form master-only" id="addStaffForm" hidden onsubmit="submitAddStaff(event)">
+      <div class="add-staff-title">🧑‍💼 신규 입사자 등록</div>
+      <div class="add-staff-grid">
+        <label class="add-staff-label" for="asName">성함</label>
+        <input class="add-staff-input" id="asName" type="text" required placeholder="예) 홍길동" maxlength="20">
+
+        <label class="add-staff-label" for="asSlot">소속</label>
+        <select class="add-staff-select" id="asSlot" required>
+          <option value="">선택해주세요</option>
+          <option value="logi">물류</option>
+          <option value="mkt">브랜드 · 마케팅</option>
+          <option value="md_brand">브랜드 · MD팀</option>
+          <option value="share">C/S (공유)</option>
+          <option value="md_vendor">벤더 · MD</option>
+        </select>
+
+        <label class="add-staff-label" for="asHire">입사일</label>
+        <input class="add-staff-input" id="asHire" type="date" required>
+      </div>
+      <div class="add-staff-hint">등록 즉시 조직도·연차 현황·신청서에 반영됩니다. 잘못 등록 시 <b>숨김(퇴사)</b> 처리하거나 마스터가 삭제할 수 있습니다.</div>
+      <div class="add-staff-actions">
+        <button type="button" class="add-staff-btn add-staff-cancel" onclick="closeAddStaffForm()">취소</button>
+        <button type="submit" class="add-staff-btn add-staff-submit">등록</button>
+      </div>
+    </form>
 
     <div class="org-chart-wrap">
       <svg class="org-svg" viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="(주)브라이트비드&샤인비드 조직도">
@@ -8741,6 +8831,8 @@
     app.classList.add('show');
     applyRole();
     if(typeof initHistoryFromHash==='function') initHistoryFromHash();
+    // 신규 입사자 append 목록 먼저 로드 → STAFF에 병합된 상태에서 나머지 sync가 돌도록
+    if(typeof syncStaffAddedFromRemote==='function') syncStaffAddedFromRemote().catch(()=>{});
     syncFromRemote();
     startPolling();
     // 벤더 데이터 백그라운드 첫 로드 — 사용자가 벤더 뷰에 들어오지 않아도 폴링이 즉시 살아남
@@ -12569,6 +12661,29 @@
     }, extra||{});
   }
 
+  /* 신규 입사자 append — staff_added 테이블 rows를 STAFF에 병합 (중복 방지, _extra 플래그) */
+  const _addedNames=new Set();
+  function mergeAddedStaff(rows){
+    let changed=false;
+    for(const r of (rows||[])){
+      if(!r || !r.name) continue;
+      if(_addedNames.has(r.name)) continue;
+      if(STAFF.some(s=>s.name===r.name)) continue; // 이미 하드코딩 원본에 있으면 skip
+      const rec={
+        name:r.name,
+        dept:r.dept||'',
+        team:r.team||null,
+        color:r.color||'md2',
+        hire:r.hire||'',
+        _extra:true
+      };
+      STAFF.push(rec);
+      _addedNames.add(r.name);
+      changed=true;
+    }
+    return changed;
+  }
+
   /* leave_entries + leave_overrides + leave_baseline_deletes 세 테이블을 가져와 v 형태로 조합
      v = { used?, total?, hire?, history: [...신규 entries], baselineDeletes: [{date,type,days}] } */
   async function sbFetchLeave(){
@@ -12702,6 +12817,35 @@
   async function sbDeleteStaffHidden(staff_name){
     try{
       const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_hidden?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
+    }catch(e){return {ok:false}}
+  }
+
+  /* 신규 입사자 append 목록 — staff_added 테이블 (마스터 전용 등록) */
+  async function sbFetchStaffAdded(){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_added?select=*&order=created_at.asc`,{
+        headers:_sbHeaders(), cache:'no-cache'
+      });
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){return null}
+  }
+  async function sbInsertStaffAdded(row){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_added`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'return=minimal'}),
+        body:JSON.stringify(row)
+      });
+      return r.ok?{ok:true}:{ok:false,reason:`http_${r.status}`};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+  async function sbDeleteStaffAdded(name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_added?name=eq.${encodeURIComponent(name)}`,{
         method:'DELETE', headers:_sbHeaders()
       });
       return {ok:r.ok};
@@ -12853,6 +12997,164 @@
     renderHiddenStaffPanel();
   }
   window.applyHiddenToOrgChart=applyHiddenToOrgChart;
+
+  /* 신규 입사자(_extra=true) 를 SVG 조직도 · 모바일 카드에 append.
+     slotKey(dept+team) → SVG x좌표/CSS class 매핑. 팀별 하단에 28px 간격으로 쌓음. */
+  const ORG_SLOTS={
+    'logi':      {x:80,   cls:'m-logi',  base:376, mobile:'om-logi-list'},
+    'mkt':       {x:375,  cls:'m-mkt',   base:376, mobile:'om-mkt-list'},
+    'md_brand':  {x:485,  cls:'m-md2',   base:348, mobile:'om-mdb-list'},
+    'share':     {x:595,  cls:'m-share', base:320, mobile:'om-share-list'},
+    'md_vendor': {x:1000, cls:'m-md2',   base:348, mobile:'om-mdv-list'},
+  };
+  function _staffSlotKey(s){
+    const dept=String(s.dept||''), team=String(s.team||'');
+    if(dept==='물류') return 'logi';
+    if(dept==='브랜드' && team==='마케팅') return 'mkt';
+    if(dept==='브랜드' && (team==='MD팀'||team==='MD')) return 'md_brand';
+    if(team==='C/S') return 'share';
+    if(dept==='벤더' && team==='MD') return 'md_vendor';
+    return null;
+  }
+  function renderOrgChartExtra(){
+    const svg=document.querySelector('.org-svg');
+    if(!svg) return;
+    // 기존 신규 노드 제거
+    svg.querySelectorAll('[data-extra]').forEach(n=>n.remove());
+    document.querySelectorAll('.org-mobile [data-extra]').forEach(n=>n.remove());
+
+    // 슬롯별 그룹핑
+    const groups={};
+    for(const s of STAFF){
+      if(!s._extra) continue;
+      const k=_staffSlotKey(s);
+      if(!k) continue;
+      (groups[k]=groups[k]||[]).push(s);
+    }
+    let maxY=376;
+    for(const k of Object.keys(groups)){
+      const slot=ORG_SLOTS[k]; if(!slot) continue;
+      groups[k].forEach((s,i)=>{
+        const y=slot.base+28*(i+1);
+        const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('class',`t-mem ${slot.cls}`);
+        t.setAttribute('x',slot.x);
+        t.setAttribute('y',y);
+        t.setAttribute('data-extra','1');
+        t.textContent=s.name;
+        svg.appendChild(t);
+        if(y>maxY) maxY=y;
+      });
+    }
+    // viewBox height 확장 (기본 420, 인원 많으면 늘림)
+    const need=Math.max(420, maxY+20);
+    const vb=svg.getAttribute('viewBox')?.split(/\s+/)||['0','0','1100','420'];
+    if(vb[3]!==String(need)) svg.setAttribute('viewBox',`${vb[0]} ${vb[1]} ${vb[2]} ${need}`);
+
+    // 모바일 카드에도 append (기존 om-team/om-div 안 om-mem 뒤로 삽입)
+    const MOBILE_HOSTS={
+      'logi':      '.org-mobile .om-logi .om-members',
+      'mkt':       '.org-mobile .om-brand .om-team.om-mkt',
+      'md_brand':  '.org-mobile .om-brand .om-team.om-md2',
+      'share':     '.org-mobile .om-brand .om-team.om-share',
+      'md_vendor': '.org-mobile .om-vendor .om-team.om-md2',
+    };
+    for(const k of Object.keys(groups)){
+      const host=document.querySelector(MOBILE_HOSTS[k]);
+      if(!host) continue;
+      groups[k].forEach(s=>{
+        const span=document.createElement('span');
+        span.className='om-mem';
+        span.setAttribute('data-extra','1');
+        span.textContent=s.name;
+        host.appendChild(span);
+      });
+    }
+    // 숨김 처리 재적용
+    applyHiddenToOrgChart();
+  }
+  window.renderOrgChartExtra=renderOrgChartExtra;
+
+  /* Supabase staff_added → STAFF 병합 + 조직도 재렌더 + 연차 상태 갱신 */
+  async function syncStaffAddedFromRemote(){
+    const rows=await sbFetchStaffAdded();
+    if(rows===null) return false;
+    const changed=mergeAddedStaff(rows);
+    if(changed){
+      renderOrgChartExtra();
+      if(document.getElementById('leaveGrid')) renderLeaveStatus();
+    }else{
+      // 첫 로드에서 changed=false여도 조직도에 이미 append된 상태를 유지하려면 강제 render 한 번
+      renderOrgChartExtra();
+    }
+    return changed;
+  }
+  window.syncStaffAddedFromRemote=syncStaffAddedFromRemote;
+
+  /* 신규 입사자 등록 폼 — 마스터 전용 (뷰어는 .master-only CSS로 자동 숨김, JS도 이중 방어) */
+  const _ADD_STAFF_SLOTS={
+    'logi':      {dept:'물류',      team:null,   color:'logi'},
+    'mkt':       {dept:'브랜드',    team:'마케팅', color:'mkt'},
+    'md_brand':  {dept:'브랜드',    team:'MD팀',  color:'md2'},
+    'share':     {dept:'브랜드/벤더', team:'C/S',  color:'share'},
+    'md_vendor': {dept:'벤더',      team:'MD',    color:'md2'},
+  };
+  function toggleAddStaffForm(){
+    if(!requireMaster('신규 입사자 등록')) return;
+    const form=document.getElementById('addStaffForm');
+    if(!form) return;
+    const opening=form.hidden;
+    if(opening){
+      form.reset();
+      const hire=document.getElementById('asHire');
+      if(hire && !hire.value){
+        const d=new Date();
+        hire.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      }
+      form.hidden=false;
+      setTimeout(()=>document.getElementById('asName')?.focus(),50);
+    }else{
+      closeAddStaffForm();
+    }
+  }
+  function closeAddStaffForm(){
+    const form=document.getElementById('addStaffForm');
+    if(!form) return;
+    form.reset();
+    form.hidden=true;
+  }
+  async function submitAddStaff(ev){
+    ev.preventDefault();
+    if(!requireMaster('신규 입사자 등록')) return;
+    const name=(document.getElementById('asName')?.value||'').trim();
+    const slotKey=document.getElementById('asSlot')?.value||'';
+    const hire=document.getElementById('asHire')?.value||'';
+    if(!name){toast('성함을 입력해주세요','err');return}
+    if(!_ADD_STAFF_SLOTS[slotKey]){toast('소속을 선택해주세요','err');return}
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(hire)){toast('입사일을 선택해주세요','err');return}
+    if(STAFF.some(s=>s.name===name)){toast(`이미 등록된 이름입니다 (${name})`,'err');return}
+    const slot=_ADD_STAFF_SLOTS[slotKey];
+    const row={name, dept:slot.dept, team:slot.team, color:slot.color, hire};
+    const btn=ev.target?.querySelector?.('.add-staff-submit');
+    if(btn){btn.disabled=true;btn.textContent='등록 중...'}
+    const r=await sbInsertStaffAdded(row);
+    if(btn){btn.disabled=false;btn.textContent='등록'}
+    if(!r.ok){
+      toast(`등록 실패 — ${r.reason||'잠시 후 다시 시도해주세요'}`,'err');
+      return;
+    }
+    // 로컬 병합 + 재렌더 (서버 fetch 대기 없이 즉시 반영)
+    mergeAddedStaff([row]);
+    renderOrgChartExtra();
+    if(document.getElementById('leaveGrid')) renderLeaveStatus();
+    closeAddStaffForm();
+    toast(`✓ ${name}님을 등록했습니다`,'ok');
+    // 다른 기기 sync는 다음 poll(60s)에서 자연 반영. 서버 최신 상태로 한번 더 pull.
+    syncStaffAddedFromRemote().catch(()=>{});
+  }
+  window.toggleAddStaffForm=toggleAddStaffForm;
+  window.closeAddStaffForm=closeAddStaffForm;
+  window.submitAddStaff=submitAddStaff;
 
   async function syncLeaveFromRemote(){
     const fresh=await sbFetchLeave();
