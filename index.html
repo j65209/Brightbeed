@@ -417,9 +417,15 @@
     padding:5px 12px;border-radius:20px;
     background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
     font-size:12px;color:#e2e8f0;font-family:var(--mono);
-    transition:all .15s;cursor:default;
+    transition:all .15s;cursor:pointer;user-select:none;
   }
-  .signage-brand-pill:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
+  .signage-brand-pill:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3)}
+  .signage-brand-pill.is-active{
+    background:rgba(163,230,53,.14);border-color:rgba(163,230,53,.55);
+    box-shadow:0 0 0 1px rgba(163,230,53,.35), 0 0 12px -2px rgba(163,230,53,.4);
+  }
+  .signage-brand-pill.is-active .pill-name{color:#f0fdf4}
+  .signage-brand-pill.is-active .pill-spend{color:#bef264}
   .signage-brand-pill .pill-dot{
     width:8px;height:8px;border-radius:50%;flex-shrink:0;
   }
@@ -6335,8 +6341,41 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">마케팅팀<span class="view-title-sub">/ 브랜드별 판매 순위</span></h1>
+      <h1 class="view-title">마케팅팀<span class="view-title-sub">/ 광고 전광판 · 판매 순위</span></h1>
     </div>
+
+    <!-- 광고 전광판 패널 (최상단) -->
+    <section class="ad-signage-panel" id="adSignagePanel">
+      <div class="signage-head">
+        <div class="signage-head-left">
+          <span class="signage-eyebrow">LIVE AD BOARD</span>
+          <span class="signage-title" id="signageTitle">지금 집행중인 광고 TOP</span>
+        </div>
+        <div class="signage-head-right">
+          <span class="signage-updated" id="signageUpdated">로딩 중...</span>
+          <button class="signage-refresh-btn" id="signageRefresh" type="button" onclick="renderAdSignage(true)" title="새로고침">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- 브랜드 필터 탭 (전체 + 각 브랜드) -->
+      <div class="signage-brand-strip" id="signageBrandStrip" role="tablist">
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+      </div>
+      <!-- 캠페인 카드 그리드 -->
+      <div class="signage-grid" id="signageGrid">
+        <div class="signage-card skel"></div>
+        <div class="signage-card skel"></div>
+        <div class="signage-card skel"></div>
+        <div class="signage-card skel"></div>
+      </div>
+    </section>
 
     <!-- 판매 순위 TOP 10 — 식스샵 통계 -->
     <section class="best-panel" id="bestPanel">
@@ -6374,38 +6413,6 @@
       </div>
     </section>
 
-    <!-- 광고 전광판 패널 -->
-    <section class="ad-signage-panel" id="adSignagePanel">
-      <div class="signage-head">
-        <div class="signage-head-left">
-          <span class="signage-eyebrow">LIVE AD BOARD</span>
-          <span class="signage-title">지금 집행중인 광고 TOP</span>
-        </div>
-        <div class="signage-head-right">
-          <span class="signage-updated" id="signageUpdated">로딩 중...</span>
-          <button class="signage-refresh-btn" id="signageRefresh" type="button" onclick="renderAdSignage(true)" title="새로고침">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          </button>
-        </div>
-      </div>
-      <!-- 브랜드 총액 스트립 -->
-      <div class="signage-brand-strip" id="signageBrandStrip">
-        <div class="signage-brand-pill skel"></div>
-        <div class="signage-brand-pill skel"></div>
-        <div class="signage-brand-pill skel"></div>
-        <div class="signage-brand-pill skel"></div>
-        <div class="signage-brand-pill skel"></div>
-        <div class="signage-brand-pill skel"></div>
-        <div class="signage-brand-pill skel"></div>
-      </div>
-      <!-- 캠페인 카드 그리드 -->
-      <div class="signage-grid" id="signageGrid">
-        <div class="signage-card skel"></div>
-        <div class="signage-card skel"></div>
-        <div class="signage-card skel"></div>
-        <div class="signage-card skel"></div>
-      </div>
-    </section>
   </div>
 
   <!-- ============ MD팀 (기획전 일정 + 시딩 재고 통합) ============ -->
@@ -7776,6 +7783,8 @@
   /* ===== 광고 전광판 (마케팅팀 뷰) ===== */
   let _signageLastFetch=0;
   let _signageBusy=false;
+  let _signageData=null;
+  let _signageBrandFilter='all';
 
   function _sigEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
@@ -7801,16 +7810,27 @@
     return '';
   }
 
-  function _sigRenderBrandStrip(brandTotals){
-    return brandTotals.map(b=>{
+  function _sigRenderBrandStrip(brandTotals, currentFilter){
+    const totalSpend=brandTotals.reduce((s,b)=>s+(+b.spend||0),0);
+    const totalCamps=brandTotals.reduce((s,b)=>s+(+b.active_camps||0),0);
+    const allActive=currentFilter==='all'?'is-active':'';
+    const allPill=`<div class="signage-brand-pill ${allActive}" data-brand="all" onclick="_sigSetFilter('all')">
+      <span class="pill-dot" style="background:linear-gradient(135deg,#a3e635,#22c55e)"></span>
+      <span class="pill-name">전체</span>
+      <span class="pill-spend">${_sigFmtMoney(totalSpend)}</span>
+      ${totalCamps>0?`<span class="pill-camps">(${totalCamps})</span>`:''}
+    </div>`;
+    const brandPills=brandTotals.map(b=>{
       const camps = b.active_camps>0 ? `<span class="pill-camps">(${b.active_camps})</span>` : '';
-      return `<div class="signage-brand-pill">
+      const cls=currentFilter===b.brand?'is-active':'';
+      return `<div class="signage-brand-pill ${cls}" data-brand="${_sigEsc(b.brand)}" onclick="_sigSetFilter('${_sigEsc(b.brand)}')">
         <span class="pill-dot" style="background:${_sigEsc(b.color)}"></span>
         <span class="pill-name">${_sigEsc(b.brand_name)}</span>
         <span class="pill-spend">${_sigFmtMoney(b.spend)}</span>
         ${camps}
       </div>`;
     }).join('');
+    return allPill+brandPills;
   }
 
   function _sigRenderCard(c){
@@ -7855,40 +7875,80 @@
     </div>`;
   }
 
-  async function renderAdSignage(force){
+  function _sigApplyFilter(){
     const grid=document.getElementById('signageGrid');
     const strip=document.getElementById('signageBrandStrip');
+    const titleEl=document.getElementById('signageTitle');
+    if(!grid || !_signageData) return;
+
+    const d=_signageData;
+    const active=(d.brand_totals||[]).filter(b=>b.active_camps>0);
+
+    // 스트립 (전체 + 브랜드 탭)
+    if(strip){
+      strip.innerHTML=active.length
+        ? _sigRenderBrandStrip(active, _signageBrandFilter)
+        : '<span style="color:rgba(148,163,184,.5);font-size:12px">집행중인 브랜드 없음</span>';
+    }
+
+    // 필터 적용된 캠페인
+    let camps=d.top_campaigns||[];
+    if(_signageBrandFilter!=='all'){
+      camps=camps.filter(c=>c.brand===_signageBrandFilter);
+    }
+    // 전체 = 상위 15개, 특정 브랜드 = 전부
+    const shown=_signageBrandFilter==='all' ? camps.slice(0,15) : camps;
+
+    // 타이틀 업데이트
+    if(titleEl){
+      if(_signageBrandFilter==='all'){
+        titleEl.textContent='지금 집행중인 광고 TOP';
+      } else {
+        const bn=(active.find(b=>b.brand===_signageBrandFilter)||{}).brand_name||_signageBrandFilter;
+        titleEl.textContent=bn+' · 집행중 광고 '+camps.length+'개';
+      }
+    }
+
+    if(shown.length){
+      // 필터 시 rank 재계산 (원본 전 브랜드 랭크 유지하면 헷갈림)
+      const cards=_signageBrandFilter==='all'
+        ? shown
+        : shown.map((c,i)=>({...c, rank:i+1}));
+      grid.innerHTML=cards.map(_sigRenderCard).join('');
+    } else {
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:rgba(148,163,184,.5);padding:40px 0;font-size:13px">집행중인 캠페인이 없습니다</div>';
+    }
+  }
+  window._sigApplyFilter=_sigApplyFilter;
+
+  function _sigSetFilter(brand){
+    if(_signageBrandFilter===brand) return;
+    _signageBrandFilter=brand;
+    _sigApplyFilter();
+  }
+  window._sigSetFilter=_sigSetFilter;
+
+  async function renderAdSignage(force){
+    const grid=document.getElementById('signageGrid');
     const updEl=document.getElementById('signageUpdated');
     const btn=document.getElementById('signageRefresh');
     if(!grid) return;
     // 30분 캐시 (force=true 로 새로고침 버튼 시 무시)
-    if(!force && Date.now()-_signageLastFetch < 30*60*1000) return;
+    if(!force && Date.now()-_signageLastFetch < 30*60*1000){
+      // 캐시 유효 — 필터만 재적용
+      if(_signageData) _sigApplyFilter();
+      return;
+    }
     if(_signageBusy) return;
     _signageBusy=true;
     if(btn) btn.classList.add('spin');
     try{
       const r=await fetch('data/meta-ads/all-brands-scoreboard.json?v='+Date.now());
       if(!r.ok) throw new Error('HTTP '+r.status);
-      const d=await r.json();
+      _signageData=await r.json();
       _signageLastFetch=Date.now();
-
-      // 브랜드 스트립
-      if(strip && d.brand_totals){
-        const active=d.brand_totals.filter(b=>b.active_camps>0);
-        strip.innerHTML=active.length
-          ? _sigRenderBrandStrip(active)
-          : '<span style="color:rgba(148,163,184,.5);font-size:12px">집행중인 브랜드 없음</span>';
-      }
-
-      // 캠페인 카드 (상위 15개)
-      const camps=(d.top_campaigns||[]).slice(0,15);
-      if(camps.length){
-        grid.innerHTML=camps.map(_sigRenderCard).join('');
-      } else {
-        grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:rgba(148,163,184,.5);padding:40px 0;font-size:13px">집행중인 캠페인이 없습니다</div>';
-      }
-
-      if(updEl) updEl.textContent='지난 7일 기준 · '+_sigTimeLabel(d.generated_at);
+      _sigApplyFilter();
+      if(updEl) updEl.textContent='지난 7일 기준 · '+_sigTimeLabel(_signageData.generated_at);
     } catch(e){
       console.warn('[signage] 로드 실패',e);
       if(updEl) updEl.textContent='데이터 로드 실패';
