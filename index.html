@@ -9740,7 +9740,35 @@
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
   function triggerVendor(){ showView('viewVendor'); }
-  function triggerMarketing(){ showView('viewMarketing'); if(typeof loadBestsellers==='function') loadBestsellers(); renderAdSignage(); }
+  /* 마케팅팀 진입 — 광고 전광판 우선 렌더, 판매순위는 지연 로드.
+     이유: 전광판(FB 썸네일 15장) + 판매순위(상품 이미지 80장 + 프록시 4s) 동시 로드 시
+     네트워크 커넥션 포화로 첫 진입이 10초. 전광판 먼저 뜨게 하고 판매순위는 데이터 확보 후 또는
+     스크롤 시 로드. */
+  let _bestDeferTimer=null;
+  let _bestObserver=null;
+  function _bestScheduleLoad(){
+    if(_bestObserver||_bestDeferTimer) return; // 이미 예약됨
+    const bestEl=document.getElementById('bestPanel');
+    const fire=()=>{
+      if(_bestObserver){ try{_bestObserver.disconnect()}catch(e){} _bestObserver=null; }
+      if(_bestDeferTimer){ clearTimeout(_bestDeferTimer); _bestDeferTimer=null; }
+      if(typeof loadBestsellers==='function') loadBestsellers();
+    };
+    // Intersection observer — 판매순위가 뷰포트 근처에 들어오면 즉시 로드
+    if(bestEl && 'IntersectionObserver' in window){
+      _bestObserver=new IntersectionObserver((entries)=>{
+        if(entries.some(e=>e.isIntersecting)) fire();
+      },{rootMargin:'400px'});
+      _bestObserver.observe(bestEl);
+    }
+    // 백업 타이머 — 스크롤 안 해도 3초 후 자동 로드 (전광판 이미지 로드 끝날 즈음)
+    _bestDeferTimer=setTimeout(fire, 3000);
+  }
+  function triggerMarketing(){
+    showView('viewMarketing');
+    renderAdSignage();
+    _bestScheduleLoad();
+  }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
   function triggerSixStock(){ showView('viewSixStock'); sixStockOpen(); }
 
