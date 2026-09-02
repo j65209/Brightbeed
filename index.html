@@ -2082,7 +2082,7 @@
   .md-cal-add{margin-left:0}
   .md-cal-body{padding:14px 18px 16px}
   .md-cal-weekdays{
-    display:grid;grid-template-columns:repeat(7,1fr);gap:0;
+    display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;
     margin-bottom:6px;padding:0 1px;
   }
   .md-cal-wd{
@@ -2092,7 +2092,7 @@
   .md-cal-wd.md-cal-sun{color:#e11d48}
   .md-cal-wd.md-cal-sat{color:#6ab7ff}
   .md-cal-grid{
-    display:grid;grid-template-columns:repeat(7,1fr);gap:0;
+    display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;
     border-top:1px solid var(--line);border-left:1px solid var(--line);
     border-radius:4px;overflow:hidden;
   }
