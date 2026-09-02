@@ -361,6 +361,194 @@
     .best-title{font-size:14.5px}
   }
 
+  /* ===== 광고 전광판 패널 (마케팅팀 뷰) ===== */
+  .ad-signage-panel{
+    margin-top:32px;
+    background:#0a0f0a;
+    border:1px solid rgba(132,204,22,.25);
+    border-radius:12px;
+    padding:22px 22px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  .ad-signage-panel::before{
+    content:'';position:absolute;left:0;top:0;height:3px;width:100%;
+    background:linear-gradient(90deg,#84cc16 0%,#22d3ee 35%,#a78bfa 65%,#fb7185 100%);
+    border-top-left-radius:12px;border-top-right-radius:12px;
+  }
+  .ad-signage-panel::after{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(132,204,22,.06) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .signage-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:18px;gap:10px;flex-wrap:wrap;position:relative;z-index:1;
+  }
+  .signage-head-left{display:flex;align-items:baseline;gap:12px}
+  .signage-eyebrow{
+    font-family:var(--mono);font-size:10px;color:#84cc16;
+    letter-spacing:.28em;text-transform:uppercase;
+    text-shadow:0 0 14px rgba(132,204,22,.7);
+  }
+  .signage-title{font-size:16px;font-weight:700;color:#f0fdf4;letter-spacing:-.01em}
+  .signage-head-right{display:flex;align-items:center;gap:10px}
+  .signage-updated{
+    font-family:var(--mono);font-size:10.5px;color:rgba(132,204,22,.65);
+    letter-spacing:.04em;
+  }
+  .signage-refresh-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:6px;
+    background:rgba(132,204,22,.1);border:1px solid rgba(132,204,22,.3);
+    color:#84cc16;cursor:pointer;transition:all .15s;flex-shrink:0;
+  }
+  .signage-refresh-btn:hover{background:rgba(132,204,22,.2);border-color:#84cc16;box-shadow:0 0 12px rgba(132,204,22,.35)}
+  .signage-refresh-btn svg{width:13px;height:13px}
+  .signage-refresh-btn.spin svg{animation:spin .9s linear infinite}
+
+  /* 브랜드 총액 스트립 */
+  .signage-brand-strip{
+    display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;
+    position:relative;z-index:1;
+  }
+  .signage-brand-pill{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:5px 12px;border-radius:20px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+    font-size:12px;color:#e2e8f0;font-family:var(--mono);
+    transition:all .15s;cursor:default;
+  }
+  .signage-brand-pill:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
+  .signage-brand-pill .pill-dot{
+    width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  }
+  .signage-brand-pill .pill-name{font-weight:600;font-size:11.5px;color:#cbd5e1}
+  .signage-brand-pill .pill-spend{font-weight:700;color:#f0fdf4}
+  .signage-brand-pill .pill-camps{font-size:10px;color:rgba(148,163,184,.7);margin-left:2px}
+  .signage-brand-pill.skel{
+    width:110px;height:30px;
+    background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 100%);
+    background-size:200% 100%;animation:bestSkel 1.4s ease-in-out infinite;
+    border-color:transparent;
+  }
+
+  /* 캠페인 카드 그리드 */
+  .signage-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    position:relative;z-index:1;
+  }
+  @media (max-width:1100px){.signage-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:600px){.signage-grid{grid-template-columns:1fr}}
+
+  .signage-card{
+    position:relative;border-radius:10px;overflow:hidden;
+    background:#111a11;border:1px solid rgba(255,255,255,.1);
+    cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s;
+    display:flex;flex-direction:column;
+  }
+  .signage-card:hover{
+    transform:translateY(-3px) scale(1.01);
+    box-shadow:0 12px 32px rgba(0,0,0,.45),0 0 0 1px rgba(132,204,22,.25);
+    border-color:rgba(132,204,22,.3);
+  }
+  .signage-card.skel{
+    height:260px;
+    background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.07) 50%,rgba(255,255,255,.04) 100%);
+    background-size:200% 100%;animation:bestSkel 1.4s ease-in-out infinite;
+    border-color:rgba(255,255,255,.06);cursor:default;
+  }
+  .signage-card.skel:hover{transform:none;box-shadow:none}
+
+  /* 썸네일 영역 */
+  .signage-thumb-wrap{
+    position:relative;width:100%;padding-top:62.5%;/* 16:9 */
+    background:#0d1a0d;overflow:hidden;flex-shrink:0;
+  }
+  .signage-thumb{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;display:block;
+    transition:transform .25s;
+  }
+  .signage-thumb-placeholder{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,.15);font-size:32px;
+  }
+  .signage-card:hover .signage-thumb{transform:scale(1.04)}
+  .signage-video-badge{
+    position:absolute;bottom:6px;left:6px;
+    background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+    padding:2px 7px;border-radius:4px;
+    font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.85);
+    letter-spacing:.05em;
+  }
+
+  /* 랭크 배지 */
+  .signage-rank-badge{
+    position:absolute;top:8px;right:8px;
+    width:26px;height:26px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:10.5px;font-weight:800;
+    color:#fff;z-index:2;
+    background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    border:1.5px solid rgba(255,255,255,.3);
+  }
+  .signage-rank-badge.rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:rgba(251,191,36,.6);box-shadow:0 0 14px rgba(251,191,36,.5)}
+  .signage-rank-badge.rank-2{background:linear-gradient(135deg,#e2e8f0,#94a3b8);border-color:rgba(226,232,240,.5)}
+  .signage-rank-badge.rank-3{background:linear-gradient(135deg,#fb923c,#c2410c);border-color:rgba(249,115,22,.5)}
+
+  /* 브랜드 배지 */
+  .signage-brand-badge{
+    position:absolute;top:8px;left:8px;
+    padding:3px 8px;border-radius:5px;
+    font-family:var(--mono);font-size:9.5px;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;
+    background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+    z-index:2;
+  }
+
+  /* 하단 정보 오버레이 */
+  .signage-card-body{
+    padding:10px 12px 12px;background:#0d1a0d;
+    display:flex;flex-direction:column;gap:6px;
+    flex:1;
+  }
+  .signage-camp-name{
+    font-size:12.5px;font-weight:600;color:#e2e8f0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    letter-spacing:-.01em;
+  }
+  .signage-kpi-row{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .signage-spend{
+    font-family:var(--mono);font-size:17px;font-weight:800;
+    color:#84cc16;letter-spacing:-.02em;
+    text-shadow:0 0 16px rgba(132,204,22,.45);
+  }
+  .signage-roas{
+    font-family:var(--mono);font-size:11.5px;color:rgba(148,163,184,.85);
+    padding:2px 7px;border-radius:4px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+  }
+  .signage-grade{font-size:14px}
+  .signage-hint-pill{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 8px;border-radius:12px;
+    background:rgba(132,204,22,.1);border:1px solid rgba(132,204,22,.2);
+    font-size:10.5px;color:#84cc16;font-family:var(--mono);
+    letter-spacing:.02em;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  }
+  .signage-ad-title{
+    font-size:11.5px;color:rgba(148,163,184,.75);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    line-height:1.35;
+  }
+
+  /* ===== 광고 전광판 패널 끝 ===== */
+
   /* 히어로 카드 — 인사팀/물류팀/브랜드별 재고관리 3개 나란히 */
   .hero-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
   .hero-row + .hero-row{margin-top:-24px}  /* 인접 row 간격 축소 (인사팀-물류팀 사이) */
@@ -6185,6 +6373,39 @@
         <div class="best-col"><div class="best-col-head"><span class="best-col-dot" style="background:#14b8a6"></span><span class="best-col-name">코즈미</span><span class="best-col-site">cos-mi</span></div><div class="best-skel"><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div><div class="best-skel-row"></div></div></div>
       </div>
     </section>
+
+    <!-- 광고 전광판 패널 -->
+    <section class="ad-signage-panel" id="adSignagePanel">
+      <div class="signage-head">
+        <div class="signage-head-left">
+          <span class="signage-eyebrow">LIVE AD BOARD</span>
+          <span class="signage-title">지금 집행중인 광고 TOP</span>
+        </div>
+        <div class="signage-head-right">
+          <span class="signage-updated" id="signageUpdated">로딩 중...</span>
+          <button class="signage-refresh-btn" id="signageRefresh" type="button" onclick="renderAdSignage(true)" title="새로고침">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- 브랜드 총액 스트립 -->
+      <div class="signage-brand-strip" id="signageBrandStrip">
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+        <div class="signage-brand-pill skel"></div>
+      </div>
+      <!-- 캠페인 카드 그리드 -->
+      <div class="signage-grid" id="signageGrid">
+        <div class="signage-card skel"></div>
+        <div class="signage-card skel"></div>
+        <div class="signage-card skel"></div>
+        <div class="signage-card skel"></div>
+      </div>
+    </section>
   </div>
 
   <!-- ============ MD팀 (기획전 일정 + 시딩 재고 통합) ============ -->
@@ -7551,6 +7772,136 @@
     }).join('');
     return `<div class="brep-card">${head}${hint}<div class="brep-rows">${rows}</div></div>`;
   }
+
+  /* ===== 광고 전광판 (마케팅팀 뷰) ===== */
+  let _signageLastFetch=0;
+  let _signageBusy=false;
+
+  function _sigEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+  function _sigFmtMoney(v){
+    v=Number(v)||0;
+    if(v>=1000) return '$'+(v/1000).toFixed(1).replace(/\.0$/,'')+'k';
+    return '$'+v.toFixed(0);
+  }
+
+  function _sigTimeLabel(iso){
+    try{
+      const d=new Date(iso);
+      const h=String(d.getHours()).padStart(2,'0');
+      const m=String(d.getMinutes()).padStart(2,'0');
+      return h+':'+m+' 갱신';
+    }catch(e){return ''}
+  }
+
+  function _sigRankClass(rank){
+    if(rank===1) return 'rank-1';
+    if(rank===2) return 'rank-2';
+    if(rank===3) return 'rank-3';
+    return '';
+  }
+
+  function _sigRenderBrandStrip(brandTotals){
+    return brandTotals.map(b=>{
+      const camps = b.active_camps>0 ? `<span class="pill-camps">(${b.active_camps})</span>` : '';
+      return `<div class="signage-brand-pill">
+        <span class="pill-dot" style="background:${_sigEsc(b.color)}"></span>
+        <span class="pill-name">${_sigEsc(b.brand_name)}</span>
+        <span class="pill-spend">${_sigFmtMoney(b.spend)}</span>
+        ${camps}
+      </div>`;
+    }).join('');
+  }
+
+  function _sigRenderCard(c){
+    const hero=c.hero_ad||{};
+    const thumbUrl=hero.thumbnail_url||hero.image_url||'';
+    const thumbEl=thumbUrl
+      ? `<img class="signage-thumb" src="${_sigEsc(thumbUrl)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    const placeholder=`<div class="signage-thumb-placeholder" style="${thumbUrl?'display:none':''}">📷</div>`;
+    const videoBadge=hero.is_video ? `<span class="signage-video-badge">VIDEO</span>` : '';
+
+    const rankCls=_sigRankClass(c.rank);
+    const rankBadge=`<div class="signage-rank-badge ${rankCls}">#${c.rank}</div>`;
+    const brandBadge=`<div class="signage-brand-badge" style="color:${_sigEsc(c.brand_color)};border:1px solid ${_sigEsc(c.brand_color)}40">${_sigEsc(c.brand_name)}</div>`;
+
+    const roasLabel=c.roas>0?`<span class="signage-roas">ROAS ${c.roas.toFixed(2)}</span>`:'';
+    const gradeEl=c.grade_icon?`<span class="signage-grade">${_sigEsc(c.grade_icon)}</span>`:'';
+
+    const hint=hero.landing_hint||'';
+    const hintPill=hint?`<div class="signage-hint-pill">${_sigEsc(hint)}</div>`:'';
+
+    const adText=hero.title||(hero.body||'').slice(0,80)||'';
+    const adTextEl=adText?`<div class="signage-ad-title">${_sigEsc(adText)}</div>`:'';
+
+    const campName=c.campaign_name||'';
+    const reportUrl=`meta-ads/report.html?brand=${encodeURIComponent(c.brand)}`;
+
+    return `<div class="signage-card" onclick="window.open('${reportUrl}','_blank')" title="${_sigEsc(campName)}">
+      <div class="signage-thumb-wrap">
+        ${thumbEl}${placeholder}${videoBadge}
+        ${rankBadge}${brandBadge}
+      </div>
+      <div class="signage-card-body">
+        <div class="signage-camp-name">${_sigEsc(campName)}</div>
+        <div class="signage-kpi-row">
+          <span class="signage-spend">${_sigFmtMoney(c.spend)}</span>
+          ${roasLabel}${gradeEl}
+        </div>
+        ${hintPill}
+        ${adTextEl}
+      </div>
+    </div>`;
+  }
+
+  async function renderAdSignage(force){
+    const grid=document.getElementById('signageGrid');
+    const strip=document.getElementById('signageBrandStrip');
+    const updEl=document.getElementById('signageUpdated');
+    const btn=document.getElementById('signageRefresh');
+    if(!grid) return;
+    // 30분 캐시 (force=true 로 새로고침 버튼 시 무시)
+    if(!force && Date.now()-_signageLastFetch < 30*60*1000) return;
+    if(_signageBusy) return;
+    _signageBusy=true;
+    if(btn) btn.classList.add('spin');
+    try{
+      const r=await fetch('data/meta-ads/all-brands-scoreboard.json?v='+Date.now());
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const d=await r.json();
+      _signageLastFetch=Date.now();
+
+      // 브랜드 스트립
+      if(strip && d.brand_totals){
+        const active=d.brand_totals.filter(b=>b.active_camps>0);
+        strip.innerHTML=active.length
+          ? _sigRenderBrandStrip(active)
+          : '<span style="color:rgba(148,163,184,.5);font-size:12px">집행중인 브랜드 없음</span>';
+      }
+
+      // 캠페인 카드 (상위 15개)
+      const camps=(d.top_campaigns||[]).slice(0,15);
+      if(camps.length){
+        grid.innerHTML=camps.map(_sigRenderCard).join('');
+      } else {
+        grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:rgba(148,163,184,.5);padding:40px 0;font-size:13px">집행중인 캠페인이 없습니다</div>';
+      }
+
+      if(updEl) updEl.textContent='지난 7일 기준 · '+_sigTimeLabel(d.generated_at);
+    } catch(e){
+      console.warn('[signage] 로드 실패',e);
+      if(updEl) updEl.textContent='데이터 로드 실패';
+      // 실패 시 스켈레톤 4개 유지
+      if(grid && !grid.querySelector('.signage-card:not(.skel)')){
+        grid.innerHTML='<div class="signage-card skel"></div>'.repeat(4);
+      }
+    } finally{
+      _signageBusy=false;
+      if(btn) btn.classList.remove('spin');
+    }
+  }
+  window.renderAdSignage=renderAdSignage;
 
   /* ===== 브랜드별 판매 순위 TOP 10 — 식스샵 통계 (홈 최상단 패널) =====
      proxy /sx/bestsellers?brand=all → 3 브랜드 병렬 fetch (~3~5초).
@@ -9163,7 +9514,7 @@
   function triggerCs(){ showView('viewCs'); }
   function triggerMd(){ showView('viewMd'); }
   function triggerVendor(){ showView('viewVendor'); }
-  function triggerMarketing(){ showView('viewMarketing'); if(typeof loadBestsellers==='function') loadBestsellers(); }
+  function triggerMarketing(){ showView('viewMarketing'); if(typeof loadBestsellers==='function') loadBestsellers(); renderAdSignage(); }
   function triggerStock(){ showView('viewStock'); if(typeof initStockView==='function') initStockView(); }
   function triggerSixStock(){ showView('viewSixStock'); sixStockOpen(); }
 
