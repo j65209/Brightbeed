@@ -407,33 +407,40 @@
   .signage-refresh-btn svg{width:13px;height:13px}
   .signage-refresh-btn.spin svg{animation:spin .9s linear infinite}
 
-  /* 브랜드 총액 스트립 */
+  /* 브랜드 탭 스트립 — 가로 스크롤, 브랜드별 뷰 메인 */
   .signage-brand-strip{
-    display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;
+    display:flex;flex-wrap:nowrap;gap:8px;margin-bottom:20px;
     position:relative;z-index:1;
+    overflow-x:auto;padding-bottom:4px;
+    scrollbar-width:thin;scrollbar-color:rgba(163,230,53,.25) transparent;
   }
+  .signage-brand-strip::-webkit-scrollbar{height:3px}
+  .signage-brand-strip::-webkit-scrollbar-track{background:transparent}
+  .signage-brand-strip::-webkit-scrollbar-thumb{background:rgba(163,230,53,.3);border-radius:2px}
   .signage-brand-pill{
     display:inline-flex;align-items:center;gap:7px;
-    padding:5px 12px;border-radius:20px;
+    padding:6px 14px;border-radius:20px;
     background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
     font-size:12px;color:#e2e8f0;font-family:var(--mono);
     transition:all .15s;cursor:pointer;user-select:none;
+    flex-shrink:0;
   }
   .signage-brand-pill:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3)}
   .signage-brand-pill.is-active{
-    background:rgba(163,230,53,.14);border-color:rgba(163,230,53,.55);
-    box-shadow:0 0 0 1px rgba(163,230,53,.35), 0 0 12px -2px rgba(163,230,53,.4);
+    background:rgba(163,230,53,.16);border-color:rgba(163,230,53,.65);
+    box-shadow:0 0 0 1px rgba(163,230,53,.4), 0 0 16px -2px rgba(163,230,53,.45);
   }
-  .signage-brand-pill.is-active .pill-name{color:#f0fdf4}
+  .signage-brand-pill.is-active .pill-name{color:#f0fdf4;font-weight:700}
   .signage-brand-pill.is-active .pill-spend{color:#bef264}
   .signage-brand-pill .pill-dot{
-    width:8px;height:8px;border-radius:50%;flex-shrink:0;
+    width:9px;height:9px;border-radius:50%;flex-shrink:0;
+    box-shadow:0 0 6px currentColor;
   }
-  .signage-brand-pill .pill-name{font-weight:600;font-size:11.5px;color:#cbd5e1}
+  .signage-brand-pill .pill-name{font-weight:600;font-size:12px;color:#cbd5e1}
   .signage-brand-pill .pill-spend{font-weight:700;color:#f0fdf4}
   .signage-brand-pill .pill-camps{font-size:10px;color:rgba(148,163,184,.7);margin-left:2px}
   .signage-brand-pill.skel{
-    width:110px;height:30px;
+    width:110px;height:34px;
     background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 100%);
     background-size:200% 100%;animation:bestSkel 1.4s ease-in-out infinite;
     border-color:transparent;
@@ -591,8 +598,17 @@
     padding:3px 8px;border-radius:12px;
     background:rgba(132,204,22,.1);border:1px solid rgba(132,204,22,.2);
     font-size:10.5px;color:#84cc16;font-family:var(--mono);
-    letter-spacing:.02em;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+    letter-spacing:.02em;max-width:100%;flex-wrap:wrap;row-gap:2px;
   }
+  .signage-hint-link{
+    color:#bef264;text-decoration:none;
+    padding:0 4px;border-radius:3px;
+    background:rgba(163,230,53,.15);border:1px solid rgba(163,230,53,.3);
+    font-size:9.5px;letter-spacing:.04em;
+    transition:background .12s,border-color .12s;
+    white-space:nowrap;
+  }
+  .signage-hint-link:hover{background:rgba(163,230,53,.28);border-color:rgba(163,230,53,.55)}
   .signage-ad-title{
     font-size:11.5px;color:rgba(148,163,184,.75);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -6395,7 +6411,7 @@
       <div class="signage-head">
         <div class="signage-head-left">
           <span class="signage-eyebrow">LIVE AD BOARD</span>
-          <span class="signage-title" id="signageTitle">지금 집행중인 광고 TOP</span>
+          <span class="signage-title" id="signageTitle">브랜드 선택 후 광고 확인</span>
         </div>
         <div class="signage-head-right">
           <span class="signage-updated" id="signageUpdated">로딩 중...</span>
@@ -7830,7 +7846,7 @@
   let _signageLastFetch=0;
   let _signageBusy=false;
   let _signageData=null;
-  let _signageBrandFilter='all';
+  let _signageBrandFilter='';
 
   function _sigEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
@@ -7857,15 +7873,6 @@
   }
 
   function _sigRenderBrandStrip(brandTotals, currentFilter){
-    const totalSpend=brandTotals.reduce((s,b)=>s+(+b.spend||0),0);
-    const totalCamps=brandTotals.reduce((s,b)=>s+(+b.active_camps||0),0);
-    const allActive=currentFilter==='all'?'is-active':'';
-    const allPill=`<div class="signage-brand-pill ${allActive}" data-brand="all" onclick="_sigSetFilter('all')">
-      <span class="pill-dot" style="background:linear-gradient(135deg,#a3e635,#22c55e)"></span>
-      <span class="pill-name">전체</span>
-      <span class="pill-spend">${_sigFmtMoney(totalSpend)}</span>
-      ${totalCamps>0?`<span class="pill-camps">(${totalCamps})</span>`:''}
-    </div>`;
     const brandPills=brandTotals.map(b=>{
       const camps = b.active_camps>0 ? `<span class="pill-camps">(${b.active_camps})</span>` : '';
       const cls=currentFilter===b.brand?'is-active':'';
@@ -7876,7 +7883,7 @@
         ${camps}
       </div>`;
     }).join('');
-    return allPill+brandPills;
+    return brandPills;
   }
 
   function _sigRenderCard(c){
@@ -7896,7 +7903,13 @@
     const gradeEl=c.grade_icon?`<span class="signage-grade">${_sigEsc(c.grade_icon)}</span>`:'';
 
     const hint=hero.landing_hint||'';
-    const hintPill=hint?`<div class="signage-hint-pill">${_sigEsc(hint)}</div>`:'';
+    const landingUrl=hero.landing_url||'';
+
+    // 랜딩페이지 힌트 + URL 링크 버튼
+    const hintPill=hint?`<div class="signage-hint-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      ${_sigEsc(hint)}${landingUrl?` <a class="signage-hint-link" href="${_sigEsc(landingUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="랜딩페이지 열기">바로가기</a>`:''}
+    </div>`:'';
 
     const adText=hero.title||(hero.body||'').slice(0,80)||'';
     const adTextEl=adText?`<div class="signage-ad-title">${_sigEsc(adText)}</div>`:'';
@@ -8049,36 +8062,30 @@
     const d=_signageData;
     const active=(d.brand_totals||[]).filter(b=>b.active_camps>0);
 
-    // 스트립 (전체 + 브랜드 탭)
+    // 필터가 미설정이거나 더 이상 활성 브랜드가 아닌 경우 → 첫 활성 브랜드로 자동 선택
+    if(!_signageBrandFilter || !active.find(b=>b.brand===_signageBrandFilter)){
+      _signageBrandFilter=active.length ? active[0].brand : '';
+    }
+
+    // 스트립 (브랜드 탭만, "전체" 없음)
     if(strip){
       strip.innerHTML=active.length
         ? _sigRenderBrandStrip(active, _signageBrandFilter)
         : '<span style="color:rgba(148,163,184,.5);font-size:12px">집행중인 브랜드 없음</span>';
     }
 
-    // 필터 적용된 캠페인
-    let camps=d.top_campaigns||[];
-    if(_signageBrandFilter!=='all'){
-      camps=camps.filter(c=>c.brand===_signageBrandFilter);
-    }
-    // 전체 = 상위 15개, 특정 브랜드 = 전부
-    const shown=_signageBrandFilter==='all' ? camps.slice(0,15) : camps;
+    // 선택 브랜드 캠페인만 표시
+    let camps=(d.top_campaigns||[]).filter(c=>c.brand===_signageBrandFilter);
 
     // 타이틀 업데이트
     if(titleEl){
-      if(_signageBrandFilter==='all'){
-        titleEl.textContent='지금 집행중인 광고 TOP';
-      } else {
-        const bn=(active.find(b=>b.brand===_signageBrandFilter)||{}).brand_name||_signageBrandFilter;
-        titleEl.textContent=bn+' · 집행중 광고 '+camps.length+'개';
-      }
+      const bn=(active.find(b=>b.brand===_signageBrandFilter)||{}).brand_name||_signageBrandFilter;
+      titleEl.textContent=bn+' · 집행중 광고 '+camps.length+'개';
     }
 
-    if(shown.length){
-      // 필터 시 rank 재계산 (원본 전 브랜드 랭크 유지하면 헷갈림)
-      const cards=_signageBrandFilter==='all'
-        ? shown
-        : shown.map((c,i)=>({...c, rank:i+1}));
+    if(camps.length){
+      // 브랜드 내 rank 재계산
+      const cards=camps.map((c,i)=>({...c, rank:i+1}));
       grid.innerHTML=cards.map(_sigRenderCard).join('');
       _sigBindPreviewHover();
     } else {
