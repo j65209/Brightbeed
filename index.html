@@ -1969,9 +1969,7 @@
   .cred-legacy-actions button:hover{background:rgba(220,38,38,.12)}
 
   body.role-viewer .master-only-text{display:none !important}
-  body.role-viewer .cred-toolbar-actions,
-  body.role-viewer .cred-card-actions,
-  body.role-viewer .cred-legacy-actions{display:none !important}
+  /* 사내 공지사항은 뷰어도 수정 가능 (pushNoticeToRemote가 forceMaster로 프록시 호출) */
 
   @media(max-width:600px){
     .cred-wrap{padding:12px}
