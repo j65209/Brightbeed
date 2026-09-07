@@ -2728,6 +2728,256 @@
     .md-cal-wd{font-size:9px;padding:2px 0}
   }
 
+  /* ===== 관리자 전용: 고정비용 캘린더 (viewFixedCosts) ===== */
+  .fx-add-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 12px;border-radius:6px;
+    background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;border:none;
+    font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.02em;
+    cursor:pointer;transition:filter .12s,transform .08s;
+    box-shadow:0 2px 6px rgba(225,29,72,.28);
+  }
+  .fx-add-btn:hover{filter:brightness(1.08)}
+  .fx-add-btn:active{transform:translateY(1px)}
+  .fx-wrap{max-width:1180px;margin:0 auto;padding:12px 18px 40px;display:flex;flex-direction:column;gap:18px}
+  .fx-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .fx-summary-card{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;display:flex;flex-direction:column;gap:6px;
+  }
+  .fx-summary-label{
+    font-size:10.5px;color:var(--text-3);font-family:var(--mono);
+    letter-spacing:.08em;text-transform:uppercase;
+  }
+  .fx-summary-value{
+    font-family:var(--sans);font-size:22px;font-weight:700;color:var(--text-0);
+    letter-spacing:-.01em;line-height:1.1;
+  }
+  .fx-summary-sub{font-size:11.5px;color:var(--text-2);font-family:var(--mono);letter-spacing:.02em}
+  @media (max-width:640px){
+    .fx-summary{grid-template-columns:1fr;gap:8px}
+    .fx-summary-card{padding:12px 14px}
+    .fx-summary-value{font-size:19px}
+  }
+  .fx-cal-section{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .fx-cal-head{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:12px 18px;border-bottom:1px solid var(--line);background:var(--bg-2);
+  }
+  .fx-cal-nav{display:inline-flex;align-items:center;gap:4px}
+  .btn-fx-cal-nav{
+    display:inline-flex;align-items:center;justify-content:center;
+    height:28px;min-width:44px;padding:0 10px;
+    font-size:11.5px;font-family:var(--mono);font-weight:500;color:var(--text-1);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:5px;
+    cursor:pointer;transition:all .12s;
+  }
+  .btn-fx-cal-nav:hover{background:var(--bg-3);border-color:var(--line-2);color:var(--text-0)}
+  .btn-fx-cal-nav.fx-cal-nav-arrow{font-size:17px;line-height:1;padding:0;min-width:30px;font-family:var(--sans);font-weight:600}
+  .fx-cal-monthlabel{
+    display:inline-block;min-width:100px;text-align:center;
+    font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--text-0);
+    letter-spacing:.04em;padding:0 8px;
+  }
+  .fx-cal-legend{display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .fx-legend-item{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:11px;color:var(--text-2);font-family:var(--mono);letter-spacing:.02em;
+  }
+  .fx-legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%}
+  .fx-cal-body{padding:14px 18px 16px}
+  .fx-cal-weekdays{
+    display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;
+    margin-bottom:6px;padding:0 1px;
+  }
+  .fx-cal-wd{
+    text-align:center;font-size:10.5px;color:var(--text-3);
+    font-family:var(--mono);font-weight:500;padding:4px 0;letter-spacing:.08em;
+  }
+  .fx-cal-wd.fx-cal-sun{color:#e11d48}
+  .fx-cal-wd.fx-cal-sat{color:#6ab7ff}
+  .fx-cal-grid{
+    display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;
+    border-top:1px solid var(--line);border-left:1px solid var(--line);
+    border-radius:4px;overflow:hidden;
+  }
+  .fx-cal-cell{
+    background:var(--bg-1);
+    min-height:104px;padding:5px 0 6px;
+    display:flex;flex-direction:column;gap:2px;
+    border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .fx-cal-cell.is-out{background:#f5f0e1}
+  .fx-cal-cell.is-today{box-shadow:inset 0 0 0 1.5px rgba(225,29,72,.55)}
+  .fx-cal-daynum{
+    font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text-1);
+    letter-spacing:.02em;padding:0 6px;height:18px;line-height:18px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .fx-cal-cell.is-out .fx-cal-daynum{opacity:.4}
+  .fx-cal-cell.is-sun .fx-cal-daynum{color:#e11d48}
+  .fx-cal-cell.is-sat .fx-cal-daynum{color:#6ab7ff}
+  .fx-cal-cell.is-today .fx-cal-daynum{color:#e11d48;font-weight:700}
+  .fx-cal-daysum{
+    font-family:var(--mono);font-size:10px;color:var(--text-3);font-weight:600;
+    letter-spacing:.02em;
+  }
+  .fx-cal-cell.has-items .fx-cal-daysum{color:var(--text-1)}
+  .fx-cal-items{display:flex;flex-direction:column;gap:2px;padding:0 3px;overflow:hidden}
+  .fx-cal-item{
+    --c:#e11d48;
+    display:flex;justify-content:space-between;align-items:center;gap:4px;
+    width:100%;padding:2px 6px;height:18px;line-height:14px;
+    font-size:10.5px;font-weight:500;letter-spacing:.01em;
+    background:color-mix(in srgb, var(--c) 22%, transparent);
+    color:var(--c);border:none;cursor:pointer;border-radius:3px;
+    white-space:nowrap;overflow:hidden;text-align:left;
+    transition:filter .12s;font-family:var(--sans);
+  }
+  .fx-cal-item:hover{filter:brightness(1.15) saturate(1.15)}
+  .fx-cal-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fx-cal-item-amt{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:0}
+  .fx-cal-more{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-2);font-weight:600;
+    padding:0 6px;line-height:14px;cursor:default;
+  }
+  @media (max-width:640px){
+    .fx-cal-body{padding:8px 6px 10px}
+    .fx-cal-cell{min-height:64px}
+    .fx-cal-daynum{font-size:9.5px;height:14px;line-height:14px;padding:0 4px}
+    .fx-cal-daysum{font-size:9px}
+    .fx-cal-item{font-size:9px;height:14px;line-height:12px;padding:1px 4px}
+    .fx-cal-item-amt{font-size:8.5px}
+    .fx-cal-wd{font-size:9px;padding:2px 0}
+  }
+  .fx-list-section{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .fx-list-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 18px;border-bottom:1px solid var(--line);background:var(--bg-2);
+  }
+  .fx-list-title{font-size:13px;font-weight:600;color:var(--text-0);letter-spacing:.02em}
+  .fx-list-meta{font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.04em}
+  .fx-list-body{padding:8px}
+  .fx-empty{padding:32px 18px;text-align:center;color:var(--text-3);font-size:12.5px}
+  .fx-empty b{color:var(--text-1)}
+  .fx-item{
+    display:grid;grid-template-columns:56px 1fr auto auto;gap:12px;align-items:center;
+    padding:12px 14px;border-radius:8px;cursor:pointer;transition:background .12s;
+    border:1px solid transparent;
+  }
+  .fx-item:hover{background:var(--bg-2);border-color:var(--line)}
+  .fx-item-day{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:52px;height:52px;border-radius:8px;
+    background:color-mix(in srgb, var(--c,#e11d48) 14%, transparent);
+    color:var(--c,#e11d48);
+  }
+  .fx-item-day-num{font-family:var(--mono);font-size:19px;font-weight:700;line-height:1}
+  .fx-item-day-lbl{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.06em;margin-top:2px;opacity:.85}
+  .fx-item-main{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .fx-item-name{font-size:13.5px;font-weight:600;color:var(--text-0);letter-spacing:.01em;display:flex;align-items:center;gap:8px}
+  .fx-item-cat-badge{
+    display:inline-block;padding:1px 6px;border-radius:3px;
+    font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.04em;
+    background:color-mix(in srgb, var(--c,#e11d48) 18%, transparent);
+    color:var(--c,#e11d48);text-transform:uppercase;
+  }
+  .fx-item-meta{
+    font-size:11.5px;color:var(--text-2);font-family:var(--mono);letter-spacing:.02em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .fx-item-amount{
+    font-family:var(--sans);font-size:15px;font-weight:700;color:var(--text-0);
+    letter-spacing:-.01em;text-align:right;
+  }
+  .fx-item-edit{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:6px;border:1px solid var(--line);
+    background:var(--bg-1);color:var(--text-2);cursor:pointer;transition:all .12s;
+    font-size:14px;line-height:1;
+  }
+  .fx-item-edit:hover{background:var(--bg-3);color:var(--text-0);border-color:var(--line-2)}
+  @media (max-width:640px){
+    .fx-item{grid-template-columns:44px 1fr auto;gap:8px;padding:10px 8px}
+    .fx-item-day{width:42px;height:42px}
+    .fx-item-day-num{font-size:16px}
+    .fx-item-day-lbl{font-size:7.5px}
+    .fx-item-edit{display:none}
+    .fx-item-amount{font-size:13.5px}
+    .fx-item-name{font-size:12.5px}
+  }
+  .fx-modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+  .fx-modal[hidden]{display:none}
+  .fx-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(2px)}
+  .fx-modal-panel{
+    position:relative;z-index:1;width:480px;max-width:100%;max-height:calc(100vh - 40px);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 24px 60px rgba(0,0,0,.32);
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .fx-modal-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 18px;border-bottom:1px solid var(--line);background:var(--bg-2);
+  }
+  .fx-modal-title{font-size:14px;font-weight:600;color:var(--text-0);letter-spacing:.01em}
+  .fx-modal-close{
+    background:transparent;border:none;font-size:22px;line-height:1;
+    color:var(--text-3);cursor:pointer;padding:0 4px;
+  }
+  .fx-modal-close:hover{color:var(--text-0)}
+  .fx-modal-body{padding:16px 18px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+  .fx-field{display:flex;flex-direction:column;gap:6px}
+  .fx-field-row{display:grid;grid-template-columns:1fr 140px;gap:12px}
+  .fx-field-day{min-width:0}
+  .fx-label{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-3);font-weight:500;
+    letter-spacing:.08em;text-transform:uppercase;
+  }
+  .fx-req{color:#e11d48;margin-left:2px}
+  .fx-input{
+    width:100%;padding:9px 11px;
+    font-family:var(--sans);font-size:13px;color:var(--text-0);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:6px;
+    transition:border-color .12s,box-shadow .12s;
+  }
+  .fx-input:focus{outline:none;border-color:#e11d48;box-shadow:0 0 0 3px rgba(225,29,72,.14)}
+  .fx-textarea{resize:vertical;min-height:56px;font-family:var(--sans)}
+  .fx-hint{font-size:10.5px;color:var(--text-3);letter-spacing:.02em}
+  .fx-cat-row{display:flex;gap:8px;flex-wrap:wrap}
+  .fx-cat-item{cursor:pointer;user-select:none}
+  .fx-cat-item input{display:none}
+  .fx-cat-badge{
+    display:inline-block;padding:6px 12px;border-radius:6px;
+    font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.02em;
+    background:color-mix(in srgb, var(--c,#e11d48) 12%, transparent);
+    color:var(--c,#e11d48);border:1.5px solid transparent;
+    transition:all .12s;
+  }
+  .fx-cat-item input:checked + .fx-cat-badge{
+    border-color:var(--c,#e11d48);
+    background:color-mix(in srgb, var(--c,#e11d48) 22%, transparent);
+  }
+  .fx-modal-actions{
+    display:flex;justify-content:flex-end;align-items:center;gap:8px;
+    padding-top:14px;border-top:1px solid var(--line);margin-top:2px;
+  }
+  .fx-spacer{flex:1}
+  .fx-btn{
+    padding:8px 14px;border-radius:6px;border:1px solid var(--line);
+    font-family:var(--sans);font-size:12.5px;font-weight:600;letter-spacing:.02em;
+    cursor:pointer;transition:all .12s;background:var(--bg-1);color:var(--text-1);
+  }
+  .fx-btn-ghost{background:transparent;color:var(--text-2)}
+  .fx-btn-ghost:hover{background:var(--bg-2);color:var(--text-0)}
+  .fx-btn-primary{background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;border-color:transparent}
+  .fx-btn-primary:hover{filter:brightness(1.08)}
+  .fx-btn-danger{background:transparent;color:#e11d48;border-color:rgba(225,29,72,.4)}
+  .fx-btn-danger:hover{background:rgba(225,29,72,.08)}
+  @media (max-width:520px){
+    .fx-field-row{grid-template-columns:1fr}
+  }
+
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
   .view{display:block}
   .view[hidden]{display:none}
@@ -7426,6 +7676,137 @@
     </div>
   </div>
 
+
+  <!-- ============ 관리자 전용 뷰: 고정비용 캘린더 (뷰어에게 CSS로 완전 숨김) ============ -->
+  <div class="view master-only" id="viewFixedCosts" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">고정비용 캘린더<span class="view-title-sub">/ 관리자 전용 · 월세 · 정기결제</span></h1>
+      <button type="button" class="fx-add-btn" onclick="fxOpenAddModal()" aria-label="항목 추가">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        항목 추가
+      </button>
+    </div>
+  
+    <div class="fx-wrap">
+      <!-- 요약 카드 -->
+      <div class="fx-summary">
+        <div class="fx-summary-card">
+          <div class="fx-summary-label">이번 달 총 고정비</div>
+          <div class="fx-summary-value" id="fxTotalMonth">₩0</div>
+          <div class="fx-summary-sub" id="fxTotalCount">0개 항목</div>
+        </div>
+        <div class="fx-summary-card">
+          <div class="fx-summary-label">남은 지출 (오늘 이후)</div>
+          <div class="fx-summary-value" id="fxRemainingMonth">₩0</div>
+          <div class="fx-summary-sub" id="fxRemainingCount">0건 예정</div>
+        </div>
+        <div class="fx-summary-card">
+          <div class="fx-summary-label">다음 지출</div>
+          <div class="fx-summary-value" id="fxNextValue">—</div>
+          <div class="fx-summary-sub" id="fxNextSub">등록된 항목이 없습니다</div>
+        </div>
+      </div>
+  
+      <!-- 캘린더 -->
+      <div class="fx-cal-section">
+        <div class="fx-cal-head">
+          <div class="fx-cal-nav">
+            <button class="btn-fx-cal-nav fx-cal-nav-arrow" onclick="fxCalPrev()" aria-label="이전 달">‹</button>
+            <span class="fx-cal-monthlabel" id="fxCalMonthLabel">—</span>
+            <button class="btn-fx-cal-nav fx-cal-nav-arrow" onclick="fxCalNext()" aria-label="다음 달">›</button>
+            <button class="btn-fx-cal-nav" onclick="fxCalToday()">오늘</button>
+          </div>
+          <div class="fx-cal-legend">
+            <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#e11d48"></span>월세·임대</span>
+            <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#f59e0b"></span>정기결제</span>
+            <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#0ea5e9"></span>인건비·기타</span>
+          </div>
+        </div>
+        <div class="fx-cal-body">
+          <div class="fx-cal-weekdays">
+            <div class="fx-cal-wd fx-cal-sun">SUN</div>
+            <div class="fx-cal-wd">MON</div>
+            <div class="fx-cal-wd">TUE</div>
+            <div class="fx-cal-wd">WED</div>
+            <div class="fx-cal-wd">THU</div>
+            <div class="fx-cal-wd">FRI</div>
+            <div class="fx-cal-wd fx-cal-sat">SAT</div>
+          </div>
+          <div class="fx-cal-grid" id="fxCalGrid"></div>
+        </div>
+      </div>
+  
+      <!-- 항목 리스트 -->
+      <div class="fx-list-section">
+        <div class="fx-list-head">
+          <div class="fx-list-title">📋 등록된 고정비 항목</div>
+          <div class="fx-list-meta" id="fxListMeta">0개</div>
+        </div>
+        <div class="fx-list-body" id="fxItemList">
+          <div class="fx-empty">아직 등록된 항목이 없습니다. 우측 상단 <b>+ 항목 추가</b> 버튼으로 시작하세요.</div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- 편집 모달 -->
+    <div class="fx-modal" id="fxModal" hidden>
+      <div class="fx-modal-backdrop" onclick="fxCloseModal()"></div>
+      <div class="fx-modal-panel" role="dialog" aria-modal="true">
+        <div class="fx-modal-head">
+          <div class="fx-modal-title" id="fxModalTitle">고정비 항목 추가</div>
+          <button class="fx-modal-close" onclick="fxCloseModal()" aria-label="닫기">×</button>
+        </div>
+        <form class="fx-modal-body" id="fxModalForm" onsubmit="fxSubmit(event)">
+          <input type="hidden" id="fxFieldId">
+          <div class="fx-field">
+            <label class="fx-label">항목명 <span class="fx-req">*</span></label>
+            <input class="fx-input" id="fxFieldName" type="text" required maxlength="40" placeholder="예) 사무실 월세, 인터넷, 넷플릭스">
+          </div>
+          <div class="fx-field-row">
+            <div class="fx-field">
+              <label class="fx-label">금액 (원) <span class="fx-req">*</span></label>
+              <input class="fx-input" id="fxFieldAmount" type="text" inputmode="numeric" required placeholder="예) 3,000,000" oninput="fxFormatAmountInput(this)">
+            </div>
+            <div class="fx-field fx-field-day">
+              <label class="fx-label">이체일 <span class="fx-req">*</span></label>
+              <select class="fx-input" id="fxFieldDay" required>
+                <option value="">선택</option>
+              </select>
+              <div class="fx-hint">매월 이 날짜에 반복</div>
+            </div>
+          </div>
+          <div class="fx-field">
+            <label class="fx-label">분류</label>
+            <div class="fx-cat-row">
+              <label class="fx-cat-item"><input type="radio" name="fxCat" value="rent" checked><span class="fx-cat-badge" style="--c:#e11d48">월세·임대</span></label>
+              <label class="fx-cat-item"><input type="radio" name="fxCat" value="subs"><span class="fx-cat-badge" style="--c:#f59e0b">정기결제</span></label>
+              <label class="fx-cat-item"><input type="radio" name="fxCat" value="etc"><span class="fx-cat-badge" style="--c:#0ea5e9">인건비·기타</span></label>
+            </div>
+          </div>
+          <div class="fx-field">
+            <label class="fx-label">계좌 · 결제처 (선택)</label>
+            <input class="fx-input" id="fxFieldAccount" type="text" maxlength="80" placeholder="예) 국민 123-45-678910 (임대인)">
+            <div class="fx-hint">계좌번호, 카드, 자동이체 정보 등</div>
+          </div>
+          <div class="fx-field">
+            <label class="fx-label">메모 (선택)</label>
+            <textarea class="fx-input fx-textarea" id="fxFieldMemo" rows="2" maxlength="200" placeholder="계약 만료일, 특이사항 등"></textarea>
+          </div>
+          <div class="fx-modal-actions">
+            <button type="button" class="fx-btn fx-btn-danger" id="fxDeleteBtn" style="display:none" onclick="fxDeleteFromModal()">삭제</button>
+            <span class="fx-spacer"></span>
+            <button type="button" class="fx-btn fx-btn-ghost" onclick="fxCloseModal()">취소</button>
+            <button type="submit" class="fx-btn fx-btn-primary">저장</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   </main>
 
   <footer class="footer">
@@ -7489,135 +7870,7 @@
   </div>
 </div>
 
-<!-- ============ 관리자 전용 뷰: 고정비용 캘린더 (뷰어에게 CSS로 완전 숨김) ============ -->
-<div class="view master-only" id="viewFixedCosts" hidden>
-  <div class="view-head">
-    <button class="btn-back" onclick="goHome()" aria-label="홈으로">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
-      홈
-    </button>
-    <h1 class="view-title">고정비용 캘린더<span class="view-title-sub">/ 관리자 전용 · 월세 · 정기결제</span></h1>
-    <button type="button" class="fx-add-btn" onclick="fxOpenAddModal()" aria-label="항목 추가">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      항목 추가
-    </button>
-  </div>
 
-  <div class="fx-wrap">
-    <!-- 요약 카드 -->
-    <div class="fx-summary">
-      <div class="fx-summary-card">
-        <div class="fx-summary-label">이번 달 총 고정비</div>
-        <div class="fx-summary-value" id="fxTotalMonth">₩0</div>
-        <div class="fx-summary-sub" id="fxTotalCount">0개 항목</div>
-      </div>
-      <div class="fx-summary-card">
-        <div class="fx-summary-label">남은 지출 (오늘 이후)</div>
-        <div class="fx-summary-value" id="fxRemainingMonth">₩0</div>
-        <div class="fx-summary-sub" id="fxRemainingCount">0건 예정</div>
-      </div>
-      <div class="fx-summary-card">
-        <div class="fx-summary-label">다음 지출</div>
-        <div class="fx-summary-value" id="fxNextValue">—</div>
-        <div class="fx-summary-sub" id="fxNextSub">등록된 항목이 없습니다</div>
-      </div>
-    </div>
-
-    <!-- 캘린더 -->
-    <div class="fx-cal-section">
-      <div class="fx-cal-head">
-        <div class="fx-cal-nav">
-          <button class="btn-fx-cal-nav fx-cal-nav-arrow" onclick="fxCalPrev()" aria-label="이전 달">‹</button>
-          <span class="fx-cal-monthlabel" id="fxCalMonthLabel">—</span>
-          <button class="btn-fx-cal-nav fx-cal-nav-arrow" onclick="fxCalNext()" aria-label="다음 달">›</button>
-          <button class="btn-fx-cal-nav" onclick="fxCalToday()">오늘</button>
-        </div>
-        <div class="fx-cal-legend">
-          <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#e11d48"></span>월세·임대</span>
-          <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#f59e0b"></span>정기결제</span>
-          <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#0ea5e9"></span>인건비·기타</span>
-        </div>
-      </div>
-      <div class="fx-cal-body">
-        <div class="fx-cal-weekdays">
-          <div class="fx-cal-wd fx-cal-sun">SUN</div>
-          <div class="fx-cal-wd">MON</div>
-          <div class="fx-cal-wd">TUE</div>
-          <div class="fx-cal-wd">WED</div>
-          <div class="fx-cal-wd">THU</div>
-          <div class="fx-cal-wd">FRI</div>
-          <div class="fx-cal-wd fx-cal-sat">SAT</div>
-        </div>
-        <div class="fx-cal-grid" id="fxCalGrid"></div>
-      </div>
-    </div>
-
-    <!-- 항목 리스트 -->
-    <div class="fx-list-section">
-      <div class="fx-list-head">
-        <div class="fx-list-title">📋 등록된 고정비 항목</div>
-        <div class="fx-list-meta" id="fxListMeta">0개</div>
-      </div>
-      <div class="fx-list-body" id="fxItemList">
-        <div class="fx-empty">아직 등록된 항목이 없습니다. 우측 상단 <b>+ 항목 추가</b> 버튼으로 시작하세요.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 편집 모달 -->
-  <div class="fx-modal" id="fxModal" hidden>
-    <div class="fx-modal-backdrop" onclick="fxCloseModal()"></div>
-    <div class="fx-modal-panel" role="dialog" aria-modal="true">
-      <div class="fx-modal-head">
-        <div class="fx-modal-title" id="fxModalTitle">고정비 항목 추가</div>
-        <button class="fx-modal-close" onclick="fxCloseModal()" aria-label="닫기">×</button>
-      </div>
-      <form class="fx-modal-body" id="fxModalForm" onsubmit="fxSubmit(event)">
-        <input type="hidden" id="fxFieldId">
-        <div class="fx-field">
-          <label class="fx-label">항목명 <span class="fx-req">*</span></label>
-          <input class="fx-input" id="fxFieldName" type="text" required maxlength="40" placeholder="예) 사무실 월세, 인터넷, 넷플릭스">
-        </div>
-        <div class="fx-field-row">
-          <div class="fx-field">
-            <label class="fx-label">금액 (원) <span class="fx-req">*</span></label>
-            <input class="fx-input" id="fxFieldAmount" type="text" inputmode="numeric" required placeholder="예) 3,000,000" oninput="fxFormatAmountInput(this)">
-          </div>
-          <div class="fx-field fx-field-day">
-            <label class="fx-label">이체일 <span class="fx-req">*</span></label>
-            <select class="fx-input" id="fxFieldDay" required>
-              <option value="">선택</option>
-            </select>
-            <div class="fx-hint">매월 이 날짜에 반복</div>
-          </div>
-        </div>
-        <div class="fx-field">
-          <label class="fx-label">분류</label>
-          <div class="fx-cat-row">
-            <label class="fx-cat-item"><input type="radio" name="fxCat" value="rent" checked><span class="fx-cat-badge" style="--c:#e11d48">월세·임대</span></label>
-            <label class="fx-cat-item"><input type="radio" name="fxCat" value="subs"><span class="fx-cat-badge" style="--c:#f59e0b">정기결제</span></label>
-            <label class="fx-cat-item"><input type="radio" name="fxCat" value="etc"><span class="fx-cat-badge" style="--c:#0ea5e9">인건비·기타</span></label>
-          </div>
-        </div>
-        <div class="fx-field">
-          <label class="fx-label">계좌 · 결제처 (선택)</label>
-          <input class="fx-input" id="fxFieldAccount" type="text" maxlength="80" placeholder="예) 국민 123-45-678910 (임대인)">
-          <div class="fx-hint">계좌번호, 카드, 자동이체 정보 등</div>
-        </div>
-        <div class="fx-field">
-          <label class="fx-label">메모 (선택)</label>
-          <textarea class="fx-input fx-textarea" id="fxFieldMemo" rows="2" maxlength="200" placeholder="계약 만료일, 특이사항 등"></textarea>
-        </div>
-        <div class="fx-modal-actions">
-          <button type="button" class="fx-btn fx-btn-danger" id="fxDeleteBtn" style="display:none" onclick="fxDeleteFromModal()">삭제</button>
-          <span class="fx-spacer"></span>
-          <button type="button" class="fx-btn fx-btn-ghost" onclick="fxCloseModal()">취소</button>
-          <button type="submit" class="fx-btn fx-btn-primary">저장</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <!-- 기획전 호버 툴팁 -->
 <div class="md-cal-tooltip" id="mdCalTooltip" hidden></div>
@@ -9774,8 +10027,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report'};
+  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -9838,6 +10091,15 @@
     }
     if(id==='viewDiary'){
       if(typeof initDiaryView==='function') initDiaryView();
+    }
+    if(id==='viewFixedCosts'){
+      // 뷰어 접근 방어 (해시 직입력·구 링크로 진입 시)
+      if(!isMaster()){
+        toast('관리자 전용 화면입니다','err');
+        applyView('viewHome');
+        return;
+      }
+      if(typeof fxRenderView==='function') fxRenderView();
     }
   }
 
@@ -16835,12 +17097,372 @@
 
   /* 업무용 툴 폴더 — 카드 개수 자동 카운트 (자기 섹션 내부만) */
   (function(){
-    const el = document.getElementById('subModulesCount');
-    if(!el) return;
-    const section = el.closest('.sub-modules-section');
-    if(!section) return;
-    el.textContent = section.querySelectorAll('.sub-modules > .sub-module').length;
+    ['subModulesCount','adminModulesCount'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      const section = el.closest('.sub-modules-section');
+      if(!section) return;
+      el.textContent = section.querySelectorAll('.sub-modules > .sub-module').length;
+    });
   })();
+
+  /* ===== 관리자 전용 · 고정비용 캘린더 (localStorage 저장) ===== */
+  const FX_KEY = 'brightbeed_fixed_costs_v1';
+  const FX_CATS = {
+    rent: {label:'월세·임대', color:'#e11d48', short:'RENT'},
+    subs: {label:'정기결제', color:'#f59e0b', short:'SUBS'},
+    etc:  {label:'인건비·기타', color:'#0ea5e9', short:'ETC'},
+  };
+  const _fxState = (()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth(),items:null};})();
+
+  function fxLoad(){
+    if(_fxState.items) return _fxState.items;
+    try{
+      const raw = localStorage.getItem(FX_KEY);
+      if(raw){
+        const p = JSON.parse(raw);
+        if(Array.isArray(p?.items)) _fxState.items = p.items;
+      }
+    }catch(e){}
+    if(!_fxState.items) _fxState.items = [];
+    return _fxState.items;
+  }
+  function fxSave(){
+    try{
+      localStorage.setItem(FX_KEY, JSON.stringify({items:_fxState.items||[], updatedAt:Date.now()}));
+    }catch(e){ if(typeof toast==='function') toast('저장 실패 (스토리지)','err'); }
+  }
+  function fxKrw(n){
+    const v = Math.round(Number(n)||0);
+    return '₩' + v.toLocaleString('ko-KR');
+  }
+  function fxParseAmount(s){
+    const digits = String(s||'').replace(/[^\d]/g,'');
+    return digits ? parseInt(digits,10) : 0;
+  }
+  function fxFormatAmountInput(inp){
+    const v = fxParseAmount(inp.value);
+    inp.value = v ? v.toLocaleString('ko-KR') : '';
+  }
+  window.fxFormatAmountInput = fxFormatAmountInput;
+
+  function fxTriggerFixedCosts(){
+    if(typeof isMaster==='function' && !isMaster()){
+      if(typeof toast==='function') toast('관리자 전용 화면입니다','err');
+      return;
+    }
+    showView('viewFixedCosts');
+  }
+  window.triggerFixedCosts = fxTriggerFixedCosts;
+
+  function fxRenderView(){
+    fxLoad();
+    fxRenderCalendar();
+    fxRenderSummary();
+    fxRenderList();
+  }
+  window.fxRenderView = fxRenderView;
+
+  function fxMonthLabel(y,m){ return `${y}년 ${m+1}월`; }
+  function fxDaysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+
+  function fxRenderCalendar(){
+    const y = _fxState.year, m = _fxState.month;
+    const label = document.getElementById('fxCalMonthLabel');
+    if(label) label.textContent = fxMonthLabel(y,m);
+
+    const grid = document.getElementById('fxCalGrid');
+    if(!grid) return;
+
+    const items = fxLoad();
+    // day → items[]
+    const byDay = {};
+    items.forEach(it=>{
+      if(!it || !it.active) return;
+      const d = Math.min(Math.max(parseInt(it.day,10)||1,1), fxDaysInMonth(y,m));
+      (byDay[d] = byDay[d] || []).push(it);
+    });
+
+    const first = new Date(y, m, 1);
+    const startDow = first.getDay(); // 0=Sun
+    const days = fxDaysInMonth(y,m);
+    const prevDays = fxDaysInMonth(y, m-1);
+
+    const today = new Date();
+    const isThisMonth = today.getFullYear()===y && today.getMonth()===m;
+    const todayD = today.getDate();
+
+    const cells = [];
+    // leading (prev month)
+    for(let i=startDow-1; i>=0; i--){
+      const d = prevDays - i;
+      cells.push({d, out:true, dow:(startDow-1-i)});
+    }
+    // this month
+    for(let d=1; d<=days; d++){
+      const dow = (startDow + d - 1) % 7;
+      cells.push({d, out:false, dow});
+    }
+    // trailing (next month) — fill to 6 rows (42) or minimum to fill last row
+    while(cells.length % 7 !== 0) {
+      const d = cells.length - (startDow + days) + 1;
+      const dow = cells.length % 7;
+      cells.push({d, out:true, dow});
+    }
+    while(cells.length < 42){
+      const d = cells.length - (startDow + days) + 1;
+      const dow = cells.length % 7;
+      cells.push({d, out:true, dow});
+    }
+
+    grid.innerHTML = cells.map(c=>{
+      const dayItems = c.out ? [] : (byDay[c.d]||[]);
+      const isToday = !c.out && isThisMonth && c.d===todayD;
+      const dowClass = c.dow===0 ? 'is-sun' : (c.dow===6 ? 'is-sat' : '');
+      const outClass = c.out ? 'is-out' : '';
+      const todayClass = isToday ? 'is-today' : '';
+      const hasClass = dayItems.length ? 'has-items' : '';
+      const daySum = dayItems.reduce((s,it)=>s + (Number(it.amount)||0), 0);
+      const shown = dayItems.slice(0, 3);
+      const rest = dayItems.length - shown.length;
+      const itemsHtml = shown.map(it=>{
+        const cat = FX_CATS[it.category] || FX_CATS.rent;
+        const amtShort = fxKrwShort(it.amount);
+        return `<button type="button" class="fx-cal-item" style="--c:${cat.color}" onclick="event.stopPropagation();fxOpenEditModal('${it.id}')" title="${_fxEsc(it.name)} · ${fxKrw(it.amount)}"><span class="fx-cal-item-name">${_fxEsc(it.name)}</span><span class="fx-cal-item-amt">${amtShort}</span></button>`;
+      }).join('');
+      const moreHtml = rest>0 ? `<div class="fx-cal-more">+${rest}</div>` : '';
+      const sumHtml = daySum>0 ? `<span class="fx-cal-daysum">${fxKrwShort(daySum)}</span>` : '';
+      return `<div class="fx-cal-cell ${outClass} ${dowClass} ${todayClass} ${hasClass}"><div class="fx-cal-daynum"><span>${c.d}</span>${sumHtml}</div><div class="fx-cal-items">${itemsHtml}${moreHtml}</div></div>`;
+    }).join('');
+  }
+
+  function fxKrwShort(n){
+    const v = Math.round(Number(n)||0);
+    if(v>=10000000) return (v/10000000).toFixed(v%10000000?1:0).replace(/\.0$/,'') + '천만';
+    if(v>=10000) return (v/10000).toFixed(v%10000?1:0).replace(/\.0$/,'') + '만';
+    if(v>=1000) return (v/1000).toFixed(0) + '천';
+    return String(v);
+  }
+
+  function fxRenderSummary(){
+    const items = fxLoad().filter(it=>it && it.active);
+    const total = items.reduce((s,it)=>s + (Number(it.amount)||0), 0);
+    const totalEl = document.getElementById('fxTotalMonth');
+    const totalCnt = document.getElementById('fxTotalCount');
+    if(totalEl) totalEl.textContent = fxKrw(total);
+    if(totalCnt) totalCnt.textContent = `${items.length}개 항목`;
+
+    const today = new Date();
+    const isThisMonth = today.getFullYear()===_fxState.year && today.getMonth()===_fxState.month;
+    const days = fxDaysInMonth(_fxState.year, _fxState.month);
+    const thresh = isThisMonth ? today.getDate() : (_fxState.year<today.getFullYear() || (_fxState.year===today.getFullYear() && _fxState.month<today.getMonth()) ? days+1 : 0);
+    const remaining = items.filter(it=>{
+      const d = Math.min(Math.max(parseInt(it.day,10)||1,1), days);
+      return d >= thresh;
+    });
+    const remSum = remaining.reduce((s,it)=>s + (Number(it.amount)||0), 0);
+    const remEl = document.getElementById('fxRemainingMonth');
+    const remCnt = document.getElementById('fxRemainingCount');
+    if(remEl) remEl.textContent = fxKrw(remSum);
+    if(remCnt) remCnt.textContent = `${remaining.length}건 예정`;
+
+    // 다음 지출: 오늘 이후 가장 가까운 항목 (이번 달 남은 것 우선, 없으면 다음 달)
+    const nextEl = document.getElementById('fxNextValue');
+    const nextSub = document.getElementById('fxNextSub');
+    if(nextEl && nextSub){
+      if(items.length===0){
+        nextEl.textContent = '—';
+        nextSub.textContent = '등록된 항목이 없습니다';
+      }else{
+        const now = new Date();
+        const upcoming = items.map(it=>{
+          const d = Math.min(Math.max(parseInt(it.day,10)||1,1), 28);
+          const cand = new Date(now.getFullYear(), now.getMonth(), d);
+          if(cand < new Date(now.getFullYear(), now.getMonth(), now.getDate())){
+            cand.setMonth(cand.getMonth()+1);
+          }
+          return {it, when:cand};
+        }).sort((a,b)=>a.when-b.when);
+        const top = upcoming[0];
+        if(top){
+          nextEl.textContent = fxKrw(top.it.amount);
+          const mm = String(top.when.getMonth()+1).padStart(2,'0');
+          const dd = String(top.when.getDate()).padStart(2,'0');
+          nextSub.textContent = `${mm}.${dd} · ${top.it.name}`;
+        }
+      }
+    }
+  }
+
+  function fxRenderList(){
+    const items = fxLoad().slice().sort((a,b)=>{
+      const da = parseInt(a.day,10)||1;
+      const db = parseInt(b.day,10)||1;
+      if(da!==db) return da-db;
+      return (b.amount||0) - (a.amount||0);
+    });
+    const meta = document.getElementById('fxListMeta');
+    if(meta) meta.textContent = `${items.length}개`;
+    const body = document.getElementById('fxItemList');
+    if(!body) return;
+    if(items.length===0){
+      body.innerHTML = `<div class="fx-empty">아직 등록된 항목이 없습니다. 우측 상단 <b>+ 항목 추가</b> 버튼으로 시작하세요.</div>`;
+      return;
+    }
+    body.innerHTML = items.map(it=>{
+      const cat = FX_CATS[it.category] || FX_CATS.rent;
+      const account = it.account ? _fxEsc(it.account) : '<span style="opacity:.5">계좌 정보 없음</span>';
+      const memo = it.memo ? ` · ${_fxEsc(it.memo)}` : '';
+      const inactive = it.active===false ? ' · <span style="color:#f59e0b">일시중지</span>' : '';
+      return `<div class="fx-item" style="--c:${cat.color}" onclick="fxOpenEditModal('${it.id}')">
+        <div class="fx-item-day"><div class="fx-item-day-num">${parseInt(it.day,10)||1}</div><div class="fx-item-day-lbl">일</div></div>
+        <div class="fx-item-main">
+          <div class="fx-item-name">${_fxEsc(it.name)} <span class="fx-item-cat-badge">${cat.short}</span></div>
+          <div class="fx-item-meta">${account}${memo}${inactive}</div>
+        </div>
+        <div class="fx-item-amount">${fxKrw(it.amount)}</div>
+        <button class="fx-item-edit" type="button" onclick="event.stopPropagation();fxOpenEditModal('${it.id}')" title="편집">✎</button>
+      </div>`;
+    }).join('');
+  }
+
+  function _fxEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function fxCalPrev(){
+    _fxState.month--;
+    if(_fxState.month<0){ _fxState.month=11; _fxState.year--; }
+    fxRenderCalendar();
+    fxRenderSummary();
+  }
+  function fxCalNext(){
+    _fxState.month++;
+    if(_fxState.month>11){ _fxState.month=0; _fxState.year++; }
+    fxRenderCalendar();
+    fxRenderSummary();
+  }
+  function fxCalToday(){
+    const n = new Date();
+    _fxState.year = n.getFullYear();
+    _fxState.month = n.getMonth();
+    fxRenderCalendar();
+    fxRenderSummary();
+  }
+  window.fxCalPrev = fxCalPrev;
+  window.fxCalNext = fxCalNext;
+  window.fxCalToday = fxCalToday;
+
+  function _fxUUID(){
+    return 'fx_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  }
+
+  function _fxPopulateDayOptions(){
+    const sel = document.getElementById('fxFieldDay');
+    if(!sel || sel.options.length>1) return;
+    for(let d=1; d<=31; d++){
+      const o = document.createElement('option');
+      o.value = String(d);
+      o.textContent = `${d}일`;
+      sel.appendChild(o);
+    }
+  }
+
+  function fxOpenAddModal(){
+    if(typeof requireMaster==='function' && !requireMaster('고정비 항목 추가')) return;
+    _fxPopulateDayOptions();
+    document.getElementById('fxModalTitle').textContent = '고정비 항목 추가';
+    document.getElementById('fxFieldId').value = '';
+    document.getElementById('fxFieldName').value = '';
+    document.getElementById('fxFieldAmount').value = '';
+    document.getElementById('fxFieldDay').value = '';
+    document.getElementById('fxFieldAccount').value = '';
+    document.getElementById('fxFieldMemo').value = '';
+    const rentRadio = document.querySelector('input[name="fxCat"][value="rent"]');
+    if(rentRadio) rentRadio.checked = true;
+    document.getElementById('fxDeleteBtn').style.display = 'none';
+    document.getElementById('fxModal').hidden = false;
+    setTimeout(()=>document.getElementById('fxFieldName').focus(), 50);
+  }
+  window.fxOpenAddModal = fxOpenAddModal;
+
+  function fxOpenEditModal(id){
+    if(typeof requireMaster==='function' && !requireMaster('고정비 항목 편집')) return;
+    _fxPopulateDayOptions();
+    const items = fxLoad();
+    const it = items.find(x=>x.id===id);
+    if(!it){ if(typeof toast==='function') toast('항목을 찾을 수 없습니다','err'); return; }
+    document.getElementById('fxModalTitle').textContent = '고정비 항목 편집';
+    document.getElementById('fxFieldId').value = it.id;
+    document.getElementById('fxFieldName').value = it.name || '';
+    document.getElementById('fxFieldAmount').value = it.amount ? Number(it.amount).toLocaleString('ko-KR') : '';
+    document.getElementById('fxFieldDay').value = String(it.day||'');
+    document.getElementById('fxFieldAccount').value = it.account || '';
+    document.getElementById('fxFieldMemo').value = it.memo || '';
+    const catRadio = document.querySelector(`input[name="fxCat"][value="${it.category||'rent'}"]`);
+    if(catRadio) catRadio.checked = true;
+    document.getElementById('fxDeleteBtn').style.display = '';
+    document.getElementById('fxModal').hidden = false;
+  }
+  window.fxOpenEditModal = fxOpenEditModal;
+
+  function fxCloseModal(){
+    const m = document.getElementById('fxModal');
+    if(m) m.hidden = true;
+  }
+  window.fxCloseModal = fxCloseModal;
+
+  function fxSubmit(ev){
+    ev.preventDefault();
+    if(typeof requireMaster==='function' && !requireMaster('고정비 저장')) return;
+    const id = document.getElementById('fxFieldId').value || _fxUUID();
+    const name = document.getElementById('fxFieldName').value.trim();
+    const amount = fxParseAmount(document.getElementById('fxFieldAmount').value);
+    const day = parseInt(document.getElementById('fxFieldDay').value, 10);
+    const account = document.getElementById('fxFieldAccount').value.trim();
+    const memo = document.getElementById('fxFieldMemo').value.trim();
+    const catInput = document.querySelector('input[name="fxCat"]:checked');
+    const category = catInput ? catInput.value : 'rent';
+
+    if(!name){ if(typeof toast==='function') toast('항목명을 입력하세요','err'); return; }
+    if(!amount || amount<=0){ if(typeof toast==='function') toast('금액을 입력하세요','err'); return; }
+    if(!day || day<1 || day>31){ if(typeof toast==='function') toast('이체일을 선택하세요','err'); return; }
+
+    const items = fxLoad();
+    const existing = items.find(x=>x.id===id);
+    if(existing){
+      Object.assign(existing, {name, amount, day, account, memo, category});
+    }else{
+      items.push({id, name, amount, day, account, memo, category, active:true, createdAt:Date.now()});
+    }
+    fxSave();
+    fxCloseModal();
+    fxRenderView();
+    if(typeof toast==='function') toast(existing ? '수정되었습니다' : '추가되었습니다');
+  }
+  window.fxSubmit = fxSubmit;
+
+  function fxDeleteFromModal(){
+    if(typeof requireMaster==='function' && !requireMaster('고정비 삭제')) return;
+    const id = document.getElementById('fxFieldId').value;
+    if(!id) return;
+    const items = fxLoad();
+    const it = items.find(x=>x.id===id);
+    if(!it) return;
+    if(!confirm(`"${it.name}" 항목을 삭제하시겠습니까?`)) return;
+    _fxState.items = items.filter(x=>x.id!==id);
+    fxSave();
+    fxCloseModal();
+    fxRenderView();
+    if(typeof toast==='function') toast('삭제되었습니다');
+  }
+  window.fxDeleteFromModal = fxDeleteFromModal;
+
+  // ESC 로 모달 닫기
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){
+      const m = document.getElementById('fxModal');
+      if(m && !m.hidden) fxCloseModal();
+    }
+  });
 
   /* ===== 벤더팀 — 공구 일정 캘린더 (brightbeed@gmail.com 공개 iCal, /cal 프록시) ===== */
   const _gcCal = (()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth(),events:[],loaded:false,loading:false,error:null};})();
