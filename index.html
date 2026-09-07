@@ -5829,6 +5829,23 @@
       </div>
     </div>
 
+    <!-- 관리자 전용 폴더 (뷰어에겐 CSS로 완전 숨김) -->
+    <div class="sub-modules-section master-only sub-modules-admin">
+      <div class="sub-modules-eyebrow">
+        <span class="folder-icon">🔒</span>
+        <span class="folder-label">관리자 전용</span>
+        <span class="folder-meta"><b id="adminModulesCount">—</b> 도구</span>
+      </div>
+      <div class="sub-modules">
+        <div class="sub-module m-fixed" onclick="triggerFixedCosts()">
+          <div class="sub-module-icon">💰</div>
+          <div class="sub-module-title">고정비용 캘린더</div>
+          <div class="sub-module-sub">월세 · 정기결제 · 계좌 관리 (마스터 전용)</div>
+          <div class="sub-module-tag">ADMIN</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /viewHome -->
 
   <!-- ============ 인사팀 뷰: 조직도 ============ -->
@@ -7269,7 +7286,7 @@
           </select>
           <div class="pc-toolbar-spacer"></div>
           <div class="pc-count" id="pcSelCount">0개 선택됨</div>
-          <button class="pc-btn ghost" onclick="pcReloadCatalog()">↻ 새로고침</button>
+          <button id="pcSyncBtn" class="pc-btn" onclick="pcReloadCatalog()" title="Google 시트에서 최신 상품 목록 다시 불러오기">🔄 최신 제품 동기화</button>
         </div>
         <div class="pc-product-table-wrap">
           <table class="pc-product-table">
@@ -7468,6 +7485,136 @@
       <span class="md-event-actions-spacer"></span>
       <button class="modal-btn" id="mdEventCancelBtn">취소</button>
       <button class="modal-btn modal-btn-primary" id="mdEventSaveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 관리자 전용 뷰: 고정비용 캘린더 (뷰어에게 CSS로 완전 숨김) ============ -->
+<div class="view master-only" id="viewFixedCosts" hidden>
+  <div class="view-head">
+    <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+      홈
+    </button>
+    <h1 class="view-title">고정비용 캘린더<span class="view-title-sub">/ 관리자 전용 · 월세 · 정기결제</span></h1>
+    <button type="button" class="fx-add-btn" onclick="fxOpenAddModal()" aria-label="항목 추가">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      항목 추가
+    </button>
+  </div>
+
+  <div class="fx-wrap">
+    <!-- 요약 카드 -->
+    <div class="fx-summary">
+      <div class="fx-summary-card">
+        <div class="fx-summary-label">이번 달 총 고정비</div>
+        <div class="fx-summary-value" id="fxTotalMonth">₩0</div>
+        <div class="fx-summary-sub" id="fxTotalCount">0개 항목</div>
+      </div>
+      <div class="fx-summary-card">
+        <div class="fx-summary-label">남은 지출 (오늘 이후)</div>
+        <div class="fx-summary-value" id="fxRemainingMonth">₩0</div>
+        <div class="fx-summary-sub" id="fxRemainingCount">0건 예정</div>
+      </div>
+      <div class="fx-summary-card">
+        <div class="fx-summary-label">다음 지출</div>
+        <div class="fx-summary-value" id="fxNextValue">—</div>
+        <div class="fx-summary-sub" id="fxNextSub">등록된 항목이 없습니다</div>
+      </div>
+    </div>
+
+    <!-- 캘린더 -->
+    <div class="fx-cal-section">
+      <div class="fx-cal-head">
+        <div class="fx-cal-nav">
+          <button class="btn-fx-cal-nav fx-cal-nav-arrow" onclick="fxCalPrev()" aria-label="이전 달">‹</button>
+          <span class="fx-cal-monthlabel" id="fxCalMonthLabel">—</span>
+          <button class="btn-fx-cal-nav fx-cal-nav-arrow" onclick="fxCalNext()" aria-label="다음 달">›</button>
+          <button class="btn-fx-cal-nav" onclick="fxCalToday()">오늘</button>
+        </div>
+        <div class="fx-cal-legend">
+          <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#e11d48"></span>월세·임대</span>
+          <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#f59e0b"></span>정기결제</span>
+          <span class="fx-legend-item"><span class="fx-legend-dot" style="background:#0ea5e9"></span>인건비·기타</span>
+        </div>
+      </div>
+      <div class="fx-cal-body">
+        <div class="fx-cal-weekdays">
+          <div class="fx-cal-wd fx-cal-sun">SUN</div>
+          <div class="fx-cal-wd">MON</div>
+          <div class="fx-cal-wd">TUE</div>
+          <div class="fx-cal-wd">WED</div>
+          <div class="fx-cal-wd">THU</div>
+          <div class="fx-cal-wd">FRI</div>
+          <div class="fx-cal-wd fx-cal-sat">SAT</div>
+        </div>
+        <div class="fx-cal-grid" id="fxCalGrid"></div>
+      </div>
+    </div>
+
+    <!-- 항목 리스트 -->
+    <div class="fx-list-section">
+      <div class="fx-list-head">
+        <div class="fx-list-title">📋 등록된 고정비 항목</div>
+        <div class="fx-list-meta" id="fxListMeta">0개</div>
+      </div>
+      <div class="fx-list-body" id="fxItemList">
+        <div class="fx-empty">아직 등록된 항목이 없습니다. 우측 상단 <b>+ 항목 추가</b> 버튼으로 시작하세요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 편집 모달 -->
+  <div class="fx-modal" id="fxModal" hidden>
+    <div class="fx-modal-backdrop" onclick="fxCloseModal()"></div>
+    <div class="fx-modal-panel" role="dialog" aria-modal="true">
+      <div class="fx-modal-head">
+        <div class="fx-modal-title" id="fxModalTitle">고정비 항목 추가</div>
+        <button class="fx-modal-close" onclick="fxCloseModal()" aria-label="닫기">×</button>
+      </div>
+      <form class="fx-modal-body" id="fxModalForm" onsubmit="fxSubmit(event)">
+        <input type="hidden" id="fxFieldId">
+        <div class="fx-field">
+          <label class="fx-label">항목명 <span class="fx-req">*</span></label>
+          <input class="fx-input" id="fxFieldName" type="text" required maxlength="40" placeholder="예) 사무실 월세, 인터넷, 넷플릭스">
+        </div>
+        <div class="fx-field-row">
+          <div class="fx-field">
+            <label class="fx-label">금액 (원) <span class="fx-req">*</span></label>
+            <input class="fx-input" id="fxFieldAmount" type="text" inputmode="numeric" required placeholder="예) 3,000,000" oninput="fxFormatAmountInput(this)">
+          </div>
+          <div class="fx-field fx-field-day">
+            <label class="fx-label">이체일 <span class="fx-req">*</span></label>
+            <select class="fx-input" id="fxFieldDay" required>
+              <option value="">선택</option>
+            </select>
+            <div class="fx-hint">매월 이 날짜에 반복</div>
+          </div>
+        </div>
+        <div class="fx-field">
+          <label class="fx-label">분류</label>
+          <div class="fx-cat-row">
+            <label class="fx-cat-item"><input type="radio" name="fxCat" value="rent" checked><span class="fx-cat-badge" style="--c:#e11d48">월세·임대</span></label>
+            <label class="fx-cat-item"><input type="radio" name="fxCat" value="subs"><span class="fx-cat-badge" style="--c:#f59e0b">정기결제</span></label>
+            <label class="fx-cat-item"><input type="radio" name="fxCat" value="etc"><span class="fx-cat-badge" style="--c:#0ea5e9">인건비·기타</span></label>
+          </div>
+        </div>
+        <div class="fx-field">
+          <label class="fx-label">계좌 · 결제처 (선택)</label>
+          <input class="fx-input" id="fxFieldAccount" type="text" maxlength="80" placeholder="예) 국민 123-45-678910 (임대인)">
+          <div class="fx-hint">계좌번호, 카드, 자동이체 정보 등</div>
+        </div>
+        <div class="fx-field">
+          <label class="fx-label">메모 (선택)</label>
+          <textarea class="fx-input fx-textarea" id="fxFieldMemo" rows="2" maxlength="200" placeholder="계약 만료일, 특이사항 등"></textarea>
+        </div>
+        <div class="fx-modal-actions">
+          <button type="button" class="fx-btn fx-btn-danger" id="fxDeleteBtn" style="display:none" onclick="fxDeleteFromModal()">삭제</button>
+          <span class="fx-spacer"></span>
+          <button type="button" class="fx-btn fx-btn-ghost" onclick="fxCloseModal()">취소</button>
+          <button type="submit" class="fx-btn fx-btn-primary">저장</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -18632,12 +18779,17 @@
   async function pcLoadCatalog(force){
     const s=window._pcv2;
     const stEl=document.getElementById('pcCatalogStatus');
+    const btnEl=document.getElementById('pcSyncBtn');
     if(s.loading) return;
     if(!force && s.catalog.length){ pcPopulateCatFilter(); pcRenderProductTable(); return; }
     s.loading=true;
+    const prevNames=new Set((s.catalog||[]).map(x=>x.name));
     if(stEl){stEl.textContent='시트 불러오는 중...'; stEl.className='pc-panel-meta';}
+    if(btnEl){btnEl.disabled=true; btnEl.textContent='동기화 중...';}
     try{
-      const r=await fetch(PC_SHEET_URL,{cache:'no-cache'});
+      // Cache-buster: Google gviz caches for ~5-15 min; append timestamp so we always get fresh sheet data
+      const url=PC_SHEET_URL+'&_t='+Date.now();
+      const r=await fetch(url,{cache:'no-store'});
       if(!r.ok) throw new Error('HTTP '+r.status);
       const csv=await r.text();
       const rows=_pcParseCSV(csv);
@@ -18668,7 +18820,18 @@
       pcRenderProductTable();
       const hh=String(s.lastLoadedAt.getHours()).padStart(2,'0');
       const mm=String(s.lastLoadedAt.getMinutes()).padStart(2,'0');
-      if(stEl){stEl.textContent=`${items.length}개 상품 로드됨 · ${hh}:${mm}`; stEl.className='pc-panel-meta';}
+      const newOnes=(force && prevNames.size) ? items.filter(x=>!prevNames.has(x.name)).map(x=>x.name) : [];
+      if(stEl){
+        let msg=`${items.length}개 상품 · ${hh}:${mm} 동기화됨`;
+        if(newOnes.length) msg+=` · <b style="color:#059669">+${newOnes.length}개 신규</b>`;
+        stEl.innerHTML=msg;
+        stEl.className='pc-panel-meta';
+      }
+      if(force && newOnes.length){
+        pcToast(`${newOnes.length}개 신규 상품 추가됨: ${newOnes.slice(0,3).join(', ')}${newOnes.length>3?' 외':''}`);
+      } else if(force){
+        pcToast(`최신 상태 (${items.length}개 상품)`);
+      }
     }catch(e){
       console.error('pcLoadCatalog',e);
       if(stEl){
@@ -18677,10 +18840,28 @@
       }
       const tb=document.getElementById('pcProductBody');
       if(tb) tb.innerHTML='<tr><td colspan="7" class="pc-product-empty">시트 로드 실패. 인터넷 연결 또는 시트 공개 여부를 확인하세요.</td></tr>';
-    }finally{s.loading=false;}
+      if(force) pcToast('동기화 실패 — 인터넷 확인');
+    }finally{
+      s.loading=false;
+      if(btnEl){btnEl.disabled=false; btnEl.textContent='🔄 최신 제품 동기화';}
+    }
   }
 
   function pcReloadCatalog(){ pcLoadCatalog(true); }
+
+  function pcToast(msg){
+    let t=document.getElementById('pcToast');
+    if(!t){
+      t=document.createElement('div');
+      t.id='pcToast';
+      t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .18s;max-width:80vw;text-align:center';
+      document.body.appendChild(t);
+    }
+    t.textContent=msg;
+    t.style.opacity='1';
+    clearTimeout(t._h);
+    t._h=setTimeout(()=>{ t.style.opacity='0'; }, 3200);
+  }
 
   function pcPopulateCatFilter(){
     const sel=document.getElementById('pcCatFilter'); if(!sel) return;
