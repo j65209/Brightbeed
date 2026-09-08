@@ -4791,6 +4791,57 @@
   .dcs-req:hover .dcs-req-del{opacity:.7}
   .dcs-req-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
+  /* ===== 공용 브랜드 순위 리스트 (MD 월매출, 마케팅 광고지출) ===== */
+  .brand-rank-section .po-section-head{padding-bottom:10px}
+  .brand-rank-note{font-size:11.5px;color:var(--text-2);font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  .brand-rank-list{display:flex;flex-direction:column;gap:6px}
+  .brand-rank-item{
+    display:grid;grid-template-columns:28px auto 1fr auto;gap:12px;align-items:center;
+    padding:10px 14px;border-radius:9px;border:1px solid var(--line);background:var(--bg-1);
+    transition:border-color .15s ease, background .15s ease, transform .15s ease;
+  }
+  .brand-rank-item:hover{border-color:var(--line-2);background:var(--bg-2)}
+  .brand-rank-item.is-first{border-color:#f6d99a;background:linear-gradient(180deg,#fffbeb 0%,var(--bg-1) 80%)}
+  .brand-rank-item.is-loading{opacity:.6}
+  .brand-rank-pos{
+    font-family:var(--mono);font-size:14px;font-weight:800;
+    color:var(--text-1);font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-align:center;
+  }
+  .brand-rank-item.is-first .brand-rank-pos{color:#a16207}
+  .brand-rank-dot{
+    width:10px;height:10px;border-radius:50%;flex-shrink:0;
+    box-shadow:0 0 0 3px rgba(0,0,0,.04);
+  }
+  .brand-rank-name{
+    display:inline-flex;align-items:center;gap:8px;min-width:0;
+    font-size:13.5px;font-weight:700;color:var(--text-0);letter-spacing:-.015em;
+  }
+  .brand-rank-name-sub{
+    font-size:11px;color:var(--text-2);font-weight:500;letter-spacing:-.005em;
+  }
+  .brand-rank-bar-wrap{
+    position:relative;height:6px;border-radius:999px;background:rgba(0,0,0,.05);overflow:hidden;
+  }
+  .brand-rank-bar{
+    position:absolute;top:0;left:0;height:100%;border-radius:999px;transition:width .35s ease;
+  }
+  .brand-rank-val{
+    display:inline-flex;flex-direction:column;align-items:flex-end;gap:1px;
+    font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1.1;
+  }
+  .brand-rank-val-num{font-size:14px;font-weight:800;color:var(--text-0);letter-spacing:-.02em}
+  .brand-rank-val-sub{font-size:10.5px;color:var(--text-2);font-weight:600;letter-spacing:-.005em}
+  .brand-rank-empty{
+    padding:16px;text-align:center;color:var(--text-2);font-size:12.5px;
+    border:1px dashed var(--line);border-radius:9px;letter-spacing:-.01em;
+  }
+  @media (max-width:600px){
+    .brand-rank-item{grid-template-columns:24px auto 1fr auto;gap:8px;padding:8px 12px}
+    .brand-rank-name{font-size:12.5px}
+    .brand-rank-val-num{font-size:12.5px}
+    .brand-rank-name-sub{display:none}
+  }
+
   /* 주간/월 계획 리스트 — 요청과 비슷하지만 작성일 배지 있음, 완료 시 자동 제거 */
   .dcs-plan-list{display:flex;flex-direction:column;gap:5px}
   .dcs-plan{
@@ -6740,6 +6791,17 @@
       </div>
     </section>
 
+    <!-- 브랜드별 광고 지출 순위 (all-brands-scoreboard.brand_totals) -->
+    <section class="po-section brand-rank-section" id="adSpendRankSection" style="margin-bottom:18px">
+      <div class="po-section-head">
+        <div class="po-section-title">광고 지출 순위 <span class="po-section-meta-inline" id="adSpendRankSub">지난 7일 · 브랜드별 합계</span></div>
+        <div class="po-section-meta">
+          <span id="adSpendRankNote" class="brand-rank-note"></span>
+        </div>
+      </div>
+      <div id="adSpendRankList" class="brand-rank-list"></div>
+    </section>
+
     <!-- 판매 순위 TOP 10 — 식스샵 통계 -->
     <section class="best-panel" id="bestPanel">
       <div class="best-head">
@@ -6788,6 +6850,17 @@
       <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전 · 브랜드별 실시간 매출</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="po-wrap">
+
+      <!-- 브랜드 월매출 순위 (최근 30일 매출 기준, salesLoad에서 revenue 취합 후 렌더) -->
+      <div class="po-section brand-rank-section" style="margin-bottom:18px">
+        <div class="po-section-head">
+          <div class="po-section-title">브랜드 월매출 순위 <span class="po-section-meta-inline">최근 30일 매출 합계</span></div>
+          <div class="po-section-meta">
+            <span id="salesRankNote" class="brand-rank-note"></span>
+          </div>
+        </div>
+        <div id="salesRankList" class="brand-rank-list"></div>
+      </div>
 
       <!-- 브랜드별 실시간 매출 (식스샵 + 식스샵프로) — JS가 카드 5개 자동 생성 -->
       <div class="po-section" style="padding:0;background:transparent;border:none">
@@ -8544,6 +8617,7 @@
     if(!force && Date.now()-_signageLastFetch < 30*60*1000){
       // 캐시 유효 — 필터만 재적용
       if(_signageData) _sigApplyFilter();
+      if(typeof _renderAdSpendRank==='function') _renderAdSpendRank();
       return;
     }
     if(_signageBusy) return;
@@ -8556,6 +8630,8 @@
       _signageLastFetch=Date.now();
       _sigApplyFilter();
       if(updEl) updEl.textContent='지난 7일 기준 · '+_sigTimeLabel(_signageData.generated_at);
+      // 광고 지출 순위 패널 동기 렌더 (signage와 동일 데이터)
+      if(typeof _renderAdSpendRank==='function') _renderAdSpendRank();
     } catch(e){
       console.warn('[signage] 로드 실패',e);
       if(updEl) updEl.textContent='데이터 로드 실패';
@@ -8799,6 +8875,7 @@
   ];
   const _salesBusy={};   // id → bool
   const _salesLast={};   // id → timestamp
+  const _salesRev30={};  // id → 최근 30일 매출(KRW) — 브랜드 월매출 순위 집계용
   function _akoiEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   function _akoiFmtKrw(n){
     n=Number(n)||0;
@@ -8959,6 +9036,10 @@
         : '<div class="akoi-empty">아직 판매 데이터가 없습니다.</div>';
       _salesLast[id]=Date.now();
       _salesRenderUpdated(id, j.fetchedAt);
+      // 브랜드 월매출 순위 집계
+      const rev30=Number((j.summary||{}).thirtyDays?.revenue)||0;
+      _salesRev30[id]=rev30;
+      _renderSalesRankPanel();
     }catch(e){
       body.innerHTML=`<div class="akoi-err">${_akoiEsc(e.message||e)}</div>`;
     }finally{
@@ -8973,6 +9054,7 @@
   }
   function salesEnsureLoaded(){
     _salesInitCards();
+    _renderSalesRankPanel();  // 로딩 중 상태로 즉시 그리기
     BRAND_SECTIONS.forEach(cfg => salesLoad(cfg.id, false));
     salesStartPolling();
   }
@@ -8989,6 +9071,103 @@
   window.salesEnsureLoaded=salesEnsureLoaded;
   // Legacy shim — 기존 viewMd 진입 hook은 akoiSalesEnsureLoaded()를 부르므로 유지
   window.akoiSalesEnsureLoaded=salesEnsureLoaded;
+
+  /* ===== 브랜드 월매출 순위 (MD팀 뷰 상단) =====
+     · _salesRev30 을 로드된 브랜드 순으로 정렬 후 렌더
+     · 아직 로드 안 된 브랜드는 '…' 로 표시 (bar 0%) */
+  function _renderSalesRankPanel(){
+    const list=document.getElementById('salesRankList');
+    const note=document.getElementById('salesRankNote');
+    if(!list) return;
+    const rows=BRAND_SECTIONS.map(cfg=>({
+      id: cfg.id,
+      display: cfg.display,
+      group: cfg.group,
+      dot: cfg.dot,
+      rev: (_salesRev30[cfg.id] != null) ? _salesRev30[cfg.id] : null,
+    }));
+    // 값 있는 것 위, 없는 것 아래 (매출 내림차순)
+    rows.sort((a,b)=>{
+      const av=(a.rev==null)?-1:a.rev;
+      const bv=(b.rev==null)?-1:b.rev;
+      return bv-av;
+    });
+    const maxRev=Math.max(1, ...rows.map(r=>r.rev||0));
+    const loadedN=rows.filter(r=>r.rev!=null).length;
+    if(note){
+      note.textContent = loadedN===rows.length
+        ? `총 ${_akoiFmtKrw(rows.reduce((s,r)=>s+(r.rev||0),0))} · 8개 브랜드`
+        : `${loadedN} / ${rows.length} 브랜드 로드됨`;
+    }
+    list.innerHTML = rows.map((r,i)=>{
+      const isLoaded = r.rev != null;
+      const pct = isLoaded ? Math.max(2, Math.round((r.rev/maxRev)*100)) : 0;
+      const numHtml = isLoaded
+        ? `<span class="brand-rank-val-num">₩${_akoiEsc(_akoiFmtKrw(r.rev))}</span><span class="brand-rank-val-sub">${_akoiEsc(_akoiFmtUsd(r.rev))}</span>`
+        : `<span class="brand-rank-val-num" style="opacity:.5">…</span>`;
+      return `<div class="brand-rank-item${i===0 && isLoaded ? ' is-first' : ''}${isLoaded ? '' : ' is-loading'}">
+        <span class="brand-rank-pos">${i+1}</span>
+        <span class="brand-rank-dot" style="background:${r.dot}"></span>
+        <span class="brand-rank-name">${_akoiEsc(r.display)}<span class="brand-rank-name-sub">${_akoiEsc(r.group)}</span></span>
+        <span class="brand-rank-val">${numHtml}</span>
+        <div class="brand-rank-bar-wrap" style="grid-column:1 / -1;margin-top:2px"><div class="brand-rank-bar" style="width:${pct}%;background:${r.dot}"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ===== 브랜드 광고 지출 순위 (마케팅팀 뷰) =====
+     · all-brands-scoreboard.json 의 brand_totals 사용 (이미 spend 내림차순)
+     · signage가 이미 fetch 했으면 캐시 재사용, 아니면 직접 fetch */
+  async function _renderAdSpendRank(force){
+    const list=document.getElementById('adSpendRankList');
+    const note=document.getElementById('adSpendRankNote');
+    const sub =document.getElementById('adSpendRankSub');
+    if(!list) return;
+    let data=_signageData;
+    if(!data || force){
+      try{
+        const r=await fetch('data/meta-ads/all-brands-scoreboard.json?v='+Date.now());
+        if(r.ok) data=await r.json();
+      }catch(e){ /* silent */ }
+    }
+    const totals=Array.isArray(data && data.brand_totals) ? data.brand_totals.slice() : [];
+    if(!totals.length){
+      list.innerHTML='<div class="brand-rank-empty">광고 지출 데이터 없음</div>';
+      if(note) note.textContent='';
+      return;
+    }
+    totals.sort((a,b)=>(Number(b.spend)||0)-(Number(a.spend)||0));
+    const usdKrw=Number(data && data.usd_krw)||_USD_KRW;
+    const maxSpend=Math.max(1, ...totals.map(b=>Number(b.spend)||0));
+    const totalSpend=totals.reduce((s,b)=>s+(Number(b.spend)||0),0);
+    if(sub){
+      const period=(data && data.period) || 'last_7d';
+      const label=period==='last_7d' ? '지난 7일' : period==='last_28d' ? '지난 28일' : period;
+      sub.textContent=`${label} · 브랜드별 합계`;
+    }
+    if(note){
+      note.textContent=`총 $${_akoiEsc(totalSpend.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ','))} · ${totals.length}개 브랜드`;
+    }
+    list.innerHTML=totals.map((b,i)=>{
+      const spend=Number(b.spend)||0;
+      const krw=Math.round(spend*usdKrw);
+      const pct=Math.max(2, Math.round((spend/maxSpend)*100));
+      const dot=b.color||'#94a3b8';
+      const camps=Number(b.active_camps)||0;
+      const sub=camps ? `활성 캠페인 ${camps}개` : '';
+      return `<div class="brand-rank-item${i===0 ? ' is-first' : ''}">
+        <span class="brand-rank-pos">${i+1}</span>
+        <span class="brand-rank-dot" style="background:${dot}"></span>
+        <span class="brand-rank-name">${_akoiEsc(b.brand_name||b.brand||'')}${sub ? `<span class="brand-rank-name-sub">${_akoiEsc(sub)}</span>` : ''}</span>
+        <span class="brand-rank-val">
+          <span class="brand-rank-val-num">$${_akoiEsc(spend.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ','))}</span>
+          <span class="brand-rank-val-sub">₩${_akoiEsc(_akoiFmtKrw(krw))}</span>
+        </span>
+        <div class="brand-rank-bar-wrap" style="grid-column:1 / -1;margin-top:2px"><div class="brand-rank-bar" style="width:${pct}%;background:${dot}"></div></div>
+      </div>`;
+    }).join('');
+  }
+  window._renderAdSpendRank=_renderAdSpendRank;
 
   /* ===== 재고연동 뷰 — 180도 케이블 통합 매핑 =====
      데이터 모델 (data/stock-cables.json):
