@@ -4791,6 +4791,40 @@
   .dcs-req:hover .dcs-req-del{opacity:.7}
   .dcs-req-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
+  /* 주간/월 계획 리스트 — 요청과 비슷하지만 작성일 배지 있음, 완료 시 자동 제거 */
+  .dcs-plan-list{display:flex;flex-direction:column;gap:5px}
+  .dcs-plan{
+    display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;
+    padding:7px 10px;border-radius:8px;border:1px solid #f0ebda;
+    background:#fff;transition:all .18s ease;
+  }
+  .dcs-plan:hover{border-color:#eae7dc;background:#fdfbf3}
+  .dcs-plan.removing{opacity:0;transform:translateX(6px);pointer-events:none}
+  .dcs-plan-check{
+    width:16px;height:16px;border-radius:5px;border:1.5px solid #d5cfb8;
+    background:#fff;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;transition:all .15s ease;
+  }
+  .dcs-plan-check:hover{border-color:#eab308;background:#fffbeb}
+  .dcs-plan-check svg{width:10px;height:10px;opacity:0;transition:opacity .12s}
+  .dcs-plan-text{
+    font-size:13.5px;color:#1c1917;line-height:1.5;outline:none;
+    word-break:break-word;padding:1px 2px;border-radius:4px;letter-spacing:-.01em;font-weight:500;
+  }
+  .dcs-plan-text:empty::before{content:'계획 내용';color:#78716c;font-weight:500}
+  .dcs-plan-text:focus{background:#fffbeb}
+  .dcs-plan-date{
+    font-size:10.5px;color:#78716c;font-weight:600;
+    padding:2px 7px;border-radius:5px;background:#f4f0e3;
+    font-variant-numeric:tabular-nums;letter-spacing:-.005em;white-space:nowrap;
+  }
+  .dcs-plan-del{
+    background:none;color:#57534e;padding:2px 5px;border-radius:5px;
+    opacity:0;transition:all .15s ease;font-size:12px;
+  }
+  .dcs-plan:hover .dcs-plan-del{opacity:.7}
+  .dcs-plan-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
+
   /* 할 일 (체크리스트) */
   .dcs-task-list{display:flex;flex-direction:column;gap:2px}
   .dcs-task{
@@ -4847,7 +4881,9 @@
     .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto 1fr auto}
     .dcs-req-from{grid-column:2;justify-self:start;font-size:10px}
     .dcs-req-del{grid-row:1;grid-column:3}
-    .dcs-req-text,.dcs-task-text{font-size:12px}
+    .dcs-req-text,.dcs-task-text,.dcs-plan-text{font-size:12px}
+    .dcs-plan{padding:6px 8px;gap:6px;grid-template-columns:auto 1fr auto auto}
+    .dcs-plan-date{font-size:9.5px;padding:1px 5px}
     .diary-alert{padding:12px 14px 14px}
     .diary-alert-item{font-size:11.5px;padding:4px 10px 4px 4px}
     .diary-alert-avatar{width:18px;height:18px;font-size:9.5px}
@@ -10798,10 +10834,12 @@
   }
 
   /* ===== 업무일지 (Diary) — 애플/노션 스타일 =====
-     저장 구조 (v2):
+     저장 구조 (v3):
        { [staffName]: {
-           reqs: [{id, text, from, done}, ...],       // 요청은 날짜 무관 · 완료 체크 전까지 이월
-           daily: { [YYYY-MM-DD]: {tasks:[{id,text,done}]} }
+           reqs:    [{id, text, from, done}, ...],        // 요청 · 완료 체크 전까지 이월
+           weekly:  [{id, text, createdAt}, ...],         // 주간 업무 계획 · 완료 체크 시 자동 제거
+           monthly: [{id, text, createdAt}, ...],         // 월 목표 계획 · 완료 체크 시 자동 제거
+           daily:   { [YYYY-MM-DD]: {tasks:[{id,text,done}]} }
        }}
      · 자동저장: 편집 후 250ms 디바운스 → localStorage */
   const DIARY_KEY = 'brightbeed_diary_v1';
@@ -10829,8 +10867,10 @@
       // 이미 새 구조
       if(Array.isArray(s.reqs) || (s.daily && typeof s.daily==='object')){
         out[name] = {
-          reqs: Array.isArray(s.reqs) ? s.reqs : [],
-          daily: (s.daily && typeof s.daily==='object') ? s.daily : {},
+          reqs:    Array.isArray(s.reqs)    ? s.reqs    : [],
+          weekly:  Array.isArray(s.weekly)  ? s.weekly  : [],
+          monthly: Array.isArray(s.monthly) ? s.monthly : [],
+          daily:   (s.daily && typeof s.daily==='object') ? s.daily : {},
         };
         return;
       }
@@ -10852,9 +10892,15 @@
           daily[date] = {tasks: e.tasks};
         }
       });
-      out[name] = {reqs, daily};
+      out[name] = {reqs, weekly:[], monthly:[], daily};
     });
     return out;
+  }
+  function _diaryFmtCreated(s){
+    if(!s) return '';
+    const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return '';
+    return `${+m[2]}/${+m[3]}`;
   }
   function loadDiaryAll(){
     let raw;
@@ -10949,8 +10995,10 @@
     const entry = _diaryEntries[name];
     if(!entry) return;
     const all = loadDiaryAll();
-    const s = all[name] || {reqs:[], daily:{}};
-    s.reqs = entry.reqs || [];
+    const s = all[name] || {reqs:[], weekly:[], monthly:[], daily:{}};
+    s.reqs    = entry.reqs    || [];
+    s.weekly  = entry.weekly  || [];
+    s.monthly = entry.monthly || [];
     if(!s.daily) s.daily = {};
     const dayTasks = entry.tasks || [];
     if(dayTasks.length > 0){
@@ -10958,9 +11006,11 @@
     } else if(s.daily[_diaryState.date]){
       delete s.daily[_diaryState.date];
     }
-    const hasReqs = s.reqs.length > 0;
-    const hasDaily = Object.keys(s.daily).length > 0;
-    if(!hasReqs && !hasDaily){
+    const hasReqs    = s.reqs.length > 0;
+    const hasWeekly  = s.weekly.length > 0;
+    const hasMonthly = s.monthly.length > 0;
+    const hasDaily   = Object.keys(s.daily).length > 0;
+    if(!hasReqs && !hasWeekly && !hasMonthly && !hasDaily){
       if(all[name]) delete all[name];
     } else {
       all[name] = s;
@@ -11035,11 +11085,13 @@
     _diaryEntries = {};
     const all = loadDiaryAll();
     STAFF.forEach(st=>{
-      const s = all[st.name] || {reqs:[], daily:{}};
-      const dayTasks = (s.daily[_diaryState.date] && s.daily[_diaryState.date].tasks) || [];
+      const s = all[st.name] || {reqs:[], weekly:[], monthly:[], daily:{}};
+      const dayTasks = (s.daily && s.daily[_diaryState.date] && s.daily[_diaryState.date].tasks) || [];
       _diaryEntries[st.name] = {
-        reqs:  Array.isArray(s.reqs) ? s.reqs.slice() : [],
-        tasks: dayTasks.slice(),
+        reqs:    Array.isArray(s.reqs)    ? s.reqs.slice()    : [],
+        weekly:  Array.isArray(s.weekly)  ? s.weekly.slice()  : [],
+        monthly: Array.isArray(s.monthly) ? s.monthly.slice() : [],
+        tasks:   dayTasks.slice(),
       };
     });
 
@@ -11068,6 +11120,28 @@
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
+          <div class="dcs-sec-title">주간 업무 계획<span class="dcs-sec-title-count" data-weekly-cnt>0</span></div>
+          <button class="dcs-add" data-add="weekly" title="주간 계획 추가">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="dcs-plan-list" data-plan-list="weekly"></div>
+        <div class="dcs-sec-empty" data-weekly-empty hidden>계획 없음</div>
+      </section>
+
+      <section class="dcs-sec">
+        <div class="dcs-sec-head">
+          <div class="dcs-sec-title">월 목표 계획<span class="dcs-sec-title-count" data-monthly-cnt>0</span></div>
+          <button class="dcs-add" data-add="monthly" title="월 목표 추가">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="dcs-plan-list" data-plan-list="monthly"></div>
+        <div class="dcs-sec-empty" data-monthly-empty hidden>목표 없음</div>
+      </section>
+
+      <section class="dcs-sec">
+        <div class="dcs-sec-head">
           <div class="dcs-sec-title">업무 요청<span class="dcs-sec-title-count" data-req-cnt>0</span></div>
           <button class="dcs-add" data-add="req" title="요청 추가">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -11090,11 +11164,25 @@
     `;
 
     // 초기 컨텐츠 채우기
+    _diaryCardRenderPlan(card, st, 'weekly');
+    _diaryCardRenderPlan(card, st, 'monthly');
     _diaryCardRenderReqs(card, st);
     _diaryCardRenderTasks(card, st);
     _diaryCardUpdateStat(card, st);
 
     // 이벤트 바인딩
+    card.querySelector('[data-add="weekly"]').onclick = ()=>{
+      entry.weekly.push({id:_diaryUid(), text:'', createdAt:_diaryTodayStr()});
+      _diaryCardRenderPlan(card, st, 'weekly', true);
+      _diaryCardUpdateStat(card, st);
+      _diaryScheduleSaveFor(name);
+    };
+    card.querySelector('[data-add="monthly"]').onclick = ()=>{
+      entry.monthly.push({id:_diaryUid(), text:'', createdAt:_diaryTodayStr()});
+      _diaryCardRenderPlan(card, st, 'monthly', true);
+      _diaryCardUpdateStat(card, st);
+      _diaryScheduleSaveFor(name);
+    };
     card.querySelector('[data-add="req"]').onclick = ()=>{
       entry.reqs.push({id:_diaryUid(), text:'', from:'', done:false});
       _diaryCardRenderReqs(card, st, true);
@@ -11111,22 +11199,86 @@
     return card;
   }
 
+  /* 주간/월 계획 렌더 — 완료 체크 시 부드럽게 자동 제거 */
+  function _diaryCardRenderPlan(card, st, kind, focusLast){
+    const entry = _diaryEntries[st.name];
+    const items = entry[kind] || [];
+    const list  = card.querySelector(`[data-plan-list="${kind}"]`);
+    const empty = card.querySelector(`[data-${kind}-empty]`);
+    const cnt   = card.querySelector(`[data-${kind}-cnt]`);
+    cnt.textContent = items.length;
+    empty.hidden = items.length > 0;
+    list.innerHTML = '';
+    items.forEach((it, idx)=>{
+      const row = document.createElement('div');
+      row.className = 'dcs-plan';
+      const dateBadge = it.createdAt ? `<div class="dcs-plan-date" title="작성일 ${it.createdAt}">${_esc(_diaryFmtCreated(it.createdAt))}</div>` : `<div class="dcs-plan-date" style="visibility:hidden">-</div>`;
+      row.innerHTML = `
+        <button class="dcs-plan-check" title="완료 시 제거">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="dcs-plan-text" contenteditable="true">${_esc(it.text||'')}</div>
+        ${dateBadge}
+        <button class="dcs-plan-del" title="삭제">✕</button>
+      `;
+      const removeItem = ()=>{
+        row.classList.add('removing');
+        setTimeout(()=>{
+          const i = entry[kind].indexOf(it);
+          if(i !== -1) entry[kind].splice(i,1);
+          _diaryCardRenderPlan(card, st, kind);
+          _diaryCardUpdateStat(card, st);
+          _diaryScheduleSaveFor(st.name);
+        }, 180);
+      };
+      row.querySelector('.dcs-plan-check').onclick = removeItem;
+      row.querySelector('.dcs-plan-del').onclick   = removeItem;
+      const txt = row.querySelector('.dcs-plan-text');
+      txt.oninput = ()=>{ it.text = txt.innerText; _diaryScheduleSaveFor(st.name); };
+      txt.onkeydown = (e)=>{
+        if(e.key==='Enter' && !e.shiftKey){
+          e.preventDefault();
+          entry[kind].push({id:_diaryUid(), text:'', createdAt:_diaryTodayStr()});
+          _diaryCardRenderPlan(card, st, kind, true);
+          _diaryCardUpdateStat(card, st);
+          _diaryScheduleSaveFor(st.name);
+        } else if(e.key==='Backspace' && txt.innerText===''){
+          e.preventDefault();
+          entry[kind].splice(idx,1);
+          _diaryCardRenderPlan(card, st, kind);
+          _diaryCardUpdateStat(card, st);
+          _diaryScheduleSaveFor(st.name);
+        }
+      };
+      list.appendChild(row);
+    });
+    if(focusLast && items.length){
+      const last = list.querySelector('.dcs-plan:last-child .dcs-plan-text');
+      if(last){ last.focus(); _placeCaretAtEnd(last); }
+    }
+  }
+
   function _diaryCardUpdateStat(card, st){
     const entry = _diaryEntries[st.name];
     const done = (entry.tasks||[]).filter(t=>t.done).length;
     const total = (entry.tasks||[]).length;
     const openReq = (entry.reqs||[]).filter(r=>!r.done).length;
+    const weeklyN  = (entry.weekly||[]).length;
+    const monthlyN = (entry.monthly||[]).length;
     const stat = card.querySelector('[data-stat]');
     if(total>0){
       stat.textContent = `${done} / ${total}`;
     } else if(openReq>0){
       stat.textContent = `요청 ${openReq}`;
+    } else if(weeklyN>0 || monthlyN>0){
+      stat.textContent = `계획 ${weeklyN+monthlyN}`;
     } else {
       stat.textContent = '—';
     }
+    const hasContent = total>0 || openReq>0 || weeklyN>0 || monthlyN>0;
     card.classList.toggle('dcs-active', (total>0 && done<total) || openReq>0);
     card.classList.toggle('dcs-complete', total>0 && done===total);
-    card.classList.toggle('dcs-empty', total===0 && openReq===0);
+    card.classList.toggle('dcs-empty', !hasContent);
   }
 
   function _diaryCardRenderReqs(card, st, focusLast){
