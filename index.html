@@ -10286,6 +10286,9 @@
   /* ===== 연차 (인사팀) ===== */
   // 직원 정보 (정적) — 연차 수치는 별도 leaveData에 저장
   const STAFF=[
+    // 대표 — 업무일지 카드에만 노출, 연차/조직도/미작성 알림 대상에서 제외
+    {name:'전승훈',dept:'대표',team:null,color:'ceo',hire:'',ceo:true},
+    {name:'전수빈',dept:'대표',team:null,color:'ceo',hire:'',ceo:true},
     {name:'김성군',dept:'물류',team:null,color:'logi',hire:'2025-10-20',used:3,history:[
       {date:'2026-02-05',type:'반차'},
       {date:'2026-02-26',type:'반차'},
@@ -10374,6 +10377,7 @@
   let _diaryPullTimer = null;
   /* 팀원별 카드 accent color — 파스텔톤, 폰트 잘 보이게 */
   const DIARY_COLORS = {
+    '전승훈': '#d4af37', '전수빈': '#eab308', // 대표 — 골드/앰버
     '김성군': '#60a5fa', '전준호': '#818cf8', '이소영': '#22d3ee',
     '김수민': '#84cc16', '이승원': '#facc15', '박규현': '#fb923c',
     '정신혜': '#f472b6', '조혜인': '#e879f9', '김완성': '#a78bfa',
@@ -10951,8 +10955,9 @@
       return;
     }
 
-    // 오늘 '한 일'을 하나도 안 적은 사람 (요청은 이월되니 판단에서 제외)
+    // 오늘 '한 일'을 하나도 안 적은 사람 (대표·요청은 이월되니 판단에서 제외)
     const missing = STAFF.filter(st=>{
+      if(st.ceo) return false;
       const e = _diaryEntries[st.name];
       if(!e) return true;
       return (e.tasks||[]).length === 0;
@@ -13815,7 +13820,8 @@
   /* 숨긴 직원(퇴사자) 명단 — staff_hidden 테이블에서 동기화. 조직도·연차 현황·신청서에서 필터 */
   const _hiddenStaff=new Set();
   function isStaffHidden(name){return _hiddenStaff.has(name)}
-  function activeStaff(){return STAFF.filter(s=>!_hiddenStaff.has(s.name))}
+  /* 대표는 연차/조직도/신청서에서 제외 (업무일지 카드에만 노출) */
+  function activeStaff(){return STAFF.filter(s=>!_hiddenStaff.has(s.name) && !s.ceo)}
   window.activeStaff=activeStaff;
   window.isStaffHidden=isStaffHidden;
 
