@@ -4691,6 +4691,28 @@
   #viewDiary .view-title-sub{font-size:13px;color:#57534e;font-weight:500;letter-spacing:-.01em;margin-left:10px}
 
   .diary-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .diary-me-box{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 8px 3px 10px;border:1px solid #d5cfb8;border-radius:9px;background:#fff;
+    font-size:12px;color:#292524;font-weight:600;letter-spacing:-.01em;
+  }
+  .diary-me-label{color:#57534e;font-size:11.5px}
+  .diary-me-sel{
+    border:none;background:transparent;font:inherit;color:#1c1917;
+    font-weight:700;cursor:pointer;outline:none;padding:2px 4px;border-radius:5px;
+    max-width:130px;
+  }
+  .diary-me-sel:hover{background:#f4f0e3}
+  .diary-me-notif{
+    border:none;background:#fef3c7;color:#78350f;
+    font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;cursor:pointer;
+    transition:all .15s ease;letter-spacing:-.01em;
+  }
+  .diary-me-notif:hover{background:#fde68a}
+  .diary-me-on{
+    font-size:10.5px;color:#166534;background:#dcfce7;
+    padding:3px 8px;border-radius:6px;font-weight:700;letter-spacing:-.01em;
+  }
   .diary-save-tag{
     display:inline-flex;align-items:center;gap:6px;
     padding:5px 11px;border-radius:999px;
@@ -6581,6 +6603,14 @@
       </button>
       <h1 class="view-title">업무일지<span class="view-title-sub" id="diaryTitleSub">/ 오늘의 기록</span></h1>
       <div class="diary-head-actions">
+        <div class="diary-me-box" id="diaryMeBox" title="이 PC의 주인을 선택하면 그 이름으로 온 요청을 크롬 알림으로 받습니다">
+          <span class="diary-me-label">나는</span>
+          <select id="diaryMeSel" class="diary-me-sel">
+            <option value="">— 선택 —</option>
+          </select>
+          <button id="diaryNotifBtn" class="diary-me-notif" title="크롬 알림 권한 요청" hidden>🔔 알림 허용</button>
+          <span id="diaryNotifOn" class="diary-me-on" hidden>🔔 알림 ON</span>
+        </div>
         <div class="diary-date-nav">
           <button class="diary-nav-btn" id="diaryPrevDay" title="이전 날짜">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
@@ -10536,10 +10566,129 @@
         document.getElementById('diaryDate').value = _diaryState.date;
         _diaryRenderBoard();
       });
+      _diaryInitMeBox();
     }
     if(!_diaryState.date) _diaryState.date = _diaryTodayStr();
     document.getElementById('diaryDate').value = _diaryState.date;
     _diaryRenderBoard();
+    _diaryInitRealtime();
+  }
+
+  /* ===== 이 PC의 주인 (로컬 세팅) + 크롬 알림 권한 ===== */
+  const DIARY_ME_KEY = 'brightbeed_diary_me';
+  function _diaryGetMe(){ try{return localStorage.getItem(DIARY_ME_KEY)||''}catch(e){return ''} }
+  function _diarySetMe(v){ try{localStorage.setItem(DIARY_ME_KEY, v||'')}catch(e){} }
+  function _diaryInitMeBox(){
+    const sel = document.getElementById('diaryMeSel');
+    const notifBtn = document.getElementById('diaryNotifBtn');
+    const notifOn = document.getElementById('diaryNotifOn');
+    if(!sel) return;
+    // STAFF 옵션 채우기
+    sel.innerHTML = '<option value="">— 선택 —</option>' +
+      STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)}</option>`).join('');
+    sel.value = _diaryGetMe();
+    sel.onchange = ()=>{
+      _diarySetMe(sel.value);
+      _diaryRefreshNotifBtn();
+      _diaryInitRealtime(); // 이름 바뀌면 subscribe 재설정
+    };
+    _diaryRefreshNotifBtn();
+    notifBtn.onclick = async ()=>{
+      if(!('Notification' in window)){ toast('이 브라우저는 알림을 지원하지 않습니다','err'); return; }
+      const p = await Notification.requestPermission();
+      _diaryRefreshNotifBtn();
+      if(p === 'granted') toast('알림이 허용되었습니다','ok');
+      else if(p === 'denied') toast('알림이 차단되었습니다. 크롬 주소창 왼쪽 자물쇠 → 알림 → 허용','err');
+    };
+  }
+  function _diaryRefreshNotifBtn(){
+    const btn = document.getElementById('diaryNotifBtn');
+    const on = document.getElementById('diaryNotifOn');
+    if(!btn||!on) return;
+    const me = _diaryGetMe();
+    if(!me){ btn.hidden = true; on.hidden = true; return; }
+    if(!('Notification' in window)){ btn.hidden = true; on.hidden = true; return; }
+    if(Notification.permission === 'granted'){ btn.hidden = true; on.hidden = false; }
+    else { btn.hidden = false; on.hidden = true; }
+  }
+
+  /* ===== Supabase realtime — 자기 이름으로 온 요청이면 크롬 알림 ===== */
+  let _diaryRealtimeChan = null;
+  let _diaryRealtimeMe = '';
+  async function _diaryInitRealtime(){
+    const me = _diaryGetMe();
+    if(_diaryRealtimeMe === me) return; // 이미 같은 이름으로 subscribe 중
+    // 기존 채널 해제
+    if(_diaryRealtimeChan){
+      try { _diaryRealtimeChan.unsubscribe && _diaryRealtimeChan.unsubscribe(); } catch(e){}
+      _diaryRealtimeChan = null;
+    }
+    _diaryRealtimeMe = me;
+    if(!me) return;
+    if(typeof supabase === 'undefined' || !supabase || !supabase.channel){
+      // supabase-js 로드 시도
+      await _diaryLoadSupabaseClient();
+      if(typeof supabase === 'undefined' || !supabase) return;
+    }
+    _diaryRealtimeChan = supabase
+      .channel('diary_req_' + me)
+      .on('postgres_changes',
+        {event:'INSERT', schema:'public', table:'diary_requests', filter:`to_name=eq.${me}`},
+        (payload)=>_diaryOnIncomingReq(payload.new))
+      .subscribe();
+  }
+  function _diaryOnIncomingReq(row){
+    if(!row) return;
+    const from = row.from_name || '누군가';
+    const text = row.text || '(내용 없음)';
+    // 크롬 알림
+    if('Notification' in window && Notification.permission === 'granted'){
+      try {
+        const n = new Notification(`업무 요청: ${from}님`, {
+          body: text,
+          icon: '/assets/icons/icon-192.png',
+          tag: 'diary-req-'+row.id,
+          requireInteraction: false,
+        });
+        n.onclick = ()=>{ window.focus(); n.close(); if(typeof triggerDiary === 'function') triggerDiary(); };
+      } catch(e){}
+    }
+    // 화면에도 반영
+    toast(`${from} → ${text.slice(0,40)}`, 'info');
+    if(document.getElementById('diaryBoard')) _diaryRenderBoard();
+  }
+
+  /* supabase-js v2를 CDN에서 lazy 로드 (기존 대시보드에는 없음) */
+  async function _diaryLoadSupabaseClient(){
+    if(typeof window.supabase !== 'undefined' && window.supabase.channel) return;
+    if(_diaryLoadSupabaseClient._loading) return _diaryLoadSupabaseClient._loading;
+    _diaryLoadSupabaseClient._loading = new Promise((resolve)=>{
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      s.onload = ()=>{
+        try {
+          window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            realtime: {params:{eventsPerSecond:10}},
+          });
+        } catch(e){ console.warn('supabase client init 실패', e); }
+        resolve();
+      };
+      s.onerror = ()=>{ console.warn('supabase-js load 실패'); resolve(); };
+      document.head.appendChild(s);
+    });
+    return _diaryLoadSupabaseClient._loading;
+  }
+
+  /* 요청을 supabase에 push (다른 PC 알림 발생) */
+  async function _diaryPushRequestToSupabase(toName, fromName, text){
+    if(!toName || !text) return;
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/diary_requests`, {
+        method: 'POST',
+        headers: _sbHeaders({'Prefer':'return=minimal'}),
+        body: JSON.stringify({to_name: toName, from_name: fromName||'', text: text})
+      });
+    } catch(e){ console.warn('diary push 실패', e); }
   }
 
   function _diaryPersistStaff(name){
@@ -10645,8 +10794,13 @@
     STAFF.forEach(st=>{
       const s = all[st.name] || {reqs:[], weekly:[], monthly:[], daily:{}};
       const dayTasks = (s.daily && s.daily[_diaryState.date] && s.daily[_diaryState.date].tasks) || [];
+      // 기존 텍스트가 있는 요청은 이미 알림이 갔거나 지난 것이므로 재push 방지
+      const reqs = Array.isArray(s.reqs) ? s.reqs.map(r=>({
+        ...r,
+        _pushed: r._pushed || !!(r.text && r.text.trim()),
+      })) : [];
       _diaryEntries[st.name] = {
-        reqs:    Array.isArray(s.reqs)    ? s.reqs.slice()    : [],
+        reqs,
         weekly:  Array.isArray(s.weekly)  ? s.weekly.slice()  : [],
         monthly: Array.isArray(s.monthly) ? s.monthly.slice() : [],
         tasks:   dayTasks.slice(),
@@ -10937,6 +11091,14 @@
       };
       const txt = row.querySelector('.dcs-req-text');
       txt.oninput = ()=>{ r.text = txt.innerText; _diaryScheduleSaveFor(st.name); };
+      txt.onblur = ()=>{
+        // 첫 등록 시 supabase로 push (다른 PC 알림 발생). done인 요청은 스킵.
+        if(!r._pushed && r.text && r.text.trim() && !r.done){
+          r._pushed = true;
+          _diaryPushRequestToSupabase(st.name, r.from || _diaryGetMe() || '', r.text.trim());
+          _diaryScheduleSaveFor(st.name);
+        }
+      };
       const fr = row.querySelector('.dcs-req-from');
       fr.oninput = ()=>{ r.from = fr.innerText; _diaryScheduleSaveFor(st.name); };
       row.querySelector('.dcs-req-del').onclick = ()=>{
