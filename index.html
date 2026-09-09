@@ -11099,6 +11099,33 @@
         {event:'INSERT', schema:'public', table:'diary_requests', filter:`to_name=eq.${me}`},
         (payload)=>_diaryOnIncomingReq(payload.new))
       .subscribe();
+    // 크롬 켜질 때 밀린 요청 즉시 fetch → 알림 뿌리기 (앱이 꺼져 있었을 동안 온 것들)
+    _diaryFetchPendingReqs();
+  }
+
+  /* 밀린(notified=false) 요청 fetch → 순서대로 알림 표시 → notified=true 마킹 */
+  async function _diaryFetchPendingReqs(){
+    const me = _diaryGetMe();
+    if(!me) return;
+    try {
+      const url = `${SUPABASE_URL}/rest/v1/diary_requests?select=*&to_name=eq.${encodeURIComponent(me)}&notified=eq.false&order=created_at.asc`;
+      const r = await fetch(url, {headers:_sbHeaders(), cache:'no-cache'});
+      if(!r.ok) return;
+      const rows = await r.json();
+      if(!Array.isArray(rows) || !rows.length) return;
+      // 알림 표시 (한 번에 몰아치지 않게 살짝 간격)
+      rows.forEach((row, i)=>{
+        setTimeout(()=> _diaryOnIncomingReq(row), i * 400);
+      });
+      // notified=true 마킹 (중복 알림 방지)
+      const ids = rows.map(x=>x.id);
+      const idFilter = ids.map(id=>`"${id}"`).join(',');
+      await fetch(`${SUPABASE_URL}/rest/v1/diary_requests?id=in.(${idFilter})`, {
+        method: 'PATCH',
+        headers: _sbHeaders({'Prefer':'return=minimal'}),
+        body: JSON.stringify({notified: true})
+      });
+    } catch(e){ console.warn('밀린 요청 fetch 실패', e); }
   }
   function _diaryOnIncomingReq(row){
     if(!row) return;
