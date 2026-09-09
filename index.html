@@ -4881,6 +4881,7 @@
   .diary-notif-banner-help{color:#92400e;font-weight:500;font-size:12.5px;line-height:1.7;padding:6px 10px;background:rgba(255,255,255,.5);border-radius:6px;margin-top:2px}
   .diary-notif-banner-help b{color:#78350f;font-weight:700}
   .diary-notif-banner-help br+b{margin-top:4px}
+  .diary-notif-banner-help code{background:rgba(0,0,0,.08);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11.5px;color:#7c2d12;font-weight:600;user-select:all}
   .diary-notif-banner-btn{
     margin-left:auto;padding:6px 14px;border-radius:8px;border:none;
     background:#78350f;color:#fef3c7;font-weight:700;font-size:12px;cursor:pointer;
@@ -11071,8 +11072,26 @@
         return;
       }
       if(diag.system === 'granted'){
-        // 브라우저 + 시스템 모두 정상 — 배너 숨김
-        banner.hidden = true;
+        // 브라우저 + 시스템 모두 정상 — 스타일 통일 팁만 표시
+        banner.hidden = false;
+        banner.innerHTML = `
+          <div class="diary-notif-banner-body diary-notif-banner-ok">
+            <span class="diary-notif-banner-icon">✅</span>
+            <div class="diary-notif-banner-lines">
+              <div><b>${_esc(me)}</b>님, 크롬 + Windows 알림 모두 허용됨.</div>
+              <div class="diary-notif-banner-help">
+                <b>💡 알림 스타일이 사람마다 다르게 뜨나요?</b> (예: 누구는 크롬 팝업, 누구는 Windows 알림 센터)<br>
+                모두 <b>크롬 팝업 스타일</b>로 통일하려면:<br>
+                ① 크롬 주소창에 <code>chrome://flags/#enable-system-notifications</code> 입력<br>
+                ② <b>Enabled → Disabled</b>로 변경<br>
+                ③ 오른쪽 아래 <b>Relaunch</b> 버튼 클릭 → 크롬 재시작
+              </div>
+            </div>
+            <div class="diary-notif-banner-actions">
+              <button type="button" class="diary-notif-banner-btn diary-notif-banner-btn-alt" onclick="_diaryTestNotif()">🧪 테스트</button>
+              <button type="button" class="diary-notif-banner-btn" onclick="(function(){_diaryDiagClear();_diaryEnsureDiag(true);})()">🔄 재진단</button>
+            </div>
+          </div>`;
         return;
       }
       // 시스템 레벨 차단 — Windows 알림 설정 유도 (전 직원 Windows OS)
