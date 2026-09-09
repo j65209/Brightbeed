@@ -10229,8 +10229,9 @@
        · 15초 주기 remote pull (편집 idle 3초 이상일 때만) → dirty 아닌 스태프는 remote로 갱신 */
   const DIARY_KEY = 'brightbeed_diary_v1';
   const DIARY_PATH='data/diary.json';
-  const DIARY_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${DIARY_PATH}`;
-  const DIARY_API=`https://api.github.com/repos/${PO_REPO}/contents/${DIARY_PATH}`;
+  // PO_REPO/PO_BRANCH가 이 위치에선 아직 TDZ라 하드코딩 (변경 시 두 곳 동시 변경 필요)
+  const DIARY_RAW='https://raw.githubusercontent.com/j65209/Brightbeed/main/'+DIARY_PATH;
+  const DIARY_API='https://api.github.com/repos/j65209/Brightbeed/contents/'+DIARY_PATH;
   const _diaryDirty = new Set();      // 마지막 push 이후 편집된 staff 이름들
   let _diary_lastHash = null;         // 로컬 상태의 JSON 해시 — no-op 감지
   let _diary_lastEditTs = 0;          // 마지막 편집 시각 (ms) — 편집 중이면 pull 스킵
