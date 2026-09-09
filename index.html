@@ -2614,6 +2614,35 @@
     font-size:12.5px;font-style:italic;background:var(--bg-0);
   }
   .wht-empty b{color:var(--text-1);font-weight:600}
+  /* 월별 아카이브 스트립 — 저장된 월 한눈에 + 원클릭 점프 */
+  .wht-archive-row{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:0 2px 12px;
+  }
+  .wht-archive-label{
+    font-size:11.5px;font-weight:700;color:var(--text-2);letter-spacing:.02em;
+    white-space:nowrap;display:inline-flex;align-items:center;gap:4px;
+  }
+  .wht-archive-chips{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--sans);font-size:11.5px;align-items:center}
+  .wht-archive-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px;border-radius:999px;
+    background:var(--bg-2);border:1px solid var(--line);
+    color:var(--text-1);font-weight:600;cursor:pointer;transition:all .12s;
+    font-family:var(--sans);letter-spacing:-.1px;
+  }
+  .wht-archive-chip:hover{background:var(--bg-3);border-color:var(--line-2);color:var(--text-0)}
+  .wht-archive-chip.active{
+    color:#fff;background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
+    border-color:rgba(79,70,229,.5);
+    box-shadow:0 2px 8px rgba(79,70,229,.25);
+  }
+  .wht-archive-chip-count{
+    font-family:var(--mono);font-size:10px;font-weight:700;
+    padding:1px 6px;background:rgba(0,0,0,.08);border-radius:8px;
+  }
+  .wht-archive-chip.active .wht-archive-chip-count{background:rgba(255,255,255,.22)}
+  .wht-archive-empty{font-size:11.5px;color:var(--text-3);font-style:italic}
   @media(max-width:600px){
     .wht-body{padding:10px 8px 12px}
     .wht-tab{flex-basis:100%;font-size:12px;padding:8px 10px}
@@ -7545,6 +7574,10 @@
           </div>
         </div>
         <div class="wht-body">
+          <div class="wht-archive-row">
+            <span class="wht-archive-label">📚 저장된 월</span>
+            <div class="wht-archive-chips" id="whtArchiveChips"><span class="wht-archive-empty">불러오는 중…</span></div>
+          </div>
           <div class="wht-tabs" role="tablist">
             <button type="button" class="wht-tab active" data-tab="withdrawal" role="tab" aria-selected="true" onclick="whtSwitchTab('withdrawal')">💸 사업자·개인 출금</button>
             <button type="button" class="wht-tab" data-tab="freelancer" role="tab" aria-selected="false" onclick="whtSwitchTab('freelancer')">📄 프리랜서 원천징수 <span class="wht-tab-sub">3.3%</span></button>
@@ -19322,6 +19355,7 @@
     ym:'', data:{withdrawal:[],freelancer:[],invoice:[]},
     loaded:false, loading:false, saving:false, saveTimer:null,
     activeTab:'withdrawal', bound:false,
+    archive:null, archiveLoading:false,
   };
   function _whtToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
   function _whtParseYm(ym){const [y,m]=String(ym||'').split('-').map(n=>parseInt(n,10));return{y,m}}
@@ -19349,8 +19383,9 @@
     _whtRenderMonthLabel();
     _whtBindInputs();
     if(!_whtState.loaded && !_whtState.loading) whtLoad();
+    if(!_whtState.archive && !_whtState.archiveLoading) _whtLoadArchive();
   }
-  function whtReload(){_whtState.loaded=false; whtLoad(true)}
+  function whtReload(){_whtState.loaded=false; whtLoad(true); _whtLoadArchive();}
   function _whtSetStatus(text,isErr){
     const el=document.getElementById('whtStatus');
     if(!el) return;
@@ -19365,6 +19400,68 @@
       const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
       return same?`오늘 ${hh}:${mm}`:`${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
     }catch(e){return ''}
+  }
+  function _whtCountEntries(p){
+    p=p||{};
+    return (Array.isArray(p.withdrawal)?p.withdrawal.length:0)
+      + (Array.isArray(p.freelancer)?p.freelancer.length:0)
+      + (Array.isArray(p.invoice)?p.invoice.length:0);
+  }
+  async function _whtLoadArchive(){
+    if(!_whtHasAccess()) return;
+    if(_whtState.archiveLoading) return;
+    _whtState.archiveLoading=true;
+    try{
+      const url=`${SUPABASE_URL}/rest/v1/wht_forms?select=period_ym,payload,updated_at&order=period_ym.desc`;
+      const r=await fetch(url,{headers:_sbHeaders(),cache:'no-cache'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const rows=await r.json();
+      _whtState.archive=(rows||[]).map(row=>({ym:row.period_ym, count:_whtCountEntries(row.payload)}));
+      _whtRenderArchive();
+    }catch(e){
+      console.warn('wht archive load failed',e);
+      const el=document.getElementById('whtArchiveChips');
+      if(el && !_whtState.archive) el.innerHTML='<span class="wht-archive-empty">⚠ 아카이브 로드 실패</span>';
+    }finally{
+      _whtState.archiveLoading=false;
+    }
+  }
+  function _whtRenderArchive(){
+    const el=document.getElementById('whtArchiveChips');
+    if(!el) return;
+    const arch=_whtState.archive||[];
+    const cur=_whtState.ym;
+    const hasCur=arch.some(a=>a.ym===cur);
+    const list=hasCur?arch:[{ym:cur, count:_whtCountEntries(_whtState.data), _pending:!cur}, ...arch].filter(a=>a.ym);
+    if(!list.length){
+      el.innerHTML='<span class="wht-archive-empty">아직 저장된 월이 없습니다.</span>';
+      return;
+    }
+    el.innerHTML=list.map(a=>{
+      const on=a.ym===cur;
+      const label=String(a.ym||'').replace('-','.');
+      const cnt=a.count||0;
+      return `<button type="button" class="wht-archive-chip${on?' active':''}" onclick="whtJumpMonth('${_esc(a.ym)}')" title="${_esc(a.ym)} 로 이동">${_esc(label)}<span class="wht-archive-chip-count">${cnt}</span></button>`;
+    }).join('');
+  }
+  function whtJumpMonth(ym){
+    if(!ym||ym===_whtState.ym){_whtRenderArchive(); return;}
+    _whtState.ym=ym;
+    _whtState.loaded=false;
+    _whtRenderMonthLabel();
+    _whtRenderArchive();
+    whtLoad(true);
+  }
+  function _whtBumpArchiveCurrent(){
+    const cur=_whtState.ym;
+    if(!cur) return;
+    const cnt=_whtCountEntries(_whtState.data);
+    const arch=_whtState.archive||[];
+    const i=arch.findIndex(a=>a.ym===cur);
+    if(i>=0){arch[i]={ym:cur, count:cnt};}
+    else{arch.push({ym:cur, count:cnt}); arch.sort((a,b)=>String(b.ym).localeCompare(String(a.ym)));}
+    _whtState.archive=arch;
+    _whtRenderArchive();
   }
   async function whtLoad(force){
     if(!_whtHasAccess()) return;
@@ -19417,6 +19514,7 @@
       });
       if(!r.ok) throw new Error('HTTP '+r.status);
       _whtSetStatus(`${_whtYmLabel(ym)} · 방금 저장됨`);
+      _whtBumpArchiveCurrent();
     }catch(e){
       console.error('whtSave failed',e);
       _whtSetStatus('⚠ 저장 실패','err');
@@ -19634,6 +19732,7 @@
   window.whtMonthPrev=whtMonthPrev;
   window.whtMonthNext=whtMonthNext;
   window.whtMonthToday=whtMonthToday;
+  window.whtJumpMonth=whtJumpMonth;
 
   /* ===== 텍스트 토핑 (Unicode U+0591 per-character) ===== */
   const TOPPING_MARK='֑';
