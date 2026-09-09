@@ -6506,98 +6506,79 @@
     </form>
 
     <div class="org-chart-wrap">
-      <svg class="org-svg" viewBox="0 0 1100 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bead Universe Co., Ltd. 조직도">
-        <!-- ===== 연결선 (아래에서 위로 겹치도록 먼저 그림) ===== -->
-        <!-- Root → CEO 버스 → CEO → CEO 하부 → 본부 버스 -->
-        <path class="line" d="M 550 48 V 62"/>
-        <path class="line l-ceo" d="M 500 62 H 600"/>
-        <path class="line l-ceo" d="M 500 62 V 72"/>
-        <path class="line l-ceo" d="M 600 62 V 72"/>
-        <path class="line l-ceo" d="M 500 102 V 112"/>
-        <path class="line l-ceo" d="M 600 102 V 112"/>
-        <path class="line l-ceo" d="M 500 112 H 600"/>
-        <path class="line" d="M 550 112 V 132"/>
+      <svg class="org-svg" viewBox="0 0 1100 275" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bead Universe Co., Ltd. 조직도">
+        <!-- ===== 연결선 ===== -->
+        <path class="line" d="M 550 46 V 60"/>
+        <path class="line l-ceo" d="M 500 60 H 600"/>
+        <path class="line l-ceo" d="M 500 60 V 70"/>
+        <path class="line l-ceo" d="M 600 60 V 70"/>
+        <path class="line l-ceo" d="M 500 100 V 108"/>
+        <path class="line l-ceo" d="M 600 100 V 108"/>
+        <path class="line l-ceo" d="M 500 108 H 600"/>
+        <path class="line" d="M 550 108 V 132"/>
 
-        <!-- 본부 버스 (y=132) → 물류(200) · 브랜드(550) · 벤더(900) -->
-        <path class="line" d="M 200 132 H 900"/>
-        <path class="line l-logi"   d="M 200 132 V 144"/>
-        <path class="line l-brand"  d="M 550 132 V 144"/>
+        <!-- 팀 버스 (y=132) → 6팀 (물류·마케팅·디자인·MD팀·C/S·벤더) -->
+        <path class="line" d="M 100 132 H 900"/>
+        <path class="line l-logi"   d="M 100 132 V 144"/>
+        <path class="line l-mkt"    d="M 260 132 V 144"/>
+        <path class="line l-design" d="M 420 132 V 144"/>
+        <path class="line l-md2"    d="M 580 132 V 144"/>
+        <path class="line l-share"  d="M 740 132 V 144"/>
         <path class="line l-vendor" d="M 900 132 V 144"/>
-
-        <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
-        <path class="line l-logi" d="M 200 188 V 228"/>
-
-        <!-- 브랜드 → 팀 버스 (y=210) → 4팀 -->
-        <path class="line l-brand"  d="M 550 188 V 210"/>
-        <path class="line l-brand"  d="M 370 210 H 730"/>
-        <path class="line l-mkt"    d="M 370 210 V 224"/>
-        <path class="line l-design" d="M 490 210 V 224"/>
-        <path class="line l-md2"    d="M 610 210 V 224"/>
-        <path class="line l-share"  d="M 730 210 V 224"/>
-
-        <!-- 벤더 → MD -->
-        <path class="line l-vendor" d="M 900 188 V 224"/>
 
         <!-- ===== 노드 ===== -->
         <!-- Root -->
-        <rect class="b-root" x="295" y="8" width="510" height="40" rx="10"/>
-        <text class="t-root" x="550" y="28">Bead Universe Co., Ltd.</text>
+        <rect class="b-root" x="295" y="8" width="510" height="38" rx="10"/>
+        <text class="t-root" x="550" y="27">Bead Universe Co., Ltd.</text>
 
         <!-- 대표 -->
-        <rect class="b-ceo" x="455" y="72" width="90" height="30" rx="7"/>
-        <text class="t-ceo" x="500" y="87">대표 전승훈</text>
-        <rect class="b-ceo" x="555" y="72" width="90" height="30" rx="7"/>
-        <text class="t-ceo" x="600" y="87">대표 전수빈</text>
+        <rect class="b-ceo" x="455" y="70" width="90" height="30" rx="7"/>
+        <text class="t-ceo" x="500" y="85">대표 전승훈</text>
+        <rect class="b-ceo" x="555" y="70" width="90" height="30" rx="7"/>
+        <text class="t-ceo" x="600" y="85">대표 전수빈</text>
 
-        <!-- 본부 -->
-        <rect class="b-logi"   x="155" y="144" width="90" height="44" rx="8"/>
-        <text class="t-logi"   x="200" y="166">물류</text>
-        <rect class="b-brand"  x="505" y="144" width="90" height="44" rx="8"/>
-        <text class="t-brand"  x="550" y="166">브랜드</text>
-        <rect class="b-vendor" x="855" y="144" width="90" height="44" rx="8"/>
-        <text class="t-vendor" x="900" y="166">벤더</text>
+        <!-- 팀 캡션 (텍스트 only, 6팀) -->
+        <text class="t-teamcap c-logi"   x="100" y="158">물류</text>
+        <text class="t-teamcap c-mkt"    x="260" y="158">마케팅</text>
+        <text class="t-teamcap c-design" x="420" y="158">디자인</text>
+        <text class="t-teamcap c-md2"    x="580" y="158">MD팀</text>
+        <text class="t-teamcap c-share"  x="740" y="158">C/S</text>
+        <text class="t-teamcap c-vendor" x="900" y="158">벤더</text>
 
-        <!-- 팀 캡션 (텍스트 only) -->
-        <text class="t-teamcap c-mkt"    x="370" y="234">마케팅</text>
-        <text class="t-teamcap c-design" x="490" y="234">디자인</text>
-        <text class="t-teamcap c-md2"    x="610" y="234">MD팀</text>
-        <text class="t-teamcap c-share"  x="730" y="234">C/S</text>
-        <text class="t-teamcap c-md2"    x="900" y="234">MD</text>
+        <!-- 인원 pill (팀별 세로 스택, y=172/200/228) -->
+        <!-- 물류 (x=100) -->
+        <rect class="p-mem p-logi" x="62" y="172" width="76" height="24" rx="7"/>
+        <text class="t-mem m-logi" x="100" y="184">김성군</text>
+        <rect class="p-mem p-logi" x="62" y="200" width="76" height="24" rx="7"/>
+        <text class="t-mem m-logi" x="100" y="212">전준호</text>
+        <rect class="p-mem p-logi" x="62" y="228" width="76" height="24" rx="7"/>
+        <text class="t-mem m-logi" x="100" y="240">이소영</text>
 
-        <!-- 인원 pill (팀별 세로 스택, y=252/280/308) -->
-        <!-- 물류 (x=200) -->
-        <rect class="p-mem p-logi" x="162" y="252" width="76" height="24" rx="7"/>
-        <text class="t-mem m-logi" x="200" y="264">김성군</text>
-        <rect class="p-mem p-logi" x="162" y="280" width="76" height="24" rx="7"/>
-        <text class="t-mem m-logi" x="200" y="292">전준호</text>
-        <rect class="p-mem p-logi" x="162" y="308" width="76" height="24" rx="7"/>
-        <text class="t-mem m-logi" x="200" y="320">이소영</text>
+        <!-- 마케팅 (x=260) -->
+        <rect class="p-mem p-mkt" x="222" y="172" width="76" height="24" rx="7"/>
+        <text class="t-mem m-mkt" x="260" y="184">김수민</text>
+        <rect class="p-mem p-mkt" x="222" y="200" width="76" height="24" rx="7"/>
+        <text class="t-mem m-mkt" x="260" y="212">이승원</text>
+        <rect class="p-mem p-mkt" x="222" y="228" width="76" height="24" rx="7"/>
+        <text class="t-mem m-mkt" x="260" y="240">박규현</text>
 
-        <!-- 마케팅 (x=370) -->
-        <rect class="p-mem p-mkt" x="332" y="252" width="76" height="24" rx="7"/>
-        <text class="t-mem m-mkt" x="370" y="264">김수민</text>
-        <rect class="p-mem p-mkt" x="332" y="280" width="76" height="24" rx="7"/>
-        <text class="t-mem m-mkt" x="370" y="292">이승원</text>
-        <rect class="p-mem p-mkt" x="332" y="308" width="76" height="24" rx="7"/>
-        <text class="t-mem m-mkt" x="370" y="320">박규현</text>
+        <!-- 디자인 (x=420) — 인원은 renderOrgChartExtra가 staff_added에서 append -->
 
-        <!-- 디자인 (x=490) — 인원은 renderOrgChartExtra가 staff_added에서 append -->
+        <!-- MD팀 (x=580) -->
+        <rect class="p-mem p-md2" x="542" y="172" width="76" height="24" rx="7"/>
+        <text class="t-mem m-md2" x="580" y="184">김채원</text>
+        <rect class="p-mem p-md2" x="542" y="200" width="76" height="24" rx="7"/>
+        <text class="t-mem m-md2" x="580" y="212">지희선</text>
 
-        <!-- MD팀 (x=610) -->
-        <rect class="p-mem p-md2" x="572" y="252" width="76" height="24" rx="7"/>
-        <text class="t-mem m-md2" x="610" y="264">김채원</text>
-        <rect class="p-mem p-md2" x="572" y="280" width="76" height="24" rx="7"/>
-        <text class="t-mem m-md2" x="610" y="292">지희선</text>
+        <!-- C/S (x=740) -->
+        <rect class="p-mem p-share" x="702" y="172" width="76" height="24" rx="7"/>
+        <text class="t-mem m-share" x="740" y="184">정신혜</text>
 
-        <!-- C/S (x=730) -->
-        <rect class="p-mem p-share" x="692" y="252" width="76" height="24" rx="7"/>
-        <text class="t-mem m-share" x="730" y="264">정신혜</text>
-
-        <!-- MD 벤더 (x=900) -->
-        <rect class="p-mem p-md2" x="862" y="252" width="76" height="24" rx="7"/>
-        <text class="t-mem m-md2" x="900" y="264">조혜인</text>
-        <rect class="p-mem p-md2" x="862" y="280" width="76" height="24" rx="7"/>
-        <text class="t-mem m-md2" x="900" y="292">김완성</text>
+        <!-- 벤더 (x=900) — MD 캡션 제거, 벤더 자체가 팀 -->
+        <rect class="p-mem p-vendor" x="862" y="172" width="76" height="24" rx="7"/>
+        <text class="t-mem m-vendor" x="900" y="184">조혜인</text>
+        <rect class="p-mem p-vendor" x="862" y="200" width="76" height="24" rx="7"/>
+        <text class="t-mem m-vendor" x="900" y="212">김완성</text>
       </svg>
 
       <!-- 모바일 전용 카드 레이아웃 (≤600px에서 표시, SVG는 숨김) -->
@@ -6616,19 +6597,36 @@
               <span class="om-mem">이소영</span>
             </div>
           </div>
-          <div class="om-div om-brand">
-            <div class="om-div-name">브랜드</div>
-            <div class="om-teams">
-              <div class="om-team om-mkt"><span class="om-team-name">마케팅</span><span class="om-mem">김수민</span><span class="om-mem">이승원</span><span class="om-mem">박규현</span></div>
-              <div class="om-team om-design"><span class="om-team-name">디자인</span></div>
-              <div class="om-team om-md2"><span class="om-team-name">MD팀</span><span class="om-mem">김채원</span><span class="om-mem">지희선</span></div>
-              <div class="om-team om-share"><span class="om-team-name">C/S</span><span class="om-mem">정신혜</span></div>
+          <div class="om-div om-mkt">
+            <div class="om-div-name">마케팅</div>
+            <div class="om-members">
+              <span class="om-mem">김수민</span>
+              <span class="om-mem">이승원</span>
+              <span class="om-mem">박규현</span>
+            </div>
+          </div>
+          <div class="om-div om-design">
+            <div class="om-div-name">디자인</div>
+            <div class="om-members"></div>
+          </div>
+          <div class="om-div om-md2">
+            <div class="om-div-name">MD팀</div>
+            <div class="om-members">
+              <span class="om-mem">김채원</span>
+              <span class="om-mem">지희선</span>
+            </div>
+          </div>
+          <div class="om-div om-share">
+            <div class="om-div-name">C/S</div>
+            <div class="om-members">
+              <span class="om-mem">정신혜</span>
             </div>
           </div>
           <div class="om-div om-vendor">
             <div class="om-div-name">벤더</div>
-            <div class="om-teams">
-              <div class="om-team om-md2"><span class="om-team-name">MD</span><span class="om-mem">조혜인</span><span class="om-mem">김완성</span></div>
+            <div class="om-members">
+              <span class="om-mem">조혜인</span>
+              <span class="om-mem">김완성</span>
             </div>
           </div>
         </div>
@@ -14294,12 +14292,12 @@
   /* 인원 pill 슬롯. base = 현재 마지막 pill의 y (top). i번째 추가 인원 = base + 28*(i+1).
      pill: rect(x-38, y, 76, 24) + text(x, y+12) */
   const ORG_SLOTS={
-    'logi':      {x:200, cls:'m-logi',   pcls:'p-logi',   base:308}, // 3명 (252/280/308) → 다음 336
-    'mkt':       {x:370, cls:'m-mkt',    pcls:'p-mkt',    base:308},
-    'design':    {x:490, cls:'m-design', pcls:'p-design', base:224}, // 0명 → 첫 인원 y=252
-    'md_brand':  {x:610, cls:'m-md2',    pcls:'p-md2',    base:280}, // 2명 (252/280) → 다음 308
-    'share':     {x:730, cls:'m-share',  pcls:'p-share',  base:252}, // 1명 (252) → 다음 280
-    'md_vendor': {x:900, cls:'m-md2',    pcls:'p-md2',    base:280}, // 2명 (252/280) → 다음 308
+    'logi':      {x:100, cls:'m-logi',   pcls:'p-logi',   base:228}, // 3명 (172/200/228) → 다음 256
+    'mkt':       {x:260, cls:'m-mkt',    pcls:'p-mkt',    base:228},
+    'design':    {x:420, cls:'m-design', pcls:'p-design', base:144}, // 0명 → 첫 인원 y=172
+    'md_brand':  {x:580, cls:'m-md2',    pcls:'p-md2',    base:200}, // 2명 (172/200) → 다음 228
+    'share':     {x:740, cls:'m-share',  pcls:'p-share',  base:172}, // 1명 (172) → 다음 200
+    'md_vendor': {x:900, cls:'m-vendor', pcls:'p-vendor', base:200}, // 2명 (172/200) → 다음 228
   };
   function _staffSlotKey(s){
     const dept=String(s.dept||''), team=String(s.team||'');
@@ -14326,7 +14324,7 @@
       if(!k) continue;
       (groups[k]=groups[k]||[]).push(s);
     }
-    let maxY=332;
+    let maxY=252;
     const NS='http://www.w3.org/2000/svg';
     for(const k of Object.keys(groups)){
       const slot=ORG_SLOTS[k]; if(!slot) continue;
@@ -14353,19 +14351,19 @@
         if(y+24>maxY) maxY=y+24;
       });
     }
-    // viewBox height 확장 (기본 360, 인원 많으면 늘림)
-    const need=Math.max(360, maxY+16);
-    const vb=svg.getAttribute('viewBox')?.split(/\s+/)||['0','0','1100','360'];
+    // viewBox height 확장 (기본 275, 인원 많으면 늘림)
+    const need=Math.max(275, maxY+16);
+    const vb=svg.getAttribute('viewBox')?.split(/\s+/)||['0','0','1100','275'];
     if(vb[3]!==String(need)) svg.setAttribute('viewBox',`${vb[0]} ${vb[1]} ${vb[2]} ${need}`);
 
     // 모바일 카드에도 append (기존 om-team/om-div 안 om-mem 뒤로 삽입)
     const MOBILE_HOSTS={
-      'logi':      '.org-mobile .om-logi .om-members',
-      'mkt':       '.org-mobile .om-brand .om-team.om-mkt',
-      'design':    '.org-mobile .om-brand .om-team.om-design',
-      'md_brand':  '.org-mobile .om-brand .om-team.om-md2',
-      'share':     '.org-mobile .om-brand .om-team.om-share',
-      'md_vendor': '.org-mobile .om-vendor .om-team.om-md2',
+      'logi':      '.org-mobile .om-div.om-logi .om-members',
+      'mkt':       '.org-mobile .om-div.om-mkt .om-members',
+      'design':    '.org-mobile .om-div.om-design .om-members',
+      'md_brand':  '.org-mobile .om-div.om-md2 .om-members',
+      'share':     '.org-mobile .om-div.om-share .om-members',
+      'md_vendor': '.org-mobile .om-div.om-vendor .om-members',
     };
     for(const k of Object.keys(groups)){
       const host=document.querySelector(MOBILE_HOSTS[k]);
