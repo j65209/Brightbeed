@@ -6508,14 +6508,14 @@
     <div class="org-chart-wrap">
       <svg class="org-svg" viewBox="0 0 1100 275" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bead Universe Co., Ltd. 조직도">
         <!-- ===== 연결선 ===== -->
-        <path class="line" d="M 550 46 V 60"/>
-        <path class="line l-ceo" d="M 500 60 H 600"/>
-        <path class="line l-ceo" d="M 500 60 V 70"/>
-        <path class="line l-ceo" d="M 600 60 V 70"/>
-        <path class="line l-ceo" d="M 500 100 V 108"/>
-        <path class="line l-ceo" d="M 600 100 V 108"/>
-        <path class="line l-ceo" d="M 500 108 H 600"/>
-        <path class="line" d="M 550 108 V 132"/>
+        <path class="line" d="M 500 46 V 60"/>
+        <path class="line l-ceo" d="M 450 60 H 550"/>
+        <path class="line l-ceo" d="M 450 60 V 70"/>
+        <path class="line l-ceo" d="M 550 60 V 70"/>
+        <path class="line l-ceo" d="M 450 100 V 108"/>
+        <path class="line l-ceo" d="M 550 100 V 108"/>
+        <path class="line l-ceo" d="M 450 108 H 550"/>
+        <path class="line" d="M 500 108 V 132"/>
 
         <!-- 팀 버스 (y=132) → 6팀 (물류·마케팅·디자인·MD팀·C/S·벤더) -->
         <path class="line" d="M 100 132 H 900"/>
@@ -6528,14 +6528,14 @@
 
         <!-- ===== 노드 ===== -->
         <!-- Root -->
-        <rect class="b-root" x="295" y="8" width="510" height="38" rx="10"/>
-        <text class="t-root" x="550" y="27">Bead Universe Co., Ltd.</text>
+        <rect class="b-root" x="245" y="8" width="510" height="38" rx="10"/>
+        <text class="t-root" x="500" y="27">Bead Universe Co., Ltd.</text>
 
         <!-- 대표 -->
-        <rect class="b-ceo" x="455" y="70" width="90" height="30" rx="7"/>
-        <text class="t-ceo" x="500" y="85">대표 전승훈</text>
-        <rect class="b-ceo" x="555" y="70" width="90" height="30" rx="7"/>
-        <text class="t-ceo" x="600" y="85">대표 전수빈</text>
+        <rect class="b-ceo" x="405" y="70" width="90" height="30" rx="7"/>
+        <text class="t-ceo" x="450" y="85">대표 전승훈</text>
+        <rect class="b-ceo" x="505" y="70" width="90" height="30" rx="7"/>
+        <text class="t-ceo" x="550" y="85">대표 전수빈</text>
 
         <!-- 팀 캡션 (텍스트 only, 6팀) -->
         <text class="t-teamcap c-logi"   x="100" y="158">물류</text>
@@ -10541,7 +10541,10 @@
     return m ? `${m[1]}-${m[2]}` : '';
   }
   /* 렌더 시 지난 주/달 계획 자동 정리 */
-  function _diaryPurgeStale(){
+  /* 렌더 시 지난 주/달 계획을 아카이브로 이동 (지우지 않음).
+     - weeklyArchive[weekStart] = [items], monthlyArchive[monthKey] = [items]
+     - 사장님 요청: 초기화되면 이전 것을 볼 수 있게 해달라 */
+  function _diaryArchiveStale(){
     const today = _diaryTodayStr();
     const nowWeek = _diaryWeekStart(today);
     const nowMonth = _diaryMonthKey(today);
@@ -10549,17 +10552,47 @@
     let changed = false;
     Object.keys(all).forEach(name=>{
       const s = all[name] || {};
+      if(!s.weeklyArchive || typeof s.weeklyArchive !== 'object') s.weeklyArchive = {};
+      if(!s.monthlyArchive || typeof s.monthlyArchive !== 'object') s.monthlyArchive = {};
       if(Array.isArray(s.weekly)){
-        const kept = s.weekly.filter(it => !it.createdAt || _diaryWeekStart(it.createdAt) >= nowWeek);
-        if(kept.length !== s.weekly.length){ s.weekly = kept; changed = true; }
+        const kept = [];
+        const stale = [];
+        s.weekly.forEach(it=>{
+          if(!it.createdAt || _diaryWeekStart(it.createdAt) >= nowWeek) kept.push(it);
+          else stale.push(it);
+        });
+        if(stale.length){
+          stale.forEach(it=>{
+            const wk = _diaryWeekStart(it.createdAt);
+            if(!wk) return;
+            (s.weeklyArchive[wk] = s.weeklyArchive[wk] || []).push(it);
+          });
+          s.weekly = kept;
+          changed = true;
+        }
       }
       if(Array.isArray(s.monthly)){
-        const kept = s.monthly.filter(it => !it.createdAt || _diaryMonthKey(it.createdAt) >= nowMonth);
-        if(kept.length !== s.monthly.length){ s.monthly = kept; changed = true; }
+        const kept = [];
+        const stale = [];
+        s.monthly.forEach(it=>{
+          if(!it.createdAt || _diaryMonthKey(it.createdAt) >= nowMonth) kept.push(it);
+          else stale.push(it);
+        });
+        if(stale.length){
+          stale.forEach(it=>{
+            const mk = _diaryMonthKey(it.createdAt);
+            if(!mk) return;
+            (s.monthlyArchive[mk] = s.monthlyArchive[mk] || []).push(it);
+          });
+          s.monthly = kept;
+          changed = true;
+        }
       }
     });
     if(changed) saveDiaryAll(all);
   }
+  /* 하위 호환용 alias */
+  const _diaryPurgeStale = _diaryArchiveStale;
   function _diaryFmtDate(s){
     if(!s) return '';
     const m=s.match(/(\d{4})-(\d{2})-(\d{2})/); if(!m) return s;
@@ -10579,6 +10612,8 @@
           weekly:  Array.isArray(s.weekly)  ? s.weekly  : [],
           monthly: Array.isArray(s.monthly) ? s.monthly : [],
           daily:   (s.daily && typeof s.daily==='object') ? s.daily : {},
+          weeklyArchive:  (s.weeklyArchive  && typeof s.weeklyArchive  === 'object') ? s.weeklyArchive  : {},
+          monthlyArchive: (s.monthlyArchive && typeof s.monthlyArchive === 'object') ? s.monthlyArchive : {},
         };
         return;
       }
@@ -10600,7 +10635,7 @@
           daily[date] = {tasks: e.tasks};
         }
       });
-      out[name] = {reqs, weekly:[], monthly:[], daily};
+      out[name] = {reqs, weekly:[], monthly:[], daily, weeklyArchive:{}, monthlyArchive:{}};
     });
     return out;
   }
@@ -11002,22 +11037,26 @@
     const entry = _diaryEntries[name];
     if(!entry) return;
     const all = loadDiaryAll();
-    const s = all[name] || {reqs:[], weekly:[], monthly:[], daily:{}};
+    const s = all[name] || {reqs:[], weekly:[], monthly:[], daily:{}, weeklyArchive:{}, monthlyArchive:{}};
     s.reqs    = entry.reqs    || [];
     s.weekly  = entry.weekly  || [];
     s.monthly = entry.monthly || [];
     if(!s.daily) s.daily = {};
+    if(!s.weeklyArchive) s.weeklyArchive = {};
+    if(!s.monthlyArchive) s.monthlyArchive = {};
     const dayTasks = entry.tasks || [];
     if(dayTasks.length > 0){
       s.daily[_diaryState.date] = {tasks: dayTasks};
     } else if(s.daily[_diaryState.date]){
       delete s.daily[_diaryState.date];
     }
-    const hasReqs    = s.reqs.length > 0;
-    const hasWeekly  = s.weekly.length > 0;
-    const hasMonthly = s.monthly.length > 0;
-    const hasDaily   = Object.keys(s.daily).length > 0;
-    if(!hasReqs && !hasWeekly && !hasMonthly && !hasDaily){
+    const hasReqs      = s.reqs.length > 0;
+    const hasWeekly    = s.weekly.length > 0;
+    const hasMonthly   = s.monthly.length > 0;
+    const hasDaily     = Object.keys(s.daily).length > 0;
+    const hasWkArch    = Object.keys(s.weeklyArchive).length > 0;
+    const hasMoArch    = Object.keys(s.monthlyArchive).length > 0;
+    if(!hasReqs && !hasWeekly && !hasMonthly && !hasDaily && !hasWkArch && !hasMoArch){
       if(all[name]) delete all[name];
     } else {
       all[name] = s;
@@ -11111,6 +11150,8 @@
         weekly:  Array.isArray(s.weekly)  ? s.weekly.slice()  : [],
         monthly: Array.isArray(s.monthly) ? s.monthly.slice() : [],
         tasks:   dayTasks.slice(),
+        weeklyArchive:  (s.weeklyArchive  && typeof s.weeklyArchive  === 'object') ? s.weeklyArchive  : {},
+        monthlyArchive: (s.monthlyArchive && typeof s.monthlyArchive === 'object') ? s.monthlyArchive : {},
       };
     });
 
@@ -11144,7 +11185,7 @@
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">주간 업무 계획<span class="dcs-sec-title-count" data-weekly-cnt>0</span><span class="dcs-reset-hint" title="매주 월요일 자동 초기화">${_esc(wkReset)}</span></div>
+          <div class="dcs-sec-title">주간 업무 계획<span class="dcs-sec-title-count" data-weekly-cnt>0</span><span class="dcs-reset-hint" title="매주 월요일 자동 초기화">${_esc(wkReset)}</span><button class="dcs-archive-btn" data-archive-btn="weekly" hidden title="지난 주간 계획 보기">📜 <span data-archive-cnt="weekly">0</span></button></div>
           <button class="dcs-add" data-add="weekly" title="주간 계획 추가">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
@@ -11155,7 +11196,7 @@
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">월 목표 계획<span class="dcs-sec-title-count" data-monthly-cnt>0</span><span class="dcs-reset-hint" title="매월 1일 자동 초기화">${_esc(moReset)}</span></div>
+          <div class="dcs-sec-title">월 목표 계획<span class="dcs-sec-title-count" data-monthly-cnt>0</span><span class="dcs-reset-hint" title="매월 1일 자동 초기화">${_esc(moReset)}</span><button class="dcs-archive-btn" data-archive-btn="monthly" hidden title="지난 월 목표 보기">📜 <span data-archive-cnt="monthly">0</span></button></div>
           <button class="dcs-add" data-add="monthly" title="월 목표 추가">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
@@ -11251,6 +11292,20 @@
     const cnt   = card.querySelector(`[data-${kind}-cnt]`);
     cnt.textContent = items.length;
     empty.hidden = items.length > 0;
+    // 아카이브 개수 뱃지 업데이트
+    const archKey = (kind === 'weekly') ? 'weeklyArchive' : 'monthlyArchive';
+    const archObj = entry[archKey] || {};
+    const archCount = Object.values(archObj).reduce((n, arr)=> n + (Array.isArray(arr)?arr.length:0), 0);
+    const archBtn = card.querySelector(`[data-archive-btn="${kind}"]`);
+    const archCntEl = card.querySelector(`[data-archive-cnt="${kind}"]`);
+    if(archBtn && archCntEl){
+      archCntEl.textContent = archCount;
+      archBtn.hidden = archCount === 0;
+      if(!archBtn._bound){
+        archBtn._bound = true;
+        archBtn.onclick = ()=> _diaryOpenArchive(st.name, kind);
+      }
+    }
     list.innerHTML = '';
     items.forEach((it, idx)=>{
       const row = document.createElement('div');
