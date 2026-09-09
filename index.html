@@ -10835,6 +10835,8 @@
       if(local[name]) merged[name]=local[name];
       else delete merged[name];
     }
+    // ③ 나에게 온 새 요청 감지 → 크롬 알림 + toast (Supabase realtime 백업)
+    try{ _diaryDetectIncomingReqs(local, merged); }catch(e){}
     const j=JSON.stringify(merged);
     if(j===_diary_lastHash){
       // 변화 없음 — 하지만 dirty가 남았으면 여전히 push 예약
@@ -10849,6 +10851,58 @@
     if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
       _diaryRenderBoard();
     }
+  }
+
+  /* 나에게 온 새 요청 감지 + 알림 발동 (Supabase realtime 백업).
+     · me = 이 PC 주인 (없으면 스킵)
+     · 이전에 못 봤던 req.id 중 done 아니고 text 있는 것 → 알림
+     · _diarySeenReqIds Set 으로 세션 내 중복 방지 (새로고침 하면 초기화 되어 다시 알림 X: 초기화 시 remote 것을 이미 본 것으로 마킹) */
+  const _diarySeenReqIds = new Set();
+  let _diarySeenInit = false;
+  function _diaryDetectIncomingReqs(local, next){
+    const me = (typeof _diaryGetMe === 'function') ? _diaryGetMe() : '';
+    if(!me) return;
+    const meNext = next[me];
+    if(!meNext || !Array.isArray(meNext.reqs)) {
+      // 초기화 (처음 sync 시 아무 것도 없으면 그냥 seen 표시)
+      _diarySeenInit = true;
+      return;
+    }
+    // 첫 sync 시 이미 있는 것은 seen으로 marking → 신규만 알림
+    if(!_diarySeenInit){
+      meNext.reqs.forEach(r=>{ if(r?.id) _diarySeenReqIds.add(r.id) });
+      _diarySeenInit = true;
+      return;
+    }
+    // 로컬에 없던(=새로 원격에서 온) 요청만 필터
+    const localReqIds = new Set(((local[me]||{}).reqs||[]).map(r=>r?.id).filter(Boolean));
+    const fresh = meNext.reqs.filter(r=>{
+      if(!r || !r.id) return false;
+      if(r.done) return false;
+      if(!r.text || !String(r.text).trim()) return false;
+      if(_diarySeenReqIds.has(r.id)) return false;
+      if(localReqIds.has(r.id)) return false;  // 내가 이미 알고 있던 것
+      return true;
+    });
+    fresh.forEach(r=>{
+      _diarySeenReqIds.add(r.id);
+      _diaryFireLocalNotif(me, r);
+    });
+  }
+  function _diaryFireLocalNotif(toName, req){
+    const from = req.from || '누군가';
+    const text = String(req.text||'').slice(0, 140);
+    if('Notification' in window && Notification.permission === 'granted'){
+      try{
+        const n = new Notification(`업무 요청: ${from}님`, {
+          body: text,
+          tag: 'diary-req-'+req.id,
+          requireInteraction: false,
+        });
+        n.onclick = ()=>{ window.focus(); n.close(); if(typeof triggerDiary === 'function') triggerDiary(); };
+      }catch(e){}
+    }
+    if(typeof toast === 'function') toast(`${from} → ${text}`, 'info');
   }
   window.syncDiaryFromRemote=syncDiaryFromRemote;
 
@@ -11603,9 +11657,21 @@
         _diaryScheduleSaveFor(st.name);
       };
       const txt = row.querySelector('.dcs-req-text');
-      txt.oninput = ()=>{ r.text = txt.innerText; _diaryScheduleSaveFor(st.name); };
+      txt.oninput = ()=>{
+        r.text = txt.innerText;
+        _diaryScheduleSaveFor(st.name);
+        // 입력 후 700ms 정지 시 자동으로 supabase push (blur 기다리지 않음)
+        clearTimeout(r._pushTimer);
+        r._pushTimer = setTimeout(()=>{
+          if(!r._pushed && r.text && r.text.trim().length >= 2 && !r.done){
+            r._pushed = true;
+            _diaryPushRequestToSupabase(st.name, r.from || _diaryGetMe() || '', r.text.trim());
+          }
+        }, 700);
+      };
       txt.onblur = ()=>{
-        // 첫 등록 시 supabase로 push (다른 PC 알림 발생). done인 요청은 스킵.
+        // 안전망 — oninput debounce가 놓친 경우에도 blur 시 push
+        clearTimeout(r._pushTimer);
         if(!r._pushed && r.text && r.text.trim() && !r.done){
           r._pushed = true;
           _diaryPushRequestToSupabase(st.name, r.from || _diaryGetMe() || '', r.text.trim());
