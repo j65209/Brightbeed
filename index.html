@@ -2500,25 +2500,16 @@
     color:var(--text-0);letter-spacing:-0.01em;min-width:84px;text-align:center;
   }
   .wht-mo-nav-arrow{font-weight:700}
-  .wht-tabs{
-    display:flex;gap:6px;padding:4px;
-    background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
-    margin-bottom:14px;flex-wrap:wrap;
+  .wht-pane{margin-top:6px}
+  .wht-pane + .wht-pane{margin-top:22px;padding-top:22px;border-top:1px dashed var(--line)}
+  .wht-pane-title{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 14px;margin-bottom:10px;
+    background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
+    color:#fff;font-family:var(--sans);font-weight:700;font-size:13.5px;letter-spacing:-.1px;
+    border-radius:8px;box-shadow:0 3px 10px rgba(79,70,229,.25);
   }
-  .wht-tab{
-    flex:1 1 200px;padding:10px 14px;
-    font-family:var(--sans);font-weight:600;font-size:13px;color:var(--text-2);
-    background:transparent;border:1px solid transparent;border-radius:7px;cursor:pointer;
-    transition:all .12s;letter-spacing:-.1px;
-    display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  }
-  .wht-tab:hover{color:var(--text-0);background:var(--bg-1)}
-  .wht-tab.active{
-    color:#fff;background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
-    border-color:rgba(79,70,229,.5);
-    box-shadow:0 3px 10px rgba(79,70,229,.25);
-  }
-  .wht-tab-sub{font-size:10.5px;opacity:.78;font-weight:500}
+  .wht-pane-title-sub{font-size:10.5px;opacity:.85;font-weight:500}
   .wht-pane-hint{
     font-size:12px;color:var(--text-2);letter-spacing:-.1px;
     padding:0 4px 10px;line-height:1.55;
@@ -2569,15 +2560,6 @@
   .wht-input.wht-mono{font-family:var(--mono);font-size:12px;letter-spacing:.02em}
   .wht-input.wht-readonly{background:transparent;color:var(--text-2);cursor:default;font-weight:600}
   .wht-input.wht-readonly:focus{background:transparent;border-color:transparent;box-shadow:none}
-  .wht-bank-sel{
-    width:100%;box-sizing:border-box;
-    padding:6px 8px;font-family:var(--sans);font-size:12.5px;
-    color:var(--text-0);background:var(--bg-0);
-    border:1px solid transparent;border-radius:6px;
-    cursor:pointer;transition:border-color .12s;
-  }
-  .wht-bank-sel:hover{border-color:var(--line)}
-  .wht-bank-sel:focus{outline:none;background:var(--bg-1);border-color:var(--neon-vendor);box-shadow:0 0 0 2px rgba(79,70,229,.15)}
   .wht-row-del{
     display:inline-flex;align-items:center;justify-content:center;
     width:28px;height:28px;padding:0;
@@ -2645,11 +2627,12 @@
   .wht-archive-empty{font-size:11.5px;color:var(--text-3);font-style:italic}
   @media(max-width:600px){
     .wht-body{padding:10px 8px 12px}
-    .wht-tab{flex-basis:100%;font-size:12px;padding:8px 10px}
     .wht-actions{flex-direction:column;align-items:stretch}
     .wht-btn{justify-content:center}
     .wht-pane-hint{font-size:11.5px}
+    .wht-pane-title{font-size:12.5px;padding:7px 12px}
     .wht-mo-label{font-size:12px;min-width:70px}
+    .wht-pane + .wht-pane{margin-top:16px;padding-top:16px}
   }
 
   /* ===== 브랜드별 실시간 매출 리포트 (식스샵 + 식스샵프로) ===== */
@@ -7578,14 +7561,11 @@
             <span class="wht-archive-label">📚 저장된 월</span>
             <div class="wht-archive-chips" id="whtArchiveChips"><span class="wht-archive-empty">불러오는 중…</span></div>
           </div>
-          <div class="wht-tabs" role="tablist">
-            <button type="button" class="wht-tab active" data-tab="withdrawal" role="tab" aria-selected="true" onclick="whtSwitchTab('withdrawal')">💸 사업자·개인 출금</button>
-            <button type="button" class="wht-tab" data-tab="freelancer" role="tab" aria-selected="false" onclick="whtSwitchTab('freelancer')">📄 프리랜서 원천징수 <span class="wht-tab-sub">3.3%</span></button>
-            <button type="button" class="wht-tab" data-tab="invoice" role="tab" aria-selected="false" onclick="whtSwitchTab('invoice')">🧾 세금계산서 발행 <span class="wht-tab-sub">입금</span></button>
-          </div>
+          <datalist id="whtBankList"></datalist>
 
           <!-- 사업자·개인 출금 -->
           <div class="wht-pane" data-pane="withdrawal">
+            <div class="wht-pane-title">💸 사업자·개인 출금</div>
             <div class="wht-pane-hint"><b>사업자·개인 출금</b> — 공구건 정산 (원천세 없음). 사업자 또는 개인 셀러 지급.</div>
             <div class="wht-table-wrap">
               <table class="wht-table">
@@ -7621,7 +7601,8 @@
           </div>
 
           <!-- 프리랜서 원천징수 -->
-          <div class="wht-pane" data-pane="freelancer" hidden>
+          <div class="wht-pane" data-pane="freelancer">
+            <div class="wht-pane-title">📄 프리랜서 원천징수 <span class="wht-pane-title-sub">3.3%</span></div>
             <div class="wht-pane-hint"><b>사업소득 원천징수 3.3%</b> — 프리랜서 지급. <b>3.3% 제외한 실지급액</b>을 기재.</div>
             <div class="wht-table-wrap">
               <table class="wht-table">
@@ -7656,7 +7637,8 @@
           </div>
 
           <!-- 세금계산서 발행 (입금) -->
-          <div class="wht-pane" data-pane="invoice" hidden>
+          <div class="wht-pane" data-pane="invoice">
+            <div class="wht-pane-title">🧾 세금계산서 발행 <span class="wht-pane-title-sub">입금</span></div>
             <div class="wht-pane-hint"><b>세금계산서 발행 (입금)</b> — 브랜드에 발행. <b>발행금액</b> 입력 시 공급가액(÷1.1)·부가세(×10%) 자동계산.</div>
             <div class="wht-table-wrap">
               <table class="wht-table wht-table-invoice">
@@ -11605,9 +11587,10 @@
     const b64=btoa(unescape(encodeURIComponent(jsonBody)));
     const r=await ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true});
     if(r.ok){
-      // 성공: dirty + tombstone 정리, 로컬을 merged로 통일
+      // 성공: dirty 정리, 로컬을 merged로 통일
       dirtyNames.forEach(n=>_diaryDirty.delete(n));
-      _diarySaveTombstones({});   // 반영됐으니 clear
+      // tombstone 은 clear 하지 않음 — raw.githubusercontent.com CDN 이 몇 초 lag 하는 동안
+      // 오래된 remote 를 그대로 쓰면 삭제한 항목이 부활하는 문제 발생. 24시간 후 자동 만료.
       _diary_lastHash=JSON.stringify(merged);
       localStorage.setItem(DIARY_KEY, _diary_lastHash);
     } else if(r.reason==='auth'){
@@ -11627,9 +11610,16 @@
     syncDiaryFromRemote(true);
     // 이후 5초 주기 — 요청이 다른 사람에게 빨리 뜨도록 폴링 단축
     _diaryPullTimer=setInterval(()=>syncDiaryFromRemote(false), 5*1000);
-    // 창이 다시 활성화되면 즉시 sync
+    // 창이 다시 활성화 → 즉시 pull / 창이 숨겨짐 → 대기 중인 push 즉시 flush (미저장 삭제 유실 방지)
     document.addEventListener('visibilitychange', ()=>{
-      if(!document.hidden) syncDiaryFromRemote(false);
+      if(document.hidden){
+        if(_diaryDirty.size > 0){
+          clearTimeout(_diaryPushTimer);
+          pushDiaryToRemote();
+        }
+      } else {
+        syncDiaryFromRemote(false);
+      }
     });
   }
   window.startDiarySync=startDiarySync;
@@ -11986,8 +11976,9 @@
     clearTimeout(_diaryState.saveTimers[name]);
     _diaryDirty.add(name);
     _diary_lastEditTs = Date.now();
+    // localStorage 는 즉시 반영 → 새로고침해도 최신 상태 보임 (삭제한 항목이 돌아오는 문제 방지)
+    _diaryPersistStaff(name);
     _diaryState.saveTimers[name] = setTimeout(()=>{
-      _diaryPersistStaff(name);
       _diaryFlashSave();
       _diaryUpdateAlert();
       _diarySchedulePush();
@@ -19354,7 +19345,7 @@
   const _whtState = {
     ym:'', data:{withdrawal:[],freelancer:[],invoice:[]},
     loaded:false, loading:false, saving:false, saveTimer:null,
-    activeTab:'withdrawal', bound:false,
+    bound:false,
     archive:null, archiveLoading:false,
   };
   function _whtToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
@@ -19522,17 +19513,6 @@
       _whtState.saving=false;
     }
   }
-  function whtSwitchTab(tab){
-    _whtState.activeTab=tab;
-    document.querySelectorAll('#whtSection .wht-tab').forEach(b=>{
-      const on=b.dataset.tab===tab;
-      b.classList.toggle('active',on);
-      b.setAttribute('aria-selected',on?'true':'false');
-    });
-    document.querySelectorAll('#whtSection .wht-pane').forEach(p=>{
-      p.hidden=p.dataset.pane!==tab;
-    });
-  }
   function whtMonthPrev(){_whtShiftMonth(-1)}
   function whtMonthNext(){_whtShiftMonth(1)}
   function whtMonthToday(){_whtState.ym=_whtToday(); _whtState.loaded=false; _whtRenderMonthLabel(); whtLoad(true)}
@@ -19573,14 +19553,22 @@
   function _whtTotalId(section){return{withdrawal:'whtWithdrawalTotal',freelancer:'whtFreelancerTotal',invoice:'whtInvoiceTotal'}[section]}
   function _whtRenderAll(){
     _whtRenderMonthLabel();
+    _whtRenderBankList();
     _whtRenderPane('withdrawal');
     _whtRenderPane('freelancer');
     _whtRenderPane('invoice');
   }
-  function _whtBankOptions(sel){
-    const s=String(sel||'');
-    return `<option value=""${s?'':' selected'}>—</option>`+
-      WHT_BANKS.map(b=>`<option value="${_esc(b)}"${b===s?' selected':''}>${_esc(b)}</option>`).join('');
+  function _whtRenderBankList(){
+    const dl=document.getElementById('whtBankList');
+    if(!dl) return;
+    const set=new Set(WHT_BANKS);
+    ['withdrawal','freelancer'].forEach(sec=>{
+      (_whtState.data[sec]||[]).forEach(r=>{
+        const b=String(r&&r.bank||'').trim();
+        if(b) set.add(b);
+      });
+    });
+    dl.innerHTML=Array.from(set).map(b=>`<option value="${_esc(b)}">`).join('');
   }
   function _whtRenderPane(section){
     const body=document.getElementById(_whtBodyId(section));
@@ -19601,7 +19589,7 @@
     if(section==='withdrawal'){
       return `<tr>${num}
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명 또는 이름"></td>
-        <td><select class="wht-bank-sel" data-sec="${section}" data-i="${i}" data-f="bank">${_whtBankOptions(r.bank)}</select></td>
+        <td><input class="wht-input" list="whtBankList" data-sec="${section}" data-i="${i}" data-f="bank" value="${_esc(r.bank||'')}" placeholder="은행 입력 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="000-0000-0000"></td>
         <td><input class="wht-input wht-num" data-sec="${section}" data-i="${i}" data-f="amount" value="${_whtFmtAmt(r.amount)}" placeholder="0" inputmode="numeric"></td>
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="period" value="${_esc(r.period||'')}" placeholder="9/1~9/30"></td>
@@ -19613,7 +19601,7 @@
       return `<tr>${num}
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="이름"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="ssn" value="${_esc(r.ssn||'')}" placeholder="000000-0000000"></td>
-        <td><select class="wht-bank-sel" data-sec="${section}" data-i="${i}" data-f="bank">${_whtBankOptions(r.bank)}</select></td>
+        <td><input class="wht-input" list="whtBankList" data-sec="${section}" data-i="${i}" data-f="bank" value="${_esc(r.bank||'')}" placeholder="은행 입력 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="계좌번호"></td>
         <td><input class="wht-input wht-num" data-sec="${section}" data-i="${i}" data-f="amount" value="${_whtFmtAmt(r.amount)}" placeholder="0" inputmode="numeric"></td>
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="memo" value="${_esc(r.memo||'')}" placeholder=""></td>
@@ -19680,6 +19668,7 @@
       _whtUpdateTotals(sec);
     } else {
       arr[i][f]=String(el.value||'');
+      if(f==='bank') _whtRenderBankList();
     }
     _whtQueueSave();
   }
@@ -19725,7 +19714,6 @@
   window.whtRefreshAccess=whtRefreshAccess;
   window.whtEnsureLoaded=whtEnsureLoaded;
   window.whtReload=whtReload;
-  window.whtSwitchTab=whtSwitchTab;
   window.whtAddRow=whtAddRow;
   window.whtDelRow=whtDelRow;
   window.whtCopyTable=whtCopyTable;
