@@ -4890,6 +4890,12 @@
     background:linear-gradient(180deg,#fee2e2 0%,#fef2f2 60%);
     border-color:#f87171;color:#7f1d1d;
   }
+  .diary-notif-banner-ok{
+    background:linear-gradient(180deg,#dcfce7 0%,#f0fdf4 60%);
+    border-color:#86efac;color:#14532d;
+  }
+  .diary-notif-banner-ok .diary-notif-banner-btn{background:#166534;color:#dcfce7}
+  .diary-notif-banner-ok .diary-notif-banner-btn:hover{background:#052e16}
   .diary-notif-banner-err .diary-notif-banner-help{color:#991b1b}
   .diary-notif-banner-err .diary-notif-banner-help b{color:#7f1d1d}
 
@@ -10978,7 +10984,17 @@
       if(board && board.parentNode) board.parentNode.insertBefore(banner, board);
     }
     if(!me){ banner.hidden = true; return; }
-    if(perm === 'granted'){ banner.hidden = true; return; }
+    if(perm === 'granted'){
+      // 허용됐어도 실제로 시스템에서 뜨는지 확인할 수 있게 테스트 버튼 표시
+      banner.hidden = false;
+      banner.innerHTML = `
+        <div class="diary-notif-banner-body diary-notif-banner-ok">
+          <span class="diary-notif-banner-icon">🔔</span>
+          <span><b>${_esc(me)}</b>님, 알림 허용됨. 실제로 크롬 알림이 뜨는지 아래 버튼으로 테스트해보세요.</span>
+          <button type="button" class="diary-notif-banner-btn" onclick="_diaryTestNotif()">🧪 테스트 알림 보내기</button>
+        </div>`;
+      return;
+    }
     if(perm === 'default'){
       banner.hidden = false;
       banner.innerHTML = `
@@ -11006,6 +11022,46 @@
     _diaryUpdateNotifBanner();
   }
   window._diaryRequestNotifPerm = _diaryRequestNotifPerm;
+
+  /* 🧪 테스트 알림 — 실제로 크롬 알림이 뜨는지 진단
+     · 알림 발동 성공 + onshow 호출까지 확인해서 결과를 배너에 리포트 */
+  function _diaryTestNotif(){
+    const me = _diaryGetMe() || '사용자';
+    if(!('Notification' in window)){
+      alert('이 브라우저는 알림을 지원하지 않아요.');
+      return;
+    }
+    if(Notification.permission !== 'granted'){
+      alert(`알림 권한 상태: ${Notification.permission}\n크롬 사이트 설정에서 알림을 허용해주세요.`);
+      _diaryUpdateNotifBanner();
+      return;
+    }
+    let shown = false;
+    try {
+      const n = new Notification('🧪 테스트 알림', {
+        body: `${me}님, 이 알림이 보이면 정상입니다.\n안 보이면 macOS 시스템 설정 → 알림 → Chrome 확인`,
+        tag: 'diary-test-'+Date.now(),
+        requireInteraction: true,
+      });
+      n.onshow = ()=>{ shown = true; if(typeof toast === 'function') toast('✅ 알림이 발동됐습니다', 'ok'); };
+      n.onerror = (e)=>{ if(typeof toast === 'function') toast('❌ 알림 발동 오류: '+(e?.message||''), 'err'); };
+      n.onclick = ()=>{ window.focus(); n.close(); if(typeof toast === 'function') toast('🖱 알림 클릭 확인', 'ok'); };
+      setTimeout(()=>{
+        if(!shown){
+          if(typeof toast === 'function') toast('⚠️ 알림 발동은 됐지만 onshow 안 옴 → macOS 방해금지 모드 또는 시스템 알림 차단 가능성', 'err');
+          alert(
+            '알림 API는 실행됐지만 onshow 콜백이 안 옵니다.\n\n원인 가능성:\n' +
+            '1) macOS 방해금지 모드 (상단 알림 센터에서 확인)\n' +
+            '2) macOS 시스템 설정 → 알림 → Google Chrome → "알림 허용" 꺼짐\n' +
+            '3) macOS Focus 모드'
+          );
+        }
+      }, 1500);
+    } catch(e){
+      alert('알림 발동 실패: '+e.message);
+    }
+  }
+  window._diaryTestNotif = _diaryTestNotif;
   window.syncDiaryFromRemote=syncDiaryFromRemote;
 
   async function pushDiaryToRemote(){
