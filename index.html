@@ -4619,18 +4619,22 @@
   .org-svg .p-md2    {fill:rgba(255,140,112,.14); stroke:rgba(255,140,112,.55)}
   .org-svg .p-share  {fill:rgba(212,175,55,.14);  stroke:rgba(212,175,55,.5)}
   .org-svg .p-design {fill:rgba(6,182,212,.14);   stroke:rgba(6,182,212,.55)}
+  .org-svg .p-vendor {fill:rgba(180,108,255,.14); stroke:rgba(180,108,255,.55)}
   .org-svg .t-mem{font-weight:600;font-size:12px;letter-spacing:-.01em}
   .org-svg .t-mem.m-logi  {fill:#9a3412}
   .org-svg .t-mem.m-mkt   {fill:#9d174d}
   .org-svg .t-mem.m-share {fill:#854d0e}
   .org-svg .t-mem.m-md2   {fill:#991b1b}
   .org-svg .t-mem.m-design{fill:#155e75}
+  .org-svg .t-mem.m-vendor{fill:#6d28d9}
   /* 팀 캡션 — 텍스트만, 팀 색 */
   .org-svg .t-teamcap{font-weight:700;font-size:12.5px;letter-spacing:-.01em}
+  .org-svg .t-teamcap.c-logi  {fill:#c2410c}
   .org-svg .t-teamcap.c-mkt   {fill:#be185d}
   .org-svg .t-teamcap.c-design{fill:#0e7490}
   .org-svg .t-teamcap.c-md2   {fill:#b91c1c}
   .org-svg .t-teamcap.c-share {fill:#854d0e}
+  .org-svg .t-teamcap.c-vendor{fill:#6d28d9}
 
   @media (max-width:768px){
     .org-chart-wrap{padding:18px 10px 14px}
@@ -5667,10 +5671,17 @@
   @media (max-width:768px){.leave-grid{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:480px){.leave-grid{grid-template-columns:1fr}}
 
-  .leave-card{position:relative;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;padding:14px 14px 12px;transition:all .15s}
-  .leave-card:hover{border-color:var(--line-2);background:var(--bg-2)}
-  .leave-name-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding-right:28px}
-  .leave-name{font-size:14px;font-weight:600;color:var(--text-0);letter-spacing:-.005em}
+  .leave-card{
+    position:relative;background:var(--bg-1);border:1px solid var(--line);
+    border-radius:12px;padding:18px 20px 16px;transition:all .18s ease;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .leave-card:hover{border-color:var(--line-2);background:var(--bg-2);transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(0,0,0,.12)}
+  /* ─ 상단: 이름/부서 좌측, 사이클 뱃지 우측 ─ */
+  .leave-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-right:24px}
+  .leave-head-left{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .leave-name{font-size:15.5px;font-weight:700;color:var(--text-0);letter-spacing:-.015em;line-height:1.2}
+  .leave-name-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
   /* 직원 숨김(퇴사) 버튼 — master 전용, 카드 우측 상단 */
   .leave-staff-hide{
     position:absolute;top:6px;right:6px;
@@ -5705,26 +5716,72 @@
     transition:background .12s,color .12s
   }
   .leave-hidden-chip button:hover{background:var(--ok);color:#fff}
-  .leave-hire{font-size:10.5px;font-family:var(--mono);color:var(--text-3);letter-spacing:.03em;font-weight:500}
-  .leave-dept{font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.02em;margin-top:3px;margin-bottom:12px}
-  .leave-bar{height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;margin-bottom:8px}
-  .leave-bar-fill{height:100%;border-radius:2px;transition:width .3s}
-  .leave-stats{display:flex;align-items:baseline;justify-content:space-between;font-family:var(--mono)}
+  .leave-dept{font-size:11.5px;color:var(--text-2);letter-spacing:-.005em;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .leave-hire{
+    display:inline-flex;align-items:center;
+    font-size:10.5px;font-family:var(--mono);color:var(--text-3);
+    letter-spacing:.02em;font-weight:500;
+  }
+  /* 사이클 뱃지 — 우상단 pill (경력 스냅샷) */
+  .leave-cycle-badge{
+    display:inline-flex;align-items:center;flex-shrink:0;
+    padding:3px 9px;border-radius:999px;
+    background:var(--bg-2);border:1px solid var(--line);
+    font-size:10.5px;font-weight:700;color:var(--text-2);
+    letter-spacing:-.005em;line-height:1;white-space:nowrap;
+  }
+  .leave-cycle-tag{display:inline-block;padding:1px 7px;margin-left:2px;border-radius:9px;background:rgba(120,113,108,.14);color:var(--text-1);font-size:10px;font-weight:600;letter-spacing:.01em}
+
+  /* ─ 히어로 KPI: 잔여 연차 큰 숫자 (카드의 시선 우선순위 1위) ─ */
+  .leave-hero{
+    display:flex;align-items:baseline;gap:6px;
+    padding:2px 0;
+  }
+  .leave-hero-num{
+    font-family:var(--mono);font-size:34px;font-weight:800;
+    color:var(--text-0);letter-spacing:-.03em;line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .leave-hero-unit{font-size:13px;font-weight:600;color:var(--text-2);letter-spacing:-.01em}
+  .leave-hero-empty{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--text-3);letter-spacing:-.01em}
+
+  /* ─ Progress meter: bar + 사용/총 라벨 ─ */
+  .leave-meter{display:flex;flex-direction:column;gap:6px}
+  .leave-bar{height:6px;background:rgba(0,0,0,.06);border-radius:999px;overflow:hidden}
+  .leave-bar-fill{height:100%;border-radius:999px;transition:width .35s ease}
+  .leave-meter-labels{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+    font-size:11px;color:var(--text-3);font-family:var(--mono);
+    letter-spacing:.01em;font-variant-numeric:tabular-nums;
+  }
+  .leave-meter-usage{color:var(--text-2);font-weight:600}
+  .leave-meter-usage b{color:var(--text-1);font-weight:700}
+  .leave-meter-pct{margin-left:4px;color:var(--text-3);font-weight:500}
+  .leave-meter-hire{color:var(--text-3);font-weight:500;white-space:nowrap}
+
+  /* 편집 모드 편의 (contenteditable 대상) */
+  .leave-card [contenteditable="true"]{
+    outline:1px dashed var(--line);border-radius:4px;padding:0 3px;
+    background:var(--bg-2);cursor:text;
+  }
+  .leave-card [contenteditable="true"]:focus{outline:2px solid var(--brand,#4f46e5);background:#fff}
+
+  /* ─ 초과 상태: 카드 전체 빨간 톤 (강조) ─ */
+  .leave-card.is-over{
+    border-color:rgba(220,38,38,.4);
+    background:linear-gradient(180deg,rgba(254,226,226,.4) 0%,var(--bg-1) 60%);
+  }
+  .leave-card.is-over .leave-hero-num,
+  .leave-card.is-over .leave-hero-unit{color:#b91c1c !important}
+  .leave-card.is-over .leave-bar-fill{background:linear-gradient(90deg,#dc2626,#f87171) !important}
+
+  /* Backward compat — 남긴 셀렉터 (일부 다른 곳에서 참조 가능) */
+  .leave-stats{display:none}
   .leave-remain{font-size:18px;font-weight:700;letter-spacing:-.01em}
   .leave-remain-unit{font-size:11px;color:var(--text-2);font-weight:500;margin-left:2px}
   .leave-total{font-size:11px;color:var(--text-3)}
-  /* 사이클 라벨 — dept 줄에 인라인 배지 */
-  .leave-cycle-tag{display:inline-block;padding:1px 7px;margin-left:2px;border-radius:9px;background:rgba(120,113,108,.14);color:var(--text-1);font-size:10px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;letter-spacing:.01em}
-  /* 마이너스(0일초과) — 진한 빨강 강조 */
   .leave-remain.is-over{color:#b91c1c !important}
   .leave-remain-unit.is-over{color:#b91c1c !important;font-weight:700}
-  .leave-card .leave-remain.is-over,
-  .leave-card.l-logi .leave-remain.is-over,
-  .leave-card.l-brand .leave-remain.is-over,
-  .leave-card.l-share .leave-remain.is-over,
-  .leave-card.l-vendor .leave-remain.is-over,
-  .leave-card.l-mkt .leave-remain.is-over,
-  .leave-card.l-md2 .leave-remain.is-over{color:#b91c1c}
 
   /* 부서 색조 */
   .leave-card.l-logi   {border-color:rgba(255,179,71,.25)}
@@ -11720,17 +11777,18 @@
     const pct=hasFull&&total>0?Math.min(100,Math.round((Math.max(0,usedEff)/total)*100)):0;
     const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
     const cycleLabel = cycle && cycle.cycleIndex>=0 ? cycle.label : (cycle && cycle.cycleIndex<0 ? '미입사' : '');
-    const subFull = cycleLabel ? `${sub} · <span class="leave-cycle-tag">${escapeHTML(cycleLabel)}</span>` : sub;
     const ceNum=editing?'contenteditable="true" inputmode="numeric" spellcheck="false"':'';
     const ceTxt=editing?'contenteditable="true" spellcheck="false"':'';
     const showHire=editing||hire;
-    const hireHtml=showHire?`<span class="leave-hire" data-field="hire" ${ceTxt}>${escapeHTML(hire)}</span>`:'';
+    const hireLabel=hire ? `입사 ${escapeHTML(hire.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1.$2.$3').replace(/^(\d{4})\./,''))}` : '';
+    const hireHtml=showHire?`<span class="leave-meter-hire"><span data-field="hire" ${ceTxt}>${escapeHTML(hire||'')}</span></span>`:'';
     // 어떤 정보든 있으면 정상 색 카드, 둘 다 없을 때만 leave-empty (회색 톤)
     const isEmpty=used===null&&total===null;
-    // 남음 표시 — 마이너스면 "N일초과", 양수면 "N일 남음"
-    const remainTextValue = remain===null ? '—' : (remain<0 ? `-${Math.abs(remain)}` : remain);
-    const remainUnitText = remain===null ? ' 미입력' : (remain<0 ? '일초과' : '일 남음');
-    const remainClass = remain!==null && remain<0 ? ' is-over' : '';
+    // 히어로 KPI: 잔여 연차
+    const isOver = remain !== null && remain < 0;
+    const heroNum = remain===null ? '—' : (isOver ? `-${Math.abs(remain)}` : remain);
+    const heroUnit = remain===null ? '미입력' : (isOver ? '일 초과' : '일 남음');
+    const overClass = isOver ? ' is-over' : '';
     // 사용 내역 — STAFF baseline(deletes 제외) + leaveData(v) 추가분 병합 후 날짜 정렬
     const baselineDeletes=Array.isArray(v?.baselineDeletes)?v.baselineDeletes:[];
     const _delSet=new Set(baselineDeletes.map(d=>`${d.date}|${d.type}`));
@@ -11766,22 +11824,33 @@
     const hideBtn=`<button class="leave-staff-hide master-only" type="button" title="이 직원을 조직도에서 숨김 (퇴사 처리)" onclick="hideStaffMember('${escapeHTML(s.name)}')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
     </button>`;
+    const cycleBadge = cycleLabel ? `<span class="leave-cycle-badge">${escapeHTML(cycleLabel)}</span>` : '';
+    const pctText = hasFull && total > 0 ? ` <span class="leave-meter-pct">· ${pct}%</span>` : '';
+    const usageInner = editing
+      ? `<span data-field="used" ${ceNum}>${usedDisplay??''}</span><span class="leave-meter-sep">/</span><span data-field="total" ${ceNum}>${total??''}</span>일 사용`
+      : (hasFull
+          ? `<b>${usedDisplay??0}</b> / ${total??0}일 사용`
+          : `<span data-field="used" ${ceNum}>${usedDisplay??''}</span> / <span data-field="total" ${ceNum}>${total??''}</span>일 사용`);
     return `
-      <div class="leave-card l-${s.color}${isEmpty?' leave-empty':''}" data-staff="${escapeHTML(s.name)}">
+      <div class="leave-card l-${s.color}${isEmpty?' leave-empty':''}${overClass}" data-staff="${escapeHTML(s.name)}">
         ${hideBtn}
-        <div class="leave-name-row">
-          <span class="leave-name">${escapeHTML(s.name)}</span>
-          ${hireHtml}
+        <div class="leave-head">
+          <div class="leave-head-left">
+            <span class="leave-name">${escapeHTML(s.name)}</span>
+            <span class="leave-dept">${sub}</span>
+          </div>
+          ${cycleBadge}
         </div>
-        <div class="leave-dept">${subFull}</div>
-        <div class="leave-bar"><div class="leave-bar-fill" style="width:${pct}%"></div></div>
-        <div class="leave-stats">
-          <div><span class="leave-remain${remainClass}">${remainTextValue}</span><span class="leave-remain-unit${remainClass}">${remainUnitText}</span></div>
-          <div class="leave-edit-row">
-            <span class="leave-used" data-field="used" ${ceNum}>${usedDisplay??''}</span>
-            <span>/</span>
-            <span class="leave-total" data-field="total" ${ceNum}>${total??''}</span>
-            <span>일 사용</span>
+        <div class="leave-hero">
+          ${remain===null
+            ? `<span class="leave-hero-empty">${escapeHTML(heroUnit)}</span>`
+            : `<span class="leave-hero-num">${heroNum}</span><span class="leave-hero-unit">${escapeHTML(heroUnit)}</span>`}
+        </div>
+        <div class="leave-meter">
+          <div class="leave-bar"><div class="leave-bar-fill" style="width:${pct}%"></div></div>
+          <div class="leave-meter-labels">
+            <span class="leave-meter-usage">${usageInner}${pctText}</span>
+            ${hireHtml}
           </div>
         </div>
         ${historyHtml}
