@@ -2487,6 +2487,142 @@
     .vm-table th,.vm-table td{padding:5px 7px}
   }
 
+  /* ===== 원천세 신고 · 정산 (벤더팀 최하단, 조혜인+대표 전용) ===== */
+  .wht-section{margin-top:18px}
+  .wht-body{padding:14px 18px 18px}
+  .wht-head-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .wht-month-nav{
+    display:inline-flex;gap:2px;align-items:center;
+    background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:2px;
+  }
+  .wht-mo-label{
+    padding:4px 12px;font-family:var(--sans);font-weight:700;font-size:13px;
+    color:var(--text-0);letter-spacing:-0.01em;min-width:84px;text-align:center;
+  }
+  .wht-mo-nav-arrow{font-weight:700}
+  .wht-tabs{
+    display:flex;gap:6px;padding:4px;
+    background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    margin-bottom:14px;flex-wrap:wrap;
+  }
+  .wht-tab{
+    flex:1 1 200px;padding:10px 14px;
+    font-family:var(--sans);font-weight:600;font-size:13px;color:var(--text-2);
+    background:transparent;border:1px solid transparent;border-radius:7px;cursor:pointer;
+    transition:all .12s;letter-spacing:-.1px;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .wht-tab:hover{color:var(--text-0);background:var(--bg-1)}
+  .wht-tab.active{
+    color:#fff;background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
+    border-color:rgba(79,70,229,.5);
+    box-shadow:0 3px 10px rgba(79,70,229,.25);
+  }
+  .wht-tab-sub{font-size:10.5px;opacity:.78;font-weight:500}
+  .wht-pane-hint{
+    font-size:12px;color:var(--text-2);letter-spacing:-.1px;
+    padding:0 4px 10px;line-height:1.55;
+  }
+  .wht-pane-hint b{color:var(--text-0)}
+  .wht-table-wrap{overflow-x:auto;border:1px solid var(--line-1);border-radius:8px;background:var(--bg-0)}
+  .wht-table{
+    width:100%;border-collapse:collapse;
+    font-family:var(--sans);font-size:12.5px;min-width:900px;
+  }
+  .wht-table.wht-table-invoice{min-width:1240px}
+  .wht-table thead th{
+    background:var(--bg-2);color:var(--text-2);
+    font-weight:600;font-size:11px;letter-spacing:.02em;
+    text-align:left;padding:8px 10px;
+    border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  .wht-table tbody td{
+    padding:5px 6px;border-bottom:1px solid var(--line-1);
+    vertical-align:middle;background:var(--bg-0);
+  }
+  .wht-table tbody tr:hover td{background:var(--bg-1)}
+  .wht-table tfoot td{
+    padding:8px 10px;background:var(--bg-2);color:var(--text-0);
+    font-weight:700;font-family:var(--sans);font-variant-numeric:tabular-nums;
+    border-top:2px solid var(--line);
+  }
+  .wht-foot-label{text-align:right;color:var(--text-2);font-weight:600}
+  .wht-col-num{width:36px;text-align:center;color:var(--text-3);font-family:var(--mono);font-size:11px}
+  .wht-col-bank{width:130px}
+  .wht-col-amt{width:130px;text-align:right}
+  .wht-col-per{width:110px}
+  .wht-col-ssn{width:150px}
+  .wht-col-bizno{width:140px}
+  .wht-col-btype{width:150px}
+  .wht-col-act{width:44px}
+  .wht-input{
+    width:100%;box-sizing:border-box;
+    padding:6px 8px;font-family:var(--sans);font-size:12.5px;
+    color:var(--text-0);background:var(--bg-0);
+    border:1px solid transparent;border-radius:6px;
+    transition:border-color .12s,box-shadow .12s;
+    letter-spacing:-.1px;
+  }
+  .wht-input:hover{border-color:var(--line)}
+  .wht-input:focus{outline:none;background:var(--bg-1);border-color:var(--neon-vendor);box-shadow:0 0 0 2px rgba(79,70,229,.15)}
+  .wht-input.wht-num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .wht-input.wht-mono{font-family:var(--mono);font-size:12px;letter-spacing:.02em}
+  .wht-input.wht-readonly{background:transparent;color:var(--text-2);cursor:default;font-weight:600}
+  .wht-input.wht-readonly:focus{background:transparent;border-color:transparent;box-shadow:none}
+  .wht-bank-sel{
+    width:100%;box-sizing:border-box;
+    padding:6px 8px;font-family:var(--sans);font-size:12.5px;
+    color:var(--text-0);background:var(--bg-0);
+    border:1px solid transparent;border-radius:6px;
+    cursor:pointer;transition:border-color .12s;
+  }
+  .wht-bank-sel:hover{border-color:var(--line)}
+  .wht-bank-sel:focus{outline:none;background:var(--bg-1);border-color:var(--neon-vendor);box-shadow:0 0 0 2px rgba(79,70,229,.15)}
+  .wht-row-del{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;padding:0;
+    background:transparent;border:1px solid transparent;border-radius:6px;
+    color:var(--text-3);cursor:pointer;transition:all .12s;font-size:17px;font-weight:600;
+  }
+  .wht-row-del:hover{color:#dc2626;background:rgba(220,38,38,.10);border-color:rgba(220,38,38,.30)}
+  .wht-actions{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:10px;margin-top:12px;flex-wrap:wrap;
+  }
+  .wht-actions-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .wht-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;font-family:var(--sans);font-size:12.5px;font-weight:600;
+    color:var(--text-1);background:var(--bg-1);
+    border:1px solid var(--line);border-radius:7px;cursor:pointer;transition:all .12s;
+    letter-spacing:-.1px;
+  }
+  .wht-btn:hover{color:var(--text-0);background:var(--bg-2);border-color:var(--line-2)}
+  .wht-btn.wht-btn-add{
+    color:#4338ca;border-color:rgba(79,70,229,.35);background:rgba(79,70,229,.06);
+  }
+  .wht-btn.wht-btn-add:hover{background:rgba(79,70,229,.14);border-color:rgba(79,70,229,.55)}
+  .wht-btn.wht-btn-copy{
+    color:#fff;background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
+    border-color:rgba(79,70,229,.5);font-weight:700;
+    box-shadow:0 3px 10px rgba(79,70,229,.22);
+  }
+  .wht-btn.wht-btn-copy:hover{box-shadow:0 5px 14px rgba(79,70,229,.35);transform:translateY(-1px)}
+  .wht-btn.wht-btn-copy:active{transform:translateY(0)}
+  .wht-empty{
+    padding:36px 12px;text-align:center;color:var(--text-3);
+    font-size:12.5px;font-style:italic;background:var(--bg-0);
+  }
+  .wht-empty b{color:var(--text-1);font-weight:600}
+  @media(max-width:600px){
+    .wht-body{padding:10px 8px 12px}
+    .wht-tab{flex-basis:100%;font-size:12px;padding:8px 10px}
+    .wht-actions{flex-direction:column;align-items:stretch}
+    .wht-btn{justify-content:center}
+    .wht-pane-hint{font-size:11.5px}
+    .wht-mo-label{font-size:12px;min-width:70px}
+  }
+
   /* ===== 브랜드별 실시간 매출 리포트 (식스샵 + 식스샵프로) ===== */
   .akoi-section .po-section-title{display:flex;align-items:center;gap:8px;color:var(--text-0)}
   .brand-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1px rgba(0,0,0,.05)}
@@ -7390,6 +7526,143 @@
         </div>
         <div id="vMarginList" class="vm-list"></div>
       </div>
+
+      <!-- 원천세 신고 · 정산 (조혜인+대표 전용, diary_me 게이트) -->
+      <div class="po-section wht-section" id="whtSection" hidden>
+        <div class="po-section-head">
+          <div class="po-section-title">
+            원천세 신고 · 정산
+            <span class="po-section-meta-inline" id="whtStatus">불러오는 중…</span>
+          </div>
+          <div class="po-section-meta wht-head-meta">
+            <div class="wht-month-nav">
+              <button type="button" class="btn-md-cal-nav wht-mo-nav-arrow" onclick="whtMonthPrev()" aria-label="이전 달">‹</button>
+              <span class="wht-mo-label" id="whtMonthLabel">—</span>
+              <button type="button" class="btn-md-cal-nav wht-mo-nav-arrow" onclick="whtMonthNext()" aria-label="다음 달">›</button>
+              <button type="button" class="btn-md-cal-nav" onclick="whtMonthToday()">이번 달</button>
+            </div>
+            <button type="button" class="btn-md-cal-nav" onclick="whtReload()" title="새로고침">↻</button>
+          </div>
+        </div>
+        <div class="wht-body">
+          <div class="wht-tabs" role="tablist">
+            <button type="button" class="wht-tab active" data-tab="withdrawal" role="tab" aria-selected="true" onclick="whtSwitchTab('withdrawal')">💸 사업자·개인 출금</button>
+            <button type="button" class="wht-tab" data-tab="freelancer" role="tab" aria-selected="false" onclick="whtSwitchTab('freelancer')">📄 프리랜서 원천징수 <span class="wht-tab-sub">3.3%</span></button>
+            <button type="button" class="wht-tab" data-tab="invoice" role="tab" aria-selected="false" onclick="whtSwitchTab('invoice')">🧾 세금계산서 발행 <span class="wht-tab-sub">입금</span></button>
+          </div>
+
+          <!-- 사업자·개인 출금 -->
+          <div class="wht-pane" data-pane="withdrawal">
+            <div class="wht-pane-hint"><b>사업자·개인 출금</b> — 공구건 정산 (원천세 없음). 사업자 또는 개인 셀러 지급.</div>
+            <div class="wht-table-wrap">
+              <table class="wht-table">
+                <thead>
+                  <tr>
+                    <th class="wht-col-num">#</th>
+                    <th>사업자명 / 이름</th>
+                    <th class="wht-col-bank">은행</th>
+                    <th>계좌번호</th>
+                    <th class="wht-col-amt">금액</th>
+                    <th class="wht-col-per">기간</th>
+                    <th>예금주명</th>
+                    <th>비고</th>
+                    <th class="wht-col-act"></th>
+                  </tr>
+                </thead>
+                <tbody id="whtWithdrawalBody"></tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="wht-foot-label">합계</td>
+                    <td class="wht-col-amt" id="whtWithdrawalTotal">0</td>
+                    <td colspan="4"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="wht-actions">
+              <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('withdrawal')">+ 행 추가</button>
+              <div class="wht-actions-right">
+                <button type="button" class="wht-btn wht-btn-copy" onclick="whtCopyTable('withdrawal')">📋 표 복사 (엑셀 붙여넣기)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 프리랜서 원천징수 -->
+          <div class="wht-pane" data-pane="freelancer" hidden>
+            <div class="wht-pane-hint"><b>사업소득 원천징수 3.3%</b> — 프리랜서 지급. <b>3.3% 제외한 실지급액</b>을 기재.</div>
+            <div class="wht-table-wrap">
+              <table class="wht-table">
+                <thead>
+                  <tr>
+                    <th class="wht-col-num">#</th>
+                    <th>이름</th>
+                    <th class="wht-col-ssn">주민번호</th>
+                    <th class="wht-col-bank">은행</th>
+                    <th>계좌번호</th>
+                    <th class="wht-col-amt">3.3% 제외 금액</th>
+                    <th>비고</th>
+                    <th class="wht-col-act"></th>
+                  </tr>
+                </thead>
+                <tbody id="whtFreelancerBody"></tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="5" class="wht-foot-label">합계</td>
+                    <td class="wht-col-amt" id="whtFreelancerTotal">0</td>
+                    <td colspan="2"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="wht-actions">
+              <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('freelancer')">+ 행 추가</button>
+              <div class="wht-actions-right">
+                <button type="button" class="wht-btn wht-btn-copy" onclick="whtCopyTable('freelancer')">📋 표 복사 (엑셀 붙여넣기)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 세금계산서 발행 (입금) -->
+          <div class="wht-pane" data-pane="invoice" hidden>
+            <div class="wht-pane-hint"><b>세금계산서 발행 (입금)</b> — 브랜드에 발행. <b>발행금액</b> 입력 시 공급가액(÷1.1)·부가세(×10%) 자동계산.</div>
+            <div class="wht-table-wrap">
+              <table class="wht-table wht-table-invoice">
+                <thead>
+                  <tr>
+                    <th class="wht-col-num">#</th>
+                    <th>사업자명</th>
+                    <th>대표자명</th>
+                    <th class="wht-col-bizno">사업자번호</th>
+                    <th>소재지</th>
+                    <th class="wht-col-btype">업태/종목</th>
+                    <th class="wht-col-amt">발행금액</th>
+                    <th class="wht-col-amt">공급가액</th>
+                    <th class="wht-col-amt">부가세</th>
+                    <th>이메일</th>
+                    <th class="wht-col-act"></th>
+                  </tr>
+                </thead>
+                <tbody id="whtInvoiceBody"></tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" class="wht-foot-label">합계</td>
+                    <td class="wht-col-amt" id="whtInvoiceTotal">0</td>
+                    <td class="wht-col-amt" id="whtInvoiceSupply">0</td>
+                    <td class="wht-col-amt" id="whtInvoiceVat">0</td>
+                    <td colspan="2"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="wht-actions">
+              <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('invoice')">+ 행 추가</button>
+              <div class="wht-actions-right">
+                <button type="button" class="wht-btn wht-btn-copy" onclick="whtCopyTable('invoice')">📋 표 복사 (엑셀 붙여넣기)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -9858,6 +10131,8 @@
       if(typeof renderGcCal==='function') renderGcCal();
       if(typeof vMarginEnsureLoaded==='function') vMarginEnsureLoaded();
       if(typeof renderVMargin==='function') renderVMargin();
+      if(typeof whtRefreshAccess==='function') whtRefreshAccess();
+      if(typeof whtEnsureLoaded==='function') whtEnsureLoaded();
     }
     if(id==='viewNamegen'){
       if(typeof initNamegenView==='function') initNamegenView();
@@ -11420,6 +11695,8 @@
       _diarySetMe(sel.value);
       _diaryRefreshNotifBtn();
       _diaryInitRealtime(); // 이름 바뀌면 subscribe 재설정
+      if(typeof whtRefreshAccess==='function') whtRefreshAccess();
+      if(typeof whtEnsureLoaded==='function' && document.getElementById('viewVendor') && !document.getElementById('viewVendor').hidden) whtEnsureLoaded();
     };
     _diaryRefreshNotifBtn();
     notifBtn.onclick = async ()=>{
@@ -19011,6 +19288,352 @@
   window.vMarginRefresh=vMarginRefresh;
   window.vMarginEnsureLoaded=vMarginEnsureLoaded;
   window.renderVMargin=renderVMargin;
+
+  /* ===== 원천세 신고 · 정산 (viewVendor 최하단, 조혜인+대표 전용) =====
+     · 3섹션: 사업자·개인 출금 / 프리랜서 3.3% 원천징수 / 세금계산서 발행 (입금)
+     · Supabase public.wht_forms — period_ym PK, payload jsonb 로 3섹션 rows 통째로 upsert
+     · 접근: localStorage 'brightbeed_diary_me' ∈ {조혜인, 전승훈, 전수빈}
+     · 자동저장(debounced 700ms) + 표별 TSV 복사 (엑셀 붙여넣기용) */
+  const WHT_ALLOWED = new Set(['조혜인','전승훈','전수빈']);
+  const WHT_BANKS = [
+    '국민은행','신한은행','우리은행','하나은행','NH농협은행','기업은행','SC제일은행',
+    '카카오뱅크','토스뱅크','케이뱅크','부산은행','경남은행','대구은행','광주은행',
+    '전북은행','제주은행','수협은행','우체국','새마을금고','신협','씨티은행',
+    '산업은행','수출입은행','저축은행','기타',
+  ];
+  const WHT_SCHEMA = {
+    withdrawal: {
+      label:'사업자·개인 출금',
+      fields:['name','bank','account','amount','period','holder','memo'],
+      headers:['사업자명 / 이름','은행','계좌번호','금액','기간','예금주명','비고'],
+    },
+    freelancer: {
+      label:'프리랜서 원천징수 3.3%',
+      fields:['name','ssn','bank','account','amount','memo'],
+      headers:['이름','주민번호','은행','계좌번호','3.3%제외 금액','비고'],
+    },
+    invoice: {
+      label:'세금계산서 발행',
+      fields:['name','ceo','bizno','address','biztype','amount','email'],
+      headers:['사업자명','대표자명','사업자번호','소재지','업태/종목','발행금액','공급가액','부가세','이메일'],
+    },
+  };
+  const _whtState = {
+    ym:'', data:{withdrawal:[],freelancer:[],invoice:[]},
+    loaded:false, loading:false, saving:false, saveTimer:null,
+    activeTab:'withdrawal', bound:false,
+  };
+  function _whtToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
+  function _whtParseYm(ym){const [y,m]=String(ym||'').split('-').map(n=>parseInt(n,10));return{y,m}}
+  function _whtFmtYm(y,m){return `${y}-${String(m).padStart(2,'0')}`}
+  function _whtYmLabel(ym){const {y,m}=_whtParseYm(ym);return (y&&m)?`${y}년 ${m}월`:'—'}
+  function _whtParseAmt(s){
+    const digits=String(s==null?'':s).replace(/[^\d\-]/g,'');
+    const n=parseInt(digits,10);
+    return Number.isFinite(n)?n:0;
+  }
+  function _whtFmtAmt(n){
+    const v=Math.round(Number(n)||0);
+    return v?v.toLocaleString('ko-KR'):'';
+  }
+  function _whtGetMe(){try{return (localStorage.getItem('brightbeed_diary_me')||'').trim()}catch(e){return ''}}
+  function _whtHasAccess(){return WHT_ALLOWED.has(_whtGetMe())}
+  function whtRefreshAccess(){
+    const sec=document.getElementById('whtSection');
+    if(!sec) return;
+    sec.hidden=!_whtHasAccess();
+  }
+  function whtEnsureLoaded(){
+    if(!_whtHasAccess()) return;
+    if(!_whtState.ym) _whtState.ym=_whtToday();
+    _whtRenderMonthLabel();
+    _whtBindInputs();
+    if(!_whtState.loaded && !_whtState.loading) whtLoad();
+  }
+  function whtReload(){_whtState.loaded=false; whtLoad(true)}
+  function _whtSetStatus(text,isErr){
+    const el=document.getElementById('whtStatus');
+    if(!el) return;
+    el.textContent=text||'';
+    el.classList.toggle('is-err',!!isErr);
+  }
+  function _whtFmtStamp(ts){
+    try{
+      const d=new Date(ts); if(isNaN(d)) return '';
+      const now=new Date();
+      const same=d.toDateString()===now.toDateString();
+      const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+      return same?`오늘 ${hh}:${mm}`:`${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
+    }catch(e){return ''}
+  }
+  async function whtLoad(force){
+    if(!_whtHasAccess()) return;
+    if(_whtState.loading) return;
+    if(_whtState.loaded && !force) return;
+    _whtState.loading=true;
+    _whtSetStatus('불러오는 중…');
+    try{
+      const ym=_whtState.ym||_whtToday();
+      const url=`${SUPABASE_URL}/rest/v1/wht_forms?select=*&period_ym=eq.${encodeURIComponent(ym)}`;
+      const r=await fetch(url,{headers:_sbHeaders(),cache:'no-cache'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const rows=await r.json();
+      const row=rows&&rows[0];
+      const p=(row&&row.payload)||{};
+      _whtState.data={
+        withdrawal:Array.isArray(p.withdrawal)?p.withdrawal:[],
+        freelancer:Array.isArray(p.freelancer)?p.freelancer:[],
+        invoice:Array.isArray(p.invoice)?p.invoice:[],
+      };
+      _whtState.loaded=true;
+      _whtRenderAll();
+      const stamp=row?_whtFmtStamp(row.updated_at):'';
+      _whtSetStatus(stamp?`${_whtYmLabel(ym)} · ${stamp} 저장됨`:`${_whtYmLabel(ym)} · 새 폼`);
+    }catch(e){
+      console.error('whtLoad failed',e);
+      _whtSetStatus('⚠ 로드 실패','err');
+    }finally{
+      _whtState.loading=false;
+    }
+  }
+  function _whtQueueSave(){
+    if(!_whtHasAccess()) return;
+    if(_whtState.saveTimer) clearTimeout(_whtState.saveTimer);
+    _whtSetStatus('저장 중…');
+    _whtState.saveTimer=setTimeout(_whtSave,700);
+  }
+  async function _whtSave(){
+    if(!_whtHasAccess()) return;
+    if(_whtState.saving){_whtState.saveTimer=setTimeout(_whtSave,500); return;}
+    _whtState.saving=true;
+    const ym=_whtState.ym||_whtToday();
+    const me=_whtGetMe();
+    try{
+      const body={period_ym:ym, payload:_whtState.data, updated_at:new Date().toISOString(), updated_by:me};
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/wht_forms?on_conflict=period_ym`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify(body),
+      });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      _whtSetStatus(`${_whtYmLabel(ym)} · 방금 저장됨`);
+    }catch(e){
+      console.error('whtSave failed',e);
+      _whtSetStatus('⚠ 저장 실패','err');
+    }finally{
+      _whtState.saving=false;
+    }
+  }
+  function whtSwitchTab(tab){
+    _whtState.activeTab=tab;
+    document.querySelectorAll('#whtSection .wht-tab').forEach(b=>{
+      const on=b.dataset.tab===tab;
+      b.classList.toggle('active',on);
+      b.setAttribute('aria-selected',on?'true':'false');
+    });
+    document.querySelectorAll('#whtSection .wht-pane').forEach(p=>{
+      p.hidden=p.dataset.pane!==tab;
+    });
+  }
+  function whtMonthPrev(){_whtShiftMonth(-1)}
+  function whtMonthNext(){_whtShiftMonth(1)}
+  function whtMonthToday(){_whtState.ym=_whtToday(); _whtState.loaded=false; _whtRenderMonthLabel(); whtLoad(true)}
+  function _whtShiftMonth(delta){
+    const {y,m}=_whtParseYm(_whtState.ym||_whtToday());
+    const d=new Date(y,(m-1)+delta,1);
+    _whtState.ym=_whtFmtYm(d.getFullYear(),d.getMonth()+1);
+    _whtState.loaded=false;
+    _whtRenderMonthLabel();
+    whtLoad(true);
+  }
+  function _whtRenderMonthLabel(){
+    const el=document.getElementById('whtMonthLabel');
+    if(el) el.textContent=_whtYmLabel(_whtState.ym);
+  }
+  function whtAddRow(section){
+    if(!WHT_SCHEMA[section]) return;
+    const row={};
+    WHT_SCHEMA[section].fields.forEach(f=>row[f]='');
+    _whtState.data[section]=_whtState.data[section]||[];
+    _whtState.data[section].push(row);
+    _whtRenderPane(section);
+    _whtQueueSave();
+    setTimeout(()=>{
+      const body=document.getElementById(_whtBodyId(section));
+      const last=body&&body.lastElementChild;
+      if(last){const first=last.querySelector('input:not([readonly]),select'); if(first) first.focus();}
+    },20);
+  }
+  function whtDelRow(section,idx){
+    const arr=_whtState.data[section]||[];
+    if(idx<0||idx>=arr.length) return;
+    arr.splice(idx,1);
+    _whtRenderPane(section);
+    _whtQueueSave();
+  }
+  function _whtBodyId(section){return{withdrawal:'whtWithdrawalBody',freelancer:'whtFreelancerBody',invoice:'whtInvoiceBody'}[section]}
+  function _whtTotalId(section){return{withdrawal:'whtWithdrawalTotal',freelancer:'whtFreelancerTotal',invoice:'whtInvoiceTotal'}[section]}
+  function _whtRenderAll(){
+    _whtRenderMonthLabel();
+    _whtRenderPane('withdrawal');
+    _whtRenderPane('freelancer');
+    _whtRenderPane('invoice');
+  }
+  function _whtBankOptions(sel){
+    const s=String(sel||'');
+    return `<option value=""${s?'':' selected'}>—</option>`+
+      WHT_BANKS.map(b=>`<option value="${_esc(b)}"${b===s?' selected':''}>${_esc(b)}</option>`).join('');
+  }
+  function _whtRenderPane(section){
+    const body=document.getElementById(_whtBodyId(section));
+    if(!body) return;
+    const rows=_whtState.data[section]||[];
+    if(!rows.length){
+      const cols=section==='invoice'?11:(section==='freelancer'?8:9);
+      body.innerHTML=`<tr><td colspan="${cols}" class="wht-empty">아직 입력된 항목이 없습니다. 아래 <b>+ 행 추가</b> 버튼으로 시작하세요.</td></tr>`;
+      _whtUpdateTotals(section);
+      return;
+    }
+    body.innerHTML=rows.map((r,i)=>_whtRowHtml(section,r,i)).join('');
+    _whtUpdateTotals(section);
+  }
+  function _whtRowHtml(section,r,i){
+    const num=`<td class="wht-col-num">${i+1}</td>`;
+    const del=`<td class="wht-col-act"><button type="button" class="wht-row-del" title="행 삭제" onclick="whtDelRow('${section}',${i})">×</button></td>`;
+    if(section==='withdrawal'){
+      return `<tr>${num}
+        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명 또는 이름"></td>
+        <td><select class="wht-bank-sel" data-sec="${section}" data-i="${i}" data-f="bank">${_whtBankOptions(r.bank)}</select></td>
+        <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="000-0000-0000"></td>
+        <td><input class="wht-input wht-num" data-sec="${section}" data-i="${i}" data-f="amount" value="${_whtFmtAmt(r.amount)}" placeholder="0" inputmode="numeric"></td>
+        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="period" value="${_esc(r.period||'')}" placeholder="9/1~9/30"></td>
+        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="holder" value="${_esc(r.holder||'')}" placeholder="예금주명"></td>
+        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="memo" value="${_esc(r.memo||'')}" placeholder=""></td>
+        ${del}</tr>`;
+    }
+    if(section==='freelancer'){
+      return `<tr>${num}
+        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="이름"></td>
+        <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="ssn" value="${_esc(r.ssn||'')}" placeholder="000000-0000000"></td>
+        <td><select class="wht-bank-sel" data-sec="${section}" data-i="${i}" data-f="bank">${_whtBankOptions(r.bank)}</select></td>
+        <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="계좌번호"></td>
+        <td><input class="wht-input wht-num" data-sec="${section}" data-i="${i}" data-f="amount" value="${_whtFmtAmt(r.amount)}" placeholder="0" inputmode="numeric"></td>
+        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="memo" value="${_esc(r.memo||'')}" placeholder=""></td>
+        ${del}</tr>`;
+    }
+    // invoice
+    const amt=_whtParseAmt(r.amount);
+    const supply=amt?Math.round(amt/1.1):0;
+    const vat=amt?amt-supply:0;
+    return `<tr>${num}
+      <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명"></td>
+      <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="ceo" value="${_esc(r.ceo||'')}" placeholder="대표자명"></td>
+      <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="bizno" value="${_esc(r.bizno||'')}" placeholder="000-00-00000"></td>
+      <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="address" value="${_esc(r.address||'')}" placeholder="소재지"></td>
+      <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="biztype" value="${_esc(r.biztype||'')}" placeholder="업태/종목"></td>
+      <td><input class="wht-input wht-num" data-sec="${section}" data-i="${i}" data-f="amount" value="${_whtFmtAmt(r.amount)}" placeholder="0" inputmode="numeric"></td>
+      <td><input class="wht-input wht-num wht-readonly" value="${_whtFmtAmt(supply)}" data-computed="supply" tabindex="-1" readonly></td>
+      <td><input class="wht-input wht-num wht-readonly" value="${_whtFmtAmt(vat)}" data-computed="vat" tabindex="-1" readonly></td>
+      <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="email" value="${_esc(r.email||'')}" placeholder="email@..."></td>
+      ${del}</tr>`;
+  }
+  function _whtUpdateTotals(section){
+    const rows=_whtState.data[section]||[];
+    const total=rows.reduce((s,r)=>s+_whtParseAmt(r.amount),0);
+    const el=document.getElementById(_whtTotalId(section));
+    if(el) el.textContent=total.toLocaleString('ko-KR');
+    if(section==='invoice'){
+      let sup=0,vat=0;
+      rows.forEach(r=>{const a=_whtParseAmt(r.amount); if(a){const s=Math.round(a/1.1); sup+=s; vat+=a-s;}});
+      const supEl=document.getElementById('whtInvoiceSupply');
+      const vatEl=document.getElementById('whtInvoiceVat');
+      if(supEl) supEl.textContent=sup.toLocaleString('ko-KR');
+      if(vatEl) vatEl.textContent=vat.toLocaleString('ko-KR');
+    }
+  }
+  function _whtOnInputEvt(e){
+    const el=e.target;
+    if(!el||!el.dataset) return;
+    const sec=el.dataset.sec;
+    if(!sec||!WHT_SCHEMA[sec]) return;
+    const i=parseInt(el.dataset.i,10);
+    const f=el.dataset.f;
+    if(!Number.isFinite(i)||!f) return;
+    const arr=_whtState.data[sec]||[];
+    if(i<0||i>=arr.length) return;
+    if(f==='amount'){
+      const n=_whtParseAmt(el.value);
+      arr[i][f]=n||0;
+      const formatted=_whtFmtAmt(n);
+      if(el.value!==formatted){
+        el.value=formatted;
+        try{const p=el.value.length; el.setSelectionRange(p,p);}catch(_){}
+      }
+      if(sec==='invoice'){
+        const tr=el.closest('tr');
+        if(tr){
+          const sup=tr.querySelector('input[data-computed="supply"]');
+          const vaT=tr.querySelector('input[data-computed="vat"]');
+          const s=n?Math.round(n/1.1):0;
+          if(sup) sup.value=_whtFmtAmt(s);
+          if(vaT) vaT.value=_whtFmtAmt(n?n-s:0);
+        }
+      }
+      _whtUpdateTotals(sec);
+    } else {
+      arr[i][f]=String(el.value||'');
+    }
+    _whtQueueSave();
+  }
+  function _whtBindInputs(){
+    if(_whtState.bound) return;
+    const sec=document.getElementById('whtSection');
+    if(!sec) return;
+    sec.addEventListener('input',_whtOnInputEvt);
+    sec.addEventListener('change',_whtOnInputEvt);
+    _whtState.bound=true;
+  }
+  async function whtCopyTable(section){
+    const sc=WHT_SCHEMA[section];
+    if(!sc) return;
+    const rows=_whtState.data[section]||[];
+    if(!rows.length){
+      if(typeof toast==='function') toast('복사할 항목이 없습니다','err');
+      return;
+    }
+    const lines=[sc.headers.join('\t')];
+    rows.forEach(r=>{
+      let vals;
+      if(section==='withdrawal'){
+        vals=[r.name||'',r.bank||'',r.account||'',_whtFmtAmt(r.amount),r.period||'',r.holder||'',r.memo||''];
+      } else if(section==='freelancer'){
+        vals=[r.name||'',r.ssn||'',r.bank||'',r.account||'',_whtFmtAmt(r.amount),r.memo||''];
+      } else {
+        const a=_whtParseAmt(r.amount);
+        const s=a?Math.round(a/1.1):0;
+        vals=[r.name||'',r.ceo||'',r.bizno||'',r.address||'',r.biztype||'',_whtFmtAmt(r.amount),_whtFmtAmt(s),_whtFmtAmt(a?a-s:0),r.email||''];
+      }
+      lines.push(vals.map(v=>String(v==null?'':v).replace(/[\t\r\n]/g,' ')).join('\t'));
+    });
+    const text=lines.join('\n');
+    try{
+      await navigator.clipboard.writeText(text);
+      if(typeof toast==='function') toast(`✓ ${sc.label} 복사 (${rows.length}행) — 엑셀에 붙여넣으세요`,'ok');
+    }catch(e){
+      console.error(e);
+      if(typeof toast==='function') toast('복사 실패','err');
+    }
+  }
+  window.whtRefreshAccess=whtRefreshAccess;
+  window.whtEnsureLoaded=whtEnsureLoaded;
+  window.whtReload=whtReload;
+  window.whtSwitchTab=whtSwitchTab;
+  window.whtAddRow=whtAddRow;
+  window.whtDelRow=whtDelRow;
+  window.whtCopyTable=whtCopyTable;
+  window.whtMonthPrev=whtMonthPrev;
+  window.whtMonthNext=whtMonthNext;
+  window.whtMonthToday=whtMonthToday;
 
   /* ===== 텍스트 토핑 (Unicode U+0591 per-character) ===== */
   const TOPPING_MARK='֑';
