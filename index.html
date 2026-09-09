@@ -10610,7 +10610,34 @@
        · push 직전 remote pull → dirty만 로컬 것으로 덮고 나머지는 remote 유지 → PUT
        · 15초 주기 remote pull (편집 idle 3초 이상일 때만) → dirty 아닌 스태프는 remote로 갱신 */
   const DIARY_KEY = 'brightbeed_diary_v1';
+  const DIARY_TOMB_KEY = 'brightbeed_diary_tombstones_v1';
   const DIARY_PATH='data/diary.json';
+  /* Tombstone: 삭제한 요청/계획 ID를 여기에 마킹.
+     · push 실패해도 다음 pull에서 remote 것 부활 X (자동 제외 후 재push)
+     · 성공적으로 push되면 clear
+     · 24시간 지난 tombstone 은 자동 정리 (혹시 remote 이미 반영됐어도 부담 없이) */
+  function _diaryLoadTombstones(){
+    try { return JSON.parse(localStorage.getItem(DIARY_TOMB_KEY)||'{}') } catch(e){ return {} }
+  }
+  function _diarySaveTombstones(t){
+    try { localStorage.setItem(DIARY_TOMB_KEY, JSON.stringify(t)) } catch(e){}
+  }
+  function _diaryAddTombstone(id){
+    if(!id) return;
+    const t = _diaryLoadTombstones();
+    t[id] = Date.now();
+    _diarySaveTombstones(t);
+  }
+  function _diaryPurgeTombstones(){
+    const t = _diaryLoadTombstones();
+    const cutoff = Date.now() - 24*3600*1000;
+    let changed = false;
+    for(const id of Object.keys(t)){
+      if(t[id] < cutoff){ delete t[id]; changed = true; }
+    }
+    if(changed) _diarySaveTombstones(t);
+    return t;
+  }
   // PO_REPO/PO_BRANCH가 이 위치에선 아직 TDZ라 하드코딩 (변경 시 두 곳 동시 변경 필요)
   const DIARY_RAW='https://raw.githubusercontent.com/j65209/Brightbeed/main/'+DIARY_PATH;
   const DIARY_API='https://api.github.com/repos/j65209/Brightbeed/contents/'+DIARY_PATH;
@@ -10890,11 +10917,40 @@
     const remote=await _diaryFetchRemote();
     if(!remote) return;
     const local=loadDiaryAll();
+    // ⓪ Tombstone 자동 정리 (24h 지난 것) + 지금 유효한 tombstone id 집합
+    const tombs = _diaryPurgeTombstones();
+    const tombIds = new Set(Object.keys(tombs));
     // ① 로컬에만 있는 스태프는 자동으로 dirty로 편입 → 나중에 push (아직 원격에 안 올라간 편집 보호)
     for(const name of Object.keys(local)){
       if(!(name in remote)) _diaryDirty.add(name);
     }
-    // ② dirty 스태프는 로컬 것 유지, 나머지는 remote로 갱신
+    // ② 삭제된 요청 부활 방지: remote 에 tombstone id 가 남아있으면 자동 제외 + 스태프 dirty 마킹
+    if(tombIds.size > 0){
+      for(const name of Object.keys(remote)){
+        const s = remote[name];
+        if(!s) continue;
+        let touched = false;
+        ['reqs','weekly','monthly'].forEach(field=>{
+          if(Array.isArray(s[field])){
+            const before = s[field].length;
+            s[field] = s[field].filter(x=>!x || !x.id || !tombIds.has(x.id));
+            if(s[field].length !== before) touched = true;
+          }
+        });
+        if(s.daily && typeof s.daily === 'object'){
+          for(const d of Object.keys(s.daily)){
+            const entry = s.daily[d];
+            if(entry && Array.isArray(entry.tasks)){
+              const before = entry.tasks.length;
+              entry.tasks = entry.tasks.filter(x=>!x || !x.id || !tombIds.has(x.id));
+              if(entry.tasks.length !== before) touched = true;
+            }
+          }
+        }
+        if(touched) _diaryDirty.add(name);
+      }
+    }
+    // ③ dirty 스태프는 로컬 것 유지, 나머지는 remote로 갱신
     const merged={...remote};
     for(const name of _diaryDirty){
       if(local[name]) merged[name]=local[name];
@@ -11217,16 +11273,37 @@
       if(local[name]) merged[name]=local[name];
       else delete merged[name];
     }
+    // Tombstone에 등록된 id는 remote에 남아있어도 최종적으로 제거 (부활 원천 차단)
+    const tombs = _diaryPurgeTombstones();
+    const tombIds = new Set(Object.keys(tombs));
+    if(tombIds.size > 0){
+      for(const name of Object.keys(merged)){
+        const s = merged[name];
+        if(!s) continue;
+        ['reqs','weekly','monthly'].forEach(field=>{
+          if(Array.isArray(s[field])) s[field] = s[field].filter(x=>!x || !x.id || !tombIds.has(x.id));
+        });
+        if(s.daily && typeof s.daily === 'object'){
+          for(const d of Object.keys(s.daily)){
+            const entry = s.daily[d];
+            if(entry && Array.isArray(entry.tasks)){
+              entry.tasks = entry.tasks.filter(x=>!x || !x.id || !tombIds.has(x.id));
+            }
+          }
+        }
+      }
+    }
     const jsonBody=JSON.stringify(merged, null, 2);
     const b64=btoa(unescape(encodeURIComponent(jsonBody)));
     const r=await ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true});
     if(r.ok){
-      // 성공: dirty 정리 + 로컬을 merged로 통일
+      // 성공: dirty + tombstone 정리, 로컬을 merged로 통일
       dirtyNames.forEach(n=>_diaryDirty.delete(n));
+      _diarySaveTombstones({});   // 반영됐으니 clear
       _diary_lastHash=JSON.stringify(merged);
       localStorage.setItem(DIARY_KEY, _diary_lastHash);
     } else if(r.reason==='auth'){
-      console.warn('[diary] push auth 실패 — 로컬만 유지');
+      console.warn('[diary] push auth 실패 — 로컬만 유지, tombstone 은 유지되어 다음 pull에서 자동 재제거');
     }
   }
   function _diarySchedulePush(){
@@ -11859,7 +11936,10 @@
         row.classList.add('removing');
         setTimeout(()=>{
           const i = entry[kind].indexOf(it);
-          if(i !== -1) entry[kind].splice(i,1);
+          if(i !== -1){
+            const removed = entry[kind].splice(i,1)[0];
+            if(removed && removed.id) _diaryAddTombstone(removed.id);
+          }
           _diaryCardRenderPlan(card, st, kind);
           _diaryCardUpdateStat(card, st);
           _diaryScheduleSaveFor(st.name);
@@ -11901,7 +11981,8 @@
           _diaryScheduleSaveFor(st.name);
         } else if(e.key==='Backspace' && txt.innerText===''){
           e.preventDefault();
-          entry[kind].splice(idx,1);
+          const removed = entry[kind].splice(idx,1)[0];
+          if(removed && removed.id) _diaryAddTombstone(removed.id);
           _diaryCardRenderPlan(card, st, kind);
           _diaryCardUpdateStat(card, st);
           _diaryScheduleSaveFor(st.name);
@@ -12032,7 +12113,8 @@
       const fr = row.querySelector('.dcs-req-from');
       fr.oninput = ()=>{ r.from = fr.innerText; _diaryScheduleSaveFor(st.name); };
       row.querySelector('.dcs-req-del').onclick = ()=>{
-        entry.reqs.splice(idx,1);
+        const removed = entry.reqs.splice(idx,1)[0];
+        if(removed && removed.id) _diaryAddTombstone(removed.id);
         _diaryCardRenderReqs(card, st);
         _diaryCardUpdateStat(card, st);
         _diaryScheduleSaveFor(st.name);
@@ -12081,7 +12163,8 @@
           _diaryScheduleSaveFor(st.name);
         } else if(e.key==='Backspace' && txt.innerText===''){
           e.preventDefault();
-          entry.tasks.splice(idx,1);
+          const removed = entry.tasks.splice(idx,1)[0];
+          if(removed && removed.id) _diaryAddTombstone(removed.id);
           _diaryCardRenderTasks(card, st);
           _diaryCardUpdateStat(card, st);
           _diaryScheduleSaveFor(st.name);
@@ -12090,7 +12173,8 @@
         }
       };
       row.querySelector('.dcs-task-del').onclick = ()=>{
-        entry.tasks.splice(idx,1);
+        const removedT = entry.tasks.splice(idx,1)[0];
+        if(removedT && removedT.id) _diaryAddTombstone(removedT.id);
         _diaryCardRenderTasks(card, st);
         _diaryCardUpdateStat(card, st);
         _diaryScheduleSaveFor(st.name);
