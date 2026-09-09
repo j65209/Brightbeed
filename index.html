@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brightbeed & Bead Universe Office</title>
+<title>Bead Universe Co., Ltd. · Office</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -17,7 +17,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="브라이트비드">
+<meta name="apple-mobile-web-app-title" content="Bead Universe">
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4713,6 +4713,93 @@
     font-size:10.5px;color:#166534;background:#dcfce7;
     padding:3px 8px;border-radius:6px;font-weight:700;letter-spacing:-.01em;
   }
+
+  /* 홈 상단 "이 자리 ○○○" 뱃지 */
+  .diary-me-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 12px 6px 14px;border-radius:999px;
+    background:#f4f0e3;border:1px solid #eae7dc;
+    font-size:12px;color:#292524;font-weight:600;letter-spacing:-.01em;
+    margin:0 0 12px;
+  }
+  .diary-me-badge b{color:#1c1917;font-weight:800}
+  .diary-me-badge-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15);
+  }
+  .diary-me-badge-btn{
+    border:none;background:transparent;color:#57534e;
+    font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;
+    cursor:pointer;transition:all .15s ease;text-decoration:underline;text-underline-offset:2px;
+  }
+  .diary-me-badge-btn:hover{background:#fff;color:#1c1917;text-decoration:none}
+  .diary-me-badge-notif{
+    font-size:10.5px;color:#78350f;background:#fef3c7;
+    padding:3px 8px;border-radius:999px;font-weight:700;letter-spacing:-.01em;
+  }
+
+  /* 세팅 팝업 (모달) */
+  .dsm-overlay[hidden]{display:none}
+  .dsm-overlay{
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(28,25,23,.55);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    animation:dsmFadeIn .18s ease;
+  }
+  @keyframes dsmFadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes dsmSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .dsm-card{
+    background:#fff;border-radius:20px;
+    padding:36px 32px 28px;max-width:420px;width:100%;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.4);
+    animation:dsmSlideUp .25s cubic-bezier(.16,1,.3,1);
+    text-align:center;
+  }
+  .dsm-icon{font-size:44px;margin-bottom:12px;line-height:1}
+  .dsm-title{
+    font-size:22px;font-weight:800;color:#1c1917;letter-spacing:-.03em;
+    margin:0 0 10px;
+  }
+  .dsm-desc{
+    font-size:13px;color:#57534e;line-height:1.55;letter-spacing:-.01em;
+    margin:0 0 22px;font-weight:500;
+  }
+  .dsm-select{
+    width:100%;padding:12px 14px;border-radius:10px;
+    border:1.5px solid #d5cfb8;background:#fff;
+    font-size:15px;font-weight:700;color:#1c1917;
+    outline:none;cursor:pointer;
+    font-family:var(--sans);letter-spacing:-.01em;
+    transition:border-color .15s ease;
+  }
+  .dsm-select:focus{border-color:#f59e0b}
+  .dsm-notif-row{margin-top:14px;text-align:left}
+  .dsm-notif-label{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;color:#292524;font-weight:600;letter-spacing:-.01em;
+    cursor:pointer;padding:6px 8px;border-radius:8px;
+  }
+  .dsm-notif-label:hover{background:#faf7ed}
+  .dsm-notif-label input{width:16px;height:16px;accent-color:#f59e0b}
+  .dsm-actions{
+    display:flex;gap:8px;margin-top:22px;
+  }
+  .dsm-btn{
+    flex:1;padding:12px;border-radius:10px;border:none;
+    font-size:14px;font-weight:700;cursor:pointer;letter-spacing:-.01em;
+    transition:all .15s ease;font-family:var(--sans);
+  }
+  .dsm-btn-ghost{background:#f4f0e3;color:#57534e}
+  .dsm-btn-ghost:hover{background:#eae7dc;color:#1c1917}
+  .dsm-btn-primary{background:#1c1917;color:#fff}
+  .dsm-btn-primary:hover:not(:disabled){background:#292524}
+  .dsm-btn-primary:disabled{opacity:.4;cursor:not-allowed}
+
+  @media (max-width:480px){
+    .dsm-card{padding:28px 22px 22px}
+    .dsm-title{font-size:19px}
+  }
   .diary-save-tag{
     display:inline-flex;align-items:center;gap:6px;
     padding:5px 11px;border-radius:999px;
@@ -5928,7 +6015,7 @@
 <!-- 잠금화면 -->
 <div class="lock" id="lock">
   <div class="lock-card">
-    <div class="lock-brand">Brightbeed & Bead Universe Office · 보안 접속</div>
+    <div class="lock-brand">Bead Universe Co., Ltd. · 보안 접속</div>
     <div class="lock-title">접근 인증이 필요합니다</div>
     <div class="lock-sub">4자리 접속 코드를 입력해 주세요.</div>
     <input class="lock-input" id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
@@ -5941,7 +6028,7 @@
 <div class="app" id="app">
   <header class="topbar">
     <div class="brand">
-      <div class="brand-name">Brightbeed &middot; Bead Universe HQ</div>
+      <div class="brand-name">Bead Universe Co., Ltd.</div>
       <span class="role-badge" title="보기 전용 권한 — 수정은 마스터만 가능">VIEWER</span>
     </div>
     <div class="topbar-right">
@@ -5975,6 +6062,13 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
+    <!-- 이 PC 주인 뱃지 (설정된 경우만 노출) -->
+    <div id="diaryMeBadge" class="diary-me-badge" hidden>
+      <span class="diary-me-badge-dot"></span>
+      이 자리 <b id="diaryMeBadgeName"></b>
+      <button id="diaryMeBadgeChange" class="diary-me-badge-btn" type="button">변경</button>
+      <span id="diaryMeBadgeNotif" class="diary-me-badge-notif" hidden></span>
+    </div>
     <!-- 팀 카드 1행: 인사팀 · 업무일지 -->
     <div class="hero-row hero-row-1">
       <section class="hero hero-hr">
@@ -6323,7 +6417,7 @@
     </form>
 
     <div class="org-chart-wrap">
-      <svg class="org-svg" viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Brightbeed Co., Ltd. & Bead Universe Co., Ltd. 조직도">
+      <svg class="org-svg" viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bead Universe Co., Ltd. 조직도">
         <!-- 연결선 — 본부별 색 -->
         <!-- 루트(540,60) → 본부 버스(y=84) → 물류(80)/브랜드(540)/벤더(885) -->
         <path class="line" d="M 540 60 V 84"/>
@@ -6355,12 +6449,9 @@
         <!-- 물류 → 인원 (팀 없이 바로 드롭) -->
         <path class="line l-logi" d="M 80 152 V 305"/>
 
-        <!-- 루트 — 시각 중심(x=540)에 맞춤. 정식 법인명 2사 병기 (2줄, rect 중심 y=33) -->
-        <rect class="b-root" x="365" y="6" width="350" height="54" rx="8"/>
-        <text class="t-root" x="540" y="23">
-          <tspan x="540" dy="0">Brightbeed Co., Ltd.</tspan>
-          <tspan x="540" dy="20">Bead Universe Co., Ltd.</tspan>
-        </text>
+        <!-- 루트 — 시각 중심(x=540)에 맞춤. 통합 법인명 (rect 중심 y=27) -->
+        <rect class="b-root" x="365" y="6" width="350" height="42" rx="8"/>
+        <text class="t-root" x="540" y="33">Bead Universe Co., Ltd.</text>
 
         <!-- 본부 (물류·브랜드·벤더) — text y = rect 중심 131 -->
         <rect class="b-logi"   x="40"  y="110" width="80" height="42" rx="6"/>
@@ -6404,7 +6495,7 @@
 
       <!-- 모바일 전용 카드 레이아웃 (≤600px에서 표시, SVG는 숨김) -->
       <div class="org-mobile" aria-hidden="true">
-        <div class="om-root">Brightbeed Co., Ltd.<br>Bead Universe Co., Ltd.</div>
+        <div class="om-root">Bead Universe Co., Ltd.</div>
         <div class="om-divisions">
           <div class="om-div om-logi">
             <div class="om-div-name">물류</div>
@@ -7999,7 +8090,7 @@
   </main>
 
   <footer class="footer">
-    <div>© 2025 Brightbeed Co., Ltd. · Bead Universe Co., Ltd. · 내부 사용 전용</div>
+    <div>© 2025 Bead Universe Co., Ltd. · 내부 사용 전용</div>
     <div>버전 1.6 · 빌드 <span class="mono">2026.05.13</span></div>
   </footer>
 </div>
@@ -9546,6 +9637,15 @@
       }
       if(typeof fxRenderView==='function') fxRenderView();
     }
+    // 홈 진입 시 · 이 PC 주인 미설정이면 세팅 팝업
+    if(id==='viewHome'){
+      if(typeof _diaryMaybeShowSetupPopup === 'function'){
+        setTimeout(_diaryMaybeShowSetupPopup, 300);
+      }
+      if(typeof _diaryRenderMeBadge === 'function') _diaryRenderMeBadge();
+      // 홈에서도 realtime 활성화 (다른 뷰에서 요청 받아도 알림 뜨게)
+      if(typeof _diaryInitRealtime === 'function') _diaryInitRealtime();
+    }
   }
 
   // showView: history에 push (사용자 클릭 진입). fromHistory=true면 popstate에서 호출된거라 push 생략.
@@ -10689,6 +10789,99 @@
         body: JSON.stringify({to_name: toName, from_name: fromName||'', text: text})
       });
     } catch(e){ console.warn('diary push 실패', e); }
+  }
+
+  /* ===== 홈 진입 시 세팅 팝업 ===== */
+  const DIARY_SETUP_SKIP_KEY = 'brightbeed_diary_setup_skip_until';
+  function _diaryMaybeShowSetupPopup(){
+    if(!document.getElementById('diarySetupModal')) return;
+    const me = _diaryGetMe();
+    if(me) return; // 이미 세팅됨
+    // "나중에" 누르면 6시간 skip
+    try {
+      const skipUntil = +localStorage.getItem(DIARY_SETUP_SKIP_KEY)||0;
+      if(skipUntil > Date.now()) return;
+    } catch(e){}
+    _diaryOpenSetupPopup();
+  }
+  function _diaryOpenSetupPopup(){
+    const modal = document.getElementById('diarySetupModal');
+    const sel = document.getElementById('dsmSelect');
+    const notifRow = document.getElementById('dsmNotifRow');
+    const notifChk = document.getElementById('dsmNotifChk');
+    const saveBtn = document.getElementById('dsmSave');
+    const laterBtn = document.getElementById('dsmLater');
+    if(!modal || _diaryOpenSetupPopup._bound){
+      if(modal){
+        // 옵션 refresh (신규 STAFF 반영)
+        sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
+          STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
+        sel.value = _diaryGetMe();
+        saveBtn.disabled = !sel.value;
+        modal.hidden = false;
+      }
+      return;
+    }
+    _diaryOpenSetupPopup._bound = true;
+    sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
+      STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
+    sel.value = _diaryGetMe();
+    saveBtn.disabled = !sel.value;
+    modal.hidden = false;
+    sel.onchange = ()=>{
+      saveBtn.disabled = !sel.value;
+      const notifSupported = 'Notification' in window;
+      const notifNeeded = notifSupported && Notification.permission !== 'granted' && Notification.permission !== 'denied';
+      notifRow.hidden = !notifNeeded;
+    };
+    saveBtn.onclick = async ()=>{
+      const name = sel.value;
+      if(!name) return;
+      _diarySetMe(name);
+      // 알림 권한 요청 (사용자가 체크했고 아직 결정 안 된 경우)
+      const notifSupported = 'Notification' in window;
+      if(notifSupported && notifChk.checked && Notification.permission === 'default'){
+        try { await Notification.requestPermission(); } catch(e){}
+      }
+      modal.hidden = true;
+      _diaryRefreshNotifBtn();
+      _diaryInitRealtime();
+      _diaryRenderMeBadge();
+      // 업무일지 뷰가 열려있으면 셀렉트 sync
+      const dsel = document.getElementById('diaryMeSel');
+      if(dsel){ dsel.value = name; }
+      toast(`${name}님 자리로 설정되었습니다`, 'ok');
+    };
+    laterBtn.onclick = ()=>{
+      try { localStorage.setItem(DIARY_SETUP_SKIP_KEY, String(Date.now() + 6*60*60*1000)); } catch(e){}
+      modal.hidden = true;
+    };
+    // ESC 닫기
+    modal.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') laterBtn.click(); });
+  }
+  function _diaryRenderMeBadge(){
+    const badge = document.getElementById('diaryMeBadge');
+    if(!badge) return;
+    const me = _diaryGetMe();
+    if(!me){ badge.hidden = true; return; }
+    badge.hidden = false;
+    document.getElementById('diaryMeBadgeName').textContent = me;
+    const btn = document.getElementById('diaryMeBadgeChange');
+    if(!btn._bound){
+      btn._bound = true;
+      btn.onclick = ()=>{
+        try { localStorage.removeItem(DIARY_SETUP_SKIP_KEY); } catch(e){}
+        _diaryOpenSetupPopup();
+      };
+    }
+    const notif = document.getElementById('diaryMeBadgeNotif');
+    if(notif){
+      if('Notification' in window){
+        if(Notification.permission === 'granted'){ notif.hidden = false; notif.textContent = '🔔 알림 ON'; notif.style.color = '#166534'; notif.style.background = '#dcfce7'; }
+        else if(Notification.permission === 'denied'){ notif.hidden = false; notif.textContent = '🔕 알림 차단됨'; notif.style.color = '#991b1b'; notif.style.background = '#fee2e2'; }
+        else { notif.hidden = false; notif.textContent = '🔔 알림 허용 필요'; }
+      } else notif.hidden = true;
+    }
   }
 
   function _diaryPersistStaff(name){
@@ -19920,5 +20113,27 @@
 
   init();
 </script>
+
+<!-- 이 PC 주인 세팅 팝업 (홈 진입 시 미설정이면 자동 표시) -->
+<div id="diarySetupModal" class="dsm-overlay" hidden>
+  <div class="dsm-card">
+    <div class="dsm-icon">👋</div>
+    <h2 class="dsm-title">이 PC는 누구 자리인가요?</h2>
+    <p class="dsm-desc">선택하시면 본인에게 온 업무 요청을 크롬 알림으로 바로 받을 수 있어요.<br>한 번 선택하면 저장되며, 언제든 홈 상단에서 변경 가능합니다.</p>
+    <select id="dsmSelect" class="dsm-select">
+      <option value="">— 이름 선택 —</option>
+    </select>
+    <div class="dsm-notif-row" id="dsmNotifRow" hidden>
+      <label class="dsm-notif-label">
+        <input type="checkbox" id="dsmNotifChk" checked>
+        <span>크롬 알림도 허용 (권장)</span>
+      </label>
+    </div>
+    <div class="dsm-actions">
+      <button id="dsmLater" class="dsm-btn dsm-btn-ghost" type="button">나중에</button>
+      <button id="dsmSave" class="dsm-btn dsm-btn-primary" type="button" disabled>저장</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
