@@ -11094,7 +11094,8 @@
       _diaryScheduleSaveFor(name);
     };
     card.querySelector('[data-add="req"]').onclick = ()=>{
-      entry.reqs.push({id:_diaryUid(), text:'', from:'', done:false});
+      // 요청자는 이 PC 주인(내 이름)으로 자동 채우기 — 미설정이면 빈 값
+      entry.reqs.push({id:_diaryUid(), text:'', from:_diaryGetMe()||'', done:false});
       _diaryCardRenderReqs(card, st, true);
       _diaryCardUpdateStat(card, st);
       _diaryScheduleSaveFor(name);
