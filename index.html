@@ -5186,7 +5186,18 @@
 
   /* plan / req row 컬럼 확장 — 우선순위 + 이동 버튼 자리 */
   .dcs-plan{grid-template-columns:auto auto 1fr auto auto auto}
-  .dcs-req{grid-template-columns:auto auto 1fr auto auto auto}
+  .dcs-req{grid-template-columns:auto auto 1fr auto auto auto auto}
+  /* 저장/전송 상태 아이콘 — 요청자(from) 왼쪽에 작게 표시 */
+  .dcs-req-status{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:14px;height:14px;color:#a8a29e;opacity:0;
+    transition:opacity .18s ease, color .18s ease, transform .18s ease;
+  }
+  .dcs-req-status svg{width:14px;height:14px;stroke-width:3;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+  .dcs-req-status[data-status="saving"]{opacity:.6;color:#a8a29e;animation:reqStatSaving 1s ease-in-out infinite}
+  .dcs-req-status[data-status="saved"]{opacity:.85;color:#22c55e}
+  .dcs-req-status[data-status="pushed"]{opacity:1;color:#2563eb;transform:scale(1.15)}
+  @keyframes reqStatSaving{0%,100%{opacity:.35}50%{opacity:.75}}
 
   /* 모바일 — 카드 2열 유지 */
   @media (max-width:900px){
@@ -5205,7 +5216,7 @@
     .dcs-stat{padding:3px 7px;font-size:10.5px}
     .dcs-sec-title{font-size:10.5px;letter-spacing:.06em}
     .dcs-sec-title-count{font-size:10px;padding:1px 6px}
-    .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto auto 1fr auto auto auto}
+    .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto auto 1fr auto auto auto auto}
     .dcs-req-from{font-size:10px}
     .dcs-req-text,.dcs-task-text,.dcs-plan-text{font-size:12px}
     .dcs-plan{padding:6px 8px;gap:6px;grid-template-columns:auto auto 1fr auto auto auto}
@@ -11619,12 +11630,17 @@
     entry.reqs.forEach((r, idx)=>{
       const row = document.createElement('div');
       row.className = 'dcs-req' + (r.done ? ' done' : '');
+      // 초기 status: 텍스트 있으면 저장 완료(saved), 없으면 hidden
+      const initialStatus = (r.text && String(r.text).trim()) ? (r._pushed ? 'saved' : 'saved') : '';
       row.innerHTML = `
         <button class="dcs-req-check" title="완료">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
         ${_diaryPrioHTML(r.priority||0)}
         <div class="dcs-req-text" contenteditable="true">${_esc(r.text||'')}</div>
+        <span class="dcs-req-status" data-status="${initialStatus}" title="자동 저장 상태">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
         <div class="dcs-req-from" contenteditable="true">${_esc(r.from||'')}</div>
         ${_diaryMoveHTML()}
         <button class="dcs-req-del" title="삭제">✕</button>
@@ -11657,15 +11673,29 @@
         _diaryScheduleSaveFor(st.name);
       };
       const txt = row.querySelector('.dcs-req-text');
+      const statusEl = row.querySelector('.dcs-req-status');
+      const setStatus = (s)=>{ if(statusEl) statusEl.dataset.status = s || ''; };
+      const flashPushed = ()=>{
+        setStatus('pushed');
+        setTimeout(()=>setStatus('saved'), 1400);
+      };
       txt.oninput = ()=>{
         r.text = txt.innerText;
+        // 입력 즉시 saving 아이콘 → 저장 debounce(500ms) 완료 후 saved 로 전환
+        setStatus('saving');
+        clearTimeout(r._statusTimer);
+        r._statusTimer = setTimeout(()=>{
+          setStatus(r.text && r.text.trim() ? 'saved' : '');
+        }, 550);
         _diaryScheduleSaveFor(st.name);
         // 입력 후 700ms 정지 시 자동으로 supabase push (blur 기다리지 않음)
         clearTimeout(r._pushTimer);
         r._pushTimer = setTimeout(()=>{
           if(!r._pushed && r.text && r.text.trim().length >= 2 && !r.done){
             r._pushed = true;
-            _diaryPushRequestToSupabase(st.name, r.from || _diaryGetMe() || '', r.text.trim());
+            Promise.resolve(_diaryPushRequestToSupabase(st.name, r.from || _diaryGetMe() || '', r.text.trim()))
+              .then(flashPushed)
+              .catch(()=>setStatus('saved'));
           }
         }, 700);
       };
@@ -11674,7 +11704,9 @@
         clearTimeout(r._pushTimer);
         if(!r._pushed && r.text && r.text.trim() && !r.done){
           r._pushed = true;
-          _diaryPushRequestToSupabase(st.name, r.from || _diaryGetMe() || '', r.text.trim());
+          Promise.resolve(_diaryPushRequestToSupabase(st.name, r.from || _diaryGetMe() || '', r.text.trim()))
+            .then(flashPushed)
+            .catch(()=>setStatus('saved'));
           _diaryScheduleSaveFor(st.name);
         }
       };
