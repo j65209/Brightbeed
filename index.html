@@ -4948,10 +4948,11 @@
   .dcs-prio.p2::before{content:'!'}
   .dcs-prio.p1::before{content:'!!'}
   .dcs-move{
-    display:none;flex-direction:column;gap:1px;flex-shrink:0;
+    display:flex;flex-direction:column;gap:1px;flex-shrink:0;
+    opacity:0;transition:opacity .15s ease;
   }
   .dcs-plan:hover .dcs-move,
-  .dcs-req:hover .dcs-move{display:flex}
+  .dcs-req:hover .dcs-move{opacity:.85}
   .dcs-move-btn{
     width:16px;height:11px;border-radius:3px;border:none;padding:0;
     background:transparent;color:#78716c;cursor:pointer;
@@ -4984,12 +4985,15 @@
     .dcs-stat{padding:3px 7px;font-size:10.5px}
     .dcs-sec-title{font-size:10.5px;letter-spacing:.06em}
     .dcs-sec-title-count{font-size:10px;padding:1px 6px}
-    .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto 1fr auto}
-    .dcs-req-from{grid-column:2;justify-self:start;font-size:10px}
-    .dcs-req-del{grid-row:1;grid-column:3}
+    .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto auto 1fr auto auto auto}
+    .dcs-req-from{font-size:10px}
     .dcs-req-text,.dcs-task-text,.dcs-plan-text{font-size:12px}
-    .dcs-plan{padding:6px 8px;gap:6px;grid-template-columns:auto 1fr auto auto}
+    .dcs-plan{padding:6px 8px;gap:6px;grid-template-columns:auto auto 1fr auto auto auto}
     .dcs-plan-date{font-size:9.5px;padding:1px 5px}
+    .dcs-move{opacity:.65}
+    .dcs-move-btn{width:14px;height:10px}
+    .dcs-prio{width:14px;height:14px}
+    .dcs-reset-hint{display:block;margin-left:0;margin-top:2px;font-size:9px}
     .diary-alert{padding:12px 14px 14px}
     .diary-alert-item{font-size:11.5px;padding:4px 10px 4px 4px}
     .diary-alert-avatar{width:18px;height:18px;font-size:9.5px}
@@ -9146,6 +9150,8 @@
     if(typeof vMarginEnsureLoaded==='function') vMarginEnsureLoaded();
     // 시스템 상태 배지 폴링 시작 (10분 주기)
     if(typeof _startSysHealthPolling==='function') _startSysHealthPolling();
+    // 업무일지 원격 sync 시작 (첫 pull + 15초 주기)
+    if(typeof startDiarySync==='function') startDiarySync();
   }
   function showLock(){app.classList.remove('show');lock.classList.add('show');setTimeout(()=>pin.focus(),50)}
 
@@ -10206,7 +10212,7 @@
     _leave_lastHash=j;
   }
 
-  /* ===== 업무일지 (Diary) — 애플/노션 스타일 =====
+  /* ===== 업무일지 (Diary) — 애플/노션 스타일 · 전 직원 실시간 공유 =====
      저장 구조 (v3):
        { [staffName]: {
            reqs:    [{id, text, from, done}, ...],        // 요청 · 완료 체크 전까지 이월
@@ -10214,8 +10220,45 @@
            monthly: [{id, text, createdAt}, ...],         // 월 목표 계획 · 완료 체크 시 자동 제거
            daily:   { [YYYY-MM-DD]: {tasks:[{id,text,done}]} }
        }}
-     · 자동저장: 편집 후 250ms 디바운스 → localStorage */
+     저장소:
+       · localStorage: 즉시 반응용 캐시
+       · GitHub data/diary.json: 진실 저장소, 전 직원이 공유. 뷰어도 쓰기 가능 (프록시 화이트리스트).
+     동기화:
+       · 편집 → 로컬 즉시 저장 → dirty(스태프명) 마크 → 1.5초 debounce로 push
+       · push 직전 remote pull → dirty만 로컬 것으로 덮고 나머지는 remote 유지 → PUT
+       · 15초 주기 remote pull (편집 idle 3초 이상일 때만) → dirty 아닌 스태프는 remote로 갱신 */
   const DIARY_KEY = 'brightbeed_diary_v1';
+  const DIARY_PATH='data/diary.json';
+  const DIARY_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${DIARY_PATH}`;
+  const DIARY_API=`https://api.github.com/repos/${PO_REPO}/contents/${DIARY_PATH}`;
+  const _diaryDirty = new Set();      // 마지막 push 이후 편집된 staff 이름들
+  let _diary_lastHash = null;         // 로컬 상태의 JSON 해시 — no-op 감지
+  let _diary_lastEditTs = 0;          // 마지막 편집 시각 (ms) — 편집 중이면 pull 스킵
+  let _diaryPushTimer = null;
+  let _diaryPullTimer = null;
+  /* 팀원별 카드 accent color — 파스텔톤, 폰트 잘 보이게 */
+  const DIARY_COLORS = {
+    '김성군': '#60a5fa', '전준호': '#818cf8', '이소영': '#22d3ee',
+    '김수민': '#84cc16', '이승원': '#facc15', '박규현': '#fb923c',
+    '정신혜': '#f472b6', '조혜인': '#e879f9', '김완성': '#a78bfa',
+    '김채원': '#2dd4bf', '지희선': '#fb7185', '박시호': '#38bdf8',
+  };
+  /* 신규 입사자 자동 컬러 팔레트 — 이름 해시로 결정, 파스텔톤 */
+  const _diaryFallbackPool = [
+    '#4ade80','#f87171','#c084fc','#fbbf24','#5eead4','#f9a8d4',
+    '#93c5fd','#fde047','#a3e635','#67e8f9','#fcd34d','#f0abfc'
+  ];
+  function _diaryAccent(name){
+    if(DIARY_COLORS[name]) return DIARY_COLORS[name];
+    let h = 0;
+    for(let i=0;i<(name||'').length;i++) h = (h*31 + name.charCodeAt(i))>>>0;
+    return _diaryFallbackPool[h % _diaryFallbackPool.length];
+  }
+  function _hexToRgba(hex, a){
+    const m = String(hex||'').replace('#','').match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    if(!m) return `rgba(168,162,158,${a})`;
+    return `rgba(${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)},${a})`;
+  }
   let _diaryState = {
     date: null,
     saveTimers: null,
@@ -10224,6 +10267,54 @@
     const d = new Date();
     const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
     return `${y}-${m}-${day}`;
+  }
+  /* 이번 주 일요일(다음 월요일 자정) — 주간 계획 자동 초기화 시점 */
+  function _diaryWeekResetLabel(){
+    const d = new Date();
+    const dow = d.getDay();
+    const daysUntilSun = (7 - dow) % 7;
+    const sun = new Date(d.getFullYear(), d.getMonth(), d.getDate() + (daysUntilSun===0?7:daysUntilSun));
+    return `${sun.getMonth()+1}/${sun.getDate()}(일) 초기화`;
+  }
+  /* 이번 달 말일(다음 달 1일) — 월 목표 자동 초기화 시점 */
+  function _diaryMonthResetLabel(){
+    const d = new Date();
+    const eom = new Date(d.getFullYear(), d.getMonth()+1, 0);
+    return `${eom.getMonth()+1}/${eom.getDate()} 초기화`;
+  }
+  /* ISO 주 시작(월요일) — 이 값이 이번주 시작보다 작으면 만료 */
+  function _diaryWeekStart(dateStr){
+    const m = String(dateStr||'').match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return '';
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    const dow = d.getDay();
+    const diff = dow===0 ? -6 : (1 - dow);
+    d.setDate(d.getDate()+diff);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function _diaryMonthKey(dateStr){
+    const m = String(dateStr||'').match(/(\d{4})-(\d{2})/);
+    return m ? `${m[1]}-${m[2]}` : '';
+  }
+  /* 렌더 시 지난 주/달 계획 자동 정리 */
+  function _diaryPurgeStale(){
+    const today = _diaryTodayStr();
+    const nowWeek = _diaryWeekStart(today);
+    const nowMonth = _diaryMonthKey(today);
+    const all = loadDiaryAll();
+    let changed = false;
+    Object.keys(all).forEach(name=>{
+      const s = all[name] || {};
+      if(Array.isArray(s.weekly)){
+        const kept = s.weekly.filter(it => !it.createdAt || _diaryWeekStart(it.createdAt) >= nowWeek);
+        if(kept.length !== s.weekly.length){ s.weekly = kept; changed = true; }
+      }
+      if(Array.isArray(s.monthly)){
+        const kept = s.monthly.filter(it => !it.createdAt || _diaryMonthKey(it.createdAt) >= nowMonth);
+        if(kept.length !== s.monthly.length){ s.monthly = kept; changed = true; }
+      }
+    });
+    if(changed) saveDiaryAll(all);
   }
   function _diaryFmtDate(s){
     if(!s) return '';
@@ -10287,6 +10378,93 @@
   function saveDiaryAll(data){
     try { localStorage.setItem(DIARY_KEY, JSON.stringify(data)) } catch(e){}
   }
+
+  /* ===== 원격 동기화 ===== */
+  async function _diaryFetchRemote(){
+    try{
+      const r=await fetch(`${DIARY_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {};   // 아직 파일 없음 — 빈 객체로 초기화
+      if(!r.ok) return null;
+      const txt=await r.text();
+      const parsed=JSON.parse(txt);
+      return _diaryMigrate(parsed);
+    }catch(e){ return null }
+  }
+
+  async function syncDiaryFromRemote(force){
+    // 사용자가 편집 중이면 pull 스킵 (input focus 잃을 위험 방지)
+    if(!force && Date.now()-_diary_lastEditTs < 3000) return;
+    const remote=await _diaryFetchRemote();
+    if(!remote) return;
+    const local=loadDiaryAll();
+    // ① 로컬에만 있는 스태프는 자동으로 dirty로 편입 → 나중에 push (아직 원격에 안 올라간 편집 보호)
+    for(const name of Object.keys(local)){
+      if(!(name in remote)) _diaryDirty.add(name);
+    }
+    // ② dirty 스태프는 로컬 것 유지, 나머지는 remote로 갱신
+    const merged={...remote};
+    for(const name of _diaryDirty){
+      if(local[name]) merged[name]=local[name];
+      else delete merged[name];
+    }
+    const j=JSON.stringify(merged);
+    if(j===_diary_lastHash){
+      // 변화 없음 — 하지만 dirty가 남았으면 여전히 push 예약
+      if(_diaryDirty.size>0) _diarySchedulePush();
+      return;
+    }
+    _diary_lastHash=j;
+    localStorage.setItem(DIARY_KEY, j);
+    // dirty가 남았으면 push
+    if(_diaryDirty.size>0) _diarySchedulePush();
+    // diary 뷰가 열려있으면 리렌더 (편집 중인 카드는 dirty라서 그대로 유지)
+    if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
+      _diaryRenderBoard();
+    }
+  }
+  window.syncDiaryFromRemote=syncDiaryFromRemote;
+
+  async function pushDiaryToRemote(){
+    if(_diaryDirty.size===0) return;
+    // push 직전 remote pull → dirty만 로컬 것으로 덮기 → PUT (동시 편집 안전)
+    const remote=await _diaryFetchRemote();
+    const local=loadDiaryAll();
+    const merged = remote ? {...remote} : {};
+    const dirtyNames = Array.from(_diaryDirty);
+    for(const name of dirtyNames){
+      if(local[name]) merged[name]=local[name];
+      else delete merged[name];
+    }
+    const jsonBody=JSON.stringify(merged, null, 2);
+    const b64=btoa(unescape(encodeURIComponent(jsonBody)));
+    const r=await ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true});
+    if(r.ok){
+      // 성공: dirty 정리 + 로컬을 merged로 통일
+      dirtyNames.forEach(n=>_diaryDirty.delete(n));
+      _diary_lastHash=JSON.stringify(merged);
+      localStorage.setItem(DIARY_KEY, _diary_lastHash);
+    } else if(r.reason==='auth'){
+      console.warn('[diary] push auth 실패 — 로컬만 유지');
+    }
+  }
+  function _diarySchedulePush(){
+    clearTimeout(_diaryPushTimer);
+    _diaryPushTimer=setTimeout(pushDiaryToRemote, 1500);
+  }
+  window.pushDiaryToRemote=pushDiaryToRemote;
+
+  function startDiarySync(){
+    if(_diaryPullTimer) return;
+    // 첫 pull은 즉시 (force=true — 편집 idle 체크 우회)
+    syncDiaryFromRemote(true);
+    // 이후 15초 주기
+    _diaryPullTimer=setInterval(()=>syncDiaryFromRemote(false), 15*1000);
+    // 창이 다시 활성화되면 즉시 sync
+    document.addEventListener('visibilitychange', ()=>{
+      if(!document.hidden) syncDiaryFromRemote(false);
+    });
+  }
+  window.startDiarySync=startDiarySync;
   function _diaryUid(){ return 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6) }
 
   function _diaryFlashSave(){
@@ -10393,10 +10571,13 @@
   function _diaryScheduleSaveFor(name){
     _diaryState.saveTimers = _diaryState.saveTimers || {};
     clearTimeout(_diaryState.saveTimers[name]);
+    _diaryDirty.add(name);
+    _diary_lastEditTs = Date.now();
     _diaryState.saveTimers[name] = setTimeout(()=>{
       _diaryPersistStaff(name);
       _diaryFlashSave();
       _diaryUpdateAlert();
+      _diarySchedulePush();
     }, 250);
   }
 
@@ -10454,6 +10635,9 @@
     todayBtn.classList.toggle('active', _diaryState.date === _diaryTodayStr());
     document.getElementById('diaryTitleSub').textContent = '/ ' + _diaryFmtDate(_diaryState.date);
 
+    // 렌더 진입 시 지난 주/달 계획 자동 정리
+    _diaryPurgeStale();
+
     // 전체 데이터 로드: 요청은 직원 단위(이월), 할일은 선택된 날짜 것만
     _diaryEntries = {};
     const all = loadDiaryAll();
@@ -10481,7 +10665,12 @@
     const card = document.createElement('article');
     card.className = 'dcs';
     card.dataset.staff = name;
+    const accent = _diaryAccent(name);
+    card.style.setProperty('--dcs-accent', accent);
+    card.style.setProperty('--dcs-accent-soft', _hexToRgba(accent, .18));
     const teamLabel = st.team ? `${st.dept} · ${st.team}` : (st.dept || '');
+    const wkReset = _diaryWeekResetLabel();
+    const moReset = _diaryMonthResetLabel();
     card.innerHTML = `
       <header class="dcs-head">
         <div class="dcs-info">
@@ -10493,7 +10682,7 @@
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">주간 업무 계획<span class="dcs-sec-title-count" data-weekly-cnt>0</span></div>
+          <div class="dcs-sec-title">주간 업무 계획<span class="dcs-sec-title-count" data-weekly-cnt>0</span><span class="dcs-reset-hint" title="매주 월요일 자동 초기화">${_esc(wkReset)}</span></div>
           <button class="dcs-add" data-add="weekly" title="주간 계획 추가">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
@@ -10504,7 +10693,7 @@
 
       <section class="dcs-sec">
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">월 목표 계획<span class="dcs-sec-title-count" data-monthly-cnt>0</span></div>
+          <div class="dcs-sec-title">월 목표 계획<span class="dcs-sec-title-count" data-monthly-cnt>0</span><span class="dcs-reset-hint" title="매월 1일 자동 초기화">${_esc(moReset)}</span></div>
           <button class="dcs-add" data-add="monthly" title="월 목표 추가">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
@@ -10573,6 +10762,24 @@
   }
 
   /* 주간/월 계획 렌더 — 완료 체크 시 부드럽게 자동 제거 */
+  /* 우선순위 순환 (0=일반 → 2=중요 → 1=긴급 → 0) 및 라벨 */
+  const _diaryPrioNext = { 0:2, 2:1, 1:0 };
+  const _diaryPrioLabel = { 0:'일반', 2:'중요', 1:'긴급' };
+  function _diaryPrioHTML(p){
+    const cls = (p===1?'p1':p===2?'p2':'');
+    return `<button class="dcs-prio ${cls}" data-prio="${p||0}" title="우선순위: ${_diaryPrioLabel[p||0]} · 클릭하여 변경"></button>`;
+  }
+  function _diaryMoveHTML(){
+    return `<div class="dcs-move">
+      <button class="dcs-move-btn" data-move="up" title="위로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </button>
+      <button class="dcs-move-btn" data-move="down" title="아래로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>`;
+  }
+
   function _diaryCardRenderPlan(card, st, kind, focusLast){
     const entry = _diaryEntries[st.name];
     const items = entry[kind] || [];
@@ -10590,8 +10797,10 @@
         <button class="dcs-plan-check" title="완료 시 제거">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
+        ${_diaryPrioHTML(it.priority||0)}
         <div class="dcs-plan-text" contenteditable="true">${_esc(it.text||'')}</div>
         ${dateBadge}
+        ${_diaryMoveHTML()}
         <button class="dcs-plan-del" title="삭제">✕</button>
       `;
       const removeItem = ()=>{
@@ -10606,6 +10815,29 @@
       };
       row.querySelector('.dcs-plan-check').onclick = removeItem;
       row.querySelector('.dcs-plan-del').onclick   = removeItem;
+      row.querySelector('.dcs-prio').onclick = ()=>{
+        it.priority = _diaryPrioNext[it.priority||0];
+        _diaryCardRenderPlan(card, st, kind);
+        _diaryScheduleSaveFor(st.name);
+      };
+      const up = row.querySelector('[data-move="up"]');
+      const down = row.querySelector('[data-move="down"]');
+      up.disabled = (idx === 0);
+      down.disabled = (idx === items.length - 1);
+      up.onclick = ()=>{
+        if(idx <= 0) return;
+        const arr = entry[kind];
+        [arr[idx-1], arr[idx]] = [arr[idx], arr[idx-1]];
+        _diaryCardRenderPlan(card, st, kind);
+        _diaryScheduleSaveFor(st.name);
+      };
+      down.onclick = ()=>{
+        const arr = entry[kind];
+        if(idx >= arr.length - 1) return;
+        [arr[idx+1], arr[idx]] = [arr[idx], arr[idx+1]];
+        _diaryCardRenderPlan(card, st, kind);
+        _diaryScheduleSaveFor(st.name);
+      };
       const txt = row.querySelector('.dcs-plan-text');
       txt.oninput = ()=>{ it.text = txt.innerText; _diaryScheduleSaveFor(st.name); };
       txt.onkeydown = (e)=>{
@@ -10669,14 +10901,37 @@
         <button class="dcs-req-check" title="완료">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
+        ${_diaryPrioHTML(r.priority||0)}
         <div class="dcs-req-text" contenteditable="true">${_esc(r.text||'')}</div>
         <div class="dcs-req-from" contenteditable="true">${_esc(r.from||'')}</div>
+        ${_diaryMoveHTML()}
         <button class="dcs-req-del" title="삭제">✕</button>
       `;
       row.querySelector('.dcs-req-check').onclick = ()=>{
         r.done = !r.done;
         row.classList.toggle('done', r.done);
         _diaryCardUpdateStat(card, st);
+        _diaryScheduleSaveFor(st.name);
+      };
+      row.querySelector('.dcs-prio').onclick = ()=>{
+        r.priority = _diaryPrioNext[r.priority||0];
+        _diaryCardRenderReqs(card, st);
+        _diaryScheduleSaveFor(st.name);
+      };
+      const up = row.querySelector('[data-move="up"]');
+      const down = row.querySelector('[data-move="down"]');
+      up.disabled = (idx === 0);
+      down.disabled = (idx === entry.reqs.length - 1);
+      up.onclick = ()=>{
+        if(idx <= 0) return;
+        [entry.reqs[idx-1], entry.reqs[idx]] = [entry.reqs[idx], entry.reqs[idx-1]];
+        _diaryCardRenderReqs(card, st);
+        _diaryScheduleSaveFor(st.name);
+      };
+      down.onclick = ()=>{
+        if(idx >= entry.reqs.length - 1) return;
+        [entry.reqs[idx+1], entry.reqs[idx]] = [entry.reqs[idx], entry.reqs[idx+1]];
+        _diaryCardRenderReqs(card, st);
         _diaryScheduleSaveFor(st.name);
       };
       const txt = row.querySelector('.dcs-req-text');
