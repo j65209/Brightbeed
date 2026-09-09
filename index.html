@@ -5077,6 +5077,81 @@
     font-size:10px;color:#a8a29e;font-weight:500;
     letter-spacing:-.005em;margin-left:6px;font-variant-numeric:tabular-nums;
   }
+  /* 지난 항목 조회 버튼 — 섹션 헤더 우측에 아이콘+개수 */
+  .dcs-archive-btn{
+    display:inline-flex;align-items:center;gap:3px;
+    margin-left:6px;padding:1px 7px;border-radius:999px;border:none;
+    background:#f4f0e3;color:#57534e;font-size:10px;font-weight:700;
+    cursor:pointer;transition:all .15s ease;letter-spacing:-.01em;
+    font-variant-numeric:tabular-nums;
+  }
+  .dcs-archive-btn:hover{background:#eae7dc;color:#1c1917}
+  .dcs-archive-btn[hidden]{display:none}
+  /* 아카이브 모달 */
+  .darc-overlay[hidden]{display:none}
+  .darc-overlay{
+    position:fixed;inset:0;z-index:9998;
+    background:rgba(28,25,23,.55);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;animation:dsmFadeIn .18s ease;
+  }
+  .darc-card{
+    background:#fff;border-radius:18px;
+    padding:24px 26px 20px;max-width:540px;width:100%;
+    max-height:80vh;overflow-y:auto;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.4);
+    animation:dsmSlideUp .25s cubic-bezier(.16,1,.3,1);
+  }
+  .darc-head{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:14px;border-bottom:1px solid #f0ebda;margin-bottom:14px;
+  }
+  .darc-title{
+    font-size:16px;font-weight:800;color:#1c1917;letter-spacing:-.02em;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .darc-title-sub{font-size:11px;color:#78716c;font-weight:600}
+  .darc-close{
+    margin-left:auto;background:#f4f0e3;color:#57534e;
+    border:none;width:28px;height:28px;border-radius:8px;cursor:pointer;
+    font-size:16px;font-weight:700;transition:all .15s ease;
+  }
+  .darc-close:hover{background:#eae7dc;color:#1c1917}
+  .darc-groups{display:flex;flex-direction:column;gap:14px}
+  .darc-group{
+    border:1px solid #f0ebda;border-radius:10px;padding:12px 14px;
+    background:#faf7ed;
+  }
+  .darc-group-label{
+    font-size:11.5px;font-weight:700;color:#78716c;
+    letter-spacing:-.005em;margin-bottom:8px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .darc-group-cnt{
+    font-size:10.5px;color:#57534e;background:#fff;
+    padding:1px 8px;border-radius:999px;font-variant-numeric:tabular-nums;
+  }
+  .darc-items{display:flex;flex-direction:column;gap:5px}
+  .darc-item{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 10px;border-radius:7px;
+    background:#fff;border:1px solid #eae7dc;
+    font-size:13px;color:#1c1917;font-weight:500;letter-spacing:-.01em;
+  }
+  .darc-item-prio{
+    width:10px;height:10px;border-radius:50%;background:#e7e5e4;flex-shrink:0;
+  }
+  .darc-item-prio.p2{background:#facc15}
+  .darc-item-prio.p1{background:#ef4444}
+  .darc-item-text{flex:1;word-break:break-word;line-height:1.4}
+  .darc-item-date{
+    font-size:10.5px;color:#a8a29e;font-weight:600;
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .darc-empty{
+    padding:20px;text-align:center;color:#78716c;font-size:13px;
+    background:#faf7ed;border-radius:8px;font-weight:600;
+  }
 
   /* 우선순위 뱃지 + 순서 이동 버튼 */
   .dcs-prio{
@@ -10593,6 +10668,80 @@
   }
   /* 하위 호환용 alias */
   const _diaryPurgeStale = _diaryArchiveStale;
+
+  /* 지난 주/달 아카이브 조회 모달 열기 */
+  function _diaryFmtWeekLabel(weekStart){
+    const m = String(weekStart||'').match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return weekStart;
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    const end = new Date(d); end.setDate(end.getDate()+6);
+    return `${d.getMonth()+1}/${d.getDate()} ~ ${end.getMonth()+1}/${end.getDate()}`;
+  }
+  function _diaryFmtMonthLabel(monthKey){
+    const m = String(monthKey||'').match(/(\d{4})-(\d{2})/);
+    if(!m) return monthKey;
+    return `${+m[1]}년 ${+m[2]}월`;
+  }
+  function _diaryOpenArchive(staffName, kind){
+    const modal = document.getElementById('diaryArchiveModal');
+    if(!modal) return;
+    const title = document.getElementById('darcTitle');
+    const sub   = document.getElementById('darcTitleSub');
+    const body  = document.getElementById('darcBody');
+    const closeBtn = document.getElementById('darcClose');
+    const entry = _diaryEntries[staffName] || {};
+    const archObj = (kind === 'weekly' ? entry.weeklyArchive : entry.monthlyArchive) || {};
+    const kindLabel = kind === 'weekly' ? '지난 주간 업무 계획' : '지난 월 목표 계획';
+    title.textContent = `${staffName} · ${kindLabel}`;
+    // 총 개수
+    let total = 0;
+    Object.values(archObj).forEach(arr => { if(Array.isArray(arr)) total += arr.length; });
+    sub.textContent = total ? `총 ${total}건` : '';
+    // 그룹 렌더 — 최신 주/달이 위로
+    const keys = Object.keys(archObj).sort().reverse();
+    body.innerHTML = '';
+    if(!keys.length){
+      const empty = document.createElement('div');
+      empty.className = 'darc-empty';
+      empty.textContent = '아카이브된 항목이 없습니다.';
+      body.appendChild(empty);
+    } else {
+      keys.forEach(k=>{
+        const arr = archObj[k];
+        if(!Array.isArray(arr) || !arr.length) return;
+        const group = document.createElement('div');
+        group.className = 'darc-group';
+        const label = document.createElement('div');
+        label.className = 'darc-group-label';
+        const labelText = kind === 'weekly' ? _diaryFmtWeekLabel(k) : _diaryFmtMonthLabel(k);
+        label.innerHTML = `<span>${_esc(labelText)}</span><span class="darc-group-cnt">${arr.length}개</span>`;
+        group.appendChild(label);
+        const items = document.createElement('div');
+        items.className = 'darc-items';
+        arr.forEach(it=>{
+          const row = document.createElement('div');
+          row.className = 'darc-item';
+          const p = it.priority||0;
+          const prioCls = p===1?'p1':p===2?'p2':'';
+          row.innerHTML = `
+            <span class="darc-item-prio ${prioCls}" title="${_esc(p===1?'긴급':p===2?'중요':'일반')}"></span>
+            <span class="darc-item-text">${_esc(it.text||'(내용 없음)')}</span>
+            ${it.createdAt ? `<span class="darc-item-date">${_esc(_diaryFmtCreated(it.createdAt))}</span>` : ''}
+          `;
+          items.appendChild(row);
+        });
+        group.appendChild(items);
+        body.appendChild(group);
+      });
+    }
+    modal.hidden = false;
+    if(!closeBtn._bound){
+      closeBtn._bound = true;
+      closeBtn.onclick = ()=>{ modal.hidden = true; };
+      modal.onclick = (e)=>{ if(e.target === modal) modal.hidden = true; };
+      document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && !modal.hidden) modal.hidden = true; });
+    }
+  }
   function _diaryFmtDate(s){
     if(!s) return '';
     const m=s.match(/(\d{4})-(\d{2})-(\d{2})/); if(!m) return s;
@@ -10728,7 +10877,8 @@
   }
   function _diarySchedulePush(){
     clearTimeout(_diaryPushTimer);
-    _diaryPushTimer=setTimeout(pushDiaryToRemote, 1500);
+    // 500ms debounce — 편집 후 반 초면 원격 반영
+    _diaryPushTimer=setTimeout(pushDiaryToRemote, 500);
   }
   window.pushDiaryToRemote=pushDiaryToRemote;
 
@@ -10736,8 +10886,8 @@
     if(_diaryPullTimer) return;
     // 첫 pull은 즉시 (force=true — 편집 idle 체크 우회)
     syncDiaryFromRemote(true);
-    // 이후 15초 주기
-    _diaryPullTimer=setInterval(()=>syncDiaryFromRemote(false), 15*1000);
+    // 이후 5초 주기 — 요청이 다른 사람에게 빨리 뜨도록 폴링 단축
+    _diaryPullTimer=setInterval(()=>syncDiaryFromRemote(false), 5*1000);
     // 창이 다시 활성화되면 즉시 sync
     document.addEventListener('visibilitychange', ()=>{
       if(!document.hidden) syncDiaryFromRemote(false);
@@ -20330,6 +20480,20 @@
       <button id="dsmLater" class="dsm-btn dsm-btn-ghost" type="button">나중에</button>
       <button id="dsmSave" class="dsm-btn dsm-btn-primary" type="button" disabled>저장</button>
     </div>
+  </div>
+</div>
+
+<!-- 지난 주간/월 목표 아카이브 조회 모달 -->
+<div id="diaryArchiveModal" class="darc-overlay" hidden>
+  <div class="darc-card">
+    <div class="darc-head">
+      <div class="darc-title">
+        <span id="darcTitle">지난 기록</span>
+        <span class="darc-title-sub" id="darcTitleSub"></span>
+      </div>
+      <button id="darcClose" class="darc-close" type="button" title="닫기">✕</button>
+    </div>
+    <div id="darcBody" class="darc-groups"></div>
   </div>
 </div>
 </body>
