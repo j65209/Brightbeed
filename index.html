@@ -4896,6 +4896,18 @@
   }
   .diary-notif-banner-ok .diary-notif-banner-btn{background:#166534;color:#dcfce7}
   .diary-notif-banner-ok .diary-notif-banner-btn:hover{background:#052e16}
+  .diary-notif-banner-warn{
+    background:linear-gradient(180deg,#fed7aa 0%,#fff7ed 60%);
+    border-color:#fdba74;color:#7c2d12;
+  }
+  .diary-notif-banner-warn .diary-notif-banner-help{color:#9a3412}
+  .diary-notif-banner-warn .diary-notif-banner-help b{color:#7c2d12}
+  .diary-notif-banner-warn .diary-notif-banner-btn{background:#9a3412;color:#fff7ed}
+  .diary-notif-banner-warn .diary-notif-banner-btn:hover{background:#431407}
+  .diary-notif-banner-warn .diary-notif-banner-btn-alt{background:transparent;color:#7c2d12;border:1px solid rgba(154,52,18,.4)}
+  .diary-notif-banner-warn .diary-notif-banner-btn-alt:hover{background:rgba(154,52,18,.08)}
+  .diary-notif-banner-lines{display:flex;flex-direction:column;gap:4px;flex:1;min-width:200px}
+  .diary-notif-banner-actions{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
   .diary-notif-banner-err .diary-notif-banner-help{color:#991b1b}
   .diary-notif-banner-err .diary-notif-banner-help b{color:#7f1d1d}
 
@@ -10970,6 +10982,65 @@
     }
   }
 
+  /* macOS/Windows 시스템 레벨 알림 차단을 silent test 로 감지.
+     · 브라우저 권한이 granted 여야만 의미 있음
+     · 결과 24시간 캐시 (매번 알림 잠깐 뜨는 걸 방지)
+     · onshow 콜백이 오면 OS도 알림 허용, 안 오면 OS에서 차단됨 */
+  const DIARY_NOTIF_DIAG_KEY = 'brightbeed_notif_diag_v1';
+  function _diaryDiagLoad(){
+    try{
+      const j = JSON.parse(localStorage.getItem(DIARY_NOTIF_DIAG_KEY)||'null');
+      if(!j || !j.ts) return null;
+      if(Date.now()-j.ts > 24*3600*1000) return null;  // 24시간 만료
+      return j;
+    }catch(e){ return null }
+  }
+  function _diaryDiagSave(system){
+    try{
+      localStorage.setItem(DIARY_NOTIF_DIAG_KEY, JSON.stringify({ts:Date.now(), system}));
+    }catch(e){}
+  }
+  function _diaryDiagClear(){
+    try{ localStorage.removeItem(DIARY_NOTIF_DIAG_KEY); }catch(e){}
+  }
+  async function _diaryDiagnoseSystem(){
+    if(Notification.permission !== 'granted') return 'unknown';
+    return new Promise((resolve)=>{
+      let shown = false, resolved = false;
+      const done = (r)=>{ if(!resolved){ resolved = true; resolve(r); } };
+      try{
+        const n = new Notification('🔔', {
+          body: 'Bead Universe 알림 진단',
+          tag: 'brightbeed-silent-diag',
+          silent: true,
+          requireInteraction: false,
+        });
+        n.onshow = ()=>{
+          shown = true;
+          setTimeout(()=>{ try{ n.close(); }catch(e){} }, 50);
+          done('granted');
+        };
+        n.onerror = ()=>done('blocked');
+        setTimeout(()=>{
+          try{ n.close(); }catch(e){}
+          if(!shown) done('blocked');
+        }, 1000);
+      }catch(e){ done('blocked') }
+    });
+  }
+  async function _diaryEnsureDiag(force){
+    if(!('Notification' in window)) return;
+    if(Notification.permission !== 'granted') return;
+    if(!force){
+      const cached = _diaryDiagLoad();
+      if(cached) return;
+    }
+    const system = await _diaryDiagnoseSystem();
+    _diaryDiagSave(system);
+    _diaryUpdateNotifBanner();
+  }
+  window._diaryEnsureDiag = _diaryEnsureDiag;
+
   /* 업무일지 뷰 진입 시 알림 권한 상태 배너 (default → 허용 유도, denied → 복구법 안내) */
   function _diaryUpdateNotifBanner(){
     if(!('Notification' in window)) return;
@@ -10985,13 +11056,41 @@
     }
     if(!me){ banner.hidden = true; return; }
     if(perm === 'granted'){
-      // 허용됐어도 실제로 시스템에서 뜨는지 확인할 수 있게 테스트 버튼 표시
+      // 시스템 레벨 진단 결과 확인 (24시간 캐시)
+      const diag = _diaryDiagLoad();
+      if(!diag){
+        // 아직 진단 안 됨 → 백그라운드로 자동 진단 kick + 진행중 안내
+        _diaryEnsureDiag(false);
+        banner.hidden = false;
+        banner.innerHTML = `
+          <div class="diary-notif-banner-body diary-notif-banner-ok">
+            <span class="diary-notif-banner-icon">🔔</span>
+            <span><b>${_esc(me)}</b>님, 알림 상태 진단 중… 잠시만요.</span>
+          </div>`;
+        return;
+      }
+      if(diag.system === 'granted'){
+        // 브라우저 + 시스템 모두 정상 — 배너 숨김
+        banner.hidden = true;
+        return;
+      }
+      // 시스템 레벨 차단 — macOS 설정 유도
+      const isMac = /Mac/.test(navigator.platform);
+      const path = isMac
+        ? 'Mac 왼쪽 상단  → 시스템 설정 → 알림 → Google Chrome'
+        : '설정 → 시스템 → 알림 및 작업 → Google Chrome';
       banner.hidden = false;
       banner.innerHTML = `
-        <div class="diary-notif-banner-body diary-notif-banner-ok">
-          <span class="diary-notif-banner-icon">🔔</span>
-          <span><b>${_esc(me)}</b>님, 알림 허용됨. 실제로 크롬 알림이 뜨는지 아래 버튼으로 테스트해보세요.</span>
-          <button type="button" class="diary-notif-banner-btn" onclick="_diaryTestNotif()">🧪 테스트 알림 보내기</button>
+        <div class="diary-notif-banner-body diary-notif-banner-warn">
+          <span class="diary-notif-banner-icon">⚠️</span>
+          <div class="diary-notif-banner-lines">
+            <div><b>${_esc(me)}</b>님, 크롬은 허용됐지만 <b>${isMac?'macOS':'Windows'} 시스템 알림이 꺼져있어요.</b></div>
+            <div class="diary-notif-banner-help">📍 ${_esc(path)} → <b>알림 허용 ON</b> + 알림 스타일 <b>배너</b> 또는 <b>알림</b> 선택 → 새로고침</div>
+          </div>
+          <div class="diary-notif-banner-actions">
+            <button type="button" class="diary-notif-banner-btn diary-notif-banner-btn-alt" onclick="_diaryTestNotif()">🧪 테스트</button>
+            <button type="button" class="diary-notif-banner-btn" onclick="(function(){_diaryDiagClear();_diaryEnsureDiag(true);})()">🔄 재확인</button>
+          </div>
         </div>`;
       return;
     }
@@ -11017,11 +11116,16 @@
   async function _diaryRequestNotifPerm(){
     try {
       const p = await Notification.requestPermission();
-      if(p === 'granted' && typeof toast === 'function') toast('🔔 알림이 허용됐어요', 'ok');
+      if(p === 'granted'){
+        if(typeof toast === 'function') toast('🔔 크롬 알림 허용됨. 시스템 상태 확인 중…', 'ok');
+        _diaryDiagClear();  // 캐시 초기화 → 즉시 재진단
+        await _diaryEnsureDiag(true);
+      }
     } catch(e){}
     _diaryUpdateNotifBanner();
   }
   window._diaryRequestNotifPerm = _diaryRequestNotifPerm;
+  window._diaryDiagClear = _diaryDiagClear;
 
   /* 🧪 테스트 알림 — 실제로 크롬 알림이 뜨는지 진단
      · 알림 발동 성공 + onshow 호출까지 확인해서 결과를 배너에 리포트 */
