@@ -4867,6 +4867,40 @@
   .diary-today-btn:hover{background:#f4f0e3;color:#1c1917}
   .diary-today-btn.active{background:#1c1917;color:#fff}
 
+  /* 업무일지 — 알림 권한 배너 (denied 이면 눈에 확 띄게) */
+  .diary-notif-banner{margin-bottom:14px}
+  .diary-notif-banner[hidden]{display:none}
+  .diary-notif-banner-body{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:12px 16px;border-radius:12px;
+    background:linear-gradient(180deg,#fef3c7 0%,#fffbeb 60%);
+    border:1px solid #f6d99a;
+    font-size:13px;color:#78350f;font-weight:600;letter-spacing:-.01em;
+  }
+  .diary-notif-banner-icon{font-size:16px;flex-shrink:0}
+  .diary-notif-banner-help{color:#92400e;font-weight:500;font-size:12px}
+  .diary-notif-banner-help b{color:#78350f;font-weight:700}
+  .diary-notif-banner-btn{
+    margin-left:auto;padding:6px 14px;border-radius:8px;border:none;
+    background:#78350f;color:#fef3c7;font-weight:700;font-size:12px;cursor:pointer;
+    letter-spacing:-.01em;transition:background .15s;
+  }
+  .diary-notif-banner-btn:hover{background:#451a03}
+  .diary-notif-banner-err{
+    background:linear-gradient(180deg,#fee2e2 0%,#fef2f2 60%);
+    border-color:#f87171;color:#7f1d1d;
+  }
+  .diary-notif-banner-err .diary-notif-banner-help{color:#991b1b}
+  .diary-notif-banner-err .diary-notif-banner-help b{color:#7f1d1d}
+
+  /* 신규 요청 도착 시 카드 pulse */
+  @keyframes dcsFlash{
+    0%{box-shadow:0 0 0 0 rgba(234,179,8,.6),0 0 0 0 rgba(234,179,8,.2)}
+    50%{box-shadow:0 0 0 6px rgba(234,179,8,.2),0 0 20px 4px rgba(234,179,8,.15)}
+    100%{box-shadow:0 0 0 0 rgba(234,179,8,0),0 0 0 0 rgba(234,179,8,0)}
+  }
+  .dcs.dcs-flash-new{animation:dcsFlash 1.2s ease-in-out 3;border-color:#f6d99a !important}
+
   /* 미작성 알림 배너 (평일 18시↑, 오늘만) */
   .diary-alert{
     background:linear-gradient(180deg,#fffbeb 0%,#fff 55%);
@@ -10903,6 +10937,7 @@
   function _diaryFireLocalNotif(toName, req){
     const from = req.from || '누군가';
     const text = String(req.text||'').slice(0, 140);
+    let notifShown = false;
     if('Notification' in window && Notification.permission === 'granted'){
       try{
         const n = new Notification(`업무 요청: ${from}님`, {
@@ -10911,10 +10946,66 @@
           requireInteraction: true, // 사용자가 명시적으로 닫기 전까지 알림 유지
         });
         n.onclick = ()=>{ window.focus(); n.close(); if(typeof triggerDiary === 'function') triggerDiary(); };
+        notifShown = true;
       }catch(e){}
     }
-    if(typeof toast === 'function') toast(`${from} → ${text}`, 'info');
+    // 알림 권한 없어도 눈에 확 띄게 — 페이지 내 toast + 카드 pulse
+    if(typeof toast === 'function'){
+      const suffix = notifShown ? '' : ' · 알림 차단됨 → 크롬 설정에서 허용';
+      toast(`📩 ${from} → ${text}${suffix}`, notifShown ? 'info' : 'err');
+    }
+    // 해당 스태프 카드에 pulse 애니메이션
+    const card = document.querySelector(`.dcs[data-staff="${toName}"]`);
+    if(card){
+      card.classList.remove('dcs-flash-new');
+      void card.offsetWidth;
+      card.classList.add('dcs-flash-new');
+      setTimeout(()=>card.classList.remove('dcs-flash-new'), 3600);
+    }
   }
+
+  /* 업무일지 뷰 진입 시 알림 권한 상태 배너 (default → 허용 유도, denied → 복구법 안내) */
+  function _diaryUpdateNotifBanner(){
+    if(!('Notification' in window)) return;
+    const me = (typeof _diaryGetMe === 'function') ? _diaryGetMe() : '';
+    const perm = Notification.permission;
+    let banner = document.getElementById('diaryNotifBanner');
+    if(!banner){
+      banner = document.createElement('div');
+      banner.id = 'diaryNotifBanner';
+      banner.className = 'diary-notif-banner';
+      const board = document.getElementById('diaryBoard');
+      if(board && board.parentNode) board.parentNode.insertBefore(banner, board);
+    }
+    if(!me){ banner.hidden = true; return; }
+    if(perm === 'granted'){ banner.hidden = true; return; }
+    if(perm === 'default'){
+      banner.hidden = false;
+      banner.innerHTML = `
+        <div class="diary-notif-banner-body">
+          <span class="diary-notif-banner-icon">🔔</span>
+          <span><b>${_esc(me)}</b>님, 업무 요청이 오면 크롬 알림으로 바로 알려드릴게요.</span>
+          <button type="button" class="diary-notif-banner-btn" onclick="_diaryRequestNotifPerm()">알림 허용</button>
+        </div>`;
+      return;
+    }
+    // denied — 사용자가 직접 크롬 설정에서 풀어야 함
+    banner.hidden = false;
+    banner.innerHTML = `
+      <div class="diary-notif-banner-body diary-notif-banner-err">
+        <span class="diary-notif-banner-icon">⚠️</span>
+        <span><b>알림이 차단되어 있어요.</b> 요청이 와도 크롬 알림이 안 뜹니다.</span>
+        <span class="diary-notif-banner-help">주소창 왼쪽 <b>자물쇠 🔒</b> → <b>알림</b> → <b>허용</b>으로 변경 후 새로고침</span>
+      </div>`;
+  }
+  async function _diaryRequestNotifPerm(){
+    try {
+      const p = await Notification.requestPermission();
+      if(p === 'granted' && typeof toast === 'function') toast('🔔 알림이 허용됐어요', 'ok');
+    } catch(e){}
+    _diaryUpdateNotifBanner();
+  }
+  window._diaryRequestNotifPerm = _diaryRequestNotifPerm;
   window.syncDiaryFromRemote=syncDiaryFromRemote;
 
   async function pushDiaryToRemote(){
@@ -11367,6 +11458,9 @@
   function _diaryRenderBoard(){
     const board = document.getElementById('diaryBoard');
     if(!board) return;
+
+    // 알림 권한 상태 배너 (denied 이면 눈에 확 띄게 유도)
+    if(typeof _diaryUpdateNotifBanner === 'function') _diaryUpdateNotifBanner();
 
     // 오늘 버튼 강조
     const todayBtn = document.getElementById('diaryTodayBtn');
