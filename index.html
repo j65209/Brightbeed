@@ -10908,7 +10908,7 @@
         const n = new Notification(`업무 요청: ${from}님`, {
           body: text,
           tag: 'diary-req-'+req.id,
-          requireInteraction: false,
+          requireInteraction: true, // 사용자가 명시적으로 닫기 전까지 알림 유지
         });
         n.onclick = ()=>{ window.focus(); n.close(); if(typeof triggerDiary === 'function') triggerDiary(); };
       }catch(e){}
@@ -11111,7 +11111,7 @@
           body: text,
           icon: '/assets/icons/icon-192.png',
           tag: 'diary-req-'+row.id,
-          requireInteraction: false,
+          requireInteraction: true, // 사용자가 명시적으로 닫기 전까지 알림 유지
         });
         n.onclick = ()=>{ window.focus(); n.close(); if(typeof triggerDiary === 'function') triggerDiary(); };
       } catch(e){}
