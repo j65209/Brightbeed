@@ -4926,7 +4926,9 @@
   .diary-me-on{
     font-size:10.5px;color:#166534;background:#dcfce7;
     padding:3px 8px;border-radius:6px;font-weight:700;letter-spacing:-.01em;
+    border:none;cursor:pointer;font-family:var(--sans);transition:background .15s;
   }
+  .diary-me-on:hover{background:#bbf7d0}
 
   /* 홈 상단 "이 자리 ○○○" 뱃지 */
   .diary-me-badge{
@@ -5043,8 +5045,9 @@
   .diary-notif-banner{margin-bottom:14px}
   .diary-notif-banner[hidden]{display:none}
   .diary-notif-banner-body{
+    position:relative;
     display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-    padding:12px 16px;border-radius:12px;
+    padding:12px 40px 12px 16px;border-radius:12px;
     background:linear-gradient(180deg,#fef3c7 0%,#fffbeb 60%);
     border:1px solid #f6d99a;
     font-size:13px;color:#78350f;font-weight:600;letter-spacing:-.01em;
@@ -5084,6 +5087,16 @@
   .diary-notif-banner-actions{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
   .diary-notif-banner-err .diary-notif-banner-help{color:#991b1b}
   .diary-notif-banner-err .diary-notif-banner-help b{color:#7f1d1d}
+  /* 각자 닫기 — 배너 우상단 ✕ */
+  .diary-notif-banner-x{
+    position:absolute;top:8px;right:9px;
+    width:24px;height:24px;padding:0;border:none;border-radius:7px;
+    background:rgba(0,0,0,.05);color:currentColor;
+    font-size:12px;line-height:1;font-weight:700;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+    opacity:.5;transition:opacity .15s,background .15s;
+  }
+  .diary-notif-banner-x:hover{opacity:1;background:rgba(0,0,0,.12)}
 
   /* 신규 요청 도착 시 카드 pulse */
   @keyframes dcsFlash{
@@ -5288,6 +5301,86 @@
     background:#faf7ed;border-radius:6px;letter-spacing:-.01em;
     font-weight:600;
   }
+
+  /* ===== 카테고리별 컬러 =====
+     계획(주간/월) · 요청 · 한 일을 색으로 구분. 원색은 점·카운트칩 같은 작은 요소에만 쓰고
+     배경은 8~10% 틴트로만 깔아 "조금씩" 다르게 보이도록. --cat 미지정 섹션은 기존 톤 유지. */
+  .dcs-sec-weekly {--cat:#0ea5e9;--cat-soft:rgba(14,165,233,.09); --cat-line:rgba(14,165,233,.30);--cat-ink:#0369a1}
+  .dcs-sec-monthly{--cat:#8b5cf6;--cat-soft:rgba(139,92,246,.09); --cat-line:rgba(139,92,246,.30);--cat-ink:#6d28d9}
+  .dcs-sec-req    {--cat:#f59e0b;--cat-soft:rgba(245,158,11,.10); --cat-line:rgba(245,158,11,.34);--cat-ink:#b45309}
+  .dcs-sec-task   {--cat:#10b981;--cat-soft:rgba(16,185,129,.09); --cat-line:rgba(16,185,129,.30);--cat-ink:#047857}
+  .dcs-sec-prev   {--cat:#a8a29e;--cat-soft:rgba(168,162,158,.10);--cat-line:rgba(168,162,158,.34);--cat-ink:#57534e}
+  /* 섹션 제목 앞 컬러 점 */
+  .dcs-sec-weekly .dcs-sec-title::before,
+  .dcs-sec-monthly .dcs-sec-title::before,
+  .dcs-sec-req .dcs-sec-title::before,
+  .dcs-sec-task .dcs-sec-title::before,
+  .dcs-sec-prev .dcs-sec-title::before{
+    content:'';width:7px;height:7px;border-radius:2px;flex-shrink:0;
+    background:var(--cat,#a8a29e);
+  }
+  .dcs-sec .dcs-sec-title-count{background:var(--cat-soft,#f4f0e3);color:var(--cat-ink,#57534e)}
+  .dcs-sec .dcs-sec-empty{background:var(--cat-soft,#faf7ed);color:var(--cat-ink,#57534e)}
+  .dcs-sec .dcs-add:hover{background:var(--cat-soft,#f4f0e3);color:var(--cat-ink,#1c1917)}
+  /* 항목 행 — 왼쪽에 카테고리 색 띠 */
+  .dcs-sec .dcs-plan,
+  .dcs-sec .dcs-req{border-left:3px solid var(--cat-line,#f0ebda)}
+  .dcs-sec .dcs-plan:hover,
+  .dcs-sec .dcs-req:hover{background:var(--cat-soft,#fdfbf3);border-left-color:var(--cat,#eae7dc)}
+  .dcs-sec .dcs-task:hover{background:var(--cat-soft,#faf7ed)}
+  /* 체크박스 hover / 입력 포커스도 카테고리 색으로 */
+  .dcs-sec .dcs-plan-check:hover,
+  .dcs-sec .dcs-req-check:hover,
+  .dcs-sec .dcs-task-check:hover{border-color:var(--cat,#eab308);background:var(--cat-soft,#fffbeb)}
+  .dcs-sec .dcs-plan-text:focus,
+  .dcs-sec .dcs-req-text:focus,
+  .dcs-sec .dcs-task-text:focus{background:var(--cat-soft,#fffbeb)}
+  .dcs-sec .dcs-plan-date{background:var(--cat-soft,#f4f0e3);color:var(--cat-ink,#78716c)}
+
+  /* ===== 이전 근무일 한 일 (카드 최하단, 읽기 전용) ===== */
+  .dcs-sec-prev{
+    border-top:1px dashed #eae7dc;padding-top:12px;margin-top:2px;
+  }
+  /* 미완료가 남아 있으면 로즈 — 요청(앰버)과 확실히 구분되는 색으로 "아직 안 끝남"을 표시 */
+  .dcs-sec-prev.has-undone{--cat:#f43f5e;--cat-soft:rgba(244,63,94,.08);--cat-line:rgba(244,63,94,.30);--cat-ink:#be123c}
+  .dcs-prev-date{
+    font-size:10.5px;font-weight:700;color:var(--cat-ink,#57534e);
+    background:var(--cat-soft,#f4f0e3);padding:1px 7px;border-radius:5px;
+    margin-left:6px;letter-spacing:-.005em;font-variant-numeric:tabular-nums;
+  }
+  .dcs-prev-toggle{
+    width:22px;height:22px;border:none;border-radius:6px;background:transparent;
+    color:#57534e;font-size:11px;cursor:pointer;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;transition:background .15s;
+  }
+  .dcs-prev-toggle:hover{background:#f4f0e3;color:#1c1917}
+  .dcs-sec-prev.folded .dcs-prev-list{display:none}
+  .dcs-prev-list{display:flex;flex-direction:column;gap:2px}
+  .dcs-prev-row{
+    display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
+    padding:4px 8px;border-radius:6px;border-left:3px solid var(--cat-line,#f0ebda);
+    background:#fff;transition:background .15s ease;
+  }
+  .dcs-prev-row:hover{background:var(--cat-soft,#faf7ed)}
+  .dcs-prev-mark{
+    width:14px;text-align:center;font-size:11px;font-weight:800;
+    color:var(--cat-ink,#78716c);flex-shrink:0;
+  }
+  .dcs-prev-row.done .dcs-prev-mark{color:#22c55e}
+  .dcs-prev-text{
+    font-size:12.5px;color:#44403c;line-height:1.5;
+    word-break:break-word;letter-spacing:-.01em;font-weight:500;
+  }
+  .dcs-prev-row.done .dcs-prev-text{text-decoration:line-through;color:#a8a29e}
+  .dcs-prev-carry{
+    padding:2px 8px;border-radius:6px;border:1px solid var(--cat-line,#e7e5e4);
+    background:#fff;color:var(--cat-ink,#57534e);
+    font-size:10.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+    opacity:.6;transition:all .15s ease;letter-spacing:-.01em;font-family:var(--sans);
+  }
+  .dcs-prev-row:hover .dcs-prev-carry{opacity:1}
+  .dcs-prev-carry:hover{background:var(--cat-soft,#faf7ed);border-color:var(--cat,#d6d3d1)}
+  .dcs-prev-carry:disabled{opacity:1;cursor:default;color:#a8a29e;border-color:#e7e5e4;background:#fafaf9}
 
   /* 팀원별 카드 accent color — 파스텔톤, 폰트 가독성 우선 */
   .dcs{border-top:3px solid var(--dcs-accent,#eae7dc)}
@@ -7151,7 +7244,7 @@
           <b id="diaryMeName" class="diary-me-name">—</b>
           <span class="diary-me-label">로그인</span>
           <button id="diaryNotifBtn" class="diary-me-notif" title="크롬 알림 권한 요청" hidden>🔔 알림 허용</button>
-          <span id="diaryNotifOn" class="diary-me-on" hidden>🔔 알림 ON</span>
+          <button type="button" id="diaryNotifOn" class="diary-me-on" hidden title="클릭하면 테스트 알림을 보냅니다" onclick="_diaryTestNotif()">🔔 알림 ON</button>
         </div>
         <div class="diary-date-nav">
           <button class="diary-nav-btn" id="diaryPrevDay" title="이전 날짜">
@@ -11481,7 +11574,43 @@
   }
   window._diaryEnsureDiag = _diaryEnsureDiag;
 
-  /* 업무일지 뷰 진입 시 알림 권한 상태 배너 (default → 허용 유도, denied → 복구법 안내) */
+  /* ===== 알림 안내 배너 닫기 (사람별 · 이 PC 한정) =====
+     · 해결되면(크롬 + 시스템 모두 허용) 배너를 아예 렌더하지 않음 → 저절로 사라짐
+     · 아직 해결 안 된 상태는 각자 ✕ 로 닫을 수 있고, 3일 뒤 다시 뜸
+     · 상태가 바뀌면(default → denied 등) 스누즈 키가 달라져 즉시 다시 뜸 */
+  const DIARY_BANNER_SNOOZE_KEY = 'brightbeed_diary_notifbanner_snooze_v1';
+  const DIARY_BANNER_SNOOZE_MS  = 3 * 24 * 60 * 60 * 1000; // 3일
+  function _diaryBannerSnoozeLoad(){
+    try{
+      const o = JSON.parse(localStorage.getItem(DIARY_BANNER_SNOOZE_KEY) || '{}');
+      return (o && typeof o === 'object') ? o : {};
+    }catch(e){ return {}; }
+  }
+  function _diaryBannerSnoozed(me, state){
+    const ts = _diaryBannerSnoozeLoad()[`${me}|${state}`];
+    if(!ts) return false;
+    return (Date.now() - ts) < DIARY_BANNER_SNOOZE_MS;
+  }
+  function _diaryDismissNotifBanner(state){
+    const me = (typeof _diaryGetMe === 'function') ? _diaryGetMe() : '';
+    if(me){
+      try{
+        const o = _diaryBannerSnoozeLoad();
+        o[`${me}|${state}`] = Date.now();
+        localStorage.setItem(DIARY_BANNER_SNOOZE_KEY, JSON.stringify(o));
+      }catch(e){}
+    }
+    const b = document.getElementById('diaryNotifBanner');
+    if(b){ b.hidden = true; b.innerHTML = ''; }
+    if(typeof toast === 'function') toast('안내를 닫았습니다 · 해결 안 되면 3일 뒤 다시 표시됩니다', 'ok');
+  }
+  window._diaryDismissNotifBanner = _diaryDismissNotifBanner;
+  function _diaryBannerX(state){
+    return `<button type="button" class="diary-notif-banner-x" title="닫기 — 해결 안 되면 3일 뒤 다시 표시됩니다" onclick="_diaryDismissNotifBanner('${state}')">✕</button>`;
+  }
+
+  /* 업무일지 뷰 진입 시 알림 권한 상태 배너 (default → 허용 유도, denied → 복구법 안내)
+     정상 상태에서는 배너를 띄우지 않는다 — 문제가 있을 때만 등장. */
   function _diaryUpdateNotifBanner(){
     if(!('Notification' in window)) return;
     const me = (typeof _diaryGetMe === 'function') ? _diaryGetMe() : '';
@@ -11494,44 +11623,24 @@
       const board = document.getElementById('diaryBoard');
       if(board && board.parentNode) board.parentNode.insertBefore(banner, board);
     }
-    if(!me){ banner.hidden = true; return; }
+    const hide = ()=>{ banner.hidden = true; banner.innerHTML = ''; };
+    if(!me){ hide(); return; }
     if(perm === 'granted'){
       // 시스템 레벨 진단 결과 확인 (24시간 캐시)
       const diag = _diaryDiagLoad();
       if(!diag){
-        // 아직 진단 안 됨 → 백그라운드로 자동 진단 kick + 진행중 안내
+        // 아직 진단 안 됨 → 백그라운드 진단만 조용히 kick (깜빡임 방지, 끝나면 다시 호출됨)
         _diaryEnsureDiag(false);
-        banner.hidden = false;
-        banner.innerHTML = `
-          <div class="diary-notif-banner-body diary-notif-banner-ok">
-            <span class="diary-notif-banner-icon">🔔</span>
-            <span><b>${_esc(me)}</b>님, 알림 상태 진단 중… 잠시만요.</span>
-          </div>`;
+        hide();
         return;
       }
       if(diag.system === 'granted'){
-        // 브라우저 + 시스템 모두 정상 — 스타일 통일 팁만 표시
-        banner.hidden = false;
-        banner.innerHTML = `
-          <div class="diary-notif-banner-body diary-notif-banner-ok">
-            <span class="diary-notif-banner-icon">✅</span>
-            <div class="diary-notif-banner-lines">
-              <div><b>${_esc(me)}</b>님, 크롬 + Windows 알림 모두 허용됨.</div>
-              <div class="diary-notif-banner-help">
-                <b>💡 알림 스타일이 사람마다 다르게 뜨나요?</b> (예: 누구는 크롬 팝업, 누구는 Windows 알림 센터)<br>
-                모두 <b>크롬 팝업 스타일</b>로 통일하려면:<br>
-                ① 크롬 주소창에 <code>chrome://flags/#enable-system-notifications</code> 입력<br>
-                ② <b>Enabled → Disabled</b>로 변경<br>
-                ③ 오른쪽 아래 <b>Relaunch</b> 버튼 클릭 → 크롬 재시작
-              </div>
-            </div>
-            <div class="diary-notif-banner-actions">
-              <button type="button" class="diary-notif-banner-btn diary-notif-banner-btn-alt" onclick="_diaryTestNotif()">🧪 테스트</button>
-              <button type="button" class="diary-notif-banner-btn" onclick="(function(){_diaryDiagClear();_diaryEnsureDiag(true);})()">🔄 재진단</button>
-            </div>
-          </div>`;
+        // ✅ 크롬 + 시스템 모두 정상 = 해결됨 → 배너 완전히 숨김
+        // (테스트는 상단 "🔔 알림 ON" 뱃지 클릭으로 언제든 가능)
+        hide();
         return;
       }
+      if(_diaryBannerSnoozed(me, 'sysoff')){ hide(); return; }
       // 시스템 레벨 차단 — Windows 알림 설정 유도 (전 직원 Windows OS)
       banner.hidden = false;
       banner.innerHTML = `
@@ -11551,27 +11660,31 @@
               (Windows 11: <b>설정 → 시스템 → 방해 금지 모드 끄기</b>)
             </div>
             <div class="diary-notif-banner-help">
-              <b>③ 새로고침 후 아래 🔄 재확인 클릭</b>
+              <b>③ 새로고침 후 아래 🔄 재확인 클릭</b> — 정상으로 바뀌면 이 안내는 자동으로 사라집니다.
             </div>
           </div>
           <div class="diary-notif-banner-actions">
             <button type="button" class="diary-notif-banner-btn diary-notif-banner-btn-alt" onclick="_diaryTestNotif()">🧪 테스트</button>
             <button type="button" class="diary-notif-banner-btn" onclick="(function(){_diaryDiagClear();_diaryEnsureDiag(true);})()">🔄 재확인</button>
           </div>
+          ${_diaryBannerX('sysoff')}
         </div>`;
       return;
     }
     if(perm === 'default'){
+      if(_diaryBannerSnoozed(me, 'default')){ hide(); return; }
       banner.hidden = false;
       banner.innerHTML = `
         <div class="diary-notif-banner-body">
           <span class="diary-notif-banner-icon">🔔</span>
           <span><b>${_esc(me)}</b>님, 업무 요청이 오면 크롬 알림으로 바로 알려드릴게요.</span>
           <button type="button" class="diary-notif-banner-btn" onclick="_diaryRequestNotifPerm()">알림 허용</button>
+          ${_diaryBannerX('default')}
         </div>`;
       return;
     }
     // denied — 사용자가 직접 크롬 설정에서 풀어야 함
+    if(_diaryBannerSnoozed(me, 'denied')){ hide(); return; }
     banner.hidden = false;
     banner.innerHTML = `
       <div class="diary-notif-banner-body diary-notif-banner-err">
@@ -11579,9 +11692,11 @@
         <div class="diary-notif-banner-lines">
           <div><b>${_esc(me)}</b>님, <b>크롬 알림이 차단</b>되어 있어 요청이 와도 알림이 안 뜹니다.</div>
           <div class="diary-notif-banner-help">
-            <b>크롬 주소창 왼쪽 자물쇠 🔒</b> 아이콘 클릭 → <b>알림</b> → <b>허용</b>으로 변경 → <b>Ctrl+Shift+R</b>로 강제 새로고침
+            <b>크롬 주소창 왼쪽 자물쇠 🔒</b> 아이콘 클릭 → <b>알림</b> → <b>허용</b>으로 변경 → <b>Ctrl+Shift+R</b>로 강제 새로고침<br>
+            허용으로 바꾸면 이 안내는 자동으로 사라집니다.
           </div>
         </div>
+        ${_diaryBannerX('denied')}
       </div>`;
   }
   async function _diaryRequestNotifPerm(){
@@ -12125,21 +12240,68 @@
         ...r,
         _pushed: r._pushed || !!(r.text && r.text.trim()),
       })) : [];
+      // 직전 근무일 한 일 — 어제 다 못 끝낸 일을 오늘 화면에서 바로 보기 위함
+      const prev = _diaryFindPrevDay(s.daily, _diaryState.date);
       _diaryEntries[st.name] = {
         reqs,
         weekly:  Array.isArray(s.weekly)  ? s.weekly.slice()  : [],
         monthly: Array.isArray(s.monthly) ? s.monthly.slice() : [],
         tasks:   dayTasks.slice(),
+        prevDate:  prev ? prev.date  : '',
+        prevTasks: prev ? prev.tasks : [],
         weeklyArchive:  (s.weeklyArchive  && typeof s.weeklyArchive  === 'object') ? s.weeklyArchive  : {},
         monthlyArchive: (s.monthlyArchive && typeof s.monthlyArchive === 'object') ? s.monthlyArchive : {},
       };
     });
 
     board.innerHTML = '';
-    STAFF.forEach(st=>{
+    _diarySortStaff(STAFF).forEach(st=>{
       board.appendChild(_diaryBuildStaffCard(st));
     });
     _diaryUpdateAlert();
+  }
+
+  /* 업무일지 카드 정렬 — 팀별 우선순위:
+     1) 마케팅팀 → 2) 디자인팀 → 3) 엠디팀(브랜드·MD팀 + 벤더·MD)
+     → 4) 씨에스팀 → 5) 물류 → 나머지 → 대표(최하단)
+     같은 팀 내에서는 STAFF 원본 배열 순서(입력 순서) 유지. */
+  const _DIARY_TEAM_ORDER = {
+    'mkt':    1,  // 마케팅팀
+    'design': 2,  // 디자인팀
+    'md2':    3,  // 엠디팀 (브랜드·MD팀 + 벤더·MD 공유 color)
+    'share':  4,  // 씨에스팀
+    'logi':   5,  // 물류
+    'vendor': 6,  // 벤더 (color 값이 별도로 있는 경우)
+    'ceo':    99, // 대표 → 최하단
+  };
+  function _diarySortStaff(list){
+    return list.map((st,idx)=>({st,idx})).sort((a,b)=>{
+      const oa = _DIARY_TEAM_ORDER[a.st.color] ?? 50;
+      const ob = _DIARY_TEAM_ORDER[b.st.color] ?? 50;
+      if(oa !== ob) return oa - ob;
+      return a.idx - b.idx; // stable — 같은 팀 안에선 원래 순서
+    }).map(x=>x.st);
+  }
+
+  /* 선택된 날짜 직전의 "한 일이 기록된 날" 1일치를 찾는다.
+     · 주말/공휴일이 껴 있어도 자연스럽게 직전 근무일로 건너뜀
+     · 너무 옛날 것까지 끌어오지 않도록 최대 7일 전까지만 탐색 */
+  const _DIARY_PREV_MAX_DAYS = 7;
+  function _diaryFindPrevDay(daily, curDate){
+    if(!daily || !curDate) return null;
+    const limit = new Date(curDate);
+    if(isNaN(limit.getTime())) return null;
+    limit.setDate(limit.getDate() - _DIARY_PREV_MAX_DAYS);
+    const limitStr = `${limit.getFullYear()}-${String(limit.getMonth()+1).padStart(2,'0')}-${String(limit.getDate()).padStart(2,'0')}`;
+    const dates = Object.keys(daily)
+      .filter(d => d < curDate && d >= limitStr)
+      .sort();
+    for(let i = dates.length - 1; i >= 0; i--){
+      const tasks = ((daily[dates[i]] && daily[dates[i]].tasks) || [])
+        .filter(t => String(t && t.text || '').trim());  // 빈 줄은 제외 (빈 행 + 이월 버튼 방지)
+      if(tasks.length) return {date: dates[i], tasks: tasks.slice()};
+    }
+    return null;
   }
 
   function _diaryBuildStaffCard(st){
@@ -12163,7 +12325,7 @@
         <div class="dcs-stat"><span class="dcs-stat-dot"></span><span data-stat></span></div>
       </header>
 
-      <section class="dcs-sec">
+      <section class="dcs-sec dcs-sec-weekly">
         <div class="dcs-sec-head">
           <div class="dcs-sec-title">주간 업무 계획<span class="dcs-sec-title-count" data-weekly-cnt>0</span><span class="dcs-reset-hint" title="매주 월요일 자동 초기화">${_esc(wkReset)}</span><button class="dcs-archive-btn" data-archive-btn="weekly" hidden title="지난 주간 계획 보기">📜 <span data-archive-cnt="weekly">0</span></button></div>
           <button class="dcs-add" data-add="weekly" title="주간 계획 추가">
@@ -12174,7 +12336,7 @@
         <div class="dcs-sec-empty" data-weekly-empty hidden>계획 없음</div>
       </section>
 
-      <section class="dcs-sec">
+      <section class="dcs-sec dcs-sec-monthly">
         <div class="dcs-sec-head">
           <div class="dcs-sec-title">월 목표 계획<span class="dcs-sec-title-count" data-monthly-cnt>0</span><span class="dcs-reset-hint" title="매월 1일 자동 초기화">${_esc(moReset)}</span><button class="dcs-archive-btn" data-archive-btn="monthly" hidden title="지난 월 목표 보기">📜 <span data-archive-cnt="monthly">0</span></button></div>
           <button class="dcs-add" data-add="monthly" title="월 목표 추가">
@@ -12185,7 +12347,7 @@
         <div class="dcs-sec-empty" data-monthly-empty hidden>목표 없음</div>
       </section>
 
-      <section class="dcs-sec">
+      <section class="dcs-sec dcs-sec-req">
         <div class="dcs-sec-head">
           <div class="dcs-sec-title">업무 요청<span class="dcs-sec-title-count" data-req-cnt>0</span></div>
           <button class="dcs-add" data-add="req" title="요청 추가">
@@ -12196,7 +12358,7 @@
         <div class="dcs-sec-empty" data-req-empty hidden>요청 없음</div>
       </section>
 
-      <section class="dcs-sec">
+      <section class="dcs-sec dcs-sec-task">
         <div class="dcs-sec-head">
           <div class="dcs-sec-title">오늘 한 일<span class="dcs-sec-title-count" data-task-cnt>0 / 0</span></div>
           <button class="dcs-add" data-add="task" title="할 일 추가">
@@ -12206,6 +12368,14 @@
         <div class="dcs-task-list"></div>
         <div class="dcs-sec-empty" data-task-empty hidden>기록 없음</div>
       </section>
+
+      <section class="dcs-sec dcs-sec-prev" data-prev-sec hidden>
+        <div class="dcs-sec-head">
+          <div class="dcs-sec-title">이전 한 일<span class="dcs-prev-date" data-prev-date></span><span class="dcs-sec-title-count" data-prev-cnt>0 / 0</span></div>
+          <button class="dcs-prev-toggle" data-prev-toggle title="접기/펼치기">▾</button>
+        </div>
+        <div class="dcs-prev-list" data-prev-list></div>
+      </section>
     `;
 
     // 초기 컨텐츠 채우기
@@ -12213,6 +12383,7 @@
     _diaryCardRenderPlan(card, st, 'monthly');
     _diaryCardRenderReqs(card, st);
     _diaryCardRenderTasks(card, st);
+    _diaryCardRenderPrev(card, st);
     _diaryCardUpdateStat(card, st);
 
     // 이벤트 바인딩
@@ -12554,6 +12725,92 @@
       const last = list.querySelector('.dcs-task:last-child .dcs-task-text');
       if(last){ last.focus(); _placeCaretAtEnd(last); }
     }
+  }
+
+  /* ===== 이전 근무일 한 일 (읽기 전용, 카드 최하단) =====
+     어제 못 끝낸 일을 오늘 화면에서 바로 확인 → 미완료 항목은 "↓ 오늘로"로 이월 가능. */
+  const DIARY_PREV_FOLD_KEY = 'brightbeed_diary_prev_fold_v1';
+  function _diaryPrevFolded(){
+    try{ return localStorage.getItem(DIARY_PREV_FOLD_KEY) === '1'; }catch(e){ return false; }
+  }
+  function _diaryTogglePrevFold(){
+    let now = false;
+    try{
+      now = !_diaryPrevFolded();
+      localStorage.setItem(DIARY_PREV_FOLD_KEY, now ? '1' : '0');
+    }catch(e){}
+    document.querySelectorAll('[data-prev-sec]').forEach(sec=>{
+      sec.classList.toggle('folded', now);
+      const btn = sec.querySelector('[data-prev-toggle]');
+      if(btn) btn.textContent = now ? '▸' : '▾';
+    });
+  }
+
+  function _diaryCardRenderPrev(card, st){
+    const entry = _diaryEntries[st.name];
+    const sec   = card.querySelector('[data-prev-sec]');
+    if(!sec) return;
+    const items = entry.prevTasks || [];
+    // 이전 기록이 없으면 섹션 자체를 숨김 — 빈 칸으로 카드가 길어지지 않게
+    if(!entry.prevDate || !items.length){ sec.hidden = true; return; }
+    sec.hidden = false;
+
+    const folded = _diaryPrevFolded();
+    sec.classList.toggle('folded', folded);
+    const toggle = sec.querySelector('[data-prev-toggle]');
+    if(toggle){
+      toggle.textContent = folded ? '▸' : '▾';
+      toggle.onclick = _diaryTogglePrevFold;
+    }
+
+    const dateEl = sec.querySelector('[data-prev-date]');
+    if(dateEl){
+      dateEl.textContent = _diaryFmtCreated(entry.prevDate) + ' ' + _diaryDowLabel(entry.prevDate);
+      dateEl.title = entry.prevDate;
+    }
+    const doneN = items.filter(t=>t.done).length;
+    const cnt = sec.querySelector('[data-prev-cnt]');
+    if(cnt) cnt.textContent = `${doneN} / ${items.length}`;
+    // 미완료가 있으면 섹션을 살짝 강조 (어제 못 끝낸 일이 있다는 신호)
+    sec.classList.toggle('has-undone', doneN < items.length);
+
+    const list = sec.querySelector('[data-prev-list]');
+    list.innerHTML = '';
+    items.forEach(t=>{
+      const row = document.createElement('div');
+      row.className = 'dcs-prev-row' + (t.done ? ' done' : '');
+      row.innerHTML = `
+        <span class="dcs-prev-mark">${t.done ? '✓' : '·'}</span>
+        <div class="dcs-prev-text">${_esc(t.text||'')}</div>
+        ${t.done ? '' : '<button class="dcs-prev-carry" title="이 항목을 오늘 한 일로 가져오기">↓ 오늘로</button>'}
+      `;
+      const carry = row.querySelector('.dcs-prev-carry');
+      if(carry){
+        carry.onclick = ()=>{
+          const text = String(t.text||'').trim();
+          if(!text){ toast('내용이 비어 있어 가져올 수 없습니다','err'); return; }
+          if((entry.tasks||[]).some(x=>String(x.text||'').trim() === text)){
+            toast('이미 오늘 목록에 있습니다','err');
+            return;
+          }
+          entry.tasks.push({id:_diaryUid(), text, done:false});
+          _diaryCardRenderTasks(card, st);
+          _diaryCardUpdateStat(card, st);
+          _diaryScheduleSaveFor(st.name);
+          carry.disabled = true;
+          carry.textContent = '가져옴';
+          toast(`${st.name} — "${text.slice(0,20)}${text.length>20?'…':''}" 오늘로 가져왔습니다`,'ok');
+        };
+      }
+      list.appendChild(row);
+    });
+  }
+
+  function _diaryDowLabel(s){
+    const m = String(s||'').match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return '';
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    return isNaN(d.getTime()) ? '' : `(${'일월화수목금토'[d.getDay()]})`;
   }
 
   /* 입사일 기준 1년 단위 사이클 — 매 anniversary마다 새 cycle 시작 (이전 미사용 폐기).
