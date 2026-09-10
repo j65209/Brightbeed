@@ -7560,6 +7560,7 @@
           <div class="wht-archive-row">
             <span class="wht-archive-label">📚 저장된 월</span>
             <div class="wht-archive-chips" id="whtArchiveChips"><span class="wht-archive-empty">불러오는 중…</span></div>
+            <button type="button" class="wht-btn wht-btn-copy" style="margin-left:auto" onclick="whtExportExcel()" title="이 달 저장된 3개 표를 엑셀 파일로 내보냅니다">📥 엑셀 내보내기</button>
           </div>
           <datalist id="whtBankList"></datalist>
 
@@ -19680,6 +19681,101 @@
     sec.addEventListener('change',_whtOnInputEvt);
     _whtState.bound=true;
   }
+  async function _whtFlushSave(){
+    if(_whtState.saveTimer){
+      clearTimeout(_whtState.saveTimer);
+      _whtState.saveTimer=null;
+      await _whtSave();
+    }
+    let guard=0;
+    while(_whtState.saving && guard<60){
+      await new Promise(r=>setTimeout(r,100));
+      guard++;
+    }
+  }
+  function _whtSectionRows(section){
+    const sc=WHT_SCHEMA[section];
+    const rows=(_whtState.data[section]||[]).filter(r=>{
+      if(!r) return false;
+      return sc.fields.some(f=>{
+        const v=r[f];
+        if(v==null) return false;
+        if(typeof v==='number') return v!==0;
+        return String(v).trim()!=='';
+      });
+    });
+    return rows;
+  }
+  function _whtBuildSheet(section){
+    const sc=WHT_SCHEMA[section];
+    const rows=_whtSectionRows(section);
+    const header=['#',...sc.headers];
+    const aoa=[header];
+    let total=0, supplyTotal=0, vatTotal=0;
+    rows.forEach((r,i)=>{
+      if(section==='withdrawal'){
+        const amt=_whtParseAmt(r.amount); total+=amt;
+        aoa.push([i+1,r.name||'',r.bank||'',r.account||'',amt||'',r.period||'',r.holder||'',r.memo||'']);
+      } else if(section==='freelancer'){
+        const amt=_whtParseAmt(r.amount); total+=amt;
+        aoa.push([i+1,r.name||'',r.ssn||'',r.bank||'',r.account||'',amt||'',r.memo||'']);
+      } else {
+        const amt=_whtParseAmt(r.amount);
+        const supply=amt?Math.round(amt/1.1):0;
+        const vat=amt?amt-supply:0;
+        total+=amt; supplyTotal+=supply; vatTotal+=vat;
+        aoa.push([i+1,r.name||'',r.ceo||'',r.bizno||'',r.address||'',r.biztype||'',amt||'',supply||'',vat||'',r.email||'']);
+      }
+    });
+    if(rows.length){
+      if(section==='withdrawal'){
+        aoa.push(['','','','합계',total,'','','']);
+      } else if(section==='freelancer'){
+        aoa.push(['','','','','합계',total,'']);
+      } else {
+        aoa.push(['','','','','','합계',total,supplyTotal,vatTotal,'']);
+      }
+    }
+    const ws=XLSX.utils.aoa_to_sheet(aoa);
+    const widths=section==='invoice'
+      ? [{wch:4},{wch:22},{wch:10},{wch:14},{wch:32},{wch:18},{wch:12},{wch:12},{wch:10},{wch:24}]
+      : section==='freelancer'
+      ? [{wch:4},{wch:12},{wch:16},{wch:12},{wch:18},{wch:14},{wch:20}]
+      : [{wch:4},{wch:20},{wch:12},{wch:18},{wch:14},{wch:14},{wch:12},{wch:20}];
+    ws['!cols']=widths;
+    return {ws, count:rows.length};
+  }
+  async function whtExportExcel(){
+    if(!_whtHasAccess()) return;
+    if(typeof XLSX==='undefined'){
+      if(typeof toast==='function') toast('엑셀 라이브러리 로드 실패','err');
+      return;
+    }
+    _whtSetStatus('저장 확인 중…');
+    await _whtFlushSave();
+    const ym=_whtState.ym||_whtToday();
+    const wb=XLSX.utils.book_new();
+    const sections=[
+      {key:'withdrawal', name:'사업자·개인 출금'},
+      {key:'freelancer', name:'프리랜서 원천징수 3.3'},
+      {key:'invoice',    name:'세금계산서 발행'},
+    ];
+    let total=0;
+    sections.forEach(s=>{
+      const {ws,count}=_whtBuildSheet(s.key);
+      XLSX.utils.book_append_sheet(wb,ws,s.name);
+      total+=count;
+    });
+    if(!total){
+      if(typeof toast==='function') toast('저장된 항목이 없습니다','err');
+      _whtSetStatus(`${_whtYmLabel(ym)} · 내보낼 항목 없음`,true);
+      return;
+    }
+    const fname=`원천세정산_${ym}.xlsx`;
+    XLSX.writeFile(wb,fname);
+    _whtSetStatus(`${_whtYmLabel(ym)} · ${total}건 엑셀 내보냄`);
+    if(typeof toast==='function') toast(`✓ ${fname} 다운로드 (${total}건)`,'ok');
+  }
   async function whtCopyTable(section){
     const sc=WHT_SCHEMA[section];
     if(!sc) return;
@@ -19717,6 +19813,7 @@
   window.whtAddRow=whtAddRow;
   window.whtDelRow=whtDelRow;
   window.whtCopyTable=whtCopyTable;
+  window.whtExportExcel=whtExportExcel;
   window.whtMonthPrev=whtMonthPrev;
   window.whtMonthNext=whtMonthNext;
   window.whtMonthToday=whtMonthToday;
