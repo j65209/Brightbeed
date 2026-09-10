@@ -25,17 +25,13 @@
     --wood-2:#c9b280;
     --wood-edge:#a89163;
     --alu:#e8ebee;
-    --alu-2:#d1d5db;
     --screen-off:#0f172a;
     --screen-on:#111827;
     --key:#fafafa;
     --key-edge:#e5e7eb;
-    --coffee-cup:#ffffff;
-    --coffee:#8b6f47;
-    --plant:#57895a;
-    --plant-2:#6ca972;
-    --pot:#d0b78a;
     --chair:#334155;
+    --chair-2:#475569;
+    --chair-shadow:#1e293b;
     --text-0:#0a0b0d;
     --text-1:#1f2329;
     --text-2:#3a3e46;
@@ -46,13 +42,13 @@
     --idle:#94a3b8;
     --warn:#f59e0b;
     --danger:#ef4444;
+    --focus:#3b82f6;
     --font:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg-0);color:var(--text-0);font-family:var(--font);-webkit-font-smoothing:antialiased;letter-spacing:-0.01em}
   body{min-height:100vh;font-size:14px;line-height:1.5;font-weight:500;overflow-x:hidden}
 
-  /* Header */
   .top{position:sticky;top:0;z-index:20;background:rgba(245,242,237,.88);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
   .top-inner{max-width:1240px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.02em}
@@ -64,42 +60,36 @@
   .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:var(--bg-1);border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:600;color:var(--text-2)}
   .pill .n{color:var(--running)}
 
-  /* Legend */
-  .legend{max-width:1240px;margin:0 auto;padding:12px 22px 0;display:flex;gap:10px;flex-wrap:wrap;color:var(--text-3);font-size:12px}
+  .legend{max-width:1240px;margin:0 auto;padding:12px 22px 0;display:flex;gap:10px;flex-wrap:wrap;color:var(--text-3);font-size:12px;align-items:center}
   .legend .item{display:inline-flex;align-items:center;gap:5px}
   .legend .dot{width:7px;height:7px;border-radius:50%}
   .legend .dot.r{background:var(--running);box-shadow:0 0 0 3px rgba(16,185,129,.16)}
   .legend .dot.i{background:var(--idle)}
   .legend .dot.s{background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.16)}
   .legend .dot.w{background:var(--warn)}
+  .legend .hint{margin-left:auto;color:var(--text-3);font-style:italic}
+  .legend .hint b{font-style:normal;color:var(--text-2);background:var(--bg-2);padding:1px 6px;border-radius:4px;font-weight:600}
 
-  /* Office floor — 하늘에서 내려다 본 top-down 뷰 */
   .office{max-width:1240px;margin:0 auto;padding:22px 22px 60px;position:relative}
   .floor{position:relative;background:linear-gradient(180deg,var(--floor) 0%,var(--floor-2) 100%);border-radius:22px;padding:34px 24px 40px;border:1px solid var(--line);box-shadow:inset 0 0 60px rgba(168,145,99,.06),0 20px 40px -30px rgba(0,0,0,.15)}
   .rug{position:absolute;inset:20px 40px;background:var(--rug);border-radius:14px;box-shadow:inset 0 0 0 1px var(--rug-line),inset 0 0 40px rgba(216,206,186,.4);z-index:0}
   .plant-corner{position:absolute;width:44px;height:44px;z-index:1;filter:drop-shadow(0 6px 8px rgba(0,0,0,.1))}
 
-  /* Desks grid */
-  .desks{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:44px 22px;padding:16px 8px}
-  @media(max-width:720px){
-    .desks{grid-template-columns:repeat(2,1fr);gap:32px 10px;padding:8px 4px}
-    .floor{padding:20px 12px 28px;border-radius:16px}
-    .rug{inset:12px 20px;border-radius:10px}
-  }
-  @media(max-width:420px){
-    .desks{grid-template-columns:1fr}
-  }
+  .desks{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:48px 24px;padding:16px 8px}
+  @media(max-width:720px){.desks{grid-template-columns:repeat(2,1fr);gap:34px 12px;padding:8px 4px}.floor{padding:20px 12px 28px;border-radius:16px}.rug{inset:12px 20px;border-radius:10px}}
+  @media(max-width:420px){.desks{grid-template-columns:1fr}}
 
-  /* Individual desk cell */
   .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .desk-svg{width:100%;max-width:240px;height:auto;aspect-ratio:200/205;filter:drop-shadow(0 10px 14px rgba(0,0,0,.08))}
+  .desk-svg{width:100%;max-width:250px;height:auto;aspect-ratio:200/215;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09))}
 
-  /* Speech bubble / status card */
-  .bubble{width:100%;max-width:220px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 8px 20px -14px rgba(0,0,0,.16),0 2px 5px -3px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease}
+  .bubble{width:100%;max-width:230px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 8px 20px -14px rgba(0,0,0,.16),0 2px 5px -3px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease}
   .cell:hover .bubble{transform:translateY(-1px);box-shadow:0 14px 28px -14px rgba(0,0,0,.2),0 2px 6px -3px rgba(0,0,0,.08)}
-  .bubble .row{display:flex;align-items:center;gap:6px}
-  .bubble .name{font-size:12px;font-weight:700;letter-spacing:-.02em;color:var(--text-0)}
-  .bubble .team{font-size:10px;font-weight:600;color:var(--text-3);padding:1px 6px;background:var(--bg-2);border-radius:999px;letter-spacing:-.01em}
+  .bubble .row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .bubble .name{font-size:12.5px;font-weight:700;letter-spacing:-.02em;color:var(--text-0);cursor:text;border-radius:4px;padding:1px 4px;margin:-1px -4px;transition:background .15s;outline:none}
+  .bubble .team{font-size:10.5px;font-weight:600;color:var(--text-3);padding:1.5px 7px;background:var(--bg-2);border-radius:999px;letter-spacing:-.01em;cursor:text;transition:background .15s;outline:none}
+  .bubble .name:hover,.bubble .team:hover{background:rgba(59,130,246,.06)}
+  .bubble .name:focus{background:rgba(59,130,246,.1);box-shadow:0 0 0 2px rgba(59,130,246,.32)}
+  .bubble .team:focus{background:rgba(59,130,246,.14);box-shadow:0 0 0 2px rgba(59,130,246,.32)}
   .bubble .task{font-size:12px;font-weight:500;color:var(--text-1);margin-top:5px;line-height:1.35;min-height:1.35em;word-break:keep-all}
   .bubble .meta{font-size:10.5px;color:var(--text-3);margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:0}
   .bubble .meta b{color:var(--text-1);font-weight:600}
@@ -114,31 +104,54 @@
   .stat.warn{color:#92400e;background:#fef3c7}
   .stat.warn .dot{background:var(--warn)}
 
-  /* Animated pieces on desk SVG */
-  .cell.running .desk-svg .screen{fill:var(--screen-on);animation:screen-pulse 2s ease-in-out infinite}
-  .cell.running .desk-svg .arm-l{animation:type-l 1.6s ease-in-out infinite}
-  .cell.running .desk-svg .arm-r{animation:type-r 1.6s ease-in-out infinite .3s}
-  .cell.stale .desk-svg{animation:shake 3.5s ease-in-out infinite}
+  /* ---- Animations ---- */
+  /* Idle: 미묘한 breathing (모든 캐릭터) */
+  .desk-svg .body-group{animation:breathe 4.2s ease-in-out infinite;transform-origin:100px 150px;transform-box:fill-box}
+  @keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-.4px) scale(1.005)}}
+
+  /* Running: 팔 타이핑 */
+  .cell.running .desk-svg .arm-l{animation:type-l .55s ease-in-out infinite;transform-origin:90px 128px;transform-box:fill-box}
+  .cell.running .desk-svg .arm-r{animation:type-r .62s ease-in-out infinite .08s;transform-origin:128px 128px;transform-box:fill-box}
+  @keyframes type-l{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(0,-1.2px) rotate(-1.4deg)}}
+  @keyframes type-r{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(0,-1.2px) rotate(1.4deg)}}
+  /* Running: 손 살짝 */
+  .cell.running .desk-svg .hand-l{animation:tap-l .55s ease-in-out infinite;transform-origin:91px 90px;transform-box:fill-box}
+  .cell.running .desk-svg .hand-r{animation:tap-r .48s ease-in-out infinite .1s;transform-origin:147px 96px;transform-box:fill-box}
+  @keyframes tap-l{0%,100%{transform:translateY(0)}50%{transform:translateY(-.8px)}}
+  @keyframes tap-r{0%,100%{transform:translate(0,0)}50%{transform:translate(.4px,-.6px)}}
+  /* Running: 스크린 콘텐트 */
+  .desk-svg .screen-content{opacity:0;transition:opacity .3s ease}
+  .cell.running .desk-svg .screen-content{opacity:1}
+  .desk-svg .cursor{animation:blink 1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  .cell.running .desk-svg .screen{fill:var(--screen-on);animation:screen-flick 2.5s ease-in-out infinite}
+  @keyframes screen-flick{0%,100%{fill:var(--screen-on)}52%{fill:#1a2436}}
+  .cell.running .desk-svg .code-1{animation:code-shift-1 3s ease-in-out infinite}
+  .cell.running .desk-svg .code-2{animation:code-shift-2 2.4s ease-in-out infinite .3s}
+  .cell.running .desk-svg .code-3{animation:code-shift-3 2.8s ease-in-out infinite .1s}
+  @keyframes code-shift-1{0%,100%{width:14px}50%{width:22px}}
+  @keyframes code-shift-2{0%,100%{width:22px}50%{width:10px}}
+  @keyframes code-shift-3{0%,100%{width:18px}50%{width:26px}}
+
+  /* Stale: 흔들림 */
+  .cell.stale .desk-svg{animation:shake 3.2s ease-in-out infinite}
   .cell.stale .desk-svg .screen{fill:#7f1d1d}
   .cell.running .bubble{border-color:rgba(16,185,129,.28)}
   .cell.stale .bubble{border-color:rgba(239,68,68,.24)}
-
-  /* Foot */
-  .foot{max-width:1240px;margin:0 auto;padding:0 22px 26px;color:var(--text-3);font-size:11.5px;display:flex;gap:14px;flex-wrap:wrap}
-  .foot .refresh{cursor:pointer;user-select:none}
-  .foot .refresh:hover{color:var(--text-1)}
-
-  /* Loading */
-  .loading{position:fixed;inset:0;background:var(--bg-0);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s ease}
-  .loading.hide{opacity:0;pointer-events:none}
-  .loading .spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--text-2);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes shake{0%,90%,100%{transform:translateX(0)}92%{transform:translateX(-2px)}94%{transform:translateX(2px)}96%{transform:translateX(-1px)}}
 
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
   @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes screen-pulse{0%,100%{opacity:1}50%{opacity:.86}}
-  @keyframes type-l{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(0,-1px) rotate(-2deg)}}
-  @keyframes type-r{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(0,-1px) rotate(2deg)}}
-  @keyframes shake{0%,90%,100%{transform:translateX(0)}92%{transform:translateX(-2px)}94%{transform:translateX(2px)}96%{transform:translateX(-1px)}}
+
+  .foot{max-width:1240px;margin:0 auto;padding:0 22px 26px;color:var(--text-3);font-size:11.5px;display:flex;gap:14px;flex-wrap:wrap}
+  .foot .refresh{cursor:pointer;user-select:none}
+  .foot .refresh:hover{color:var(--text-1)}
+  .foot .reset-names{cursor:pointer;color:var(--text-3);border:none;background:none;font-size:11.5px;font-family:inherit;padding:0;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:2px}
+  .foot .reset-names:hover{color:var(--text-1)}
+
+  .loading{position:fixed;inset:0;background:var(--bg-0);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s ease}
+  .loading.hide{opacity:0;pointer-events:none}
+  .loading .spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--text-2);border-radius:50%;animation:spin .8s linear infinite}
 </style>
 </head>
 <body>
@@ -163,19 +176,17 @@
     <span class="item"><span class="dot i"></span>대기</span>
     <span class="item"><span class="dot w"></span>임박</span>
     <span class="item"><span class="dot s"></span>멈춤 · 확인 필요</span>
-    <span style="margin-left:auto;color:var(--text-3)">🕊️ 하늘에서 내려다 본 사무실 · 15초마다 갱신</span>
+    <span class="hint">🕊️ 하늘에서 내려다 본 사무실 · 이름/부서는 <b>클릭</b>해서 편집</span>
   </div>
 </div>
 
 <div class="office">
   <div class="floor">
     <div class="rug"></div>
-    <!-- Plants in corners -->
     <svg class="plant-corner" style="left:6px;top:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
     <svg class="plant-corner" style="right:6px;top:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
     <svg class="plant-corner" style="left:6px;bottom:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
     <svg class="plant-corner" style="right:6px;bottom:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
-
     <div class="desks" id="desks"></div>
   </div>
 </div>
@@ -184,178 +195,302 @@
   <span>실시간 소스: <code>/agents/status</code> (프록시 · 로그 mtime + 스케줄)</span>
   <span class="refresh" id="refresh-btn">↻ 지금 갱신</span>
   <span id="last-fetch"></span>
+  <button class="reset-names" id="reset-btn">이름·부서 초기화</button>
 </div>
 
 <div class="loading" id="loading"><div class="spin"></div></div>
 
 <script>
-/* -------- Agent definitions (지금 24시간 도는 launchd 자동화 8개) --------
- * id: matches proxy /agents/status
- * team/hairColor/skin/cloth: appearance
- */
-const AGENTS = [
-  {id:"kd-brightbeed", name:"콜리",  team:"물류팀", hairColor:"#2c1810", skin:"#f4d5b3", cloth:"#7c3aed",
-   taskLabel:"콰이디에어 배송 pull (BB)",   scheduleLabel:"매 10분", intervalSec:600},
-  {id:"kd-shinebeed",  name:"밀리",  team:"물류팀", hairColor:"#3d2817", skin:"#f8dcbc", cloth:"#be185d",
-   taskLabel:"콰이디에어 배송 pull (SB)",   scheduleLabel:"매 10분", intervalSec:600},
-  {id:"vendor-fetch",  name:"노아",  team:"벤더",   hairColor:"#1a1a1a", skin:"#efc9a3", cloth:"#4f46e5",
-   taskLabel:"벤더 마진 · gcCal 갱신",      scheduleLabel:"매 10분", intervalSec:600},
-  {id:"pro-sales",     name:"자스민",team:"마케팅", hairColor:"#2c1810", skin:"#f6d0aa", cloth:"#65a30d",
-   taskLabel:"식스샵Pro 매출 스냅",         scheduleLabel:"매 30분", intervalSec:1800},
-  {id:"admin-sales",   name:"로건",  team:"마케팅", hairColor:"#5a3820", skin:"#f4d5b3", cloth:"#84cc16",
-   taskLabel:"admin식스샵 매출 스냅",       scheduleLabel:"매 30분", intervalSec:1800},
-  {id:"fb-ads",        name:"오스카",team:"광고팀", hairColor:"#1e1a17", skin:"#e8b98b", cloth:"#ea580c",
-   taskLabel:"메타 광고 성과 갱신",         scheduleLabel:"매 30분", intervalSec:1800},
-  {id:"daily-pptx",    name:"릴리",  team:"인사팀", hairColor:"#6b4423", skin:"#fadcbc", cloth:"#ff5f7a",
-   taskLabel:"일일 매출 PPT 업로드",        scheduleLabel:"매일 08:00", cronH:8, cronM:0},
-  {id:"brand-report",  name:"아이비",team:"기획팀", hairColor:"#2c1810", skin:"#f6d0aa", cloth:"#e11d48",
-   taskLabel:"브랜드 분석리포트",           scheduleLabel:"수동 트리거", manual:true},
+/* -------- 캐릭터 6명 (팀별 1명, 각자 담당 자동화 여러 개 가능) -------- */
+const CHARACTERS = [
+  {
+    id:'logistics', name:'콜리', team:'물류팀',
+    hairColor:'#2c1810', skin:'#f4d5b3', cloth:'#7c3aed',
+    agentIds:['kd-brightbeed','kd-shinebeed'],
+    taskLabel:'콰이디에어 배송 pull (BB+SB)', scheduleLabel:'매 10분', intervalSec:600,
+  },
+  {
+    id:'vendor', name:'노아', team:'벤더',
+    hairColor:'#1a1a1a', skin:'#efc9a3', cloth:'#4f46e5',
+    agentIds:['vendor-fetch'],
+    taskLabel:'벤더 마진 · gcCal 갱신', scheduleLabel:'매 10분', intervalSec:600,
+  },
+  {
+    id:'marketing', name:'자스민', team:'마케팅팀',
+    hairColor:'#2c1810', skin:'#f6d0aa', cloth:'#65a30d',
+    agentIds:['pro-sales','admin-sales'],
+    taskLabel:'식스샵 매출 스냅 (Pro+admin)', scheduleLabel:'매 30분', intervalSec:1800,
+  },
+  {
+    id:'ads', name:'오스카', team:'광고팀',
+    hairColor:'#1e1a17', skin:'#e8b98b', cloth:'#ea580c',
+    agentIds:['fb-ads'],
+    taskLabel:'메타 광고 성과 갱신', scheduleLabel:'매 30분', intervalSec:1800,
+  },
+  {
+    id:'hr', name:'릴리', team:'인사팀',
+    hairColor:'#6b4423', skin:'#fadcbc', cloth:'#ff5f7a',
+    agentIds:['daily-pptx'],
+    taskLabel:'일일 매출 PPT 업로드', scheduleLabel:'매일 08:00', cronH:8, cronM:0,
+  },
+  {
+    id:'planning', name:'아이비', team:'기획팀',
+    hairColor:'#2c1810', skin:'#f6d0aa', cloth:'#e11d48',
+    agentIds:['brand-report'],
+    taskLabel:'브랜드 분석리포트', scheduleLabel:'수동 트리거', manual:true,
+  },
 ];
 
 const $ = id => document.getElementById(id);
+const OVERRIDES_KEY = 'agents_overrides_v1';
 let statusMap = {};
 
-function pad(n){ return String(n).padStart(2,"0"); }
+/* ---- Storage ---- */
+function loadOverrides(){ try{ return JSON.parse(localStorage.getItem(OVERRIDES_KEY)||'{}'); }catch(e){ return {}; } }
+function saveOverrides(o){ localStorage.setItem(OVERRIDES_KEY, JSON.stringify(o)); }
+function saveOverride(id, changes){
+  const o = loadOverrides();
+  o[id] = Object.assign(o[id]||{}, changes);
+  saveOverrides(o);
+}
+function displayName(c){ return (loadOverrides()[c.id]?.name) || c.name; }
+function displayTeam(c){ return (loadOverrides()[c.id]?.team) || c.team; }
+
+/* ---- Time helpers ---- */
+function pad(n){ return String(n).padStart(2,'0'); }
 function fmtTime(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
-function fmtDate(d){ const w=["일","월","화","수","목","금","토"][d.getDay()]; return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${w})`; }
+function fmtDate(d){ const w=['일','월','화','수','목','금','토'][d.getDay()]; return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${w})`; }
 function fmtRel(sec){
-  if(sec == null) return "–";
+  if(sec == null) return '–';
   const abs = Math.abs(sec);
   if(abs < 60) return `${Math.floor(abs)}초`;
   if(abs < 3600) return `${Math.floor(abs/60)}분`;
   if(abs < 86400) return `${Math.floor(abs/3600)}시간 ${Math.floor((abs%3600)/60)}분`;
   return `${Math.floor(abs/86400)}일`;
 }
-function nextRunFromAgent(a, now){
-  if(a.manual) return null;
-  const s = statusMap[a.id] || {};
+
+/* ---- Status derivation across multiple agents per character ---- */
+function deriveCharStatus(c, now){
   const nowMs = now.getTime();
-  if(s.next_run) return s.next_run * 1000;
-  if(a.intervalSec){
-    const last = s.last_run ? s.last_run * 1000 : nowMs - a.intervalSec*500;
-    return last + a.intervalSec*1000;
-  }
-  if(a.cronH != null){
-    const t = new Date(now); t.setHours(a.cronH, a.cronM||0, 0, 0);
-    if(t.getTime() < nowMs) t.setDate(t.getDate()+1);
-    return t.getTime();
-  }
-  return null;
+  let hasRunning = false, hasStale = false, hasWarn = false;
+  c.agentIds.forEach(id => {
+    const s = statusMap[id];
+    if(s?.status === 'running') hasRunning = true;
+    else if(s?.status === 'stale') hasStale = true;
+    else if(s?.status === 'warn') hasWarn = true;
+  });
+  if(hasRunning) return 'running';
+  if(hasStale) return 'stale';
+  if(hasWarn) return 'warn';
+  if(c.manual) return 'idle';
+  // schedule-based warn check
+  const nextRun = nextRunTime(c, now);
+  if(nextRun && nextRun - nowMs < 60*1000 && nextRun - nowMs > 0) return 'warn';
+  return 'idle';
 }
-function deriveStatus(a, now){
-  const s = statusMap[a.id];
-  if(s && s.status) return s.status;
-  if(a.manual) return "idle";
-  const next = nextRunFromAgent(a, now);
-  if(next && next - now.getTime() < 60*1000) return "warn";
-  return "idle";
+function nextRunTime(c, now){
+  const nowMs = now.getTime();
+  if(c.manual) return null;
+  // 여러 agent 중 가장 빠른 next
+  let earliest = Infinity;
+  c.agentIds.forEach(id => {
+    const s = statusMap[id] || {};
+    if(s.next_run){
+      const t = s.next_run * 1000;
+      if(t < earliest) earliest = t;
+    } else if(c.intervalSec){
+      const last = s.last_run ? s.last_run * 1000 : nowMs - c.intervalSec*500;
+      const t = last + c.intervalSec*1000;
+      if(t < earliest) earliest = t;
+    } else if(c.cronH != null){
+      const d = new Date(now); d.setHours(c.cronH, c.cronM||0, 0, 0);
+      if(d.getTime() < nowMs) d.setDate(d.getDate()+1);
+      if(d.getTime() < earliest) earliest = d.getTime();
+    }
+  });
+  return earliest === Infinity ? null : earliest;
+}
+function mostRecentLastRun(c){
+  let latest = 0;
+  c.agentIds.forEach(id => {
+    const s = statusMap[id] || {};
+    if(s.last_run && s.last_run > latest) latest = s.last_run;
+  });
+  return latest > 0 ? latest : null;
 }
 
-/* Top-down desk SVG — 하늘에서 내려다 본 캐릭터 + 애플 스타일 데스크셋업 */
-function deskSvg(a){
-  const {cloth, skin, hairColor} = a;
+/* ---- Top-down desk SVG ---- */
+function deskSvg(c){
+  const {cloth, skin, hairColor, id} = c;
   return `
-    <svg class="desk-svg" viewBox="0 0 200 205" xmlns="http://www.w3.org/2000/svg">
-      <!-- 바닥 그림자 -->
-      <ellipse cx="100" cy="200" rx="96" ry="4" fill="rgba(0,0,0,.06)"/>
-
-      <!-- 책상 상판 (밝은 라이트 우드) -->
-      <rect x="6" y="6" width="188" height="118" rx="10" fill="var(--wood)" stroke="var(--wood-edge)" stroke-width=".8"/>
-      <!-- 나무결 힌트 -->
-      <path d="M6,20 Q100,22 194,20" stroke="var(--wood-2)" stroke-width=".6" fill="none" opacity=".55"/>
-      <path d="M6,52 Q100,54 194,52" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".45"/>
-      <path d="M6,92 Q100,94 194,92" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".4"/>
-
-      <!-- iMac 알루미늄 프레임 (top-down 얇게) -->
-      <rect x="52" y="15" width="96" height="50" rx="4" fill="var(--alu)" stroke="rgba(0,0,0,.14)" stroke-width=".8"/>
-      <!-- 스크린 -->
-      <rect class="screen" x="55" y="18" width="90" height="44" rx="2" fill="var(--screen-off)"/>
-      <!-- 스크린 반사광 -->
-      <rect x="55" y="18" width="90" height="14" rx="2" fill="url(#screenLight-${a.id})" opacity=".18"/>
+    <svg class="desk-svg" viewBox="0 0 200 215" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="screenLight-${a.id}" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="scrLight-${id}" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#fff"/>
           <stop offset="1" stop-color="#fff" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <!-- 스탠드 슬롯 힌트 (스크린 뒷쪽) -->
+
+      <!-- 그림자 -->
+      <ellipse cx="100" cy="210" rx="94" ry="4" fill="rgba(0,0,0,.07)"/>
+
+      <!-- 책상 -->
+      <rect x="6" y="6" width="188" height="114" rx="10" fill="var(--wood)" stroke="var(--wood-edge)" stroke-width=".8"/>
+      <path d="M6,20 Q100,22 194,20" stroke="var(--wood-2)" stroke-width=".6" fill="none" opacity=".55"/>
+      <path d="M6,52 Q100,54 194,52" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".45"/>
+      <path d="M6,88 Q100,90 194,88" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".4"/>
+
+      <!-- iMac -->
+      <rect x="52" y="15" width="96" height="50" rx="4" fill="var(--alu)" stroke="rgba(0,0,0,.14)" stroke-width=".8"/>
+      <rect class="screen" x="55" y="18" width="90" height="44" rx="2" fill="var(--screen-off)"/>
+      <!-- 스크린 코드 라인 (running일때 나타남) -->
+      <g class="screen-content">
+        <rect class="code-1" x="60" y="24" width="14" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect class="code-2" x="60" y="28" width="22" height="1.6" fill="#22d3ee" rx=".5"/>
+        <rect class="code-3" x="60" y="32" width="18" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect x="60" y="36" width="26" height="1.6" fill="#a5f3fc" rx=".5"/>
+        <rect x="60" y="40" width="16" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect x="60" y="44" width="20" height="1.6" fill="#22d3ee" rx=".5"/>
+        <rect x="60" y="48" width="14" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect x="60" y="52" width="10" height="1.6" fill="#a5f3fc" rx=".5"/>
+        <!-- 커서 -->
+        <rect class="cursor" x="71" y="52" width="1.6" height="1.8" fill="#a5f3fc"/>
+      </g>
+      <!-- 반사광 -->
+      <rect x="55" y="18" width="90" height="14" rx="2" fill="url(#scrLight-${id})" opacity=".18"/>
+      <!-- 스탠드 -->
       <rect x="90" y="65" width="20" height="3" rx="1" fill="rgba(0,0,0,.14)"/>
 
-      <!-- 매직 키보드 (화이트) -->
+      <!-- 매직 키보드 -->
       <rect x="62" y="80" width="76" height="14" rx="2.5" fill="var(--key)" stroke="var(--key-edge)" stroke-width=".7"/>
       <line x1="66" y1="85" x2="134" y2="85" stroke="rgba(0,0,0,.05)" stroke-width=".5"/>
       <line x1="66" y1="89" x2="134" y2="89" stroke="rgba(0,0,0,.05)" stroke-width=".5"/>
 
-      <!-- 매직 마우스 -->
+      <!-- 마우스 -->
       <ellipse cx="152" cy="87" rx="6" ry="8.5" fill="var(--key)" stroke="var(--key-edge)" stroke-width=".7"/>
 
-      <!-- 커피컵 (top-down) -->
-      <circle cx="26" cy="86" r="9" fill="var(--coffee-cup)" stroke="rgba(0,0,0,.15)" stroke-width=".7"/>
-      <circle cx="26" cy="86" r="6" fill="var(--coffee)"/>
+      <!-- 커피 -->
+      <circle cx="26" cy="86" r="9" fill="#fff" stroke="rgba(0,0,0,.15)" stroke-width=".7"/>
+      <circle cx="26" cy="86" r="6" fill="#8b6f47"/>
       <ellipse cx="24" cy="83" rx="2.2" ry="1" fill="rgba(255,255,255,.3)"/>
 
-      <!-- 작은 화분 (책상 뒷쪽 오른편) -->
-      <circle cx="170" cy="30" r="8" fill="var(--plant)"/>
-      <circle cx="166" cy="26" r="4" fill="var(--plant-2)"/>
-      <circle cx="174" cy="26" r="4" fill="var(--plant-2)"/>
+      <!-- 화분 -->
+      <circle cx="170" cy="30" r="8" fill="#57895a"/>
+      <circle cx="166" cy="26" r="4" fill="#6ca972"/>
+      <circle cx="174" cy="26" r="4" fill="#6ca972"/>
       <circle cx="170" cy="24" r="4" fill="#7dc389"/>
-      <ellipse cx="170" cy="40" rx="6" ry="2" fill="var(--pot)"/>
+      <ellipse cx="170" cy="40" rx="6" ry="2" fill="#d0b78a"/>
 
-      <!-- 노트 (책상 왼편 하단) -->
+      <!-- 노트 -->
       <rect x="16" y="102" width="22" height="14" rx="1.5" fill="#fefdf8" stroke="rgba(0,0,0,.1)" stroke-width=".6"/>
       <line x1="20" y1="107" x2="34" y2="107" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
       <line x1="20" y1="111" x2="30" y2="111" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
 
-      <!-- 캐릭터 팔 (몸통에서 앞으로 뻗어 키보드 위, 세로 형태) -->
-      <path class="arm-l" d="M84,132 Q83,115 86,96 L96,95 Q97,116 94,132 Z" fill="${cloth}"/>
-      <path class="arm-r" d="M116,132 Q117,115 122,96 L134,96 Q136,110 143,100 Q146,96 150,96 L150,102 Q145,110 138,113 L128,113 Q125,124 124,132 Z" fill="${cloth}"/>
-      <!-- 손 -->
-      <ellipse cx="91" cy="91" rx="5.5" ry="4.5" fill="${skin}"/>
-      <ellipse cx="150" cy="94" rx="4.5" ry="5" fill="${skin}"/>
+      <!-- 의자 좌석 (캐릭터 밑) -->
+      <ellipse cx="100" cy="176" rx="44" ry="21" fill="var(--chair-shadow)"/>
+      <ellipse cx="100" cy="173" rx="40" ry="17" fill="var(--chair)"/>
+      <ellipse cx="100" cy="170" rx="34" ry="12" fill="var(--chair-2)"/>
+      <!-- 좌석 앞쪽 라운드 힌트 -->
+      <ellipse cx="100" cy="166" rx="28" ry="8" fill="var(--chair)" opacity=".55"/>
 
-      <!-- 캐릭터 어깨 (책상 앞 edge 밖으로 살짝만) -->
-      <path d="M78,138 Q82,132 100,131 Q118,132 122,138 L124,156 Q100,160 76,156 Z" fill="${cloth}"/>
-      <!-- 어깨 하이라이트 -->
-      <path d="M84,134 Q100,132 116,134" stroke="rgba(255,255,255,.18)" stroke-width=".8" fill="none"/>
+      <!-- 의자 팔걸이 (양쪽에 살짝 - 옆으로 곡선) -->
+      <path d="M60,168 Q56,175 56,185 L62,185 Q62,178 66,172 Z" fill="var(--chair-shadow)"/>
+      <path d="M140,168 Q144,175 144,185 L138,185 Q138,178 134,172 Z" fill="var(--chair-shadow)"/>
 
-      <!-- 목 -->
-      <ellipse cx="100" cy="139" rx="6" ry="3" fill="${skin}"/>
+      <!-- 등받이 (캐릭터 뒤편에서 위로 노출) -->
+      <path d="M70,188 Q100,196 130,188 L132,213 Q100,215 68,213 Z" fill="var(--chair-shadow)"/>
+      <path d="M74,190 Q100,196 126,190" stroke="rgba(255,255,255,.08)" stroke-width="1" fill="none"/>
 
-      <!-- 정수리 (헤어, top-down) -->
-      <ellipse cx="100" cy="152" rx="16" ry="14" fill="${hairColor}"/>
-      <!-- 귀 힌트 -->
-      <ellipse cx="84" cy="152" rx="2" ry="3" fill="${skin}"/>
-      <ellipse cx="116" cy="152" rx="2" ry="3" fill="${skin}"/>
-      <!-- 헤어 하이라이트 -->
-      <ellipse cx="94" cy="148" rx="3.5" ry="2.5" fill="rgba(255,255,255,.14)"/>
-      <ellipse cx="106" cy="150" rx="1.6" ry="1.2" fill="rgba(255,255,255,.08)"/>
+      <g class="body-group">
+        <!-- 팔 (몸에서 앞으로 뻗어 키보드/마우스로) -->
+        <path class="arm-l" d="M85,132 Q83,116 87,96 L96,96 Q97,116 93,132 Z" fill="${cloth}"/>
+        <path class="arm-r" d="M115,132 Q117,118 121,102 Q124,96 132,95 L140,97 Q145,96 149,96 Q152,98 152,101 Q149,105 143,107 L136,110 Q129,115 127,132 Z" fill="${cloth}"/>
 
-      <!-- 의자 등받이 (캐릭터 뒤편, 살짝만) -->
-      <path d="M78,172 Q100,176 122,172 L122,190 Q100,194 78,190 Z" fill="var(--chair)" opacity=".82"/>
-      <ellipse cx="100" cy="174" rx="22" ry="2" fill="rgba(0,0,0,.12)"/>
+        <!-- 손 (손등 + 손가락 + 엄지) -->
+        <g class="hand-l">
+          <!-- 손등 -->
+          <path d="M85,90 Q84,85 88,82 L96,82 Q100,84 98,92 Q95,96 90,95 Z" fill="${skin}"/>
+          <!-- 손가락 힌트 (앞쪽 4개, 얇은 라운드) -->
+          <path d="M87,83 Q86,80 87,78" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
+          <path d="M89,82 Q89,79 90,77" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
+          <path d="M92,82 Q92,79 93,77" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
+          <path d="M94,82 Q95,79 96,78" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
+          <!-- 엄지 -->
+          <path d="M97,92 Q101,93 102,89 Q101,87 99,88 Z" fill="${skin}"/>
+        </g>
+        <g class="hand-r">
+          <!-- 손등 (마우스 감쌈) -->
+          <path d="M143,92 Q141,96 145,102 Q149,105 153,102 Q155,96 151,92 Z" fill="${skin}"/>
+          <!-- 손가락 (마우스 위 클릭 자세, 짧게) -->
+          <path d="M145,93 Q145,90 145,88" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
+          <path d="M148,93 Q149,90 149,88" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
+          <path d="M151,94 Q152,91 152,89" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
+          <!-- 엄지 (마우스 옆) -->
+          <path d="M142,97 Q139,98 139,101 Q141,102 143,100 Z" fill="${skin}"/>
+        </g>
+
+        <!-- 어깨/몸통 -->
+        <path d="M78,135 Q82,130 100,129 Q118,130 122,135 L124,158 Q100,163 76,158 Z" fill="${cloth}"/>
+        <path d="M84,133 Q100,131 116,133" stroke="rgba(255,255,255,.18)" stroke-width=".8" fill="none"/>
+
+        <!-- 목 -->
+        <ellipse cx="100" cy="139" rx="6" ry="3.5" fill="${skin}"/>
+
+        <!-- 정수리 (헤어) -->
+        <ellipse cx="100" cy="152" rx="17" ry="15" fill="${hairColor}"/>
+        <!-- 귀 -->
+        <ellipse cx="84" cy="152" rx="2.5" ry="3.5" fill="${skin}"/>
+        <ellipse cx="116" cy="152" rx="2.5" ry="3.5" fill="${skin}"/>
+        <!-- 헤어 하이라이트 -->
+        <ellipse cx="94" cy="147" rx="4" ry="2.8" fill="rgba(255,255,255,.14)"/>
+        <ellipse cx="107" cy="150" rx="1.8" ry="1.4" fill="rgba(255,255,255,.08)"/>
+      </g>
     </svg>
   `;
 }
 
+/* ---- Render ---- */
 function renderDesks(){
-  const wrap = $("desks");
-  wrap.innerHTML = "";
-  AGENTS.forEach(a => {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    cell.dataset.id = a.id;
+  const wrap = $('desks');
+  wrap.innerHTML = '';
+  CHARACTERS.forEach(c => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.id = c.id;
+    const name = displayName(c);
+    const team = displayTeam(c);
     cell.innerHTML = `
       <div class="bubble">
         <div class="row">
-          <span class="name">${a.name}</span>
-          <span class="team">${a.team}</span>
+          <span class="name" data-field="name" contenteditable="true" spellcheck="false">${name}</span>
+          <span class="team" data-field="team" contenteditable="true" spellcheck="false">${team}</span>
           <span class="stat" data-stat><span class="dot"></span><span data-stat-label>–</span></span>
         </div>
-        <div class="task" data-task>${a.taskLabel}</div>
+        <div class="task" data-task>${c.taskLabel}</div>
         <div class="meta" data-meta>–</div>
       </div>
-      ${deskSvg(a)}
+      ${deskSvg(c)}
     `;
+    // Attach edit handlers
+    cell.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.addEventListener('focus', function(){
+        const r = document.createRange(); r.selectNodeContents(this);
+        const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      });
+      el.addEventListener('blur', function(){
+        const val = this.textContent.replace(/\n/g,'').trim();
+        const field = this.dataset.field;
+        if(val){
+          saveOverride(c.id, {[field]: val});
+        } else {
+          this.textContent = field === 'name' ? c.name : c.team;
+        }
+      });
+      el.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){ e.preventDefault(); this.blur(); }
+        if(e.key === 'Escape'){ e.preventDefault(); this.textContent = (loadOverrides()[c.id]?.[this.dataset.field]) || (this.dataset.field === 'name' ? c.name : c.team); this.blur(); }
+      });
+    });
     wrap.appendChild(cell);
   });
 }
@@ -363,60 +498,66 @@ function renderDesks(){
 function updateCells(){
   const now = new Date();
   let running = 0;
-  AGENTS.forEach(a=>{
-    const cell = document.querySelector(`.cell[data-id="${a.id}"]`);
+  CHARACTERS.forEach(c => {
+    const cell = document.querySelector(`.cell[data-id="${c.id}"]`);
     if(!cell) return;
-    const status = deriveStatus(a, now);
-    cell.classList.remove("running","idle","stale","warn");
+    const status = deriveCharStatus(c, now);
+    cell.classList.remove('running','idle','stale','warn');
     cell.classList.add(status);
-    const s = statusMap[a.id] || {};
 
-    const statEl = cell.querySelector(".stat");
-    statEl.className = "stat " + status;
-    const labels = {running:"실행 중", idle:"대기", stale:"멈춤 · 확인", warn:"곧 실행"};
-    statEl.querySelector("[data-stat-label]").textContent = labels[status] || status;
+    const statEl = cell.querySelector('.stat');
+    statEl.className = 'stat ' + status;
+    const labels = {running:'실행 중', idle:'대기', stale:'멈춤 · 확인', warn:'곧 실행'};
+    statEl.querySelector('[data-stat-label]').textContent = labels[status] || status;
 
-    const taskEl = cell.querySelector("[data-task]");
-    if(status === "running") taskEl.textContent = (s.task || a.taskLabel) + " · 진행 중…";
-    else if(status === "stale") taskEl.textContent = "예상 시각 초과 · " + (s.task || a.taskLabel);
-    else taskEl.textContent = s.task || a.taskLabel;
+    // Task text - 여러 자동화 담당이면 어떤 게 running/stale 인지 힌트
+    const taskEl = cell.querySelector('[data-task]');
+    let runningTask = null, staleTask = null;
+    c.agentIds.forEach(id => {
+      const s = statusMap[id];
+      if(s?.status === 'running' && s.task) runningTask = s.task;
+      if(s?.status === 'stale' && !staleTask) staleTask = id;
+    });
+    if(status === 'running') taskEl.textContent = (runningTask || c.taskLabel) + ' · 진행 중…';
+    else if(status === 'stale') taskEl.textContent = `예상 시각 초과 · ${c.taskLabel}`;
+    else taskEl.textContent = c.taskLabel;
 
-    const metaEl = cell.querySelector("[data-meta]");
-    let meta = "";
-    if(s.last_run){
-      const ago = (now.getTime()/1000) - s.last_run;
+    // Meta - 최근 실행 + 다음 예정
+    const metaEl = cell.querySelector('[data-meta]');
+    let meta = '';
+    const last = mostRecentLastRun(c);
+    if(last){
+      const ago = (now.getTime()/1000) - last;
       meta += `마지막 <b>${fmtRel(ago)} 전</b>`;
     } else {
       meta += `마지막 <b>–</b>`;
     }
-    const next = nextRunFromAgent(a, now);
-    if(next && !a.manual){
+    const next = nextRunTime(c, now);
+    if(next && !c.manual){
       const inSec = (next - now.getTime())/1000;
       if(inSec > 0) meta += ` · 다음 <b>${fmtRel(inSec)} 후</b>`;
       else meta += ` · 다음 <b>임박</b>`;
-    } else if(a.manual){
-      meta += ` · ${a.scheduleLabel}`;
+    } else if(c.manual){
+      meta += ` · ${c.scheduleLabel}`;
     }
     metaEl.innerHTML = meta;
 
-    if(status === "running") running++;
+    if(status === 'running') running++;
   });
-  $("running-n").textContent = running;
-  $("total-n").textContent = AGENTS.length;
+  $('running-n').textContent = running;
+  $('total-n').textContent = CHARACTERS.length;
 }
 
 function updateClock(){
   const now = new Date();
-  $("clock-time").textContent = fmtTime(now);
-  $("clock-date").textContent = fmtDate(now);
+  $('clock-time').textContent = fmtTime(now);
+  $('clock-date').textContent = fmtDate(now);
 }
 
 async function fetchStatus(){
   try{
-    // proxy tunnel URL 은 index.html 에도 있는 GitHub raw 를 재사용
     const TUNNEL_URL = 'https://raw.githubusercontent.com/j65209/Brightbeed/main/tunnel.json';
     const pin = localStorage.getItem('bb_pin') || localStorage.getItem('brightbeed.pin') || '';
-    // 우선 localStorage cache
     let base = window._proxyBase;
     if(!base){
       try{
@@ -429,23 +570,23 @@ async function fetchStatus(){
       }catch(e){}
     }
     if(!base || !pin){
-      $("last-fetch").textContent = '· 스케줄 미러 (프록시/PIN 미연결)';
+      $('last-fetch').textContent = '· 스케줄 미러 (프록시/PIN 미연결)';
       return;
     }
-    const r = await fetch(base + "/agents/status", {
-      headers: {"X-Brightbeed-PIN": pin, "Accept":"application/json"},
-      cache: "no-store",
+    const r = await fetch(base + '/agents/status', {
+      headers:{'X-Brightbeed-PIN':pin,'Accept':'application/json'},
+      cache:'no-store',
     });
     if(r.ok){
       const j = await r.json();
       statusMap = {};
       (j.agents||[]).forEach(a => statusMap[a.id] = a);
-      $("last-fetch").textContent = `· 갱신 ${fmtTime(new Date())}`;
+      $('last-fetch').textContent = `· 갱신 ${fmtTime(new Date())}`;
       return;
     }
-    $("last-fetch").textContent = `· HTTP ${r.status}`;
+    $('last-fetch').textContent = `· HTTP ${r.status}`;
   }catch(e){
-    $("last-fetch").textContent = `· 오류: ${e.message}`;
+    $('last-fetch').textContent = `· 오류: ${e.message}`;
   }
 }
 
@@ -454,16 +595,21 @@ function init(){
   updateClock();
   fetchStatus().then(()=>{
     updateCells();
-    $("loading").classList.add("hide");
+    $('loading').classList.add('hide');
   });
   setInterval(updateClock, 1000);
   setInterval(updateCells, 1000);
   setInterval(fetchStatus, 15000);
-  $("refresh-btn").addEventListener("click", ()=>{
-    fetchStatus().then(updateCells);
+  $('refresh-btn').addEventListener('click', () => fetchStatus().then(updateCells));
+  $('reset-btn').addEventListener('click', () => {
+    if(confirm('이름·부서를 기본값으로 되돌릴까요?')){
+      localStorage.removeItem(OVERRIDES_KEY);
+      renderDesks();
+      updateCells();
+    }
   });
 }
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
