@@ -1395,9 +1395,12 @@ function askWhich(S, hits, loose, kw){
     ? `"${kw}" 와 딱 맞는 건 없네요. 이름이 가장 비슷한 걸로 ${S.candidates.length}개 골라봤는데, 이 중에 있을까요?`
     : `${num(hits.length)}건 나왔습니다.${more ? ' 관련도 높은 순으로 8개만 추렸습니다.' : ''} 어떤 걸 말씀하시는 걸까요?`;
   const lines = S.candidates.map((p,i) => `${i+1}. ${p.name} — ${stockText(p.stock)}`);
+  /* 목록이 길면 칩까지 깔지 않는다 — 번호로 답하는 게 더 빠르고 대화가 덜 어수선하다 */
+  const chips = S.candidates.length <= 4
+    ? S.candidates.map(p => ({label:p.name, cmd:`#pick ${p.productNo}`}))
+    : [];
   say('agent', `${head}\n\n${lines.join('\n')}\n\n번호로 부르셔도 되고 "골드" 처럼 특징만 말씀하셔도 됩니다.`, {
-    chips: S.candidates.map(p => ({label:p.name, cmd:`#pick ${p.productNo}`}))
-      .concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
+    chips: chips.concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
   });
 }
 
