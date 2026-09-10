@@ -12190,8 +12190,8 @@
       return;
     }
 
-    // 오늘 '한 일'을 하나도 안 적은 사람 (대표·요청은 이월되니 판단에서 제외)
-    const missing = STAFF.filter(st=>{
+    // 오늘 '한 일'을 하나도 안 적은 사람 (대표는 판단에서 제외, 퇴사자도 당연히 제외)
+    const missing = (typeof _diaryVisibleStaff === 'function' ? _diaryVisibleStaff() : STAFF).filter(st=>{
       if(st.ceo) return false;
       const e = _diaryEntries[st.name];
       if(!e) return true;
@@ -12230,9 +12230,11 @@
     _diaryPurgeStale();
 
     // 전체 데이터 로드: 요청은 직원 단위(이월), 할일은 선택된 날짜 것만
+    // 퇴사(숨김) 처리된 직원은 카드도 알림도 만들지 않는다.
     _diaryEntries = {};
     const all = loadDiaryAll();
-    STAFF.forEach(st=>{
+    const visible = _diaryVisibleStaff();
+    visible.forEach(st=>{
       const s = all[st.name] || {reqs:[], weekly:[], monthly:[], daily:{}};
       const dayTasks = (s.daily && s.daily[_diaryState.date] && s.daily[_diaryState.date].tasks) || [];
       // 기존 텍스트가 있는 요청은 이미 알림이 갔거나 지난 것이므로 재push 방지
@@ -12255,10 +12257,17 @@
     });
 
     board.innerHTML = '';
-    _diarySortStaff(STAFF).forEach(st=>{
+    _diarySortStaff(visible).forEach(st=>{
       board.appendChild(_diaryBuildStaffCard(st));
     });
     _diaryUpdateAlert();
+  }
+
+  /* 업무일지 카드로 노출할 직원 — 퇴사(숨김) 처리된 사람만 제외.
+     activeStaff()는 대표(ceo)까지 걸러내지만 업무일지 보드에는 대표 카드도 그대로 보여야 하므로 별도로 둔다.
+     staff_hidden 이 아직 로드되기 전이면(초기 진입) _hiddenStaff.size === 0 이라 자연스럽게 전원 표시. */
+  function _diaryVisibleStaff(){
+    return STAFF.filter(st => !(typeof isStaffHidden === 'function' && isStaffHidden(st.name)));
   }
 
   /* 업무일지 카드 정렬 — 팀별 우선순위:
@@ -15664,6 +15673,10 @@
     _leave_lastHash=null;
     renderLeaveStatus();
     applyHiddenToOrgChart();
+    // 업무일지 보드가 열려 있으면 카드도 즉시 사라지게 다시 그린다
+    if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
+      _diaryRenderBoard();
+    }
     toast(`✓ ${name}님을 조직도에서 숨겼습니다`,'ok');
   }
   window.hideStaffMember=hideStaffMember;
@@ -15680,6 +15693,10 @@
     _leave_lastHash=null;
     renderLeaveStatus();
     applyHiddenToOrgChart();
+    // 복원 즉시 업무일지 카드에도 다시 나타나게
+    if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
+      _diaryRenderBoard();
+    }
     toast(`✓ ${name}님을 복원했습니다`,'ok');
   }
   window.restoreStaffMember=restoreStaffMember;
@@ -15936,6 +15953,10 @@
     localStorage.setItem(LEAVE_KEY, JSON.stringify(fresh));
     if(document.getElementById('leaveGrid')) renderLeaveStatus();
     else applyHiddenToOrgChart(); // 뷰 밖에서도 조직도만은 반영
+    // 다른 기기에서 퇴사 처리한 경우, 이 기기 업무일지에서도 즉시 카드 사라지게
+    if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
+      _diaryRenderBoard();
+    }
   }
   window.syncLeaveFromRemote=syncLeaveFromRemote;
 
