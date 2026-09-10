@@ -921,7 +921,12 @@ async function llmAgent(c, userText){
     const reply = (res && res.text) || '(응답을 받지 못했습니다.)';
     hist.push({role:'user', text: userText});
     hist.push({role:'agent', text: reply});
-    say('agent', reply);
+    /* 사장님이 지금 어느 지능(Pro/Flash) 응답을 받는지 볼 수 있게 꼬리에 얇게 표시.
+       Flash 는 빠르지만 판단력 낮음, Pro 는 판단력 좋으나 무료 티어 부하 커서 자주 fallback. */
+    const model = res && res.model || '';
+    const isPro = /pro/i.test(model);
+    const tag = isPro ? '🧠 Pro' : '⚡ Flash' + (res.fallbackReason ? ` (${res.fallbackReason})` : '');
+    say('agent', `${reply}\n— ${tag}`);
   }catch(e){
     say('agent', `죄송합니다, 지금 답을 못 내겠어요. 잠시 뒤 다시 말씀해 주시겠어요? (${e.message||e})`);
   }
