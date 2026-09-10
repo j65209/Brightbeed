@@ -5518,9 +5518,23 @@
   .dcs-move-btn:disabled:hover{background:transparent}
   .dcs-move-btn svg{width:9px;height:9px;stroke-width:3}
 
-  /* plan / req row 컬럼 확장 — 우선순위 + 이동 버튼 자리 */
-  .dcs-plan{grid-template-columns:auto auto 1fr auto auto auto}
-  .dcs-req{grid-template-columns:auto auto 1fr auto auto auto auto}
+  /* 순번 뱃지 (1. 2. 3.) — 리스트 안 자동 번호. 우선순위/이동과 별개로 항상 표시 */
+  .dcs-num{
+    display:inline-flex;align-items:center;justify-content:flex-end;
+    min-width:16px;padding:0 2px;
+    font-size:11px;font-weight:700;color:#78716c;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+    line-height:1;flex-shrink:0;
+  }
+  .dcs-sec .dcs-num{color:var(--cat-ink,#78716c);opacity:.75}
+
+  /* plan / req / task / prev row 컬럼 확장 — 순번 + 우선순위 + 이동 버튼 자리 */
+  .dcs-plan{grid-template-columns:auto auto auto 1fr auto auto auto}
+  .dcs-req{grid-template-columns:auto auto auto 1fr auto auto auto auto}
+  .dcs-task{grid-template-columns:auto auto 1fr auto auto}
+  .dcs-prev-row{grid-template-columns:auto auto 1fr auto}
+  /* 오늘 한 일 순서 이동 버튼 — 계획과 동일한 톤 */
+  .dcs-task:hover .dcs-move{opacity:.85}
   /* 저장/전송 상태 아이콘 — 요청자(from) 왼쪽에 작게 표시 */
   .dcs-req-status{
     display:inline-flex;align-items:center;justify-content:center;
@@ -5550,10 +5564,12 @@
     .dcs-stat{padding:3px 7px;font-size:10.5px}
     .dcs-sec-title{font-size:10.5px;letter-spacing:.06em}
     .dcs-sec-title-count{font-size:10px;padding:1px 6px}
-    .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto auto 1fr auto auto auto auto}
+    .dcs-req{padding:6px 8px;gap:6px;grid-template-columns:auto auto auto 1fr auto auto auto auto}
     .dcs-req-from{font-size:10px}
     .dcs-req-text,.dcs-task-text,.dcs-plan-text{font-size:12px}
-    .dcs-plan{padding:6px 8px;gap:6px;grid-template-columns:auto auto 1fr auto auto auto}
+    .dcs-plan{padding:6px 8px;gap:6px;grid-template-columns:auto auto auto 1fr auto auto auto}
+    .dcs-task{grid-template-columns:auto auto 1fr auto auto}
+    .dcs-num{font-size:10px;min-width:14px}
     .dcs-plan-date{font-size:9.5px;padding:1px 5px}
     .dcs-move{opacity:.65}
     .dcs-move-btn{width:14px;height:10px}
@@ -12495,6 +12511,7 @@
       row.className = 'dcs-plan';
       const dateBadge = it.createdAt ? `<div class="dcs-plan-date" title="작성일 ${it.createdAt}">${_esc(_diaryFmtCreated(it.createdAt))}</div>` : `<div class="dcs-plan-date" style="visibility:hidden">-</div>`;
       row.innerHTML = `
+        <span class="dcs-num">${idx+1}.</span>
         <button class="dcs-plan-check" title="완료 시 제거">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
@@ -12605,6 +12622,7 @@
       // 초기 status: 텍스트 있으면 저장 완료(saved), 없으면 hidden
       const initialStatus = (r.text && String(r.text).trim()) ? (r._pushed ? 'saved' : 'saved') : '';
       row.innerHTML = `
+        <span class="dcs-num">${idx+1}.</span>
         <button class="dcs-req-check" title="완료">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
@@ -12712,16 +12730,34 @@
       const row = document.createElement('div');
       row.className = 'dcs-task' + (t.done ? ' done' : '');
       row.innerHTML = `
+        <span class="dcs-num">${idx+1}.</span>
         <button class="dcs-task-check" title="완료">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
         <div class="dcs-task-text" contenteditable="true">${_esc(t.text||'')}</div>
+        ${_diaryMoveHTML()}
         <button class="dcs-task-del" title="삭제">✕</button>
       `;
       row.querySelector('.dcs-task-check').onclick = ()=>{
         t.done = !t.done;
         row.classList.toggle('done', t.done);
         _diaryCardUpdateStat(card, st);
+        _diaryScheduleSaveFor(st.name);
+      };
+      const up = row.querySelector('[data-move="up"]');
+      const down = row.querySelector('[data-move="down"]');
+      up.disabled = (idx === 0);
+      down.disabled = (idx === entry.tasks.length - 1);
+      up.onclick = ()=>{
+        if(idx <= 0) return;
+        [entry.tasks[idx-1], entry.tasks[idx]] = [entry.tasks[idx], entry.tasks[idx-1]];
+        _diaryCardRenderTasks(card, st);
+        _diaryScheduleSaveFor(st.name);
+      };
+      down.onclick = ()=>{
+        if(idx >= entry.tasks.length - 1) return;
+        [entry.tasks[idx+1], entry.tasks[idx]] = [entry.tasks[idx], entry.tasks[idx+1]];
+        _diaryCardRenderTasks(card, st);
         _diaryScheduleSaveFor(st.name);
       };
       const txt = row.querySelector('.dcs-task-text');
@@ -12815,6 +12851,7 @@
       const row = document.createElement('div');
       row.className = 'dcs-prev-row' + (t.done ? ' done' : '');
       row.innerHTML = `
+        <span class="dcs-num">${idx+1}.</span>
         <button class="dcs-prev-check" title="완료">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
