@@ -226,6 +226,17 @@
   <button class="reset-names" id="reset-btn">이름·부서 초기화</button>
 </div>
 
+<!-- 에이전트가 저장한 리포트 목록 (릴리·자스민·오스카·아이비가 웹 리서치 후 저장하는 곳) -->
+<div id="reports-box" style="max-width:1100px;margin:12px auto 24px;padding:0 20px;font:400 13px/1.5 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;color:#3a3a3a">
+  <div style="display:flex;align-items:center;gap:8px;margin:8px 0 6px">
+    <span style="font-size:14px">📄 에이전트 리포트</span>
+    <span id="reports-count" style="font-size:11px;color:#888">불러오는 중…</span>
+    <span style="flex:1"></span>
+    <button id="reports-refresh" style="background:none;border:1px solid #d0d0d5;border-radius:8px;padding:2px 10px;font-size:11px;color:#555;cursor:pointer">↻</button>
+  </div>
+  <div id="reports-list" style="display:flex;flex-direction:column;gap:4px"></div>
+</div>
+
 <div class="scrim" id="scrim"></div>
 <aside class="chat" id="chat" aria-hidden="true">
   <div class="chat-head">
@@ -1790,7 +1801,42 @@ function init(){
     ta.style.height = Math.min(ta.scrollHeight, 110) + 'px';
   });
   document.addEventListener('keydown', e => { if(e.key === 'Escape' && openCharId) closeChat(); });
+
+  // 에이전트가 저장한 리포트 목록 로드 (릴리·자스민·오스카·아이비 저장)
+  loadReports();
+  const rb = document.getElementById('reports-refresh');
+  if(rb) rb.addEventListener('click', loadReports);
 }
+
+async function loadReports(){
+  const box = document.getElementById('reports-list');
+  const cnt = document.getElementById('reports-count');
+  if(!box || !cnt) return;
+  try{
+    const r = await api('/agent/reports');
+    const items = (r && r.reports) || [];
+    cnt.textContent = items.length ? `${items.length}건` : '아직 없음';
+    if(!items.length){
+      box.innerHTML = '<div style="opacity:.5;padding:6px 0">아직 저장된 리포트가 없습니다. 릴리·자스민·오스카·아이비에게 "네이버에서 뭐 조사해서 리포트 저장해줘" 라 지시하시면 여기에 쌓입니다.</div>';
+      return;
+    }
+    box.innerHTML = items.map(it => {
+      const dt = new Date(it.mtime * 1000);
+      const when = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+      const agent = (it.filename.match(/-(\w+)-/) || ['',''])[1] || '';
+      return `<div style="display:flex;align-items:baseline;gap:10px;padding:6px 10px;border:1px solid #ececf0;border-radius:8px;background:#fafafb">
+        <span style="font-size:11px;color:#888;min-width:64px">${when}</span>
+        <span style="font-size:11px;color:#5f6f88;min-width:56px">${agent}</span>
+        <a href="${it.url}" target="_blank" rel="noopener" style="flex:1;color:#111;text-decoration:none">${it.title}</a>
+        <span style="font-size:10px;color:#aaa">${Math.round(it.sizeBytes/1024*10)/10} KB</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    cnt.textContent = '불러오기 실패';
+    box.innerHTML = `<div style="color:#c33;padding:6px 0">${e.message||e}</div>`;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
