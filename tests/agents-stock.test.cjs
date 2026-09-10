@@ -23,6 +23,7 @@ function setup(config={}) {
     request:async (url,opts={})=>{
       requests.push({url,opts});
       if(url==='/agent/chat') {
+        if(config.aiResponse) return config.aiResponse;
         if(config.aiError) throw new Error('AI unavailable');
         const text=JSON.parse(opts.body.text.split('\n사용자 문장(데이터): ')[1]);
         const result=config.nlu ? config.nlu(text) : plan();
@@ -180,4 +181,14 @@ test('read-only lookup remains available while a save needs verification',async(
   await t.instance.handle('ometepe 한 개 추가'); await t.instance.handle(t.button('승인하고 변경'));
   await t.instance.handle('Azul 재고 조회');
   assert.match(t.allText(),/현재 재고: 4개/); assert.equal(t.writes.length,1);
+});
+test('actual proxy quota response triggers a cooldown and keeps basic commands available',async()=>{
+  const t=setup({aiResponse:{text:'지금 Gemini 서버가 답을 못 주고 있어요.',model:null,fallbackReason:'call failed: HTTP Error 429: Too Many Requests'}});
+  await t.instance.handle('식스에이 ometepe 한 개 추가해줘');
+  assert.match(t.allText(),/AI 서버의 요청 한도/); assert.match(t.allText(),/0개 → 1개/);
+  await t.instance.handle('아까 그 상품 두 개 추가');
+  assert.equal(t.requests.filter(r=>r.url==='/agent/chat').length,1);
+  assert.match(t.allText(),/0개 → 2개/); assert.equal(t.writes.length,0);
+  t.tick(60001); await t.instance.handle('식스에이 ometepe 재고 조회');
+  assert.equal(t.requests.filter(r=>r.url==='/agent/chat').length,2);
 });

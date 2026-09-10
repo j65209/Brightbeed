@@ -292,6 +292,7 @@
     </div>
     <button class="chat-x" id="chat-x" aria-label="닫기">✕</button>
   </div>
+  <div id="chat-progress" role="status" aria-live="polite" hidden style="padding:8px 20px;font-size:14px;color:var(--text-1)"></div>
   <div class="chat-body" id="chat-body"></div>
   <div class="chat-foot">
     <div class="chat-quick" id="chat-quick"></div>
@@ -894,6 +895,7 @@ function openChat(id){
   $('chat-av').style.background = `radial-gradient(circle at 38% 32%, rgba(255,255,255,.28), transparent 70%), ${c.hairColor}`;
   renderQuick(c);
   renderChat();
+  renderChatProgress();
   if(!chatOf(id).length) greet(c);
   $('scrim').classList.add('open');
   $('chat').classList.add('open');
@@ -906,6 +908,11 @@ function closeChat(){
   $('chat').setAttribute('aria-hidden','true');
   openCharId = null;
   updateCells();
+}
+function renderChatProgress(){
+  const el = $('chat-progress');
+  el.hidden = openCharId !== 'stock';
+  el.textContent = openCharId === 'stock' ? stockActivity : '';
 }
 function renderQuick(c){
   const q = $('chat-quick');
@@ -1501,7 +1508,7 @@ function getStockAssistant(){
     request:api, brands:BRANDS, brandWords:BRAND_WORDS,
     search:searchProducts, nearest:nearestProducts, isMaster,
     say:(text, opts) => say('agent', text, opts),
-    onStatus:label => { stockActivity = label; updateCells(); },
+    onStatus:label => { stockActivity = label; updateCells(); renderChatProgress(); },
     loadPending:() => { try{ return JSON.parse(sessionStorage.getItem(pendingKey)||'null'); }catch(e){ return null; } },
     savePending:job => { try{
       if(job) sessionStorage.setItem(pendingKey, JSON.stringify(job));
