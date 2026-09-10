@@ -400,12 +400,15 @@ const CHARACTERS = [
 ];
 const charById = id => CHARACTERS.find(c => c.id === id);
 
+/* sixshop admin 인벤토리 페이지 자동화로 저장 (proxy /sx/update-brand-stock).
+   코페리는 hyein2020 계정 관리 shop 목록에 없어 별도 자격증명 필요 — 우선 조회만 열어둠.
+   아페티는 대시보드가 구글시트를 진실로 보여드리지만 실 판매 재고는 여전히 식스샵 admin 에 있음. */
 const BRANDS = {
   '6a':{key:'6a', label:'식스에이', writable:true},
-  'ct':{key:'ct', label:'클리어타입'},
-  'yar':{key:'yar', label:'야르'},
-  'kop':{key:'kop', label:'코페리'},
-  'apt':{key:'apt', label:'아페티'},
+  'ct':{key:'ct', label:'클리어타입', writable:true},
+  'yar':{key:'yar', label:'야르', writable:true},
+  'kop':{key:'kop', label:'코페리', note:'현재 로그인 계정(hyein2020)에 코페리 관리 권한이 없어 자동 저장은 준비 중입니다. 식스샵 관리자 초대가 완료되면 열립니다.'},
+  'apt':{key:'apt', label:'아페티', writable:true, note:'대시보드 재고는 구글시트가 진실입니다. 식스샵에 저장한 값은 사장님 시트와 어긋날 수 있으니 시트도 함께 확인해 주세요.'},
 };
 const BRAND_WORDS = [
   ['6a', ['식스에이','6a','6thanother','식스어나더','sixa']],
@@ -1638,7 +1641,9 @@ async function proposeStock(S, amt, cur){
   }
   S.target = target;
   if(!BRANDS[S.brand]?.writable){
-    abort(`${BRANDS[S.brand].label} 은(는) 아직 자동 수정 경로가 없습니다. 현재 재고 수정은 식스에이(6thanother)만 가능합니다.`);
+    const b = BRANDS[S.brand];
+    const writable = Object.values(BRANDS).filter(x => x.writable).map(x => x.label).join(', ');
+    abort(`${b.label} 는 아직 자동 저장 준비가 안 됐습니다.\n${b.note || ''}\n\n지금 저장까지 가능한 브랜드: ${writable}`);
     return;
   }
   if(!isMaster()){
@@ -1647,7 +1652,8 @@ async function proposeStock(S, amt, cur){
   }
   const label = S.option ? `${S.product.name} / ${S.option.label}` : S.product.name;
   S.stage = 'confirm';
-  say('agent', `그럼 이렇게 바꾸겠습니다. 맞나요?\n\n상품: ${label}\n지금: ${stockText(cur)}\n바꿀 값: ${num(target)}개\n\n"응" 이라고만 하셔도 바로 진행합니다.`, {
+  const note = BRANDS[S.brand]?.note ? `\n\n※ ${BRANDS[S.brand].note}` : '';
+  say('agent', `그럼 이렇게 바꾸겠습니다. 맞나요?\n\n상품: ${label}\n지금: ${stockText(cur)}\n바꿀 값: ${num(target)}개${note}\n\n"응" 이라고만 하셔도 바로 진행합니다.`, {
     chips:[
       {label:'네, 그렇게 해주세요', cmd:'#confirm', style:'primary'},
       {label:'아니요', cmd:'#cancel', style:'danger'},
@@ -1660,12 +1666,12 @@ async function commitStock(S){
   const p = S.product, o = S.option, target = S.target;
   const label = o ? `${p.name} / ${o.label}` : p.name;
   S.stage = null;
-  say('agent', `알겠습니다. 식스샵에 접속해 "${label}" 재고를 ${num(target)}개로 저장하겠습니다. 30~60초 걸립니다…`);
+  say('agent', `알겠습니다. ${BRANDS[S.brand].label} 식스샵에 접속해 "${label}" 재고를 ${num(target)}개로 저장하겠습니다. 30~60초 걸립니다…`);
 
   const upd = {id: String(p.productNo), name: p.name, setStock: target};
   if(o){ upd.optionNo = String(o.optionNo); upd.optionLabel = o.label; }
 
-  const res = await api('/sx/update-six6-stock', {method:'POST', body:{updates:[upd]}});
+  const res = await api('/sx/update-brand-stock', {method:'POST', body:{brand: S.brand, updates:[upd]}});
   const rows = Array.isArray(res) ? res : (res.results || []);
   const row = rows[0] || {};
   if(res.ok === false || row.status === 'error' || row.status === 'skip'){
