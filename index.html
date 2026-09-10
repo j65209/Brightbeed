@@ -5214,6 +5214,7 @@
   .dcs-req-text{
     font-size:13.5px;color:#1c1917;line-height:1.5;outline:none;
     word-break:break-word;padding:1px 2px;border-radius:4px;letter-spacing:-.01em;font-weight:500;
+    min-width:0;
   }
   .dcs-req-text:empty::before{content:'요청 내용';color:#78716c;font-weight:500}
   .dcs-req-text:focus{background:#fffbeb}
@@ -5251,6 +5252,7 @@
   .dcs-plan-text{
     font-size:13.5px;color:#1c1917;line-height:1.5;outline:none;
     word-break:break-word;padding:1px 2px;border-radius:4px;letter-spacing:-.01em;font-weight:500;
+    min-width:0;
   }
   .dcs-plan-text:empty::before{content:'계획 내용';color:#78716c;font-weight:500}
   .dcs-plan-text:focus{background:#fffbeb}
@@ -5286,6 +5288,7 @@
   .dcs-task-text{
     font-size:13.5px;color:#1c1917;line-height:1.55;outline:none;
     word-break:break-word;padding:2px 4px;border-radius:4px;letter-spacing:-.01em;font-weight:500;
+    min-width:0;
   }
   .dcs-task-text:empty::before{content:'새 항목';color:#78716c;font-weight:500}
   .dcs-task-text:focus{background:#fffbeb}
@@ -5376,6 +5379,7 @@
   .dcs-prev-text{
     font-size:12.5px;color:#44403c;line-height:1.5;
     word-break:break-word;letter-spacing:-.01em;font-weight:500;
+    min-width:0;  /* 1fr 그리드에서 텍스트가 줄바꿈될 수 있게 */
   }
   .dcs-prev-row.done .dcs-prev-text{text-decoration:line-through;color:#a8a29e}
   /* 우측 액션 묶음 — 오늘로 + 삭제 */
@@ -5552,6 +5556,10 @@
     .diary-board{grid-template-columns:repeat(2,1fr);gap:10px}
     #viewDiary .view-title{font-size:22px}
   }
+  /* 좁은 화면 — 카드 1열 (2열은 각 카드 폭이 부족해 텍스트가 세로로 늘어짐) */
+  @media (max-width:560px){
+    .diary-board{grid-template-columns:1fr;gap:12px}
+  }
   @media (max-width:600px){
     .diary-head-actions{width:100%}
     .diary-date-nav{flex:1;justify-content:space-between}
@@ -5570,6 +5578,12 @@
     .dcs-plan{padding:6px 8px;gap:6px;grid-template-columns:auto auto auto 1fr auto auto auto}
     .dcs-task{grid-template-columns:auto auto 1fr auto auto}
     .dcs-num{font-size:10px;min-width:14px}
+    /* 어제 한 일 — 좁은 화면에서 "↓ 오늘로" 버튼을 화살표만 남김 */
+    .dcs-prev-row{gap:5px;padding:4px 6px}
+    .dcs-prev-actions{gap:2px}
+    .dcs-prev-carry{padding:2px 6px;font-size:10px;line-height:1}
+    .dcs-prev-carry-label{display:none}
+    .dcs-prev-text{font-size:12px}
     .dcs-plan-date{font-size:9.5px;padding:1px 5px}
     .dcs-move{opacity:.65}
     .dcs-move-btn{width:14px;height:10px}
@@ -12857,7 +12871,7 @@
         </button>
         <div class="dcs-prev-text">${_esc(t.text||'')}</div>
         <div class="dcs-prev-actions">
-          ${t.done ? '' : '<button class="dcs-prev-carry" title="이 항목을 오늘 한 일로 가져오기">↓ 오늘로</button>'}
+          ${t.done ? '' : '<button class="dcs-prev-carry" title="이 항목을 오늘 한 일로 가져오기">↓<span class="dcs-prev-carry-label"> 오늘로</span></button>'}
           <button class="dcs-prev-del" title="삭제">✕</button>
         </div>
       `;
@@ -12886,7 +12900,7 @@
           _diaryCardUpdateStat(card, st);
           _diaryScheduleSaveFor(st.name);
           carry.disabled = true;
-          carry.textContent = '가져옴';
+          carry.innerHTML = '<span class="dcs-prev-carry-label" style="display:inline">가져옴</span>';
           toast(`${st.name} — "${text.slice(0,20)}${text.length>20?'…':''}" 오늘로 가져왔습니다`,'ok');
         };
       }

@@ -70,9 +70,52 @@
   .floor{position:relative;background:linear-gradient(180deg,var(--floor) 0%,var(--floor-2) 100%);border-radius:22px;padding:34px 24px 40px;border:1px solid var(--line);box-shadow:inset 0 0 60px rgba(168,145,99,.06),0 20px 40px -30px rgba(0,0,0,.15)}
   .rug{position:absolute;inset:20px 40px;background:var(--rug);border-radius:14px;box-shadow:inset 0 0 0 1px var(--rug-line),inset 0 0 40px rgba(216,206,186,.4);z-index:0}
 
-  .desks{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:38px 24px;padding:16px 8px}
-  @media(max-width:720px){.desks{grid-template-columns:repeat(2,1fr);gap:28px 12px;padding:8px 4px}.floor{padding:20px 12px 28px;border-radius:16px}.rug{inset:12px 20px;border-radius:10px}}
-  @media(max-width:420px){.desks{grid-template-columns:1fr}}
+  /* 팀 섹션을 그리드로 배치 → 팀당 인원 상관 없이 화면 폭에 맞게 나란히 앉음.
+     팀 안에서는 desk 를 한 줄로 세로 쌓기(같은 팀은 붙어 있음). */
+  .desks{
+    position:relative;z-index:2;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:26px 20px;padding:14px 8px;
+  }
+  .team-group{
+    display:flex;flex-direction:column;gap:14px;position:relative;
+    padding:8px 8px 14px;border-radius:14px;
+    background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0));
+  }
+  .team-label{
+    display:flex;align-items:center;gap:8px;padding:2px 4px 6px;
+    border-bottom:1px dashed rgba(0,0,0,.09);
+  }
+  .team-dot{
+    width:9px;height:9px;border-radius:2px;flex-shrink:0;
+    background:var(--team-accent,#a8a29e);
+    box-shadow:0 0 0 3px rgba(0,0,0,.03);
+  }
+  .team-name{
+    font-size:12.5px;font-weight:700;color:var(--text-1);letter-spacing:-.01em;
+    padding:2px 6px;margin:-2px -6px;border-radius:5px;cursor:text;outline:none;
+    transition:background .15s;
+  }
+  .team-name:hover{background:rgba(59,130,246,.06)}
+  .team-name:focus{background:rgba(59,130,246,.1);box-shadow:0 0 0 2px rgba(59,130,246,.32)}
+  .team-count{
+    font-size:10.5px;font-weight:600;color:var(--text-3);
+    padding:1px 8px;background:var(--bg-2);border-radius:999px;
+    letter-spacing:-.005em;font-variant-numeric:tabular-nums;
+    margin-left:auto;
+  }
+  .team-desks{display:flex;flex-direction:column;gap:24px;align-items:center}
+  @media(max-width:720px){
+    .desks{grid-template-columns:repeat(2,1fr);gap:18px 12px;padding:6px 4px}
+    .floor{padding:20px 12px 28px;border-radius:16px}
+    .rug{inset:12px 20px;border-radius:10px}
+    .team-group{padding:6px 4px 10px;gap:10px}
+    .team-label{padding:0 2px 4px}
+    .team-name{font-size:11.5px}
+    .team-count{font-size:10px;padding:1px 7px}
+    .team-desks{gap:18px}
+  }
+  @media(max-width:420px){.desks{grid-template-columns:1fr;gap:14px}}
 
   .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .desk-svg{width:100%;max-width:240px;height:auto;aspect-ratio:200/160;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09));transition:transform .22s cubic-bezier(.22,1,.36,1)}
@@ -668,16 +711,73 @@ function deskSvg(c){
 }
 
 /* -------------------------------------------------------------------------
-   책상 렌더
+   책상 렌더 — 팀별로 자리를 묶어 앉힘.
+   같은 팀은 나란히, 팀 사이에는 얇은 라벨 헤더로 구분.
    ------------------------------------------------------------------------- */
+/* 팀 우선순위 — 업무 흐름 순서로 배치. 오퍼레이션(수집·재고)이 먼저,
+   그다음 분석·마케팅·리포트·기획으로 이어짐. 값이 낮을수록 위로. */
+const _TEAM_ORDER = {
+  '물류팀':1, '재고팀':2, '벤더팀':3,
+  '마케팅팀':4, '광고팀':5, '리포트팀':6, '기획팀':7,
+};
+function _teamsInOrder(){
+  const seen = new Map();
+  CHARACTERS.forEach(c => {
+    const label = displayTeam(c);
+    if(!seen.has(label)){
+      seen.set(label, {label, members:[], order: _TEAM_ORDER[c.team] ?? 50});
+    }
+    seen.get(label).members.push(c);
+  });
+  return Array.from(seen.values()).sort((a,b)=> a.order - b.order || a.label.localeCompare(b.label));
+}
 function renderDesks(){
   const wrap = $('desks');
   wrap.innerHTML = '';
-  CHARACTERS.forEach(c => {
-    const cell = document.createElement('div');
-    cell.className = 'cell running';
-    cell.dataset.id = c.id;
-    cell.innerHTML = `
+  _teamsInOrder().forEach(group => {
+    const section = document.createElement('section');
+    section.className = 'team-group';
+    section.dataset.team = group.label;
+    // 팀 라벨의 대표 색은 첫 멤버 옷 색상 (이미 팀 성격에 맞게 지정돼 있음)
+    const accent = _cloth(group.members[0]);
+    section.style.setProperty('--team-accent', accent);
+    section.innerHTML = `
+      <header class="team-label">
+        <span class="team-dot" style="background:${accent}"></span>
+        <span class="team-name" contenteditable="true" spellcheck="false" data-team-edit>${group.label}</span>
+        <span class="team-count">${group.members.length}명</span>
+      </header>
+      <div class="team-desks"></div>
+    `;
+    const nameEl = section.querySelector('[data-team-edit]');
+    nameEl.addEventListener('click', e => e.stopPropagation());
+    nameEl.addEventListener('focus', function(){
+      const r = document.createRange(); r.selectNodeContents(this);
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    });
+    nameEl.addEventListener('blur', function(){
+      const val = this.textContent.replace(/\n/g,'').trim();
+      if(val && val !== group.label){
+        // 이 팀에 속한 모든 멤버의 team override 를 새 이름으로 저장
+        group.members.forEach(c => saveOverride(c.id, {team: val}));
+        renderDesks(); updateCells();
+      } else this.textContent = group.label;
+    });
+    nameEl.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); this.blur(); }
+      if(e.key === 'Escape'){ e.preventDefault(); this.textContent = group.label; this.blur(); }
+    });
+    const deskWrap = section.querySelector('.team-desks');
+    group.members.forEach(c => deskWrap.appendChild(_buildCell(c)));
+    wrap.appendChild(section);
+  });
+}
+
+function _buildCell(c){
+  const cell = document.createElement('div');
+  cell.className = 'cell running';
+  cell.dataset.id = c.id;
+  cell.innerHTML = `
       <div class="bubble">
         <div class="row">
           <span class="name" data-field="name" contenteditable="true" spellcheck="false">${displayName(c)}</span>
@@ -690,26 +790,25 @@ function renderDesks(){
       </div>
       ${deskSvg(c)}
     `;
-    cell.querySelectorAll('[contenteditable="true"]').forEach(el => {
-      el.addEventListener('click', e => e.stopPropagation());
-      el.addEventListener('focus', function(){
-        const r = document.createRange(); r.selectNodeContents(this);
-        const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-      });
-      el.addEventListener('blur', function(){
-        const val = this.textContent.replace(/\n/g,'').trim();
-        const field = this.dataset.field;
-        if(val) saveOverride(c.id, {[field]: val});
-        else this.textContent = field === 'name' ? c.name : c.team;
-      });
-      el.addEventListener('keydown', function(e){
-        if(e.key === 'Enter'){ e.preventDefault(); this.blur(); }
-        if(e.key === 'Escape'){ e.preventDefault(); this.textContent = (loadOverrides()[c.id]?.[this.dataset.field]) || (this.dataset.field==='name'?c.name:c.team); this.blur(); }
-      });
+  cell.querySelectorAll('[contenteditable="true"]').forEach(el => {
+    el.addEventListener('click', e => e.stopPropagation());
+    el.addEventListener('focus', function(){
+      const r = document.createRange(); r.selectNodeContents(this);
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
     });
-    cell.addEventListener('click', () => openChat(c.id));
-    wrap.appendChild(cell);
+    el.addEventListener('blur', function(){
+      const val = this.textContent.replace(/\n/g,'').trim();
+      const field = this.dataset.field;
+      if(val) saveOverride(c.id, {[field]: val});
+      else this.textContent = field === 'name' ? c.name : c.team;
+    });
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); this.blur(); }
+      if(e.key === 'Escape'){ e.preventDefault(); this.textContent = (loadOverrides()[c.id]?.[this.dataset.field]) || (this.dataset.field==='name'?c.name:c.team); this.blur(); }
+    });
   });
+  cell.addEventListener('click', () => openChat(c.id));
+  return cell;
 }
 
 function updateCells(){
