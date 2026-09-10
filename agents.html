@@ -139,6 +139,8 @@
 
   .stat{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;letter-spacing:-.01em;margin-left:auto}
   .stat .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .stat.unknown,.stat.idle{color:#475569;background:#e2e8f0}
+  .stat.unknown .dot,.stat.idle .dot{background:#94a3b8}
   .stat.running{color:#065f46;background:#d1fae5}
   .stat.running .dot{background:var(--running);animation:pulse 1.2s ease-in-out infinite}
   .stat.stale{color:#991b1b;background:#fee2e2}
@@ -305,6 +307,7 @@
 
 <div class="loading" id="loading"><div class="spin"></div></div>
 
+<script src="./reliability.js?v=1"></script>
 <script>
 /* ==========================================================================
    Bead Universe · Agents Office
@@ -323,6 +326,7 @@ const OVERRIDES_KEY = 'agents_overrides_v1';
 const CHAT_KEY = 'agents_chat_v1';
 
 let statusMap = {};
+let statusFetchedAt=0;
 let _proxyBase = null;
 let openCharId = null;
 let busy = false;
@@ -503,15 +507,9 @@ function pushChat(id, msg){
 function isMaster(){ return localStorage.getItem(ROLE_KEY) === 'master'; }
 function bbPin(){ return isMaster() ? PIN_MASTER : PIN_VIEWER; }
 
+const agentNetwork=BrightbeedReliability.createNetwork({fetch:window.fetch.bind(window),tunnelUrl:TUNNEL_URL,timeoutMs:30000});
 async function loadProxyBase(force){
-  if(_proxyBase && !force) return _proxyBase;
-  try{
-    const r = await fetch(`${TUNNEL_URL}?cb=${Date.now()}`, {cache:'no-cache'});
-    if(!r.ok) return null;
-    const j = await r.json();
-    _proxyBase = (j && typeof j.url === 'string') ? j.url.replace(/\/$/,'') : null;
-    return _proxyBase;
-  }catch(e){ return null; }
+  try{_proxyBase=await agentNetwork.base(!!force);return _proxyBase;}catch(e){return null;}
 }
 
 async function api(path, opts){
@@ -525,7 +523,7 @@ async function api(path, opts){
     headers['Content-Type'] = 'application/json';
     body = JSON.stringify(body);
   }
-  const r = await fetch(base + path, {method:opts.method||'GET', headers, body, cache:'no-store'});
+  const r = await agentNetwork.fetch(base + path, {method:opts.method||'GET', headers, body, cache:'no-store',timeoutMs:path.includes('/chat')?100000:30000});
   const text = await r.text();
   let json = null;
   try{ json = JSON.parse(text); }catch(e){}
@@ -541,7 +539,7 @@ async function api(path, opts){
 async function apiText(path){
   const base = await loadProxyBase();
   if(!base) throw new Error('프록시에 연결할 수 없습니다 (서버 PC 확인 필요)');
-  const r = await fetch(base + path, {headers:{'X-Brightbeed-PIN':bbPin()}, cache:'no-store'});
+  const r = await agentNetwork.fetch(base + path, {headers:{'X-Brightbeed-PIN':bbPin()}, cache:'no-store'});
   const text = await r.text();
   if(!r.ok){
     let d = text.slice(0,180);
@@ -569,20 +567,17 @@ function fmtRel(sec){
 function num(n){ return (n==null||isNaN(n)) ? '–' : Number(n).toLocaleString('ko-KR'); }
 
 /* -------------------------------------------------------------------------
-   상태 — 기본은 "근무 중". 멈춤/임박만 예외로 드러난다.
+   상태 — 확인된 서버 응답만 사용하고 누락/통신 실패는 확인 불가로 표시한다.
    ------------------------------------------------------------------------- */
 function deriveCharStatus(c, now){
-  let hasStale = false, hasWarn = false;
-  c.agentIds.forEach(id => {
-    const s = statusMap[id];
-    if(s?.status === 'stale') hasStale = true;
-    else if(s?.status === 'warn') hasWarn = true;
-  });
-  if(hasStale) return 'stale';
-  if(hasWarn) return 'warn';
-  const next = nextRunTime(c, now);
-  if(next && next - now.getTime() < 60*1000 && next - now.getTime() > 0) return 'warn';
-  return 'running';
+  if(c.manual || !c.agentIds.length)return 'idle';
+  if(!statusFetchedAt || now.getTime()-statusFetchedAt>45000)return 'unknown';
+  const states=c.agentIds.map(id=>statusMap[id]);
+  if(states.some(s=>!s||!['running','stale','warn','idle'].includes(s.status)))return 'unknown';
+  if(states.some(s=>s.status==='stale'))return 'stale';
+  if(states.some(s=>s.status==='warn'))return 'warn';
+  if(states.some(s=>s.status==='running'))return 'running';
+  return 'idle';
 }
 function nextRunTime(c, now){
   const nowMs = now.getTime();
@@ -775,14 +770,14 @@ function renderDesks(){
 
 function _buildCell(c){
   const cell = document.createElement('div');
-  cell.className = 'cell running';
+  cell.className = 'cell unknown';
   cell.dataset.id = c.id;
   cell.innerHTML = `
       <div class="bubble">
         <div class="row">
           <span class="name" data-field="name" contenteditable="true" spellcheck="false">${displayName(c)}</span>
           <span class="team" data-field="team" contenteditable="true" spellcheck="false">${displayTeam(c)}</span>
-          <span class="stat running" data-stat><span class="dot"></span><span data-stat-label>근무 중</span></span>
+          <span class="stat unknown" data-stat><span class="dot"></span><span data-stat-label>확인 중</span></span>
         </div>
         <div class="task" data-task>${c.taskLabel}</div>
         <div class="meta" data-meta>–</div>
@@ -819,19 +814,21 @@ function updateCells(){
     const cell = document.querySelector(`.cell[data-id="${c.id}"]`);
     if(!cell) return;
     const status = deriveCharStatus(c, now);
-    cell.classList.remove('running','stale','warn');
+    cell.classList.remove('running','stale','warn','unknown','idle');
     cell.classList.add(status);
 
     const statEl = cell.querySelector('.stat');
     statEl.className = 'stat ' + status;
-    const labels = {running:'근무 중', stale:'멈춤 · 확인', warn:'곧 실행'};
+    const labels = {running:'근무 중', stale:'멈춤 · 확인', warn:'곧 실행',unknown:'확인 불가',idle:'대기 중'};
     statEl.querySelector('[data-stat-label]').textContent = labels[status];
 
     const taskEl = cell.querySelector('[data-task]');
     let runningTask = null;
     c.agentIds.forEach(id => { const s = statusMap[id]; if(s?.status==='running' && s.task) runningTask = s.task; });
     if(status === 'stale') taskEl.textContent = `예상 시각 초과 · ${c.taskLabel}`;
-    else taskEl.textContent = (runningTask || c.taskLabel) + ' · 진행 중…';
+    else if(status==='unknown')taskEl.textContent='서버 상태를 확인할 수 없습니다';
+    else if(status==='idle')taskEl.textContent=c.taskLabel+' · 요청 대기';
+    else taskEl.textContent = (runningTask || c.taskLabel) + (status==='warn'?' · 실행 예정':' · 진행 중…');
 
     const metaEl = cell.querySelector('[data-meta]');
     let meta = '';
@@ -860,14 +857,14 @@ function updateClock(){
 
 async function fetchStatus(){
   try{
-    const base = await loadProxyBase();
-    if(!base){ $('last-fetch').textContent = '· 스케줄 미러 (프록시 미연결)'; return; }
-    const j = await api('/agents/status');
-    statusMap = {};
-    (j.agents||[]).forEach(a => statusMap[a.id] = a);
-    $('last-fetch').textContent = `· 갱신 ${fmtTime(new Date())}`;
+    const j=await api('/agents/status');
+    if(!Array.isArray(j.agents)||!j.agents.length)throw new Error('상태 응답 없음');
+    statusMap=Object.fromEntries(j.agents.map(a=>[a.id,a]));
+    statusFetchedAt=Date.now();
+    $('last-fetch').textContent=`· 갱신 ${fmtTime(new Date())}`;
   }catch(e){
-    $('last-fetch').textContent = '· 스케줄 미러';
+    statusMap={};statusFetchedAt=0;
+    $('last-fetch').textContent='· 서버 상태 확인 불가';
   }
 }
 
@@ -1077,7 +1074,7 @@ async function reportStatus(c){
   const last = mostRecentLastRun(c);
   const next = nextRunTime(c, now);
   const lines = [
-    `${c.taskLabel} — ${{running:'정상 근무 중', warn:'실행 임박', stale:'멈춤 · 확인 필요'}[status]}`,
+    `${c.taskLabel} — ${{running:'정상 근무 중', warn:'실행 임박', stale:'멈춤 · 확인 필요',unknown:'상태 확인 불가',idle:'요청 대기'}[status]}`,
     `주기: ${c.scheduleLabel}`,
     last ? `마지막 실행: ${fmtRel(now.getTime()/1000 - last)} 전` : '마지막 실행: 기록 없음 (스케줄 미러 모드)',
   ];

@@ -222,3 +222,8 @@ __marimo__/
 # 단, 에이전트 정의는 GitHub 백업 대상
 !.claude/agents/
 !.claude/agents/**
+
+# Local last-success snapshots and process locks
+*.last-good
+*.json.lock
+.*.tmp
