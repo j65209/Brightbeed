@@ -6029,6 +6029,16 @@
   }
   .leave-hidden-chip button:hover{background:var(--ok);color:#fff}
   .leave-dept{font-size:11.5px;color:var(--text-2);letter-spacing:-.005em;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .leave-dept-ov{color:#4f46e5;font-weight:800;margin-left:3px;font-size:11px}
+  .leave-dept-sel{
+    display:inline-block;font-size:11.5px;padding:3px 20px 3px 8px;
+    border:1.5px solid #4f46e5;border-radius:7px;background:#fff;
+    color:#1c1917;font-weight:600;letter-spacing:-.005em;
+    cursor:pointer;outline:none;max-width:100%;
+    font-family:var(--sans);line-height:1.2;
+  }
+  .leave-dept-sel:hover{background:#eef2ff}
+  .leave-dept-sel:disabled{opacity:.55;cursor:wait}
   .leave-hire{
     display:inline-flex;align-items:center;
     font-size:10.5px;font-family:var(--mono);color:var(--text-3);
@@ -10199,6 +10209,7 @@
     if(id==='viewHr'){
       renderLeaveStatus();
       if(typeof syncLeaveFromRemote==='function') syncLeaveFromRemote().catch(()=>{});
+      if(typeof syncDeptOverridesFromRemote==='function') syncDeptOverridesFromRemote().catch(()=>{});
     }
     if(id==='viewLg'){
       if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{});
@@ -12838,6 +12849,18 @@
     const remain=hasFull?(total-usedEff):null;
     const pct=hasFull&&total>0?Math.min(100,Math.round((Math.max(0,usedEff)/total)*100)):0;
     const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
+    const isDeptOv=_deptOverrides.has(s.name);
+    const deptBadge=isDeptOv?'<span class="leave-dept-ov" title="원래 부서에서 변경됨">*</span>':'';
+    const curSlot=_findDeptSlot(s.dept, s.team);
+    const deptEditHtml=editing?`<select class="leave-dept-sel" data-staff="${escapeHTML(s.name)}" onchange="onDeptSelChange(this)">
+      <option value="_orig">— 원래 부서로 —</option>
+      <option value="logi"${curSlot==='logi'?' selected':''}>물류</option>
+      <option value="mkt"${curSlot==='mkt'?' selected':''}>브랜드 · 마케팅</option>
+      <option value="design"${curSlot==='design'?' selected':''}>브랜드 · 디자인</option>
+      <option value="md_brand"${curSlot==='md_brand'?' selected':''}>브랜드 · MD팀</option>
+      <option value="share"${curSlot==='share'?' selected':''}>브랜드 · C/S</option>
+      <option value="md_vendor"${curSlot==='md_vendor'?' selected':''}>벤더 · MD</option>
+    </select>`:'';
     const cycleLabel = cycle && cycle.cycleIndex>=0 ? cycle.label : (cycle && cycle.cycleIndex<0 ? '미입사' : '');
     const ceNum=editing?'contenteditable="true" inputmode="numeric" spellcheck="false"':'';
     const ceTxt=editing?'contenteditable="true" spellcheck="false"':'';
@@ -12899,7 +12922,7 @@
         <div class="leave-head">
           <div class="leave-head-left">
             <span class="leave-name">${escapeHTML(s.name)}</span>
-            <span class="leave-dept">${sub}</span>
+            ${editing ? deptEditHtml : `<span class="leave-dept">${sub}${deptBadge}</span>`}
           </div>
           ${cycleBadge}
         </div>
@@ -13232,6 +13255,36 @@
     if(btn) btn.textContent=editing?'완료':'편집';
     renderLeaveStatus();
   }
+  /* 부서 select 변경 — 마스터 전용. '_orig'면 override 삭제(원래 부서로) */
+  async function onDeptSelChange(sel){
+    if(!requireMaster('부서 변경')) return;
+    const name=sel.dataset.staff;
+    if(!name) return;
+    const key=sel.value;
+    const staff=STAFF.find(x=>x.name===name);
+    if(!staff){ toast('직원을 찾을 수 없습니다','err'); return; }
+    sel.disabled=true;
+    if(key==='_orig'){
+      const r=await sbDeleteDeptOverride(name);
+      sel.disabled=false;
+      if(!r.ok){ toast('부서 되돌리기 실패 — 다시 시도해주세요','err'); return; }
+      _deptOverrides.delete(name);
+      applyDeptOverrides();
+      toast(`${name} — 원래 부서로 되돌렸습니다`,'ok');
+    } else {
+      const slot=_ADD_STAFF_SLOTS[key];
+      if(!slot){ sel.disabled=false; toast('알 수 없는 부서','err'); return; }
+      const r=await sbUpsertDeptOverride(name, slot);
+      sel.disabled=false;
+      if(!r.ok){ toast('부서 변경 저장 실패 — 다시 시도해주세요','err'); return; }
+      _deptOverrides.set(name, {dept:slot.dept, team:slot.team, color:slot.color});
+      applyDeptOverrides();
+      toast(`${name} — 부서를 ${slot.dept}${slot.team?' · '+slot.team:''}(으)로 변경했습니다`,'ok');
+    }
+    renderLeaveStatus();
+    if(typeof renderOrgChartExtra==='function') renderOrgChartExtra();
+  }
+  window.onDeptSelChange=onDeptSelChange;
   // 인라인 편집 — blur 시 저장 (master + leave-edit-mode일 때만)
   document.addEventListener('focusout',async e=>{
     const span=e.target.closest?.('.leave-card .leave-used, .leave-card .leave-total, .leave-card .leave-hire');
@@ -15204,6 +15257,36 @@
     }catch(e){return {ok:false}}
   }
 
+  /* 부서 override — 마스터가 인사팀에서 직원 dept/team/color 변경. staff_dept_overrides 테이블 */
+  async function sbFetchDeptOverrides(){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_dept_overrides?select=*`,{
+        headers:_sbHeaders(), cache:'no-cache'
+      });
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){return null}
+  }
+  async function sbUpsertDeptOverride(staff_name, fields){
+    try{
+      const body={staff_name, dept:fields.dept, team:fields.team, color:fields.color, updated_at:new Date().toISOString()};
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_dept_overrides?on_conflict=staff_name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify(body)
+      });
+      return r.ok?{ok:true}:{ok:false,reason:`http_${r.status}`};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+  async function sbDeleteDeptOverride(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_dept_overrides?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
+    }catch(e){return {ok:false}}
+  }
+
   /* baseline 사용 내역 삭제 표시(insert) — (staff_name,date,leave_type) 복합 PK */
   async function sbInsertBaselineDelete({staff_name, date, leave_type, days}){
     try{
@@ -15461,6 +15544,38 @@
   }
   window.syncStaffAddedFromRemote=syncStaffAddedFromRemote;
 
+  /* 부서 override — STAFF 배열의 dept/team/color를 오버레이 (원본은 _origDept 등에 백업).
+     되돌리기(delete) 시 원본 값으로 복원. */
+  const _deptOverrides=new Map();
+  function applyDeptOverrides(){
+    STAFF.forEach(s=>{
+      if(s.ceo) return; // 대표는 override 대상 아님
+      const ov=_deptOverrides.get(s.name);
+      if(ov){
+        if(!('_origDept' in s)){ s._origDept=s.dept; s._origTeam=s.team; s._origColor=s.color; }
+        s.dept=ov.dept; s.team=ov.team; s.color=ov.color;
+      } else if('_origDept' in s){
+        s.dept=s._origDept; s.team=s._origTeam; s.color=s._origColor;
+        delete s._origDept; delete s._origTeam; delete s._origColor;
+      }
+    });
+  }
+  async function syncDeptOverridesFromRemote(){
+    const rows=await sbFetchDeptOverrides();
+    if(rows===null) return false;
+    _deptOverrides.clear();
+    for(const r of (rows||[])){
+      if(r?.staff_name){
+        _deptOverrides.set(r.staff_name, {dept:r.dept||'', team:r.team||null, color:r.color||'md2'});
+      }
+    }
+    applyDeptOverrides();
+    if(document.getElementById('leaveGrid')) renderLeaveStatus();
+    if(typeof renderOrgChartExtra==='function') renderOrgChartExtra();
+    return true;
+  }
+  window.syncDeptOverridesFromRemote=syncDeptOverridesFromRemote;
+
   /* 신규 입사자 등록 폼 — 마스터 전용 (뷰어는 .master-only CSS로 자동 숨김, JS도 이중 방어) */
   const _ADD_STAFF_SLOTS={
     'logi':      {dept:'물류',      team:null,   color:'logi'},
@@ -15470,6 +15585,14 @@
     'share':     {dept:'브랜드',    team:'C/S',   color:'share'},
     'md_vendor': {dept:'벤더',      team:'MD',    color:'md2'},
   };
+  /* 현재 dept/team → slotKey. 매칭 없으면 '' */
+  function _findDeptSlot(dept, team){
+    const t=team||null;
+    for(const [key, val] of Object.entries(_ADD_STAFF_SLOTS)){
+      if(val.dept===dept && (val.team||null)===t) return key;
+    }
+    return '';
+  }
   function toggleAddStaffForm(){
     if(!requireMaster('신규 입사자 등록')) return;
     const form=document.getElementById('addStaffForm');
