@@ -839,8 +839,9 @@ async function doubleCheck(label, verify){
   say('agent', DONE_MSG, {kind:'done'});
   return true;
 }
-function abort(text){
-  say('agent', text, {kind:'err'});
+function abort(text, opts){
+  if(sess[openCharId]) sess[openCharId].stage = null;
+  say('agent', text, Object.assign({kind:'err'}, opts||{}));
   say('agent', DONE_MSG, {kind:'done'});
 }
 
@@ -1171,6 +1172,38 @@ function nearestProducts(products, q, limit){
     .map(x => x.p);
 }
 
+/* --- 대화 이어받기 ---------------------------------------------------------
+   칩을 누르지 않고 "응", "골드로", "두번째" 처럼 말로 답해도 진행되게 한다.
+   사장님은 폼을 채우는 게 아니라 사람한테 말하듯 지시하신다. */
+const YES = ['응','응응','어','네','넵','네네','예','예예','그래','그래요','좋아','좋아요','맞아','맞아요','맞습니다','ㅇㅇ','ㄱㄱ','고고','ok','okay','오케이','yes','y','해줘','해주세요','수정해','수정해줘','바꿔','바꿔줘','진행','진행해','진행해줘','확인','저장','저장해'];
+const NO  = ['아니','아니요','아뇨','아냐','아니야','취소','취소해','취소해줘','그만','됐어','됐어요','됐다','no','n','cancel','안해','안할래','하지마','스톱','중단','멈춰'];
+const YES_LEAD = /^(응|어|네|넵|예|그래|좋아|맞아|오케이|오케|콜|ㅇㅇ|ㄱㄱ|고고|ok|okay|yes|y)/;
+const GO_AHEAD = /(해줘|해주세요|해주십|진행|저장|수정해|바꿔|맞아요|맞습니다|그렇게|그대로|부탁)/;
+/* 부정 신호가 하나라도 있으면 절대 긍정으로 읽지 않는다 — 오독하면 실재고가 바뀐다 */
+const STOP = /(아니|취소|그만|됐|하지마|중단|멈춰|말고)/;
+const flatten = t => t.replace(/[\s.,!?~·]/g,'');
+function saysYes(f){
+  if(STOP.test(f)) return false;
+  if(YES.includes(f)) return true;
+  if(f.length > 24) return false;
+  return GO_AHEAD.test(f) || (YES_LEAD.test(f) && f.length <= 6);
+}
+function saysNo(f){ return NO.includes(f) || (f.length <= 24 && STOP.test(f)); }
+
+const ORD = {'첫':1,'첫번':1,'첫째':1,'하나':1,'둘':2,'둘째':2,'두':2,'셋':3,'셋째':3,'세':3,'넷':4,'넷째':4,'네':4,'다섯':5,'다섯째':5,'여섯':6,'일곱':7,'여덟':8};
+function parseOrdinal(f, max){
+  let m = f.match(/^(\d+)번(째)?$/);
+  if(m){ const n = +m[1]; return (n >= 1 && n <= max) ? n : null; }
+  m = f.match(/^(.+?)(번째|째|번)$/);
+  const key = m ? m[1] : f;
+  const n = ORD[key];
+  return (n && n <= max) ? n : null;
+}
+/* 옵션 라벨을 상품명처럼 취급해 같은 검색기로 좁힌다 ("골드" → (gold)) */
+function matchOptions(opts, q){
+  return searchProducts(opts.map(o => ({name: o.label, _o: o})), q).map(x => x._o);
+}
+
 function detectBrand(t){
   for(const [key, words] of BRAND_WORDS){ if(words.some(w => t.includes(w))) return key; }
   return null;
@@ -1183,15 +1216,17 @@ function parseAmount(t){
   if((m = t.match(/(\d+)\s*개?\s*(빼|차감|제거|줄여|줄이|감소|내려)/))) return {op:'sub', n:+m[1]};
   if((m = t.match(/(\d+)\s*개?\s*(으로|로)\s*(설정|수정|변경|맞춰|맞추)?/))) return {op:'set', n:+m[1]};
   if((m = t.match(/재고\s*(\d+)/))) return {op:'set', n:+m[1]};
-  if((m = t.match(/^(\d+)$/))) return {op:'set', n:+m[1]};
+  if((m = t.match(/^(\d+)\s*개?$/))) return {op:'set', n:+m[1]};
   return null;
 }
+/* "재고 수정 좀 할게" 같은 말버릇이 상품명으로 검색되는 걸 막는다 */
+const FILLER = new Set(['좀','좀만','할게','할래','하자','하고','하려고','하려는데','싶어','싶은데','부탁','주세요','주라','줘','해봐','해보자','해야','해야지','한번','다시','이제','오늘','지금','어제','내일','있잖아','볼게','보자','것','거','그거','이거','저거','건','건데','인데','말이야','말인데','있어','없어','어때','어떻게','뭐','뭐가','좀요','업무','일','작업']);
 function stripNoise(t){
   let s = t;
   BRAND_WORDS.forEach(([,ws]) => ws.forEach(w => { s = s.split(w).join(' '); }));
   s = s.replace(/재고|수정|변경|해줘|해주세요|알려줘|조회|설정|맞춰|맞추|으로|개로|개|추가|차감|빼|더해|늘려|줄여|증가|감소|올려|내려|플러스|상품|제품/g, ' ');
   s = s.replace(/[+＋\-−]?\d+/g, ' ');
-  return s.replace(/\s+/g,' ').trim();
+  return s.split(/\s+/).filter(w => w && !FILLER.has(w)).join(' ').trim();
 }
 
 async function stockAgent(c, raw, t){
@@ -1202,7 +1237,7 @@ async function stockAgent(c, raw, t){
     const pid = raw.slice(6).trim();
     const p = (S.candidates||[]).find(x => String(x.productNo) === pid);
     if(!p){ abort('선택한 상품을 찾지 못했습니다. 다시 검색해 주세요.'); return; }
-    S.product = p; S.option = null;
+    S.product = p; S.option = null; S.stage = null;
     say('user', p.name);
     await pickOptionOrAmount(S);
     return;
@@ -1211,12 +1246,12 @@ async function stockAgent(c, raw, t){
     const on = raw.slice(5).trim();
     const o = (S.product?.options||[]).find(x => String(x.optionNo) === on);
     if(!o){ abort('선택한 옵션을 찾지 못했습니다.'); return; }
-    S.option = o;
+    S.option = o; S.stage = null;
     say('user', o.label);
     await askAmount(S);
     return;
   }
-  if(t === '#confirm'){ await commitStock(S); return; }
+  if(t === '#confirm'){ say('user', '네, 그렇게 해주세요'); await commitStock(S); return; }
   if(t === '#list'){ await listLowStock(S.brand || '6a'); return; }
   if(t.startsWith('#brand ')){
     S.brand = raw.slice(7).trim();
@@ -1224,6 +1259,63 @@ async function stockAgent(c, raw, t){
     say('agent', `${BRANDS[S.brand].label} 기준으로 진행합니다. 상품명 키워드를 알려 주세요.\n예) \`Yampa 재고 50\``);
     return;
   }
+
+  /* --- 대화 이어받기 ---------------------------------------------------------
+     칩을 누르지 않고 "응", "골드", "두번째" 처럼 말로 답해도 흐름이 이어진다.
+     알아듣지 못하면 아래 일반 라우터로 흘려보내 화제 전환도 막지 않는다. */
+  const flat = flatten(t);
+  if(S.stage === 'confirm'){
+    if(saysNo(flat)){ delete sess[c.id]; abort('네, 그만두겠습니다. 아무것도 바꾸지 않았습니다.'); return; }
+    if(saysYes(flat)){ await commitStock(S); return; }
+    const redo = parseAmount(t);
+    if(redo){ S.stage = null; await proposeStock(S, redo, S.option ? S.option.stock : S.product.stock); return; }
+  }
+  if(S.stage === 'amount' && S.product){
+    const a = parseAmount(t);
+    if(a){
+      S.stage = null; S.pendingAmount = null;
+      await proposeStock(S, a, S.option ? S.option.stock : S.product.stock);
+      return;
+    }
+  }
+  /* 고를 때 "골드 50개" 처럼 수량까지 같이 말씀하시는 경우가 있어 함께 받아둔다 */
+  if(S.stage === 'opt' || S.stage === 'pick'){
+    const said = stripNoise(t) || t;
+    const withAmt = parseAmount(t);
+    if(S.stage === 'opt' && S.product){
+      const opts = S.product.options || [];
+      const n = parseOrdinal(flat, opts.length);
+      const narrowed = n ? [opts[n-1]] : matchOptions(opts, said);
+      if(narrowed.length === 1){
+        S.option = narrowed[0]; S.stage = null;
+        if(withAmt) S.pendingAmount = withAmt;
+        say('agent', `${S.option.label} 옵션이군요.`);
+        await askAmount(S);
+        return;
+      }
+      if(narrowed.length > 1 && narrowed.length < opts.length){
+        say('agent', `"${said}" 에 해당하는 옵션이 ${narrowed.length}개입니다. 어느 쪽일까요?\n\n` +
+          narrowed.map((o,i) => `${i+1}. ${o.label} — ${stockText(o.stock)}`).join('\n'), {
+          chips: narrowed.slice(0,10).map(o => ({label:o.label, cmd:`#opt ${o.optionNo}`})),
+        });
+        return;
+      }
+    }
+    if(S.stage === 'pick' && (S.candidates||[]).length){
+      const list = S.candidates;
+      const n = parseOrdinal(flat, list.length);
+      const narrowed = n ? [list[n-1]] : searchProducts(list, said);
+      if(narrowed.length === 1){
+        S.product = narrowed[0]; S.option = null; S.stage = null;
+        if(withAmt) S.pendingAmount = withAmt;
+        say('agent', `"${S.product.name}" 말씀이시군요.`);
+        await pickOptionOrAmount(S);
+        return;
+      }
+      if(narrowed.length > 1 && narrowed.length < list.length){ askWhich(S, narrowed, false, said); return; }
+    }
+  }
+  if(S.stage && saysNo(flat)){ delete sess[c.id]; abort('네, 그만두겠습니다. 아무것도 바꾸지 않았습니다.'); return; }
 
   /* --- 조회 전용 --- */
   if(has(t, ['품절','부족','임박','로우'])){
@@ -1239,7 +1331,8 @@ async function stockAgent(c, raw, t){
   if(!brand){
     S.pendingKeyword = keyword || S.pendingKeyword;
     S.pendingAmount = amount || S.pendingAmount;
-    say('agent', '어느 브랜드인가요?', {
+    S.stage = 'brand';
+    say('agent', '어느 브랜드 건인가요? 브랜드 이름만 말씀해 주셔도 됩니다.', {
       chips: Object.values(BRANDS).map(b => ({label: b.label + (b.writable?' ✎':''), cmd:`#brand ${b.key}`})),
     });
     return;
@@ -1251,13 +1344,15 @@ async function stockAgent(c, raw, t){
 
   if(!kw){
     S.pendingAmount = amt;
-    say('agent', `${BRANDS[brand].label} 재고 업무를 맡겠습니다. 어떤 상품인가요? 상품명 키워드를 입력해 주세요.`, {
+    S.stage = 'keyword';
+    say('agent', `${BRANDS[brand].label} 재고 업무 맡겠습니다. 어떤 상품일까요? 상품명 일부만 말씀하셔도 찾아보겠습니다.`, {
       chips:[{label:'재고 적은 상품 보기', cmd:'#list'}],
     });
     return;
   }
+  S.stage = null;
 
-  say('agent', `${BRANDS[brand].label} 카탈로그에서 "${kw}" 를 찾습니다…`);
+  say('agent', `${BRANDS[brand].label} 상품 중에 "${kw}" 찾아보겠습니다…`);
   const cat = await getCatalog(brand);
   const all = cat.products || [];
   let hits = searchProducts(all, kw), loose = false;
@@ -1294,12 +1389,14 @@ async function stockAgent(c, raw, t){
 
 function askWhich(S, hits, loose, kw){
   S.candidates = hits.slice(0,8);
+  S.stage = 'pick';
   const more = hits.length > S.candidates.length;
   const head = loose
-    ? `"${kw}" 와 정확히 일치하는 상품은 없었습니다. 이름이 가장 가까운 ${S.candidates.length}건을 골라봤습니다 — 이 중에 있나요?`
-    : `${num(hits.length)}건 찾았습니다.${more ? ' 관련도 높은 순으로 8건만 보여드립니다.' : ''} 어떤 상품인가요?`;
-  say('agent', head + (more || loose ? '\n찾으시는 게 없으면 상품명을 조금 더 자세히 알려 주세요.' : ''), {
-    chips: S.candidates.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`}))
+    ? `"${kw}" 와 딱 맞는 건 없네요. 이름이 가장 비슷한 걸로 ${S.candidates.length}개 골라봤는데, 이 중에 있을까요?`
+    : `${num(hits.length)}건 나왔습니다.${more ? ' 관련도 높은 순으로 8개만 추렸습니다.' : ''} 어떤 걸 말씀하시는 걸까요?`;
+  const lines = S.candidates.map((p,i) => `${i+1}. ${p.name} — ${stockText(p.stock)}`);
+  say('agent', `${head}\n\n${lines.join('\n')}\n\n번호로 부르셔도 되고 "골드" 처럼 특징만 말씀하셔도 됩니다.`, {
+    chips: S.candidates.map(p => ({label:p.name, cmd:`#pick ${p.productNo}`}))
       .concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
   });
 }
@@ -1313,8 +1410,10 @@ async function pickOptionOrAmount(S){
   const p = S.product;
   const opts = p.options || [];
   if(opts.length > 1){
-    say('agent', `"${p.name}" 은 옵션이 ${opts.length}개입니다. 어떤 옵션인가요?`, {
-      chips: opts.slice(0,10).map(o => ({label:`${o.label} (${stockText(o.stock)})`, cmd:`#opt ${o.optionNo}`})),
+    S.stage = 'opt';
+    const lines = opts.slice(0,10).map((o,i) => `${i+1}. ${o.label} — ${stockText(o.stock)}`);
+    say('agent', `"${p.name}" 은 옵션이 ${opts.length}개 있습니다. 어떤 옵션일까요?\n\n${lines.join('\n')}\n\n옵션 이름을 말씀하셔도 되고 번호로 부르셔도 됩니다.`, {
+      chips: opts.slice(0,10).map(o => ({label:o.label, cmd:`#opt ${o.optionNo}`})),
     });
     return;
   }
@@ -1325,7 +1424,9 @@ async function askAmount(S){
   const cur = S.option ? S.option.stock : S.product.stock;
   const amt = S.pendingAmount;
   if(!amt){
-    say('agent', `현재 재고는 ${stockText(cur)} 입니다. 몇 개로 맞출까요?\n숫자만 입력하면 그 값으로 설정하고, \`+50\` / \`-30\` 형태면 더하거나 뺍니다.`);
+    S.stage = 'amount';
+    const label = S.option ? `${S.product.name} / ${S.option.label}` : S.product.name;
+    say('agent', `"${label}" 지금 재고가 ${stockText(cur)} 입니다. 몇 개로 맞춰 드릴까요?\n"50" 이라고 하시면 50개로 맞추고, "+50" 이나 "30개 빼줘" 처럼 말씀하시면 더하거나 뺍니다.`);
     return;
   }
   S.pendingAmount = null;
@@ -1335,7 +1436,8 @@ async function proposeStock(S, amt, cur){
   const base = (cur === -1 || cur === -2 || cur == null) ? 0 : cur;
   let target = amt.op === 'add' ? base + amt.n : amt.op === 'sub' ? base - amt.n : amt.n;
   if(target < 0){
-    say('agent', `현재 ${stockText(cur)} 에서 ${amt.n}개를 빼면 ${target} 이 되어 음수입니다. 0 으로 맞출까요?`, {
+    S.stage = 'amount';
+    say('agent', `지금 ${stockText(cur)} 인데 ${amt.n}개를 빼면 ${target} 이라 마이너스가 됩니다. 0 으로 맞출까요?`, {
       chips:[{label:'0 으로 설정', cmd:'0'}, {label:'취소', cmd:'#cancel', style:'danger'}],
     });
     return;
@@ -1350,10 +1452,11 @@ async function proposeStock(S, amt, cur){
     return;
   }
   const label = S.option ? `${S.product.name} / ${S.option.label}` : S.product.name;
-  say('agent', `아래 내용으로 수정합니다. 확인해 주세요.\n\n상품: ${label}\n현재: ${stockText(cur)}\n변경: ${num(target)}개`, {
+  S.stage = 'confirm';
+  say('agent', `그럼 이렇게 바꾸겠습니다. 맞나요?\n\n상품: ${label}\n지금: ${stockText(cur)}\n바꿀 값: ${num(target)}개\n\n"응" 이라고만 하셔도 바로 진행합니다.`, {
     chips:[
-      {label:'예, 수정합니다', cmd:'#confirm', style:'primary'},
-      {label:'취소', cmd:'#cancel', style:'danger'},
+      {label:'네, 그렇게 해주세요', cmd:'#confirm', style:'primary'},
+      {label:'아니요', cmd:'#cancel', style:'danger'},
     ],
   });
 }
@@ -1362,8 +1465,8 @@ async function commitStock(S){
   if(!S.product || S.target == null){ abort('수정할 내용이 없습니다. 상품과 수량을 다시 알려 주세요.'); return; }
   const p = S.product, o = S.option, target = S.target;
   const label = o ? `${p.name} / ${o.label}` : p.name;
-  say('user', '예, 수정합니다');
-  say('agent', `식스샵에 접속해 "${label}" 재고를 ${num(target)}개로 저장합니다… (30~60초)`);
+  S.stage = null;
+  say('agent', `알겠습니다. 식스샵에 접속해 "${label}" 재고를 ${num(target)}개로 저장하겠습니다. 30~60초 걸립니다…`);
 
   const upd = {id: String(p.productNo), name: p.name, setStock: target};
   if(o){ upd.optionNo = String(o.optionNo); upd.optionLabel = o.label; }
