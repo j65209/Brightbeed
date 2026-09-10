@@ -2678,6 +2678,7 @@
   }
   .brand-plat-pill.is-smartstore{color:#03c75a;background:rgba(3,199,90,.1)}
   .brand-plat-pill.is-ably{color:#ff5a92;background:rgba(255,90,146,.1)}
+  .brand-plat-pill.is-zigzag{color:#ff2380;background:rgba(255,35,128,.1)}
   .akoi-refresh-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
   .akoi-summary{display:grid;grid-template-columns:1.25fr 1.25fr 0.7fr;gap:10px;margin:8px 0 14px;align-items:stretch}
   .akoi-summary-card{padding:16px 18px 14px;background:linear-gradient(135deg, var(--bg-2) 0%, var(--bg-1) 100%);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;position:relative;overflow:hidden;transition:transform .12s, border-color .12s, box-shadow .12s}
@@ -7645,7 +7646,7 @@
         </div>
         <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
           <button class="lg-tab active" data-mdp="home" onclick="mdpSwitch('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="mdpCountHome">8</span></button>
-          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">2</span></button>
+          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">3</span></button>
         </div>
         <div class="mdp-panel" data-mdp-panel="home">
           <div id="salesReportsWrap"></div>
@@ -9800,7 +9801,7 @@
   const BRAND_SECTIONS=[
     // 사장님 지정 순서 (2026-08-13): 6a → ct → yar → pp → akoi → kop → apt → koz
     // platforms: 브랜드가 추가로 판매하는 외부 채널 (카드 타이틀 우측 작은 태그로 표시)
-    {id:'6a',   endpoint:'/admin-sales?brand=6a',   group:'식스샵',    display:'식스에이',   dot:'#22d3ee', hasItemAmount:false, hasOptions:false, platforms:['ably']},
+    {id:'6a',   endpoint:'/admin-sales?brand=6a',   group:'식스샵',    display:'식스에이',   dot:'#22d3ee', hasItemAmount:false, hasOptions:false, platforms:['ably','zigzag']},
     {id:'ct',   endpoint:'/pro-sales?brand=ct',     group:'식스샵프로',display:'클리어타입',  dot:'#22c55e', hasItemAmount:true,  hasOptions:true},
     {id:'yar',  endpoint:'/admin-sales?brand=yar',  group:'식스샵',    display:'야르',       dot:'#a78bfa', hasItemAmount:false, hasOptions:false},
     {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true,  platforms:['smartstore']},
@@ -9809,13 +9810,14 @@
     {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
   ];
-  const _PLAT_LABEL={ably:'에이블리', smartstore:'스마트스토어'};
-  const _GROUP_TO_PLAT={'에이블리':'ably','스마트스토어':'smartstore'};  // 플랫폼 탭 카드용 역매핑
+  const _PLAT_LABEL={ably:'에이블리', smartstore:'스마트스토어', zigzag:'지그재그'};
+  const _GROUP_TO_PLAT={'에이블리':'ably','스마트스토어':'smartstore','지그재그':'zigzag'};  // 플랫폼 탭 카드용 역매핑
   // 플랫폼 탭 (외부 마켓플레이스). 6thanother = 식스에이 에이블리 계정.
   // hideUsd:true — 플랫폼 카드는 $USD 병기 생략.
   const PLATFORM_SECTIONS=[
     {id:'ably-6a',       endpoint:'/ably-sales',       group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
     {id:'smartstore-pp', endpoint:'/smartstore-sales', group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'zigzag-6a',     endpoint:'/zigzag-sales',     group:'지그재그',    display:'식스에이',     dot:'#ff2380', hasItemAmount:true,  hasOptions:false, hideUsd:true},
   ];
   function _salesCfg(id){
     return BRAND_SECTIONS.find(b=>b.id===id) || PLATFORM_SECTIONS.find(b=>b.id===id);
