@@ -4880,13 +4880,12 @@
     padding:3px 8px 3px 10px;border:1px solid #d5cfb8;border-radius:9px;background:#fff;
     font-size:12px;color:#292524;font-weight:600;letter-spacing:-.01em;
   }
-  .diary-me-label{color:#57534e;font-size:11.5px}
-  .diary-me-sel{
-    border:none;background:transparent;font:inherit;color:#1c1917;
-    font-weight:700;cursor:pointer;outline:none;padding:2px 4px;border-radius:5px;
-    max-width:130px;
+  .diary-me-label{color:#57534e;font-size:11.5px;font-weight:600}
+  .diary-me-name{color:#1c1917;font-weight:800;font-size:13px;letter-spacing:-.01em}
+  .diary-me-box .diary-me-badge-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15);
   }
-  .diary-me-sel:hover{background:#f4f0e3}
   .diary-me-notif{
     border:none;background:#fef3c7;color:#78350f;
     font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;cursor:pointer;
@@ -4911,12 +4910,6 @@
     width:7px;height:7px;border-radius:50%;
     background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15);
   }
-  .diary-me-badge-btn{
-    border:none;background:transparent;color:#57534e;
-    font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;
-    cursor:pointer;transition:all .15s ease;text-decoration:underline;text-underline-offset:2px;
-  }
-  .diary-me-badge-btn:hover{background:#fff;color:#1c1917;text-decoration:none}
   .diary-me-badge-notif{
     font-size:10.5px;color:#78350f;background:#fef3c7;
     padding:3px 8px;border-radius:999px;font-weight:700;letter-spacing:-.01em;
@@ -6439,11 +6432,10 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
-    <!-- 이 PC 주인 뱃지 (설정된 경우만 노출) -->
+    <!-- 로그인 뱃지 (로그인된 경우만 노출) -->
     <div id="diaryMeBadge" class="diary-me-badge" hidden>
       <span class="diary-me-badge-dot"></span>
-      이 자리 <b id="diaryMeBadgeName"></b>
-      <button id="diaryMeBadgeChange" class="diary-me-badge-btn" type="button">변경</button>
+      <b id="diaryMeBadgeName"></b> 로그인
       <span id="diaryMeBadgeNotif" class="diary-me-badge-notif" hidden></span>
     </div>
     <!-- 팀 카드 1행: 인사팀 · 업무일지 -->
@@ -7091,11 +7083,10 @@
       </button>
       <h1 class="view-title">업무일지<span class="view-title-sub" id="diaryTitleSub">/ 오늘의 기록</span></h1>
       <div class="diary-head-actions">
-        <div class="diary-me-box" id="diaryMeBox" title="이 PC의 주인을 선택하면 그 이름으로 온 요청을 크롬 알림으로 받습니다">
-          <span class="diary-me-label">나는</span>
-          <select id="diaryMeSel" class="diary-me-sel">
-            <option value="">— 선택 —</option>
-          </select>
+        <div class="diary-me-box" id="diaryMeBox" title="로그인된 이름으로 온 요청을 크롬 알림으로 받습니다">
+          <span class="diary-me-badge-dot"></span>
+          <b id="diaryMeName" class="diary-me-name">—</b>
+          <span class="diary-me-label">로그인</span>
           <button id="diaryNotifBtn" class="diary-me-notif" title="크롬 알림 권한 요청" hidden>🔔 알림 허용</button>
           <span id="diaryNotifOn" class="diary-me-on" hidden>🔔 알림 ON</span>
         </div>
@@ -11707,29 +11698,23 @@
   function _diaryGetMe(){ try{return localStorage.getItem(DIARY_ME_KEY)||''}catch(e){return ''} }
   function _diarySetMe(v){ try{localStorage.setItem(DIARY_ME_KEY, v||'')}catch(e){} }
   function _diaryInitMeBox(){
-    const sel = document.getElementById('diaryMeSel');
+    const nameEl = document.getElementById('diaryMeName');
     const notifBtn = document.getElementById('diaryNotifBtn');
-    const notifOn = document.getElementById('diaryNotifOn');
-    if(!sel) return;
-    // STAFF 옵션 채우기
-    sel.innerHTML = '<option value="">— 선택 —</option>' +
-      STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)}</option>`).join('');
-    sel.value = _diaryGetMe();
-    sel.onchange = ()=>{
-      _diarySetMe(sel.value);
-      _diaryRefreshNotifBtn();
-      _diaryInitRealtime(); // 이름 바뀌면 subscribe 재설정
-      if(typeof whtRefreshAccess==='function') whtRefreshAccess();
-      if(typeof whtEnsureLoaded==='function' && document.getElementById('viewVendor') && !document.getElementById('viewVendor').hidden) whtEnsureLoaded();
-    };
+    if(!nameEl) return;
+    const me = _diaryGetMe();
+    nameEl.textContent = me || '—';
     _diaryRefreshNotifBtn();
-    notifBtn.onclick = async ()=>{
-      if(!('Notification' in window)){ toast('이 브라우저는 알림을 지원하지 않습니다','err'); return; }
-      const p = await Notification.requestPermission();
-      _diaryRefreshNotifBtn();
-      if(p === 'granted') toast('알림이 허용되었습니다','ok');
-      else if(p === 'denied') toast('알림이 차단되었습니다. 크롬 주소창 왼쪽 자물쇠 → 알림 → 허용','err');
-    };
+    if(notifBtn){
+      notifBtn.onclick = async ()=>{
+        if(!('Notification' in window)){ toast('이 브라우저는 알림을 지원하지 않습니다','err'); return; }
+        const p = await Notification.requestPermission();
+        _diaryRefreshNotifBtn();
+        if(p === 'granted') toast('알림이 허용되었습니다','ok');
+        else if(p === 'denied') toast('알림이 차단되었습니다. 크롬 주소창 왼쪽 자물쇠 → 알림 → 허용','err');
+      };
+    }
+    // 로그인 안 된 상태면 로그인 팝업 강제
+    if(!me && typeof _diaryOpenSetupPopup === 'function') _diaryOpenSetupPopup();
   }
   function _diaryRefreshNotifBtn(){
     const btn = document.getElementById('diaryNotifBtn');
@@ -11848,17 +11833,11 @@
     } catch(e){ console.warn('diary push 실패', e); }
   }
 
-  /* ===== 홈 진입 시 세팅 팝업 ===== */
-  const DIARY_SETUP_SKIP_KEY = 'brightbeed_diary_setup_skip_until';
+  /* ===== 홈 진입 시 로그인 팝업 (미로그인이면 강제 노출) ===== */
   function _diaryMaybeShowSetupPopup(){
     if(!document.getElementById('diarySetupModal')) return;
     const me = _diaryGetMe();
-    if(me) return; // 이미 세팅됨
-    // "나중에" 누르면 6시간 skip
-    try {
-      const skipUntil = +localStorage.getItem(DIARY_SETUP_SKIP_KEY)||0;
-      if(skipUntil > Date.now()) return;
-    } catch(e){}
+    if(me) return; // 이미 로그인됨
     _diaryOpenSetupPopup();
   }
   function _diaryOpenSetupPopup(){
@@ -11867,23 +11846,22 @@
     const notifRow = document.getElementById('dsmNotifRow');
     const notifChk = document.getElementById('dsmNotifChk');
     const saveBtn = document.getElementById('dsmSave');
-    const laterBtn = document.getElementById('dsmLater');
-    if(!modal || _diaryOpenSetupPopup._bound){
-      if(modal){
-        // 옵션 refresh (신규 STAFF 반영)
-        sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
-          STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
-        sel.value = _diaryGetMe();
-        saveBtn.disabled = !sel.value;
-        modal.hidden = false;
-      }
+    if(!modal) return;
+    // 이미 로그인된 상태면 팝업 다시 안 뜸 (변경 불가)
+    if(_diaryGetMe()) return;
+    if(_diaryOpenSetupPopup._bound){
+      sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
+        STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
+      sel.value = '';
+      saveBtn.disabled = true;
+      modal.hidden = false;
       return;
     }
     _diaryOpenSetupPopup._bound = true;
     sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
       STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
-    sel.value = _diaryGetMe();
-    saveBtn.disabled = !sel.value;
+    sel.value = '';
+    saveBtn.disabled = true;
     modal.hidden = false;
     sel.onchange = ()=>{
       saveBtn.disabled = !sel.value;
@@ -11894,6 +11872,8 @@
     saveBtn.onclick = async ()=>{
       const name = sel.value;
       if(!name) return;
+      // 최종 확인 — 잘못 누르면 되돌릴 수 없음
+      if(!confirm(`${name} 계정으로 로그인합니다.\n한 번 로그인하면 이 PC에서는 변경할 수 없습니다.\n계속하시겠습니까?`)) return;
       _diarySetMe(name);
       // 알림 권한 요청 (사용자가 체크했고 아직 결정 안 된 경우)
       const notifSupported = 'Notification' in window;
@@ -11904,17 +11884,12 @@
       _diaryRefreshNotifBtn();
       _diaryInitRealtime();
       _diaryRenderMeBadge();
-      // 업무일지 뷰가 열려있으면 셀렉트 sync
-      const dsel = document.getElementById('diaryMeSel');
-      if(dsel){ dsel.value = name; }
-      toast(`${name}님 자리로 설정되었습니다`, 'ok');
+      // 업무일지 뷰가 열려있으면 이름 span sync
+      const nameEl = document.getElementById('diaryMeName');
+      if(nameEl){ nameEl.textContent = name; }
+      if(typeof whtRefreshAccess==='function') whtRefreshAccess();
+      toast(`${name}님으로 로그인되었습니다`, 'ok');
     };
-    laterBtn.onclick = ()=>{
-      try { localStorage.setItem(DIARY_SETUP_SKIP_KEY, String(Date.now() + 6*60*60*1000)); } catch(e){}
-      modal.hidden = true;
-    };
-    // ESC 닫기
-    modal.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') laterBtn.click(); });
   }
   function _diaryRenderMeBadge(){
     const badge = document.getElementById('diaryMeBadge');
@@ -11923,14 +11898,6 @@
     if(!me){ badge.hidden = true; return; }
     badge.hidden = false;
     document.getElementById('diaryMeBadgeName').textContent = me;
-    const btn = document.getElementById('diaryMeBadgeChange');
-    if(!btn._bound){
-      btn._bound = true;
-      btn.onclick = ()=>{
-        try { localStorage.removeItem(DIARY_SETUP_SKIP_KEY); } catch(e){}
-        _diaryOpenSetupPopup();
-      };
-    }
     const notif = document.getElementById('diaryMeBadgeNotif');
     if(notif){
       if('Notification' in window){
@@ -21769,12 +21736,12 @@
   init();
 </script>
 
-<!-- 이 PC 주인 세팅 팝업 (홈 진입 시 미설정이면 자동 표시) -->
+<!-- 로그인 팝업 (홈 진입 시 미로그인이면 자동 표시 · 로그인 완료까지 닫히지 않음) -->
 <div id="diarySetupModal" class="dsm-overlay" hidden>
   <div class="dsm-card">
-    <div class="dsm-icon">👋</div>
-    <h2 class="dsm-title">이 PC는 누구 자리인가요?</h2>
-    <p class="dsm-desc">선택하시면 본인에게 온 업무 요청을 크롬 알림으로 바로 받을 수 있어요.<br>한 번 선택하면 저장되며, 언제든 홈 상단에서 변경 가능합니다.</p>
+    <div class="dsm-icon">🔐</div>
+    <h2 class="dsm-title">로그인</h2>
+    <p class="dsm-desc">이 PC에서 사용할 계정을 선택하세요.<br><b>한 번 로그인하면 변경할 수 없으니</b> 본인 이름인지 꼭 확인해주세요.</p>
     <select id="dsmSelect" class="dsm-select">
       <option value="">— 이름 선택 —</option>
     </select>
@@ -21785,8 +21752,7 @@
       </label>
     </div>
     <div class="dsm-actions">
-      <button id="dsmLater" class="dsm-btn dsm-btn-ghost" type="button">나중에</button>
-      <button id="dsmSave" class="dsm-btn dsm-btn-primary" type="button" disabled>저장</button>
+      <button id="dsmSave" class="dsm-btn dsm-btn-primary" type="button" disabled>로그인</button>
     </div>
   </div>
 </div>
