@@ -5362,16 +5362,24 @@
     background:#fff;transition:background .15s ease;
   }
   .dcs-prev-row:hover{background:var(--cat-soft,#faf7ed)}
-  .dcs-prev-mark{
-    width:14px;text-align:center;font-size:11px;font-weight:800;
-    color:var(--cat-ink,#78716c);flex-shrink:0;
+  /* 이전 한 일 체크박스 — 오늘 한 일과 동일한 톤, 완료 시 초록 */
+  .dcs-prev-check{
+    width:16px;height:16px;border-radius:5px;border:1.5px solid #d5cfb8;
+    background:#fff;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;transition:all .15s ease;
+    padding:0;
   }
-  .dcs-prev-row.done .dcs-prev-mark{color:#22c55e}
+  .dcs-prev-check:hover{border-color:var(--cat,#eab308);background:var(--cat-soft,#fffbeb)}
+  .dcs-prev-row.done .dcs-prev-check{background:#22c55e;border-color:#22c55e;color:#fff}
+  .dcs-prev-check svg{width:10px;height:10px;opacity:0;transition:opacity .12s}
+  .dcs-prev-row.done .dcs-prev-check svg{opacity:1}
   .dcs-prev-text{
     font-size:12.5px;color:#44403c;line-height:1.5;
     word-break:break-word;letter-spacing:-.01em;font-weight:500;
   }
   .dcs-prev-row.done .dcs-prev-text{text-decoration:line-through;color:#a8a29e}
+  /* 우측 액션 묶음 — 오늘로 + 삭제 */
+  .dcs-prev-actions{display:inline-flex;align-items:center;gap:4px}
   .dcs-prev-carry{
     padding:2px 8px;border-radius:6px;border:1px solid var(--cat-line,#e7e5e4);
     background:#fff;color:var(--cat-ink,#57534e);
@@ -5381,6 +5389,13 @@
   .dcs-prev-row:hover .dcs-prev-carry{opacity:1}
   .dcs-prev-carry:hover{background:var(--cat-soft,#faf7ed);border-color:var(--cat,#d6d3d1)}
   .dcs-prev-carry:disabled{opacity:1;cursor:default;color:#a8a29e;border-color:#e7e5e4;background:#fafaf9}
+  /* 이전 한 일 삭제 — 오늘 한 일과 동일한 hover 톤 */
+  .dcs-prev-del{
+    background:none;border:none;color:#57534e;padding:2px 5px;border-radius:5px;
+    opacity:0;transition:all .15s ease;font-size:12px;cursor:pointer;
+  }
+  .dcs-prev-row:hover .dcs-prev-del{opacity:.7}
+  .dcs-prev-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
   /* 팀원별 카드 accent color — 파스텔톤, 폰트 가독성 우선 */
   .dcs{border-top:3px solid var(--dcs-accent,#eae7dc)}
@@ -12141,6 +12156,14 @@
     } else if(s.daily[_diaryState.date]){
       delete s.daily[_diaryState.date];
     }
+    // 이전 근무일 한 일 — 카드에서 완료/삭제 시 원 날짜 데이터도 함께 갱신
+    if(entry.prevDate && entry.prevDate !== _diaryState.date && Array.isArray(entry.prevTasks)){
+      if(entry.prevTasks.length > 0){
+        s.daily[entry.prevDate] = {tasks: entry.prevTasks.slice()};
+      } else if(s.daily[entry.prevDate]){
+        delete s.daily[entry.prevDate];
+      }
+    }
     const hasReqs      = s.reqs.length > 0;
     const hasWeekly    = s.weekly.length > 0;
     const hasMonthly   = s.monthly.length > 0;
@@ -12788,14 +12811,30 @@
 
     const list = sec.querySelector('[data-prev-list]');
     list.innerHTML = '';
-    items.forEach(t=>{
+    items.forEach((t, idx)=>{
       const row = document.createElement('div');
       row.className = 'dcs-prev-row' + (t.done ? ' done' : '');
       row.innerHTML = `
-        <span class="dcs-prev-mark">${t.done ? '✓' : '·'}</span>
+        <button class="dcs-prev-check" title="완료">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
         <div class="dcs-prev-text">${_esc(t.text||'')}</div>
-        ${t.done ? '' : '<button class="dcs-prev-carry" title="이 항목을 오늘 한 일로 가져오기">↓ 오늘로</button>'}
+        <div class="dcs-prev-actions">
+          ${t.done ? '' : '<button class="dcs-prev-carry" title="이 항목을 오늘 한 일로 가져오기">↓ 오늘로</button>'}
+          <button class="dcs-prev-del" title="삭제">✕</button>
+        </div>
       `;
+      row.querySelector('.dcs-prev-check').onclick = ()=>{
+        t.done = !t.done;
+        _diaryCardRenderPrev(card, st);
+        _diaryScheduleSaveFor(st.name);
+      };
+      row.querySelector('.dcs-prev-del').onclick = ()=>{
+        const removed = entry.prevTasks.splice(idx, 1)[0];
+        if(removed && removed.id) _diaryAddTombstone(removed.id);
+        _diaryCardRenderPrev(card, st);
+        _diaryScheduleSaveFor(st.name);
+      };
       const carry = row.querySelector('.dcs-prev-carry');
       if(carry){
         carry.onclick = ()=>{
