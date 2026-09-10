@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agents · Live Office</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#fefcf5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#fefcf5;
+    --bg-1:#ffffff;
+    --bg-2:#f8f4e9;
+    --bg-3:#efeadb;
+    --line:#e8e2d2;
+    --line-2:#d3cbb6;
+    --text-0:#0a0b0d;
+    --text-1:#1f2329;
+    --text-2:#3a3e46;
+    --text-3:#6b6f77;
+    --wall:#f4ede0;
+    --wall-2:#ece3d1;
+    --floor:#e6dcc6;
+    --desk:#c8b896;
+    --desk-2:#a08e6a;
+    --lg:#7c3aed; --lg-2:#be185d;
+    --pa:#059669; --pa-2:#047857;
+    --mkt:#84cc16; --mkt-2:#4d7c0f;
+    --ad:#ff6b35; --ad-2:#c53d1a;
+    --vendor:#4f46e5; --vendor-2:#3730a3;
+    --hr:#ff5f7a; --hr-2:#ff8a3d;
+    --md:#e11d48; --md-2:#9f1239;
+    --cs:#0284c7; --cs-2:#0e7490;
+    --ok:#15803d;
+    --idle:#94a3b8;
+    --warn:#b45309;
+    --danger:#b91c1c;
+    --running:#10b981;
+    --font:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg-0);color:var(--text-0);font-family:var(--font);-webkit-font-smoothing:antialiased;letter-spacing:-0.01em}
+  body{min-height:100vh;font-size:14px;line-height:1.5;font-weight:500;overflow-x:hidden}
+
+  /* Header */
+  .top{position:sticky;top:0;z-index:20;background:rgba(254,252,245,.85);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+  .top-inner{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.02em}
+  .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--running);box-shadow:0 0 0 3px rgba(16,185,129,.18);animation:pulse 2s ease-in-out infinite}
+  .brand a{color:var(--text-3);font-weight:500;font-size:13px}
+  .clock{margin-left:auto;display:flex;align-items:center;gap:14px;font-variant-numeric:tabular-nums}
+  .clock .time{font-size:15px;font-weight:600;letter-spacing:0}
+  .clock .date{font-size:12px;color:var(--text-3)}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:var(--bg-1);border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:600;color:var(--text-2)}
+  .pill .n{color:var(--running)}
+
+  /* Legend */
+  .legend{max-width:1200px;margin:0 auto;padding:12px 20px 0;display:flex;gap:10px;flex-wrap:wrap;color:var(--text-3);font-size:12px}
+  .legend .item{display:inline-flex;align-items:center;gap:5px}
+  .legend .dot{width:7px;height:7px;border-radius:50%}
+  .legend .dot.r{background:var(--running);box-shadow:0 0 0 3px rgba(16,185,129,.16)}
+  .legend .dot.i{background:var(--idle)}
+  .legend .dot.s{background:var(--danger);box-shadow:0 0 0 3px rgba(185,28,28,.16)}
+  .legend .dot.w{background:#f59e0b}
+
+  /* Office */
+  .office{max-width:1200px;margin:0 auto;padding:20px 20px 80px;position:relative}
+  .wall{position:absolute;inset:20px 20px auto;height:calc(100% - 40px);background:linear-gradient(180deg,var(--wall) 0%,var(--wall-2) 62%,var(--floor) 62%,var(--floor) 100%);border-radius:20px;border:1px solid var(--line);z-index:0;box-shadow:inset 0 -30px 40px -30px rgba(0,0,0,.06)}
+  .wall::before{content:"";position:absolute;left:32px;top:36px;right:32px;height:2px;background:linear-gradient(90deg,transparent,rgba(0,0,0,.05),transparent)}
+
+  /* Decor: windows on wall */
+  .window{position:absolute;top:44px;width:110px;height:78px;background:linear-gradient(180deg,#e8f4ff 0%,#cfe3fa 100%);border-radius:6px;border:1px solid #b9d3ee;box-shadow:0 6px 20px -12px rgba(30,64,175,.4),inset 0 0 0 4px #fff,inset 0 0 0 5px #d8c9a0;z-index:1}
+  .window::before,.window::after{content:"";position:absolute;background:#d8c9a0;left:50%}
+  .window::before{top:0;bottom:0;width:2px;transform:translateX(-1px)}
+  .window::after{left:0;right:0;top:50%;height:2px;transform:translateY(-1px)}
+  .window .sun{position:absolute;right:14px;top:14px;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff6c4,#ffd76a);box-shadow:0 0 12px rgba(255,215,106,.5)}
+  .window .cloud{position:absolute;left:14px;top:32px;width:36px;height:8px;background:#fff;border-radius:8px;opacity:.9}
+  .window .cloud::before{content:"";position:absolute;left:6px;top:-6px;width:16px;height:10px;background:#fff;border-radius:6px}
+  .clock-wall{position:absolute;top:56px;width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid #d0c19a;box-shadow:0 6px 16px -8px rgba(0,0,0,.15);z-index:1}
+  .clock-wall .h,.clock-wall .m{position:absolute;left:50%;bottom:50%;background:#333;transform-origin:50% 100%;border-radius:2px}
+  .clock-wall .h{width:2.4px;height:11px;margin-left:-1.2px}
+  .clock-wall .m{width:1.6px;height:15px;margin-left:-.8px}
+  .clock-wall .c{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:#333;border-radius:50%;z-index:2}
+  .clock-wall .tick{position:absolute;left:50%;top:2px;width:2px;height:3px;background:#c8b48b;margin-left:-1px;transform-origin:1px 20px}
+  .clock-wall .tick.t3{transform:rotate(90deg)}
+  .clock-wall .tick.t6{transform:rotate(180deg)}
+  .clock-wall .tick.t9{transform:rotate(270deg)}
+  .plant{position:absolute;bottom:8px;width:56px;height:74px;z-index:2}
+
+  /* Grid of desks */
+  .desks{position:relative;z-index:5;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:36px 28px;padding:120px 24px 80px}
+  @media(max-width:640px){
+    .desks{grid-template-columns:repeat(2,1fr);gap:34px 12px;padding:110px 12px 60px}
+    .wall{inset:12px 12px auto;height:calc(100% - 24px);border-radius:14px}
+    .window{width:70px;height:52px}
+    .clock-wall{width:34px;height:34px;top:44px}
+  }
+  @media(max-width:400px){
+    .desks{grid-template-columns:1fr}
+  }
+
+  /* Desk cell */
+  .cell{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:0}
+
+  /* Speech bubble */
+  .bubble{position:relative;width:100%;max-width:220px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 10px 24px -14px rgba(0,0,0,.18),0 2px 6px -3px rgba(0,0,0,.06);margin-bottom:6px;transition:transform .2s ease,box-shadow .2s ease}
+  .cell:hover .bubble{transform:translateY(-2px);box-shadow:0 16px 32px -14px rgba(0,0,0,.22),0 2px 6px -3px rgba(0,0,0,.08)}
+  .bubble::after{content:"";position:absolute;left:50%;bottom:-6px;width:12px;height:12px;background:var(--bg-1);border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+  .bubble .row{display:flex;align-items:center;gap:6px}
+  .bubble .name{font-size:12px;font-weight:700;letter-spacing:-.02em;color:var(--text-0)}
+  .bubble .team{font-size:10px;font-weight:600;color:var(--text-3);padding:1px 6px;background:var(--bg-2);border-radius:999px;letter-spacing:-.01em}
+  .bubble .task{font-size:12px;font-weight:500;color:var(--text-1);margin-top:5px;line-height:1.35;min-height:1.35em;word-break:keep-all}
+  .bubble .meta{font-size:10.5px;color:var(--text-3);margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:0}
+  .bubble .meta b{color:var(--text-1);font-weight:600}
+  .stat{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;letter-spacing:-.01em;margin-left:auto}
+  .stat .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .stat.running{color:#065f46;background:#d1fae5}
+  .stat.running .dot{background:var(--running);animation:pulse 1.2s ease-in-out infinite}
+  .stat.idle{color:#475569;background:#e2e8f0}
+  .stat.idle .dot{background:var(--idle)}
+  .stat.stale{color:#991b1b;background:#fee2e2}
+  .stat.stale .dot{background:var(--danger);animation:pulse 1.8s ease-in-out infinite}
+  .stat.never{color:#78716c;background:#f5f5f4}
+  .stat.never .dot{background:#a8a29e}
+  .stat.warn{color:#92400e;background:#fef3c7}
+  .stat.warn .dot{background:#f59e0b}
+
+  /* Character */
+  .avatar{width:120px;height:130px;position:relative;filter:drop-shadow(0 12px 12px rgba(0,0,0,.08))}
+  .cell.running .avatar{animation:bob 1.8s ease-in-out infinite}
+  .cell.stale .avatar{animation:shake 3s ease-in-out infinite}
+  .status-glow{position:absolute;left:50%;top:8px;width:52px;height:52px;margin-left:-26px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .3s ease}
+  .cell.running .status-glow{opacity:1;background:radial-gradient(circle,rgba(16,185,129,.28) 0%,transparent 70%);animation:glow-pulse 1.6s ease-in-out infinite}
+  .cell.stale .status-glow{opacity:1;background:radial-gradient(circle,rgba(239,68,68,.22) 0%,transparent 70%)}
+  .cell.running .bubble{border-color:rgba(16,185,129,.28)}
+  .cell.stale .bubble{border-color:rgba(185,28,28,.24)}
+  .avatar .eye{animation:blink 5.2s infinite;transform-origin:center;transform-box:fill-box}
+  .avatar .eye.r{animation-delay:.03s}
+
+  /* Desk */
+  .desk-svg{width:180px;height:60px;margin-top:-4px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.08))}
+  @media(max-width:640px){
+    .avatar{width:96px;height:108px}
+    .desk-svg{width:140px;height:48px}
+    .bubble{max-width:180px;padding:8px 10px 9px}
+    .bubble .task{font-size:11.5px}
+  }
+
+  /* Keyframes */
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)}94%,96%{transform:scaleY(.05)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+  @keyframes glow-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+  @keyframes shake{0%,90%,100%{transform:translateX(0)}92%{transform:translateX(-2px)}94%{transform:translateX(2px)}96%{transform:translateX(-1px)}}
+  @keyframes tick-h{from{transform:translate(-1px,-100%) rotate(0deg)}to{transform:translate(-1px,-100%) rotate(360deg)}}
+  @keyframes tick-m{from{transform:translate(-1px,-100%) rotate(0deg)}to{transform:translate(-1px,-100%) rotate(360deg)}}
+
+  /* Empty slot */
+  .cell.empty .avatar,.cell.empty .desk-svg{opacity:.35;filter:grayscale(1) drop-shadow(0 6px 8px rgba(0,0,0,.04))}
+  .cell.empty .bubble{background:var(--bg-2);border-style:dashed;color:var(--text-3)}
+  .cell.empty .bubble::after{background:var(--bg-2)}
+  .cell.empty .bubble .task{color:var(--text-3);font-style:italic}
+
+  /* Footer / debug */
+  .foot{max-width:1200px;margin:0 auto;padding:0 20px 30px;color:var(--text-3);font-size:11.5px;display:flex;gap:14px;flex-wrap:wrap}
+  .foot a{color:var(--text-3);text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:2px}
+  .foot .refresh{cursor:pointer;user-select:none}
+  .foot .refresh:hover{color:var(--text-1)}
+
+  /* Loading state */
+  .loading{position:fixed;inset:0;background:var(--bg-0);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s ease}
+  .loading.hide{opacity:0;pointer-events:none}
+  .loading .spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--text-2);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- SVG defs for reuse -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Character template: parameterized via CSS vars -->
+    <symbol id="agent-body" viewBox="0 0 120 130">
+      <!-- shadow -->
+      <ellipse cx="60" cy="128" rx="36" ry="3" fill="rgba(0,0,0,.08)"/>
+      <!-- neck -->
+      <rect x="52" y="60" width="16" height="14" rx="4" fill="var(--skin)"/>
+      <!-- body -->
+      <path d="M22,96 Q22,74 42,72 L78,72 Q98,74 98,96 L98,128 L22,128 Z" fill="var(--cloth)"/>
+      <!-- collar hint -->
+      <path d="M50,72 Q60,80 70,72" stroke="rgba(0,0,0,.14)" stroke-width="1.2" fill="none"/>
+      <!-- arms -->
+      <ellipse class="arm-l" cx="26" cy="106" rx="9" ry="14" fill="var(--cloth)"/>
+      <ellipse class="arm-r" cx="94" cy="106" rx="9" ry="14" fill="var(--cloth)"/>
+      <!-- head base -->
+      <ellipse cx="60" cy="42" rx="22" ry="24" fill="var(--skin)"/>
+      <!-- ears -->
+      <ellipse cx="38" cy="44" rx="3.5" ry="5" fill="var(--skin)"/>
+      <ellipse cx="82" cy="44" rx="3.5" ry="5" fill="var(--skin)"/>
+      <!-- eyes -->
+      <ellipse class="eye" cx="51" cy="44" rx="1.8" ry="2.4" fill="#20242c"/>
+      <ellipse class="eye r" cx="69" cy="44" rx="1.8" ry="2.4" fill="#20242c"/>
+      <!-- brows -->
+      <path d="M47,38 L55,37" stroke="#20242c" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M65,37 L73,38" stroke="#20242c" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- mouth -->
+      <path d="M54,54 Q60,58 66,54" stroke="#3a2e28" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <!-- cheeks -->
+      <ellipse cx="46" cy="50" rx="3" ry="2" fill="rgba(255,120,120,.22)"/>
+      <ellipse cx="74" cy="50" rx="3" ry="2" fill="rgba(255,120,120,.22)"/>
+    </symbol>
+    <!-- Hair variants -->
+    <symbol id="hair-short" viewBox="0 0 120 130">
+      <path d="M38,36 Q35,16 60,14 Q85,16 82,36 Q78,26 60,26 Q42,26 38,36 Z" fill="var(--hair)"/>
+    </symbol>
+    <symbol id="hair-long" viewBox="0 0 120 130">
+      <path d="M38,38 Q34,14 60,12 Q86,14 82,38 L84,60 Q80,52 78,44 Q76,28 60,28 Q44,28 42,44 Q40,52 36,60 Z" fill="var(--hair)"/>
+    </symbol>
+    <symbol id="hair-bun" viewBox="0 0 120 130">
+      <circle cx="60" cy="14" r="9" fill="var(--hair)"/>
+      <path d="M38,36 Q36,20 60,18 Q84,20 82,36 Q78,28 60,28 Q42,28 38,36 Z" fill="var(--hair)"/>
+    </symbol>
+    <symbol id="hair-side" viewBox="0 0 120 130">
+      <path d="M38,36 Q34,14 62,14 Q84,16 82,36 Q78,26 60,26 Q46,26 44,32 L36,44 Z" fill="var(--hair)"/>
+    </symbol>
+    <symbol id="hair-curly" viewBox="0 0 120 130">
+      <path d="M38,38 Q34,14 60,12 Q86,14 82,38 Q80,32 74,32 Q72,26 66,28 Q60,20 54,28 Q48,26 46,32 Q40,32 38,38 Z" fill="var(--hair)"/>
+    </symbol>
+    <symbol id="hair-cap" viewBox="0 0 120 130">
+      <path d="M36,38 Q34,20 60,18 Q86,20 84,38 Q86,42 82,44 L38,44 Q34,42 36,38 Z" fill="var(--hair)"/>
+    </symbol>
+    <!-- Desk with laptop -->
+    <symbol id="desk" viewBox="0 0 180 60">
+      <!-- desk top -->
+      <rect x="0" y="18" width="180" height="8" rx="2" fill="var(--desk)" stroke="rgba(0,0,0,.08)" stroke-width=".5"/>
+      <rect x="0" y="26" width="180" height="4" fill="var(--desk-2)" opacity=".6"/>
+      <!-- legs -->
+      <rect x="12" y="26" width="4" height="30" fill="var(--desk-2)"/>
+      <rect x="164" y="26" width="4" height="30" fill="var(--desk-2)"/>
+      <!-- laptop base -->
+      <rect x="58" y="14" width="64" height="5" rx="1.5" fill="#9ca3af"/>
+      <!-- laptop screen -->
+      <rect x="62" y="2" width="56" height="14" rx="1.5" fill="#6b7280"/>
+      <rect class="screen" x="64" y="4" width="52" height="10" rx="1" fill="#1e293b"/>
+      <!-- coffee cup -->
+      <ellipse cx="140" cy="19" rx="6" ry="2" fill="#fff" stroke="rgba(0,0,0,.15)" stroke-width=".8"/>
+      <path d="M134,19 L135,10 L145,10 L146,19 Z" fill="#fff" stroke="rgba(0,0,0,.15)" stroke-width=".8"/>
+      <ellipse cx="140" cy="10" rx="5" ry="1.5" fill="#8b6f47"/>
+    </symbol>
+    <!-- Plant -->
+    <symbol id="plant" viewBox="0 0 56 74">
+      <path d="M20,60 L22,74 L34,74 L36,60 Z" fill="#a08960"/>
+      <path d="M18,58 L38,58 L36,62 L20,62 Z" fill="#8b7248"/>
+      <ellipse cx="28" cy="42" rx="10" ry="18" fill="#4a7c3a"/>
+      <ellipse cx="18" cy="48" rx="6" ry="12" fill="#5c8f4a" transform="rotate(-20 18 48)"/>
+      <ellipse cx="38" cy="48" rx="6" ry="12" fill="#5c8f4a" transform="rotate(20 38 48)"/>
+      <ellipse cx="28" cy="34" rx="6" ry="10" fill="#66a054"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>Bead Universe · Agents Office</span>
+      <a href="./">← 대시보드</a>
+    </div>
+    <div class="clock">
+      <span class="pill"><span class="n" id="running-n">–</span>명 근무 중 / <span id="total-n">–</span>명</span>
+      <div style="text-align:right">
+        <div class="time" id="clock-time">--:--:--</div>
+        <div class="date" id="clock-date">----년 --월 --일</div>
+      </div>
+    </div>
+  </div>
+  <div class="legend">
+    <span class="item"><span class="dot r"></span>실행 중</span>
+    <span class="item"><span class="dot i"></span>대기</span>
+    <span class="item"><span class="dot w"></span>임박</span>
+    <span class="item"><span class="dot s"></span>멈춤 · 확인 필요</span>
+    <span style="margin-left:auto;color:var(--text-3)">스케줄 + 로그 mtime 기준 · 15초마다 갱신</span>
+  </div>
+</div>
+
+<div class="office">
+  <div class="wall">
+    <div class="window" style="left:10%"><div class="sun"></div><div class="cloud"></div></div>
+    <div class="clock-wall" style="left:34%"><span class="tick"></span><span class="tick t3"></span><span class="tick t6"></span><span class="tick t9"></span><span class="h" id="wall-h"></span><span class="m" id="wall-m"></span><span class="c"></span></div>
+    <div class="window" style="right:10%"><div class="sun"></div><div class="cloud"></div></div>
+    <svg class="plant" style="left:2%"><use href="#plant"/></svg>
+    <svg class="plant" style="right:2%"><use href="#plant"/></svg>
+  </div>
+  <div class="desks" id="desks"></div>
+</div>
+
+<div class="foot">
+  <span>실시간 소스: <code>/agents/status</code> (프록시 · 로그 mtime + 스케줄)</span>
+  <span class="refresh" id="refresh-btn">↻ 지금 갱신</span>
+  <span id="last-fetch"></span>
+</div>
+
+<div class="loading" id="loading"><div class="spin"></div></div>
+
+<script>
+/* -------- Agent definitions --------
+ * id: matches proxy /agents/status
+ * name/team/skin/hair/cloth: appearance
+ * fallback schedule for offline preview
+ */
+const AGENTS = [
+  {id:"kd-brightbeed", name:"콜리",  team:"물류팀", teamKey:"lg",    hair:"short", hairColor:"#2c1810", skin:"#f4d5b3", cloth:"#7c3aed",
+   taskLabel:"쿠아이디에어 배송 pull (BB)",   scheduleLabel:"매 10분", intervalSec:600},
+  {id:"kd-shinebeed",  name:"밀리",  team:"물류팀", teamKey:"lg",    hair:"long",  hairColor:"#3d2817", skin:"#f8dcbc", cloth:"#be185d",
+   taskLabel:"쿠아이디에어 배송 pull (SB)",   scheduleLabel:"매 10분", intervalSec:600},
+  {id:"vendor-fetch",  name:"노아",  team:"벤더",   teamKey:"vendor",hair:"cap",   hairColor:"#1a1a1a", skin:"#efc9a3", cloth:"#4f46e5",
+   taskLabel:"벤더 마진/gcCal 갱신",          scheduleLabel:"매 10분", intervalSec:600},
+  {id:"pro-sales",     name:"자스민",team:"마케팅", teamKey:"mkt",   hair:"bun",   hairColor:"#2c1810", skin:"#f6d0aa", cloth:"#65a30d",
+   taskLabel:"식스샵Pro 매출 스냅",           scheduleLabel:"매 30분", intervalSec:1800},
+  {id:"admin-sales",   name:"로건",  team:"마케팅", teamKey:"mkt",   hair:"side",  hairColor:"#5a3820", skin:"#f4d5b3", cloth:"#84cc16",
+   taskLabel:"admin식스샵 매출 스냅",         scheduleLabel:"매 30분", intervalSec:1800},
+  {id:"fb-ads",        name:"오스카",team:"광고팀", teamKey:"ad",    hair:"curly", hairColor:"#1e1a17", skin:"#e8b98b", cloth:"#ea580c",
+   taskLabel:"메타 광고 성과 갱신",           scheduleLabel:"매 30분", intervalSec:1800},
+  {id:"daily-pptx",    name:"릴리",  team:"인사팀", teamKey:"hr",    hair:"long",  hairColor:"#6b4423", skin:"#fadcbc", cloth:"#ff5f7a",
+   taskLabel:"일일 매출 PPT 업로드",          scheduleLabel:"매일 08:00", cronH:8, cronM:0},
+  {id:"brand-report",  name:"아이비",team:"기획팀", teamKey:"md",    hair:"short", hairColor:"#2c1810", skin:"#f6d0aa", cloth:"#e11d48",
+   taskLabel:"브랜드 분석리포트",             scheduleLabel:"수동 트리거", manual:true},
+  // Empty slots — 사장님이 에이전트 늘리면 여기 채움
+  {id:"stock-agent",   name:"미도리",team:"재고팀", teamKey:"pa",    hair:"bun",   hairColor:"#0e0806", skin:"#f4d5b3", cloth:"#059669",
+   taskLabel:"재고 수정 (온디맨드)",          scheduleLabel:"온디맨드", manual:true, upcoming:true},
+];
+
+const $ = id => document.getElementById(id);
+let statusMap = {};
+let lastFetchTs = 0;
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function fmtTime(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+function fmtDate(d){ const w=["일","월","화","수","목","금","토"][d.getDay()]; return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${w})`; }
+function fmtRel(sec){
+  if(sec == null) return "–";
+  const abs = Math.abs(sec);
+  if(abs < 60) return `${Math.floor(abs)}초`;
+  if(abs < 3600) return `${Math.floor(abs/60)}분`;
+  if(abs < 86400) return `${Math.floor(abs/3600)}시간 ${Math.floor((abs%3600)/60)}분`;
+  return `${Math.floor(abs/86400)}일`;
+}
+function nextRunFromAgent(a, now){
+  if(a.manual) return null;
+  const s = statusMap[a.id] || {};
+  const nowMs = now.getTime();
+  if(s.next_run) return s.next_run * 1000;
+  // Fallback compute
+  if(a.intervalSec){
+    const last = s.last_run ? s.last_run * 1000 : nowMs - a.intervalSec*500;
+    return last + a.intervalSec*1000;
+  }
+  if(a.cronH != null){
+    const t = new Date(now); t.setHours(a.cronH, a.cronM||0, 0, 0);
+    if(t.getTime() < nowMs) t.setDate(t.getDate()+1);
+    return t.getTime();
+  }
+  return null;
+}
+function deriveStatus(a, now){
+  if(a.upcoming) return "never";
+  const s = statusMap[a.id];
+  if(s && s.status) return s.status;
+  // No live data yet — infer
+  if(a.manual) return "idle";
+  const next = nextRunFromAgent(a, now);
+  if(next && next - now.getTime() < 60*1000) return "warn";
+  return "idle";
+}
+
+function renderDesks(){
+  const wrap = $("desks");
+  wrap.innerHTML = "";
+  AGENTS.forEach(a => {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    if(a.upcoming) cell.classList.add("empty");
+    cell.dataset.id = a.id;
+
+    const hairId = "hair-" + a.hair;
+    cell.innerHTML = `
+      <div class="bubble">
+        <div class="row">
+          <span class="name">${a.name}</span>
+          <span class="team">${a.team}</span>
+          <span class="stat" data-stat><span class="dot"></span><span data-stat-label>–</span></span>
+        </div>
+        <div class="task" data-task>${a.taskLabel}</div>
+        <div class="meta" data-meta>–</div>
+      </div>
+      <div style="position:relative">
+        <div class="status-glow"></div>
+        <svg class="avatar" viewBox="0 0 120 130" style="--cloth:${a.cloth};--skin:${a.skin};--hair:${a.hairColor}">
+          <use href="#agent-body"/>
+          <use href="#${hairId}"/>
+        </svg>
+      </div>
+      <svg class="desk-svg" viewBox="0 0 180 60"><use href="#desk"/></svg>
+    `;
+    wrap.appendChild(cell);
+  });
+}
+
+function updateCells(){
+  const now = new Date();
+  let running = 0;
+  AGENTS.forEach(a=>{
+    const cell = document.querySelector(`.cell[data-id="${a.id}"]`);
+    if(!cell) return;
+    const status = deriveStatus(a, now);
+    cell.classList.remove("running","idle","stale","never","warn");
+    cell.classList.add(status);
+    const s = statusMap[a.id] || {};
+
+    const statEl = cell.querySelector(".stat");
+    statEl.className = "stat " + status;
+    const labels = {running:"실행 중", idle:"대기", stale:"멈춤 · 확인", never:"준비 중", warn:"곧 실행"};
+    statEl.querySelector("[data-stat-label]").textContent = labels[status] || status;
+
+    // task text
+    const taskEl = cell.querySelector("[data-task]");
+    if(status === "running") taskEl.textContent = (s.task || a.taskLabel) + " · 진행 중…";
+    else if(status === "stale") taskEl.textContent = "예상 시각 초과 · " + (s.task || a.taskLabel);
+    else if(a.upcoming) taskEl.textContent = a.taskLabel + " (준비 중)";
+    else taskEl.textContent = s.task || a.taskLabel;
+
+    // meta line: last run + next run
+    const metaEl = cell.querySelector("[data-meta]");
+    let meta = "";
+    if(s.last_run){
+      const ago = (now.getTime()/1000) - s.last_run;
+      meta += `마지막 <b>${fmtRel(ago)} 전</b>`;
+    } else if(!a.upcoming){
+      meta += `마지막 <b>–</b>`;
+    } else {
+      meta += `<b>추가 예정</b> · ${a.scheduleLabel}`;
+    }
+    const next = nextRunFromAgent(a, now);
+    if(next && !a.manual && !a.upcoming){
+      const inSec = (next - now.getTime())/1000;
+      if(inSec > 0) meta += ` · 다음 <b>${fmtRel(inSec)} 후</b>`;
+      else meta += ` · 다음 <b>임박</b>`;
+    } else if(a.manual && !a.upcoming){
+      meta += ` · ${a.scheduleLabel}`;
+    }
+    metaEl.innerHTML = meta;
+
+    if(status === "running") running++;
+  });
+  $("running-n").textContent = running;
+  $("total-n").textContent = AGENTS.filter(a=>!a.upcoming).length;
+}
+
+function updateClock(){
+  const now = new Date();
+  $("clock-time").textContent = fmtTime(now);
+  $("clock-date").textContent = fmtDate(now);
+  // wall clock rotation
+  const h = now.getHours()%12 + now.getMinutes()/60;
+  const m = now.getMinutes() + now.getSeconds()/60;
+  const hh = $("wall-h"); const mm = $("wall-m");
+  if(hh) hh.style.transform = `rotate(${h*30}deg)`;
+  if(mm) mm.style.transform = `rotate(${m*6}deg)`;
+}
+
+async function fetchStatus(){
+  try{
+    // Try proxy first
+    const proxyBase = localStorage.getItem("brightbeed.proxyBase") || "";
+    const pin = localStorage.getItem("brightbeed.pin") || "";
+    if(proxyBase && pin){
+      const r = await fetch(proxyBase.replace(/\/$/,"") + "/agents/status", {
+        headers: {"X-Brightbeed-PIN": pin},
+        cache: "no-store",
+      });
+      if(r.ok){
+        const j = await r.json();
+        statusMap = {};
+        (j.agents||[]).forEach(a => statusMap[a.id] = a);
+        lastFetchTs = Date.now();
+        $("last-fetch").textContent = `· 갱신 ${fmtTime(new Date())}`;
+        return;
+      }
+    }
+    // No proxy — use mock derived from schedule
+    lastFetchTs = Date.now();
+    $("last-fetch").textContent = `· 스케줄 미러 (프록시 미연결)`;
+  }catch(e){
+    $("last-fetch").textContent = `· 오류: ${e.message}`;
+  }
+}
+
+function init(){
+  renderDesks();
+  updateClock();
+  fetchStatus().then(()=>{
+    updateCells();
+    $("loading").classList.add("hide");
+  });
+  setInterval(updateClock, 1000);
+  setInterval(updateCells, 1000);
+  setInterval(fetchStatus, 15000);
+  $("refresh-btn").addEventListener("click", ()=>{
+    fetchStatus().then(updateCells);
+  });
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
