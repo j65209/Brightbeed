@@ -2679,6 +2679,23 @@
   .brand-plat-pill.is-smartstore{color:#03c75a;background:rgba(3,199,90,.1)}
   .brand-plat-pill.is-ably{color:#ff5a92;background:rgba(255,90,146,.1)}
   .brand-plat-pill.is-zigzag{color:#ff2380;background:rgba(255,35,128,.1)}
+  /* 플랫폼 탭 — 브랜드별 묶음 그룹 */
+  .plat-brand-group{margin-bottom:22px}
+  .plat-brand-header{
+    display:flex;align-items:center;gap:10px;
+    padding:4px 4px 10px;margin-bottom:2px;
+    font-size:15px;font-weight:700;color:var(--text-0);
+    letter-spacing:-.2px
+  }
+  .plat-brand-name{font-weight:700}
+  .plat-brand-channels{
+    font-weight:500;font-size:12px;color:var(--text-3);
+    padding-left:8px;border-left:1px solid var(--line);
+    letter-spacing:.02em
+  }
+  .plat-brand-cards{padding-left:14px;border-left:2px solid var(--line-2)}
+  .plat-brand-cards > .akoi-section{margin-bottom:10px !important}
+  .plat-brand-cards > .akoi-section:last-child{margin-bottom:0 !important}
   .akoi-refresh-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
   .akoi-summary{display:grid;grid-template-columns:1.25fr 1.25fr 0.7fr;gap:10px;margin:8px 0 14px;align-items:stretch}
   .akoi-summary-card{padding:16px 18px 14px;background:linear-gradient(135deg, var(--bg-2) 0%, var(--bg-1) 100%);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;position:relative;overflow:hidden;transition:transform .12s, border-color .12s, box-shadow .12s}
@@ -9814,10 +9831,11 @@
   const _GROUP_TO_PLAT={'에이블리':'ably','스마트스토어':'smartstore','지그재그':'zigzag'};  // 플랫폼 탭 카드용 역매핑
   // 플랫폼 탭 (외부 마켓플레이스). 6thanother = 식스에이 에이블리 계정.
   // hideUsd:true — 플랫폼 카드는 $USD 병기 생략.
+  // brand: BRAND_SECTIONS id (플랫폼 탭에서 브랜드별 묶음 헤더 렌더용)
   const PLATFORM_SECTIONS=[
-    {id:'ably-6a',       endpoint:'/ably-sales',       group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
-    {id:'smartstore-pp', endpoint:'/smartstore-sales', group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
-    {id:'zigzag-6a',     endpoint:'/zigzag-sales',     group:'지그재그',    display:'식스에이',     dot:'#ff2380', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'ably-6a',       brand:'6a', endpoint:'/ably-sales',       group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
+    {id:'smartstore-pp', brand:'pp', endpoint:'/smartstore-sales', group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'zigzag-6a',     brand:'6a', endpoint:'/zigzag-sales',     group:'지그재그',    display:'식스에이',     dot:'#ff2380', hasItemAmount:true,  hasOptions:false, hideUsd:true},
   ];
   function _salesCfg(id){
     return BRAND_SECTIONS.find(b=>b.id===id) || PLATFORM_SECTIONS.find(b=>b.id===id);
@@ -9910,7 +9928,8 @@
     const t=new Date(ts||Date.now());
     el.textContent=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')} 갱신`;
   }
-  function _salesBuildCard(cfg){
+  function _salesBuildCard(cfg, opts){
+    const hideBrandName = !!(opts && opts.hideBrandName);
     const plats=Array.isArray(cfg.platforms)?cfg.platforms:[];
     let platPills=plats.map(k=>{
       const lbl=_PLAT_LABEL[k]||k;
@@ -9922,11 +9941,14 @@
     if(platKey){
       platPills += `<span class="brand-plat-pill is-${platKey}" title="${_akoiEsc(cfg.group)} 채널">${_akoiEsc(cfg.group)}</span>`;
     }
+    // 브랜드별 묶음 헤더 아래 렌더될 때는 카드 타이틀에서 브랜드명·닷 생략 (헤더가 이미 표시)
+    const titleLeft = hideBrandName
+      ? `${platPills}`
+      : `<span class="brand-dot" style="background:${cfg.dot}"></span>${_akoiEsc(cfg.display)}${platPills}`;
     return `<div class="akoi-section po-section" data-brand="${cfg.id}" data-expanded="0" style="margin-bottom:14px">
       <div class="po-section-head">
         <div class="po-section-title">
-          <span class="brand-dot" style="background:${cfg.dot}"></span>
-          ${_akoiEsc(cfg.display)}${platPills}
+          ${titleLeft}
           <span class="akoi-sub">${subGroupText}최근 30일</span>
         </div>
         <div class="po-section-meta">
@@ -10038,7 +10060,32 @@
   function _platformInitCards(){
     const wrap=document.getElementById('platformReportsWrap');
     if(!wrap || wrap.dataset.initted) return;
-    wrap.innerHTML=PLATFORM_SECTIONS.map(_salesBuildCard).join('');
+    // 브랜드별로 묶어 렌더 — BRAND_SECTIONS 순서를 따라 그룹을 만들고, 그 안에 platform 카드를 넣는다
+    const brandOrder = BRAND_SECTIONS.map(b => b.id);
+    const groups = new Map();  // brandId -> [platformCfg,...]
+    for(const cfg of PLATFORM_SECTIONS){
+      const key = cfg.brand || cfg.id;
+      if(!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(cfg);
+    }
+    const sortedKeys = [...groups.keys()].sort((a,b) => brandOrder.indexOf(a) - brandOrder.indexOf(b));
+    const html = sortedKeys.map(brandKey => {
+      const brandCfg = BRAND_SECTIONS.find(b => b.id === brandKey);
+      const brandName = brandCfg ? brandCfg.display : brandKey;
+      const brandDot  = brandCfg ? brandCfg.dot : '#94a3b8';
+      const platforms = groups.get(brandKey);
+      const channelLabels = platforms.map(p => _akoiEsc(p.group)).join(' · ');
+      const cards = platforms.map(cfg => _salesBuildCard(cfg, {hideBrandName:true})).join('');
+      return `<div class="plat-brand-group" data-brand-key="${_akoiEsc(brandKey)}">
+        <div class="plat-brand-header">
+          <span class="brand-dot" style="background:${brandDot}"></span>
+          <span class="plat-brand-name">${_akoiEsc(brandName)}</span>
+          <span class="plat-brand-channels">${channelLabels}</span>
+        </div>
+        <div class="plat-brand-cards">${cards}</div>
+      </div>`;
+    }).join('');
+    wrap.innerHTML = html;
     wrap.dataset.initted='1';
   }
   function platformEnsureLoaded(){
