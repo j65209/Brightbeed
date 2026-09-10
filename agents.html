@@ -1054,6 +1054,123 @@ async function getCatalog(brand, force){
   catalogCache[brand] = {at: Date.now(), data: j};
   return j;
 }
+
+/* --- 상품 검색기 -----------------------------------------------------------
+   식스샵 상품명은 전부 영문("[SILVER925] Guyeong Open Ring")인데 사장님은 한글로
+   입력하신다. 단순 includes 로는 한글 질의가 항상 0건이 나오므로
+   ① 한↔영 동의어 ② 한글 로마자 변환("알반"→alban) ③ 오타 허용(레벤슈타인)
+   ④ 옵션명까지 훑기 로 후보를 점수화한다. 0건이어도 가장 가까운 상품을 돌려준다. */
+/* 값 배열은 "같은 뜻"(OR)만 넣는다. 복합어("오픈링")는 키로 넣지 말 것 —
+   아래 분해 스캔이 오픈+링 두 개념으로 쪼개야 교집합 점수가 제대로 나온다. */
+const KO_EN = {
+  '반지':['ring'],'링':['ring'],'가락지':['ring'],'오픈':['open'],
+  '목걸이':['necklace'],'넥클리스':['necklace'],'체인':['chain'],'펜던트':['pendant'],
+  '팔찌':['bracelet'],'브레이슬릿':['bracelet'],'발찌':['anklet'],
+  '귀걸이':['earring'],'이어링':['earring'],'피어싱':['piercing'],
+  '키링':['keyring','keychain'],'키체인':['keychain'],'열쇠고리':['keychain','keyring'],
+  '은':['silver','silver925'],'실버':['silver','silver925'],'순은':['silver925'],'925':['silver925'],
+  '금':['gold'],'골드':['gold'],'로즈골드':['rosegold','rose'],
+  '진주':['pearl'],'큐빅':['cubic','zircon'],'스톤':['stone'],'참':['charm'],'비즈':['bead','beads'],
+  '스마트톡':['smarttok','smart'],'그립톡':['griptok'],'톡':['tok'],
+  '케이스':['case'],'스트랩':['strap'],'케이블':['cable'],
+  '가방':['bag'],'파우치':['pouch'],'지갑':['wallet'],'모자':['cap','hat'],'양말':['socks'],
+  '세트':['set'],'커플':['couple'],'남성':['men'],'여성':['women'],
+  '미니':['mini'],'스몰':['small'],'라지':['large'],'블랙':['black'],'화이트':['white'],
+};
+const RO_L = ['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
+const RO_V = ['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
+const RO_T = ['','k','k','k','n','n','n','t','l','k','m','p','t','t','p','l','m','p','p','t','t','ng','t','t','k','t','p','t'];
+function romanize(s){
+  let out = '';
+  for(const ch of s){
+    const c = ch.charCodeAt(0) - 0xAC00;
+    if(c >= 0 && c < 11172) out += RO_L[Math.floor(c/588)] + RO_V[Math.floor((c%588)/28)] + RO_T[c%28];
+    else out += ch;
+  }
+  return out;
+}
+const norm  = s => (s||'').toLowerCase().replace(/[^0-9a-z가-힣]+/g,' ').trim();
+const tight = s => (s||'').toLowerCase().replace(/[^0-9a-z가-힣]+/g,'');
+/* 질의를 "개념 그룹"들로 쪼갠다. 그룹 안은 동의어(OR), 그룹끼리는 교집합(합산).
+   "실버 목걸이" → [실버·silver·silver925] + [necklace] 라서 실버 반지는 한 그룹만 맞아 밀려난다. */
+function expandGroups(q){
+  const groups = [];
+  norm(q).split(/\s+/).filter(Boolean).forEach(w => {
+    if(KO_EN[w]){ groups.push([w, ...KO_EN[w]]); return; }
+    const base = [w];
+    if(/[가-힣]/.test(w)){
+      const r = romanize(w);
+      if(r !== w) base.push(r);
+      if(w.length >= 2) for(const k in KO_EN){ if(w.includes(k)) groups.push(KO_EN[k].slice()); }
+    }
+    groups.push(base);
+  });
+  return groups.map(g => [...new Set(g)].filter(t => t.length >= 2)).filter(g => g.length);
+}
+function lev(a, b){
+  if(a === b) return 0;
+  const m = a.length, n = b.length;
+  if(!m || !n) return m || n;
+  let prev = Array.from({length:n+1}, (_,i) => i), cur = new Array(n+1);
+  for(let i=1;i<=m;i++){
+    cur[0] = i;
+    for(let j=1;j<=n;j++) cur[j] = Math.min(prev[j]+1, cur[j-1]+1, prev[j-1] + (a[i-1]===b[j-1]?0:1));
+    [prev, cur] = [cur, prev];
+  }
+  return prev[n];
+}
+const tolOf = t => t.length <= 3 ? 0 : t.length <= 6 ? 1 : 2;
+function scoreProduct(p, groups, qTight){
+  const nTight = tight(p.name);
+  if(!nTight) return 0;
+  const words = norm(p.name).split(/\s+/).filter(Boolean);
+  const optTight = tight((p.options||[]).map(o => o.label).join(' '));
+  let s = (qTight.length >= 2 && nTight.includes(qTight)) ? 60 : 0;
+  for(const g of groups){
+    let best = 0;
+    for(const t of g){
+      let v = 0;
+      if(nTight.includes(t)) v = words.includes(t) ? 24 : 18;
+      else if(optTight.includes(t)) v = 8;
+      else {
+        const tol = tolOf(t);
+        if(tol && words.some(w => Math.abs(w.length - t.length) <= tol && lev(w, t) <= tol)) v = 9;
+      }
+      if(v > best) best = v;
+    }
+    s += best;
+  }
+  return s;
+}
+function searchProducts(products, q){
+  const groups = expandGroups(q), qTight = tight(q);
+  if(!groups.length && !qTight) return [];
+  const scored = products.map(p => ({p, s: scoreProduct(p, groups, qTight)})).filter(x => x.s > 0);
+  if(!scored.length) return [];
+  // 최고점의 70% 미만은 버린다. "구영 오픈링"에 오픈링 전체가 딸려오는 걸 막는 장치.
+  const cut = Math.max(...scored.map(x => x.s)) * 0.7;
+  return scored
+    .filter(x => x.s >= cut)
+    .sort((a,b) => b.s - a.s || tight(a.p.name).length - tight(b.p.name).length)
+    .map(x => x.p);
+}
+/* 점수 0건일 때의 최후 보루 — 편집거리가 가장 가까운 상품이라도 보여준다 */
+function nearestProducts(products, q, limit){
+  const cands = [tight(q), tight(romanize(q))].filter((v,i,a) => v && a.indexOf(v) === i);
+  if(!cands.length) return [];
+  return products
+    .map(p => {
+      const words = norm(p.name).split(/\s+/).filter(Boolean).concat(tight(p.name));
+      let best = 99;
+      for(const c of cands) for(const w of words) best = Math.min(best, lev(w, c) / Math.max(w.length, c.length));
+      return {p, d: best};
+    })
+    .filter(x => x.d <= 0.55)
+    .sort((a,b) => a.d - b.d)
+    .slice(0, limit || 6)
+    .map(x => x.p);
+}
+
 function detectBrand(t){
   for(const [key, words] of BRAND_WORDS){ if(words.some(w => t.includes(w))) return key; }
   return null;
@@ -1142,17 +1259,18 @@ async function stockAgent(c, raw, t){
 
   say('agent', `${BRANDS[brand].label} 카탈로그에서 "${kw}" 를 찾습니다…`);
   const cat = await getCatalog(brand);
-  const hits = (cat.products||[]).filter(p => (p.name||'').toLowerCase().includes(kw.toLowerCase()));
-  if(!hits.length){ abort(`"${kw}" 와 일치하는 상품이 없습니다. 상품명 일부를 다시 알려 주세요.`); return; }
+  const all = cat.products || [];
+  let hits = searchProducts(all, kw), loose = false;
+  if(!hits.length){ hits = nearestProducts(all, kw); loose = hits.length > 0; }
+  if(!hits.length){
+    abort(`${BRANDS[brand].label} 상품 ${num(all.length)}개를 전부 훑었지만 "${kw}" 와 비슷한 이름을 찾지 못했습니다.\n` +
+          `이 브랜드 상품명은 영문으로 등록돼 있습니다 — 영문 일부(예: \`ring\`, \`open\`)나 더 짧은 키워드로 다시 알려 주세요.`,
+          {chips:[{label:'재고 적은 상품 보기', cmd:'#list'}]});
+    return;
+  }
 
   if(wantsRead || !amt){
-    if(hits.length > 1 && !amt){
-      S.candidates = hits.slice(0,8);
-      say('agent', `${hits.length}건 찾았습니다. 어떤 상품인가요?`, {
-        chips: S.candidates.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`})),
-      });
-      return;
-    }
+    if((hits.length > 1 || loose) && !amt){ askWhich(S, hits, loose, kw); return; }
     if(wantsRead){
       const p = hits[0];
       const lines = [`${p.name} — 총 재고 ${stockText(p.stock)}`];
@@ -1167,16 +1285,23 @@ async function stockAgent(c, raw, t){
     }
   }
 
-  S.candidates = hits.slice(0,8);
   S.pendingAmount = amt;
-  if(hits.length > 1){
-    say('agent', `${hits.length}건 찾았습니다. 어떤 상품인가요?`, {
-      chips: S.candidates.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`})),
-    });
-    return;
-  }
+  if(hits.length > 1 || loose){ askWhich(S, hits, loose, kw); return; }
+  S.candidates = hits.slice(0,8);
   S.product = hits[0]; S.option = null;
   await pickOptionOrAmount(S);
+}
+
+function askWhich(S, hits, loose, kw){
+  S.candidates = hits.slice(0,8);
+  const more = hits.length > S.candidates.length;
+  const head = loose
+    ? `"${kw}" 와 정확히 일치하는 상품은 없었습니다. 이름이 가장 가까운 ${S.candidates.length}건을 골라봤습니다 — 이 중에 있나요?`
+    : `${num(hits.length)}건 찾았습니다.${more ? ' 관련도 높은 순으로 8건만 보여드립니다.' : ''} 어떤 상품인가요?`;
+  say('agent', head + (more || loose ? '\n찾으시는 게 없으면 상품명을 조금 더 자세히 알려 주세요.' : ''), {
+    chips: S.candidates.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`}))
+      .concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
+  });
 }
 
 function stockText(v){
