@@ -1065,6 +1065,7 @@ async function getCatalog(brand, force){
    아래 분해 스캔이 오픈+링 두 개념으로 쪼개야 교집합 점수가 제대로 나온다. */
 const KO_EN = {
   '반지':['ring'],'링':['ring'],'가락지':['ring'],'오픈':['open'],
+  '토우':['toe'],'발가락':['toe'],'토링':['toe'],
   '목걸이':['necklace'],'넥클리스':['necklace'],'체인':['chain'],'펜던트':['pendant'],
   '팔찌':['bracelet'],'브레이슬릿':['bracelet'],'발찌':['anklet'],
   '귀걸이':['earring'],'이어링':['earring'],'피어싱':['piercing'],
@@ -1090,8 +1091,10 @@ function romanize(s){
   }
   return out;
 }
-const norm  = s => (s||'').toLowerCase().replace(/[^0-9a-z가-힣]+/g,' ').trim();
-const tight = s => (s||'').toLowerCase().replace(/[^0-9a-z가-힣]+/g,'');
+/* \p{L} 로 잡는 이유: 상품명에 키릴 문자가 섞여 있다("Тараз Open Ring").
+   a-z 로만 걸러내면 그 이름이 통째로 지워져 세 상품이 다 "open ring" 이 돼버린다. */
+const norm  = s => (s||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+const tight = s => (s||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'');
 /* 질의를 "개념 그룹"들로 쪼갠다. 그룹 안은 동의어(OR), 그룹끼리는 교집합(합산).
    "실버 목걸이" → [실버·silver·silver925] + [necklace] 라서 실버 반지는 한 그룹만 맞아 밀려난다. */
 function expandGroups(q){
@@ -1131,7 +1134,10 @@ function scoreProduct(p, groups, qTight){
     let best = 0;
     for(const t of g){
       let v = 0;
-      if(nTight.includes(t)) v = words.includes(t) ? 24 : 18;
+      /* 낱말로 딱 맞을 때(24)와 남의 낱말 속에 묻혀 있을 때(14)를 크게 벌려 둔다.
+         'ring' 은 'earring' 안에도 들어 있어서, 점수가 비슷하면 반지를 찾는데 귀걸이가 딸려온다.
+         반대로 진짜 낱말 일치가 하나도 없으면 14점이 최고점이 되어 그대로 살아남는다. */
+      if(nTight.includes(t)) v = words.includes(t) ? 24 : 14;
       else if(optTight.includes(t)) v = 8;
       else {
         const tol = tolOf(t);
@@ -1204,6 +1210,109 @@ function matchOptions(opts, q){
   return searchProducts(opts.map(o => ({name: o.label, _o: o})), q).map(x => x._o);
 }
 
+/* --- 되묻기(좁히기) --------------------------------------------------------
+   "반지" 처럼 396건이 걸리는 질의에 8개만 잘라 들이미는 건 대화가 아니라 서류다.
+   후보들을 실제로 "갈라놓는" 낱말을 뽑아서 사람처럼 한 번 더 여쭤본다. */
+const EN_KO = {
+  ring:'반지', open:'오픈', toe:'발가락', necklace:'목걸이', chain:'체인', pendant:'펜던트',
+  bracelet:'팔찌', anklet:'발찌', earring:'귀걸이', piercing:'피어싱',
+  keyring:'키링', keychain:'키링', silver:'실버', silver925:'은925', gold:'골드', rosegold:'로즈골드',
+  pearl:'진주', cubic:'큐빅', zircon:'큐빅', stone:'스톤', charm:'참', bead:'비즈', beads:'비즈',
+  smarttok:'스마트톡', griptok:'그립톡', tok:'톡', case:'케이스', strap:'스트랩', cable:'케이블',
+  bag:'가방', pouch:'파우치', wallet:'지갑', cap:'모자', hat:'모자', socks:'양말',
+  set:'세트', couple:'커플', men:'남성', women:'여성', mini:'미니', small:'스몰', large:'라지',
+  black:'블랙', white:'화이트', blue:'블루', pink:'핑크', red:'레드', green:'그린',
+};
+/* 사이즈/버전 꼬리표는 상품을 못 가른다 — 되묻기 후보에서 뺀다 */
+const FACET_STOP = new Set(['the','and','for','with','new','ver','v1','v2','v3','type','no','of']);
+const tokensOf = s => norm(s).split(/\s+/).filter(w => w.length >= 2 && !FACET_STOP.has(w));
+/* 후보 안에서만 정확히 걸러낸다 — 되묻기 낱말은 후보에서 뽑은 것이라 점수화가 필요 없다 */
+function narrowByToken(pool, w, neg){
+  const has = p => tight(p.name).includes(w) || (p.options||[]).some(o => tight(o.label).includes(w));
+  return pool.filter(neg ? (p => !has(p)) : has);
+}
+function countFacets(pool, pick){
+  const df = new Map();
+  pool.forEach(p => { new Set(pick(p)).forEach(w => df.set(w, (df.get(w)||0) + 1)); });
+  const N = pool.length;
+  return [...df.entries()]
+    .map(([w,c]) => {
+      /* 거의 전부가 가진 말은 뒤집어야 잘 갈린다 — 반지 396개 중 "오픈 아닌 것" 은 15개뿐 */
+      const neg = c > N * 0.6;
+      return {w, neg, hits: neg ? N - c : c};
+    })
+    .filter(x => x.hits >= 2 && x.hits < N)
+    .sort((a,b) => b.hits - a.hits);
+}
+function facetsOf(pool){
+  /* 상품명 낱말이 1순위 — "어떤 상품인가" 를 가른다.
+     그것만으로 갈래가 안 서면 옵션(색상 등)까지 끌어온다 */
+  let f = countFacets(pool, p => tokensOf(p.name));
+  if(f.length < 4) f = f.concat(countFacets(pool, p => (p.options||[]).flatMap(o => tokensOf(o.label))));
+  const seen = new Set();
+  return f.filter(x => !seen.has(x.w) && seen.add(x.w)).slice(0, 6)
+    /* 실제로 걸러지는 개수로 다시 세어 라벨을 맞춘다 — 낱말 단위로 세면 "star (2)" 라 해놓고
+       4개가 걸리는 일이 생긴다(붙여쓴 이름 속에 묻힌 경우). 숫자는 틀리면 안 된다. */
+    .map(x => ({...x, hits: narrowByToken(pool, x.w, x.neg).length}))
+    .filter(x => x.hits >= 1 && x.hits < pool.length)
+    .sort((a,b) => b.hits - a.hits);
+}
+const facetLabel = f => `${EN_KO[f.w] || f.w}${f.neg ? ' 아닌 것' : ''} (${f.hits})`;
+const facetCmd   = f => `#narrow ${f.neg ? '!' : ''}${f.w}`;
+/* 정말 못 찾았을 때 "없습니다" 로 끝내면 대화가 거기서 죽는다.
+   이 브랜드에 실제로 뭐가 있는지 세어서 보여드리면 사장님이 다음 말을 하실 수 있다. */
+const CATEGORIES = [['반지','ring'],['목걸이','necklace'],['팔찌','bracelet'],['귀걸이','earring'],
+  ['키링','keychain'],['발찌','anklet'],['스마트톡','tok'],['케이스','case'],['참','charm'],['세트','set']];
+function categoriesIn(products){
+  const words = products.map(p => norm(p.name).split(/\s+/));
+  return CATEGORIES
+    .map(([ko,en]) => ({ko, n: words.filter(ws => ws.includes(en)).length}))
+    .filter(x => x.n > 0).sort((a,b) => b.n - a.n).slice(0, 6);
+}
+/* 조사 로/으로 — 받침이 없거나 ㄹ이면 "로". ("반지"로 / "오픈 아닌 것"으로) */
+function ro(w){
+  const s = (w||'').trim();
+  if(!s) return '로';
+  const c = s.charCodeAt(s.length-1) - 0xAC00;
+  if(c < 0 || c >= 11172) return '로';
+  const t = c % 28;
+  return (t === 0 || t === 8) ? '로' : '으로';
+}
+/* 예시는 앞에서 n개가 아니라 고르게 뽑는다 — 앞쪽만 보면 다 비슷해 보인다 */
+function sample(arr, n){
+  if(arr.length <= n) return arr.slice();
+  const step = arr.length / n;
+  return Array.from({length:n}, (_,i) => arr[Math.floor(i * step)]);
+}
+/* 후보에 한 번씩만 나오는 고유한 이름 조각 — "이렇게 불러주세요" 예시로 쓴다 */
+function nameHints(pool, n){
+  const df = new Map();
+  pool.forEach(p => new Set(tokensOf(p.name)).forEach(w => df.set(w, (df.get(w)||0) + 1)));
+  const rare = [...df.entries()].filter(([w,c]) => c === 1 && !/^\d+$/.test(w)).map(([w]) => w);
+  /* 예시는 사장님이 실제로 타이핑할 수 있어야 한다 — "délınę" 말고 "mesquite".
+     두 글자 약자("bo","sc")도 예시로는 눈에 안 들어와서 뒤로 미룬다. */
+  const typeable = rare.filter(w => /^[a-z]+$/.test(w));
+  const good = typeable.filter(w => w.length >= 4);
+  return sample(good.length ? good : (typeable.length ? typeable : rare), n || 2);
+}
+/* 후보 안에서 좁히기. 점수검색 → 통짜 포함 → 한글을 영문으로 바꿔 포함, 순서대로 시도 */
+function narrowInPool(pool, said){
+  const scored = searchProducts(pool, said);
+  if(scored.length && scored.length < pool.length) return scored;
+  const wt = tight(said);
+  if(wt.length >= 2){
+    const byTok = narrowByToken(pool, wt);
+    if(byTok.length && byTok.length < pool.length) return byTok;
+  }
+  for(const g of expandGroups(said)){
+    for(const tk of g){
+      const hit = narrowByToken(pool, tk);
+      if(hit.length && hit.length < pool.length) return hit;
+    }
+  }
+  return [];
+}
+
 function detectBrand(t){
   for(const [key, words] of BRAND_WORDS){ if(words.some(w => t.includes(w))) return key; }
   return null;
@@ -1251,6 +1360,15 @@ async function stockAgent(c, raw, t){
     await askAmount(S);
     return;
   }
+  if(t.startsWith('#narrow ')){
+    let w = t.slice(8).trim();
+    const neg = w.startsWith('!');
+    if(neg) w = w.slice(1);
+    const label = (EN_KO[w] || w) + (neg ? ' 아닌 것' : '');
+    say('user', label);
+    await refineTo(S, narrowByToken(S.pool || [], w, neg), label);
+    return;
+  }
   if(t === '#confirm'){ say('user', '네, 그렇게 해주세요'); await commitStock(S); return; }
   if(t === '#list'){ await listLowStock(S.brand || '6a'); return; }
   if(t.startsWith('#brand ')){
@@ -1277,9 +1395,20 @@ async function stockAgent(c, raw, t){
       await proposeStock(S, a, S.option ? S.option.stock : S.product.stock);
       return;
     }
+    /* 숫자를 말씀하셨는데 못 알아들었으면 되묻는다. 숫자를 멋대로 추측해선 절대 안 되고
+       (실재고가 바뀐다) 그렇다고 조용히 새 검색을 시작하면 대화가 끊긴다.
+       숫자가 아예 없으면 화제를 바꾸신 걸로 보고 아래 일반 검색으로 넘긴다. */
+    if(/\d/.test(t)){
+      const cur = S.option ? S.option.stock : S.product.stock;
+      say('agent', `"${raw.trim()}" 를 수량으로 못 읽었습니다. 지금 ${stockText(cur)}인데 몇 개로 맞출까요?\n` +
+        `\`50\` 처럼 숫자만 말씀하시면 그 수로 맞추고, \`+50\` / \`30개 빼줘\` 는 더하거나 뺍니다.`, {
+        chips:[{label:'그만두기', cmd:'#cancel'}],
+      });
+      return;
+    }
   }
   /* 고를 때 "골드 50개" 처럼 수량까지 같이 말씀하시는 경우가 있어 함께 받아둔다 */
-  if(S.stage === 'opt' || S.stage === 'pick'){
+  if(S.stage === 'opt' || S.stage === 'pick' || S.stage === 'narrow'){
     const said = stripNoise(t) || t;
     const withAmt = parseAmount(t);
     if(S.stage === 'opt' && S.product){
@@ -1301,18 +1430,25 @@ async function stockAgent(c, raw, t){
         return;
       }
     }
-    if(S.stage === 'pick' && (S.candidates||[]).length){
-      const list = S.candidates;
-      const n = parseOrdinal(flat, list.length);
-      const narrowed = n ? [list[n-1]] : searchProducts(list, said);
-      if(narrowed.length === 1){
-        S.product = narrowed[0]; S.option = null; S.stage = null;
-        if(withAmt) S.pendingAmount = withAmt;
-        say('agent', `"${S.product.name}" 말씀이시군요.`);
-        await pickOptionOrAmount(S);
+    /* 되묻는 중에 번호로 답하시면 그 갈래를 고르신 것으로 본다 ("2번") */
+    if(S.stage === 'narrow' && (S.facets||[]).length){
+      const fi = parseOrdinal(flat, S.facets.length);
+      if(fi){
+        const f = S.facets[fi-1];
+        await refineTo(S, narrowByToken(S.pool||[], f.w, f.neg), facetLabel(f), withAmt);
         return;
       }
-      if(narrowed.length > 1 && narrowed.length < list.length){ askWhich(S, narrowed, false, said); return; }
+    }
+    if(S.stage === 'pick' && (S.candidates||[]).length){
+      const n = parseOrdinal(flat, S.candidates.length);
+      if(n){ await refineTo(S, [S.candidates[n-1]], said, withAmt); return; }
+    }
+    /* 좁히기는 언제나 "찾은 전체"(S.pool) 안에서 한다 — 화면에 보여드린 8개 안에서만
+       뒤지면 396개 중 57번째 상품은 대화로는 영영 못 찾는다.
+       그래도 안 걸리면 아래 일반 검색으로 흘려보내 화제 전환을 막지 않는다. */
+    if((S.stage === 'pick' || S.stage === 'narrow') && (S.pool||[]).length > 1){
+      const narrowed = narrowInPool(S.pool, said);
+      if(narrowed.length){ await refineTo(S, narrowed, said, withAmt); return; }
     }
   }
   if(S.stage && saysNo(flat)){ delete sess[c.id]; abort('네, 그만두겠습니다. 아무것도 바꾸지 않았습니다.'); return; }
@@ -1358,9 +1494,18 @@ async function stockAgent(c, raw, t){
   let hits = searchProducts(all, kw), loose = false;
   if(!hits.length){ hits = nearestProducts(all, kw); loose = hits.length > 0; }
   if(!hits.length){
-    abort(`${BRANDS[brand].label} 상품 ${num(all.length)}개를 전부 훑었지만 "${kw}" 와 비슷한 이름을 찾지 못했습니다.\n` +
-          `이 브랜드 상품명은 영문으로 등록돼 있습니다 — 영문 일부(예: \`ring\`, \`open\`)나 더 짧은 키워드로 다시 알려 주세요.`,
-          {chips:[{label:'재고 적은 상품 보기', cmd:'#list'}]});
+    /* 막다른 길을 만들지 않는다 — 뭐가 있는지 보여드리고 다음 말을 이어받는다 */
+    const cats = categoriesIn(all);
+    S.stage = 'keyword'; S.pool = null; S.facets = null;
+    say('agent',
+      `${BRANDS[brand].label} 상품 ${num(all.length)}개를 다 훑어봤는데 "${kw}" 는 안 보이네요.\n` +
+      (cats.length
+        ? `${BRANDS[brand].label}에 있는 건 ${cats.map(c => `${c.ko} ${num(c.n)}개`).join(', ')} 정도입니다. 이 중에 있을까요?\n`
+        : '') +
+      `상품명이 영문으로 등록돼 있어서, 이름 한 조각(예: \`open\`, \`bone\`)을 알려주셔도 바로 찾습니다.`, {
+      chips: cats.map(c => ({label: c.ko, cmd: c.ko}))
+                 .concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
+    });
     return;
   }
 
@@ -1383,11 +1528,55 @@ async function stockAgent(c, raw, t){
   S.pendingAmount = amt;
   if(hits.length > 1 || loose){ askWhich(S, hits, loose, kw); return; }
   S.candidates = hits.slice(0,8);
+  S.pool = hits; S.facets = null;
   S.product = hits[0]; S.option = null;
   await pickOptionOrAmount(S);
 }
 
+/* 좁힌 결과를 다음 대화로 넘긴다 — 하나 남으면 바로 진행, 여럿이면 한 번 더 되묻는다 */
+async function refineTo(S, narrowed, said, withAmt){
+  if(!narrowed.length){
+    say('agent', `"${said}" 로는 안 걸리네요. 방금 찾은 ${num((S.pool||[]).length)}개는 그대로 들고 있으니 다른 특징을 말씀해 주세요.`, {
+      chips: (S.facets||[]).map(f => ({label: facetLabel(f), cmd: facetCmd(f)})),
+    });
+    return;
+  }
+  if(narrowed.length === 1){
+    S.product = narrowed[0]; S.option = null; S.stage = null;
+    S.candidates = narrowed; S.pool = narrowed;
+    if(withAmt) S.pendingAmount = withAmt;
+    say('agent', `"${S.product.name}" 하나 남았습니다.`);
+    await pickOptionOrAmount(S);
+    return;
+  }
+  if(withAmt) S.pendingAmount = withAmt;
+  askWhich(S, narrowed, false, [...new Set(`${S.kw||''} ${said}`.trim().split(/\s+/))].join(' '));
+}
+
 function askWhich(S, hits, loose, kw){
+  /* 찾은 "전체"를 들고 있는다. 다음 대답은 화면에 보인 8개가 아니라 이 안에서 좁힌다 */
+  S.pool = hits;
+  S.kw = kw || S.kw;
+  const facets = hits.length > 6 && !loose ? facetsOf(hits) : [];
+  if(facets.length){
+    S.stage = 'narrow';
+    S.facets = facets;
+    S.candidates = [];
+    /* 갈래들이 후보의 3분의 1도 못 덮으면 칩은 장식일 뿐이다. 이름이 다 제각각이라는 뜻이니
+       그땐 솔직하게 "이름 한 조각만 알려달라" 고 여쭙는 게 대화다. */
+    const covered = facets.reduce((a,f) => a + f.hits, 0);
+    const eg = sample(hits, 4).map(p => `· ${p.name}`).join('\n');
+    const head = covered >= hits.length / 3
+      ? `"${kw}"${ro(kw)} ${num(hits.length)}개가 걸리네요. 한 가지만 더 알려주시면 바로 좁혀집니다. 어느 쪽일까요?\n\n${eg}\n\n아래에서 골라주셔도 되고 이름이나 색상을 그냥 말씀하셔도 됩니다.`
+      : `"${kw}"${ro(kw)} ${num(hits.length)}개가 걸리는데 이름이 다 제각각입니다. 이런 식이에요.\n\n${eg}\n\n` +
+        `이름 한 조각만 말씀해 주시면 바로 찾습니다. 예를 들어 ${nameHints(hits).map(w => `\`${w}\``).join(', ') || '`구영`'} 처럼요.`;
+    say('agent', head, {
+      chips: facets.map(f => ({label: facetLabel(f), cmd: facetCmd(f)}))
+                   .concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
+    });
+    return;
+  }
+  S.facets = null;
   S.candidates = hits.slice(0,8);
   S.stage = 'pick';
   const more = hits.length > S.candidates.length;
