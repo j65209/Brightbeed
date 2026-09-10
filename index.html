@@ -4930,13 +4930,13 @@
   }
   .diary-me-on:hover{background:#bbf7d0}
 
-  /* 홈 상단 "이 자리 ○○○" 뱃지 */
+  /* 홈 상단 "이 자리 ○○○" 뱃지 — 가운데 정렬 */
   .diary-me-badge{
-    display:inline-flex;align-items:center;gap:8px;
+    display:flex;align-items:center;gap:8px;
     padding:6px 12px 6px 14px;border-radius:999px;
     background:#f4f0e3;border:1px solid #eae7dc;
     font-size:12px;color:#292524;font-weight:600;letter-spacing:-.01em;
-    margin:0 0 12px;
+    width:fit-content;margin:0 auto 12px;
   }
   .diary-me-badge b{color:#1c1917;font-weight:800}
   .diary-me-badge-dot{
@@ -5123,7 +5123,7 @@
     background:rgba(234,179,8,.2);padding:3px 10px;border-radius:999px;
     letter-spacing:-.01em;font-variant-numeric:tabular-nums;
   }
-  .diary-alert-list{display:flex;flex-wrap:wrap;gap:6px}
+  .diary-alert-list{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
   .diary-alert-item{
     display:inline-flex;align-items:center;
     padding:6px 12px;border-radius:999px;
@@ -7624,18 +7624,27 @@
     </div>
     <div class="po-wrap">
 
-      <!-- 브랜드별 실시간 매출 (식스샵 + 식스샵프로) — 최근 30일 매출 많은 순으로 자동 정렬 -->
+      <!-- 브랜드별 실시간 매출 — 공홈(식스샵+프로) / 플랫폼(에이블리 등) 탭 -->
       <div class="po-section" style="padding:0;background:transparent;border:none">
         <div class="po-section-head" style="padding:0 0 6px">
           <div class="po-section-title">브랜드별 실시간 매출 <span class="po-section-meta-inline">최근 30일 매출 많은 순</span></div>
           <div class="po-section-meta">
-            <button class="btn po-import akoi-refresh-btn" type="button" onclick="salesRefreshAll()" title="전체 새로고침 (모든 브랜드 서버에서 재조회, 30초~1분)">
+            <button class="btn po-import akoi-refresh-btn" type="button" onclick="mdpRefreshActive()" title="현재 탭 새로고침">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              전체 새로고침
+              새로고침
             </button>
           </div>
         </div>
-        <div id="salesReportsWrap"></div>
+        <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
+          <button class="lg-tab active" data-mdp="home" onclick="mdpSwitch('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="mdpCountHome">8</span></button>
+          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">1</span></button>
+        </div>
+        <div class="mdp-panel" data-mdp-panel="home">
+          <div id="salesReportsWrap"></div>
+        </div>
+        <div class="mdp-panel" data-mdp-panel="platform" hidden>
+          <div id="platformReportsWrap"></div>
+        </div>
       </div>
 
       <!-- 기획전 일정 캘린더 -->
@@ -9791,6 +9800,13 @@
     {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
   ];
+  // 플랫폼 탭 (외부 마켓플레이스). 6thanother = 식스에이 에이블리 계정.
+  const PLATFORM_SECTIONS=[
+    {id:'ably-6a', endpoint:'/ably-sales', group:'에이블리', display:'식스에이', dot:'#ff5a92', hasItemAmount:false, hasOptions:false},
+  ];
+  function _salesCfg(id){
+    return BRAND_SECTIONS.find(b=>b.id===id) || PLATFORM_SECTIONS.find(b=>b.id===id);
+  }
   const _salesBusy={};   // id → bool
   const _salesLast={};   // id → timestamp
   const _salesRev30={};  // id → 최근 30일 매출(KRW) — 브랜드 월매출 순위 집계용
@@ -9922,7 +9938,7 @@
     wrap.dataset.initted='1';
   }
   async function salesLoad(id, force){
-    const cfg=BRAND_SECTIONS.find(b=>b.id===id);
+    const cfg=_salesCfg(id);
     if(!cfg) return;
     const body=document.getElementById(`salesBody_${id}`);
     const summary=document.getElementById(`salesSummary_${id}`);
@@ -9988,6 +10004,44 @@
   window.salesEnsureLoaded=salesEnsureLoaded;
   // Legacy shim — 기존 viewMd 진입 hook은 akoiSalesEnsureLoaded()를 부르므로 유지
   window.akoiSalesEnsureLoaded=salesEnsureLoaded;
+
+  /* ===== 플랫폼 탭 (에이블리 등 외부 마켓플레이스) =====
+     공홈 카드와 동일한 렌더링을 재사용하되, wrap 만 platformReportsWrap.
+     탭 첫 진입 시 lazy load — 매번 재로드는 개별 카드의 새로고침 버튼으로. */
+  function _platformInitCards(){
+    const wrap=document.getElementById('platformReportsWrap');
+    if(!wrap || wrap.dataset.initted) return;
+    wrap.innerHTML=PLATFORM_SECTIONS.map(_salesBuildCard).join('');
+    wrap.dataset.initted='1';
+  }
+  function platformEnsureLoaded(){
+    _platformInitCards();
+    PLATFORM_SECTIONS.forEach(cfg => salesLoad(cfg.id, false));
+  }
+  function platformRefreshAll(){
+    PLATFORM_SECTIONS.forEach(cfg => salesLoad(cfg.id, true));
+  }
+  window.platformEnsureLoaded=platformEnsureLoaded;
+
+  /* 공홈/플랫폼 탭 스위치 — 패널 토글 + 첫 진입 lazy load. */
+  function mdpSwitch(tab){
+    document.querySelectorAll('.lg-tab[data-mdp]').forEach(btn=>{
+      const on=btn.dataset.mdp===tab;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-selected', on?'true':'false');
+    });
+    document.querySelectorAll('.mdp-panel[data-mdp-panel]').forEach(pn=>{
+      pn.hidden = pn.dataset.mdpPanel!==tab;
+    });
+    if(tab==='platform') platformEnsureLoaded();
+  }
+  function mdpRefreshActive(){
+    const active=document.querySelector('.lg-tab.active[data-mdp]')?.dataset.mdp || 'home';
+    if(active==='platform') platformRefreshAll();
+    else salesRefreshAll();
+  }
+  window.mdpSwitch=mdpSwitch;
+  window.mdpRefreshActive=mdpRefreshActive;
 
   /* ===== 브랜드 카드 순서 재정렬 (최근 30일 매출 많은 순) =====
      · salesLoad 성공마다 _salesRev30 업데이트 후 호출
