@@ -75,7 +75,7 @@
   @media(max-width:420px){.desks{grid-template-columns:1fr}}
 
   .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .desk-svg{width:100%;max-width:240px;height:auto;aspect-ratio:200/150;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09));transition:transform .22s cubic-bezier(.22,1,.36,1)}
+  .desk-svg{width:100%;max-width:240px;height:auto;aspect-ratio:200/160;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09));transition:transform .22s cubic-bezier(.22,1,.36,1)}
   .cell:hover .desk-svg{transform:translateY(-2px)}
 
   .bubble{width:100%;max-width:232px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 8px 20px -14px rgba(0,0,0,.16),0 2px 5px -3px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
@@ -104,9 +104,11 @@
   .stat.warn .dot{background:var(--warn)}
 
   /* ---- Animations ---- */
-  .desk-svg .head-group{animation:breathe 4.2s ease-in-out infinite;transform-origin:50% 50%;transform-box:fill-box}
+  .desk-svg .head-group,
+  .desk-svg .body-group{animation:breathe 4.2s ease-in-out infinite;transform-origin:50% 50%;transform-box:fill-box}
   @keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-.5px) scale(1.006)}}
   .cell.running .desk-svg .head-group{animation:focus-bob 2.6s ease-in-out infinite}
+  .cell.running .desk-svg .body-group{animation:breathe 3.4s ease-in-out infinite}
   @keyframes focus-bob{0%,100%{transform:translateY(0)}45%{transform:translateY(-2.2px)}}
 
   .desk-svg .screen-content{opacity:0;transition:opacity .3s ease}
@@ -570,12 +572,17 @@ function mostRecentLastRun(c){
 }
 
 /* -------------------------------------------------------------------------
-   책상 SVG — 위에서 내려다 본 시점. 사람은 정수리만.
+   책상 SVG — 위에서 살짝 내려다 본 시점.
+   책상 앞 모서리로 어깨/팔이 나와 키보드 위에 손이 얹힌 모습.
    ------------------------------------------------------------------------- */
+const SKIN = '#f2c9a3';
+const SKIN_SHADE = '#d9a679';
+function _cloth(c){ return c.cloth || '#6b7280'; }
 function deskSvg(c){
   const {hairColor, id} = c;
+  const cloth = _cloth(c);
   return `
-    <svg class="desk-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+    <svg class="desk-svg" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="scrLight-${id}" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
@@ -585,9 +592,14 @@ function deskSvg(c){
           <stop offset=".55" stop-color="#fff" stop-opacity=".05"/>
           <stop offset="1" stop-color="#fff" stop-opacity="0"/>
         </radialGradient>
+        <linearGradient id="clothLight-${id}" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#fff" stop-opacity=".14"/>
+          <stop offset=".55" stop-color="#fff" stop-opacity="0"/>
+          <stop offset="1" stop-color="#000" stop-opacity=".08"/>
+        </linearGradient>
       </defs>
 
-      <ellipse cx="100" cy="145" rx="86" ry="4" fill="rgba(0,0,0,.05)"/>
+      <ellipse cx="100" cy="155" rx="86" ry="4" fill="rgba(0,0,0,.05)"/>
 
       <!-- 책상 -->
       <rect x="6" y="6" width="188" height="112" rx="10" fill="var(--wood)" stroke="var(--wood-edge)" stroke-width=".8"/>
@@ -628,12 +640,28 @@ function deskSvg(c){
       <line x1="20" y1="105" x2="34" y2="105" stroke="rgba(0,0,0,.14)" stroke-width=".5"/>
       <line x1="20" y1="109" x2="30" y2="109" stroke="rgba(0,0,0,.14)" stroke-width=".5"/>
 
-      <!-- 정수리 — 책상 앞머리에 걸터앉은 것처럼 아래 모서리를 덮는다 -->
+      <!-- 상체(어깨/등) — 책상 앞 모서리에서 부드럽게 벌어지는 둥근 어깨 -->
+      <g class="body-group">
+        <!-- 어깨 그림자 (땅 접지감) -->
+        <path d="M50,159 Q56,138 82,128 Q100,124 118,128 Q144,138 150,159 Z"
+              fill="rgba(0,0,0,.08)"/>
+        <!-- 어깨/등 옷 실루엣 -->
+        <path d="M52,158 Q58,136 84,126 Q100,122 116,126 Q142,136 148,158 Z"
+              fill="${cloth}" stroke="rgba(0,0,0,.14)" stroke-width=".6" stroke-linejoin="round"/>
+        <!-- 옷 하이라이트 (왼쪽 살짝 밝게, 오른쪽 어둡게) -->
+        <path d="M52,158 Q58,136 84,126 Q100,122 116,126 Q142,136 148,158 Z"
+              fill="url(#clothLight-${id})"/>
+        <!-- 목덜미 (머리 아래로 살짝 드러남) -->
+        <ellipse cx="100" cy="126" rx="10" ry="4" fill="${SKIN}"/>
+        <ellipse cx="100" cy="128" rx="10" ry="1.8" fill="${SKIN_SHADE}" opacity=".55"/>
+      </g>
+
+      <!-- 정수리 — 목 위에 얹힘 -->
       <g class="head-group">
         <ellipse cx="100" cy="124" rx="21" ry="17.5" fill="rgba(0,0,0,.09)"/>
-        <ellipse cx="100" cy="122" rx="20" ry="16.5" fill="${hairColor}"/>
-        <ellipse cx="100" cy="122" rx="20" ry="16.5" fill="url(#crown-${id})"/>
-        <ellipse cx="92" cy="115" rx="6.5" ry="3.4" fill="rgba(255,255,255,.13)" transform="rotate(-18 92 115)"/>
+        <ellipse cx="100" cy="120" rx="20" ry="16.5" fill="${hairColor}"/>
+        <ellipse cx="100" cy="120" rx="20" ry="16.5" fill="url(#crown-${id})"/>
+        <ellipse cx="92" cy="113" rx="6.5" ry="3.4" fill="rgba(255,255,255,.13)" transform="rotate(-18 92 113)"/>
       </g>
     </svg>
   `;
