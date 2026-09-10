@@ -902,9 +902,29 @@ async function handle(c, text){
   if(c.id === 'logistics' && has(t, ['배송','운송장','주문','콰이디'])){ await kdOrders(c); return; }
   if(c.id === 'planning' && has(t, ['브랜드','리포트','분석','리오더'])){ await brandReport(c); return; }
 
-  say('agent', '그 업무는 제 담당이 아니거나 아직 이해하지 못했습니다. 아래에서 골라 주세요.', {
-    chips: c.quick,
-  });
+  /* 규칙 흐름이 잡지 못한 대화 → 인격 에이전트(Gemini)에게 넘김.
+     규칙이 처리하는 안전한 side-effect (재고 저장 등) 는 여기서 안 실행되고,
+     사장님이 확인창을 거쳐 규칙 흐름으로 다시 돌아온다. */
+  await llmAgent(c, text);
+}
+
+/* --- Gemini 인격 에이전트 -------------------------------------------------
+   프록시 /agent/chat 을 통해 각 에이전트에게 인격·판단력 부여. 세션마다 대화 이력 유지.
+   실 데이터를 바꾸는 일은 여기서 안 함 — LLM 은 대화만, side-effect 는 규칙 흐름. */
+const llmHist = {};  // agentId → [{role:'user'|'agent', text}]
+async function llmAgent(c, userText){
+  const hist = llmHist[c.id] = llmHist[c.id] || [];
+  try{
+    const res = await api('/agent/chat', {method:'POST', body:{
+      agent: c.id, text: userText, history: hist.slice(-8),
+    }});
+    const reply = (res && res.text) || '(응답을 받지 못했습니다.)';
+    hist.push({role:'user', text: userText});
+    hist.push({role:'agent', text: reply});
+    say('agent', reply);
+  }catch(e){
+    say('agent', `죄송합니다, 지금 답을 못 내겠어요. 잠시 뒤 다시 말씀해 주시겠어요? (${e.message||e})`);
+  }
 }
 
 /* ---- 공통: 업무 보고 ---- */
@@ -1341,8 +1361,22 @@ function stripNoise(t){
   return s.split(/\s+/).filter(w => w && !FILLER.has(w)).join(' ').trim();
 }
 
+/* stockAgent 는 재고 저장 지시만 규칙 흐름으로 잡는다. "미루야 오늘 어때?" 같은 잡담·판단은
+   여기서 처리 못 하니 LLM(Gemini) 에게 넘긴다. 아래 신호가 하나도 없으면 대화라 판단. */
+function isStockCommand(S, raw, t){
+  if(raw && raw.startsWith('#')) return true;
+  if(S && S.stage) return true;
+  if(has(t, ['재고','저장','수정','변경','조회','확인','알려','품절','부족','로우','임박','옵션','상품','개로','으로'])) return true;
+  if(detectBrand(t)) return true;
+  if(parseAmount(t)) return true;
+  return false;
+}
+
 async function stockAgent(c, raw, t){
   const S = sess[c.id] || (sess[c.id] = {});
+
+  if(!isStockCommand(S, raw, t)){ await llmAgent(c, raw); return; }
+
 
   /* --- 칩 명령 --- */
   if(t.startsWith('#pick ')){
