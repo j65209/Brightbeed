@@ -12371,7 +12371,7 @@
 
       <section class="dcs-sec dcs-sec-prev" data-prev-sec hidden>
         <div class="dcs-sec-head">
-          <div class="dcs-sec-title">이전 한 일<span class="dcs-prev-date" data-prev-date></span><span class="dcs-sec-title-count" data-prev-cnt>0 / 0</span></div>
+          <div class="dcs-sec-title"><span data-prev-title>어제 한 일</span><span class="dcs-prev-date" data-prev-date></span><span class="dcs-sec-title-count" data-prev-cnt>0 / 0</span></div>
           <button class="dcs-prev-toggle" data-prev-toggle title="접기/펼치기">▾</button>
         </div>
         <div class="dcs-prev-list" data-prev-list></div>
@@ -12763,6 +12763,9 @@
       toggle.onclick = _diaryTogglePrevFold;
     }
 
+    const titleEl = sec.querySelector('[data-prev-title]');
+    if(titleEl) titleEl.textContent = _diaryPrevTitle(entry.prevDate, _diaryState.date);
+
     const dateEl = sec.querySelector('[data-prev-date]');
     if(dateEl){
       dateEl.textContent = _diaryFmtCreated(entry.prevDate) + ' ' + _diaryDowLabel(entry.prevDate);
@@ -12811,6 +12814,21 @@
     if(!m) return '';
     const d = new Date(+m[1], +m[2]-1, +m[3]);
     return isNaN(d.getTime()) ? '' : `(${'일월화수목금토'[d.getDay()]})`;
+  }
+
+  /* 섹션 제목 — 기본은 "어제 한 일".
+     다만 주말·공휴일이 껴서 실제로 어제가 아니면 (월요일에 금요일 기록이 뜨는 경우)
+     "지난 금요일 한 일" 로 바꿔 준다. 제목이 사실과 어긋나면 안 되니까. */
+  function _diaryPrevTitle(prevDate, curDate){
+    const m = String(curDate||'').match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(m){
+      const y = new Date(+m[1], +m[2]-1, +m[3]);
+      y.setDate(y.getDate() - 1);
+      const ys = `${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,'0')}-${String(y.getDate()).padStart(2,'0')}`;
+      if(ys === prevDate) return '어제 한 일';
+    }
+    const dow = _diaryDowLabel(prevDate).replace(/[()]/g,'');
+    return dow ? `지난 ${dow}요일 한 일` : '어제 한 일';
   }
 
   /* 입사일 기준 1년 단위 사이클 — 매 anniversary마다 새 cycle 시작 (이전 미사용 폐기).
