@@ -2670,6 +2670,14 @@
   .akoi-section .po-section-title{display:flex;align-items:center;gap:8px;color:var(--text-0)}
   .brand-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1px rgba(0,0,0,.05)}
   .akoi-sub{font-size:11px;font-weight:500;color:var(--text-3);letter-spacing:.02em}
+  /* 브랜드 카드 타이틀 우측 플랫폼 태그 (에이블리·스마트스토어 등 부가 채널 표시) */
+  .brand-plat-pill{
+    display:inline-block;padding:2px 7px;margin-left:5px;
+    font-size:10px;font-weight:600;letter-spacing:-.02em;border-radius:4px;
+    line-height:1.4;vertical-align:middle
+  }
+  .brand-plat-pill.is-smartstore{color:#03c75a;background:rgba(3,199,90,.1)}
+  .brand-plat-pill.is-ably{color:#ff5a92;background:rgba(255,90,146,.1)}
   .akoi-refresh-btn{padding:5px 12px !important;font-size:11px !important;min-height:28px !important}
   .akoi-summary{display:grid;grid-template-columns:1.25fr 1.25fr 0.7fr;gap:10px;margin:8px 0 14px;align-items:stretch}
   .akoi-summary-card{padding:16px 18px 14px;background:linear-gradient(135deg, var(--bg-2) 0%, var(--bg-1) 100%);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;position:relative;overflow:hidden;transition:transform .12s, border-color .12s, box-shadow .12s}
@@ -7637,7 +7645,7 @@
         </div>
         <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
           <button class="lg-tab active" data-mdp="home" onclick="mdpSwitch('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="mdpCountHome">8</span></button>
-          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">1</span></button>
+          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">2</span></button>
         </div>
         <div class="mdp-panel" data-mdp-panel="home">
           <div id="salesReportsWrap"></div>
@@ -9791,18 +9799,23 @@
      각 브랜드 카드 자동 생성 → 개별 fetch. 서버 캐시(launchd 30분) → 클라이언트 폴링(30분). */
   const BRAND_SECTIONS=[
     // 사장님 지정 순서 (2026-08-13): 6a → ct → yar → pp → akoi → kop → apt → koz
-    {id:'6a',   endpoint:'/admin-sales?brand=6a',   group:'식스샵',    display:'식스에이',   dot:'#22d3ee', hasItemAmount:false, hasOptions:false},
+    // platforms: 브랜드가 추가로 판매하는 외부 채널 (카드 타이틀 우측 작은 태그로 표시)
+    {id:'6a',   endpoint:'/admin-sales?brand=6a',   group:'식스샵',    display:'식스에이',   dot:'#22d3ee', hasItemAmount:false, hasOptions:false, platforms:['ably']},
     {id:'ct',   endpoint:'/pro-sales?brand=ct',     group:'식스샵프로',display:'클리어타입',  dot:'#22c55e', hasItemAmount:true,  hasOptions:true},
     {id:'yar',  endpoint:'/admin-sales?brand=yar',  group:'식스샵',    display:'야르',       dot:'#a78bfa', hasItemAmount:false, hasOptions:false},
-    {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true},
+    {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true,  platforms:['smartstore']},
     {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
     {id:'kop',  endpoint:'/admin-sales?brand=kop',  group:'식스샵',    display:'코페리',     dot:'#818cf8', hasItemAmount:false, hasOptions:false},
     {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
   ];
+  const _PLAT_LABEL={ably:'에이블리', smartstore:'스마트스토어'};
+  const _GROUP_TO_PLAT={'에이블리':'ably','스마트스토어':'smartstore'};  // 플랫폼 탭 카드용 역매핑
   // 플랫폼 탭 (외부 마켓플레이스). 6thanother = 식스에이 에이블리 계정.
+  // hideUsd:true — 플랫폼 카드는 $USD 병기 생략.
   const PLATFORM_SECTIONS=[
-    {id:'ably-6a', endpoint:'/ably-sales', group:'에이블리', display:'식스에이', dot:'#ff5a92', hasItemAmount:false, hasOptions:false},
+    {id:'ably-6a',       endpoint:'/ably-sales',       group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
+    {id:'smartstore-pp', endpoint:'/smartstore-sales', group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
   ];
   function _salesCfg(id){
     return BRAND_SECTIONS.find(b=>b.id===id) || PLATFORM_SECTIONS.find(b=>b.id===id);
@@ -9842,12 +9855,13 @@
   function _akoiFmtUsd(krw){
     return '$'+Math.round((Number(krw)||0)/_USD_KRW).toLocaleString('en-US');
   }
-  function _akoiRenderSummary(s){
+  function _akoiRenderSummary(s, opts){
     if(!s) return '';
+    const hideUsd = !!(opts && opts.hideUsd);
     const today=s.today||{}, yst=s.yesterday||{}, td=s.thirtyDays||{};
     const cards=[
-      {label:'오늘',      rev:today.revenue, ord:today.orders, cls:'', usd:true},
-      {label:'어제',      rev:yst.revenue,   ord:yst.orders,   cls:'', usd:true},
+      {label:'오늘',      rev:today.revenue, ord:today.orders, cls:'', usd:!hideUsd},
+      {label:'어제',      rev:yst.revenue,   ord:yst.orders,   cls:'', usd:!hideUsd},
       {label:'최근 30일', rev:td.revenue,    ord:td.orders,    cls:' is-secondary'},
     ];
     return cards.map(c=>{
@@ -9895,12 +9909,23 @@
     el.textContent=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')} 갱신`;
   }
   function _salesBuildCard(cfg){
+    const plats=Array.isArray(cfg.platforms)?cfg.platforms:[];
+    let platPills=plats.map(k=>{
+      const lbl=_PLAT_LABEL[k]||k;
+      return `<span class="brand-plat-pill is-${k}" title="${_akoiEsc(lbl)} 채널 판매 중 — 자세한 매출은 플랫폼 탭">${_akoiEsc(lbl)}</span>`;
+    }).join('');
+    // 플랫폼 탭 카드는 group(에이블리·스마트스토어) 자체를 pill 로 표시 → 공홈 탭 스타일 통일
+    const platKey=_GROUP_TO_PLAT[cfg.group];
+    const subGroupText = platKey ? '' : `${_akoiEsc(cfg.group)} · `;
+    if(platKey){
+      platPills += `<span class="brand-plat-pill is-${platKey}" title="${_akoiEsc(cfg.group)} 채널">${_akoiEsc(cfg.group)}</span>`;
+    }
     return `<div class="akoi-section po-section" data-brand="${cfg.id}" data-expanded="0" style="margin-bottom:14px">
       <div class="po-section-head">
         <div class="po-section-title">
           <span class="brand-dot" style="background:${cfg.dot}"></span>
-          ${_akoiEsc(cfg.display)}
-          <span class="akoi-sub">${_akoiEsc(cfg.group)} · 최근 30일</span>
+          ${_akoiEsc(cfg.display)}${platPills}
+          <span class="akoi-sub">${subGroupText}최근 30일</span>
         </div>
         <div class="po-section-meta">
           <span id="salesUpd_${cfg.id}" class="sales-updated-tag"></span>
@@ -9963,7 +9988,7 @@
         body.innerHTML=`<div class="akoi-err">${_akoiEsc(j&&j.error||'응답 오류')}</div>`;
         return;
       }
-      summary.innerHTML=_akoiRenderSummary(j.summary||{});
+      summary.innerHTML=_akoiRenderSummary(j.summary||{}, {hideUsd: !!cfg.hideUsd});
       const top=Array.isArray(j.top10)?j.top10:[];
       body.innerHTML=top.length
         ? top.map(it=>_akoiRenderRow(it, cfg)).join('')
