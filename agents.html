@@ -29,9 +29,6 @@
     --screen-on:#111827;
     --key:#fafafa;
     --key-edge:#e5e7eb;
-    --chair:#334155;
-    --chair-2:#475569;
-    --chair-shadow:#1e293b;
     --text-0:#0a0b0d;
     --text-1:#1f2329;
     --text-2:#3a3e46;
@@ -64,25 +61,24 @@
   .legend .item{display:inline-flex;align-items:center;gap:5px}
   .legend .dot{width:7px;height:7px;border-radius:50%}
   .legend .dot.r{background:var(--running);box-shadow:0 0 0 3px rgba(16,185,129,.16)}
-  .legend .dot.i{background:var(--idle)}
-  .legend .dot.s{background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.16)}
   .legend .dot.w{background:var(--warn)}
+  .legend .dot.s{background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.16)}
   .legend .hint{margin-left:auto;color:var(--text-3);font-style:italic}
   .legend .hint b{font-style:normal;color:var(--text-2);background:var(--bg-2);padding:1px 6px;border-radius:4px;font-weight:600}
 
   .office{max-width:1240px;margin:0 auto;padding:22px 22px 60px;position:relative}
   .floor{position:relative;background:linear-gradient(180deg,var(--floor) 0%,var(--floor-2) 100%);border-radius:22px;padding:34px 24px 40px;border:1px solid var(--line);box-shadow:inset 0 0 60px rgba(168,145,99,.06),0 20px 40px -30px rgba(0,0,0,.15)}
   .rug{position:absolute;inset:20px 40px;background:var(--rug);border-radius:14px;box-shadow:inset 0 0 0 1px var(--rug-line),inset 0 0 40px rgba(216,206,186,.4);z-index:0}
-  .plant-corner{position:absolute;width:44px;height:44px;z-index:1;filter:drop-shadow(0 6px 8px rgba(0,0,0,.1))}
 
-  .desks{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:48px 24px;padding:16px 8px}
-  @media(max-width:720px){.desks{grid-template-columns:repeat(2,1fr);gap:34px 12px;padding:8px 4px}.floor{padding:20px 12px 28px;border-radius:16px}.rug{inset:12px 20px;border-radius:10px}}
+  .desks{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:38px 24px;padding:16px 8px}
+  @media(max-width:720px){.desks{grid-template-columns:repeat(2,1fr);gap:28px 12px;padding:8px 4px}.floor{padding:20px 12px 28px;border-radius:16px}.rug{inset:12px 20px;border-radius:10px}}
   @media(max-width:420px){.desks{grid-template-columns:1fr}}
 
-  .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .desk-svg{width:100%;max-width:250px;height:auto;aspect-ratio:200/215;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09))}
+  .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .desk-svg{width:100%;max-width:240px;height:auto;aspect-ratio:200/150;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09));transition:transform .22s cubic-bezier(.22,1,.36,1)}
+  .cell:hover .desk-svg{transform:translateY(-2px)}
 
-  .bubble{width:100%;max-width:230px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 8px 20px -14px rgba(0,0,0,.16),0 2px 5px -3px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease}
+  .bubble{width:100%;max-width:232px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 8px 20px -14px rgba(0,0,0,.16),0 2px 5px -3px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
   .cell:hover .bubble{transform:translateY(-1px);box-shadow:0 14px 28px -14px rgba(0,0,0,.2),0 2px 6px -3px rgba(0,0,0,.08)}
   .bubble .row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .bubble .name{font-size:12.5px;font-weight:700;letter-spacing:-.02em;color:var(--text-0);cursor:text;border-radius:4px;padding:1px 4px;margin:-1px -4px;transition:background .15s;outline:none}
@@ -93,35 +89,28 @@
   .bubble .task{font-size:12px;font-weight:500;color:var(--text-1);margin-top:5px;line-height:1.35;min-height:1.35em;word-break:keep-all}
   .bubble .meta{font-size:10.5px;color:var(--text-3);margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:0}
   .bubble .meta b{color:var(--text-1);font-weight:600}
+  .talk{margin-top:8px;width:100%;border:1px solid var(--line);background:var(--bg-2);color:var(--text-2);border-radius:9px;padding:6px 8px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s,color .15s,border-color .15s}
+  .talk:hover{background:var(--text-0);color:#fff;border-color:var(--text-0)}
+  .talk .log-n{background:var(--line);color:var(--text-2);border-radius:999px;font-size:9px;padding:0 6px;line-height:14px;font-weight:600}
+  .talk:hover .log-n{background:rgba(255,255,255,.22);color:#fff}
+
   .stat{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;letter-spacing:-.01em;margin-left:auto}
   .stat .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
   .stat.running{color:#065f46;background:#d1fae5}
   .stat.running .dot{background:var(--running);animation:pulse 1.2s ease-in-out infinite}
-  .stat.idle{color:#475569;background:#e2e8f0}
-  .stat.idle .dot{background:var(--idle)}
   .stat.stale{color:#991b1b;background:#fee2e2}
   .stat.stale .dot{background:var(--danger);animation:pulse 1.8s ease-in-out infinite}
   .stat.warn{color:#92400e;background:#fef3c7}
   .stat.warn .dot{background:var(--warn)}
 
   /* ---- Animations ---- */
-  /* Idle: 미묘한 breathing (모든 캐릭터) */
-  .desk-svg .body-group{animation:breathe 4.2s ease-in-out infinite;transform-origin:100px 150px;transform-box:fill-box}
-  @keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-.4px) scale(1.005)}}
+  .desk-svg .head-group{animation:breathe 4.2s ease-in-out infinite;transform-origin:50% 50%;transform-box:fill-box}
+  @keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-.5px) scale(1.006)}}
+  .cell.running .desk-svg .head-group{animation:focus-bob 2.6s ease-in-out infinite}
+  @keyframes focus-bob{0%,100%{transform:translateY(0)}45%{transform:translateY(-2.2px)}}
 
-  /* Running: 팔 타이핑 */
-  .cell.running .desk-svg .arm-l{animation:type-l .55s ease-in-out infinite;transform-origin:90px 128px;transform-box:fill-box}
-  .cell.running .desk-svg .arm-r{animation:type-r .62s ease-in-out infinite .08s;transform-origin:128px 128px;transform-box:fill-box}
-  @keyframes type-l{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(0,-1.2px) rotate(-1.4deg)}}
-  @keyframes type-r{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(0,-1.2px) rotate(1.4deg)}}
-  /* Running: 손 살짝 */
-  .cell.running .desk-svg .hand-l{animation:tap-l .55s ease-in-out infinite;transform-origin:91px 90px;transform-box:fill-box}
-  .cell.running .desk-svg .hand-r{animation:tap-r .48s ease-in-out infinite .1s;transform-origin:147px 96px;transform-box:fill-box}
-  @keyframes tap-l{0%,100%{transform:translateY(0)}50%{transform:translateY(-.8px)}}
-  @keyframes tap-r{0%,100%{transform:translate(0,0)}50%{transform:translate(.4px,-.6px)}}
-  /* Running: 스크린 콘텐트 */
   .desk-svg .screen-content{opacity:0;transition:opacity .3s ease}
-  .cell.running .desk-svg .screen-content{opacity:1}
+  .cell.running .desk-svg .screen-content,.cell.warn .desk-svg .screen-content{opacity:1}
   .desk-svg .cursor{animation:blink 1s step-end infinite}
   @keyframes blink{50%{opacity:0}}
   .cell.running .desk-svg .screen{fill:var(--screen-on);animation:screen-flick 2.5s ease-in-out infinite}
@@ -133,7 +122,6 @@
   @keyframes code-shift-2{0%,100%{width:22px}50%{width:10px}}
   @keyframes code-shift-3{0%,100%{width:18px}50%{width:26px}}
 
-  /* Stale: 흔들림 */
   .cell.stale .desk-svg{animation:shake 3.2s ease-in-out infinite}
   .cell.stale .desk-svg .screen{fill:#7f1d1d}
   .cell.running .bubble{border-color:rgba(16,185,129,.28)}
@@ -143,7 +131,51 @@
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  .foot{max-width:1240px;margin:0 auto;padding:0 22px 26px;color:var(--text-3);font-size:11.5px;display:flex;gap:14px;flex-wrap:wrap}
+  /* ---- Chat drawer ---- */
+  .scrim{position:fixed;inset:0;background:rgba(15,23,42,.28);backdrop-filter:blur(2px);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s ease}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .chat{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);background:var(--bg-1);z-index:51;display:flex;flex-direction:column;box-shadow:-20px 0 50px -24px rgba(0,0,0,.35);transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
+  .chat.open{transform:translateX(0)}
+  .chat-head{padding:16px 18px 14px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:12px;flex-shrink:0}
+  .chat-av{width:38px;height:38px;border-radius:50%;flex-shrink:0;position:relative}
+  .chat-av .ring{position:absolute;inset:-3px;border-radius:50%;border:2px solid var(--running);opacity:.35}
+  .chat-who{flex:1;min-width:0}
+  .chat-who .n{font-size:15px;font-weight:700;letter-spacing:-.02em}
+  .chat-who .t{font-size:11.5px;color:var(--text-3);margin-top:2px}
+  .chat-x{border:none;background:var(--bg-2);color:var(--text-2);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1;font-family:inherit;flex-shrink:0}
+  .chat-x:hover{background:var(--text-0);color:#fff}
+  .chat-body{flex:1;overflow-y:auto;padding:16px 18px 8px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+  .msg{max-width:88%;font-size:13px;line-height:1.55;padding:9px 12px;border-radius:14px;word-break:break-word;white-space:pre-wrap}
+  .msg.agent{background:var(--bg-2);color:var(--text-1);align-self:flex-start;border-bottom-left-radius:5px}
+  .msg.user{background:var(--text-0);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+  .msg.sys{align-self:center;background:transparent;color:var(--text-3);font-size:11px;padding:2px 0;max-width:100%;text-align:center}
+  .msg.done{background:#d1fae5;color:#065f46;font-weight:700;align-self:flex-start;border-bottom-left-radius:5px}
+  .msg.err{background:#fee2e2;color:#991b1b;align-self:flex-start;border-bottom-left-radius:5px}
+  .msg .ts{display:block;font-size:9.5px;opacity:.5;margin-top:3px;font-variant-numeric:tabular-nums}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:96%}
+  .chip{border:1px solid var(--line-2);background:var(--bg-1);color:var(--text-1);border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s,color .15s;text-align:left}
+  .chip:hover{background:var(--text-0);color:#fff;border-color:var(--text-0)}
+  .chip.primary{background:var(--text-0);color:#fff;border-color:var(--text-0)}
+  .chip.primary:hover{background:#000}
+  .chip.danger{border-color:rgba(239,68,68,.4);color:#b91c1c}
+  .chip.danger:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+  .typing{align-self:flex-start;display:flex;gap:4px;padding:11px 13px;background:var(--bg-2);border-radius:14px;border-bottom-left-radius:5px}
+  .typing i{width:5px;height:5px;border-radius:50%;background:var(--text-3);animation:tdot 1.2s ease-in-out infinite}
+  .typing i:nth-child(2){animation-delay:.16s}.typing i:nth-child(3){animation-delay:.32s}
+  @keyframes tdot{0%,60%,100%{opacity:.28;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  .chat-foot{border-top:1px solid var(--line);padding:10px 14px 14px;flex-shrink:0;background:var(--bg-1)}
+  .chat-quick{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+  .chat-quick::-webkit-scrollbar{display:none}
+  .chat-quick .chip{flex-shrink:0}
+  .chat-in{display:flex;gap:8px;align-items:flex-end}
+  .chat-in textarea{flex:1;border:1px solid var(--line);background:var(--bg-0);border-radius:12px;padding:9px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;max-height:110px;line-height:1.45;color:var(--text-0)}
+  .chat-in textarea:focus{border-color:var(--text-2);background:var(--bg-1)}
+  .chat-send{border:none;background:var(--text-0);color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;flex-shrink:0;font-size:15px;line-height:1;font-family:inherit}
+  .chat-send:disabled{opacity:.35;cursor:default}
+  .chat-clear{border:none;background:none;color:var(--text-3);font-size:10.5px;font-family:inherit;cursor:pointer;padding:6px 0 0;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:2px}
+  .chat-clear:hover{color:var(--text-1)}
+
+  .foot{max-width:1240px;margin:0 auto;padding:0 22px 26px;color:var(--text-3);font-size:11.5px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
   .foot .refresh{cursor:pointer;user-select:none}
   .foot .refresh:hover{color:var(--text-1)}
   .foot .reset-names{cursor:pointer;color:var(--text-3);border:none;background:none;font-size:11.5px;font-family:inherit;padding:0;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:2px}
@@ -172,21 +204,16 @@
     </div>
   </div>
   <div class="legend">
-    <span class="item"><span class="dot r"></span>실행 중</span>
-    <span class="item"><span class="dot i"></span>대기</span>
-    <span class="item"><span class="dot w"></span>임박</span>
+    <span class="item"><span class="dot r"></span>근무 중</span>
+    <span class="item"><span class="dot w"></span>곧 실행</span>
     <span class="item"><span class="dot s"></span>멈춤 · 확인 필요</span>
-    <span class="hint">🕊️ 하늘에서 내려다 본 사무실 · 이름/부서는 <b>클릭</b>해서 편집</span>
+    <span class="hint">💬 직원을 <b>클릭</b>하면 업무 지시 · 이름/부서는 글자를 클릭해 편집</span>
   </div>
 </div>
 
 <div class="office">
   <div class="floor">
     <div class="rug"></div>
-    <svg class="plant-corner" style="left:6px;top:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
-    <svg class="plant-corner" style="right:6px;top:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
-    <svg class="plant-corner" style="left:6px;bottom:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
-    <svg class="plant-corner" style="right:6px;bottom:6px" viewBox="0 0 44 44"><circle cx="22" cy="20" r="14" fill="#57895a"/><circle cx="15" cy="16" r="7" fill="#6ca972"/><circle cx="29" cy="16" r="7" fill="#6ca972"/><circle cx="22" cy="12" r="7" fill="#7ab882"/><circle cx="22" cy="34" r="6" fill="#d0b78a"/></svg>
     <div class="desks" id="desks"></div>
   </div>
 </div>
@@ -195,70 +222,282 @@
   <span>실시간 소스: <code>/agents/status</code> (프록시 · 로그 mtime + 스케줄)</span>
   <span class="refresh" id="refresh-btn">↻ 지금 갱신</span>
   <span id="last-fetch"></span>
+  <span id="role-tag"></span>
   <button class="reset-names" id="reset-btn">이름·부서 초기화</button>
 </div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="chat" id="chat" aria-hidden="true">
+  <div class="chat-head">
+    <div class="chat-av" id="chat-av"><span class="ring"></span></div>
+    <div class="chat-who">
+      <div class="n" id="chat-name">–</div>
+      <div class="t" id="chat-role">–</div>
+    </div>
+    <button class="chat-x" id="chat-x" aria-label="닫기">✕</button>
+  </div>
+  <div class="chat-body" id="chat-body"></div>
+  <div class="chat-foot">
+    <div class="chat-quick" id="chat-quick"></div>
+    <div class="chat-in">
+      <textarea id="chat-input" rows="1" placeholder="업무를 지시하세요…" spellcheck="false"></textarea>
+      <button class="chat-send" id="chat-send" aria-label="전송">↑</button>
+    </div>
+    <button class="chat-clear" id="chat-clear">대화 기록 지우기</button>
+  </div>
+</aside>
 
 <div class="loading" id="loading"><div class="spin"></div></div>
 
 <script>
-/* -------- 캐릭터 6명 (팀별 1명, 각자 담당 자동화 여러 개 가능) -------- */
-const CHARACTERS = [
-  {
-    id:'logistics', name:'콜리', team:'물류팀',
-    hairColor:'#2c1810', skin:'#f4d5b3', cloth:'#7c3aed',
-    agentIds:['kd-brightbeed','kd-shinebeed'],
-    taskLabel:'콰이디에어 배송 pull (BB+SB)', scheduleLabel:'매 10분', intervalSec:600,
-  },
-  {
-    id:'vendor', name:'노아', team:'벤더',
-    hairColor:'#1a1a1a', skin:'#efc9a3', cloth:'#4f46e5',
-    agentIds:['vendor-fetch'],
-    taskLabel:'벤더 마진 · gcCal 갱신', scheduleLabel:'매 10분', intervalSec:600,
-  },
-  {
-    id:'marketing', name:'자스민', team:'마케팅팀',
-    hairColor:'#2c1810', skin:'#f6d0aa', cloth:'#65a30d',
-    agentIds:['pro-sales','admin-sales'],
-    taskLabel:'식스샵 매출 스냅 (Pro+admin)', scheduleLabel:'매 30분', intervalSec:1800,
-  },
-  {
-    id:'ads', name:'오스카', team:'광고팀',
-    hairColor:'#1e1a17', skin:'#e8b98b', cloth:'#ea580c',
-    agentIds:['fb-ads'],
-    taskLabel:'메타 광고 성과 갱신', scheduleLabel:'매 30분', intervalSec:1800,
-  },
-  {
-    id:'hr', name:'릴리', team:'인사팀',
-    hairColor:'#6b4423', skin:'#fadcbc', cloth:'#ff5f7a',
-    agentIds:['daily-pptx'],
-    taskLabel:'일일 매출 PPT 업로드', scheduleLabel:'매일 08:00', cronH:8, cronM:0,
-  },
-  {
-    id:'planning', name:'아이비', team:'기획팀',
-    hairColor:'#2c1810', skin:'#f6d0aa', cloth:'#e11d48',
-    agentIds:['brand-report'],
-    taskLabel:'브랜드 분석리포트', scheduleLabel:'수동 트리거', manual:true,
-  },
-];
+/* ==========================================================================
+   Bead Universe · Agents Office
+   - 직원 = 실제 자동화 담당자. 클릭하면 업무 지시 대화창.
+   - 모든 업무는 완료 시 더블체크를 거쳐 "더블체크 완료." 로 끝난다.
+   ========================================================================== */
+
+const DONE_MSG = '더블체크 완료.';
+const PIN_VIEWER = '2580';
+const PIN_MASTER = '0000';
+const ROLE_KEY = 'brightbeed_role';
+const TUNNEL_URL = 'https://raw.githubusercontent.com/j65209/Brightbeed/main/tunnel.json';
 
 const $ = id => document.getElementById(id);
 const OVERRIDES_KEY = 'agents_overrides_v1';
-let statusMap = {};
+const CHAT_KEY = 'agents_chat_v1';
 
-/* ---- Storage ---- */
+let statusMap = {};
+let _proxyBase = null;
+let openCharId = null;
+let busy = false;
+const sess = {};          // charId -> 진행 중인 업무 컨텍스트 (비영속)
+const catalogCache = {};  // brand -> {at, data}
+
+/* -------------------------------------------------------------------------
+   직원 명부 — 각자 전문 분야 + 담당 자동화
+   ------------------------------------------------------------------------- */
+const CHARACTERS = [
+  {
+    id:'logistics', name:'콜리', team:'물류팀',
+    hairColor:'#2c1810', cloth:'#7c3aed',
+    agentIds:['kd-brightbeed','kd-shinebeed'],
+    taskLabel:'콰이디에어 동기화 업무', scheduleLabel:'매 10분', intervalSec:600,
+    role:'콰이디에어 배송·통관 전문',
+    knows:[
+      '브라이트비드(BB)·샤인비드(SB) 2계정을 각각 10분마다 pull',
+      '주문번호·운송장·통관 상태 매칭, 중복 주문 제거',
+      '누락 건은 재수집이 원칙 — 수기 입력으로 덮어쓰지 않음',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'배송 현황', cmd:'배송 현황'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'stock', name:'미루', team:'재고팀',
+    hairColor:'#3b2416', cloth:'#0ea5e9',
+    agentIds:[], alwaysOn:true,
+    taskLabel:'식스샵 재고 관리 업무', scheduleLabel:'상시 대응', manual:true,
+    role:'식스샵 재고 조회·수정 전문',
+    knows:[
+      '식스에이·클리어타입·야르·코페리·아페티 재고를 실시간 조회',
+      '재고 수정은 식스에이(6thanother) 옵션 단위로 직접 반영',
+      '수정 전 반드시 현재 재고를 읽고, 수정 후 다시 읽어 대조',
+      '마스터 권한 없이는 절대 쓰지 않음 · 확인 없이 저장하지 않음',
+    ],
+    quick:[
+      {label:'재고 수정', cmd:'재고 수정해줘'},
+      {label:'재고 조회', cmd:'재고 조회'},
+      {label:'품절 임박', cmd:'품절 임박'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'vendor', name:'노아', team:'벤더팀',
+    hairColor:'#1a1a1a', cloth:'#4f46e5',
+    agentIds:['vendor-fetch'],
+    taskLabel:'벤더 데이터 업무', scheduleLabel:'매 10분', intervalSec:600,
+    role:'벤더 마진·원가 데이터 전문',
+    knows:[
+      'vMargin·gcCal 원본을 10분 주기로 갱신',
+      '첫 로드 + 30분 게이트 / 실패 시 5분 재시도 패턴',
+      '화면의 "HH:MM 갱신" 표기가 실제 데이터 신선도',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'벤더 데이터', cmd:'벤더 데이터'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'marketing', name:'자스민', team:'마케팅팀',
+    hairColor:'#2c1810', cloth:'#65a30d',
+    agentIds:['pro-sales','admin-sales'],
+    taskLabel:'식스샵 매출 분석 및 동기화 업무', scheduleLabel:'매 30분', intervalSec:1800,
+    role:'식스샵 매출·판매순위 분석 전문',
+    knows:[
+      '식스샵프로(Pro)와 일반 admin 두 소스를 나눠 수집',
+      'Pro item/top 은 자사몰만 집계 — 외부채널 매출은 빠짐',
+      '브랜드별 TOP10 판매순위와 매출 스냅을 30분 주기로 갱신',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'베스트셀러', cmd:'베스트셀러'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'ads', name:'오스카', team:'광고팀',
+    hairColor:'#1e1a17', cloth:'#ea580c',
+    agentIds:['fb-ads'],
+    taskLabel:'메타 광고 성과 업무', scheduleLabel:'매 30분', intervalSec:1800,
+    role:'메타(페이스북) 광고 성과 전문',
+    knows:[
+      '구매 지표는 omni_purchase 하나만 사용 — 다른 action_type 합산은 중복',
+      '지출·구매·ROAS·CPA 를 브랜드별로 분리 집계',
+      '리포트 push 실패 시 pull --rebase 재시도가 붙어 있어야 함',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'광고 성과', cmd:'광고 성과'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'report', name:'릴리', team:'리포트팀',
+    hairColor:'#6b4423', cloth:'#ff5f7a',
+    agentIds:['daily-pptx'],
+    taskLabel:'일일 매출 리포트 업무', scheduleLabel:'매일 08:00', cronH:8, cronM:0,
+    role:'일일 매출 PPT 제작·업로드 전문',
+    knows:[
+      '매일 08:00 매출 PPT 생성 후 대시보드에 업로드',
+      '06:00 ERP 최신화가 끝난 뒤에 돌아야 숫자가 맞음',
+      '업로드 실패 시 조용히 넘어가지 않고 반드시 남김',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'planning', name:'아이비', team:'기획팀',
+    hairColor:'#2c1810', cloth:'#e11d48',
+    agentIds:['brand-report'],
+    taskLabel:'브랜드 분석 업무', scheduleLabel:'수동 트리거', manual:true,
+    role:'8개 브랜드 리오더·핫아이템 분석 전문',
+    knows:[
+      '브랜드별 TOP10 · 리오더 후보 · 핫아이템을 묶어 리포트',
+      'Pro 브랜드와 admin 브랜드는 집계 경로가 달라 따로 봐야 함',
+      'admin v2 orders 는 세션이 살아 있어야 응답',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'브랜드 리포트', cmd:'브랜드 리포트'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+];
+const charById = id => CHARACTERS.find(c => c.id === id);
+
+const BRANDS = {
+  '6a':{key:'6a', label:'식스에이', writable:true},
+  'ct':{key:'ct', label:'클리어타입'},
+  'yar':{key:'yar', label:'야르'},
+  'kop':{key:'kop', label:'코페리'},
+  'apt':{key:'apt', label:'아페티'},
+};
+const BRAND_WORDS = [
+  ['6a', ['식스에이','6a','6thanother','식스어나더','sixa']],
+  ['ct', ['클리어타입','cleartype','ct']],
+  ['yar', ['야르','yar']],
+  ['kop', ['코페리','koperi','kop']],
+  ['apt', ['아페티','apeti','apt']],
+];
+
+/* -------------------------------------------------------------------------
+   저장소
+   ------------------------------------------------------------------------- */
 function loadOverrides(){ try{ return JSON.parse(localStorage.getItem(OVERRIDES_KEY)||'{}'); }catch(e){ return {}; } }
-function saveOverrides(o){ localStorage.setItem(OVERRIDES_KEY, JSON.stringify(o)); }
 function saveOverride(id, changes){
   const o = loadOverrides();
   o[id] = Object.assign(o[id]||{}, changes);
-  saveOverrides(o);
+  localStorage.setItem(OVERRIDES_KEY, JSON.stringify(o));
 }
 function displayName(c){ return (loadOverrides()[c.id]?.name) || c.name; }
 function displayTeam(c){ return (loadOverrides()[c.id]?.team) || c.team; }
 
-/* ---- Time helpers ---- */
+function loadChats(){ try{ return JSON.parse(localStorage.getItem(CHAT_KEY)||'{}'); }catch(e){ return {}; } }
+function saveChats(o){ try{ localStorage.setItem(CHAT_KEY, JSON.stringify(o)); }catch(e){} }
+function chatOf(id){ return loadChats()[id] || []; }
+function pushChat(id, msg){
+  const all = loadChats();
+  const arr = all[id] || [];
+  arr.push(msg);
+  all[id] = arr.slice(-60);
+  saveChats(all);
+}
+
+/* -------------------------------------------------------------------------
+   프록시
+   ------------------------------------------------------------------------- */
+function isMaster(){ return localStorage.getItem(ROLE_KEY) === 'master'; }
+function bbPin(){ return isMaster() ? PIN_MASTER : PIN_VIEWER; }
+
+async function loadProxyBase(force){
+  if(_proxyBase && !force) return _proxyBase;
+  try{
+    const r = await fetch(`${TUNNEL_URL}?cb=${Date.now()}`, {cache:'no-cache'});
+    if(!r.ok) return null;
+    const j = await r.json();
+    _proxyBase = (j && typeof j.url === 'string') ? j.url.replace(/\/$/,'') : null;
+    return _proxyBase;
+  }catch(e){ return null; }
+}
+
+async function api(path, opts){
+  opts = opts || {};
+  const base = await loadProxyBase();
+  if(!base) throw new Error('프록시에 연결할 수 없습니다 (서버 PC 확인 필요)');
+  const headers = Object.assign({'Accept':'application/json'}, opts.headers||{});
+  headers['X-Brightbeed-PIN'] = bbPin();
+  let body = opts.body;
+  if(body && typeof body === 'object'){
+    headers['Content-Type'] = 'application/json';
+    body = JSON.stringify(body);
+  }
+  const r = await fetch(base + path, {method:opts.method||'GET', headers, body, cache:'no-store'});
+  const text = await r.text();
+  let json = null;
+  try{ json = JSON.parse(text); }catch(e){}
+  if(!r.ok){
+    const detail = (json && (json.error || json.detail)) || text.slice(0,180) || `HTTP ${r.status}`;
+    throw new Error(detail);
+  }
+  if(json === null) throw new Error('응답을 해석할 수 없습니다');
+  return json;
+}
+
+/* /vendor-margin 은 JSON 이 아니라 CSV 원문을 돌려준다. */
+async function apiText(path){
+  const base = await loadProxyBase();
+  if(!base) throw new Error('프록시에 연결할 수 없습니다 (서버 PC 확인 필요)');
+  const r = await fetch(base + path, {headers:{'X-Brightbeed-PIN':bbPin()}, cache:'no-store'});
+  const text = await r.text();
+  if(!r.ok){
+    let d = text.slice(0,180);
+    try{ d = JSON.parse(text).error || d; }catch(e){}
+    throw new Error(d);
+  }
+  return {text, cacheAge: Number(r.headers.get('X-Cache-Age') || NaN), err: r.headers.get('X-VM-Error')};
+}
+
+/* -------------------------------------------------------------------------
+   시간
+   ------------------------------------------------------------------------- */
 function pad(n){ return String(n).padStart(2,'0'); }
 function fmtTime(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+function fmtHM(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function fmtDate(d){ const w=['일','월','화','수','목','금','토'][d.getDay()]; return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${w})`; }
 function fmtRel(sec){
   if(sec == null) return '–';
@@ -268,30 +507,27 @@ function fmtRel(sec){
   if(abs < 86400) return `${Math.floor(abs/3600)}시간 ${Math.floor((abs%3600)/60)}분`;
   return `${Math.floor(abs/86400)}일`;
 }
+function num(n){ return (n==null||isNaN(n)) ? '–' : Number(n).toLocaleString('ko-KR'); }
 
-/* ---- Status derivation across multiple agents per character ---- */
+/* -------------------------------------------------------------------------
+   상태 — 기본은 "근무 중". 멈춤/임박만 예외로 드러난다.
+   ------------------------------------------------------------------------- */
 function deriveCharStatus(c, now){
-  const nowMs = now.getTime();
-  let hasRunning = false, hasStale = false, hasWarn = false;
+  let hasStale = false, hasWarn = false;
   c.agentIds.forEach(id => {
     const s = statusMap[id];
-    if(s?.status === 'running') hasRunning = true;
-    else if(s?.status === 'stale') hasStale = true;
+    if(s?.status === 'stale') hasStale = true;
     else if(s?.status === 'warn') hasWarn = true;
   });
-  if(hasRunning) return 'running';
   if(hasStale) return 'stale';
   if(hasWarn) return 'warn';
-  if(c.manual) return 'idle';
-  // schedule-based warn check
-  const nextRun = nextRunTime(c, now);
-  if(nextRun && nextRun - nowMs < 60*1000 && nextRun - nowMs > 0) return 'warn';
-  return 'idle';
+  const next = nextRunTime(c, now);
+  if(next && next - now.getTime() < 60*1000 && next - now.getTime() > 0) return 'warn';
+  return 'running';
 }
 function nextRunTime(c, now){
   const nowMs = now.getTime();
-  if(c.manual) return null;
-  // 여러 agent 중 가장 빠른 next
+  if(c.manual || !c.agentIds.length) return null;
   let earliest = Infinity;
   c.agentIds.forEach(id => {
     const s = statusMap[id] || {};
@@ -299,7 +535,7 @@ function nextRunTime(c, now){
       const t = s.next_run * 1000;
       if(t < earliest) earliest = t;
     } else if(c.intervalSec){
-      const last = s.last_run ? s.last_run * 1000 : nowMs - c.intervalSec*500;
+      const last = s.last_run ? s.last_run*1000 : nowMs - c.intervalSec*500;
       const t = last + c.intervalSec*1000;
       if(t < earliest) earliest = t;
     } else if(c.cronH != null){
@@ -319,160 +555,101 @@ function mostRecentLastRun(c){
   return latest > 0 ? latest : null;
 }
 
-/* ---- Top-down desk SVG ---- */
+/* -------------------------------------------------------------------------
+   책상 SVG — 위에서 내려다 본 시점. 사람은 정수리만.
+   ------------------------------------------------------------------------- */
 function deskSvg(c){
-  const {cloth, skin, hairColor, id} = c;
+  const {hairColor, id} = c;
   return `
-    <svg class="desk-svg" viewBox="0 0 200 215" xmlns="http://www.w3.org/2000/svg">
+    <svg class="desk-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="scrLight-${id}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#fff"/>
-          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
         </linearGradient>
+        <radialGradient id="crown-${id}" cx="36%" cy="28%" r="74%">
+          <stop offset="0" stop-color="#fff" stop-opacity=".26"/>
+          <stop offset=".55" stop-color="#fff" stop-opacity=".05"/>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
       </defs>
 
-      <!-- 그림자 -->
-      <ellipse cx="100" cy="210" rx="94" ry="4" fill="rgba(0,0,0,.07)"/>
+      <ellipse cx="100" cy="145" rx="86" ry="4" fill="rgba(0,0,0,.05)"/>
 
       <!-- 책상 -->
-      <rect x="6" y="6" width="188" height="114" rx="10" fill="var(--wood)" stroke="var(--wood-edge)" stroke-width=".8"/>
-      <path d="M6,20 Q100,22 194,20" stroke="var(--wood-2)" stroke-width=".6" fill="none" opacity=".55"/>
-      <path d="M6,52 Q100,54 194,52" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".45"/>
-      <path d="M6,88 Q100,90 194,88" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".4"/>
+      <rect x="6" y="6" width="188" height="112" rx="10" fill="var(--wood)" stroke="var(--wood-edge)" stroke-width=".8"/>
+      <path d="M6,22 Q100,24 194,22" stroke="var(--wood-2)" stroke-width=".6" fill="none" opacity=".5"/>
+      <path d="M6,58 Q100,60 194,58" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".4"/>
+      <path d="M6,96 Q100,98 194,96" stroke="var(--wood-2)" stroke-width=".5" fill="none" opacity=".35"/>
 
       <!-- iMac -->
-      <rect x="52" y="15" width="96" height="50" rx="4" fill="var(--alu)" stroke="rgba(0,0,0,.14)" stroke-width=".8"/>
-      <rect class="screen" x="55" y="18" width="90" height="44" rx="2" fill="var(--screen-off)"/>
-      <!-- 스크린 코드 라인 (running일때 나타남) -->
+      <rect x="52" y="14" width="96" height="50" rx="4" fill="var(--alu)" stroke="rgba(0,0,0,.14)" stroke-width=".8"/>
+      <rect class="screen" x="55" y="17" width="90" height="44" rx="2" fill="var(--screen-off)"/>
       <g class="screen-content">
-        <rect class="code-1" x="60" y="24" width="14" height="1.6" fill="#94a3b8" rx=".5"/>
-        <rect class="code-2" x="60" y="28" width="22" height="1.6" fill="#22d3ee" rx=".5"/>
-        <rect class="code-3" x="60" y="32" width="18" height="1.6" fill="#94a3b8" rx=".5"/>
-        <rect x="60" y="36" width="26" height="1.6" fill="#a5f3fc" rx=".5"/>
-        <rect x="60" y="40" width="16" height="1.6" fill="#94a3b8" rx=".5"/>
-        <rect x="60" y="44" width="20" height="1.6" fill="#22d3ee" rx=".5"/>
-        <rect x="60" y="48" width="14" height="1.6" fill="#94a3b8" rx=".5"/>
-        <rect x="60" y="52" width="10" height="1.6" fill="#a5f3fc" rx=".5"/>
-        <!-- 커서 -->
-        <rect class="cursor" x="71" y="52" width="1.6" height="1.8" fill="#a5f3fc"/>
+        <rect class="code-1" x="60" y="23" width="14" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect class="code-2" x="60" y="27" width="22" height="1.6" fill="#22d3ee" rx=".5"/>
+        <rect class="code-3" x="60" y="31" width="18" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect x="60" y="35" width="26" height="1.6" fill="#a5f3fc" rx=".5"/>
+        <rect x="60" y="39" width="16" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect x="60" y="43" width="20" height="1.6" fill="#22d3ee" rx=".5"/>
+        <rect x="60" y="47" width="14" height="1.6" fill="#94a3b8" rx=".5"/>
+        <rect x="60" y="51" width="10" height="1.6" fill="#a5f3fc" rx=".5"/>
+        <rect class="cursor" x="71" y="51" width="1.6" height="1.8" fill="#a5f3fc"/>
       </g>
-      <!-- 반사광 -->
-      <rect x="55" y="18" width="90" height="14" rx="2" fill="url(#scrLight-${id})" opacity=".18"/>
-      <!-- 스탠드 -->
-      <rect x="90" y="65" width="20" height="3" rx="1" fill="rgba(0,0,0,.14)"/>
+      <rect x="55" y="17" width="90" height="14" rx="2" fill="url(#scrLight-${id})" opacity=".18"/>
+      <rect x="90" y="64" width="20" height="3" rx="1" fill="rgba(0,0,0,.13)"/>
 
-      <!-- 매직 키보드 -->
-      <rect x="62" y="80" width="76" height="14" rx="2.5" fill="var(--key)" stroke="var(--key-edge)" stroke-width=".7"/>
-      <line x1="66" y1="85" x2="134" y2="85" stroke="rgba(0,0,0,.05)" stroke-width=".5"/>
-      <line x1="66" y1="89" x2="134" y2="89" stroke="rgba(0,0,0,.05)" stroke-width=".5"/>
-
-      <!-- 마우스 -->
-      <ellipse cx="152" cy="87" rx="6" ry="8.5" fill="var(--key)" stroke="var(--key-edge)" stroke-width=".7"/>
+      <!-- 매직 키보드 / 마우스 -->
+      <rect x="62" y="82" width="76" height="14" rx="2.5" fill="var(--key)" stroke="var(--key-edge)" stroke-width=".7"/>
+      <line x1="66" y1="87" x2="134" y2="87" stroke="rgba(0,0,0,.05)" stroke-width=".5"/>
+      <line x1="66" y1="91" x2="134" y2="91" stroke="rgba(0,0,0,.05)" stroke-width=".5"/>
+      <ellipse cx="152" cy="89" rx="6" ry="8.5" fill="var(--key)" stroke="var(--key-edge)" stroke-width=".7"/>
 
       <!-- 커피 -->
       <circle cx="26" cy="86" r="9" fill="#fff" stroke="rgba(0,0,0,.15)" stroke-width=".7"/>
       <circle cx="26" cy="86" r="6" fill="#8b6f47"/>
       <ellipse cx="24" cy="83" rx="2.2" ry="1" fill="rgba(255,255,255,.3)"/>
 
-      <!-- 화분 -->
-      <circle cx="170" cy="30" r="8" fill="#57895a"/>
-      <circle cx="166" cy="26" r="4" fill="#6ca972"/>
-      <circle cx="174" cy="26" r="4" fill="#6ca972"/>
-      <circle cx="170" cy="24" r="4" fill="#7dc389"/>
-      <ellipse cx="170" cy="40" rx="6" ry="2" fill="#d0b78a"/>
-
       <!-- 노트 -->
-      <rect x="16" y="102" width="22" height="14" rx="1.5" fill="#fefdf8" stroke="rgba(0,0,0,.1)" stroke-width=".6"/>
-      <line x1="20" y1="107" x2="34" y2="107" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
-      <line x1="20" y1="111" x2="30" y2="111" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+      <rect x="16" y="101" width="22" height="13" rx="1.5" fill="#fefdf8" stroke="rgba(0,0,0,.1)" stroke-width=".6"/>
+      <line x1="20" y1="105" x2="34" y2="105" stroke="rgba(0,0,0,.14)" stroke-width=".5"/>
+      <line x1="20" y1="109" x2="30" y2="109" stroke="rgba(0,0,0,.14)" stroke-width=".5"/>
 
-      <!-- 의자 좌석 (캐릭터 밑) -->
-      <ellipse cx="100" cy="176" rx="44" ry="21" fill="var(--chair-shadow)"/>
-      <ellipse cx="100" cy="173" rx="40" ry="17" fill="var(--chair)"/>
-      <ellipse cx="100" cy="170" rx="34" ry="12" fill="var(--chair-2)"/>
-      <!-- 좌석 앞쪽 라운드 힌트 -->
-      <ellipse cx="100" cy="166" rx="28" ry="8" fill="var(--chair)" opacity=".55"/>
-
-      <!-- 의자 팔걸이 (양쪽에 살짝 - 옆으로 곡선) -->
-      <path d="M60,168 Q56,175 56,185 L62,185 Q62,178 66,172 Z" fill="var(--chair-shadow)"/>
-      <path d="M140,168 Q144,175 144,185 L138,185 Q138,178 134,172 Z" fill="var(--chair-shadow)"/>
-
-      <!-- 등받이 (캐릭터 뒤편에서 위로 노출) -->
-      <path d="M70,188 Q100,196 130,188 L132,213 Q100,215 68,213 Z" fill="var(--chair-shadow)"/>
-      <path d="M74,190 Q100,196 126,190" stroke="rgba(255,255,255,.08)" stroke-width="1" fill="none"/>
-
-      <g class="body-group">
-        <!-- 팔 (몸에서 앞으로 뻗어 키보드/마우스로) -->
-        <path class="arm-l" d="M85,132 Q83,116 87,96 L96,96 Q97,116 93,132 Z" fill="${cloth}"/>
-        <path class="arm-r" d="M115,132 Q117,118 121,102 Q124,96 132,95 L140,97 Q145,96 149,96 Q152,98 152,101 Q149,105 143,107 L136,110 Q129,115 127,132 Z" fill="${cloth}"/>
-
-        <!-- 손 (손등 + 손가락 + 엄지) -->
-        <g class="hand-l">
-          <!-- 손등 -->
-          <path d="M85,90 Q84,85 88,82 L96,82 Q100,84 98,92 Q95,96 90,95 Z" fill="${skin}"/>
-          <!-- 손가락 힌트 (앞쪽 4개, 얇은 라운드) -->
-          <path d="M87,83 Q86,80 87,78" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
-          <path d="M89,82 Q89,79 90,77" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
-          <path d="M92,82 Q92,79 93,77" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
-          <path d="M94,82 Q95,79 96,78" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
-          <!-- 엄지 -->
-          <path d="M97,92 Q101,93 102,89 Q101,87 99,88 Z" fill="${skin}"/>
-        </g>
-        <g class="hand-r">
-          <!-- 손등 (마우스 감쌈) -->
-          <path d="M143,92 Q141,96 145,102 Q149,105 153,102 Q155,96 151,92 Z" fill="${skin}"/>
-          <!-- 손가락 (마우스 위 클릭 자세, 짧게) -->
-          <path d="M145,93 Q145,90 145,88" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
-          <path d="M148,93 Q149,90 149,88" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
-          <path d="M151,94 Q152,91 152,89" stroke="rgba(0,0,0,.14)" stroke-width=".8" stroke-linecap="round" fill="none"/>
-          <!-- 엄지 (마우스 옆) -->
-          <path d="M142,97 Q139,98 139,101 Q141,102 143,100 Z" fill="${skin}"/>
-        </g>
-
-        <!-- 어깨/몸통 -->
-        <path d="M78,135 Q82,130 100,129 Q118,130 122,135 L124,158 Q100,163 76,158 Z" fill="${cloth}"/>
-        <path d="M84,133 Q100,131 116,133" stroke="rgba(255,255,255,.18)" stroke-width=".8" fill="none"/>
-
-        <!-- 목 -->
-        <ellipse cx="100" cy="139" rx="6" ry="3.5" fill="${skin}"/>
-
-        <!-- 정수리 (헤어) -->
-        <ellipse cx="100" cy="152" rx="17" ry="15" fill="${hairColor}"/>
-        <!-- 귀 -->
-        <ellipse cx="84" cy="152" rx="2.5" ry="3.5" fill="${skin}"/>
-        <ellipse cx="116" cy="152" rx="2.5" ry="3.5" fill="${skin}"/>
-        <!-- 헤어 하이라이트 -->
-        <ellipse cx="94" cy="147" rx="4" ry="2.8" fill="rgba(255,255,255,.14)"/>
-        <ellipse cx="107" cy="150" rx="1.8" ry="1.4" fill="rgba(255,255,255,.08)"/>
+      <!-- 정수리 — 책상 앞머리에 걸터앉은 것처럼 아래 모서리를 덮는다 -->
+      <g class="head-group">
+        <ellipse cx="100" cy="124" rx="21" ry="17.5" fill="rgba(0,0,0,.09)"/>
+        <ellipse cx="100" cy="122" rx="20" ry="16.5" fill="${hairColor}"/>
+        <ellipse cx="100" cy="122" rx="20" ry="16.5" fill="url(#crown-${id})"/>
+        <ellipse cx="92" cy="115" rx="6.5" ry="3.4" fill="rgba(255,255,255,.13)" transform="rotate(-18 92 115)"/>
       </g>
     </svg>
   `;
 }
 
-/* ---- Render ---- */
+/* -------------------------------------------------------------------------
+   책상 렌더
+   ------------------------------------------------------------------------- */
 function renderDesks(){
   const wrap = $('desks');
   wrap.innerHTML = '';
   CHARACTERS.forEach(c => {
     const cell = document.createElement('div');
-    cell.className = 'cell';
+    cell.className = 'cell running';
     cell.dataset.id = c.id;
-    const name = displayName(c);
-    const team = displayTeam(c);
     cell.innerHTML = `
       <div class="bubble">
         <div class="row">
-          <span class="name" data-field="name" contenteditable="true" spellcheck="false">${name}</span>
-          <span class="team" data-field="team" contenteditable="true" spellcheck="false">${team}</span>
-          <span class="stat" data-stat><span class="dot"></span><span data-stat-label>–</span></span>
+          <span class="name" data-field="name" contenteditable="true" spellcheck="false">${displayName(c)}</span>
+          <span class="team" data-field="team" contenteditable="true" spellcheck="false">${displayTeam(c)}</span>
+          <span class="stat running" data-stat><span class="dot"></span><span data-stat-label>근무 중</span></span>
         </div>
         <div class="task" data-task>${c.taskLabel}</div>
         <div class="meta" data-meta>–</div>
+        <button class="talk" data-talk>💬 업무 지시</button>
       </div>
       ${deskSvg(c)}
     `;
-    // Attach edit handlers
     cell.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.addEventListener('click', e => e.stopPropagation());
       el.addEventListener('focus', function(){
         const r = document.createRange(); r.selectNodeContents(this);
         const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
@@ -480,17 +657,15 @@ function renderDesks(){
       el.addEventListener('blur', function(){
         const val = this.textContent.replace(/\n/g,'').trim();
         const field = this.dataset.field;
-        if(val){
-          saveOverride(c.id, {[field]: val});
-        } else {
-          this.textContent = field === 'name' ? c.name : c.team;
-        }
+        if(val) saveOverride(c.id, {[field]: val});
+        else this.textContent = field === 'name' ? c.name : c.team;
       });
       el.addEventListener('keydown', function(e){
         if(e.key === 'Enter'){ e.preventDefault(); this.blur(); }
-        if(e.key === 'Escape'){ e.preventDefault(); this.textContent = (loadOverrides()[c.id]?.[this.dataset.field]) || (this.dataset.field === 'name' ? c.name : c.team); this.blur(); }
+        if(e.key === 'Escape'){ e.preventDefault(); this.textContent = (loadOverrides()[c.id]?.[this.dataset.field]) || (this.dataset.field==='name'?c.name:c.team); this.blur(); }
       });
     });
+    cell.addEventListener('click', () => openChat(c.id));
     wrap.appendChild(cell);
   });
 }
@@ -498,49 +673,37 @@ function renderDesks(){
 function updateCells(){
   const now = new Date();
   let running = 0;
+  const chats = loadChats();
   CHARACTERS.forEach(c => {
     const cell = document.querySelector(`.cell[data-id="${c.id}"]`);
     if(!cell) return;
     const status = deriveCharStatus(c, now);
-    cell.classList.remove('running','idle','stale','warn');
+    cell.classList.remove('running','stale','warn');
     cell.classList.add(status);
 
     const statEl = cell.querySelector('.stat');
     statEl.className = 'stat ' + status;
-    const labels = {running:'실행 중', idle:'대기', stale:'멈춤 · 확인', warn:'곧 실행'};
-    statEl.querySelector('[data-stat-label]').textContent = labels[status] || status;
+    const labels = {running:'근무 중', stale:'멈춤 · 확인', warn:'곧 실행'};
+    statEl.querySelector('[data-stat-label]').textContent = labels[status];
 
-    // Task text - 여러 자동화 담당이면 어떤 게 running/stale 인지 힌트
     const taskEl = cell.querySelector('[data-task]');
-    let runningTask = null, staleTask = null;
-    c.agentIds.forEach(id => {
-      const s = statusMap[id];
-      if(s?.status === 'running' && s.task) runningTask = s.task;
-      if(s?.status === 'stale' && !staleTask) staleTask = id;
-    });
-    if(status === 'running') taskEl.textContent = (runningTask || c.taskLabel) + ' · 진행 중…';
-    else if(status === 'stale') taskEl.textContent = `예상 시각 초과 · ${c.taskLabel}`;
-    else taskEl.textContent = c.taskLabel;
+    let runningTask = null;
+    c.agentIds.forEach(id => { const s = statusMap[id]; if(s?.status==='running' && s.task) runningTask = s.task; });
+    if(status === 'stale') taskEl.textContent = `예상 시각 초과 · ${c.taskLabel}`;
+    else taskEl.textContent = (runningTask || c.taskLabel) + ' · 진행 중…';
 
-    // Meta - 최근 실행 + 다음 예정
     const metaEl = cell.querySelector('[data-meta]');
     let meta = '';
     const last = mostRecentLastRun(c);
-    if(last){
-      const ago = (now.getTime()/1000) - last;
-      meta += `마지막 <b>${fmtRel(ago)} 전</b>`;
-    } else {
-      meta += `마지막 <b>–</b>`;
-    }
+    meta += last ? `마지막 <b>${fmtRel(now.getTime()/1000 - last)} 전</b>` : `마지막 <b>–</b>`;
     const next = nextRunTime(c, now);
-    if(next && !c.manual){
-      const inSec = (next - now.getTime())/1000;
-      if(inSec > 0) meta += ` · 다음 <b>${fmtRel(inSec)} 후</b>`;
-      else meta += ` · 다음 <b>임박</b>`;
-    } else if(c.manual){
-      meta += ` · ${c.scheduleLabel}`;
-    }
+    if(next) meta += ` · 다음 <b>${(next - now.getTime()) > 0 ? fmtRel((next-now.getTime())/1000)+' 후' : '임박'}</b>`;
+    else meta += ` · ${c.scheduleLabel}`;
     metaEl.innerHTML = meta;
+
+    const talk = cell.querySelector('[data-talk]');
+    const n = (chats[c.id]||[]).length;
+    talk.innerHTML = n ? `💬 업무 지시 <span class="log-n">대화 ${n}</span>` : '💬 업무 지시';
 
     if(status === 'running') running++;
   });
@@ -556,58 +719,610 @@ function updateClock(){
 
 async function fetchStatus(){
   try{
-    const TUNNEL_URL = 'https://raw.githubusercontent.com/j65209/Brightbeed/main/tunnel.json';
-    const pin = localStorage.getItem('bb_pin') || localStorage.getItem('brightbeed.pin') || '';
-    let base = window._proxyBase;
-    if(!base){
-      try{
-        const r0 = await fetch(TUNNEL_URL + '?cb=' + Date.now(), {cache:'no-cache'});
-        if(r0.ok){
-          const j0 = await r0.json();
-          base = (j0 && j0.url) ? j0.url.replace(/\/$/,'') : null;
-          window._proxyBase = base;
-        }
-      }catch(e){}
-    }
-    if(!base || !pin){
-      $('last-fetch').textContent = '· 스케줄 미러 (프록시/PIN 미연결)';
-      return;
-    }
-    const r = await fetch(base + '/agents/status', {
-      headers:{'X-Brightbeed-PIN':pin,'Accept':'application/json'},
-      cache:'no-store',
-    });
-    if(r.ok){
-      const j = await r.json();
-      statusMap = {};
-      (j.agents||[]).forEach(a => statusMap[a.id] = a);
-      $('last-fetch').textContent = `· 갱신 ${fmtTime(new Date())}`;
-      return;
-    }
-    $('last-fetch').textContent = `· HTTP ${r.status}`;
+    const base = await loadProxyBase();
+    if(!base){ $('last-fetch').textContent = '· 스케줄 미러 (프록시 미연결)'; return; }
+    const j = await api('/agents/status');
+    statusMap = {};
+    (j.agents||[]).forEach(a => statusMap[a.id] = a);
+    $('last-fetch').textContent = `· 갱신 ${fmtTime(new Date())}`;
   }catch(e){
-    $('last-fetch').textContent = `· 오류: ${e.message}`;
+    $('last-fetch').textContent = '· 스케줄 미러';
   }
 }
 
+/* =========================================================================
+   대화창
+   ========================================================================= */
+function openChat(id){
+  openCharId = id;
+  const c = charById(id);
+  $('chat-name').textContent = displayName(c);
+  $('chat-role').textContent = `${displayTeam(c)} · ${c.role}`;
+  $('chat-av').style.background = `radial-gradient(circle at 38% 32%, rgba(255,255,255,.28), transparent 70%), ${c.hairColor}`;
+  renderQuick(c);
+  renderChat();
+  if(!chatOf(id).length) greet(c);
+  $('scrim').classList.add('open');
+  $('chat').classList.add('open');
+  $('chat').setAttribute('aria-hidden','false');
+  setTimeout(() => $('chat-input').focus(), 260);
+}
+function closeChat(){
+  $('scrim').classList.remove('open');
+  $('chat').classList.remove('open');
+  $('chat').setAttribute('aria-hidden','true');
+  openCharId = null;
+  updateCells();
+}
+function renderQuick(c){
+  const q = $('chat-quick');
+  q.innerHTML = '';
+  c.quick.forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = k.label;
+    b.addEventListener('click', () => submit(k.cmd));
+    q.appendChild(b);
+  });
+}
+
+function say(who, text, opts){
+  if(!openCharId) return;
+  const msg = Object.assign({who, text, ts: Date.now()}, opts||{});
+  pushChat(openCharId, msg);
+  appendMsg(msg);
+}
+function appendMsg(m){
+  const body = $('chat-body');
+  const el = document.createElement('div');
+  el.className = 'msg ' + (m.kind || m.who);
+  el.textContent = m.text;
+  if(m.who !== 'sys'){
+    const ts = document.createElement('span');
+    ts.className = 'ts';
+    ts.textContent = fmtHM(new Date(m.ts));
+    el.appendChild(ts);
+  }
+  body.appendChild(el);
+  if(m.chips && m.chips.length){
+    const row = document.createElement('div');
+    row.className = 'chips';
+    m.chips.forEach(ch => {
+      const b = document.createElement('button');
+      b.className = 'chip' + (ch.style ? ' ' + ch.style : '');
+      b.textContent = ch.label;
+      b.addEventListener('click', () => submit(ch.cmd));
+      row.appendChild(b);
+    });
+    body.appendChild(row);
+  }
+  body.scrollTop = body.scrollHeight;
+}
+function renderChat(){
+  const body = $('chat-body');
+  body.innerHTML = '';
+  chatOf(openCharId).forEach(appendMsg);
+  body.scrollTop = body.scrollHeight;
+}
+function typingOn(){
+  const body = $('chat-body');
+  const t = document.createElement('div');
+  t.className = 'typing'; t.id = 'typing';
+  t.innerHTML = '<i></i><i></i><i></i>';
+  body.appendChild(t);
+  body.scrollTop = body.scrollHeight;
+}
+function typingOff(){ const t = $('typing'); if(t) t.remove(); }
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+function greet(c){
+  say('agent', `${displayTeam(c)} ${displayName(c)}입니다. ${c.role}으로 일하고 있어요.\n지금 맡은 업무는 "${c.taskLabel}" 입니다.`, {
+    chips: c.quick.map(q => ({label:q.label, cmd:q.cmd})),
+  });
+}
+
+/* -------------------------------------------------------------------------
+   업무 완료 규약 — 완료·실패·취소는 반드시 더블체크 후 종료 메시지로 끝난다.
+   ------------------------------------------------------------------------- */
+async function doubleCheck(label, verify){
+  say('agent', `🔍 더블체크 중 — ${label}`);
+  await wait(220);
+  let line;
+  try{
+    line = await verify();
+  }catch(e){
+    say('agent', `⚠️ 더블체크 실패: ${e.message}`, {kind:'err'});
+    say('agent', DONE_MSG, {kind:'done'});
+    return false;
+  }
+  if(line) say('agent', line);
+  say('agent', DONE_MSG, {kind:'done'});
+  return true;
+}
+function abort(text){
+  say('agent', text, {kind:'err'});
+  say('agent', DONE_MSG, {kind:'done'});
+}
+
+/* =========================================================================
+   업무 처리
+   ========================================================================= */
+async function submit(raw){
+  if(busy || !openCharId) return;
+  const text = (raw != null ? raw : $('chat-input').value).trim();
+  if(!text) return;
+  $('chat-input').value = '';
+  $('chat-input').style.height = 'auto';
+  const c = charById(openCharId);
+  if(!text.startsWith('#')) say('user', text);
+  busy = true; $('chat-send').disabled = true;
+  typingOn();
+  try{
+    await wait(320);
+    typingOff();
+    await handle(c, text);
+  }catch(e){
+    typingOff();
+    abort(`업무 중 오류가 발생했습니다: ${e.message}`);
+  }finally{
+    busy = false; $('chat-send').disabled = false;
+    $('chat-input').focus();
+  }
+}
+
+function has(t, arr){ return arr.some(w => t.includes(w)); }
+
+async function handle(c, text){
+  const t = text.toLowerCase().replace(/\s+/g,' ').trim();
+
+  if(t === '#cancel'){
+    delete sess[c.id];
+    abort('업무를 취소했습니다. 아무것도 변경하지 않았습니다.');
+    return;
+  }
+  if(has(t, ['전문 분야','전문분야','뭐 할 줄','뭘 할 줄','능력','도움말','help','뭐해'])){
+    say('agent', `제 전문 분야입니다.\n\n${c.knows.map(k => '· ' + k).join('\n')}`, {
+      chips: c.quick.filter(q => q.cmd !== '전문 분야'),
+    });
+    return;
+  }
+  if(has(t, ['업무 보고','상태','보고','현황 알려','지금 뭐'])){
+    await reportStatus(c);
+    return;
+  }
+
+  if(c.id === 'stock'){ await stockAgent(c, text, t); return; }
+  if(c.id === 'marketing' && has(t, ['베스트','판매순위','잘 팔','탑10','top10'])){ await bestsellers(c); return; }
+  if(c.id === 'ads' && has(t, ['광고','성과','roas','cpa','지출'])){ await adsPerf(c); return; }
+  if(c.id === 'vendor' && has(t, ['벤더','마진','원가','gccal'])){ await vendorData(c); return; }
+  if(c.id === 'logistics' && has(t, ['배송','운송장','주문','콰이디'])){ await kdOrders(c); return; }
+  if(c.id === 'planning' && has(t, ['브랜드','리포트','분석','리오더'])){ await brandReport(c); return; }
+
+  say('agent', '그 업무는 제 담당이 아니거나 아직 이해하지 못했습니다. 아래에서 골라 주세요.', {
+    chips: c.quick,
+  });
+}
+
+/* ---- 공통: 업무 보고 ---- */
+async function reportStatus(c){
+  const now = new Date();
+  const status = deriveCharStatus(c, now);
+  const last = mostRecentLastRun(c);
+  const next = nextRunTime(c, now);
+  const lines = [
+    `${c.taskLabel} — ${{running:'정상 근무 중', warn:'실행 임박', stale:'멈춤 · 확인 필요'}[status]}`,
+    `주기: ${c.scheduleLabel}`,
+    last ? `마지막 실행: ${fmtRel(now.getTime()/1000 - last)} 전` : '마지막 실행: 기록 없음 (스케줄 미러 모드)',
+  ];
+  if(next) lines.push(`다음 실행: ${(next-now.getTime())>0 ? fmtRel((next-now.getTime())/1000)+' 후' : '임박'}`);
+  say('agent', lines.join('\n'));
+  await doubleCheck('상태 재확인', async () => {
+    await fetchStatus();
+    updateCells();
+    const s2 = deriveCharStatus(c, new Date());
+    return s2 === 'stale'
+      ? '재확인 결과에서도 멈춤 상태입니다. 서버 PC 와 로그를 확인해 주세요.'
+      : '재확인 결과 이상 없습니다.';
+  });
+}
+
+/* ---- 마케팅: 베스트셀러 ---- */
+async function fetchBestsellers(){
+  const j = await api('/sx/bestsellers?brand=all');
+  if(j.ok === false) throw new Error(j.error || '판매순위를 불러오지 못했습니다');
+  return (j.brands||[]).filter(b => b.ok !== false);
+}
+async function bestsellers(c){
+  say('agent', '식스샵 판매순위를 불러옵니다…');
+  const brands = await fetchBestsellers();
+  if(!brands.length){ abort('판매순위 데이터가 비어 있습니다. 30분 주기 수집이 아직 안 돌았을 수 있습니다.'); return; }
+  const flat = [];
+  brands.forEach(b => (b.top10||[]).forEach(p => flat.push({brand:b.display||b.brand, name:p.name, count:p.count})));
+  flat.sort((a,b) => (b.count||0) - (a.count||0));
+  say('agent', '전 브랜드 판매 TOP 10 (지난 30일)\n' +
+    flat.slice(0,10).map((p,i) => `${i+1}. [${p.brand}] ${p.name} — ${num(p.count)}개`).join('\n'));
+  await doubleCheck('집계 커버리지 확인', async () =>
+    `${brands.length}개 브랜드 · 상품 ${num(flat.length)}건 기준입니다.\nPro item/top 은 자사몰만 집계하므로 외부채널 판매는 빠져 있습니다.`);
+}
+
+/* ---- 광고: 메타 성과 ---- */
+async function adsPerf(c){
+  say('agent', '메타 광고 인사이트를 불러옵니다…');
+  const j = await api('/fb/ads');
+  if(j.error || !j.ts){ abort(`광고 데이터가 비어 있습니다: ${j.error || j._error?.error || '수집 기록 없음'}`); return; }
+  const cur = j.account?.currency || '';
+  const s = j.summary || {};
+  const fmtP = (p, label) => {
+    if(!p || !Object.keys(p).length) return null;
+    const roas = p.roas != null ? Number(p.roas).toFixed(2) : '–';
+    return `· ${label} — 지출 ${num(Math.round(p.spend||0))}${cur} / 구매 ${num(p.purchase_count||0)}건 / ROAS ${roas}`;
+  };
+  const lines = [fmtP(s.today,'오늘'), fmtP(s.yesterday,'어제'), fmtP(s.last_7d,'최근 7일'), fmtP(s.last_30d,'최근 30일')].filter(Boolean);
+  say('agent', (lines.length ? lines.join('\n') : '기간 요약이 비어 있습니다.') + `\n\n수집 시각: ${j.date || '–'}`);
+  const camps = (j.campaigns||[]).slice().sort((a,b) => (b.spend||0)-(a.spend||0)).slice(0,5);
+  if(camps.length){
+    say('agent', '지출 상위 캠페인\n' + camps.map(r =>
+      `· ${r.campaign_name || '(이름없음)'} — ${num(Math.round(r.spend||0))}${cur} / 구매 ${num(r.purchase_count||0)}건 / ROAS ${r.roas!=null?Number(r.roas).toFixed(2):'–'}`).join('\n'));
+  }
+  await doubleCheck('구매 지표 중복 검증', async () => {
+    const y = s.yesterday || {};
+    const omni = y.conversions?.omni_purchase?.count;
+    const same = omni == null || Number(omni) === Number(y.purchase_count||0);
+    const ageMin = (Date.now() - Number(j.ts)*1000)/60000;
+    return `${same ? '구매 건수는 omni_purchase 단일 지표와 일치합니다 (중복 합산 없음).' : `⚠️ purchase_count(${y.purchase_count})와 omni_purchase(${omni})가 다릅니다.`}` +
+      `\n마지막 수집 ${Math.round(ageMin)}분 전${ageMin > 90 ? ' — ⚠️ 30분 주기가 멈췄을 수 있습니다.' : ' — 정상 범위입니다.'}`;
+  });
+}
+
+/* ---- 벤더: 마진 데이터 (CSV) ---- */
+async function vendorData(c){
+  say('agent', '벤더 마진 데이터를 확인합니다…');
+  const {text, cacheAge, err} = await apiText('/vendor-margin');
+  const rows = text.split('\n').filter(l => l.trim());
+  if(rows.length < 2){ abort('벤더 CSV 가 비어 있습니다. 수집이 아직 안 돌았을 수 있습니다.'); return; }
+  say('agent', `벤더 마진 CSV ${num(rows.length-1)}행 확인 (헤더 제외)` +
+    (isFinite(cacheAge) ? ` · 캐시 ${Math.round(cacheAge/60)}분 전` : ''));
+  await doubleCheck('신선도 확인', async () => {
+    const out = [];
+    if(err) out.push(`⚠️ 수집기 오류가 기록되어 있습니다: ${err}`);
+    if(!isFinite(cacheAge)) out.push('캐시 나이를 알 수 없어 신선도는 확인하지 못했습니다.');
+    else if(cacheAge > 3600) out.push(`⚠️ 마지막 수집이 ${Math.round(cacheAge/60)}분 전입니다. 10분 주기가 멈췄을 수 있습니다.`);
+    else out.push(`마지막 수집 ${Math.round(cacheAge/60)}분 전 — 정상 범위입니다.`);
+    return out.join('\n');
+  });
+}
+
+/* ---- 물류: 콰이디에어 ---- */
+async function kdOrders(c){
+  say('agent', '콰이디에어 주문/배송 데이터를 확인합니다…');
+  const j = await api('/kd/orders');
+  const orders = j.orders || [];
+  if(j._error) say('agent', `⚠️ 수집기 오류 기록: ${j._error.error || '알 수 없음'}`, {kind:'err'});
+  if(!orders.length){ abort('배송 데이터가 비어 있습니다. 10분 주기 수집 로그를 확인해 주세요.'); return; }
+  const byStatus = {};
+  orders.forEach(o => { byStatus[o.status||'(상태없음)'] = (byStatus[o.status||'(상태없음)']||0)+1; });
+  const items = orders.reduce((n,o) => n + (o.items?.length||0), 0);
+  say('agent', `${j.brand || '–'} · 주문 ${num(j.count ?? orders.length)}건 / 품목 ${num(items)}개` +
+    (j.fetched_at ? `\n수집 시각 ${fmtHM(new Date(j.fetched_at*1000))} (${fmtRel(Date.now()/1000 - j.fetched_at)} 전)` : '') +
+    '\n\n상태별\n' + Object.entries(byStatus).sort((a,b)=>b[1]-a[1]).map(([s,n]) => `· ${s} — ${num(n)}건`).join('\n'));
+  await doubleCheck('중복 주문번호 검사', async () => {
+    const ids = orders.map(o => o.ord_no).filter(Boolean);
+    const dup = ids.length - new Set(ids).size;
+    const noTrack = orders.filter(o => (o.items||[]).some(it => !it.tracking_no)).length;
+    return [
+      dup > 0 ? `⚠️ 중복 주문번호 ${dup}건 — 재수집이 필요합니다.` : `주문번호 ${num(ids.length)}건 모두 고유합니다.`,
+      noTrack > 0 ? `운송장 미발급 ${num(noTrack)}건 (접수 대기로 정상일 수 있음).` : '전 건 운송장이 발급되어 있습니다.',
+    ].join('\n');
+  });
+}
+
+/* ---- 기획: 브랜드 리포트 ---- */
+async function brandReport(c){
+  say('agent', '브랜드별 판매 데이터를 모읍니다…');
+  const brands = await fetchBestsellers();
+  if(!brands.length){ abort('브랜드 데이터가 비어 있습니다.'); return; }
+  const rows = brands.map(b => ({
+    name: b.display || b.brand,
+    total: (b.top10||[]).reduce((n,p) => n + (p.count||0), 0),
+    top: (b.top10||[])[0],
+  })).sort((a,b) => b.total - a.total);
+  say('agent', '브랜드별 TOP10 판매 합계 (지난 30일)\n' +
+    rows.map(r => `· ${r.name} — ${num(r.total)}개${r.top ? ` · 1위 ${r.top.name}` : ''}`).join('\n'));
+  const hot = [];
+  brands.forEach(b => (b.top10||[]).forEach(p => hot.push({brand:b.display||b.brand, ...p})));
+  hot.sort((a,b) => (b.count||0)-(a.count||0));
+  const reorder = hot.slice(0,5);
+  if(reorder.length){
+    say('agent', '리오더 우선순위 (판매량 상위)\n' +
+      reorder.map((p,i) => `${i+1}. [${p.brand}] ${p.name} — ${num(p.count)}개`).join('\n'));
+  }
+  await doubleCheck('브랜드 커버리지 확인', async () => {
+    const empty = brands.filter(b => !(b.top10||[]).length).map(b => b.display||b.brand);
+    return `${brands.length}개 브랜드 · 상품 ${num(hot.length)}건 기준으로 집계했습니다.` +
+      (empty.length ? `\n⚠️ 데이터가 비어 있는 브랜드: ${empty.join(', ')} — admin v2 orders 세션이 끊겼을 수 있습니다.` : '\n모든 브랜드에서 데이터가 확인됩니다.');
+  });
+}
+
+/* =========================================================================
+   재고팀 — 실제 식스샵 재고를 읽고 고친다
+   ========================================================================= */
+async function getCatalog(brand, force){
+  const hit = catalogCache[brand];
+  if(hit && !force && Date.now() - hit.at < 5*60*1000) return hit.data;
+  const j = await api(`/sx/catalog?brand=${brand}`);
+  if(j.ok === false) throw new Error(j.error || '카탈로그를 불러오지 못했습니다');
+  catalogCache[brand] = {at: Date.now(), data: j};
+  return j;
+}
+function detectBrand(t){
+  for(const [key, words] of BRAND_WORDS){ if(words.some(w => t.includes(w))) return key; }
+  return null;
+}
+function parseAmount(t){
+  let m;
+  if((m = t.match(/([+＋]|플러스)\s*(\d+)/))) return {op:'add', n:+m[2]};
+  if((m = t.match(/(\d+)\s*개?\s*(추가|더해|더하|늘려|늘리|증가|올려)/))) return {op:'add', n:+m[1]};
+  if((m = t.match(/[-−]\s*(\d+)/))) return {op:'sub', n:+m[1]};
+  if((m = t.match(/(\d+)\s*개?\s*(빼|차감|제거|줄여|줄이|감소|내려)/))) return {op:'sub', n:+m[1]};
+  if((m = t.match(/(\d+)\s*개?\s*(으로|로)\s*(설정|수정|변경|맞춰|맞추)?/))) return {op:'set', n:+m[1]};
+  if((m = t.match(/재고\s*(\d+)/))) return {op:'set', n:+m[1]};
+  if((m = t.match(/^(\d+)$/))) return {op:'set', n:+m[1]};
+  return null;
+}
+function stripNoise(t){
+  let s = t;
+  BRAND_WORDS.forEach(([,ws]) => ws.forEach(w => { s = s.split(w).join(' '); }));
+  s = s.replace(/재고|수정|변경|해줘|해주세요|알려줘|조회|설정|맞춰|맞추|으로|개로|개|추가|차감|빼|더해|늘려|줄여|증가|감소|올려|내려|플러스|상품|제품/g, ' ');
+  s = s.replace(/[+＋\-−]?\d+/g, ' ');
+  return s.replace(/\s+/g,' ').trim();
+}
+
+async function stockAgent(c, raw, t){
+  const S = sess[c.id] || (sess[c.id] = {});
+
+  /* --- 칩 명령 --- */
+  if(t.startsWith('#pick ')){
+    const pid = raw.slice(6).trim();
+    const p = (S.candidates||[]).find(x => String(x.productNo) === pid);
+    if(!p){ abort('선택한 상품을 찾지 못했습니다. 다시 검색해 주세요.'); return; }
+    S.product = p; S.option = null;
+    say('user', p.name);
+    await pickOptionOrAmount(S);
+    return;
+  }
+  if(t.startsWith('#opt ')){
+    const on = raw.slice(5).trim();
+    const o = (S.product?.options||[]).find(x => String(x.optionNo) === on);
+    if(!o){ abort('선택한 옵션을 찾지 못했습니다.'); return; }
+    S.option = o;
+    say('user', o.label);
+    await askAmount(S);
+    return;
+  }
+  if(t === '#confirm'){ await commitStock(S); return; }
+  if(t === '#list'){ await listLowStock(S.brand || '6a'); return; }
+  if(t.startsWith('#brand ')){
+    S.brand = raw.slice(7).trim();
+    say('user', BRANDS[S.brand]?.label || S.brand);
+    say('agent', `${BRANDS[S.brand].label} 기준으로 진행합니다. 상품명 키워드를 알려 주세요.\n예) \`Yampa 재고 50\``);
+    return;
+  }
+
+  /* --- 조회 전용 --- */
+  if(has(t, ['품절','부족','임박','로우'])){
+    await listLowStock(detectBrand(t) || S.brand || '6a');
+    return;
+  }
+
+  const brand = detectBrand(t) || S.brand;
+  const amount = parseAmount(t);
+  const keyword = stripNoise(t);
+  const wantsRead = has(t, ['조회','알려','확인','얼마','몇 개','몇개']) && !amount;
+
+  if(!brand){
+    S.pendingKeyword = keyword || S.pendingKeyword;
+    S.pendingAmount = amount || S.pendingAmount;
+    say('agent', '어느 브랜드인가요?', {
+      chips: Object.values(BRANDS).map(b => ({label: b.label + (b.writable?' ✎':''), cmd:`#brand ${b.key}`})),
+    });
+    return;
+  }
+  S.brand = brand;
+  const kw = keyword || S.pendingKeyword || '';
+  const amt = amount || S.pendingAmount || null;
+  S.pendingKeyword = null; S.pendingAmount = null;
+
+  if(!kw){
+    S.pendingAmount = amt;
+    say('agent', `${BRANDS[brand].label} 재고 업무를 맡겠습니다. 어떤 상품인가요? 상품명 키워드를 입력해 주세요.`, {
+      chips:[{label:'재고 적은 상품 보기', cmd:'#list'}],
+    });
+    return;
+  }
+
+  say('agent', `${BRANDS[brand].label} 카탈로그에서 "${kw}" 를 찾습니다…`);
+  const cat = await getCatalog(brand);
+  const hits = (cat.products||[]).filter(p => (p.name||'').toLowerCase().includes(kw.toLowerCase()));
+  if(!hits.length){ abort(`"${kw}" 와 일치하는 상품이 없습니다. 상품명 일부를 다시 알려 주세요.`); return; }
+
+  if(wantsRead || !amt){
+    if(hits.length > 1 && !amt){
+      S.candidates = hits.slice(0,8);
+      say('agent', `${hits.length}건 찾았습니다. 어떤 상품인가요?`, {
+        chips: S.candidates.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`})),
+      });
+      return;
+    }
+    if(wantsRead){
+      const p = hits[0];
+      const lines = [`${p.name} — 총 재고 ${stockText(p.stock)}`];
+      (p.options||[]).forEach(o => lines.push(`· ${o.label} — ${stockText(o.stock)}`));
+      say('agent', lines.join('\n'));
+      await doubleCheck('원본 재확인', async () => {
+        const fresh = await getCatalog(brand, true);
+        const p2 = (fresh.products||[]).find(x => x.productNo === p.productNo);
+        return p2 ? `재조회 결과도 총 재고 ${stockText(p2.stock)} — 동일합니다.` : '재조회에서 상품을 찾지 못했습니다.';
+      });
+      return;
+    }
+  }
+
+  S.candidates = hits.slice(0,8);
+  S.pendingAmount = amt;
+  if(hits.length > 1){
+    say('agent', `${hits.length}건 찾았습니다. 어떤 상품인가요?`, {
+      chips: S.candidates.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`})),
+    });
+    return;
+  }
+  S.product = hits[0]; S.option = null;
+  await pickOptionOrAmount(S);
+}
+
+function stockText(v){
+  if(v === -1 || v === -2) return '무제한';
+  if(v == null) return '–';
+  return `${num(v)}개`;
+}
+async function pickOptionOrAmount(S){
+  const p = S.product;
+  const opts = p.options || [];
+  if(opts.length > 1){
+    say('agent', `"${p.name}" 은 옵션이 ${opts.length}개입니다. 어떤 옵션인가요?`, {
+      chips: opts.slice(0,10).map(o => ({label:`${o.label} (${stockText(o.stock)})`, cmd:`#opt ${o.optionNo}`})),
+    });
+    return;
+  }
+  if(opts.length === 1) S.option = opts[0];
+  await askAmount(S);
+}
+async function askAmount(S){
+  const cur = S.option ? S.option.stock : S.product.stock;
+  const amt = S.pendingAmount;
+  if(!amt){
+    say('agent', `현재 재고는 ${stockText(cur)} 입니다. 몇 개로 맞출까요?\n숫자만 입력하면 그 값으로 설정하고, \`+50\` / \`-30\` 형태면 더하거나 뺍니다.`);
+    return;
+  }
+  S.pendingAmount = null;
+  await proposeStock(S, amt, cur);
+}
+async function proposeStock(S, amt, cur){
+  const base = (cur === -1 || cur === -2 || cur == null) ? 0 : cur;
+  let target = amt.op === 'add' ? base + amt.n : amt.op === 'sub' ? base - amt.n : amt.n;
+  if(target < 0){
+    say('agent', `현재 ${stockText(cur)} 에서 ${amt.n}개를 빼면 ${target} 이 되어 음수입니다. 0 으로 맞출까요?`, {
+      chips:[{label:'0 으로 설정', cmd:'0'}, {label:'취소', cmd:'#cancel', style:'danger'}],
+    });
+    return;
+  }
+  S.target = target;
+  if(!BRANDS[S.brand]?.writable){
+    abort(`${BRANDS[S.brand].label} 은(는) 아직 자동 수정 경로가 없습니다. 현재 재고 수정은 식스에이(6thanother)만 가능합니다.`);
+    return;
+  }
+  if(!isMaster()){
+    abort('재고 수정은 마스터 권한이 필요합니다. 대시보드에서 마스터 PIN 으로 로그인한 뒤 다시 지시해 주세요.');
+    return;
+  }
+  const label = S.option ? `${S.product.name} / ${S.option.label}` : S.product.name;
+  say('agent', `아래 내용으로 수정합니다. 확인해 주세요.\n\n상품: ${label}\n현재: ${stockText(cur)}\n변경: ${num(target)}개`, {
+    chips:[
+      {label:'예, 수정합니다', cmd:'#confirm', style:'primary'},
+      {label:'취소', cmd:'#cancel', style:'danger'},
+    ],
+  });
+}
+
+async function commitStock(S){
+  if(!S.product || S.target == null){ abort('수정할 내용이 없습니다. 상품과 수량을 다시 알려 주세요.'); return; }
+  const p = S.product, o = S.option, target = S.target;
+  const label = o ? `${p.name} / ${o.label}` : p.name;
+  say('user', '예, 수정합니다');
+  say('agent', `식스샵에 접속해 "${label}" 재고를 ${num(target)}개로 저장합니다… (30~60초)`);
+
+  const upd = {id: String(p.productNo), name: p.name, setStock: target};
+  if(o){ upd.optionNo = String(o.optionNo); upd.optionLabel = o.label; }
+
+  const res = await api('/sx/update-six6-stock', {method:'POST', body:{updates:[upd]}});
+  const rows = Array.isArray(res) ? res : (res.results || []);
+  const row = rows[0] || {};
+  if(res.ok === false || row.status === 'error' || row.status === 'skip'){
+    abort(`저장하지 못했습니다: ${row.message || res.error || '알 수 없는 오류'}`);
+    delete sess[charById('stock').id];
+    return;
+  }
+  say('agent', `저장 응답: ${row.message || '저장 완료'}`);
+
+  await doubleCheck(`${label} 재고 재조회`, async () => {
+    const fresh = await getCatalog(S.brand, true);
+    const p2 = (fresh.products||[]).find(x => String(x.productNo) === String(p.productNo));
+    if(!p2) return `⚠️ 재조회에서 상품을 찾지 못했습니다. 식스샵에서 직접 확인해 주세요.`;
+    const actual = o
+      ? ((p2.options||[]).find(x => String(x.optionNo) === String(o.optionNo))?.stock)
+      : p2.stock;
+    if(actual === target) return `재조회 결과 ${stockText(actual)} — 지시하신 ${num(target)}개와 일치합니다. ✓`;
+    return `⚠️ 재조회 결과 ${stockText(actual)} 로 지시값 ${num(target)}개와 다릅니다. 식스샵에서 직접 확인이 필요합니다.`;
+  });
+  delete sess[charById('stock').id];
+}
+
+async function listLowStock(brand){
+  say('agent', `${BRANDS[brand].label} 재고가 적은 상품을 찾습니다…`);
+  const cat = await getCatalog(brand);
+  const rows = (cat.products||[])
+    .filter(p => p.status === 'selling' && typeof p.stock === 'number' && p.stock >= 0)
+    .sort((a,b) => a.stock - b.stock)
+    .slice(0,10);
+  if(!rows.length){ abort('판매 중인 상품의 재고 정보를 찾지 못했습니다.'); return; }
+  sess['stock'] = sess['stock'] || {};
+  sess['stock'].brand = brand;
+  sess['stock'].candidates = rows;
+  say('agent', `재고 하위 ${rows.length}건입니다. 수정할 상품을 고르세요.`, {
+    chips: rows.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`})),
+  });
+}
+
+/* =========================================================================
+   부트
+   ========================================================================= */
 function init(){
   renderDesks();
   updateClock();
-  fetchStatus().then(()=>{
-    updateCells();
-    $('loading').classList.add('hide');
-  });
+  updateCells();
+  $('loading').classList.add('hide');
+  fetchStatus().then(updateCells);
+
   setInterval(updateClock, 1000);
   setInterval(updateCells, 1000);
   setInterval(fetchStatus, 15000);
+
+  $('role-tag').textContent = isMaster() ? '· 마스터 권한 (재고 수정 가능)' : '· 보기 전용 권한';
   $('refresh-btn').addEventListener('click', () => fetchStatus().then(updateCells));
   $('reset-btn').addEventListener('click', () => {
     if(confirm('이름·부서를 기본값으로 되돌릴까요?')){
       localStorage.removeItem(OVERRIDES_KEY);
-      renderDesks();
-      updateCells();
+      renderDesks(); updateCells();
     }
   });
+
+  $('chat-x').addEventListener('click', closeChat);
+  $('scrim').addEventListener('click', closeChat);
+  $('chat-send').addEventListener('click', () => submit());
+  $('chat-clear').addEventListener('click', () => {
+    if(!openCharId) return;
+    const all = loadChats(); delete all[openCharId]; saveChats(all);
+    delete sess[openCharId];
+    renderChat(); greet(charById(openCharId));
+  });
+  const ta = $('chat-input');
+  ta.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
+  });
+  ta.addEventListener('input', () => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 110) + 'px';
+  });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && openCharId) closeChat(); });
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
