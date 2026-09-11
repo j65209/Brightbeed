@@ -2667,43 +2667,80 @@
     border-color:rgba(16,185,129,.35);font-weight:700;
   }
   .wht-btn.wht-btn-sellers:hover{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.55)}
-  /* 셀러 정보 모달 (업체 정보와 대부분 공유) */
+  /* 셀러 정보 모달 (업체 정보와 대부분 공유, 2열 카드) */
+  .wht-seller-modal .wht-vendor-dialog{width:min(1080px,100%)}
   .wht-seller-modal .wht-vendor-head{
     background:linear-gradient(135deg,rgba(16,185,129,.10) 0%,rgba(5,150,105,.04) 100%);
   }
   #whtSellerStamp{font-size:11px;color:var(--text-3);margin-left:4px}
+  .wht-vendor-list.wht-seller-list{
+    display:grid;flex-direction:initial;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:8px;
+  }
+  .wht-seller-meta{grid-column:1/-1}
   .wht-seller-item{
-    display:flex;flex-direction:column;gap:6px;
-    padding:12px 14px;border:1px solid var(--line-1);border-radius:10px;
-    background:var(--bg-1);transition:border-color .12s;
+    position:relative;
+    display:grid;grid-template-columns:1fr auto;gap:2px 8px;
+    padding:9px 11px;border:1px solid var(--line-1);border-radius:9px;
+    background:var(--bg-1);transition:border-color .12s;font-family:var(--sans);
   }
   .wht-seller-item:hover{border-color:var(--line-2)}
-  .wht-seller-row-1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
-  .wht-seller-name{font-weight:700;font-size:14.5px;color:var(--text-0);letter-spacing:-.1px}
+  .wht-seller-name{
+    grid-column:1;
+    font-weight:700;font-size:13.5px;color:var(--text-0);letter-spacing:-.15px;
+    line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
   .wht-seller-name mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
   .wht-seller-name a{color:inherit;text-decoration:none;border-bottom:1px dashed var(--line-2)}
   .wht-seller-name a:hover{color:#e0388a;border-bottom-color:#e0388a}
-  .wht-seller-meta{font-size:11px;color:var(--text-3);font-family:var(--sans)}
-  .wht-seller-cats{display:flex;flex-wrap:wrap;gap:4px}
-  .wht-seller-cat{
-    display:inline-block;padding:2px 8px;font-size:10.5px;font-weight:600;
-    background:rgba(16,185,129,.10);color:#047857;border-radius:99px;letter-spacing:-.02em;
+  .wht-seller-cats{
+    grid-column:1/-1;
+    display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;
   }
-  .wht-seller-info{font-family:var(--sans);font-size:12.5px;color:var(--text-1);display:flex;flex-direction:column;gap:3px;letter-spacing:-.02em}
-  .wht-seller-info .wht-seller-info-line{display:flex;gap:6px;align-items:baseline}
-  .wht-seller-info b{color:var(--text-2);font-weight:600;font-size:11px;min-width:44px}
-  .wht-seller-info .wht-seller-info-val{color:var(--text-0);word-break:break-all}
-  .wht-seller-info .wht-seller-info-val mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
-  .wht-seller-note{font-size:11.5px;color:var(--text-2);font-style:italic}
+  .wht-seller-cat{
+    display:inline-block;padding:1px 7px;font-size:10px;font-weight:600;
+    background:rgba(16,185,129,.10);color:#047857;border-radius:99px;letter-spacing:-.02em;
+    line-height:1.4;
+  }
+  .wht-seller-info{
+    grid-column:1/-1;
+    font-size:11.5px;color:var(--text-1);letter-spacing:-.15px;line-height:1.45;
+    margin-top:3px;display:flex;flex-direction:column;gap:1px;
+  }
+  .wht-seller-info-line{display:flex;gap:5px;align-items:baseline}
+  .wht-seller-info-line b{
+    color:var(--text-3);font-weight:600;font-size:10px;min-width:30px;flex-shrink:0;
+    letter-spacing:.02em;text-transform:uppercase;
+  }
+  .wht-seller-info-val{
+    color:var(--text-0);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    min-width:0;flex:1;
+  }
+  .wht-seller-info-val mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
+  .wht-seller-note{
+    grid-column:1/-1;
+    font-size:10.5px;color:var(--text-3);font-style:italic;margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .wht-seller-actions{
+    grid-column:2;grid-row:1;
+    display:flex;gap:2px;align-items:center;align-self:start;
+  }
   .wht-seller-copy{
-    align-self:flex-start;padding:2px 8px;font-size:10.5px;font-weight:600;
+    width:24px;height:24px;padding:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;
     background:var(--bg-0);border:1px solid var(--line);color:var(--text-2);border-radius:5px;
-    cursor:pointer;transition:all .12s;letter-spacing:-.02em;
+    cursor:pointer;transition:all .12s;
   }
   .wht-seller-copy:hover{color:#4338ca;background:rgba(79,70,229,.08);border-color:rgba(79,70,229,.3)}
-  .wht-seller-actions{display:flex;gap:6px;align-items:center;margin-left:auto}
+  .wht-seller-copy.is-ok{color:#059669;background:rgba(16,185,129,.10);border-color:rgba(16,185,129,.4)}
   @media(max-width:600px){
-    .wht-seller-item{padding:10px}
+    .wht-vendor-list.wht-seller-list{grid-template-columns:1fr;gap:6px}
+    .wht-seller-item{padding:8px 10px}
   }
   /* 이름 셀 · 자동완성 dropdown */
   .wht-name-cell{position:relative}
@@ -21052,37 +21089,37 @@
   }
   function _whtSellerItemHtml(s,q){
     const nameHtml=_whtSellerHl(s.name, q);
-    const insta=s.insta?`<a href="${_esc(s.insta)}" target="_blank" rel="noopener">${nameHtml}</a>`:nameHtml;
+    const insta=s.insta?`<a href="${_esc(s.insta)}" target="_blank" rel="noopener" title="${_esc(s.insta)}">${nameHtml}</a>`:nameHtml;
     const {cats, notes}=_whtSellerCategoryChips(s);
     const extraNotes=notes.map(v=>_esc(v)).join(' · ');
     const infoLines=[];
-    if(s.person) infoLines.push(`<div class="wht-seller-info-line"><b>이름</b><span class="wht-seller-info-val">${_whtSellerHl(s.person,q)}</span></div>`);
-    if(s.phone) infoLines.push(`<div class="wht-seller-info-line"><b>연락처</b><span class="wht-seller-info-val">${_whtSellerHl(s.phone,q)}</span></div>`);
-    if(s.addr) infoLines.push(`<div class="wht-seller-info-line"><b>주소</b><span class="wht-seller-info-val">${_whtSellerHl(s.addr,q)}</span></div>`);
-    if(s.followers) infoLines.push(`<div class="wht-seller-info-line"><b>팔로워</b><span class="wht-seller-info-val">${_esc(s.followers)}</span></div>`);
+    // 이름 + 팔로워 한 줄에 (있으면)
+    const nameLine=[];
+    if(s.person) nameLine.push(`<span class="wht-seller-info-val">${_whtSellerHl(s.person,q)}</span>`);
+    if(s.followers) nameLine.push(`<span style="color:var(--text-3);font-size:10.5px">${_esc(s.followers)}</span>`);
+    if(nameLine.length) infoLines.push(`<div class="wht-seller-info-line"><b>이름</b>${nameLine.join(' · ')}</div>`);
+    if(s.phone) infoLines.push(`<div class="wht-seller-info-line"><b>📞</b><span class="wht-seller-info-val" title="${_esc(s.phone)}">${_whtSellerHl(s.phone,q)}</span></div>`);
+    if(s.addr) infoLines.push(`<div class="wht-seller-info-line"><b>🏠</b><span class="wht-seller-info-val" title="${_esc(s.addr)}">${_whtSellerHl(s.addr,q)}</span></div>`);
     const catHtml=cats.length?`<div class="wht-seller-cats">${cats.map(c=>`<span class="wht-seller-cat">${_esc(c)}</span>`).join('')}</div>`:'';
-    const noteHtml=extraNotes?`<div class="wht-seller-note">${extraNotes}</div>`:'';
-    // 카피 버튼 (연락처 · 주소 각각)
+    const noteHtml=extraNotes?`<div class="wht-seller-note" title="${_esc(extraNotes)}">${extraNotes}</div>`:'';
     const copyBits=[];
-    if(s.phone) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.phone)}')">📞 연락처 복사</button>`);
-    if(s.addr) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.addr).replace(/'/g,'&#39;')}')">🏠 주소 복사</button>`);
+    if(s.phone) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.phone)}','📞')" title="연락처 복사">📞</button>`);
+    if(s.addr) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.addr).replace(/'/g,'&#39;')}','🏠')" title="주소 복사">🏠</button>`);
     return `<div class="wht-seller-item">
-      <div class="wht-seller-row-1">
-        <div class="wht-seller-name">${insta}</div>
-        <div class="wht-vendor-actions">${copyBits.join('')}</div>
-      </div>
+      <div class="wht-seller-name">${insta}</div>
+      <div class="wht-seller-actions">${copyBits.join('')}</div>
       ${catHtml}
       ${infoLines.length?`<div class="wht-seller-info">${infoLines.join('')}</div>`:''}
       ${noteHtml}
     </div>`;
   }
-  async function whtSellerCopy(btn, text){
+  async function whtSellerCopy(btn, text, orig){
     try{
       await navigator.clipboard.writeText(text);
-      const orig=btn.textContent;
-      btn.textContent='✓ 복사됨';
-      btn.style.color='#059669';
-      setTimeout(()=>{btn.textContent=orig; btn.style.color='';}, 1200);
+      const restore=orig||btn.textContent;
+      btn.textContent='✓';
+      btn.classList.add('is-ok');
+      setTimeout(()=>{btn.textContent=restore; btn.classList.remove('is-ok');}, 1100);
     }catch(e){
       if(typeof toast==='function') toast('복사 실패','err');
     }
