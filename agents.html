@@ -317,6 +317,7 @@
     </div>
     <button class="chat-x" id="chat-x" aria-label="닫기">✕</button>
   </div>
+  <div id="chat-progress" role="status" aria-live="polite" hidden style="padding:8px 20px;font-size:14px;color:var(--text-1)"></div>
   <div class="chat-body" id="chat-body"></div>
   <div class="chat-foot">
     <div class="chat-quick" id="chat-quick"></div>
@@ -331,6 +332,7 @@
 <div class="loading" id="loading"><div class="spin"></div></div>
 
 <script src="./reliability.js?v=1"></script>
+<script src="./agents-stock.js?v=2"></script>
 <script>
 /* ==========================================================================
    Bead Universe · Agents Office
@@ -353,6 +355,9 @@ let statusFetchedAt=0;
 let _proxyBase = null;
 let openCharId = null;
 let busy = false;
+let activeTaskCharId = null;
+let stockAssistant = null;
+let stockActivity = '지시 대기';
 const sess = {};          // charId -> 진행 중인 업무 컨텍스트 (비영속)
 const catalogCache = {};  // brand -> {at, data}
 
@@ -385,8 +390,8 @@ const CHARACTERS = [
     role:'식스샵 재고 조회·수정 전문',
     knows:[
       '식스에이·클리어타입·야르·코페리·아페티 재고를 실시간 조회',
-      '재고 수정은 식스에이(6thanother) 옵션 단위로 직접 반영',
-      '수정 전 반드시 현재 재고를 읽고, 수정 후 다시 읽어 대조',
+      '식스에이·클리어타입·야르·아페티 재고를 상품·옵션 단위로 변경',
+      '한글 수량과 이전 대화를 이해하고, 변경 전후 원본 수량을 확인',
       '마스터 권한 없이는 절대 쓰지 않음 · 확인 없이 저장하지 않음',
     ],
     quick:[
@@ -515,13 +520,13 @@ async function api(path, opts){
     headers['Content-Type'] = 'application/json';
     body = JSON.stringify(body);
   }
-  const r = await agentNetwork.fetch(base + path, {method:opts.method||'GET', headers, body, cache:'no-store',timeoutMs:path.includes('/chat')?100000:30000});
+  const r = await agentNetwork.fetch(base + path, {method:opts.method||'GET', headers, body, cache:'no-store',timeoutMs:opts.timeoutMs||(path.includes('/chat')?100000:45000)});
   const text = await r.text();
   let json = null;
   try{ json = JSON.parse(text); }catch(e){}
   if(!r.ok){
     const detail = (json && (json.error || json.detail)) || text.slice(0,180) || `HTTP ${r.status}`;
-    throw new Error(detail);
+    throw new Error(`HTTP ${r.status}: ${detail}`);
   }
   if(json === null) throw new Error('응답을 해석할 수 없습니다');
   return json;
@@ -811,16 +816,17 @@ function updateCells(){
 
     const statEl = cell.querySelector('.stat');
     statEl.className = 'stat ' + status;
-    const labels = {running:'근무 중', stale:'멈춤 · 확인', warn:'곧 실행',unknown:'확인 불가',idle:'대기 중'};
+    const labels = {running:'근무 중', stale:'멈춤 · 확인', warn:'점검 필요',unknown:'확인 불가',idle:'대기 중'};
     statEl.querySelector('[data-stat-label]').textContent = labels[status];
 
     const taskEl = cell.querySelector('[data-task]');
     let runningTask = null;
     c.agentIds.forEach(id => { const s = statusMap[id]; if(s?.status==='running' && s.task) runningTask = s.task; });
-    if(status === 'stale') taskEl.textContent = `예상 시각 초과 · ${c.taskLabel}`;
+    if(c.id === 'stock') taskEl.textContent = stockActivity;
+    else if(status === 'stale') taskEl.textContent = `예상 시각 초과 · ${c.taskLabel}`;
     else if(status==='unknown')taskEl.textContent='서버 상태를 확인할 수 없습니다';
     else if(status==='idle')taskEl.textContent=c.taskLabel+' · 요청 대기';
-    else taskEl.textContent = (runningTask || c.taskLabel) + (status==='warn'?' · 실행 예정':' · 진행 중…');
+    else taskEl.textContent = (runningTask || c.taskLabel) + (status==='warn'?' · 수집 확인 필요':' · 진행 중…');
 
     const metaEl = cell.querySelector('[data-meta]');
     let meta = '';
@@ -871,6 +877,7 @@ function openChat(id){
   $('chat-av').style.background = `radial-gradient(circle at 38% 32%, rgba(255,255,255,.28), transparent 70%), ${c.hairColor}`;
   renderQuick(c);
   renderChat();
+  renderChatProgress();
   if(!chatOf(id).length) greet(c);
   $('scrim').classList.add('open');
   $('chat').classList.add('open');
@@ -883,6 +890,11 @@ function closeChat(){
   $('chat').setAttribute('aria-hidden','true');
   openCharId = null;
   updateCells();
+}
+function renderChatProgress(){
+  const el = $('chat-progress');
+  el.hidden = openCharId !== 'stock';
+  el.textContent = openCharId === 'stock' ? stockActivity : '';
 }
 function renderQuick(c){
   const q = $('chat-quick');
@@ -897,10 +909,11 @@ function renderQuick(c){
 }
 
 function say(who, text, opts){
-  if(!openCharId) return;
+  const target = activeTaskCharId || openCharId;
+  if(!target) return;
   const msg = Object.assign({who, text, ts: Date.now()}, opts||{});
-  pushChat(openCharId, msg);
-  appendMsg(msg);
+  pushChat(target, msg);
+  if(openCharId === target) appendMsg(msg);
 }
 function appendMsg(m){
   const body = $('chat-body');
@@ -986,7 +999,7 @@ async function submit(raw){
   $('chat-input').style.height = 'auto';
   const c = charById(openCharId);
   if(!text.startsWith('#')) say('user', text);
-  busy = true; $('chat-send').disabled = true;
+  busy = true; activeTaskCharId = c.id; $('chat-send').disabled = true;
   typingOn();
   try{
     await wait(320);
@@ -996,7 +1009,7 @@ async function submit(raw){
     typingOff();
     abort(`업무 중 오류가 발생했습니다: ${e.message}`);
   }finally{
-    busy = false; $('chat-send').disabled = false;
+    busy = false; activeTaskCharId = null; $('chat-send').disabled = false;
     $('chat-input').focus();
   }
 }
@@ -1004,6 +1017,7 @@ async function submit(raw){
 function has(t, arr){ return arr.some(w => t.includes(w)); }
 
 async function handle(c, text){
+  if(c.id === 'stock'){ await getStockAssistant().handle(text); return; }
   const t = text.toLowerCase().replace(/\s+/g,' ').trim();
 
   if(t === '#cancel'){
@@ -1022,7 +1036,6 @@ async function handle(c, text){
     return;
   }
 
-  if(c.id === 'stock'){ await stockAgent(c, text, t); return; }
   if(c.id === 'marketing' && has(t, ['베스트','판매순위','잘 팔','탑10','top10'])){ await bestsellers(c); return; }
   if(c.id === 'ads' && has(t, ['광고','성과','roas','cpa','지출'])){ await adsPerf(c); return; }
   if(c.id === 'vendor' && has(t, ['벤더','마진','원가','gccal'])){ await vendorData(c); return; }
@@ -1468,412 +1481,23 @@ function narrowInPool(pool, said){
   return [];
 }
 
-function detectBrand(t){
-  for(const [key, words] of BRAND_WORDS){ if(words.some(w => t.includes(w))) return key; }
-  return null;
-}
-function parseAmount(t){
-  let m;
-  if((m = t.match(/([+＋]|플러스)\s*(\d+)/))) return {op:'add', n:+m[2]};
-  if((m = t.match(/(\d+)\s*개?\s*(추가|더해|더하|늘려|늘리|증가|올려)/))) return {op:'add', n:+m[1]};
-  if((m = t.match(/[-−]\s*(\d+)/))) return {op:'sub', n:+m[1]};
-  if((m = t.match(/(\d+)\s*개?\s*(빼|차감|제거|줄여|줄이|감소|내려)/))) return {op:'sub', n:+m[1]};
-  if((m = t.match(/(\d+)\s*개?\s*(으로|로)\s*(설정|수정|변경|맞춰|맞추)?/))) return {op:'set', n:+m[1]};
-  if((m = t.match(/재고\s*(\d+)/))) return {op:'set', n:+m[1]};
-  if((m = t.match(/^(\d+)\s*개?$/))) return {op:'set', n:+m[1]};
-  return null;
-}
-/* "재고 수정 좀 할게" 같은 말버릇이 상품명으로 검색되는 걸 막는다 */
-const FILLER = new Set(['좀','좀만','할게','할래','하자','하고','하려고','하려는데','싶어','싶은데','부탁','주세요','주라','줘','해봐','해보자','해야','해야지','한번','다시','이제','오늘','지금','어제','내일','있잖아','볼게','보자','것','거','그거','이거','저거','건','건데','인데','말이야','말인데','있어','없어','어때','어떻게','뭐','뭐가','좀요','업무','일','작업']);
-function stripNoise(t){
-  let s = t;
-  BRAND_WORDS.forEach(([,ws]) => ws.forEach(w => { s = s.split(w).join(' '); }));
-  s = s.replace(/재고|수정|변경|해줘|해주세요|알려줘|조회|설정|맞춰|맞추|으로|개로|개|추가|차감|빼|더해|늘려|줄여|증가|감소|올려|내려|플러스|상품|제품/g, ' ');
-  s = s.replace(/[+＋\-−]?\d+/g, ' ');
-  return s.split(/\s+/).filter(w => w && !FILLER.has(w)).join(' ').trim();
-}
-
-/* stockAgent 는 재고 저장 지시만 규칙 흐름으로 잡는다. "미루야 오늘 어때?" 같은 잡담·판단은
-   여기서 처리 못 하니 LLM(Gemini) 에게 넘긴다. 아래 신호가 하나도 없으면 대화라 판단. */
-function isStockCommand(S, raw, t){
-  if(raw && raw.startsWith('#')) return true;
-  if(S && S.stage) return true;
-  if(has(t, ['재고','저장','수정','변경','조회','확인','알려','품절','부족','로우','임박','옵션','상품','개로','으로'])) return true;
-  if(detectBrand(t)) return true;
-  if(parseAmount(t)) return true;
-  return false;
-}
-
-async function stockAgent(c, raw, t){
-  const S = sess[c.id] || (sess[c.id] = {});
-
-  if(!isStockCommand(S, raw, t)){ await llmAgent(c, raw); return; }
-
-
-  /* --- 칩 명령 --- */
-  if(t.startsWith('#pick ')){
-    const pid = raw.slice(6).trim();
-    const p = (S.candidates||[]).find(x => String(x.productNo) === pid);
-    if(!p){ abort('선택한 상품을 찾지 못했습니다. 다시 검색해 주세요.'); return; }
-    S.product = p; S.option = null; S.stage = null;
-    say('user', p.name);
-    await pickOptionOrAmount(S);
-    return;
-  }
-  if(t.startsWith('#opt ')){
-    const on = raw.slice(5).trim();
-    const o = (S.product?.options||[]).find(x => String(x.optionNo) === on);
-    if(!o){ abort('선택한 옵션을 찾지 못했습니다.'); return; }
-    S.option = o; S.stage = null;
-    say('user', o.label);
-    await askAmount(S);
-    return;
-  }
-  if(t.startsWith('#narrow ')){
-    let w = t.slice(8).trim();
-    const neg = w.startsWith('!');
-    if(neg) w = w.slice(1);
-    const label = (EN_KO[w] || w) + (neg ? ' 아닌 것' : '');
-    say('user', label);
-    await refineTo(S, narrowByToken(S.pool || [], w, neg), label);
-    return;
-  }
-  if(t === '#confirm'){ say('user', '네, 그렇게 해주세요'); await commitStock(S); return; }
-  if(t === '#list'){ await listLowStock(S.brand || '6a'); return; }
-  if(t.startsWith('#brand ')){
-    S.brand = raw.slice(7).trim();
-    say('user', BRANDS[S.brand]?.label || S.brand);
-    say('agent', `${BRANDS[S.brand].label} 기준으로 진행합니다. 상품명 키워드를 알려 주세요.\n예) \`Yampa 재고 50\``);
-    return;
-  }
-
-  /* --- 대화 이어받기 ---------------------------------------------------------
-     칩을 누르지 않고 "응", "골드", "두번째" 처럼 말로 답해도 흐름이 이어진다.
-     알아듣지 못하면 아래 일반 라우터로 흘려보내 화제 전환도 막지 않는다. */
-  const flat = flatten(t);
-  if(S.stage === 'confirm'){
-    if(saysNo(flat)){ delete sess[c.id]; abort('네, 그만두겠습니다. 아무것도 바꾸지 않았습니다.'); return; }
-    if(saysYes(flat)){ await commitStock(S); return; }
-    const redo = parseAmount(t);
-    if(redo){ S.stage = null; await proposeStock(S, redo, S.option ? S.option.stock : S.product.stock); return; }
-  }
-  if(S.stage === 'amount' && S.product){
-    const a = parseAmount(t);
-    if(a){
-      S.stage = null; S.pendingAmount = null;
-      await proposeStock(S, a, S.option ? S.option.stock : S.product.stock);
-      return;
-    }
-    /* 숫자를 말씀하셨는데 못 알아들었으면 되묻는다. 숫자를 멋대로 추측해선 절대 안 되고
-       (실재고가 바뀐다) 그렇다고 조용히 새 검색을 시작하면 대화가 끊긴다.
-       숫자가 아예 없으면 화제를 바꾸신 걸로 보고 아래 일반 검색으로 넘긴다. */
-    if(/\d/.test(t)){
-      const cur = S.option ? S.option.stock : S.product.stock;
-      say('agent', `"${raw.trim()}" 를 수량으로 못 읽었습니다. 지금 ${stockText(cur)}인데 몇 개로 맞출까요?\n` +
-        `\`50\` 처럼 숫자만 말씀하시면 그 수로 맞추고, \`+50\` / \`30개 빼줘\` 는 더하거나 뺍니다.`, {
-        chips:[{label:'그만두기', cmd:'#cancel'}],
-      });
-      return;
-    }
-  }
-  /* 고를 때 "골드 50개" 처럼 수량까지 같이 말씀하시는 경우가 있어 함께 받아둔다 */
-  if(S.stage === 'opt' || S.stage === 'pick' || S.stage === 'narrow'){
-    const said = stripNoise(t) || t;
-    const withAmt = parseAmount(t);
-    if(S.stage === 'opt' && S.product){
-      const opts = S.product.options || [];
-      const n = parseOrdinal(flat, opts.length);
-      const narrowed = n ? [opts[n-1]] : matchOptions(opts, said);
-      if(narrowed.length === 1){
-        S.option = narrowed[0]; S.stage = null;
-        if(withAmt) S.pendingAmount = withAmt;
-        say('agent', `${S.option.label} 옵션이군요.`);
-        await askAmount(S);
-        return;
-      }
-      if(narrowed.length > 1 && narrowed.length < opts.length){
-        say('agent', `"${said}" 에 해당하는 옵션이 ${narrowed.length}개입니다. 어느 쪽일까요?\n\n` +
-          narrowed.map((o,i) => `${i+1}. ${o.label} — ${stockText(o.stock)}`).join('\n'), {
-          chips: narrowed.slice(0,10).map(o => ({label:o.label, cmd:`#opt ${o.optionNo}`})),
-        });
-        return;
-      }
-    }
-    /* 되묻는 중에 번호로 답하시면 그 갈래를 고르신 것으로 본다 ("2번") */
-    if(S.stage === 'narrow' && (S.facets||[]).length){
-      const fi = parseOrdinal(flat, S.facets.length);
-      if(fi){
-        const f = S.facets[fi-1];
-        await refineTo(S, narrowByToken(S.pool||[], f.w, f.neg), facetLabel(f), withAmt);
-        return;
-      }
-    }
-    if(S.stage === 'pick' && (S.candidates||[]).length){
-      const n = parseOrdinal(flat, S.candidates.length);
-      if(n){ await refineTo(S, [S.candidates[n-1]], said, withAmt); return; }
-    }
-    /* 좁히기는 언제나 "찾은 전체"(S.pool) 안에서 한다 — 화면에 보여드린 8개 안에서만
-       뒤지면 396개 중 57번째 상품은 대화로는 영영 못 찾는다.
-       그래도 안 걸리면 아래 일반 검색으로 흘려보내 화제 전환을 막지 않는다. */
-    if((S.stage === 'pick' || S.stage === 'narrow') && (S.pool||[]).length > 1){
-      const narrowed = narrowInPool(S.pool, said);
-      if(narrowed.length){ await refineTo(S, narrowed, said, withAmt); return; }
-    }
-  }
-  if(S.stage && saysNo(flat)){ delete sess[c.id]; abort('네, 그만두겠습니다. 아무것도 바꾸지 않았습니다.'); return; }
-
-  /* --- 조회 전용 --- */
-  if(has(t, ['품절','부족','임박','로우'])){
-    await listLowStock(detectBrand(t) || S.brand || '6a');
-    return;
-  }
-
-  const brand = detectBrand(t) || S.brand;
-  const amount = parseAmount(t);
-  const keyword = stripNoise(t);
-  const wantsRead = has(t, ['조회','알려','확인','얼마','몇 개','몇개']) && !amount;
-
-  if(!brand){
-    S.pendingKeyword = keyword || S.pendingKeyword;
-    S.pendingAmount = amount || S.pendingAmount;
-    S.stage = 'brand';
-    say('agent', '어느 브랜드 건인가요? 브랜드 이름만 말씀해 주셔도 됩니다.', {
-      chips: Object.values(BRANDS).map(b => ({label: b.label + (b.writable?' ✎':''), cmd:`#brand ${b.key}`})),
-    });
-    return;
-  }
-  S.brand = brand;
-  const kw = keyword || S.pendingKeyword || '';
-  const amt = amount || S.pendingAmount || null;
-  S.pendingKeyword = null; S.pendingAmount = null;
-
-  if(!kw){
-    S.pendingAmount = amt;
-    S.stage = 'keyword';
-    say('agent', `${BRANDS[brand].label} 재고 업무 맡겠습니다. 어떤 상품일까요? 상품명 일부만 말씀하셔도 찾아보겠습니다.`, {
-      chips:[{label:'재고 적은 상품 보기', cmd:'#list'}],
-    });
-    return;
-  }
-  S.stage = null;
-
-  say('agent', `${BRANDS[brand].label} 상품 중에 "${kw}" 찾아보겠습니다…`);
-  const cat = await getCatalog(brand);
-  const all = cat.products || [];
-  let hits = searchProducts(all, kw), loose = false;
-  if(!hits.length){ hits = nearestProducts(all, kw); loose = hits.length > 0; }
-  if(!hits.length){
-    /* 막다른 길을 만들지 않는다 — 뭐가 있는지 보여드리고 다음 말을 이어받는다 */
-    const cats = categoriesIn(all);
-    S.stage = 'keyword'; S.pool = null; S.facets = null;
-    say('agent',
-      `${BRANDS[brand].label} 상품 ${num(all.length)}개를 다 훑어봤는데 "${kw}" 는 안 보이네요.\n` +
-      (cats.length
-        ? `${BRANDS[brand].label}에 있는 건 ${cats.map(c => `${c.ko} ${num(c.n)}개`).join(', ')} 정도입니다. 이 중에 있을까요?\n`
-        : '') +
-      `상품명이 영문으로 등록돼 있어서, 이름 한 조각(예: \`open\`, \`bone\`)을 알려주셔도 바로 찾습니다.`, {
-      chips: cats.map(c => ({label: c.ko, cmd: c.ko}))
-                 .concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
-    });
-    return;
-  }
-
-  if(wantsRead || !amt){
-    if((hits.length > 1 || loose) && !amt){ askWhich(S, hits, loose, kw); return; }
-    if(wantsRead){
-      const p = hits[0];
-      const lines = [`${p.name} — 총 재고 ${stockText(p.stock)}`];
-      (p.options||[]).forEach(o => lines.push(`· ${o.label} — ${stockText(o.stock)}`));
-      say('agent', lines.join('\n'));
-      await doubleCheck('원본 재확인', async () => {
-        const fresh = await getCatalog(brand, true);
-        const p2 = (fresh.products||[]).find(x => x.productNo === p.productNo);
-        return p2 ? `재조회 결과도 총 재고 ${stockText(p2.stock)} — 동일합니다.` : '재조회에서 상품을 찾지 못했습니다.';
-      });
-      return;
-    }
-  }
-
-  S.pendingAmount = amt;
-  if(hits.length > 1 || loose){ askWhich(S, hits, loose, kw); return; }
-  S.candidates = hits.slice(0,8);
-  S.pool = hits; S.facets = null;
-  S.product = hits[0]; S.option = null;
-  await pickOptionOrAmount(S);
-}
-
-/* 좁힌 결과를 다음 대화로 넘긴다 — 하나 남으면 바로 진행, 여럿이면 한 번 더 되묻는다 */
-async function refineTo(S, narrowed, said, withAmt){
-  if(!narrowed.length){
-    say('agent', `"${said}" 로는 안 걸리네요. 방금 찾은 ${num((S.pool||[]).length)}개는 그대로 들고 있으니 다른 특징을 말씀해 주세요.`, {
-      chips: (S.facets||[]).map(f => ({label: facetLabel(f), cmd: facetCmd(f)})),
-    });
-    return;
-  }
-  if(narrowed.length === 1){
-    S.product = narrowed[0]; S.option = null; S.stage = null;
-    S.candidates = narrowed; S.pool = narrowed;
-    if(withAmt) S.pendingAmount = withAmt;
-    say('agent', `"${S.product.name}" 하나 남았습니다.`);
-    await pickOptionOrAmount(S);
-    return;
-  }
-  if(withAmt) S.pendingAmount = withAmt;
-  askWhich(S, narrowed, false, [...new Set(`${S.kw||''} ${said}`.trim().split(/\s+/))].join(' '));
-}
-
-function askWhich(S, hits, loose, kw){
-  /* 찾은 "전체"를 들고 있는다. 다음 대답은 화면에 보인 8개가 아니라 이 안에서 좁힌다 */
-  S.pool = hits;
-  S.kw = kw || S.kw;
-  /* 3~4개 남을 때까지는 되묻는다. 그때는 사장님이 훑고 고르시는 게 빠르다.
-     되묻기 재료(facets)가 없으면 곧장 목록으로 떨어지게 이 아래가 알아서 처리한다. */
-  const facets = hits.length > 4 && !loose ? facetsOf(hits) : [];
-  if(facets.length){
-    S.stage = 'narrow';
-    S.facets = facets;
-    S.candidates = [];
-    /* 갈래들이 후보의 3분의 1도 못 덮으면 칩은 장식일 뿐이다. 이름이 다 제각각이라는 뜻이니
-       그땐 솔직하게 "이름 한 조각만 알려달라" 고 여쭙는 게 대화다. */
-    const covered = facets.reduce((a,f) => a + f.hits, 0);
-    const eg = sample(hits, 4).map(p => `· ${p.name}`).join('\n');
-    const head = covered >= hits.length / 3
-      ? `"${kw}"${ro(kw)} ${num(hits.length)}개가 걸리네요. 한 가지만 더 알려주시면 바로 좁혀집니다. 어느 쪽일까요?\n\n${eg}\n\n아래에서 골라주셔도 되고 이름이나 색상을 그냥 말씀하셔도 됩니다.`
-      : `"${kw}"${ro(kw)} ${num(hits.length)}개가 걸리는데 이름이 다 제각각입니다. 이런 식이에요.\n\n${eg}\n\n` +
-        `이름 한 조각만 말씀해 주시면 바로 찾습니다. 예를 들어 ${nameHints(hits).map(w => `\`${w}\``).join(', ') || '`구영`'} 처럼요.`;
-    say('agent', head, {
-      chips: facets.map(f => ({label: facetLabel(f), cmd: facetCmd(f)}))
-                   .concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
-    });
-    return;
-  }
-  S.facets = null;
-  S.candidates = hits.slice(0,8);
-  S.stage = 'pick';
-  const more = hits.length > S.candidates.length;
-  const head = loose
-    ? `"${kw}" 와 딱 맞는 건 없네요. 이름이 가장 비슷한 걸로 ${S.candidates.length}개 골라봤는데, 이 중에 있을까요?`
-    : `${num(hits.length)}건 나왔습니다.${more ? ' 관련도 높은 순으로 8개만 추렸습니다.' : ''} 어떤 걸 말씀하시는 걸까요?`;
-  const lines = S.candidates.map((p,i) => `${i+1}. ${p.name} — ${stockText(p.stock)}`);
-  /* 목록이 길면 칩까지 깔지 않는다 — 번호로 답하는 게 더 빠르고 대화가 덜 어수선하다 */
-  const chips = S.candidates.length <= 4
-    ? S.candidates.map(p => ({label:p.name, cmd:`#pick ${p.productNo}`}))
-    : [];
-  say('agent', `${head}\n\n${lines.join('\n')}\n\n번호로 부르셔도 되고 "골드" 처럼 특징만 말씀하셔도 됩니다.`, {
-    chips: chips.concat([{label:'재고 적은 상품 보기', cmd:'#list'}]),
+/* 미루의 언어 해석과 실행은 별도 모듈에서 처리한다. */
+function getStockAssistant(){
+  if(stockAssistant) return stockAssistant;
+  if(!window.BrightbeedStock) throw new Error('미루 모듈을 불러오지 못했습니다. 새로고침해 주세요.');
+  const pendingKey = 'miru_pending_write_v2';
+  stockAssistant = BrightbeedStock.createAssistant({
+    request:api, brands:BRANDS, brandWords:BRAND_WORDS,
+    search:searchProducts, nearest:nearestProducts, isMaster,
+    say:(text, opts) => say('agent', text, opts),
+    onStatus:label => { stockActivity = label; updateCells(); renderChatProgress(); },
+    loadPending:() => { try{ return JSON.parse(sessionStorage.getItem(pendingKey)||'null'); }catch(e){ return null; } },
+    savePending:job => { try{
+      if(job) sessionStorage.setItem(pendingKey, JSON.stringify(job));
+      else sessionStorage.removeItem(pendingKey);
+    }catch(e){} },
   });
-}
-
-function stockText(v){
-  if(v === -1 || v === -2) return '무제한';
-  if(v == null) return '–';
-  return `${num(v)}개`;
-}
-async function pickOptionOrAmount(S){
-  const p = S.product;
-  const opts = p.options || [];
-  if(opts.length > 1){
-    S.stage = 'opt';
-    const lines = opts.slice(0,10).map((o,i) => `${i+1}. ${o.label} — ${stockText(o.stock)}`);
-    say('agent', `"${p.name}" 은 옵션이 ${opts.length}개 있습니다. 어떤 옵션일까요?\n\n${lines.join('\n')}\n\n옵션 이름을 말씀하셔도 되고 번호로 부르셔도 됩니다.`, {
-      chips: opts.slice(0,10).map(o => ({label:o.label, cmd:`#opt ${o.optionNo}`})),
-    });
-    return;
-  }
-  if(opts.length === 1) S.option = opts[0];
-  await askAmount(S);
-}
-async function askAmount(S){
-  const cur = S.option ? S.option.stock : S.product.stock;
-  const amt = S.pendingAmount;
-  if(!amt){
-    S.stage = 'amount';
-    const label = S.option ? `${S.product.name} / ${S.option.label}` : S.product.name;
-    say('agent', `"${label}" 지금 재고가 ${stockText(cur)} 입니다. 몇 개로 맞춰 드릴까요?\n"50" 이라고 하시면 50개로 맞추고, "+50" 이나 "30개 빼줘" 처럼 말씀하시면 더하거나 뺍니다.`);
-    return;
-  }
-  S.pendingAmount = null;
-  await proposeStock(S, amt, cur);
-}
-async function proposeStock(S, amt, cur){
-  const base = (cur === -1 || cur === -2 || cur == null) ? 0 : cur;
-  let target = amt.op === 'add' ? base + amt.n : amt.op === 'sub' ? base - amt.n : amt.n;
-  if(target < 0){
-    S.stage = 'amount';
-    say('agent', `지금 ${stockText(cur)} 인데 ${amt.n}개를 빼면 ${target} 이라 마이너스가 됩니다. 0 으로 맞출까요?`, {
-      chips:[{label:'0 으로 설정', cmd:'0'}, {label:'취소', cmd:'#cancel', style:'danger'}],
-    });
-    return;
-  }
-  S.target = target;
-  if(!BRANDS[S.brand]?.writable){
-    const b = BRANDS[S.brand];
-    const writable = Object.values(BRANDS).filter(x => x.writable).map(x => x.label).join(', ');
-    abort(`${b.label} 는 아직 자동 저장 준비가 안 됐습니다.\n${b.note || ''}\n\n지금 저장까지 가능한 브랜드: ${writable}`);
-    return;
-  }
-  if(!isMaster()){
-    abort('재고 수정은 마스터 권한이 필요합니다. 대시보드에서 마스터 PIN 으로 로그인한 뒤 다시 지시해 주세요.');
-    return;
-  }
-  const label = S.option ? `${S.product.name} / ${S.option.label}` : S.product.name;
-  S.stage = 'confirm';
-  const note = BRANDS[S.brand]?.note ? `\n\n※ ${BRANDS[S.brand].note}` : '';
-  say('agent', `그럼 이렇게 바꾸겠습니다. 맞나요?\n\n상품: ${label}\n지금: ${stockText(cur)}\n바꿀 값: ${num(target)}개${note}\n\n"응" 이라고만 하셔도 바로 진행합니다.`, {
-    chips:[
-      {label:'네, 그렇게 해주세요', cmd:'#confirm', style:'primary'},
-      {label:'아니요', cmd:'#cancel', style:'danger'},
-    ],
-  });
-}
-
-async function commitStock(S){
-  if(!S.product || S.target == null){ abort('수정할 내용이 없습니다. 상품과 수량을 다시 알려 주세요.'); return; }
-  const p = S.product, o = S.option, target = S.target;
-  const label = o ? `${p.name} / ${o.label}` : p.name;
-  S.stage = null;
-  say('agent', `알겠습니다. ${BRANDS[S.brand].label} 식스샵에 접속해 "${label}" 재고를 ${num(target)}개로 저장하겠습니다. 30~60초 걸립니다…`);
-
-  const upd = {id: String(p.productNo), name: p.name, setStock: target};
-  if(o){ upd.optionNo = String(o.optionNo); upd.optionLabel = o.label; }
-
-  const res = await api('/sx/update-brand-stock', {method:'POST', body:{brand: S.brand, updates:[upd]}});
-  const rows = Array.isArray(res) ? res : (res.results || []);
-  const row = rows[0] || {};
-  if(res.ok === false || row.status === 'error' || row.status === 'skip'){
-    abort(`저장하지 못했습니다: ${row.message || res.error || '알 수 없는 오류'}`);
-    delete sess[charById('stock').id];
-    return;
-  }
-  say('agent', `저장 응답: ${row.message || '저장 완료'}`);
-
-  await doubleCheck(`${label} 재고 재조회`, async () => {
-    const fresh = await getCatalog(S.brand, true);
-    const p2 = (fresh.products||[]).find(x => String(x.productNo) === String(p.productNo));
-    if(!p2) return `⚠️ 재조회에서 상품을 찾지 못했습니다. 식스샵에서 직접 확인해 주세요.`;
-    const actual = o
-      ? ((p2.options||[]).find(x => String(x.optionNo) === String(o.optionNo))?.stock)
-      : p2.stock;
-    if(actual === target) return `재조회 결과 ${stockText(actual)} — 지시하신 ${num(target)}개와 일치합니다. ✓`;
-    return `⚠️ 재조회 결과 ${stockText(actual)} 로 지시값 ${num(target)}개와 다릅니다. 식스샵에서 직접 확인이 필요합니다.`;
-  });
-  delete sess[charById('stock').id];
-}
-
-async function listLowStock(brand){
-  say('agent', `${BRANDS[brand].label} 재고가 적은 상품을 찾습니다…`);
-  const cat = await getCatalog(brand);
-  const rows = (cat.products||[])
-    .filter(p => p.status === 'selling' && typeof p.stock === 'number' && p.stock >= 0)
-    .sort((a,b) => a.stock - b.stock)
-    .slice(0,10);
-  if(!rows.length){ abort('판매 중인 상품의 재고 정보를 찾지 못했습니다.'); return; }
-  sess['stock'] = sess['stock'] || {};
-  sess['stock'].brand = brand;
-  sess['stock'].candidates = rows;
-  say('agent', `재고 하위 ${rows.length}건입니다. 수정할 상품을 고르세요.`, {
-    chips: rows.map(p => ({label:`${p.name} (${stockText(p.stock)})`, cmd:`#pick ${p.productNo}`})),
-  });
+  return stockAssistant;
 }
 
 /* =========================================================================
@@ -1903,7 +1527,12 @@ function init(){
   $('scrim').addEventListener('click', closeChat);
   $('chat-send').addEventListener('click', () => submit());
   $('chat-clear').addEventListener('click', () => {
-    if(!openCharId) return;
+    if(!openCharId || busy) return;
+    if(openCharId === 'stock' && !getStockAssistant().clear()){
+      say('agent', '저장 결과를 먼저 확인해 주세요. 확인 전에는 작업 기록을 지울 수 없습니다.');
+      return;
+    }
+    delete llmHist[openCharId];
     const all = loadChats(); delete all[openCharId]; saveChats(all);
     delete sess[openCharId];
     renderChat(); greet(charById(openCharId));
