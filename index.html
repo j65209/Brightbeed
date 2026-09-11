@@ -2458,6 +2458,63 @@
     .bps-value{font-size:22px}
   }
 
+  /* ===== TOP 10 판매 상품 리스트 ===== */
+  .bps-top-list{padding:6px 18px 18px;display:flex;flex-direction:column;gap:6px}
+  .bps-top-item{
+    display:grid;grid-template-columns:34px 56px 1fr auto;align-items:center;gap:12px;
+    padding:10px 12px;border-radius:10px;background:var(--bg-1);border:1px solid var(--line);
+    transition:transform .12s,box-shadow .12s
+  }
+  .bps-top-item:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.06)}
+  .bps-top-rank{
+    width:28px;height:28px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--sans);font-weight:800;font-size:13px;color:#fff;
+    background:linear-gradient(135deg,#94a3b8,#64748b);
+    box-shadow:0 2px 6px rgba(0,0,0,.12)
+  }
+  .bps-top-rank-1{background:linear-gradient(135deg,#fbbf24,#d97706);box-shadow:0 2px 10px rgba(251,191,36,.5)}
+  .bps-top-rank-2{background:linear-gradient(135deg,#e5e7eb,#9ca3af);color:#1f2937}
+  .bps-top-rank-3{background:linear-gradient(135deg,#fb923c,#c2410c)}
+  .bps-top-img{
+    width:56px;height:56px;border-radius:8px;background:#f1f5f9;
+    object-fit:cover;flex-shrink:0;border:1px solid var(--line)
+  }
+  .bps-top-img.is-empty{background:linear-gradient(135deg,#f1f5f9,#e2e8f0)}
+  .bps-top-body{min-width:0;display:flex;flex-direction:column;gap:3px}
+  .bps-top-name{
+    font-family:var(--sans);font-weight:700;font-size:13.5px;color:var(--text-0);
+    letter-spacing:-.01em;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+  }
+  .bps-top-opt{
+    font-family:var(--sans);font-size:11.5px;color:var(--text-2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+  }
+  .bps-top-opt b{color:#4338ca;font-weight:700}
+  .bps-top-nums{
+    display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0
+  }
+  .bps-top-qty{
+    font-family:var(--sans);font-weight:800;font-size:17px;color:#4338ca;
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em
+  }
+  .bps-top-qty small{font-size:11px;font-weight:600;color:var(--text-3);margin-left:2px}
+  .bps-top-rev{
+    font-family:var(--sans);font-size:11.5px;color:var(--text-2);
+    font-variant-numeric:tabular-nums
+  }
+  .bps-top-empty{
+    padding:24px 12px;text-align:center;color:var(--text-3);font-size:13px
+  }
+  @media(max-width:720px){
+    .bps-top-list{padding:4px 12px 14px}
+    .bps-top-item{grid-template-columns:26px 44px 1fr auto;gap:8px;padding:8px 10px}
+    .bps-top-img{width:44px;height:44px}
+    .bps-top-name{font-size:12.5px}
+    .bps-top-qty{font-size:15px}
+  }
+
   /* ===== 셀러 누적 순위 TOP 5 ===== */
   .vsr-section{margin-top:14px}
   .vsr-total-note{
@@ -8035,6 +8092,12 @@
         </div>
         <div id="bpsGrid" class="bps-grid">
           <div class="bps-empty">불러오는 중…</div>
+        </div>
+        <div class="po-section-head" style="border-top:1px solid var(--line);margin-top:2px">
+          <div class="po-section-title">이번 달 판매 TOP 10 <span class="po-section-meta-inline bps-status-inline" id="bpsTopNote"></span></div>
+        </div>
+        <div id="bpsTopList" class="bps-top-list">
+          <div class="bps-top-empty">불러오는 중…</div>
         </div>
       </div>
 
@@ -19915,9 +19978,16 @@
   }
   function bpsEnsureLoaded(){ if(!_bps.loaded && !_bps.loading) bpsLoad(); }
   function bpsRefresh(){ bpsLoad(true); }
+  function _bpsEsc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
   function renderBps(){
     const grid=document.getElementById('bpsGrid');
     const status=document.getElementById('bpsStatus');
+    const topList=document.getElementById('bpsTopList');
+    const topNote=document.getElementById('bpsTopNote');
     if(!grid) return;
     if(status){
       status.classList.remove('is-err');
@@ -19935,6 +20005,8 @@
       grid.innerHTML = _bps.error
         ? `<div class="bps-empty">매출 데이터를 불러오지 못했습니다 · ${String(_bps.error).replace(/[<>&]/g,'')}</div>`
         : `<div class="bps-empty">불러오는 중…</div>`;
+      if(topList) topList.innerHTML = `<div class="bps-top-empty">${_bps.error?'—':'불러오는 중…'}</div>`;
+      if(topNote) topNote.textContent = '';
       return;
     }
     const monLabel=_bpsMonthLabel(d.month_start);
@@ -19955,6 +20027,44 @@
         <div class="bps-sub">주문 <b>${(d.month_orders||0).toLocaleString('ko-KR')}건</b> · ${d.month_start||''} ~ 오늘</div>
       </div>
     `;
+    // TOP 10
+    if(topList){
+      const list=Array.isArray(d.top_products)?d.top_products:[];
+      if(!list.length){
+        topList.innerHTML = `<div class="bps-top-empty">이번 달 판매 데이터가 없습니다</div>`;
+      } else {
+        topList.innerHTML = list.map((p,i)=>{
+          const rk=i+1;
+          const rkCls=rk<=3?` bps-top-rank-${rk}`:'';
+          const img=p.image
+            ? `<img class="bps-top-img" src="${_bpsEsc(p.image)}" alt="" onerror="this.classList.add('is-empty');this.removeAttribute('src')">`
+            : `<div class="bps-top-img is-empty"></div>`;
+          // 옵션 힌트: 대표 옵션 1개 + 옵션 종류 개수
+          const opts=Array.isArray(p.top_options)?p.top_options:[];
+          let optHtml='';
+          if(opts.length){
+            const lead=opts[0];
+            const more=(p.option_count||opts.length)>1 ? ` <span style="color:var(--text-3)">· 옵션 ${p.option_count||opts.length}종</span>` : '';
+            optHtml = `<div class="bps-top-opt">💠 <b>${_bpsEsc(lead.label)}</b> × ${(lead.qty||0).toLocaleString('ko-KR')}${more}</div>`;
+          }
+          return `<div class="bps-top-item">
+            <span class="bps-top-rank${rkCls}">${rk}</span>
+            ${img}
+            <div class="bps-top-body">
+              <div class="bps-top-name" title="${_bpsEsc(p.name)}">${_bpsEsc(p.name)}</div>
+              ${optHtml}
+            </div>
+            <div class="bps-top-nums">
+              <div class="bps-top-qty">${(p.qty||0).toLocaleString('ko-KR')}<small>개</small></div>
+              <div class="bps-top-rev">${_bpsKrw(p.revenue)}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+      if(topNote){
+        topNote.textContent = list.length ? `${d.month_start||''} ~ 오늘 · ${list.length}개 상품` : '';
+      }
+    }
   }
 
   /* ===== 벤더팀 — 공구 일정 캘린더 (brightbeed@gmail.com 공개 iCal, /cal 프록시) ===== */
