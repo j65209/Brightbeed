@@ -14,7 +14,7 @@ import tempfile
 
 from job_runtime import atomic_write
 
-MODULES = ("job_runtime.py", "job_status.py", "refresh_session.py", "job_watchdog.py", "configure_watchdog.py")
+MODULES = ("job_runtime.py", "job_status.py", "refresh_session.py", "job_watchdog.py", "configure_watchdog.py", "smartstore_orders.py")
 
 
 def digest(path):

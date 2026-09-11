@@ -79,9 +79,9 @@ def decision(launch, snapshots, retry, now):
         return {"action": None, "reason": "registration_unknown"}
     if launch.get("running"):
         return {"action": None, "reason": "already_running"}
-    bad = [row for row in snapshots if not row["ok"]]
+    bad = [row for row in snapshots if not row["ok"] and row.get("recoverable") is not False]
     if launch["loaded"] and not bad:
-        return {"action": None, "reason": "healthy"}
+        return {"action": None, "reason": "healthy" if all(row["ok"] for row in snapshots) else "source_limited"}
     if launch["loaded"]:
         # Give a completed failed attempt five minutes before an extra retry.
         latest = max((row.get("finished_at") or row.get("last_attempt_at") or 0 for row in bad), default=0)

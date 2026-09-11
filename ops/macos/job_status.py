@@ -58,6 +58,10 @@ def snapshot_status(root, key, now=None):
             result.update(status="error", error_code=record.get("error_code") or marker.get("error", "collection_failed"))
         if record.get("status") == "running" and now - record.get("started_at", 0) > spec["timeout"] * 2 + 120:
             result.update(status="error", error_code="interrupted_or_overdue")
+        if spec["kind"] == "sales" and data.get("coverage", {}).get("complete") is False:
+            result["coverage"] = data["coverage"]
+            if result["status"] == "fresh":
+                result.update(status="partial", error_code="source_orders_unavailable", recoverable=False)
         result["ok"] = result["status"] == "fresh"
     except (OSError, ValueError, TypeError, KeyError):
         result.update(status="missing" if not path.exists() else "error", error_code="invalid_or_missing_snapshot")

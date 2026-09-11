@@ -10297,6 +10297,7 @@
         </div>
       </div>
       <div class="akoi-summary" id="salesSummary_${cfg.id}"></div>
+      <div id="salesCoverage_${cfg.id}" role="status" hidden style="padding:8px 16px;color:#a16207;font-size:12px"></div>
       <div class="akoi-body akoi-body-collapsed" id="salesBody_${cfg.id}"><div class="akoi-empty">불러오는 중…</div></div>
     </div>`;
   }
@@ -10354,6 +10355,15 @@
         return;
       }
       summary.innerHTML=_akoiRenderSummary(j.summary||{}, {hideUsd: !!cfg.hideUsd});
+      const coverageNote=document.getElementById(`salesCoverage_${id}`);
+      if(coverageNote){
+        const unavailable=Number(j.coverage?.unavailableOrders);
+        const partial=j.coverage?.complete===false && Number.isInteger(unavailable) && unavailable>0;
+        coverageNote.hidden=!partial;
+        coverageNote.textContent=partial
+          ? `조회 불가 주문 ${unavailable.toLocaleString('ko-KR')}건을 제외한 집계입니다. 정확한 전체 매출은 스마트스토어센터에서 확인해 주세요.`
+          : '';
+      }
       const top=Array.isArray(j.top10)?j.top10:[];
       body.innerHTML=top.length
         ? top.map(it=>_akoiRenderRow(it, cfg)).join('')

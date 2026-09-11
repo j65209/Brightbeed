@@ -85,6 +85,13 @@ def validate(data, kind, now=None, started_at=None, previous=None):
     if kind != "orders":
         require(data.get("ok") is True, "source_failed")
     if kind == "sales":
+        coverage = data.get("coverage")
+        if coverage is not None:
+            require(isinstance(coverage, dict), "invalid_coverage")
+            counts = [coverage.get(k) for k in ("requestedOrders", "returnedOrders", "unavailableOrders")]
+            require(all(number(n, True) for n in counts) and counts[0] == counts[1] + counts[2], "invalid_coverage")
+            require(coverage.get("complete") is (counts[2] == 0), "invalid_coverage")
+            require(counts[2] == 0 or coverage.get("unavailableReason") == "naver_api_100001", "invalid_coverage")
         summary = data.get("summary")
         require(isinstance(summary, dict), "missing_summary")
         for key in ("today", "yesterday", "thirtyDays"):
@@ -295,6 +302,8 @@ def run_job(root, key, spec=None):
                 atomic_write(target, raw)
                 record.update(status="succeeded", last_success_at=time.time(), count=count,
                               sha256=hashlib.sha256(raw).hexdigest(), consecutive_failures=0)
+                if spec["kind"] == "sales" and data.get("coverage"):
+                    record["coverage"] = data["coverage"]
                 marker = Path(str(target) + ".error.json")
                 if marker.exists():
                     marker.unlink()
