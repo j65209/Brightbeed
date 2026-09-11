@@ -14,6 +14,8 @@ import tempfile
 
 from job_runtime import atomic_write
 
+MODULES = ("job_runtime.py", "job_status.py", "refresh_session.py", "job_watchdog.py", "configure_watchdog.py")
+
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -48,7 +50,7 @@ def install(server, apply=False):
             elif relative.suffix == ".sh":
                 subprocess.run(["/bin/bash", "-n", str(staged)], check=True)
             changes.append((target, staged.read_bytes(), current))
-        for filename in ("job_runtime.py", "job_status.py", "refresh_session.py"):
+        for filename in MODULES:
             path = bundle / filename
             ast.parse(path.read_text())
             target = server / "scripts" / filename
@@ -75,7 +77,7 @@ def install(server, apply=False):
         try:
             # Modules first, then callers: running services can keep using old code
             # until the proxy is explicitly restarted after validation.
-            changes.sort(key=lambda item: 0 if item[0].name in ("job_runtime.py", "job_status.py", "refresh_session.py") else 1)
+            changes.sort(key=lambda item: 0 if item[0].name in MODULES else 1)
             for target, content, _ in changes:
                 mode = target.stat().st_mode & 0o777 if target.exists() else 0o600
                 atomic_write(target, content)

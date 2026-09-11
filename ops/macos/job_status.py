@@ -6,9 +6,9 @@ import subprocess
 import time
 
 try:
-    from .job_runtime import JOBS, GROUPS, read_json, source_time, validate, validate_csv
+    from .job_runtime import JOBS, GROUPS, expected_since, read_json, source_time, validate, validate_csv
 except ImportError:
-    from job_runtime import JOBS, GROUPS, read_json, source_time, validate, validate_csv
+    from job_runtime import JOBS, GROUPS, expected_since, read_json, source_time, validate, validate_csv
 
 
 def launch_status(label):
@@ -16,7 +16,8 @@ def launch_status(label):
     try:
         proc = subprocess.run(["/bin/launchctl", "print", f"gui/{os.getuid()}/{label}"], capture_output=True, text=True, timeout=2)
         if proc.returncode:
-            return {"loaded": False}
+            missing = "could not find service" in (proc.stdout + proc.stderr).lower()
+            return {"loaded": False if missing else None}
         # Only top-level fields; nested resource coalition state is not job state.
         fields = dict(re.findall(r"^\t(state|pid|last exit code) = (.+)$", proc.stdout, re.M))
         return {"loaded": True, "running": fields.get("state") == "running", "exit_code": fields.get("last exit code")}
@@ -33,6 +34,7 @@ def snapshot_status(root, key, now=None):
     result = {"id": key, "ok": False, "status": "missing", "updated_at": None,
               "last_success_at": record.get("last_success_at"), "last_attempt_at": record.get("started_at"),
               "run_status": record.get("status", "unknown"), "error_code": record.get("error_code"),
+              "retry_after": record.get("retry_after"),
               "stale_after_hours": (spec["interval"] * 2) / 3600}
     try:
         raw = path.read_bytes()
@@ -46,7 +48,11 @@ def snapshot_status(root, key, now=None):
             validate(data, spec["kind"], now=stamp or now)
         age = now - stamp
         result.update(updated_at=int(stamp), age_hours=round(max(0, age) / 3600, 3),
-                      status="fresh" if -120 <= age <= spec["interval"] * 2 else "stale")
+                      status="fresh" if stamp <= now + 120 and stamp >= expected_since(spec, now) else "stale")
+        if spec.get("calendar_hours"):
+            result.update(expected_since=int(expected_since(spec, now)), schedule="08:00,12:00,18:00 KST")
+            if result["status"] == "stale":
+                result["error_code"] = "missed_schedule"
         marker = read_json(str(path) + ".error.json")
         if record.get("status") == "failed" or marker.get("ts", 0) >= stamp:
             result.update(status="error", error_code=record.get("error_code") or marker.get("error", "collection_failed"))
@@ -65,9 +71,9 @@ def health_report(root, beed):
              "bestsellers": ("브랜드 판매 순위", "매출")}
     checks = []
     for key in JOBS:
-        if key.startswith("report-") or key.startswith("pro-stock-"):
+        if key.startswith("pro-stock-"):
             continue
-        name, category = names.get(key, (key, "매출"))
+        name, category = names.get(key, (key, "보고서" if key.startswith("report-") else "매출"))
         checks.append(dict(snapshot_status(root, key), name=name, category=category))
     fb = read_json(Path(beed) / "data/meta-ads/all-brands-scoreboard.json")
     stamp = source_time(fb)
@@ -82,6 +88,12 @@ def health_report(root, beed):
     ok = stamp is not None and -120 <= time.time() - stamp <= 3600
     checks.append({"name": "메타 광고", "category": "마케팅", "ok": ok, "status": "fresh" if ok else "stale",
                    "updated_at": int(stamp) if stamp else None, "stale_after_hours": 1})
+    watchdog = read_json(Path(root) / "state/watchdog.json")
+    if watchdog:
+        current = watchdog.get("mode") == "apply" and 0 <= time.time() - watchdog.get("checked_at", 0) <= 900
+        checks.append({"name": "자동 복구 감시", "category": "서버", "ok": current,
+                       "status": "fresh" if current else "stale", "updated_at": watchdog.get("checked_at"),
+                       "stale_after_hours": .25})
     return {"ok": all(c["ok"] for c in checks), "checked_at": int(time.time()), "checks": checks}
 
 

@@ -3,6 +3,7 @@
 Install in the proxy's scripts directory. No inventory mutations belong here.
 """
 import csv
+import datetime
 import fcntl
 import hashlib
 import io
@@ -142,19 +143,36 @@ def specifications():
     add("ably-sales", "ably_sales.py", ["--brand", "6a"], "ably_sales.json", "sales", timeout=90)
     for brand in ("kop", "apt"):
         add("ably-sales-" + brand, "ably_sales.py", ["--brand", brand], "ably_sales_" + brand + ".json", "sales", timeout=90)
-    add("zigzag-sales", "zigzag_sales.py", [], "zigzag_6a_sales.json", "sales", timeout=90)
+    add("zigzag-sales", "zigzag_sales.py", ["--brand", "6a"], "zigzag_6a_sales.json", "sales", timeout=90)
+    for brand in ("kop", "apt"):
+        add("zigzag-sales-" + brand, "zigzag_sales.py", ["--brand", brand], "zigzag_" + brand + "_sales.json", "sales", timeout=90)
     add("smartstore-sales", "smartstore_sales.py", ["--brand", "pp"], "smartstore_pp_sales.json", "sales")
     add("smartstore-sales-kop", "smartstore_sales.py", ["--brand", "kop"], "smartstore_kop_sales.json", "sales")
     add("bestsellers", "sixshop_bestsellers.py", ["all"], "bestsellers_all.json", "bestsellers", timeout=210, cache_arg=False)
     for brand in ("brightbeed", "shinebeed"):
         add("kd-" + brand, "kuaidiair_fetcher.py", [brand], "kuaidiair-orders" + ("-shinebeed" if brand == "shinebeed" else "") + ".json", "orders", timeout=480, interval=600, cache_arg=False)
     add("vendor-fetch", "vendor_margin_fetcher.py", [], "vendor-margin.csv", "csv", timeout=60, interval=600, cache_arg=False)
+    for key, spec in jobs.items():
+        if key.startswith("report-"):
+            spec.update(calendar_hours=[8, 12, 18], schedule_grace=1800)
     return jobs
+
+
+def expected_since(spec, now):
+    """Oldest acceptable source time, including completed KST report slots."""
+    hours = spec.get("calendar_hours")
+    if not hours:
+        return now - spec["interval"] * 2
+    kst = datetime.timezone(datetime.timedelta(hours=9))
+    ready = datetime.datetime.fromtimestamp(now - spec["schedule_grace"], kst)
+    slots = [ready.replace(hour=h, minute=0, second=0, microsecond=0)
+             - datetime.timedelta(days=day) for day in (0, 1) for h in hours]
+    return max(slot.timestamp() for slot in slots if slot <= ready)
 
 
 JOBS = specifications()
 GROUPS = {
-    "platform-sales": ["ably-sales", "ably-sales-kop", "ably-sales-apt", "zigzag-sales", "smartstore-sales", "smartstore-sales-kop"],
+    "platform-sales": ["ably-sales", "ably-sales-kop", "ably-sales-apt", "zigzag-sales", "zigzag-sales-kop", "zigzag-sales-apt", "smartstore-sales", "smartstore-sales-kop"],
     "pro-sales": [k for b in ("akoi", "pp", "ct", "koz") for k in ("pro-sales-" + b, "pro-stock-" + b)],
     "admin-sales": ["admin-sales-" + b for b in ("6a", "yar", "kop", "apt")],
     "brand-report": ["report-" + b for b in ("ct", "pp", "koz", "akoi", "6a", "yar", "kop", "apt")],
@@ -167,8 +185,8 @@ def match_job(args):
     script, tail = Path(args[1]).name, args[2:]
     if script == "kuaidiair_fetcher.py" and not tail:
         tail = ["brightbeed"]
-    if script in ("ably_sales.py", "smartstore_sales.py") and not tail:
-        tail = ["--brand", "6a" if script == "ably_sales.py" else "pp"]
+    if script in ("ably_sales.py", "zigzag_sales.py", "smartstore_sales.py") and not tail:
+        tail = ["--brand", "pp" if script == "smartstore_sales.py" else "6a"]
     for key, spec in JOBS.items():
         if script == spec["script"] and tail == spec["args"]:
             return key
@@ -222,9 +240,14 @@ def run_job(root, key, spec=None):
             return {"ok": False, "status": "skipped", "job_id": key, "error_code": "already_running"}
         old = read_json(state_path)
         started = time.time()
+        if old.get("status") == "failed" and started < old.get("retry_after", 0):
+            return {"ok": False, "status": "skipped", "job_id": key,
+                    "error_code": "retry_cooldown", "retry_after": old["retry_after"],
+                    "last_success_at": old.get("last_success_at")}
         record = {"job_id": key, "run_id": str(uuid.uuid4()), "status": "running", "started_at": started,
                   "finished_at": None, "last_success_at": old.get("last_success_at"),
-                  "attempt": int(old.get("attempt", 0)) + 1, "pid": os.getpid(), "error_code": None}
+                  "attempt": int(old.get("attempt", 0)) + 1, "pid": os.getpid(), "error_code": None,
+                  "consecutive_failures": old.get("consecutive_failures", 0), "retry_after": None}
         if old.get("status") == "running":
             record["interrupted_run_id"] = old.get("run_id")
         write_json(state_path, record)
@@ -240,11 +263,11 @@ def run_job(root, key, spec=None):
                 code, output = execute(cmd, spec["timeout"], lock.fileno(), env, root)
                 # At most one session refresh, only for the two read-only sources.
                 expired = "session expired" in output or "session missing" in output
-                if expired and (key.startswith("ably-sales") or key == "zigzag-sales"):
+                if expired and (key.startswith("ably-sales") or key.startswith("zigzag-sales")):
                     record["recovery"] = "session_refresh"
                     write_json(state_path, record)
                     renew = [sys.executable, str(root / "scripts" / "refresh_session.py"), key.split("-")[0]]
-                    if key.startswith("ably-sales"):
+                    if key.startswith("ably-sales") or key.startswith("zigzag-sales"):
                         renew += [spec["args"][-1]]
                     renewal_code, _ = execute(renew, 75, lock.fileno(), env, root)
                     require(renewal_code == 0, "session_login_required")
@@ -271,13 +294,15 @@ def run_job(root, key, spec=None):
                         atomic_write(str(target) + ".last-good", prior)
                 atomic_write(target, raw)
                 record.update(status="succeeded", last_success_at=time.time(), count=count,
-                              sha256=hashlib.sha256(raw).hexdigest())
+                              sha256=hashlib.sha256(raw).hexdigest(), consecutive_failures=0)
                 marker = Path(str(target) + ".error.json")
                 if marker.exists():
                     marker.unlink()
         except Exception as error:
             code = str(error) if isinstance(error, InvalidSnapshot) else type(error).__name__
-            record.update(status="failed", error_code=code)
+            failures = record["consecutive_failures"] + 1
+            record.update(status="failed", error_code=code, consecutive_failures=failures,
+                          retry_after=time.time() + min(1800, 300 * 2 ** min(failures - 1, 3)))
             write_json(str(target) + ".error.json", {"ts": int(time.time()), "error": code, "run_id": record["run_id"]})
         record["finished_at"] = time.time()
         write_json(state_path, record)

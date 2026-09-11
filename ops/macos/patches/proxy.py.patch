@@ -165,7 +165,7 @@
                  check=False,
              )
          except Exception as e:
-@@ -1977,6 +1944,17 @@
+@@ -1983,6 +1950,17 @@
          """식스샵 Playwright 스크립트 spawn — stdout 의 '=' × 60 마커 뒤 JSON 을 응답으로 relay.
          마커/JSON 없으면 stdout+stderr 원문을 error payload 로 감싸서 반환.
          """
@@ -183,7 +183,7 @@
          import subprocess
          log(f"sixshop spawn ({log_prefix}): {' '.join(args[:3])} ...")
          try:
-@@ -1991,11 +1969,15 @@
+@@ -1997,11 +1975,15 @@
                      result_json = json.loads(json_part)
                  except Exception:
                      pass

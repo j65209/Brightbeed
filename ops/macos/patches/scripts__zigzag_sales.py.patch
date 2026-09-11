@@ -1,6 +1,6 @@
 --- a/scripts/zigzag_sales.py
 +++ b/scripts/zigzag_sales.py
-@@ -139,7 +139,11 @@
+@@ -163,7 +163,11 @@
                      "unit": "MONTHLY",
                  },
              }))
@@ -11,8 +11,8 @@
 +                raise ValueError("metric_graphql_error")
          except Exception as e:
              await browser.close()
-             return {"ok": False, "brand": BRAND, "error": f"metric api: {e}"}
-@@ -160,9 +164,14 @@
+             return {"ok": False, "brand": brand, "error": f"metric api: {e}"}
+@@ -184,9 +188,14 @@
                      "limit_count": 10,
                  },
              }))
@@ -24,11 +24,11 @@
          except Exception as e:
 -            print(f"[zigzag-sales] product query failed: {e}", file=sys.stderr)
 +            await browser.close()
-+            return {"ok": False, "brand": BRAND, "error": "product_query_failed"}
++            return {"ok": False, "brand": brand, "error": "product_query_failed"}
  
          await browser.close()
  
-@@ -296,6 +305,7 @@
+@@ -325,6 +334,7 @@
                  json.dump(result, f, ensure_ascii=False)
              os.replace(tmp, cache_path)
          except Exception as e:
@@ -36,9 +36,9 @@
              print(f"[zigzag-sales] cache write failed: {e}", file=sys.stderr)
  
      if result.get("ok"):
-@@ -310,6 +320,14 @@
+@@ -339,6 +349,14 @@
      else:
-         print(f"[zigzag-sales] FAIL: {result.get('error')}", file=sys.stderr)
+         print(f"[zigzag-sales:{brand}] FAIL: {result.get('error')}", file=sys.stderr)
  
 +    raise SystemExit(0 if result.get("ok") is True else 1)
 +

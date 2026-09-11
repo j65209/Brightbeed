@@ -24,11 +24,21 @@ def refresh(platform, brand="6a"):
         suffix = "_" + brand.upper() if brand != "6a" else ""
         login.EMAIL = os.environ.get("ABLY_EMAIL" + suffix, "")
         login.PASSWORD = os.environ.get("ABLY_PASSWORD" + suffix, "")
+    if platform == "zigzag":
+        # kop·apt 는 coferryworld 계정 하나 공용
+        if brand in ("kop", "apt"):
+            login.EMAIL = os.environ.get("KAKAOSTYLE_EMAIL_COP", "")
+            login.PASSWORD = os.environ.get("KAKAOSTYLE_PASSWORD_COP", "")
+        else:
+            login.EMAIL = os.environ.get("KAKAOSTYLE_EMAIL", "")
+            login.PASSWORD = os.environ.get("KAKAOSTYLE_PASSWORD", "")
     if not login.EMAIL or not login.PASSWORD:
         return 1
     state = collector / "data" / ("ably-state.json" if platform == "ably" else "kakaostyle-state.json")
     if platform == "ably" and brand != "6a":
         state = collector / "data" / ("ably-state-" + brand + ".json")
+    if platform == "zigzag" and brand != "6a":
+        state = collector / "data" / ("kakaostyle-state-" + brand + ".json")
     state.parent.mkdir(parents=True, exist_ok=True)
     with open(str(state) + ".lock", "a+") as lock:
         try:

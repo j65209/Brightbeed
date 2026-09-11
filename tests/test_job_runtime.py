@@ -89,6 +89,23 @@ class JobTests(unittest.TestCase):
             self.assertEqual(self.run_job()["status"], "skipped")
             self.assertEqual(runtime.read_json(state / "test.json")["run_id"], "owner")
 
+    def test_repeated_page_refresh_obeys_persistent_failure_cooldown(self):
+        self.script("raise SystemExit(1)")
+        failed = self.run_job()
+        before = (self.root / "state/jobs/test.json").read_bytes()
+        self.assertEqual(failed["consecutive_failures"], 1)
+        self.assertGreaterEqual(failed["retry_after"] - failed["started_at"], 300)
+        self.assertEqual(self.run_job()["error_code"], "retry_cooldown")
+        self.assertEqual((self.root / "state/jobs/test.json").read_bytes(), before)
+
+    def test_success_after_backoff_resets_failures(self):
+        runtime.write_json(self.root / "state/jobs/test.json", {
+            "status": "failed", "consecutive_failures": 5, "retry_after": 1})
+        result = self.run_job()
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["consecutive_failures"], 0)
+        self.assertIsNone(result["retry_after"])
+
     def test_interrupted_journal_is_recovered_only_after_lock(self):
         runtime.write_json(self.root / "state/jobs/test.json", {"status": "running", "run_id": "interrupted", "attempt": 2})
         result = self.run_job()
@@ -158,6 +175,8 @@ class JobTests(unittest.TestCase):
 
     def test_only_exact_read_only_commands_match_runner(self):
         self.assertEqual(runtime.match_job(["python3", "/server/scripts/ably_sales.py"]), "ably-sales")
+        self.assertEqual(runtime.match_job(["python3", "/server/scripts/zigzag_sales.py"]), "zigzag-sales")
+        self.assertEqual(runtime.match_job(["python3", "/server/scripts/zigzag_sales.py", "--brand", "kop"]), "zigzag-sales-kop")
         self.assertIsNone(runtime.match_job(["python3", "/server/scripts/sixshop_stock_updater.py", "update", "6a"]))
         self.assertIsNone(runtime.match_job(["python3", "/server/scripts/sixshop_bestsellers.py", "all", "--start=2026-01-01"]))
 
