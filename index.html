@@ -2656,12 +2656,55 @@
   }
   .wht-archive-chip.active .wht-archive-chip-count{background:rgba(255,255,255,.22)}
   .wht-archive-empty{font-size:11.5px;color:var(--text-3);font-style:italic}
-  /* 업체 정보 버튼 (엑셀 내보내기 옆) */
+  /* 업체 정보 · 셀러 정보 버튼 (엑셀 내보내기 옆) */
   .wht-btn.wht-btn-vendors{
     color:#4338ca;background:rgba(79,70,229,.08);
     border-color:rgba(79,70,229,.35);font-weight:700;
   }
   .wht-btn.wht-btn-vendors:hover{background:rgba(79,70,229,.16);border-color:rgba(79,70,229,.55)}
+  .wht-btn.wht-btn-sellers{
+    color:#059669;background:rgba(16,185,129,.08);
+    border-color:rgba(16,185,129,.35);font-weight:700;
+  }
+  .wht-btn.wht-btn-sellers:hover{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.55)}
+  /* 셀러 정보 모달 (업체 정보와 대부분 공유) */
+  .wht-seller-modal .wht-vendor-head{
+    background:linear-gradient(135deg,rgba(16,185,129,.10) 0%,rgba(5,150,105,.04) 100%);
+  }
+  #whtSellerStamp{font-size:11px;color:var(--text-3);margin-left:4px}
+  .wht-seller-item{
+    display:flex;flex-direction:column;gap:6px;
+    padding:12px 14px;border:1px solid var(--line-1);border-radius:10px;
+    background:var(--bg-1);transition:border-color .12s;
+  }
+  .wht-seller-item:hover{border-color:var(--line-2)}
+  .wht-seller-row-1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .wht-seller-name{font-weight:700;font-size:14.5px;color:var(--text-0);letter-spacing:-.1px}
+  .wht-seller-name mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
+  .wht-seller-name a{color:inherit;text-decoration:none;border-bottom:1px dashed var(--line-2)}
+  .wht-seller-name a:hover{color:#e0388a;border-bottom-color:#e0388a}
+  .wht-seller-meta{font-size:11px;color:var(--text-3);font-family:var(--sans)}
+  .wht-seller-cats{display:flex;flex-wrap:wrap;gap:4px}
+  .wht-seller-cat{
+    display:inline-block;padding:2px 8px;font-size:10.5px;font-weight:600;
+    background:rgba(16,185,129,.10);color:#047857;border-radius:99px;letter-spacing:-.02em;
+  }
+  .wht-seller-info{font-family:var(--sans);font-size:12.5px;color:var(--text-1);display:flex;flex-direction:column;gap:3px;letter-spacing:-.02em}
+  .wht-seller-info .wht-seller-info-line{display:flex;gap:6px;align-items:baseline}
+  .wht-seller-info b{color:var(--text-2);font-weight:600;font-size:11px;min-width:44px}
+  .wht-seller-info .wht-seller-info-val{color:var(--text-0);word-break:break-all}
+  .wht-seller-info .wht-seller-info-val mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
+  .wht-seller-note{font-size:11.5px;color:var(--text-2);font-style:italic}
+  .wht-seller-copy{
+    align-self:flex-start;padding:2px 8px;font-size:10.5px;font-weight:600;
+    background:var(--bg-0);border:1px solid var(--line);color:var(--text-2);border-radius:5px;
+    cursor:pointer;transition:all .12s;letter-spacing:-.02em;
+  }
+  .wht-seller-copy:hover{color:#4338ca;background:rgba(79,70,229,.08);border-color:rgba(79,70,229,.3)}
+  .wht-seller-actions{display:flex;gap:6px;align-items:center;margin-left:auto}
+  @media(max-width:600px){
+    .wht-seller-item{padding:10px}
+  }
   /* 이름 셀 · 자동완성 dropdown */
   .wht-name-cell{position:relative}
   .wht-suggest{
@@ -7911,7 +7954,7 @@
               <button type="button" class="btn-md-cal-nav wht-mo-nav-arrow" onclick="whtMonthPrev()" aria-label="이전 달">‹</button>
               <span class="wht-mo-label" id="whtMonthLabel">—</span>
               <button type="button" class="btn-md-cal-nav wht-mo-nav-arrow" onclick="whtMonthNext()" aria-label="다음 달">›</button>
-              <button type="button" class="btn-md-cal-nav" onclick="whtMonthToday()">이번 달</button>
+              <button type="button" class="btn-md-cal-nav" onclick="whtMonthToday()" title="다음 달 10일 정산 대상 달로 이동">이번 정산</button>
             </div>
             <button type="button" class="btn-md-cal-nav" onclick="whtReload()" title="새로고침">↻</button>
           </div>
@@ -7922,6 +7965,7 @@
             <div class="wht-archive-chips" id="whtArchiveChips"><span class="wht-archive-empty">불러오는 중…</span></div>
             <div class="wht-archive-actions" style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
               <button type="button" class="wht-btn wht-btn-vendors" onclick="whtOpenVendors()" title="지금까지 저장된 업체·개인 정보를 보고 수정합니다">📇 업체 정보</button>
+              <button type="button" class="wht-btn wht-btn-sellers" onclick="whtOpenSellers()" title="구글시트 셀러정보 시트를 실시간으로 불러옵니다">🧑‍💼 셀러 정보</button>
               <button type="button" class="wht-btn wht-btn-copy" onclick="whtExportExcel()" title="이 달 저장된 3개 표를 엑셀 파일로 내보냅니다">📥 엑셀 내보내기</button>
             </div>
           </div>
@@ -8066,6 +8110,30 @@
       </div>
       <div class="wht-vendor-foot">
         <span class="wht-vendor-hint">💡 원천세 표에서 이름을 입력하면 자동 저장됩니다. 여기서 직접 수정·삭제할 수 있어요.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 셀러 정보 모달 (구글시트 실시간) -->
+  <div class="wht-vendor-modal wht-seller-modal" id="whtSellerModal" hidden>
+    <div class="wht-vendor-backdrop" onclick="whtCloseSellers()"></div>
+    <div class="wht-vendor-dialog">
+      <div class="wht-vendor-head">
+        <div class="wht-vendor-title">🧑‍💼 셀러 정보 <span class="wht-vendor-title-sub">구글시트 · 실시간 <span id="whtSellerStamp"></span></span></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button type="button" class="wht-vendor-btn" onclick="whtReloadSellers()" title="구글시트에서 다시 불러오기">↻ 새로고침</button>
+          <a class="wht-vendor-btn" href="https://docs.google.com/spreadsheets/d/1F_nQWwLjia0Vs7_KA3p2Dgt6OAFUbYXPxDHpxZV-IBA/edit" target="_blank" rel="noopener" title="구글시트 원본 열기" style="text-decoration:none">📄 원본</a>
+          <button type="button" class="wht-vendor-close" onclick="whtCloseSellers()" aria-label="닫기">×</button>
+        </div>
+      </div>
+      <div class="wht-vendor-search-row">
+        <input type="search" class="wht-vendor-search" id="whtSellerSearch" placeholder="🔎 셀러명 · 이름 · 카테고리 · 연락처 · 주소 검색" oninput="whtSellerRenderList()">
+      </div>
+      <div class="wht-vendor-body">
+        <div class="wht-vendor-list wht-seller-list" id="whtSellerList"></div>
+      </div>
+      <div class="wht-vendor-foot">
+        <span class="wht-vendor-hint">💡 구글시트에서 편집한 내용은 새로고침(↻)을 눌러야 반영돼요.</span>
       </div>
     </div>
   </div>
@@ -20217,7 +20285,8 @@
     name:'이름', bank:'은행', account:'계좌번호', holder:'예금주명', ssn:'주민번호',
     ceo:'대표자명', bizno:'사업자번호', address:'소재지', biztype:'업태/종목', email:'이메일',
   };
-  function _whtToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
+  // 원천세 정산은 항상 그 다음 달 10일 → 기본 표기는 "정산 달" = 현재 캘린더 달 + 1
+  function _whtToday(){const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()+1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
   function _whtParseYm(ym){const [y,m]=String(ym||'').split('-').map(n=>parseInt(n,10));return{y,m}}
   function _whtFmtYm(y,m){return `${y}-${String(m).padStart(2,'0')}`}
   function _whtYmLabel(ym){const {y,m}=_whtParseYm(ym);return (y&&m)?`${y}년 ${m}월`:'—'}
@@ -20793,6 +20862,232 @@
     }
   }
 
+  /* ---- 셀러 정보 (구글시트 실시간) ---- */
+  const WHT_SELLER_SHEET_ID='1F_nQWwLjia0Vs7_KA3p2Dgt6OAFUbYXPxDHpxZV-IBA';
+  const WHT_SELLER_SHEET_NAME='셀러정보';
+  const _whtSellerState={sellers:null, loading:false, loadedAt:null, open:false};
+  function _whtParseCsvLine(line){
+    // 간단한 CSV parser — 큰따옴표 안 콤마·따옴표 이스케이프 처리
+    const out=[]; let cur=''; let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(inQ){
+        if(ch==='"' && line[i+1]==='"'){cur+='"'; i++;}
+        else if(ch==='"'){inQ=false;}
+        else{cur+=ch;}
+      } else {
+        if(ch==='"'){inQ=true;}
+        else if(ch===','){out.push(cur); cur='';}
+        else{cur+=ch;}
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+  function _whtParseCsv(text){
+    // 개행 안에 있는 큰따옴표 처리를 위해 상태 유지하며 파싱
+    const rows=[]; let cur=[]; let field=''; let inQ=false;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i];
+      if(inQ){
+        if(ch==='"' && text[i+1]==='"'){field+='"'; i++;}
+        else if(ch==='"'){inQ=false;}
+        else{field+=ch;}
+      } else {
+        if(ch==='"'){inQ=true;}
+        else if(ch===','){cur.push(field); field='';}
+        else if(ch==='\n'){cur.push(field); rows.push(cur); cur=[]; field='';}
+        else if(ch==='\r'){/* skip */}
+        else{field+=ch;}
+      }
+    }
+    if(field.length || cur.length){cur.push(field); rows.push(cur);}
+    return rows;
+  }
+  async function _whtLoadSellers(force){
+    if(_whtSellerState.loading) return;
+    if(_whtSellerState.sellers && !force) return;
+    _whtSellerState.loading=true;
+    try{
+      const url=`https://docs.google.com/spreadsheets/d/${WHT_SELLER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(WHT_SELLER_SHEET_NAME)}&_=${Date.now()}`;
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const text=await r.text();
+      const rows=_whtParseCsv(text);
+      if(!rows.length) throw new Error('empty');
+      const header=rows[0].map(x=>String(x||'').trim());
+      // 컬럼 매핑: 셀러명 · 팔로워수 · 계정주소 · 이름 · 연락처 · 주소 · 카테고리 · 메모
+      const findIdx=(kwList)=>{
+        for(const kw of kwList){
+          const i=header.findIndex(h=>h.replace(/\s+/g,'')===kw);
+          if(i>=0) return i;
+        }
+        return -1;
+      };
+      const idx={
+        name: findIdx(['셀러명','셀러이름','셀러']),
+        followers: findIdx(['팔로워수','팔로워']),
+        insta: findIdx(['계정주소','인스타','계정']),
+        person: findIdx(['이름','대표','담당자']),
+        phone: findIdx(['연락처','전화','전화번호']),
+        addr: findIdx(['주소','배송지','도로명주소']),
+      };
+      // 나머지 컬럼은 extra로 (예: 카테고리, 메모). 헤더가 비어있어도 데이터가 있으면 포함.
+      const knownCols=new Set(Object.values(idx).filter(i=>i>=0));
+      const hasDataAt=(colI)=>rows.slice(1).some(r=>(r[colI]||'').trim()!=='');
+      const labelDefaults=['카테고리','메모','비고','추가정보','기타1','기타2'];
+      let unnamedSeq=0;
+      const extraIdxs=header.map((h,i)=>{
+        if(knownCols.has(i)) return null;
+        const label=h.trim() || (hasDataAt(i)?(labelDefaults[unnamedSeq++]||`컬럼${i+1}`):null);
+        if(!label) return null;
+        return {h:label, i};
+      }).filter(Boolean);
+      const sellers=[];
+      for(let ri=1;ri<rows.length;ri++){
+        const r=rows[ri];
+        const name=(r[idx.name]||'').trim();
+        if(!name) continue;
+        const seller={
+          name,
+          followers:(idx.followers>=0?(r[idx.followers]||'').trim():''),
+          insta:(idx.insta>=0?(r[idx.insta]||'').trim():''),
+          person:(idx.person>=0?(r[idx.person]||'').trim():''),
+          phone:(idx.phone>=0?(r[idx.phone]||'').trim():''),
+          addr:(idx.addr>=0?(r[idx.addr]||'').trim():''),
+          extras:{},
+        };
+        extraIdxs.forEach(({h,i})=>{
+          const v=(r[i]||'').trim();
+          if(v) seller.extras[h]=v;
+        });
+        sellers.push(seller);
+      }
+      _whtSellerState.sellers=sellers;
+      _whtSellerState.loadedAt=new Date();
+      const stampEl=document.getElementById('whtSellerStamp');
+      if(stampEl){
+        const d=_whtSellerState.loadedAt;
+        const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+        stampEl.textContent=`· ${hh}:${mm} 갱신`;
+      }
+      if(_whtSellerState.open) whtSellerRenderList();
+    }catch(e){
+      console.warn('sellers load failed', e);
+      const list=document.getElementById('whtSellerList');
+      if(list) list.innerHTML=`<div class="wht-vendor-empty">⚠ 구글시트 로드 실패<br><span style="font-size:11px">${_esc(String(e.message||e))}</span></div>`;
+    }finally{
+      _whtSellerState.loading=false;
+    }
+  }
+  function whtOpenSellers(){
+    if(!_whtHasAccess()){
+      if(typeof toast==='function') toast('접근 권한이 없습니다','err');
+      return;
+    }
+    _whtSellerState.open=true;
+    const el=document.getElementById('whtSellerModal');
+    if(el){el.hidden=false; document.body.style.overflow='hidden';}
+    const list=document.getElementById('whtSellerList');
+    if(!_whtSellerState.sellers){
+      if(list) list.innerHTML='<div class="wht-vendor-empty">구글시트에서 불러오는 중…</div>';
+      _whtLoadSellers();
+    } else {
+      whtSellerRenderList();
+    }
+    setTimeout(()=>{
+      const s=document.getElementById('whtSellerSearch');
+      if(s) s.focus();
+    }, 40);
+    if(!_whtSellerState._escBound){
+      document.addEventListener('keydown', _whtSellerEscHandler);
+      _whtSellerState._escBound=true;
+    }
+  }
+  function _whtSellerEscHandler(e){
+    if(e.key==='Escape' && _whtSellerState.open) whtCloseSellers();
+  }
+  function whtCloseSellers(){
+    _whtSellerState.open=false;
+    const el=document.getElementById('whtSellerModal');
+    if(el){el.hidden=true; document.body.style.overflow='';}
+  }
+  function whtReloadSellers(){_whtLoadSellers(true)}
+  function _whtSellerHl(s,q){
+    const raw=String(s||'');
+    const qs=String(q||'').trim();
+    if(!qs) return _esc(raw);
+    const lower=raw.toLowerCase();
+    const idx=lower.indexOf(qs.toLowerCase());
+    if(idx<0) return _esc(raw);
+    return _esc(raw.slice(0,idx))+'<mark>'+_esc(raw.slice(idx,idx+qs.length))+'</mark>'+_esc(raw.slice(idx+qs.length));
+  }
+  function whtSellerRenderList(){
+    const list=document.getElementById('whtSellerList');
+    if(!list) return;
+    const arr=_whtSellerState.sellers||[];
+    const q=(document.getElementById('whtSellerSearch')||{}).value||'';
+    const qs=q.trim().toLowerCase();
+    const filtered=qs?arr.filter(s=>{
+      const bag=[s.name,s.person,s.phone,s.addr,s.insta,s.followers,...Object.values(s.extras||{})].filter(Boolean).join(' ').toLowerCase();
+      return bag.includes(qs);
+    }):arr;
+    if(!filtered.length){
+      list.innerHTML=arr.length
+        ? '<div class="wht-vendor-empty">검색 결과가 없습니다.</div>'
+        : (_whtSellerState.loading?'<div class="wht-vendor-empty">구글시트에서 불러오는 중…</div>':'<div class="wht-vendor-empty">셀러 목록이 비어있습니다.</div>');
+      return;
+    }
+    list.innerHTML=`<div class="wht-vendor-meta" style="font-size:11px;color:var(--text-3);padding:2px 4px 6px">총 <b style="color:var(--text-1)">${arr.length}</b>명 · <b style="color:var(--text-1)">${filtered.length}</b>명 표시</div>`+
+      filtered.map(s=>_whtSellerItemHtml(s,q)).join('');
+  }
+  function _whtSellerCategoryChips(s){
+    // 첫 extras (라벨 = "카테고리" 또는 컬럼순 첫번째) 만 chip. 나머지는 note.
+    const entries=Object.entries(s.extras||{});
+    if(!entries.length) return {cats:[], notes:[]};
+    const catEntry=entries.find(([k])=>k==='카테고리') || entries[0];
+    const cats=(catEntry[1]||'').split(/[,、·/]/).map(x=>x.trim()).filter(x=>x && x.length<=20).slice(0,8);
+    const notes=entries.filter(e=>e!==catEntry).map(([_,v])=>v).filter(Boolean);
+    return {cats, notes};
+  }
+  function _whtSellerItemHtml(s,q){
+    const nameHtml=_whtSellerHl(s.name, q);
+    const insta=s.insta?`<a href="${_esc(s.insta)}" target="_blank" rel="noopener">${nameHtml}</a>`:nameHtml;
+    const {cats, notes}=_whtSellerCategoryChips(s);
+    const extraNotes=notes.map(v=>_esc(v)).join(' · ');
+    const infoLines=[];
+    if(s.person) infoLines.push(`<div class="wht-seller-info-line"><b>이름</b><span class="wht-seller-info-val">${_whtSellerHl(s.person,q)}</span></div>`);
+    if(s.phone) infoLines.push(`<div class="wht-seller-info-line"><b>연락처</b><span class="wht-seller-info-val">${_whtSellerHl(s.phone,q)}</span></div>`);
+    if(s.addr) infoLines.push(`<div class="wht-seller-info-line"><b>주소</b><span class="wht-seller-info-val">${_whtSellerHl(s.addr,q)}</span></div>`);
+    if(s.followers) infoLines.push(`<div class="wht-seller-info-line"><b>팔로워</b><span class="wht-seller-info-val">${_esc(s.followers)}</span></div>`);
+    const catHtml=cats.length?`<div class="wht-seller-cats">${cats.map(c=>`<span class="wht-seller-cat">${_esc(c)}</span>`).join('')}</div>`:'';
+    const noteHtml=extraNotes?`<div class="wht-seller-note">${extraNotes}</div>`:'';
+    // 카피 버튼 (연락처 · 주소 각각)
+    const copyBits=[];
+    if(s.phone) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.phone)}')">📞 연락처 복사</button>`);
+    if(s.addr) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.addr).replace(/'/g,'&#39;')}')">🏠 주소 복사</button>`);
+    return `<div class="wht-seller-item">
+      <div class="wht-seller-row-1">
+        <div class="wht-seller-name">${insta}</div>
+        <div class="wht-vendor-actions">${copyBits.join('')}</div>
+      </div>
+      ${catHtml}
+      ${infoLines.length?`<div class="wht-seller-info">${infoLines.join('')}</div>`:''}
+      ${noteHtml}
+    </div>`;
+  }
+  async function whtSellerCopy(btn, text){
+    try{
+      await navigator.clipboard.writeText(text);
+      const orig=btn.textContent;
+      btn.textContent='✓ 복사됨';
+      btn.style.color='#059669';
+      setTimeout(()=>{btn.textContent=orig; btn.style.color='';}, 1200);
+    }catch(e){
+      if(typeof toast==='function') toast('복사 실패','err');
+    }
+  }
+
   async function whtLoad(force){
     if(!_whtHasAccess()) return;
     if(_whtState.loading) return;
@@ -21179,6 +21474,11 @@
   window.whtVendorCancelEdit=whtVendorCancelEdit;
   window.whtVendorSaveEdit=whtVendorSaveEdit;
   window.whtVendorDelete=whtVendorDelete;
+  window.whtOpenSellers=whtOpenSellers;
+  window.whtCloseSellers=whtCloseSellers;
+  window.whtReloadSellers=whtReloadSellers;
+  window.whtSellerRenderList=whtSellerRenderList;
+  window.whtSellerCopy=whtSellerCopy;
 
   /* ===== 텍스트 토핑 (Unicode U+0591 per-character) ===== */
   const TOPPING_MARK='֑';
