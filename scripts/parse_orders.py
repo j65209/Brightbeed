@@ -24,6 +24,7 @@ from datetime import datetime, date
 from pathlib import Path
 
 import openpyxl
+from snapshot_store import SnapshotRejected, publish_snapshot, publishing_lock
 
 # 사장님이 정리해두신 마스터 상품 리스트 (한글 이름 우선 사용)
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1enzaVYWZF7MRYnFTdtfajwvogvk4I7EgZ54Gr1d40uI/export?format=csv&gid=0"
@@ -728,7 +729,7 @@ def aggregate_products(orders):
     return result
 
 
-def main():
+def collect_and_publish():
     files = sorted(FOLDER.glob("*.xls*"))
     files = [f for f in files if not f.name.startswith("~$") and not f.name.endswith(".part")]
     print(f"parsing {len(files)} files from {FOLDER}", file=sys.stderr, flush=True)
@@ -815,8 +816,17 @@ def main():
         "products": products,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+    publish_snapshot(OUT, payload)
     print(f"wrote {OUT} ({OUT.stat().st_size:,} bytes, {len(orders)} orders, {len(errors)} errors)", file=sys.stderr, flush=True)
+
+
+def main():
+    try:
+        with publishing_lock(OUT):
+            collect_and_publish()
+    except SnapshotRejected as error:
+        print(f"수집 발행 보류: {error}", file=sys.stderr, flush=True)
+        sys.exit(2)
 
 
 if __name__ == "__main__":

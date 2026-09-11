@@ -1,0 +1,22 @@
+--- a/scripts/vendor_margin_fetcher.py
++++ b/scripts/vendor_margin_fetcher.py
+@@ -19,7 +19,7 @@
+ 
+ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ CONFIG_ENV = os.path.join(ROOT, "config.env")
+-OUT_PATH = os.path.join(ROOT, "out", "vendor-margin.csv")
++OUT_PATH = os.environ.get("BRIGHTBEED_OUTPUT") or os.path.join(ROOT, "out", "vendor-margin.csv")
+ LOG_PATH = os.path.join(ROOT, "logs", "vendor-margin-fetch.log")
+ 
+ DEFAULT_SHEET_ID = "1F_nQWwLjia0Vs7_KA3p2Dgt6OAFUbYXPxDHpxZV-IBA"
+@@ -92,4 +92,10 @@
+ 
+ 
+ if __name__ == "__main__":
++    from job_runtime import match_job, run_job
++    job = match_job([sys.executable, __file__] + sys.argv[1:])
++    if job and not os.environ.get("BRIGHTBEED_OUTPUT"):
++        result = run_job(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), job)
++        print(json.dumps(result))
++        raise SystemExit(0 if result["ok"] else 1)
+     main()

@@ -1,0 +1,22 @@
+--- a/scripts/kuaidiair_fetcher.py
++++ b/scripts/kuaidiair_fetcher.py
+@@ -366,7 +366,7 @@
+     brand = (sys.argv[1] if len(sys.argv) > 1 else "brightbeed").lower()
+     if brand not in BRANDS:
+         raise SystemExit(f"unknown brand: {brand} · choose one of {list(BRANDS)}")
+-    out_path = os.path.join(ROOT, "out", BRANDS[brand]["cache_name"])
++    out_path = os.environ.get("BRIGHTBEED_OUTPUT") or os.path.join(ROOT, "out", BRANDS[brand]["cache_name"])
+     cfg = load_env(CONFIG_ENV)
+     pages = int(cfg.get("KUAIDIAIR_PAGES", str(DEFAULT_PAGES)))
+     max_days = int(cfg.get("KUAIDIAIR_MAX_DAYS", str(DEFAULT_MAX_DAYS)))
+@@ -405,4 +405,10 @@
+ 
+ 
+ if __name__ == "__main__":
++    from job_runtime import match_job, run_job
++    job = match_job([sys.executable, __file__] + sys.argv[1:])
++    if job and not os.environ.get("BRIGHTBEED_OUTPUT"):
++        result = run_job(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), job)
++        print(json.dumps(result))
++        raise SystemExit(0 if result["ok"] else 1)
+     main()

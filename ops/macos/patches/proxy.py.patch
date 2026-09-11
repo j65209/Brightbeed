@@ -1,0 +1,204 @@
+--- a/proxy.py
++++ b/proxy.py
+@@ -883,13 +883,17 @@
+     # Pro preview 는 무료 티어 rate limit 이 낮아 병렬 요청 3개면 바로 429 가 뜬다.
+     # 429/503 이면 짧게 기다렸다 최대 2번 재시도 → 그래도 안 되면 Flash 로 폴백.
+     # Pro 응답을 최대한 잡아내되, 사장님이 rate limit 그대로 만나진 않게.
++    deadline = time.monotonic() + 80
+     def _call(model):
++        remaining = deadline - time.monotonic()
++        if remaining < 1:
++            raise TimeoutError("AI deadline exceeded")
+         url = GEMINI_URL_TPL.format(model=model, key=GEMINI_API_KEY)
+         req = urllib.request.Request(
+             url, data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+             headers={"Content-Type": "application/json"},
+         )
+-        with urllib.request.urlopen(req, timeout=120) as r:
++        with urllib.request.urlopen(req, timeout=min(70, remaining)) as r:
+             return json.loads(r.read())
+     t0 = time.time()
+     used_model = GEMINI_MODEL
+@@ -897,49 +901,12 @@
+     data = None
+ 
+     def _call_with_fallback():
+-        """지금 used_model 로 재시도 3회 → 실패 시 Flash 로 폴백. HTTPError 는 caller 로 raise.
+-        Tool-loop 중간에 이미 Flash 로 갔으면 첫부터 Flash 시도. Flash 도 429 나면 rate limit reset
+-        대기(45s) 후 마지막 1회 시도 — 무료 티어 사용자 안심 목적."""
+-        nonlocal used_model, fallback_reason
+-        for attempt in range(3):
+-            try:
+-                return _call(used_model)
+-            except urllib.error.HTTPError as e:
+-                if e.code in (429, 503):
+-                    if attempt < 2:
+-                        time.sleep(2 + attempt * 3)  # 2s, 5s
+-                        continue
+-                    if "flash" not in used_model:
+-                        log(f"gemini {used_model} HTTP {e.code} after retries → fallback to gemini-3.5-flash")
+-                        used_model = "gemini-3.5-flash"
+-                        fallback_reason = f"Pro 무료 티어 부하 (HTTP {e.code})"
+-                        try:
+-                            return _call(used_model)
+-                        except urllib.error.HTTPError as e2:
+-                            if e2.code not in (429, 503):
+-                                raise
+-                            # Flash 도 rate limit — 45초 대기 후 마지막 시도
+-                            log(f"flash also {e2.code} — waiting 45s for rate reset then final retry")
+-                            time.sleep(45)
+-                            return _call(used_model)
+-                    # 이미 Flash 인 상태에서 3회 실패 → 45초 대기 후 마지막 시도
+-                    log(f"flash {e.code} after 3 retries — waiting 45s for rate reset")
+-                    time.sleep(45)
+-                    return _call(used_model)
+-                raise
++        # Do not replay rate-limited calls or extend the browser's deadline.
++        return _call(used_model)
+ 
+     # Function calling loop — 최대 5 라운드 (에이전트가 검색→파싱→저장 3-4단계 도구 사용 가능).
+     tool_events = []
+-    try:
+-        data = _call_with_fallback()
+-    except Exception as e:
+-        log(f"gemini call failed: {e}")
+-        return {
+-            "text": "죄송합니다 사장님, 지금 Gemini 서버가 답을 못 주고 있어요. 잠시 뒤 다시 말씀해 주시겠어요?",
+-            "agent": agent_key, "agentName": persona["name"],
+-            "model": None, "usage": {"totalTokens": 0}, "elapsedMs": 0,
+-            "fallbackReason": f"call failed: {str(e)[:120]}",
+-        }
++    data = _call_with_fallback()
+     total_prompt = total_output = total_all = 0
+ 
+     for round_idx in range(5):
+@@ -1006,6 +973,15 @@
+         },
+         "elapsedMs": elapsed_ms,
+     }
++
++
++from scripts.job_runtime import run_job, match_job
++from scripts.job_status import health_report, agents_status
++_RUNTIME_ROOT = os.path.dirname(os.path.abspath(__file__))
++_health_report = lambda: health_report(_RUNTIME_ROOT, _BEED)
++_agents_status = lambda: agents_status(_RUNTIME_ROOT, AGENT_JOBS, _read_plist, _calendar_schedule)
++_AI_GATE = threading.BoundedSemaphore(1)
++_AI_COOLDOWN_UNTIL = 0.0
+ 
+ 
+ class Handler(BaseHTTPRequestHandler):
+@@ -1124,12 +1100,23 @@
+             self._send(400, json.dumps({"error": f"unknown agent: {agent}"}).encode()); return
+         if not user_text:
+             self._send(400, b'{"error":"text required"}'); return
++        global _AI_COOLDOWN_UNTIL
++        if time.monotonic() < _AI_COOLDOWN_UNTIL or not _AI_GATE.acquire(blocking=False):
++            self._send(429, b'{"ok":false,"error":"AI busy; retry after 60 seconds"}', extra_headers={"Retry-After": "60"})
++            return
+         try:
+             result = _gemini_chat(agent, history, user_text, context)
+             self._send(200, json.dumps(result, ensure_ascii=False).encode())
++        except urllib.error.HTTPError as e:
++            code = 429 if e.code == 429 else 502
++            if code == 429:
++                _AI_COOLDOWN_UNTIL = time.monotonic() + 60
++            self._send(code, json.dumps({"ok": False, "error": f"AI upstream HTTP {e.code}"}).encode(), extra_headers={"Retry-After": "60"} if code == 429 else None)
+         except Exception as e:
+-            log(f"agent/chat error: {e}")
+-            self._send(500, json.dumps({"error": str(e)[:200]}, ensure_ascii=False).encode())
++            log(f"agent/chat error: {type(e).__name__}")
++            self._send(502, b'{"ok":false,"error":"AI response unavailable; retry later"}')
++        finally:
++            _AI_GATE.release()
+ 
+     def _handle_orders_parse(self, method, parsed, role):
+         """발주 상품 카탈로그 수동 재파싱.
+@@ -1346,9 +1333,9 @@
+         try:
+             import subprocess
+             subprocess.run(
+-                [sys.executable, KD_FETCHER_PATH, brand],
++                [sys.executable, os.path.join(_RUNTIME_ROOT, "scripts", "job_runtime.py"), "kd-" + brand],
+                 cwd=os.path.dirname(KD_FETCHER_PATH),
+-                timeout=300,
++                timeout=510,
+                 check=False,
+             )
+         except Exception as e:
+@@ -1468,35 +1455,15 @@
+                 extra["X-VM-Error-Ts"] = str(int(err_payload.get("ts") or 0))
+             self._send(200, cache_body, extra_headers=extra, content_type="text/csv; charset=utf-8")
+             return
+-        # 파일 캐시 없으면 인라인 fetch (첫 부팅 대비)
+-        with _vmargin_cache_lock:
+-            if _vmargin_cache["body"] is not None and (now - _vmargin_cache["ts"]) < VMARGIN_CACHE_TTL:
+-                self._send(200, _vmargin_cache["body"], content_type="text/csv; charset=utf-8")
+-                return
+-        target = (
+-            f"https://docs.google.com/spreadsheets/d/{VENDOR_SHEET_ID}"
+-            f"/gviz/tq?tqx=out:csv&sheet={urllib.parse.quote(VENDOR_MARGIN_TAB)}"
+-        )
+-        try:
+-            req = urllib.request.Request(target, headers={"User-Agent": "BrightbeedProxy/1.0"})
+-            with urllib.request.urlopen(req, timeout=20) as resp:
+-                data = resp.read()
+-        except Exception as e:
+-            log(f"vendor-margin inline fetch failed: {e}")
+-            self._send(502, json.dumps({"error":"vendor-margin fetch failed", "detail":str(e)}).encode())
+-            return
+-        with _vmargin_cache_lock:
+-            _vmargin_cache["body"] = data
+-            _vmargin_cache["ts"] = now
+-        self._send(200, data, content_type="text/csv; charset=utf-8")
++        self._send(503, b'{"ok":false,"error":"cache_not_ready"}')
+ 
+     def _vm_run_fetcher(self):
+         try:
+             import subprocess
+             subprocess.run(
+-                [sys.executable, VM_FETCHER_PATH],
++                [sys.executable, os.path.join(_RUNTIME_ROOT, "scripts", "job_runtime.py"), "vendor-fetch"],
+                 cwd=os.path.dirname(VM_FETCHER_PATH),
+-                timeout=60,
++                timeout=90,
+                 check=False,
+             )
+         except Exception as e:
+@@ -1983,6 +1950,17 @@
+         """식스샵 Playwright 스크립트 spawn — stdout 의 '=' × 60 마커 뒤 JSON 을 응답으로 relay.
+         마커/JSON 없으면 stdout+stderr 원문을 error payload 로 감싸서 반환.
+         """
++        job = match_job(args)
++        if job:
++            result = run_job(_RUNTIME_ROOT, job)
++            if result["ok"]:
++                from scripts.job_runtime import JOBS
++                with open(os.path.join(_RUNTIME_ROOT, "out", JOBS[job]["output"]), "rb") as f:
++                    self._send(200, f.read())
++            else:
++                status = 409 if result.get("status") == "skipped" else 502
++                self._send(status, json.dumps(result).encode())
++            return
+         import subprocess
+         log(f"sixshop spawn ({log_prefix}): {' '.join(args[:3])} ...")
+         try:
+@@ -1997,11 +1975,15 @@
+                     result_json = json.loads(json_part)
+                 except Exception:
+                     pass
+-            if result_json is not None:
+-                self._send(200, json.dumps(result_json, ensure_ascii=False).encode())
++            if isinstance(result_json, dict):
++                if proc.returncode != 0:
++                    result_json.update(ok=False, needsRefresh=True, error="collector_exit_" + str(proc.returncode))
++                self._send(200 if result_json.get("ok") is True else 502, json.dumps(result_json, ensure_ascii=False).encode())
+             else:
+                 self._send(200, json.dumps({
+-                    "ok": proc.returncode == 0,
++                    "ok": False,
++                    "needsRefresh": True,
++                    "error": "unverified_script_result",
+                     "returncode": proc.returncode,
+                     "stdout": stdout[-4000:],
+                     "stderr": stderr[-2000:],

@@ -1,0 +1,25 @@
+--- a/scripts/sixshop_pro_sales.py
++++ b/scripts/sixshop_pro_sales.py
+@@ -400,6 +400,7 @@
+             with open(tmp, "w") as f: json.dump(result, f, ensure_ascii=False)
+             os.replace(tmp, cache_path)
+         except Exception as e:
++            result = {"ok": False, "error": "cache_write_failed"}
+             print(f"[pro-sales:{brand}] cache write failed: {e}", file=sys.stderr)
+ 
+     if result.get("ok"):
+@@ -410,6 +411,14 @@
+     print("=" * 60)
+     print(json.dumps(result, ensure_ascii=False))
+ 
++    raise SystemExit(0 if result.get("ok") is True else 1)
++
+ 
+ if __name__ == "__main__":
++    from job_runtime import match_job, run_job
++    job = match_job([sys.executable, __file__] + sys.argv[1:])
++    if job and not os.environ.get("BRIGHTBEED_OUTPUT"):
++        result = run_job(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), job)
++        print(json.dumps(result))
++        raise SystemExit(0 if result["ok"] else 1)
+     main()

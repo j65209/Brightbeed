@@ -1,0 +1,33 @@
+--- a/scripts/smartstore_sales.py
++++ b/scripts/smartstore_sales.py
+@@ -141,22 +141,3 @@
+-    """100개씩 배치로 /query 호출. 네이버 API가 삭제/오래된 주문은 리턴 안 하기도 함 → skip."""
+-    out = []
+-    B = 100
+-    skipped = 0
+-    for i in range(0, len(ids), B):
+-        chunk = ids[i:i + B]
+-        resp = _call(token, "/v1/pay-order/seller/product-orders/query", "POST", None,
+-                     {"productOrderIds": chunk})
+-        rows = resp.get("data")
+-        if not isinstance(rows, list):
+-            raise ValueError("incomplete_order_details")
+-        returned = [str((r.get("productOrder") or {}).get("productOrderId", "")) for r in rows]
+-        if len(returned) != len(set(returned)):
+-            raise ValueError("mismatched_order_details")
+-        missing = [c for c in chunk if str(c) not in set(returned)]
+-        if missing:
+-            skipped += len(missing)
+-            print(f"[smartstore] batch {i}-{i+len(chunk)}: API omitted {len(missing)} orders (e.g. {missing[:3]})", file=sys.stderr)
+-        out.extend(rows)
+-    if skipped:
+-        print(f"[smartstore] total {skipped} orders omitted by API (kept {len(out)}/{len(ids)})", file=sys.stderr)
+-    return out
++    from smartstore_orders import fetch_details
++    return fetch_details(lambda batch: _call(token, "/v1/pay-order/seller/product-orders/query", "POST", None,
++                                            {"productOrderIds": batch}), ids)
+@@ -200 +181 @@
+-    details = _fetch_order_details(token, all_ids) if all_ids else []
++    details, coverage = _fetch_order_details(token, all_ids)
+@@ -276,0 +258 @@
++        "coverage": coverage,

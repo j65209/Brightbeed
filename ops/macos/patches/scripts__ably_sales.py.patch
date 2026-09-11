@@ -1,0 +1,43 @@
+--- a/scripts/ably_sales.py
++++ b/scripts/ably_sales.py
+@@ -106,6 +106,8 @@
+     # ---- 집계 ----
+     payload = captured["body"] or {}
+     results = (payload.get("total") or {}).get("results") or []
++    if not isinstance(results, list) or not results:
++        return {"ok": False, "brand": brand, "error": "empty_or_invalid_statistics"}
+     by_date = {}
+     for row in results:
+         d = row.get("date")
+@@ -118,7 +120,7 @@
+             "actualPaid": int(row.get("order_amount") or 0),  # 참고용
+         }
+ 
+-    today = datetime.date.today()
++    today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).date()
+     yst   = today - datetime.timedelta(days=1)
+     d30   = today - datetime.timedelta(days=29)
+ 
+@@ -189,6 +191,7 @@
+                 json.dump(result, f, ensure_ascii=False)
+             os.replace(tmp, cache_path)
+         except Exception as e:
++            result = {"ok": False, "error": "cache_write_failed"}
+             print(f"[ably-sales] cache write failed: {e}", file=sys.stderr)
+ 
+     if result.get("ok"):
+@@ -200,6 +203,14 @@
+         print(f"[ably-sales:{brand}] FAIL: {result.get('error')}", file=sys.stderr)
+         print(json.dumps(result, ensure_ascii=False))
+ 
++    raise SystemExit(0 if result.get("ok") is True else 1)
++
+ 
+ if __name__ == "__main__":
++    from job_runtime import match_job, run_job
++    job = match_job([sys.executable, __file__] + sys.argv[1:])
++    if job and not os.environ.get("BRIGHTBEED_OUTPUT"):
++        result = run_job(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), job)
++        print(json.dumps(result))
++        raise SystemExit(0 if result["ok"] else 1)
+     main()
