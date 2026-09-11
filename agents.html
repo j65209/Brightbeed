@@ -123,7 +123,14 @@
   .cell.boss .talk{background:#78350f;color:#fff8e7;border-color:#78350f}
   .cell.boss .talk:hover{background:#451a03;border-color:#451a03}
   .cell.boss::before{content:"본부장";position:absolute;top:0;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;letter-spacing:.05em;color:#78350f;background:#fef3c7;border:1px solid #a16207;padding:1px 8px;border-radius:999px;z-index:2}
-  .team-group[data-team="본부"]{background:linear-gradient(180deg,rgba(254,243,199,.35),rgba(255,255,255,0));grid-column:1/-1;padding:6px 6px 12px}
+  /* 본부팀은 리안 혼자 첫 행 전체 폭. 팀원 행과 명확히 분리되게 하단 여백/구분선. */
+  .team-group[data-team="본부"]{
+    background:linear-gradient(180deg,rgba(254,243,199,.45),rgba(255,255,255,0));
+    grid-column:1/-1;
+    padding:8px 6px 22px;
+    margin-bottom:6px;
+    border-bottom:1px dashed rgba(161,98,7,.32);
+  }
   .team-group[data-team="본부"] .team-label{border-bottom:1.5px solid #a16207;justify-content:center;gap:8px}
   .team-group[data-team="본부"] .team-label .team-count{margin-left:0}
   .team-group[data-team="본부"] .team-name{color:#78350f}
