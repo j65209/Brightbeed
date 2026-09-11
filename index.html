@@ -2656,6 +2656,249 @@
   }
   .wht-archive-chip.active .wht-archive-chip-count{background:rgba(255,255,255,.22)}
   .wht-archive-empty{font-size:11.5px;color:var(--text-3);font-style:italic}
+  /* 업체 정보 · 셀러 정보 버튼 (엑셀 내보내기 옆) */
+  .wht-btn.wht-btn-vendors{
+    color:#4338ca;background:rgba(79,70,229,.08);
+    border-color:rgba(79,70,229,.35);font-weight:700;
+  }
+  .wht-btn.wht-btn-vendors:hover{background:rgba(79,70,229,.16);border-color:rgba(79,70,229,.55)}
+  .wht-btn.wht-btn-sellers{
+    color:#059669;background:rgba(16,185,129,.08);
+    border-color:rgba(16,185,129,.35);font-weight:700;
+  }
+  .wht-btn.wht-btn-sellers:hover{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.55)}
+  /* 셀러 정보 모달 (업체 정보와 대부분 공유, 2열 카드) */
+  .wht-seller-modal .wht-vendor-dialog{width:min(1080px,100%)}
+  .wht-seller-modal .wht-vendor-head{
+    background:linear-gradient(135deg,rgba(16,185,129,.10) 0%,rgba(5,150,105,.04) 100%);
+  }
+  #whtSellerStamp{font-size:11px;color:var(--text-3);margin-left:4px}
+  .wht-vendor-list.wht-seller-list{
+    display:grid;flex-direction:initial;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:8px;
+  }
+  .wht-seller-meta{grid-column:1/-1}
+  .wht-seller-item{
+    position:relative;
+    display:grid;grid-template-columns:1fr auto;gap:2px 8px;
+    padding:9px 11px;border:1px solid var(--line-1);border-radius:9px;
+    background:var(--bg-1);transition:border-color .12s;font-family:var(--sans);
+  }
+  .wht-seller-item:hover{border-color:var(--line-2)}
+  .wht-seller-name{
+    grid-column:1;
+    font-weight:700;font-size:13.5px;color:var(--text-0);letter-spacing:-.15px;
+    line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .wht-seller-name mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
+  .wht-seller-name a{color:inherit;text-decoration:none;border-bottom:1px dashed var(--line-2)}
+  .wht-seller-name a:hover{color:#e0388a;border-bottom-color:#e0388a}
+  .wht-seller-cats{
+    grid-column:1/-1;
+    display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;
+  }
+  .wht-seller-cat{
+    display:inline-block;padding:1px 7px;font-size:10px;font-weight:600;
+    background:rgba(16,185,129,.10);color:#047857;border-radius:99px;letter-spacing:-.02em;
+    line-height:1.4;
+  }
+  .wht-seller-info{
+    grid-column:1/-1;
+    font-size:11.5px;color:var(--text-1);letter-spacing:-.15px;line-height:1.45;
+    margin-top:3px;display:flex;flex-direction:column;gap:1px;
+  }
+  .wht-seller-info-line{display:flex;gap:5px;align-items:baseline}
+  .wht-seller-info-line b{
+    color:var(--text-3);font-weight:600;font-size:10px;min-width:30px;flex-shrink:0;
+    letter-spacing:.02em;text-transform:uppercase;
+  }
+  .wht-seller-info-val{
+    color:var(--text-0);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    min-width:0;flex:1;
+  }
+  .wht-seller-info-val mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
+  .wht-seller-note{
+    grid-column:1/-1;
+    font-size:10.5px;color:var(--text-3);font-style:italic;margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .wht-seller-actions{
+    grid-column:2;grid-row:1;
+    display:flex;gap:2px;align-items:center;align-self:start;
+  }
+  .wht-seller-copy{
+    width:24px;height:24px;padding:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;
+    background:var(--bg-0);border:1px solid var(--line);color:var(--text-2);border-radius:5px;
+    cursor:pointer;transition:all .12s;
+  }
+  .wht-seller-copy:hover{color:#4338ca;background:rgba(79,70,229,.08);border-color:rgba(79,70,229,.3)}
+  .wht-seller-copy.is-ok{color:#059669;background:rgba(16,185,129,.10);border-color:rgba(16,185,129,.4)}
+  @media(max-width:600px){
+    .wht-vendor-list.wht-seller-list{grid-template-columns:1fr;gap:6px}
+    .wht-seller-item{padding:8px 10px}
+  }
+  /* 이름 셀 · 자동완성 dropdown */
+  .wht-name-cell{position:relative}
+  .wht-suggest{
+    position:absolute;left:0;right:0;top:100%;z-index:60;margin-top:2px;
+    background:var(--bg-0);border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 8px 24px rgba(0,0,0,.14);
+    max-height:280px;overflow-y:auto;min-width:260px;
+    font-family:var(--sans);font-size:12.5px;
+  }
+  .wht-suggest-item{
+    display:flex;flex-direction:column;gap:2px;
+    padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line-1);
+    transition:background .1s;
+  }
+  .wht-suggest-item:last-child{border-bottom:none}
+  .wht-suggest-item:hover,.wht-suggest-item.is-active{background:rgba(79,70,229,.08)}
+  .wht-suggest-name{font-weight:700;color:var(--text-0)}
+  .wht-suggest-name mark{background:rgba(255,235,59,.55);color:inherit;padding:0 1px;border-radius:2px}
+  .wht-suggest-meta{font-size:11px;color:var(--text-2);letter-spacing:-.1px}
+  .wht-suggest-meta .wht-suggest-sep{margin:0 6px;color:var(--text-3)}
+  .wht-suggest-empty{padding:14px;text-align:center;color:var(--text-3);font-size:12px;font-style:italic}
+  /* 업체 정보 모달 */
+  .wht-vendor-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  .wht-vendor-modal[hidden]{display:none}
+  .wht-vendor-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(2px)}
+  .wht-vendor-dialog{
+    position:relative;z-index:1;
+    width:min(1080px,100%);max-height:calc(100vh - 40px);
+    display:flex;flex-direction:column;
+    background:var(--bg-0);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 24px 60px rgba(0,0,0,.36);overflow:hidden;
+  }
+  .wht-vendor-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:16px 20px;border-bottom:1px solid var(--line);
+    background:linear-gradient(135deg,rgba(79,70,229,.08) 0%,rgba(55,48,163,.04) 100%);
+  }
+  .wht-vendor-title{font-family:var(--sans);font-weight:700;font-size:16px;color:var(--text-0);letter-spacing:-.2px}
+  .wht-vendor-title-sub{font-weight:500;font-size:12px;color:var(--text-3);margin-left:6px}
+  .wht-vendor-close{
+    width:32px;height:32px;padding:0;border-radius:8px;
+    background:transparent;border:1px solid transparent;color:var(--text-2);
+    font-size:22px;cursor:pointer;transition:all .12s;
+    display:inline-flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .wht-vendor-close:hover{background:var(--bg-2);color:var(--text-0)}
+  .wht-vendor-tabs{
+    display:flex;gap:2px;padding:8px 14px 0;border-bottom:1px solid var(--line);
+    background:var(--bg-1);
+  }
+  .wht-vendor-tab{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:9px 14px;background:transparent;border:none;
+    color:var(--text-2);font-family:var(--sans);font-size:12.5px;font-weight:600;
+    cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;
+    letter-spacing:-.1px;border-radius:6px 6px 0 0;
+  }
+  .wht-vendor-tab:hover{color:var(--text-0);background:var(--bg-2)}
+  .wht-vendor-tab.active{color:#4338ca;border-bottom-color:var(--neon-vendor);background:var(--bg-0)}
+  .wht-vendor-tab-count{
+    font-family:var(--mono);font-size:10.5px;font-weight:700;
+    padding:1px 7px;background:var(--bg-2);color:var(--text-2);border-radius:8px;
+  }
+  .wht-vendor-tab.active .wht-vendor-tab-count{background:rgba(79,70,229,.14);color:#4338ca}
+  .wht-vendor-search-row{padding:12px 20px 8px;background:var(--bg-0)}
+  .wht-vendor-search{
+    width:100%;box-sizing:border-box;padding:9px 12px;
+    background:var(--bg-1);border:1px solid var(--line);border-radius:8px;
+    color:var(--text-0);font-family:var(--sans);font-size:13px;letter-spacing:-.1px;
+  }
+  .wht-vendor-search:focus{outline:none;border-color:var(--neon-vendor);box-shadow:0 0 0 2px rgba(79,70,229,.15)}
+  .wht-vendor-body{flex:1;overflow-y:auto;padding:6px 20px 14px}
+  .wht-vendor-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:8px;
+  }
+  .wht-vendor-empty{grid-column:1/-1}
+  .wht-vendor-item{
+    display:grid;grid-template-columns:1fr auto;gap:2px 8px;
+    padding:9px 11px;border:1px solid var(--line-1);border-radius:9px;
+    background:var(--bg-1);transition:border-color .12s;font-family:var(--sans);
+    align-content:start;
+  }
+  .wht-vendor-item:hover{border-color:var(--line-2)}
+  .wht-vendor-item.is-editing{
+    grid-column:1/-1;
+    display:flex;flex-direction:column;gap:6px;
+    border-color:var(--neon-vendor);background:var(--bg-0);box-shadow:0 0 0 2px rgba(79,70,229,.10);
+    padding:12px 14px;
+  }
+  .wht-vendor-row-1{
+    grid-column:1;
+    display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;
+    min-width:0;
+  }
+  .wht-vendor-item-name{
+    font-weight:700;font-size:13.5px;color:var(--text-0);letter-spacing:-.15px;
+    line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;
+  }
+  .wht-vendor-item-meta{
+    font-size:10.5px;color:var(--text-3);letter-spacing:-.02em;flex-shrink:0;
+  }
+  .wht-vendor-item-info{
+    grid-column:1/-1;
+    font-size:11.5px;color:var(--text-1);letter-spacing:-.15px;line-height:1.5;
+    margin-top:3px;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .wht-vendor-info-chunk{
+    display:flex;gap:5px;align-items:baseline;min-width:0;
+  }
+  .wht-vendor-info-chunk b{
+    color:var(--text-3);font-weight:600;font-size:10px;letter-spacing:.02em;
+    min-width:52px;flex-shrink:0;margin:0;
+  }
+  .wht-vendor-info-chunk-val{
+    color:var(--text-0);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;
+  }
+  .wht-vendor-actions{
+    grid-column:2;grid-row:1;
+    display:flex;gap:3px;justify-content:flex-end;align-self:start;
+  }
+  .wht-vendor-item.is-editing .wht-vendor-actions{
+    grid-column:1/-1;grid-row:auto;justify-content:flex-end;flex-wrap:wrap;margin-top:6px;
+  }
+  .wht-vendor-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    padding:4px 8px;font-family:var(--sans);font-size:11.5px;font-weight:600;
+    border-radius:6px;border:1px solid var(--line);background:var(--bg-0);
+    color:var(--text-1);cursor:pointer;transition:all .12s;letter-spacing:-.1px;
+  }
+  .wht-vendor-btn.is-icon{width:24px;height:24px;padding:0;font-size:12px}
+  .wht-vendor-btn:hover{background:var(--bg-2);color:var(--text-0)}
+  .wht-vendor-btn.is-danger:hover{color:#dc2626;background:rgba(220,38,38,.10);border-color:rgba(220,38,38,.3)}
+  .wht-vendor-btn.is-primary{color:#fff;background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);border-color:rgba(79,70,229,.5)}
+  .wht-vendor-btn.is-primary:hover{filter:brightness(1.08)}
+  .wht-vendor-edit-form{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:8px;margin-top:2px;
+  }
+  .wht-vendor-edit-field{display:flex;flex-direction:column;gap:3px}
+  .wht-vendor-edit-field label{font-size:10.5px;color:var(--text-3);font-weight:600;letter-spacing:.02em}
+  .wht-vendor-edit-field input{
+    padding:6px 9px;font-family:var(--sans);font-size:12.5px;
+    background:var(--bg-1);border:1px solid var(--line);border-radius:6px;color:var(--text-0);
+  }
+  .wht-vendor-edit-field input:focus{outline:none;border-color:var(--neon-vendor);box-shadow:0 0 0 2px rgba(79,70,229,.14)}
+  .wht-vendor-foot{
+    padding:10px 20px;border-top:1px solid var(--line);
+    background:var(--bg-1);font-size:11.5px;color:var(--text-3);
+  }
+  .wht-vendor-empty{
+    padding:40px 18px;text-align:center;color:var(--text-3);font-size:13px;font-style:italic;
+  }
   @media(max-width:600px){
     .wht-body{padding:10px 8px 12px}
     .wht-actions{flex-direction:column;align-items:stretch}
@@ -2664,6 +2907,11 @@
     .wht-pane-title{font-size:12.5px;padding:7px 12px}
     .wht-mo-label{font-size:12px;min-width:70px}
     .wht-pane + .wht-pane{margin-top:16px;padding-top:16px}
+    .wht-vendor-modal{padding:0}
+    .wht-vendor-dialog{max-height:100vh;border-radius:0;border:0}
+    .wht-vendor-head{padding:12px 14px}
+    .wht-vendor-body{padding:6px 12px 12px}
+    .wht-vendor-search-row{padding:10px 14px 6px}
   }
 
   /* ===== 브랜드별 실시간 매출 리포트 (식스샵 + 식스샵프로) ===== */
@@ -7663,7 +7911,7 @@
         </div>
         <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
           <button class="lg-tab active" data-mdp="home" onclick="mdpSwitch('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="mdpCountHome">8</span></button>
-          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">3</span></button>
+          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">5</span></button>
         </div>
         <div class="mdp-panel" data-mdp-panel="home">
           <div id="salesReportsWrap"></div>
@@ -7779,7 +8027,7 @@
               <button type="button" class="btn-md-cal-nav wht-mo-nav-arrow" onclick="whtMonthPrev()" aria-label="이전 달">‹</button>
               <span class="wht-mo-label" id="whtMonthLabel">—</span>
               <button type="button" class="btn-md-cal-nav wht-mo-nav-arrow" onclick="whtMonthNext()" aria-label="다음 달">›</button>
-              <button type="button" class="btn-md-cal-nav" onclick="whtMonthToday()">이번 달</button>
+              <button type="button" class="btn-md-cal-nav" onclick="whtMonthToday()" title="다음 달 10일 정산 대상 달로 이동">이번 정산</button>
             </div>
             <button type="button" class="btn-md-cal-nav" onclick="whtReload()" title="새로고침">↻</button>
           </div>
@@ -7788,7 +8036,11 @@
           <div class="wht-archive-row">
             <span class="wht-archive-label">📚 저장된 월</span>
             <div class="wht-archive-chips" id="whtArchiveChips"><span class="wht-archive-empty">불러오는 중…</span></div>
-            <button type="button" class="wht-btn wht-btn-copy" style="margin-left:auto" onclick="whtExportExcel()" title="이 달 저장된 3개 표를 엑셀 파일로 내보냅니다">📥 엑셀 내보내기</button>
+            <div class="wht-archive-actions" style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+              <button type="button" class="wht-btn wht-btn-vendors" onclick="whtOpenVendors()" title="지금까지 저장된 업체·개인 정보를 보고 수정합니다">📇 업체 정보</button>
+              <button type="button" class="wht-btn wht-btn-sellers" onclick="whtOpenSellers()" title="구글시트 셀러정보 시트를 실시간으로 불러옵니다">🧑‍💼 셀러 정보</button>
+              <button type="button" class="wht-btn wht-btn-copy" onclick="whtExportExcel()" title="이 달 저장된 3개 표를 엑셀 파일로 내보냅니다">📥 엑셀 내보내기</button>
+            </div>
           </div>
           <datalist id="whtBankList"></datalist>
 
@@ -7906,6 +8158,55 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 업체 정보 모달 (원천세 신고 · 정산 전용) -->
+  <div class="wht-vendor-modal" id="whtVendorModal" hidden>
+    <div class="wht-vendor-backdrop" onclick="whtCloseVendors()"></div>
+    <div class="wht-vendor-dialog" role="dialog" aria-modal="true" aria-labelledby="whtVendorTitle">
+      <div class="wht-vendor-head">
+        <div class="wht-vendor-title" id="whtVendorTitle">📇 업체 정보 <span class="wht-vendor-title-sub">지금까지 거래한 업체·개인</span></div>
+        <button type="button" class="wht-vendor-close" onclick="whtCloseVendors()" aria-label="닫기">×</button>
+      </div>
+      <div class="wht-vendor-tabs">
+        <button type="button" class="wht-vendor-tab active" data-vtab="withdrawal" onclick="whtVendorTab('withdrawal')">💸 사업자·개인 출금 <span class="wht-vendor-tab-count" id="whtVendorCntWithdrawal">0</span></button>
+        <button type="button" class="wht-vendor-tab" data-vtab="freelancer" onclick="whtVendorTab('freelancer')">📄 프리랜서 3.3% <span class="wht-vendor-tab-count" id="whtVendorCntFreelancer">0</span></button>
+        <button type="button" class="wht-vendor-tab" data-vtab="invoice" onclick="whtVendorTab('invoice')">🧾 세금계산서 <span class="wht-vendor-tab-count" id="whtVendorCntInvoice">0</span></button>
+      </div>
+      <div class="wht-vendor-search-row">
+        <input type="search" class="wht-vendor-search" id="whtVendorSearch" placeholder="🔎 이름 · 은행 · 계좌 · 예금주 · 메모 검색" oninput="whtVendorRenderList()">
+      </div>
+      <div class="wht-vendor-body">
+        <div class="wht-vendor-list" id="whtVendorList"></div>
+      </div>
+      <div class="wht-vendor-foot">
+        <span class="wht-vendor-hint">💡 원천세 표에서 이름을 입력하면 자동 저장됩니다. 여기서 직접 수정·삭제할 수 있어요.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 셀러 정보 모달 (구글시트 실시간) -->
+  <div class="wht-vendor-modal wht-seller-modal" id="whtSellerModal" hidden>
+    <div class="wht-vendor-backdrop" onclick="whtCloseSellers()"></div>
+    <div class="wht-vendor-dialog">
+      <div class="wht-vendor-head">
+        <div class="wht-vendor-title">🧑‍💼 셀러 정보 <span class="wht-vendor-title-sub">구글시트 · 실시간 <span id="whtSellerStamp"></span></span></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button type="button" class="wht-vendor-btn" onclick="whtReloadSellers()" title="구글시트에서 다시 불러오기">↻ 새로고침</button>
+          <a class="wht-vendor-btn" href="https://docs.google.com/spreadsheets/d/1F_nQWwLjia0Vs7_KA3p2Dgt6OAFUbYXPxDHpxZV-IBA/edit" target="_blank" rel="noopener" title="구글시트 원본 열기" style="text-decoration:none">📄 원본</a>
+          <button type="button" class="wht-vendor-close" onclick="whtCloseSellers()" aria-label="닫기">×</button>
+        </div>
+      </div>
+      <div class="wht-vendor-search-row">
+        <input type="search" class="wht-vendor-search" id="whtSellerSearch" placeholder="🔎 셀러명 · 이름 · 카테고리 · 연락처 · 주소 검색" oninput="whtSellerRenderList()">
+      </div>
+      <div class="wht-vendor-body">
+        <div class="wht-vendor-list wht-seller-list" id="whtSellerList"></div>
+      </div>
+      <div class="wht-vendor-foot">
+        <span class="wht-vendor-hint">💡 구글시트에서 편집한 내용은 새로고침(↻)을 눌러야 반영돼요.</span>
       </div>
     </div>
   </div>
@@ -9802,8 +10103,8 @@
     {id:'yar',  endpoint:'/admin-sales?brand=yar',  group:'식스샵',    display:'야르',       dot:'#a78bfa', hasItemAmount:false, hasOptions:false},
     {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true,  platforms:['smartstore']},
     {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
-    {id:'kop',  endpoint:'/admin-sales?brand=kop',  group:'식스샵',    display:'코페리',     dot:'#818cf8', hasItemAmount:false, hasOptions:false},
-    {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false},
+    {id:'kop',  endpoint:'/admin-sales?brand=kop',  group:'식스샵',    display:'코페리',     dot:'#818cf8', hasItemAmount:false, hasOptions:false, platforms:['ably']},
+    {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false, platforms:['ably']},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
   ];
   const _PLAT_LABEL={ably:'에이블리', smartstore:'스마트스토어', zigzag:'지그재그'};
@@ -9812,9 +10113,11 @@
   // hideUsd:true — 플랫폼 카드는 $USD 병기 생략.
   // brand: BRAND_SECTIONS id (플랫폼 탭에서 브랜드별 묶음 헤더 렌더용)
   const PLATFORM_SECTIONS=[
-    {id:'ably-6a',       brand:'6a', endpoint:'/ably-sales',       group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
-    {id:'smartstore-pp', brand:'pp', endpoint:'/smartstore-sales', group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
-    {id:'zigzag-6a',     brand:'6a', endpoint:'/zigzag-sales',     group:'지그재그',    display:'식스에이',     dot:'#ff2380', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'ably-6a',       brand:'6a',  endpoint:'/ably-sales',            group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
+    {id:'smartstore-pp', brand:'pp',  endpoint:'/smartstore-sales',      group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'zigzag-6a',     brand:'6a',  endpoint:'/zigzag-sales',          group:'지그재그',    display:'식스에이',     dot:'#ff2380', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'ably-kop',      brand:'kop', endpoint:'/ably-sales?brand=kop',  group:'에이블리',    display:'코페리',       dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
+    {id:'ably-apt',      brand:'apt', endpoint:'/ably-sales?brand=apt',  group:'에이블리',    display:'아페티',       dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
   ];
   function _salesCfg(id){
     return BRAND_SECTIONS.find(b=>b.id===id) || PLATFORM_SECTIONS.find(b=>b.id===id);
@@ -20022,8 +20325,23 @@
     loaded:false, loading:false, saving:false, saveTimer:null,
     bound:false,
     archive:null, archiveLoading:false,
+    vendors:{withdrawal:[],freelancer:[],invoice:[]},
+    vendorsLoaded:false, vendorsLoading:false, vendorUpsertQueue:null,
+    suggest:null, // {input, sec, i, items, activeIdx, box}
+    vendorModal:{open:false, tab:'withdrawal'},
   };
-  function _whtToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
+  // 업체정보 섹션별 저장 필드 (금액·기간·비고는 제외)
+  const WHT_VENDOR_FIELDS = {
+    withdrawal:['bank','account','holder'],
+    freelancer:['ssn','bank','account'],
+    invoice:['ceo','bizno','address','biztype','email'],
+  };
+  const WHT_VENDOR_LABELS = {
+    name:'이름', bank:'은행', account:'계좌번호', holder:'예금주명', ssn:'주민번호',
+    ceo:'대표자명', bizno:'사업자번호', address:'소재지', biztype:'업태/종목', email:'이메일',
+  };
+  // 원천세 정산은 항상 그 다음 달 10일 → 기본 표기는 "정산 달" = 현재 캘린더 달 + 1
+  function _whtToday(){const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()+1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
   function _whtParseYm(ym){const [y,m]=String(ym||'').split('-').map(n=>parseInt(n,10));return{y,m}}
   function _whtFmtYm(y,m){return `${y}-${String(m).padStart(2,'0')}`}
   function _whtYmLabel(ym){const {y,m}=_whtParseYm(ym);return (y&&m)?`${y}년 ${m}월`:'—'}
@@ -20050,8 +20368,9 @@
     _whtBindInputs();
     if(!_whtState.loaded && !_whtState.loading) whtLoad();
     if(!_whtState.archive && !_whtState.archiveLoading) _whtLoadArchive();
+    if(!_whtState.vendorsLoaded && !_whtState.vendorsLoading) _whtLoadVendors();
   }
-  function whtReload(){_whtState.loaded=false; whtLoad(true); _whtLoadArchive();}
+  function whtReload(){_whtState.loaded=false; whtLoad(true); _whtLoadArchive(); _whtLoadVendors(true);}
   function _whtSetStatus(text,isErr){
     const el=document.getElementById('whtStatus');
     if(!el) return;
@@ -20129,6 +20448,705 @@
     _whtState.archive=arch;
     _whtRenderArchive();
   }
+  /* ---- 업체 정보 (wht_vendors 테이블) ---- */
+  function _whtVendorKey(name){return String(name||'').replace(/\s+/g,'').toLowerCase()}
+  function _whtVendorHasField(v){
+    const sc=WHT_VENDOR_FIELDS[v.section]||[];
+    return sc.some(f=>{
+      const val=v[f]; return val!=null && String(val).trim()!=='';
+    });
+  }
+  async function _whtLoadVendors(force){
+    if(!_whtHasAccess()) return;
+    if(_whtState.vendorsLoading) return;
+    if(_whtState.vendorsLoaded && !force) return;
+    _whtState.vendorsLoading=true;
+    try{
+      const url=`${SUPABASE_URL}/rest/v1/wht_vendors?select=*&order=last_used_at.desc&limit=1000`;
+      const r=await fetch(url,{headers:_sbHeaders(),cache:'no-cache'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const rows=await r.json();
+      const grouped={withdrawal:[],freelancer:[],invoice:[]};
+      (rows||[]).forEach(row=>{
+        const sec=row.section||'withdrawal';
+        if(!grouped[sec]) grouped[sec]=[];
+        grouped[sec].push(row);
+      });
+      _whtState.vendors=grouped;
+      _whtState.vendorsLoaded=true;
+      // 모달 열려있으면 재렌더
+      if(_whtState.vendorModal.open) whtVendorRenderList();
+    }catch(e){
+      console.warn('wht vendors load failed',e);
+    }finally{
+      _whtState.vendorsLoading=false;
+    }
+  }
+  // 현재 행의 데이터에서 vendor 후보 생성 → upsert
+  function _whtVendorUpsertFromRow(section, row){
+    if(!row||!row.name) return;
+    const name=String(row.name).trim();
+    if(!name) return;
+    const sc=WHT_VENDOR_FIELDS[section]||[];
+    // 최소 1개 이상의 값이 있어야 저장 (이름만 있는 껍데기는 저장 X)
+    const payload={name, section};
+    let has=false;
+    sc.forEach(f=>{
+      const v=row[f];
+      if(v!=null && String(v).trim()!==''){
+        payload[f]=String(v).trim();
+        has=true;
+      }
+    });
+    if(!has) return;
+    _whtVendorQueueUpsert(payload);
+  }
+  function _whtVendorQueueUpsert(payload){
+    if(!_whtState.vendorUpsertQueue) _whtState.vendorUpsertQueue=new Map();
+    const key=payload.section+'::'+_whtVendorKey(payload.name);
+    // 병합 (같은 key로 여러 필드 온 경우 뒷 것으로 덮어씀)
+    const prev=_whtState.vendorUpsertQueue.get(key)||{};
+    _whtState.vendorUpsertQueue.set(key, Object.assign({}, prev, payload));
+    if(_whtState.vendorUpsertTimer) clearTimeout(_whtState.vendorUpsertTimer);
+    _whtState.vendorUpsertTimer=setTimeout(_whtVendorFlushUpsert, 800);
+  }
+  async function _whtVendorFlushUpsert(){
+    if(!_whtState.vendorUpsertQueue||!_whtState.vendorUpsertQueue.size) return;
+    const me=_whtGetMe();
+    const nowIso=new Date().toISOString();
+    const rows=Array.from(_whtState.vendorUpsertQueue.values()).map(v=>{
+      const r=Object.assign({}, v, {last_used_at:nowIso, updated_at:nowIso, updated_by:me});
+      return r;
+    });
+    _whtState.vendorUpsertQueue=new Map();
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/wht_vendors?on_conflict=section,name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=representation'}),
+        body:JSON.stringify(rows),
+      });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const saved=await r.json();
+      // 로컬 상태에 반영 (기존 vendor upsert)
+      (saved||[]).forEach(v=>{
+        const sec=v.section||'withdrawal';
+        const arr=_whtState.vendors[sec]||(_whtState.vendors[sec]=[]);
+        const idx=arr.findIndex(x=>_whtVendorKey(x.name)===_whtVendorKey(v.name));
+        if(idx>=0) arr[idx]=v; else arr.unshift(v);
+      });
+      // last_used_at 기준 재정렬
+      Object.keys(_whtState.vendors).forEach(sec=>{
+        _whtState.vendors[sec].sort((a,b)=>String(b.last_used_at||'').localeCompare(String(a.last_used_at||'')));
+      });
+      if(_whtState.vendorModal.open) whtVendorRenderList();
+    }catch(e){
+      console.warn('vendor upsert failed', e);
+    }
+  }
+  // "바크" 같은 부분 검색 지원 (공백 무시, 대소문자 무시, 초성/부분 매칭)
+  function _whtVendorSearch(section, q){
+    const arr=_whtState.vendors[section]||[];
+    const qs=String(q||'').trim();
+    if(!qs) return arr.slice(0,12);
+    const qk=_whtVendorKey(qs);
+    const scored=[];
+    arr.forEach(v=>{
+      const nk=_whtVendorKey(v.name);
+      if(!nk) return;
+      let score=0;
+      if(nk===qk) score=1000;
+      else if(nk.startsWith(qk)) score=500;
+      else if(nk.includes(qk)) score=200;
+      else{
+        // 각 알리아스 매치도 지원 (holder, ceo 등)
+        const others=[v.holder,v.ceo,v.email,v.bizno,v.address].filter(Boolean).map(x=>_whtVendorKey(x));
+        if(others.some(o=>o.includes(qk))) score=80;
+      }
+      if(score>0){
+        // 최근 사용순 tiebreaker
+        const ts=v.last_used_at?new Date(v.last_used_at).getTime():0;
+        scored.push({v, score, ts});
+      }
+    });
+    scored.sort((a,b)=>b.score-a.score || b.ts-a.ts);
+    return scored.slice(0,12).map(x=>x.v);
+  }
+  function _whtHighlight(s,q){
+    const raw=String(s||'');
+    const qs=String(q||'').trim();
+    if(!qs) return _esc(raw);
+    // 공백 무시 부분 매치 highlight (단순 substring 우선)
+    const lower=raw.toLowerCase();
+    const idx=lower.indexOf(qs.toLowerCase());
+    if(idx<0) return _esc(raw);
+    return _esc(raw.slice(0,idx))+'<mark>'+_esc(raw.slice(idx,idx+qs.length))+'</mark>'+_esc(raw.slice(idx+qs.length));
+  }
+  function _whtCloseSuggest(){
+    if(_whtState.suggest && _whtState.suggest.box){
+      _whtState.suggest.box.remove();
+    }
+    _whtState.suggest=null;
+  }
+  function _whtOpenSuggest(input){
+    if(!input||!input.dataset) return;
+    const sec=input.dataset.sec;
+    const i=parseInt(input.dataset.i,10);
+    if(!sec||!Number.isFinite(i)) return;
+    if(input.dataset.f!=='name') return;
+    const q=input.value||'';
+    const items=_whtVendorSearch(sec, q);
+    if(!items.length){_whtCloseSuggest(); return;}
+    _whtCloseSuggest();
+    const box=document.createElement('div');
+    box.className='wht-suggest';
+    box.innerHTML=items.map((v,idx)=>{
+      const nameHtml=_whtHighlight(v.name, q);
+      const bits=[];
+      if(v.holder) bits.push('예금주 '+_esc(v.holder));
+      if(v.bank) bits.push(_esc(v.bank));
+      if(v.account) bits.push(_esc(v.account));
+      if(v.ceo) bits.push('대표 '+_esc(v.ceo));
+      if(v.bizno) bits.push(_esc(v.bizno));
+      if(v.email) bits.push(_esc(v.email));
+      const meta=bits.length?`<div class="wht-suggest-meta">${bits.join('<span class="wht-suggest-sep">·</span>')}</div>`:'';
+      return `<div class="wht-suggest-item${idx===0?' is-active':''}" data-idx="${idx}"><div class="wht-suggest-name">${nameHtml}</div>${meta}</div>`;
+    }).join('');
+    const cell=input.closest('.wht-name-cell')||input.parentElement;
+    cell.appendChild(box);
+    box.addEventListener('mousedown', ev=>{
+      const it=ev.target.closest('.wht-suggest-item');
+      if(!it) return;
+      ev.preventDefault();
+      const idx=parseInt(it.dataset.idx,10);
+      _whtApplyVendor(input, items[idx]);
+    });
+    _whtState.suggest={input, sec, i, items, activeIdx:0, box};
+  }
+  function _whtApplyVendor(input, vendor){
+    if(!input||!vendor) return;
+    const sec=input.dataset.sec;
+    const i=parseInt(input.dataset.i,10);
+    const arr=_whtState.data[sec]||[];
+    if(!arr[i]) return;
+    // 이름 = 정식 저장된 이름으로 교체
+    arr[i].name=String(vendor.name||'');
+    input.value=arr[i].name;
+    // 나머지 필드 자동 채움 (기존 값은 유지하지 않고 vendor로 덮어씀)
+    const sc=WHT_VENDOR_FIELDS[sec]||[];
+    sc.forEach(f=>{
+      const v=vendor[f];
+      if(v!=null && String(v).trim()!==''){
+        arr[i][f]=String(v).trim();
+      }
+    });
+    _whtCloseSuggest();
+    _whtRenderPane(sec);
+    _whtQueueSave();
+    // vendor last_used_at 업데이트
+    _whtVendorQueueUpsert({name:vendor.name, section:sec});
+    // 다음 필드로 포커스 이동 (금액)
+    setTimeout(()=>{
+      const body=document.getElementById(_whtBodyId(sec));
+      if(!body) return;
+      const tr=body.children[i]; if(!tr) return;
+      const amtInp=tr.querySelector('input[data-f="amount"]');
+      if(amtInp){amtInp.focus(); amtInp.select();}
+    }, 20);
+  }
+  function _whtSuggestNav(dir){
+    const s=_whtState.suggest; if(!s||!s.box) return;
+    const items=s.box.querySelectorAll('.wht-suggest-item');
+    if(!items.length) return;
+    let idx=s.activeIdx+dir;
+    if(idx<0) idx=items.length-1;
+    if(idx>=items.length) idx=0;
+    items.forEach(el=>el.classList.remove('is-active'));
+    items[idx].classList.add('is-active');
+    items[idx].scrollIntoView({block:'nearest'});
+    s.activeIdx=idx;
+  }
+  function _whtOnKeyEvt(e){
+    const el=e.target;
+    if(!el||!el.dataset||el.dataset.f!=='name') return;
+    const s=_whtState.suggest;
+    if(e.key==='ArrowDown'){
+      if(!s){_whtOpenSuggest(el); return;}
+      e.preventDefault(); _whtSuggestNav(1); return;
+    }
+    if(e.key==='ArrowUp'){
+      if(!s) return;
+      e.preventDefault(); _whtSuggestNav(-1); return;
+    }
+    if(e.key==='Enter'){
+      if(s && s.items[s.activeIdx]){
+        e.preventDefault();
+        _whtApplyVendor(el, s.items[s.activeIdx]);
+      }
+      return;
+    }
+    if(e.key==='Escape'){
+      if(s){_whtCloseSuggest();}
+      return;
+    }
+    if(e.key==='Tab' && s && s.items[s.activeIdx]){
+      // 탭으로 자동완성 픽 (금액으로 자연스럽게 이동)
+      e.preventDefault();
+      _whtApplyVendor(el, s.items[s.activeIdx]);
+    }
+  }
+  function _whtOnFocusEvt(e){
+    const el=e.target;
+    if(!el||!el.dataset||el.dataset.f!=='name') return;
+    if(el.value) _whtOpenSuggest(el);
+  }
+  function _whtOnBlurEvt(e){
+    // 잠깐 지연시켜 mousedown이 먼저 처리되게
+    setTimeout(_whtCloseSuggest, 120);
+  }
+
+  /* ---- 업체 정보 모달 ---- */
+  function whtOpenVendors(){
+    if(!_whtHasAccess()){
+      if(typeof toast==='function') toast('접근 권한이 없습니다','err');
+      return;
+    }
+    _whtState.vendorModal.open=true;
+    const el=document.getElementById('whtVendorModal');
+    if(el){el.hidden=false; document.body.style.overflow='hidden';}
+    // 첫 오픈이면 로드
+    if(!_whtState.vendorsLoaded && !_whtState.vendorsLoading) _whtLoadVendors();
+    whtVendorTab(_whtState.vendorModal.tab||'withdrawal');
+    setTimeout(()=>{
+      const s=document.getElementById('whtVendorSearch');
+      if(s) s.focus();
+    }, 40);
+    // ESC로 닫기
+    if(!_whtState._vendorEscBound){
+      document.addEventListener('keydown', _whtVendorEscHandler);
+      _whtState._vendorEscBound=true;
+    }
+  }
+  function _whtVendorEscHandler(e){
+    if(e.key==='Escape' && _whtState.vendorModal.open){
+      // 편집 중이면 편집 취소만
+      const editing=document.querySelector('.wht-vendor-item.is-editing');
+      if(editing){
+        const key=editing.dataset.vkey;
+        whtVendorCancelEdit(key);
+      } else {
+        whtCloseVendors();
+      }
+    }
+  }
+  function whtCloseVendors(){
+    _whtState.vendorModal.open=false;
+    const el=document.getElementById('whtVendorModal');
+    if(el){el.hidden=true; document.body.style.overflow='';}
+  }
+  function whtVendorTab(tab){
+    if(!WHT_VENDOR_FIELDS[tab]) tab='withdrawal';
+    _whtState.vendorModal.tab=tab;
+    document.querySelectorAll('.wht-vendor-tab').forEach(t=>{
+      t.classList.toggle('active', t.dataset.vtab===tab);
+    });
+    whtVendorRenderList();
+  }
+  function _whtVendorCounts(){
+    ['withdrawal','freelancer','invoice'].forEach(sec=>{
+      const el=document.getElementById('whtVendorCnt'+sec[0].toUpperCase()+sec.slice(1));
+      if(el) el.textContent=(_whtState.vendors[sec]||[]).length;
+    });
+  }
+  function whtVendorRenderList(){
+    _whtVendorCounts();
+    const list=document.getElementById('whtVendorList');
+    if(!list) return;
+    const tab=_whtState.vendorModal.tab||'withdrawal';
+    const arr=_whtState.vendors[tab]||[];
+    const q=(document.getElementById('whtVendorSearch')||{}).value||'';
+    const qk=q.trim().toLowerCase();
+    const filtered=qk?arr.filter(v=>{
+      const bag=[v.name,v.bank,v.account,v.holder,v.ssn,v.ceo,v.bizno,v.address,v.biztype,v.email].filter(Boolean).join(' ').toLowerCase();
+      return bag.includes(qk);
+    }):arr;
+    if(!filtered.length){
+      if(_whtState.vendorsLoading){
+        list.innerHTML='<div class="wht-vendor-empty">불러오는 중…</div>';
+      } else if(!arr.length){
+        list.innerHTML='<div class="wht-vendor-empty">아직 저장된 업체가 없습니다. 원천세 표에 이름과 정보를 입력하면 자동으로 저장돼요.</div>';
+      } else {
+        list.innerHTML='<div class="wht-vendor-empty">검색 결과가 없습니다.</div>';
+      }
+      return;
+    }
+    list.innerHTML=filtered.map(v=>_whtVendorItemHtml(v)).join('');
+  }
+  function _whtVendorItemHtml(v){
+    const key=v.section+'::'+_whtVendorKey(v.name);
+    const sc=WHT_VENDOR_FIELDS[v.section]||[];
+    const bits=sc.map(f=>{
+      const val=v[f];
+      if(val==null||String(val).trim()==='') return '';
+      return `<div class="wht-vendor-info-chunk"><b>${WHT_VENDOR_LABELS[f]||f}</b><span class="wht-vendor-info-chunk-val" title="${_esc(val)}">${_esc(val)}</span></div>`;
+    }).filter(Boolean).join('');
+    const last=v.last_used_at?_whtFmtStamp(v.last_used_at):'';
+    const metaBits=[];
+    if(last) metaBits.push(_esc(last));
+    if(v.use_count>1) metaBits.push(_esc(String(v.use_count))+'회');
+    const meta=metaBits.join(' · ');
+    return `<div class="wht-vendor-item" data-vkey="${_esc(key)}">
+      <div class="wht-vendor-row-1">
+        <div class="wht-vendor-item-name" title="${_esc(v.name)}">${_esc(v.name)}</div>
+        ${meta?`<div class="wht-vendor-item-meta">${meta}</div>`:''}
+      </div>
+      <div class="wht-vendor-actions">
+        <button type="button" class="wht-vendor-btn is-icon" onclick="whtVendorEdit('${_esc(key)}')" title="수정">✏️</button>
+        <button type="button" class="wht-vendor-btn is-icon is-danger" onclick="whtVendorDelete('${_esc(key)}')" title="삭제">🗑</button>
+      </div>
+      ${bits?`<div class="wht-vendor-item-info">${bits}</div>`:'<div class="wht-vendor-item-info" style="color:var(--text-3);font-style:italic;font-size:10.5px">추가 정보 없음</div>'}
+    </div>`;
+  }
+  function _whtFindVendorByKey(key){
+    if(!key) return null;
+    const [sec,nk]=String(key).split('::');
+    const arr=_whtState.vendors[sec]||[];
+    return arr.find(v=>_whtVendorKey(v.name)===nk)||null;
+  }
+  function whtVendorEdit(key){
+    const v=_whtFindVendorByKey(key);
+    if(!v) return;
+    const item=document.querySelector(`.wht-vendor-item[data-vkey="${key.replace(/"/g,'\\"')}"]`);
+    if(!item) return;
+    item.classList.add('is-editing');
+    const sc=WHT_VENDOR_FIELDS[v.section]||[];
+    const fields=[{k:'name', l:'이름'}, ...sc.map(f=>({k:f,l:WHT_VENDOR_LABELS[f]||f}))];
+    const inputs=fields.map(fd=>`
+      <div class="wht-vendor-edit-field">
+        <label>${_esc(fd.l)}</label>
+        <input type="text" data-ef="${fd.k}" value="${_esc(v[fd.k]||'')}" placeholder="${_esc(fd.l)}">
+      </div>`).join('');
+    item.innerHTML=`
+      <div class="wht-vendor-row-1">
+        <div class="wht-vendor-item-name">${_esc(v.name)} <span class="wht-vendor-item-meta">— 수정 중</span></div>
+      </div>
+      <div class="wht-vendor-edit-form">${inputs}</div>
+      <div class="wht-vendor-actions">
+        <button type="button" class="wht-vendor-btn" onclick="whtVendorCancelEdit('${_esc(key)}')">취소</button>
+        <button type="button" class="wht-vendor-btn is-primary" onclick="whtVendorSaveEdit('${_esc(key)}')">저장</button>
+      </div>`;
+    const first=item.querySelector('input[data-ef]');
+    if(first){first.focus(); first.select();}
+  }
+  function whtVendorCancelEdit(key){
+    const v=_whtFindVendorByKey(key);
+    if(!v) return;
+    const item=document.querySelector(`.wht-vendor-item[data-vkey="${key.replace(/"/g,'\\"')}"]`);
+    if(!item) return;
+    item.classList.remove('is-editing');
+    item.outerHTML=_whtVendorItemHtml(v);
+  }
+  async function whtVendorSaveEdit(key){
+    const v=_whtFindVendorByKey(key);
+    if(!v) return;
+    const item=document.querySelector(`.wht-vendor-item[data-vkey="${key.replace(/"/g,'\\"')}"]`);
+    if(!item) return;
+    const updates={};
+    item.querySelectorAll('input[data-ef]').forEach(inp=>{
+      const k=inp.dataset.ef;
+      updates[k]=String(inp.value||'').trim();
+    });
+    if(!updates.name){
+      if(typeof toast==='function') toast('이름은 비울 수 없습니다','err');
+      return;
+    }
+    // 이름이 바뀌었으면: 기존 삭제 → 새로 upsert (unique 충돌 방지)
+    const nameChanged=_whtVendorKey(updates.name)!==_whtVendorKey(v.name);
+    try{
+      const nowIso=new Date().toISOString();
+      const me=_whtGetMe();
+      if(nameChanged){
+        const delUrl=`${SUPABASE_URL}/rest/v1/wht_vendors?id=eq.${encodeURIComponent(v.id)}`;
+        await fetch(delUrl,{method:'DELETE', headers:_sbHeaders({'Prefer':'return=minimal'})});
+        // 로컬 제거
+        const arr=_whtState.vendors[v.section]||[];
+        const idx=arr.findIndex(x=>x.id===v.id);
+        if(idx>=0) arr.splice(idx,1);
+        // 새로 upsert
+        const body=Object.assign({section:v.section, updated_at:nowIso, updated_by:me}, updates);
+        const r=await fetch(`${SUPABASE_URL}/rest/v1/wht_vendors?on_conflict=section,name`,{
+          method:'POST',
+          headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=representation'}),
+          body:JSON.stringify(body),
+        });
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const saved=(await r.json())[0];
+        arr.unshift(saved);
+      } else {
+        const patchUrl=`${SUPABASE_URL}/rest/v1/wht_vendors?id=eq.${encodeURIComponent(v.id)}`;
+        const body=Object.assign({}, updates, {updated_at:nowIso, updated_by:me});
+        const r=await fetch(patchUrl,{
+          method:'PATCH',
+          headers:_sbHeaders({'Prefer':'return=representation'}),
+          body:JSON.stringify(body),
+        });
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const saved=(await r.json())[0];
+        const arr=_whtState.vendors[v.section]||[];
+        const idx=arr.findIndex(x=>x.id===v.id);
+        if(idx>=0) arr[idx]=saved;
+      }
+      whtVendorRenderList();
+      if(typeof toast==='function') toast('✓ 업체 정보 저장','ok');
+    }catch(e){
+      console.error('vendor save failed', e);
+      if(typeof toast==='function') toast('저장 실패','err');
+    }
+  }
+  async function whtVendorDelete(key){
+    const v=_whtFindVendorByKey(key);
+    if(!v) return;
+    if(!confirm(`"${v.name}" 을(를) 업체 목록에서 삭제할까요?\n\n※ 원천세 표에 이미 입력된 데이터는 지워지지 않습니다.`)) return;
+    try{
+      const delUrl=`${SUPABASE_URL}/rest/v1/wht_vendors?id=eq.${encodeURIComponent(v.id)}`;
+      const r=await fetch(delUrl,{method:'DELETE', headers:_sbHeaders({'Prefer':'return=minimal'})});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const arr=_whtState.vendors[v.section]||[];
+      const idx=arr.findIndex(x=>x.id===v.id);
+      if(idx>=0) arr.splice(idx,1);
+      whtVendorRenderList();
+      if(typeof toast==='function') toast('✓ 삭제 완료','ok');
+    }catch(e){
+      console.error('vendor delete failed', e);
+      if(typeof toast==='function') toast('삭제 실패','err');
+    }
+  }
+
+  /* ---- 셀러 정보 (구글시트 실시간) ---- */
+  const WHT_SELLER_SHEET_ID='1F_nQWwLjia0Vs7_KA3p2Dgt6OAFUbYXPxDHpxZV-IBA';
+  const WHT_SELLER_SHEET_NAME='셀러정보';
+  const _whtSellerState={sellers:null, loading:false, loadedAt:null, open:false};
+  function _whtParseCsvLine(line){
+    // 간단한 CSV parser — 큰따옴표 안 콤마·따옴표 이스케이프 처리
+    const out=[]; let cur=''; let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(inQ){
+        if(ch==='"' && line[i+1]==='"'){cur+='"'; i++;}
+        else if(ch==='"'){inQ=false;}
+        else{cur+=ch;}
+      } else {
+        if(ch==='"'){inQ=true;}
+        else if(ch===','){out.push(cur); cur='';}
+        else{cur+=ch;}
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+  function _whtParseCsv(text){
+    // 개행 안에 있는 큰따옴표 처리를 위해 상태 유지하며 파싱
+    const rows=[]; let cur=[]; let field=''; let inQ=false;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i];
+      if(inQ){
+        if(ch==='"' && text[i+1]==='"'){field+='"'; i++;}
+        else if(ch==='"'){inQ=false;}
+        else{field+=ch;}
+      } else {
+        if(ch==='"'){inQ=true;}
+        else if(ch===','){cur.push(field); field='';}
+        else if(ch==='\n'){cur.push(field); rows.push(cur); cur=[]; field='';}
+        else if(ch==='\r'){/* skip */}
+        else{field+=ch;}
+      }
+    }
+    if(field.length || cur.length){cur.push(field); rows.push(cur);}
+    return rows;
+  }
+  async function _whtLoadSellers(force){
+    if(_whtSellerState.loading) return;
+    if(_whtSellerState.sellers && !force) return;
+    _whtSellerState.loading=true;
+    try{
+      const url=`https://docs.google.com/spreadsheets/d/${WHT_SELLER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(WHT_SELLER_SHEET_NAME)}&_=${Date.now()}`;
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const text=await r.text();
+      const rows=_whtParseCsv(text);
+      if(!rows.length) throw new Error('empty');
+      const header=rows[0].map(x=>String(x||'').trim());
+      // 컬럼 매핑: 셀러명 · 팔로워수 · 계정주소 · 이름 · 연락처 · 주소 · 카테고리 · 메모
+      const findIdx=(kwList)=>{
+        for(const kw of kwList){
+          const i=header.findIndex(h=>h.replace(/\s+/g,'')===kw);
+          if(i>=0) return i;
+        }
+        return -1;
+      };
+      const idx={
+        name: findIdx(['셀러명','셀러이름','셀러']),
+        followers: findIdx(['팔로워수','팔로워']),
+        insta: findIdx(['계정주소','인스타','계정']),
+        person: findIdx(['이름','대표','담당자']),
+        phone: findIdx(['연락처','전화','전화번호']),
+        addr: findIdx(['주소','배송지','도로명주소']),
+      };
+      // 나머지 컬럼은 extra로 (예: 카테고리, 메모). 헤더가 비어있어도 데이터가 있으면 포함.
+      const knownCols=new Set(Object.values(idx).filter(i=>i>=0));
+      const hasDataAt=(colI)=>rows.slice(1).some(r=>(r[colI]||'').trim()!=='');
+      const labelDefaults=['카테고리','메모','비고','추가정보','기타1','기타2'];
+      let unnamedSeq=0;
+      const extraIdxs=header.map((h,i)=>{
+        if(knownCols.has(i)) return null;
+        const label=h.trim() || (hasDataAt(i)?(labelDefaults[unnamedSeq++]||`컬럼${i+1}`):null);
+        if(!label) return null;
+        return {h:label, i};
+      }).filter(Boolean);
+      const sellers=[];
+      for(let ri=1;ri<rows.length;ri++){
+        const r=rows[ri];
+        const name=(r[idx.name]||'').trim();
+        if(!name) continue;
+        const seller={
+          name,
+          followers:(idx.followers>=0?(r[idx.followers]||'').trim():''),
+          insta:(idx.insta>=0?(r[idx.insta]||'').trim():''),
+          person:(idx.person>=0?(r[idx.person]||'').trim():''),
+          phone:(idx.phone>=0?(r[idx.phone]||'').trim():''),
+          addr:(idx.addr>=0?(r[idx.addr]||'').trim():''),
+          extras:{},
+        };
+        extraIdxs.forEach(({h,i})=>{
+          const v=(r[i]||'').trim();
+          if(v) seller.extras[h]=v;
+        });
+        sellers.push(seller);
+      }
+      _whtSellerState.sellers=sellers;
+      _whtSellerState.loadedAt=new Date();
+      const stampEl=document.getElementById('whtSellerStamp');
+      if(stampEl){
+        const d=_whtSellerState.loadedAt;
+        const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+        stampEl.textContent=`· ${hh}:${mm} 갱신`;
+      }
+      if(_whtSellerState.open) whtSellerRenderList();
+    }catch(e){
+      console.warn('sellers load failed', e);
+      const list=document.getElementById('whtSellerList');
+      if(list) list.innerHTML=`<div class="wht-vendor-empty">⚠ 구글시트 로드 실패<br><span style="font-size:11px">${_esc(String(e.message||e))}</span></div>`;
+    }finally{
+      _whtSellerState.loading=false;
+    }
+  }
+  function whtOpenSellers(){
+    if(!_whtHasAccess()){
+      if(typeof toast==='function') toast('접근 권한이 없습니다','err');
+      return;
+    }
+    _whtSellerState.open=true;
+    const el=document.getElementById('whtSellerModal');
+    if(el){el.hidden=false; document.body.style.overflow='hidden';}
+    const list=document.getElementById('whtSellerList');
+    if(!_whtSellerState.sellers){
+      if(list) list.innerHTML='<div class="wht-vendor-empty">구글시트에서 불러오는 중…</div>';
+      _whtLoadSellers();
+    } else {
+      whtSellerRenderList();
+    }
+    setTimeout(()=>{
+      const s=document.getElementById('whtSellerSearch');
+      if(s) s.focus();
+    }, 40);
+    if(!_whtSellerState._escBound){
+      document.addEventListener('keydown', _whtSellerEscHandler);
+      _whtSellerState._escBound=true;
+    }
+  }
+  function _whtSellerEscHandler(e){
+    if(e.key==='Escape' && _whtSellerState.open) whtCloseSellers();
+  }
+  function whtCloseSellers(){
+    _whtSellerState.open=false;
+    const el=document.getElementById('whtSellerModal');
+    if(el){el.hidden=true; document.body.style.overflow='';}
+  }
+  function whtReloadSellers(){_whtLoadSellers(true)}
+  function _whtSellerHl(s,q){
+    const raw=String(s||'');
+    const qs=String(q||'').trim();
+    if(!qs) return _esc(raw);
+    const lower=raw.toLowerCase();
+    const idx=lower.indexOf(qs.toLowerCase());
+    if(idx<0) return _esc(raw);
+    return _esc(raw.slice(0,idx))+'<mark>'+_esc(raw.slice(idx,idx+qs.length))+'</mark>'+_esc(raw.slice(idx+qs.length));
+  }
+  function whtSellerRenderList(){
+    const list=document.getElementById('whtSellerList');
+    if(!list) return;
+    const arr=_whtSellerState.sellers||[];
+    const q=(document.getElementById('whtSellerSearch')||{}).value||'';
+    const qs=q.trim().toLowerCase();
+    const filtered=qs?arr.filter(s=>{
+      const bag=[s.name,s.person,s.phone,s.addr,s.insta,s.followers,...Object.values(s.extras||{})].filter(Boolean).join(' ').toLowerCase();
+      return bag.includes(qs);
+    }):arr;
+    if(!filtered.length){
+      list.innerHTML=arr.length
+        ? '<div class="wht-vendor-empty">검색 결과가 없습니다.</div>'
+        : (_whtSellerState.loading?'<div class="wht-vendor-empty">구글시트에서 불러오는 중…</div>':'<div class="wht-vendor-empty">셀러 목록이 비어있습니다.</div>');
+      return;
+    }
+    list.innerHTML=`<div class="wht-vendor-meta" style="font-size:11px;color:var(--text-3);padding:2px 4px 6px">총 <b style="color:var(--text-1)">${arr.length}</b>명 · <b style="color:var(--text-1)">${filtered.length}</b>명 표시</div>`+
+      filtered.map(s=>_whtSellerItemHtml(s,q)).join('');
+  }
+  function _whtSellerCategoryChips(s){
+    // 첫 extras (라벨 = "카테고리" 또는 컬럼순 첫번째) 만 chip. 나머지는 note.
+    const entries=Object.entries(s.extras||{});
+    if(!entries.length) return {cats:[], notes:[]};
+    const catEntry=entries.find(([k])=>k==='카테고리') || entries[0];
+    const cats=(catEntry[1]||'').split(/[,、·/]/).map(x=>x.trim()).filter(x=>x && x.length<=20).slice(0,8);
+    const notes=entries.filter(e=>e!==catEntry).map(([_,v])=>v).filter(Boolean);
+    return {cats, notes};
+  }
+  function _whtSellerItemHtml(s,q){
+    const nameHtml=_whtSellerHl(s.name, q);
+    const insta=s.insta?`<a href="${_esc(s.insta)}" target="_blank" rel="noopener" title="${_esc(s.insta)}">${nameHtml}</a>`:nameHtml;
+    const {cats, notes}=_whtSellerCategoryChips(s);
+    const extraNotes=notes.map(v=>_esc(v)).join(' · ');
+    const infoLines=[];
+    // 이름 + 팔로워 한 줄에 (있으면)
+    const nameLine=[];
+    if(s.person) nameLine.push(`<span class="wht-seller-info-val">${_whtSellerHl(s.person,q)}</span>`);
+    if(s.followers) nameLine.push(`<span style="color:var(--text-3);font-size:10.5px">${_esc(s.followers)}</span>`);
+    if(nameLine.length) infoLines.push(`<div class="wht-seller-info-line"><b>이름</b>${nameLine.join(' · ')}</div>`);
+    if(s.phone) infoLines.push(`<div class="wht-seller-info-line"><b>📞</b><span class="wht-seller-info-val" title="${_esc(s.phone)}">${_whtSellerHl(s.phone,q)}</span></div>`);
+    if(s.addr) infoLines.push(`<div class="wht-seller-info-line"><b>🏠</b><span class="wht-seller-info-val" title="${_esc(s.addr)}">${_whtSellerHl(s.addr,q)}</span></div>`);
+    const catHtml=cats.length?`<div class="wht-seller-cats">${cats.map(c=>`<span class="wht-seller-cat">${_esc(c)}</span>`).join('')}</div>`:'';
+    const noteHtml=extraNotes?`<div class="wht-seller-note" title="${_esc(extraNotes)}">${extraNotes}</div>`:'';
+    const copyBits=[];
+    if(s.phone) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.phone)}','📞')" title="연락처 복사">📞</button>`);
+    if(s.addr) copyBits.push(`<button type="button" class="wht-seller-copy" onclick="whtSellerCopy(this,'${_esc(s.addr).replace(/'/g,'&#39;')}','🏠')" title="주소 복사">🏠</button>`);
+    return `<div class="wht-seller-item">
+      <div class="wht-seller-name">${insta}</div>
+      <div class="wht-seller-actions">${copyBits.join('')}</div>
+      ${catHtml}
+      ${infoLines.length?`<div class="wht-seller-info">${infoLines.join('')}</div>`:''}
+      ${noteHtml}
+    </div>`;
+  }
+  async function whtSellerCopy(btn, text, orig){
+    try{
+      await navigator.clipboard.writeText(text);
+      const restore=orig||btn.textContent;
+      btn.textContent='✓';
+      btn.classList.add('is-ok');
+      setTimeout(()=>{btn.textContent=restore; btn.classList.remove('is-ok');}, 1100);
+    }catch(e){
+      if(typeof toast==='function') toast('복사 실패','err');
+    }
+  }
+
   async function whtLoad(force){
     if(!_whtHasAccess()) return;
     if(_whtState.loading) return;
@@ -20263,7 +21281,7 @@
     const del=`<td class="wht-col-act"><button type="button" class="wht-row-del" title="행 삭제" onclick="whtDelRow('${section}',${i})">×</button></td>`;
     if(section==='withdrawal'){
       return `<tr>${num}
-        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명 또는 이름"></td>
+        <td class="wht-name-cell"><input class="wht-input" autocomplete="off" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명 또는 이름 (자동완성)"></td>
         <td><input class="wht-input" list="whtBankList" data-sec="${section}" data-i="${i}" data-f="bank" value="${_esc(r.bank||'')}" placeholder="은행 입력 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="000-0000-0000"></td>
         <td><input class="wht-input wht-num" data-sec="${section}" data-i="${i}" data-f="amount" value="${_whtFmtAmt(r.amount)}" placeholder="0" inputmode="numeric"></td>
@@ -20274,7 +21292,7 @@
     }
     if(section==='freelancer'){
       return `<tr>${num}
-        <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="이름"></td>
+        <td class="wht-name-cell"><input class="wht-input" autocomplete="off" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="이름 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="ssn" value="${_esc(r.ssn||'')}" placeholder="000000-0000000"></td>
         <td><input class="wht-input" list="whtBankList" data-sec="${section}" data-i="${i}" data-f="bank" value="${_esc(r.bank||'')}" placeholder="은행 입력 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="계좌번호"></td>
@@ -20287,7 +21305,7 @@
     const supply=amt?Math.round(amt/1.1):0;
     const vat=amt?amt-supply:0;
     return `<tr>${num}
-      <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명"></td>
+      <td class="wht-name-cell"><input class="wht-input" autocomplete="off" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명 (자동완성)"></td>
       <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="ceo" value="${_esc(r.ceo||'')}" placeholder="대표자명"></td>
       <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="bizno" value="${_esc(r.bizno||'')}" placeholder="000-00-00000"></td>
       <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="address" value="${_esc(r.address||'')}" placeholder="소재지"></td>
@@ -20344,6 +21362,18 @@
     } else {
       arr[i][f]=String(el.value||'');
       if(f==='bank') _whtRenderBankList();
+      // 이름 필드는 dropdown 재렌더
+      if(f==='name' && e.type==='input'){
+        _whtOpenSuggest(el);
+      }
+      // 이름 외 필드가 바뀌면 이 행의 vendor 정보 upsert
+      // (이름이 이미 있어야 vendor로 저장. 이름은 change 이벤트 시에만 upsert)
+      if(f!=='name' && WHT_VENDOR_FIELDS[sec] && WHT_VENDOR_FIELDS[sec].includes(f)){
+        _whtVendorUpsertFromRow(sec, arr[i]);
+      }
+      if(f==='name' && e.type==='change'){
+        _whtVendorUpsertFromRow(sec, arr[i]);
+      }
     }
     _whtQueueSave();
   }
@@ -20353,6 +21383,9 @@
     if(!sec) return;
     sec.addEventListener('input',_whtOnInputEvt);
     sec.addEventListener('change',_whtOnInputEvt);
+    sec.addEventListener('keydown',_whtOnKeyEvt);
+    sec.addEventListener('focusin',_whtOnFocusEvt);
+    sec.addEventListener('focusout',_whtOnBlurEvt);
     _whtState.bound=true;
   }
   async function _whtFlushSave(){
@@ -20492,6 +21525,19 @@
   window.whtMonthNext=whtMonthNext;
   window.whtMonthToday=whtMonthToday;
   window.whtJumpMonth=whtJumpMonth;
+  window.whtOpenVendors=whtOpenVendors;
+  window.whtCloseVendors=whtCloseVendors;
+  window.whtVendorTab=whtVendorTab;
+  window.whtVendorRenderList=whtVendorRenderList;
+  window.whtVendorEdit=whtVendorEdit;
+  window.whtVendorCancelEdit=whtVendorCancelEdit;
+  window.whtVendorSaveEdit=whtVendorSaveEdit;
+  window.whtVendorDelete=whtVendorDelete;
+  window.whtOpenSellers=whtOpenSellers;
+  window.whtCloseSellers=whtCloseSellers;
+  window.whtReloadSellers=whtReloadSellers;
+  window.whtSellerRenderList=whtSellerRenderList;
+  window.whtSellerCopy=whtSellerCopy;
 
   /* ===== 텍스트 토핑 (Unicode U+0591 per-character) ===== */
   const TOPPING_MARK='֑';
