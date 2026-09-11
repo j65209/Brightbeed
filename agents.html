@@ -66,20 +66,20 @@
   .legend .hint{margin-left:auto;color:var(--text-3);font-style:italic}
   .legend .hint b{font-style:normal;color:var(--text-2);background:var(--bg-2);padding:1px 6px;border-radius:4px;font-weight:600}
 
-  .office{max-width:1240px;margin:0 auto;padding:22px 22px 60px;position:relative}
-  .floor{position:relative;background:linear-gradient(180deg,var(--floor) 0%,var(--floor-2) 100%);border-radius:22px;padding:34px 24px 40px;border:1px solid var(--line);box-shadow:inset 0 0 60px rgba(168,145,99,.06),0 20px 40px -30px rgba(0,0,0,.15)}
-  .rug{position:absolute;inset:20px 40px;background:var(--rug);border-radius:14px;box-shadow:inset 0 0 0 1px var(--rug-line),inset 0 0 40px rgba(216,206,186,.4);z-index:0}
+  .office{max-width:1240px;margin:0 auto;padding:16px 16px 40px;position:relative}
+  .floor{position:relative;background:linear-gradient(180deg,var(--floor) 0%,var(--floor-2) 100%);border-radius:18px;padding:20px 16px 26px;border:1px solid var(--line);box-shadow:inset 0 0 60px rgba(168,145,99,.06),0 20px 40px -30px rgba(0,0,0,.15)}
+  .rug{position:absolute;inset:12px 24px;background:var(--rug);border-radius:12px;box-shadow:inset 0 0 0 1px var(--rug-line),inset 0 0 40px rgba(216,206,186,.4);z-index:0}
 
-  /* 팀 섹션을 그리드로 배치 → 팀당 인원 상관 없이 화면 폭에 맞게 나란히 앉음.
-     팀 안에서는 desk 를 한 줄로 세로 쌓기(같은 팀은 붙어 있음). */
+  /* 팀 섹션 그리드 — 인원 수 상관없이 팀별로 나란히 앉음.
+     PC/모바일 모두 컴팩트 한 화면에 모든 팀 표시. */
   .desks{
     position:relative;z-index:2;
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
-    gap:26px 20px;padding:14px 8px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:14px 12px;padding:8px 4px;
   }
   .team-group{
-    display:flex;flex-direction:column;gap:14px;position:relative;
-    padding:8px 8px 14px;border-radius:14px;
+    display:flex;flex-direction:column;gap:8px;position:relative;
+    padding:6px 6px 10px;border-radius:12px;
     background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0));
   }
   .team-label{
@@ -104,84 +104,74 @@
     letter-spacing:-.005em;font-variant-numeric:tabular-nums;
     margin-left:auto;
   }
-  .team-desks{display:flex;flex-direction:column;gap:24px;align-items:center}
+  .team-desks{display:flex;flex-direction:column;gap:10px;align-items:center}
 
-  /* 본부장 (리안) — 팀 최상단 큰 임원 책상 · 골드 톤 강조 */
-  .cell.boss{align-self:center;position:relative;padding:22px 8px 6px;width:100%;max-width:460px}
-  .cell.boss .desk-svg{max-width:340px;margin:0 auto;display:block;filter:drop-shadow(0 18px 26px rgba(120,53,15,.22))}
-  .cell.boss.running .bubble,.cell.boss .bubble{max-width:400px;margin:0 auto 10px;background:linear-gradient(180deg,#fef3c7 0%,var(--bg-1) 55%);border:1.5px solid #a16207;padding:12px 14px 14px;box-shadow:0 14px 34px -14px rgba(120,53,15,.3),0 3px 9px -3px rgba(120,53,15,.16)}
-  .cell.boss .bubble .name{font-size:14.5px;color:#451a03}
+  /* 본부장 (리안) — 팀 최상단 임원 책상 · 골드 톤 강조 (모바일 스타일로 컴팩트) */
+  .cell.boss{align-self:center;position:relative;padding:14px 6px 4px;width:100%;max-width:320px}
+  .cell.boss .desk-svg{max-width:200px;margin:0 auto;display:block;filter:drop-shadow(0 12px 18px rgba(120,53,15,.2))}
+  .cell.boss.running .bubble,.cell.boss .bubble{max-width:280px;margin:0 auto 6px;background:linear-gradient(180deg,#fef3c7 0%,var(--bg-1) 55%);border:1.5px solid #a16207;padding:8px 10px 10px;box-shadow:0 10px 24px -12px rgba(120,53,15,.28),0 2px 6px -2px rgba(120,53,15,.14)}
+  .cell.boss .bubble .name{font-size:12.5px;color:#451a03}
   .cell.boss .bubble .name::before{content:"👑 ";margin-right:1px}
-  .cell.boss .bubble .task{font-size:12.5px;color:var(--text-0);font-weight:600}
+  .cell.boss .bubble .task{font-size:11px;color:var(--text-0);font-weight:600}
   .cell.boss .talk{background:#78350f;color:#fff8e7;border-color:#78350f}
   .cell.boss .talk:hover{background:#451a03;border-color:#451a03}
-  .cell.boss::before{content:"본부장";position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:.05em;color:#78350f;background:#fef3c7;border:1px solid #a16207;padding:2px 10px;border-radius:999px;z-index:2}
-  .team-group[data-team="본부"]{background:linear-gradient(180deg,rgba(254,243,199,.35),rgba(255,255,255,0));grid-column:1/-1;padding:10px 8px 22px}
-  .team-group[data-team="본부"] .team-label{border-bottom:1.5px solid #a16207;justify-content:center;gap:10px}
+  .cell.boss::before{content:"본부장";position:absolute;top:0;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;letter-spacing:.05em;color:#78350f;background:#fef3c7;border:1px solid #a16207;padding:1px 8px;border-radius:999px;z-index:2}
+  .team-group[data-team="본부"]{background:linear-gradient(180deg,rgba(254,243,199,.35),rgba(255,255,255,0));grid-column:1/-1;padding:6px 6px 12px}
+  .team-group[data-team="본부"] .team-label{border-bottom:1.5px solid #a16207;justify-content:center;gap:8px}
   .team-group[data-team="본부"] .team-label .team-count{margin-left:0}
   .team-group[data-team="본부"] .team-name{color:#78350f}
   @media(max-width:720px){
-    .cell.boss .desk-svg{max-width:220px}
-    .cell.boss .bubble{max-width:240px;padding:9px 10px 11px}
-    .cell.boss .bubble .name{font-size:12.5px}
-    .cell.boss::before{font-size:9px;padding:1px 8px}
-  }
-  @media(max-width:720px){
-    .desks{grid-template-columns:repeat(2,1fr);gap:14px 10px;padding:6px 4px}
-    .floor{padding:16px 10px 22px;border-radius:14px}
-    .rug{inset:10px 16px;border-radius:8px}
-    .team-group{padding:4px 3px 8px;gap:8px}
-    .team-label{padding:0 2px 3px;gap:6px}
-    .team-name{font-size:11px}
-    .team-count{font-size:9.5px;padding:1px 6px}
-    .team-desks{gap:12px}
-  }
-  /* 모바일에서도 2열 유지 (사장님 요청: 잘 돌아가는지만 보면 되니 크기는 작게) */
-  @media(max-width:420px){
     .desks{grid-template-columns:repeat(2,1fr);gap:10px 8px;padding:4px 2px}
-    .team-group{padding:4px 2px 6px;gap:6px}
-    .team-desks{gap:10px}
+    .floor{padding:14px 10px 20px;border-radius:14px}
+    .rug{inset:8px 14px;border-radius:8px}
+    .team-group{padding:4px 3px 8px;gap:6px}
+    .team-label{padding:0 2px 3px;gap:5px}
+    .team-name{font-size:10.5px}
+    .team-count{font-size:9px;padding:1px 5px}
+    .team-desks{gap:8px}
+    .cell.boss .desk-svg{max-width:170px}
+    .cell.boss .bubble{max-width:200px}
+  }
+  @media(max-width:420px){
+    .desks{gap:8px 6px;padding:3px 1px}
+    .team-group{padding:3px 2px 6px;gap:5px}
+    .cell.boss .desk-svg{max-width:150px}
   }
 
-  .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .desk-svg{width:100%;max-width:240px;height:auto;aspect-ratio:200/160;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09));transition:transform .22s cubic-bezier(.22,1,.36,1)}
+  .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .desk-svg{width:100%;max-width:140px;height:auto;aspect-ratio:200/160;filter:drop-shadow(0 8px 12px rgba(0,0,0,.08));transition:transform .22s cubic-bezier(.22,1,.36,1)}
   .cell:hover .desk-svg{transform:translateY(-2px)}
   /* 모바일: 데스크 SVG 사이즈 축소 — 크게 볼 필요 없음, 상태만 확인용 */
   @media(max-width:720px){
-    .cell{gap:5px}
-    .desk-svg{max-width:130px}
-    .bubble{padding:7px 8px 8px;border-radius:10px}
-    .bubble .name{font-size:11px}
-    .bubble .team{font-size:9.5px;padding:1px 5px}
-    .bubble .task{font-size:10.5px;margin-top:3px;line-height:1.3}
-    .bubble .meta{font-size:9.5px;margin-top:3px}
-    .stat{font-size:9.5px;padding:1px 5px;gap:3px}
-    .talk{margin-top:5px;padding:4px 6px;font-size:10px;border-radius:7px}
-  }
-  @media(max-width:420px){
-    .desk-svg{max-width:100px}
-    .bubble{padding:6px 7px 7px}
+    .desk-svg{max-width:110px}
+    .bubble{max-width:160px}
     .bubble .name{font-size:10.5px}
     .bubble .task{font-size:10px}
   }
+  @media(max-width:420px){
+    .desk-svg{max-width:88px}
+    .bubble{max-width:130px;padding:5px 7px 6px}
+    .bubble .name{font-size:10px}
+    .bubble .task{font-size:9.5px}
+  }
 
-  .bubble{width:100%;max-width:232px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 8px 20px -14px rgba(0,0,0,.16),0 2px 5px -3px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
-  .cell:hover .bubble{transform:translateY(-1px);box-shadow:0 14px 28px -14px rgba(0,0,0,.2),0 2px 6px -3px rgba(0,0,0,.08)}
-  .bubble .row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .bubble .name{font-size:12.5px;font-weight:700;letter-spacing:-.02em;color:var(--text-0);cursor:text;border-radius:4px;padding:1px 4px;margin:-1px -4px;transition:background .15s;outline:none}
-  .bubble .team{font-size:10.5px;font-weight:600;color:var(--text-3);padding:1.5px 7px;background:var(--bg-2);border-radius:999px;letter-spacing:-.01em;cursor:text;transition:background .15s;outline:none}
+  .bubble{width:100%;max-width:180px;background:var(--bg-1);border:1px solid var(--line);border-radius:11px;padding:7px 9px 8px;box-shadow:0 6px 14px -12px rgba(0,0,0,.14),0 1px 3px -2px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+  .cell:hover .bubble{transform:translateY(-1px);box-shadow:0 10px 20px -12px rgba(0,0,0,.18),0 2px 5px -3px rgba(0,0,0,.07)}
+  .bubble .row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .bubble .name{font-size:11.5px;font-weight:700;letter-spacing:-.02em;color:var(--text-0);cursor:text;border-radius:4px;padding:1px 3px;margin:-1px -3px;transition:background .15s;outline:none}
+  .bubble .team{font-size:9.5px;font-weight:600;color:var(--text-3);padding:1px 6px;background:var(--bg-2);border-radius:999px;letter-spacing:-.01em;cursor:text;transition:background .15s;outline:none}
   .bubble .name:hover,.bubble .team:hover{background:rgba(59,130,246,.06)}
   .bubble .name:focus{background:rgba(59,130,246,.1);box-shadow:0 0 0 2px rgba(59,130,246,.32)}
   .bubble .team:focus{background:rgba(59,130,246,.14);box-shadow:0 0 0 2px rgba(59,130,246,.32)}
-  .bubble .task{font-size:12px;font-weight:500;color:var(--text-1);margin-top:5px;line-height:1.35;min-height:1.35em;word-break:keep-all}
-  .bubble .meta{font-size:10.5px;color:var(--text-3);margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:0}
+  .bubble .task{font-size:10.5px;font-weight:500;color:var(--text-1);margin-top:3px;line-height:1.3;min-height:1.3em;word-break:keep-all}
+  .bubble .meta{font-size:9.5px;color:var(--text-3);margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:0}
   .bubble .meta b{color:var(--text-1);font-weight:600}
-  .talk{margin-top:8px;width:100%;border:1px solid var(--line);background:var(--bg-2);color:var(--text-2);border-radius:9px;padding:6px 8px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s,color .15s,border-color .15s}
+  .talk{margin-top:5px;width:100%;border:1px solid var(--line);background:var(--bg-2);color:var(--text-2);border-radius:7px;padding:4px 7px;font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:background .15s,color .15s,border-color .15s}
   .talk:hover{background:var(--text-0);color:#fff;border-color:var(--text-0)}
-  .talk .log-n{background:var(--line);color:var(--text-2);border-radius:999px;font-size:9px;padding:0 6px;line-height:14px;font-weight:600}
+  .talk .log-n{background:var(--line);color:var(--text-2);border-radius:999px;font-size:9px;padding:0 5px;line-height:13px;font-weight:600}
   .talk:hover .log-n{background:rgba(255,255,255,.22);color:#fff}
 
-  .stat{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;letter-spacing:-.01em;margin-left:auto}
+  .stat{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:999px;letter-spacing:-.01em;margin-left:auto}
   .stat .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
   .stat.running{color:#065f46;background:#d1fae5}
   .stat.running .dot{background:var(--running);animation:pulse 1.2s ease-in-out infinite}
