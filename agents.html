@@ -252,6 +252,33 @@
   .loading{position:fixed;inset:0;background:var(--bg-0);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s ease}
   .loading.hide{opacity:0;pointer-events:none}
   .loading .spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--text-2);border-radius:50%;animation:spin .8s linear infinite}
+
+  /* ---------- 파이프라인 지도 (에이전트 = 세로 컬럼, 각 라인 = 소스→주기→저장→사용처) ---------- */
+  .pipemap-wrap{max-width:1240px;margin:0 auto;padding:8px 22px 28px}
+  .pipemap-head{display:flex;align-items:baseline;gap:10px;margin:6px 4px 12px;color:var(--text-1)}
+  .pipemap-head h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
+  .pipemap-head .sub{font-size:12px;color:var(--text-3)}
+  .pipemap{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+  .pipe-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;position:relative;box-shadow:0 4px 14px -10px rgba(0,0,0,.08)}
+  .pipe-card::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--pipe-accent,#94a3b8)}
+  .pipe-card .pipe-agent{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--text-0);margin:0 0 4px 10px}
+  .pipe-card .pipe-agent .em{font-size:15px}
+  .pipe-card .pipe-agent .team{font-size:11px;font-weight:600;color:var(--text-3);background:var(--bg-2);padding:2px 7px;border-radius:999px;letter-spacing:-.01em}
+  .pipe-card .pipe-agent .rate{margin-left:auto;font-size:11px;color:var(--text-3);font-weight:600}
+  .pipe-lines{display:flex;flex-direction:column;gap:6px;margin:8px 0 0 10px}
+  .pipe-line{display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);line-height:1.4;padding:5px 8px;border-radius:8px;background:rgba(0,0,0,.015)}
+  .pipe-line:hover{background:rgba(0,0,0,.035)}
+  .pipe-node{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;background:var(--bg-1);border:1px solid var(--line);border-radius:6px;font-weight:600;color:var(--text-1);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .pipe-node.src{border-color:var(--pipe-accent,#cbd5e1);background:color-mix(in srgb,var(--pipe-accent,#cbd5e1) 8%,var(--bg-1))}
+  .pipe-node.sink{border-style:dashed;color:var(--text-2)}
+  .pipe-node.freq{background:var(--bg-2);border-color:transparent;color:var(--text-3);font-weight:600;padding:2px 6px;font-size:10.5px}
+  .pipe-arrow{margin:0 4px;color:var(--text-3);font-size:11px;user-select:none}
+  .pipe-note{margin:8px 10px 0;font-size:10.5px;color:var(--text-3);font-style:italic}
+  @media(max-width:640px){
+    .pipe-line{font-size:11px}
+    .pipe-node{padding:2px 5px}
+    .pipe-arrow{margin:0 2px}
+  }
 </style>
 </head>
 <body>
@@ -283,6 +310,154 @@
   <div class="floor">
     <div class="rug"></div>
     <div class="desks" id="desks"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     파이프라인 지도 — "지금 뭐가 뭘로부터 어떻게 흘러가는지" 한 눈에.
+     각 카드 = 에이전트 한 명. 각 라인 = 하나의 자동화 파이프라인.
+     [소스] → [주기] → [저장 파일] → [사용 뷰] 형식.
+     ================================================================ -->
+<div class="pipemap-wrap">
+  <div class="pipemap-head">
+    <h2>🗺 파이프라인 지도</h2>
+    <span class="sub">각 라인은 소스 → 주기 → 저장 → 사용처. 데이터가 어디서 와서 어디로 흘러가는지 한 눈에.</span>
+  </div>
+  <div class="pipemap">
+
+    <!-- 콜리 · 물류팀 -->
+    <div class="pipe-card" style="--pipe-accent:#7c3aed">
+      <div class="pipe-agent">
+        <span class="em">👨‍✈️</span><span>콜리</span><span class="team">물류팀</span>
+        <span class="rate">10분</span>
+      </div>
+      <div class="pipe-lines">
+        <div class="pipe-line">
+          <span class="pipe-node src">콰이디에어 (BB · j65209)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">10분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">kuaidiair-orders.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">물류팀 뷰 (브라이트비드)</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">콰이디에어 (SB · coferry10)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">10분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">kuaidiair-orders-shinebeed.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">물류팀 뷰 (샤인비드)</span>
+        </div>
+      </div>
+      <div class="pipe-note">웹 로그인 스크래핑. 45s timeout, 첫 backfill 15건 상세 fetch 완주.</div>
+    </div>
+
+    <!-- 미루 · 재고팀 -->
+    <div class="pipe-card" style="--pipe-accent:#0891b2">
+      <div class="pipe-agent">
+        <span class="em">🧑‍💻</span><span>미루</span><span class="team">재고팀</span>
+        <span class="rate">상시</span>
+      </div>
+      <div class="pipe-lines">
+        <div class="pipe-line">
+          <span class="pipe-node src">사장님 액션 · Playwright</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">즉시</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">식스샵 재고 반영</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">재고마스터 · 재고팀 뷰</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">발주 xlsx 붙여넣기</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">즉시</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">supabase 이력·lock</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">stock 매트릭스</span>
+        </div>
+      </div>
+      <div class="pipe-note">launchd 스케줄 없음. 사장님·다른 에이전트 액션 트리거 기반.</div>
+    </div>
+
+    <!-- 노아 · 벤더팀 -->
+    <div class="pipe-card" style="--pipe-accent:#0369a1">
+      <div class="pipe-agent">
+        <span class="em">🧑‍💼</span><span>노아</span><span class="team">벤더팀</span>
+        <span class="rate">10분</span>
+      </div>
+      <div class="pipe-lines">
+        <div class="pipe-line">
+          <span class="pipe-node src">구글시트 (벤더 마진)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">10분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">vendor-margin.csv</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">벤더 뷰 · 마진 계산기</span>
+        </div>
+      </div>
+      <div class="pipe-note">gviz CSV pull. HTML 로그인 페이지 리턴 시 자동 fail 감지.</div>
+    </div>
+
+    <!-- 자스민 · 매출팀 -->
+    <div class="pipe-card" style="--pipe-accent:#65a30d">
+      <div class="pipe-agent">
+        <span class="em">🧑‍🎤</span><span>자스민</span><span class="team">매출팀</span>
+        <span class="rate">30분</span>
+      </div>
+      <div class="pipe-lines">
+        <div class="pipe-line">
+          <span class="pipe-node src">SixshopPro (Akoi/CT/PP/Koz)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">pro_*_sales · pro_*_stock</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">MD·마케팅 뷰 (Pro)</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">식스샵 admin (6a/Yar/Kop/Apt)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">admin_*_sales.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">MD·마케팅 뷰 (Admin)</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">에이블리 (my.a-bly.com · 6a/Kop/Apt)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">ably_sales*.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">MD 플랫폼 뷰</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">지그재그 (카카오스타일 · 6a/Kop/Apt)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">zigzag_*_sales.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">MD 플랫폼 뷰</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">스마트스토어 (네이버 커머스 · PP/Kop)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">smartstore_*_sales.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">MD 플랫폼 뷰</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">브랜드 리포트 (8개 브랜드 top10·리오더·핫)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">report_*.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">홈 · 일일 브랜드 리포트</span>
+        </div>
+        <div class="pipe-line">
+          <span class="pipe-node src">베스트셀러 (7개 브랜드 통합)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">bestsellers_all.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">마케팅 브랜드별 판매순위</span>
+        </div>
+      </div>
+      <div class="pipe-note">세션 만료 자동 refresh (에이블리·지그재그). 검증 통과 시에만 out 로 promote.</div>
+    </div>
+
+    <!-- 오스카 · 광고팀 -->
+    <div class="pipe-card" style="--pipe-accent:#ea580c">
+      <div class="pipe-agent">
+        <span class="em">🧑‍💼</span><span>오스카</span><span class="team">광고팀</span>
+        <span class="rate">30분</span>
+      </div>
+      <div class="pipe-lines">
+        <div class="pipe-line">
+          <span class="pipe-node src">메타 광고 API (8개 광고 계정)</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node freq">30분</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node">data/meta-ads/*.json</span>
+          <span class="pipe-arrow">→</span><span class="pipe-node sink">홈 · 메타 광고 리포트</span>
+        </div>
+      </div>
+      <div class="pipe-note">omni_purchase 하나만 사용 (action_type 중복 방지). GitHub 커밋 후 라이브.</div>
+    </div>
+
   </div>
 </div>
 
