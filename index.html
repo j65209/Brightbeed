@@ -2495,15 +2495,15 @@
   .bps-top-nums{
     display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0
   }
-  .bps-top-qty{
+  .bps-top-money{
     font-family:var(--sans);font-weight:800;font-size:17px;color:#4338ca;
     font-variant-numeric:tabular-nums;letter-spacing:-.02em
   }
-  .bps-top-qty small{font-size:11px;font-weight:600;color:var(--text-3);margin-left:2px}
-  .bps-top-rev{
+  .bps-top-units{
     font-family:var(--sans);font-size:11.5px;color:var(--text-2);
     font-variant-numeric:tabular-nums
   }
+  .bps-top-units b{color:var(--text-1);font-weight:700}
   .bps-top-empty{
     padding:24px 12px;text-align:center;color:var(--text-3);font-size:13px
   }
@@ -2512,7 +2512,7 @@
     .bps-top-item{grid-template-columns:26px 44px 1fr auto;gap:8px;padding:8px 10px}
     .bps-top-img{width:44px;height:44px}
     .bps-top-name{font-size:12.5px}
-    .bps-top-qty{font-size:15px}
+    .bps-top-money{font-size:15px}
   }
 
   /* ===== 셀러 누적 순위 TOP 5 ===== */
@@ -20055,8 +20055,8 @@
               ${optHtml}
             </div>
             <div class="bps-top-nums">
-              <div class="bps-top-qty">${(p.qty||0).toLocaleString('ko-KR')}<small>개</small></div>
-              <div class="bps-top-rev">${_bpsKrw(p.revenue)}</div>
+              <div class="bps-top-money">${_bpsKrw(p.revenue)}</div>
+              <div class="bps-top-units"><b>${(p.qty||0).toLocaleString('ko-KR')}</b>개</div>
             </div>
           </div>`;
         }).join('');
