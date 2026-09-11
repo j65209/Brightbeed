@@ -72,3 +72,9 @@ test('logistics fetch failure returns a failed result while retaining existing r
  const c=context(part(app,'  async function renderKDOrders(','  function attachKDHistoryChips('),{document:{getElementById:()=>e},fetchKDOrders:async()=>{throw Error('offline')}});
  assert.equal((await c.renderKDOrders()).ok,false);assert.notEqual(e.style.display,'none');
 });
+
+test('home counts desks while missing jobs and manual staff never count as running',()=>{
+ const desks=[{agentIds:['a','b']},{manual:true,agentIds:[]},{agentIds:['c']}];
+ assert.deepEqual(reliability.agentDesks(desks,[{id:'a',status:'running'},{id:'c',status:'warn'}]),['unknown','idle','warn']);
+ assert.deepEqual(reliability.agentDesks(desks,[{id:'a',status:'running'},{id:'b',status:'running'},{id:'c',status:'stale'}]),['running','idle','stale']);
+});

@@ -65,6 +65,17 @@
     const results=settled.map((s,i)=>s.status==='fulfilled'?{name:tasks[i].name,...(s.value.result||{ok:false,error:'완료 여부 미확인'})}:{name:tasks[i].name,ok:false,error:s.reason?.message||'연결 실패'});
     return {ok:results.length>0&&results.every(r=>r.ok===true&&!r.skipped),results};
   }
+  function agentDesks(desks,agents){
+    const byId=new Map(agents.map(a=>[a.id,a]));
+    return desks.map(d=>{
+      if(d.manual||!d.agentIds?.length)return 'idle';
+      const states=d.agentIds.map(id=>byId.get(id)?.status);
+      if(states.some(s=>!s))return 'unknown';
+      if(states.includes('stale'))return 'stale';
+      if(states.includes('warn'))return 'warn';
+      return states.every(s=>s==='running')?'running':'unknown';
+    });
+  }
   function canonical(value){
     if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
     if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonical(value[k])).join(',')+'}';
@@ -74,5 +85,5 @@
     const versions=new Map();
     return {remember:(key,value)=>versions.set(key,canonical(value)),get:key=>versions.get(key),matches:(expected,value)=>expected!==undefined&&expected===canonical(value)};
   }
-  return {createNetwork,health,runSync,createVersions};
+  return {createNetwork,health,runSync,createVersions,agentDesks};
 });
