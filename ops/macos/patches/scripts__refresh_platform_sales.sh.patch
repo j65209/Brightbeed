@@ -1,0 +1,32 @@
+--- a/scripts/refresh_platform_sales.sh
++++ b/scripts/refresh_platform_sales.sh
+@@ -1,26 +1,4 @@
+ #!/bin/bash
+-# 30분마다 launchd(com.brightbeed.platform-sales)가 호출 → 플랫폼 매출 캐시 갱신.
+-# 대시보드 MD팀 → '브랜드별 실시간 매출' → 플랫폼 탭이 읽는 프록시 캐시(out/*.json)를 새로 채운다.
+-#   - ably_sales.py       → out/ably_sales{,_kop,_apt}.json (Playwright, ably-collector 세션)
+-#   - zigzag_sales.py     → out/zigzag_6a_sales.json         (카카오스타일 오픈 API)
+-#   - smartstore_sales.py → out/smartstore_{pp,kop}_sales.json (네이버 커머스 API, 20~30초)
+-set +e
+-cd ~/server/brightbeed-proxy
+-
+-for brand in 6a kop apt; do
+-  echo "→ 에이블리 매출 갱신 ($brand)"
+-  /usr/bin/python3 scripts/ably_sales.py --brand "$brand"
+-  sleep 3
+-done
+-
+-echo "→ 지그재그 매출 갱신"
+-/usr/bin/python3 scripts/zigzag_sales.py
+-sleep 3
+-
+-for brand in pp kop; do
+-  echo "→ 스마트스토어 매출 갱신 ($brand)"
+-  /usr/bin/python3 scripts/smartstore_sales.py --brand "$brand"
+-  sleep 3
+-done
+-
+-echo "✓ 플랫폼 캐시 갱신 완료 ($(date '+%Y-%m-%d %H:%M'))"
++set -euo pipefail
++SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd)"
++exec /usr/bin/python3 "$SCRIPT_DIR/job_runtime.py" platform-sales

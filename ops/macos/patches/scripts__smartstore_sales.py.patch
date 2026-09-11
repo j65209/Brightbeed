@@ -1,0 +1,58 @@
+--- a/scripts/smartstore_sales.py
++++ b/scripts/smartstore_sales.py
+@@ -123,7 +123,7 @@
+     while more:
+         info = data.get("morePageInfo") or {}
+         if not info:
+-            break
++            raise ValueError("missing_pagination_cursor")
+         p2 = dict(params)
+         p2["morePageIndex"] = info.get("morePageIndex")
+         if info.get("moreFrom"): p2["lastChangedFrom"] = info["moreFrom"]
+@@ -145,7 +145,13 @@
+         chunk = ids[i:i + B]
+         resp = _call(token, "/v1/pay-order/seller/product-orders/query", "POST", None,
+                      {"productOrderIds": chunk})
+-        out.extend(resp.get("data") or [])
++        rows = resp.get("data")
++        if not isinstance(rows, list) or len(rows) != len(chunk):
++            raise ValueError("incomplete_order_details")
++        returned = [str((r.get("productOrder") or {}).get("productOrderId", "")) for r in rows]
++        if set(returned) != set(map(str, chunk)) or len(returned) != len(set(returned)):
++            raise ValueError("mismatched_order_details")
++        out.extend(rows)
+     return out
+ 
+ 
+@@ -178,7 +184,7 @@
+             ids = _order_ids_in_window(token, day_start, day_end)
+             all_ids.extend(ids)
+         except Exception as e:
+-            print(f"[smartstore-sales] day {d} window failed: {e}", file=sys.stderr)
++            return {"ok": False, "brand": brand, "error": f"incomplete_date_window_{d}"}
+         time.sleep(0.12)  # ~8 req/sec — 20/sec 한계 대비 여유
+     # 중복 제거
+     all_ids = list(dict.fromkeys(all_ids))
+@@ -304,6 +310,7 @@
+                 json.dump(result, f, ensure_ascii=False)
+             os.replace(tmp, cache_path)
+         except Exception as e:
++            result = {"ok": False, "error": "cache_write_failed"}
+             print(f"[smartstore-sales] cache write failed: {e}", file=sys.stderr)
+ 
+     if result.get("ok"):
+@@ -318,6 +325,14 @@
+         print(f"[smartstore-sales:{brand}] FAIL: {result.get('error')}", file=sys.stderr)
+         print(json.dumps(result, ensure_ascii=False))
+ 
++    raise SystemExit(0 if result.get("ok") is True else 1)
++
+ 
+ if __name__ == "__main__":
++    from job_runtime import match_job, run_job
++    job = match_job([sys.executable, __file__] + sys.argv[1:])
++    if job and not os.environ.get("BRIGHTBEED_OUTPUT"):
++        result = run_job(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), job)
++        print(json.dumps(result))
++        raise SystemExit(0 if result["ok"] else 1)
+     main()

@@ -1,0 +1,44 @@
+--- a/scripts/refresh_brand_report.sh
++++ b/scripts/refresh_brand_report.sh
+@@ -1,38 +1,4 @@
+ #!/bin/bash
+-# 매일 08:00 launchd가 호출 → 8개 브랜드 분석리포트를 순차 재생성.
+-# 어제 확정 데이터가 매일 자정에 굳으므로 하루 1회로 충분.
+-# admin 브랜드는 최근 3일 주문 상세만 refetch (30일 히스토리는 캐시 재사용).
+-# 히스토리가 비어 있으면 admin_report.py <brand> --backfill 로 한 번 채워야 한다.
+-#
+-# 재시도: cron 이 하루 1회이므로 일회성 네트워크 실패(ERR_ADDRESS_INVALID 등)에 취약하다.
+-# 브랜드별 최대 3회, 60초 대기로 재시도해서 네트워크 flap 상황에서도 자동 복구.
+-# 성공 판별은 "오늘 자정 이후 mtime 을 가진 report_{brand}.json" 존재 여부로 한다.
+-set +e
+-cd ~/server/brightbeed-proxy
+-
+-run_with_retry() {
+-    local script="$1"
+-    local brand="$2"
+-    local cache="out/report_${brand}.json"
+-    local today
+-    today="$(date +%Y-%m-%d)"
+-    local attempt
+-    for attempt in 1 2 3; do
+-        /usr/bin/python3 "$script" "$brand"
+-        if [ -f "$cache" ] && [ -n "$(find "$cache" -newermt "$today" 2>/dev/null)" ]; then
+-            [ "$attempt" -gt 1 ] && echo "[retry] $brand OK on attempt $attempt"
+-            return 0
+-        fi
+-        echo "[retry] $brand attempt $attempt failed — waiting 60s"
+-        sleep 60
+-    done
+-    echo "[retry] $brand GAVE UP after 3 attempts"
+-    return 1
+-}
+-
+-for brand in ct pp koz akoi; do
+-    run_with_retry scripts/brand_report.py "$brand"
+-done
+-for brand in 6a yar kop apt; do
+-    run_with_retry scripts/admin_report.py "$brand"
+-done
++set -euo pipefail
++SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd)"
++exec /usr/bin/python3 "$SCRIPT_DIR/job_runtime.py" brand-report

@@ -1,0 +1,34 @@
+--- a/scripts/admin_report.py
++++ b/scripts/admin_report.py
+@@ -404,7 +404,7 @@
+         result = {"ok": False, "brand": brand, "error": str(e)}
+ 
+     if result.get("ok"):
+-        path = OUT_TMPL.format(brand=brand)
++        path = os.environ.get("BRIGHTBEED_OUTPUT") or OUT_TMPL.format(brand=brand)
+         try:
+             os.makedirs(os.path.dirname(path), exist_ok=True)
+             tmp = path + ".tmp"
+@@ -412,6 +412,7 @@
+                 json.dump(result, f, ensure_ascii=False)
+             os.replace(tmp, path)
+         except Exception as e:
++            result = {"ok": False, "error": "cache_write_failed"}
+             print(f"[report:{brand}] cache write failed: {e}", file=sys.stderr)
+         c = result["counts"]
+         print(f"[report:{brand}] {result['display']}: 어제 top {len(result['yesterdayTop10'])} · "
+@@ -423,6 +424,14 @@
+     print("=" * 60)
+     print(json.dumps(result, ensure_ascii=False))
+ 
++    raise SystemExit(0 if result.get("ok") is True else 1)
++
+ 
+ if __name__ == "__main__":
++    from job_runtime import match_job, run_job
++    job = match_job([sys.executable, __file__] + sys.argv[1:])
++    if job and not os.environ.get("BRIGHTBEED_OUTPUT"):
++        result = run_job(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), job)
++        print(json.dumps(result))
++        raise SystemExit(0 if result["ok"] else 1)
+     main()
