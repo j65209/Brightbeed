@@ -869,27 +869,6 @@
 
   /* 히어로 — 에이전트 오피스 (다크 슬레이트 + 라이브 에메랄드) */
   .hero-row-agents{grid-template-columns:1fr;margin-bottom:22px;position:relative}
-  /* 마우스 오버 시 나오는 에이전트 업무 내역 팝오버 */
-  .hero-agents-tip{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:40;background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);border:1px solid rgba(148,163,184,.28);border-radius:12px;box-shadow:0 24px 48px -18px rgba(2,6,23,.6),0 8px 18px -8px rgba(2,6,23,.4);padding:14px 16px;opacity:0;pointer-events:none;transform:translateY(-4px);transition:opacity .16s,transform .16s;color:#e2e8f0}
-  .hero-row-agents:hover .hero-agents-tip,.hero-row-agents:focus-within .hero-agents-tip{opacity:1;pointer-events:auto;transform:translateY(0)}
-  .hero-agents-tip-title{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#94a3b8;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-  .hero-agents-tip-title .live-dot{width:6px;height:6px;border-radius:50%;background:var(--neon-agents-live);box-shadow:0 0 8px var(--neon-agents-live-glow);animation:pulse 1.8s ease-in-out infinite}
-  .hero-agents-tip-grid{display:grid;grid-template-columns:1fr;gap:6px}
-  @media(min-width:640px){.hero-agents-tip-grid{grid-template-columns:1fr 1fr}}
-  .hat-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;background:rgba(148,163,184,.06);border:1px solid rgba(148,163,184,.1);font-size:12.5px}
-  .hat-row.is-stale{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3)}
-  .hat-row.is-warn{background:rgba(234,179,8,.08);border-color:rgba(234,179,8,.28)}
-  .hat-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.18)}
-  .hat-row.is-stale .hat-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.2)}
-  .hat-row.is-warn  .hat-dot{background:#eab308;box-shadow:0 0 0 3px rgba(234,179,8,.2)}
-  .hat-name{font-weight:700;color:#f1f5f9}
-  .hat-sep{color:#64748b;margin:0 4px}
-  .hat-team{color:#94a3b8;font-weight:500}
-  .hat-task{color:#cbd5e1;font-size:12px;margin-top:2px;line-height:1.35}
-  .hat-meta{font-family:var(--mono);font-size:10.5px;color:#94a3b8;text-align:right;white-space:nowrap;line-height:1.5}
-  .hat-meta b{color:#a7f3d0;font-weight:700}
-  .hat-row.is-stale .hat-meta b{color:#fca5a5}
-  .hat-empty{grid-column:1/-1;padding:12px;text-align:center;color:#64748b;font-size:12px;font-style:italic}
   .hero.hero-agents{padding:22px 22px 22px;background:linear-gradient(135deg,var(--neon-agents) 0%,var(--neon-agents-2) 100%);border:1px solid rgba(148,163,184,.28);align-items:stretch;text-align:left;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;box-shadow:0 12px 32px -18px rgba(15,23,42,.5),0 4px 12px -6px rgba(15,23,42,.25)}
   @media(max-width:500px){.hero.hero-agents{grid-template-columns:1fr;text-align:center;padding:18px}}
   .hero-agents-left{display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -6945,13 +6924,6 @@
           <span class="hero-agents-cta">사무실 열기 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
       </a>
-      <!-- 마우스오버 시 나오는 에이전트별 업무 내역 -->
-      <div class="hero-agents-tip" id="agentsHoverTip" aria-hidden="true">
-        <div class="hero-agents-tip-title"><span class="live-dot"></span>지금 하는 일 · 자동 업데이트</div>
-        <div class="hero-agents-tip-grid" id="agentsHoverTipGrid">
-          <div class="hat-empty">불러오는 중…</div>
-        </div>
-      </div>
     </div>
 
     <!-- 팀 카드 1행: 인사팀 · 업무일지 -->
@@ -9336,60 +9308,6 @@
     {id:'marketing', name:'자스민', team:'매출팀',   taskLabel:'매출·플랫폼 리포트',       schedule:'매 30분',       agentIds:['pro-sales','admin-sales','platform-sales','brand-report']},
     {id:'ads',       name:'오스카', team:'광고팀',   taskLabel:'메타 광고 성과 수집',      schedule:'매 30분',       agentIds:['fb-ads']},
   ];
-  function _agentsFmtRel(sec){
-    sec=Math.max(0,Math.round(sec));
-    if(sec<60) return `${sec}초`;
-    const m=Math.round(sec/60);
-    if(m<60) return `${m}분`;
-    const h=Math.round(m/60);
-    if(h<24) return `${h}시간`;
-    return `${Math.round(h/24)}일`;
-  }
-  function _renderAgentsHoverTip(statusMap){
-    const grid=document.getElementById('agentsHoverTipGrid');
-    if(!grid) return;
-    const now=Date.now()/1000;
-    const rows=AGENTS_CHARACTERS.map(c=>{
-      // 캐릭터 상태 집계 (agents.html 과 동일 로직)
-      let status='running', task=c.taskLabel;
-      let latestLast=0, earliestNext=Infinity, hasWarn=false;
-      if(c.alwaysOn){
-        // 미루: 상시 대응
-      } else {
-        for(const id of c.agentIds){
-          const s=statusMap[id];
-          if(!s) continue;
-          if(s.status==='stale') status='stale';
-          else if(s.status==='warn' && status!=='stale') hasWarn=true;
-          if(s.last_run && s.last_run>latestLast) latestLast=s.last_run;
-          if(s.next_run && s.next_run<earliestNext) earliestNext=s.next_run;
-          if(s.status==='running' && s.task) task=s.task;
-        }
-        if(status==='running' && hasWarn) status='warn';
-      }
-      let meta='';
-      if(c.alwaysOn){
-        meta=`<b>상시 대응</b>`;
-      } else if(latestLast){
-        meta+=`마지막 <b>${_agentsFmtRel(now-latestLast)} 전</b>`;
-        if(earliestNext<Infinity){
-          const diff=earliestNext-now;
-          meta+=`<br>다음 <b>${diff>0?_agentsFmtRel(diff)+' 후':'임박'}</b>`;
-        }
-      } else {
-        meta=`<b>${_akoiEsc(c.schedule)}</b>`;
-      }
-      return `<div class="hat-row ${status==='stale'?'is-stale':status==='warn'?'is-warn':''}">
-        <span class="hat-dot"></span>
-        <div>
-          <div><span class="hat-name">${_akoiEsc(c.name)}</span><span class="hat-sep">·</span><span class="hat-team">${_akoiEsc(c.team)}</span></div>
-          <div class="hat-task">${_akoiEsc(task)}</div>
-        </div>
-        <div class="hat-meta">${meta}</div>
-      </div>`;
-    }).join('');
-    grid.innerHTML=rows;
-  }
   async function loadAgentsMini(){
     const runN = document.getElementById('agentsRunningN');
     const totN = document.getElementById('agentsTotalN');
@@ -9428,7 +9346,6 @@
       if(sub && stale > 0){
         sub.innerHTML = `<b>${running}</b>명 근무 중 · <b style="color:#fca5a5">멈춤 ${stale}건</b> 확인 필요`;
       }
-      _renderAgentsHoverTip(statusMap);
     }catch(e){/* 조용히 skip */}
   }
 
