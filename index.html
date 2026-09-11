@@ -23368,7 +23368,73 @@
       s.settings[name]=parseInt(raw,10);
     }
     try{ localStorage.setItem(PC_LS.settings, JSON.stringify(s.settings)); }catch(e){}
-    pcCompute();
+    // 전체 재렌더링 대신 이 행만 갱신 → input 포커스/커서 유지
+    _pcRecalcRow(name);
+    _pcRefreshBanner();
+  }
+  function pcOnSettingBlur(inp){
+    const name=inp.dataset.name;
+    const s=window._pcv2;
+    const v=s.settings[name];
+    if(v!=null){
+      inp.value=Number(v).toLocaleString('ko-KR');
+    } else {
+      // 삭제된 경우 기본값으로 복구
+      const p=(s.catalog||[]).find(x=>x.name===name);
+      if(p){
+        const def=p.platformMin>0?p.platformMin:p.listPrice;
+        inp.value=Number(def).toLocaleString('ko-KR');
+      }
+    }
+  }
+  function _pcRecalcRow(name){
+    const s=window._pcv2;
+    const p=(s.catalog||[]).find(x=>x.name===name);
+    if(!p) return;
+    const setting=_pcSettingFor(p);
+    const r=_pcCalcRow(p, setting, s);
+    r.reqPlatMin=_pcRequiredSetting(p.platformMin, s);
+    r.reqHomeSale=_pcRequiredSetting(p.homeSale, s);
+    r.reqHomePlus=_pcRequiredSetting(r.homePlus, s);
+    const table=document.getElementById('pcResultTable');
+    if(!table) return;
+    const inp=table.querySelector(`input.pc-setting-input[data-name="${name.replace(/"/g,'\\"')}"]`);
+    const tr=inp && inp.closest('tr');
+    if(!tr) return;
+    tr.classList.toggle('violate', !!r.violate);
+    const tds=tr.children;
+    // 인덱스: 0 상품명 · 1 정가 · 2 세팅가(input) · 3 A · 4 B · 5 applied · 6 platMin · 7 homeSale · 8 homePlus · 9 sellerBurden · 10 ablySupport · 11 fee · 12 profit
+    tds[3].innerHTML=_pcFmt(r.primDisc);
+    tds[4].innerHTML=_pcFmt(r.dupDisc);
+    tds[5].innerHTML=_pcFmt(r.applied);
+    tds[6].dataset.req=r.reqPlatMin;
+    tds[6].innerHTML=_pcReqCellHtml(r.reqPlatMin, r.p.platformMin);
+    tds[7].dataset.req=r.reqHomeSale;
+    tds[7].innerHTML=_pcReqCellHtml(r.reqHomeSale, r.p.homeSale);
+    tds[8].dataset.req=r.reqHomePlus;
+    tds[8].innerHTML=_pcReqCellHtml(r.reqHomePlus, r.homePlus);
+    tds[9].innerHTML=_pcFmt(r.sellerBurden);
+    tds[10].innerHTML=_pcFmt(r.ablySupport);
+    tds[11].innerHTML=_pcFmt(r.fee);
+    tds[12].className=(r.profit>=0?'profit-pos':'profit-neg');
+    tds[12].innerHTML=_pcFmt(r.profit);
+  }
+  function _pcRefreshBanner(){
+    const s=window._pcv2;
+    const banner=document.getElementById('pcWarnBanner');
+    if(!banner) return;
+    const selNames=[...s.selected];
+    let violates=0;
+    for(const name of selNames){
+      const p=(s.catalog||[]).find(x=>x.name===name);
+      if(!p) continue;
+      const setting=_pcSettingFor(p);
+      const r=_pcCalcRow(p, setting, s);
+      if(r.violate) violates++;
+    }
+    banner.innerHTML = violates>0
+      ? `<div class="pc-warn-banner">⚠ ${violates}개 상품이 <b>플랫폼 최저가 위반 위험</b>: 쿠폰 적용가 &lt; 플랫폼 최저가</div>`
+      : '';
   }
 
   function pcResetSettings(){
@@ -23438,7 +23504,7 @@
               return `<tr class="${cls}">
                 <td title="${_pcEsc(r.p.cat)}">${_pcEsc(r.p.name)}</td>
                 <td>${_pcFmt(r.p.listPrice)}</td>
-                <td class="core"><input class="pc-setting-input" type="text" inputmode="numeric" value="${r.setting.toLocaleString('ko-KR')}" data-name="${_pcEsc(r.p.name)}" oninput="pcOnSettingInput(this)"></td>
+                <td class="core"><input class="pc-setting-input" type="text" inputmode="numeric" value="${r.setting.toLocaleString('ko-KR')}" data-name="${_pcEsc(r.p.name)}" oninput="pcOnSettingInput(this)" onblur="pcOnSettingBlur(this)"></td>
                 <td>${_pcFmt(r.primDisc)}</td>
                 <td>${_pcFmt(r.dupDisc)}</td>
                 <td>${_pcFmt(r.applied)}</td>
@@ -23500,6 +23566,7 @@
   window.pcToggleSelectAll=pcToggleSelectAll;
   window.pcSaveConditions=pcSaveConditions;
   window.pcOnSettingInput=pcOnSettingInput;
+  window.pcOnSettingBlur=pcOnSettingBlur;
   window.pcResetSettings=pcResetSettings;
   window.pcCompute=pcCompute;
   window.pcCopyTable=pcCopyTable;
