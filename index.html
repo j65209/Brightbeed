@@ -10707,10 +10707,10 @@
   window.hardReload=hardReload;
 
   /* ===== 시스템 상태 배지 (proxy /health) =====
-     자동화 데이터 파일들의 최신성 종합. 5분 캐시. */
+     자동화 데이터 파일들의 최신성 종합. 1분 캐시 — 재시도 성공이 배지에 빨리 반영되게. */
   let _sysHealthCache=null, _sysHealthTs=0, _sysHealthTimer=null;
   async function fetchSysHealth(force){
-    if(!force && _sysHealthCache && Date.now()-_sysHealthTs < 5*60*1000) return _sysHealthCache;
+    if(!force && _sysHealthCache && Date.now()-_sysHealthTs < 60*1000) return _sysHealthCache;
     try{
       const base=await loadProxyBase();
       if(!base) throw new Error('proxy unavailable');
@@ -10795,7 +10795,7 @@
   window.toggleSysHealth=toggleSysHealth;
   function _startSysHealthPolling(){
     if(_sysHealthTimer) return;
-    // 첫 로드 + 10분마다 갱신
+    // 첫 로드 + 2분마다 갱신 (재시도 성공이 빨리 반영되도록)
     (async()=>{
       const data=await fetchSysHealth();
       _renderSysHealthBadge(data);
@@ -10806,7 +10806,7 @@
       // 패널 열려 있으면 리스트도 갱신
       const panel=document.getElementById('sysHealthPanel');
       if(panel && !panel.hasAttribute('hidden')) _renderSysHealthList(data);
-    }, 10*60*1000);
+    }, 2*60*1000);
   }
   window._startSysHealthPolling=_startSysHealthPolling;
 
