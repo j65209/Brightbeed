@@ -8094,7 +8094,7 @@
           <div class="bps-empty">불러오는 중…</div>
         </div>
         <div class="po-section-head" style="border-top:1px solid var(--line);margin-top:2px">
-          <div class="po-section-title">이번 달 판매 TOP 10 <span class="po-section-meta-inline bps-status-inline" id="bpsTopNote"></span></div>
+          <div class="po-section-title">오늘 판매 TOP 10 <span class="po-section-meta-inline bps-status-inline" id="bpsTopNote"></span></div>
         </div>
         <div id="bpsTopList" class="bps-top-list">
           <div class="bps-top-empty">불러오는 중…</div>
@@ -20031,7 +20031,7 @@
     if(topList){
       const list=Array.isArray(d.top_products)?d.top_products:[];
       if(!list.length){
-        topList.innerHTML = `<div class="bps-top-empty">이번 달 판매 데이터가 없습니다</div>`;
+        topList.innerHTML = `<div class="bps-top-empty">오늘 판매 데이터가 아직 없습니다</div>`;
       } else {
         topList.innerHTML = list.map((p,i)=>{
           const rk=i+1;
@@ -20062,7 +20062,7 @@
         }).join('');
       }
       if(topNote){
-        topNote.textContent = list.length ? `${d.month_start||''} ~ 오늘 · ${list.length}개 상품` : '';
+        topNote.textContent = list.length ? `${d.today_str||'오늘'} · ${list.length}개 상품` : '';
       }
     }
   }
