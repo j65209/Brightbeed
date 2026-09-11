@@ -106,20 +106,43 @@
   }
   .team-desks{display:flex;flex-direction:column;gap:24px;align-items:center}
   @media(max-width:720px){
-    .desks{grid-template-columns:repeat(2,1fr);gap:18px 12px;padding:6px 4px}
-    .floor{padding:20px 12px 28px;border-radius:16px}
-    .rug{inset:12px 20px;border-radius:10px}
-    .team-group{padding:6px 4px 10px;gap:10px}
-    .team-label{padding:0 2px 4px}
-    .team-name{font-size:11.5px}
-    .team-count{font-size:10px;padding:1px 7px}
-    .team-desks{gap:18px}
+    .desks{grid-template-columns:repeat(2,1fr);gap:14px 10px;padding:6px 4px}
+    .floor{padding:16px 10px 22px;border-radius:14px}
+    .rug{inset:10px 16px;border-radius:8px}
+    .team-group{padding:4px 3px 8px;gap:8px}
+    .team-label{padding:0 2px 3px;gap:6px}
+    .team-name{font-size:11px}
+    .team-count{font-size:9.5px;padding:1px 6px}
+    .team-desks{gap:12px}
   }
-  @media(max-width:420px){.desks{grid-template-columns:1fr;gap:14px}}
+  /* 모바일에서도 2열 유지 (사장님 요청: 잘 돌아가는지만 보면 되니 크기는 작게) */
+  @media(max-width:420px){
+    .desks{grid-template-columns:repeat(2,1fr);gap:10px 8px;padding:4px 2px}
+    .team-group{padding:4px 2px 6px;gap:6px}
+    .team-desks{gap:10px}
+  }
 
   .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .desk-svg{width:100%;max-width:240px;height:auto;aspect-ratio:200/160;filter:drop-shadow(0 12px 16px rgba(0,0,0,.09));transition:transform .22s cubic-bezier(.22,1,.36,1)}
   .cell:hover .desk-svg{transform:translateY(-2px)}
+  /* 모바일: 데스크 SVG 사이즈 축소 — 크게 볼 필요 없음, 상태만 확인용 */
+  @media(max-width:720px){
+    .cell{gap:5px}
+    .desk-svg{max-width:130px}
+    .bubble{padding:7px 8px 8px;border-radius:10px}
+    .bubble .name{font-size:11px}
+    .bubble .team{font-size:9.5px;padding:1px 5px}
+    .bubble .task{font-size:10.5px;margin-top:3px;line-height:1.3}
+    .bubble .meta{font-size:9.5px;margin-top:3px}
+    .stat{font-size:9.5px;padding:1px 5px;gap:3px}
+    .talk{margin-top:5px;padding:4px 6px;font-size:10px;border-radius:7px}
+  }
+  @media(max-width:420px){
+    .desk-svg{max-width:100px}
+    .bubble{padding:6px 7px 7px}
+    .bubble .name{font-size:10.5px}
+    .bubble .task{font-size:10px}
+  }
 
   .bubble{width:100%;max-width:232px;background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;box-shadow:0 8px 20px -14px rgba(0,0,0,.16),0 2px 5px -3px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
   .cell:hover .bubble{transform:translateY(-1px);box-shadow:0 14px 28px -14px rgba(0,0,0,.2),0 2px 6px -3px rgba(0,0,0,.08)}
@@ -387,19 +410,21 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'marketing', name:'자스민', team:'마케팅팀',
+    id:'marketing', name:'자스민', team:'매출팀',
     hairColor:'#2c1810', cloth:'#65a30d',
-    agentIds:['pro-sales','admin-sales'],
-    taskLabel:'식스샵 매출 분석 및 동기화 업무', scheduleLabel:'매 30분', intervalSec:1800,
-    role:'식스샵 매출·판매순위 분석 전문',
+    agentIds:['pro-sales','admin-sales','platform-sales','brand-report','daily-pptx'],
+    taskLabel:'매출 수집·분석·리포트 업무', scheduleLabel:'매 30분 · 매일 08:00', intervalSec:1800,
+    role:'전 브랜드·전 채널 매출 데이터 총괄',
     knows:[
-      '식스샵프로(Pro)와 일반 admin 두 소스를 나눠 수집',
-      'Pro item/top 은 자사몰만 집계 — 외부채널 매출은 빠짐',
-      '브랜드별 TOP10 판매순위와 매출 스냅을 30분 주기로 갱신',
+      '식스샵프로(Pro) · 식스샵 admin · 외부 플랫폼(에이블리·지그재그·스마트스토어) 매출 30분 주기 수집',
+      '매일 08:00 매출 PPT 생성 후 대시보드에 업로드 (06:00 ERP 최신화 후)',
+      '브랜드별 TOP10·리오더·핫아이템 리포트 (admin v2 orders 는 세션 살아있어야 응답)',
+      'Pro item/top 은 자사몰만 집계 — 외부채널은 별도 플랫폼 데이터로 커버',
     ],
     quick:[
       {label:'업무 보고', cmd:'업무 보고'},
       {label:'베스트셀러', cmd:'베스트셀러'},
+      {label:'브랜드 리포트', cmd:'브랜드 리포트'},
       {label:'전문 분야', cmd:'전문 분야'},
     ],
   },
@@ -417,39 +442,6 @@ const CHARACTERS = [
     quick:[
       {label:'업무 보고', cmd:'업무 보고'},
       {label:'광고 성과', cmd:'광고 성과'},
-      {label:'전문 분야', cmd:'전문 분야'},
-    ],
-  },
-  {
-    id:'report', name:'릴리', team:'리포트팀',
-    hairColor:'#6b4423', cloth:'#ff5f7a',
-    agentIds:['daily-pptx'],
-    taskLabel:'일일 매출 리포트 업무', scheduleLabel:'매일 08:00', cronH:8, cronM:0,
-    role:'일일 매출 PPT 제작·업로드 전문',
-    knows:[
-      '매일 08:00 매출 PPT 생성 후 대시보드에 업로드',
-      '06:00 ERP 최신화가 끝난 뒤에 돌아야 숫자가 맞음',
-      '업로드 실패 시 조용히 넘어가지 않고 반드시 남김',
-    ],
-    quick:[
-      {label:'업무 보고', cmd:'업무 보고'},
-      {label:'전문 분야', cmd:'전문 분야'},
-    ],
-  },
-  {
-    id:'planning', name:'아이비', team:'기획팀',
-    hairColor:'#2c1810', cloth:'#e11d48',
-    agentIds:['brand-report'],
-    taskLabel:'브랜드 분석 업무', scheduleLabel:'수동 트리거', manual:true,
-    role:'8개 브랜드 리오더·핫아이템 분석 전문',
-    knows:[
-      '브랜드별 TOP10 · 리오더 후보 · 핫아이템을 묶어 리포트',
-      'Pro 브랜드와 admin 브랜드는 집계 경로가 달라 따로 봐야 함',
-      'admin v2 orders 는 세션이 살아 있어야 응답',
-    ],
-    quick:[
-      {label:'업무 보고', cmd:'업무 보고'},
-      {label:'브랜드 리포트', cmd:'브랜드 리포트'},
       {label:'전문 분야', cmd:'전문 분야'},
     ],
   },
