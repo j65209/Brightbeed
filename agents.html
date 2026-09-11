@@ -116,6 +116,9 @@
   .cell.boss .talk{background:#78350f;color:#fff8e7;border-color:#78350f}
   .cell.boss .talk:hover{background:#451a03;border-color:#451a03}
   .cell.boss::before{content:"본부장";position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:.05em;color:#78350f;background:#fef3c7;border:1px solid #a16207;padding:2px 10px;border-radius:999px;z-index:2}
+  /* boss 는 hover 시에도 반전 유지 · 이동 없음 (일반 셀의 translateY가 scaleY 를 덮어서 뒤집혔다 돌아오는 것처럼 보이던 문제) */
+  .cell.boss:hover .desk-svg{transform:scaleY(-1)}
+  .cell.boss:hover .bubble{transform:none;box-shadow:0 14px 34px -14px rgba(120,53,15,.3),0 3px 9px -3px rgba(120,53,15,.16)}
   .team-group[data-team="본부"]{background:linear-gradient(180deg,rgba(254,243,199,.35),rgba(255,255,255,0));grid-column:1/-1}
   .team-group[data-team="본부"] .team-label{border-bottom:1.5px solid #a16207}
   .team-group[data-team="본부"] .team-name{color:#78350f}
