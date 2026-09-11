@@ -2769,7 +2769,7 @@
   .wht-vendor-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(2px)}
   .wht-vendor-dialog{
     position:relative;z-index:1;
-    width:min(880px,100%);max-height:calc(100vh - 40px);
+    width:min(1080px,100%);max-height:calc(100vh - 40px);
     display:flex;flex-direction:column;
     background:var(--bg-0);border:1px solid var(--line);border-radius:14px;
     box-shadow:0 24px 60px rgba(0,0,0,.36);overflow:hidden;
@@ -2814,33 +2814,69 @@
   }
   .wht-vendor-search:focus{outline:none;border-color:var(--neon-vendor);box-shadow:0 0 0 2px rgba(79,70,229,.15)}
   .wht-vendor-body{flex:1;overflow-y:auto;padding:6px 20px 14px}
-  .wht-vendor-list{display:flex;flex-direction:column;gap:6px}
+  .wht-vendor-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:8px;
+  }
+  .wht-vendor-empty{grid-column:1/-1}
   .wht-vendor-item{
-    display:flex;flex-direction:column;gap:6px;
-    padding:12px 14px;border:1px solid var(--line-1);border-radius:10px;
-    background:var(--bg-1);transition:border-color .12s;
+    display:grid;grid-template-columns:1fr auto;gap:2px 8px;
+    padding:9px 11px;border:1px solid var(--line-1);border-radius:9px;
+    background:var(--bg-1);transition:border-color .12s;font-family:var(--sans);
+    align-content:start;
   }
   .wht-vendor-item:hover{border-color:var(--line-2)}
-  .wht-vendor-item.is-editing{border-color:var(--neon-vendor);background:var(--bg-0);box-shadow:0 0 0 2px rgba(79,70,229,.10)}
+  .wht-vendor-item.is-editing{
+    grid-column:1/-1;
+    display:flex;flex-direction:column;gap:6px;
+    border-color:var(--neon-vendor);background:var(--bg-0);box-shadow:0 0 0 2px rgba(79,70,229,.10);
+    padding:12px 14px;
+  }
   .wht-vendor-row-1{
-    display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;
+    grid-column:1;
+    display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;
+    min-width:0;
   }
-  .wht-vendor-item-name{font-family:var(--sans);font-weight:700;font-size:14px;color:var(--text-0);letter-spacing:-.1px}
-  .wht-vendor-item-meta{font-size:11px;color:var(--text-3);font-family:var(--sans);letter-spacing:-.02em}
+  .wht-vendor-item-name{
+    font-weight:700;font-size:13.5px;color:var(--text-0);letter-spacing:-.15px;
+    line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;
+  }
+  .wht-vendor-item-meta{
+    font-size:10.5px;color:var(--text-3);letter-spacing:-.02em;flex-shrink:0;
+  }
   .wht-vendor-item-info{
-    font-family:var(--sans);font-size:12px;color:var(--text-2);
-    display:flex;flex-wrap:wrap;gap:4px 12px;letter-spacing:-.05em;
+    grid-column:1/-1;
+    font-size:11.5px;color:var(--text-1);letter-spacing:-.15px;line-height:1.5;
+    margin-top:3px;
+    display:flex;flex-direction:column;gap:1px;
   }
-  .wht-vendor-info-chunk b{color:var(--text-1);font-weight:600;margin-right:4px}
+  .wht-vendor-info-chunk{
+    display:flex;gap:5px;align-items:baseline;min-width:0;
+  }
+  .wht-vendor-info-chunk b{
+    color:var(--text-3);font-weight:600;font-size:10px;letter-spacing:.02em;
+    min-width:52px;flex-shrink:0;margin:0;
+  }
+  .wht-vendor-info-chunk-val{
+    color:var(--text-0);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;
+  }
   .wht-vendor-actions{
-    display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;
+    grid-column:2;grid-row:1;
+    display:flex;gap:3px;justify-content:flex-end;align-self:start;
+  }
+  .wht-vendor-item.is-editing .wht-vendor-actions{
+    grid-column:1/-1;grid-row:auto;justify-content:flex-end;flex-wrap:wrap;margin-top:6px;
   }
   .wht-vendor-btn{
-    display:inline-flex;align-items:center;gap:4px;
-    padding:5px 10px;font-family:var(--sans);font-size:11.5px;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    padding:4px 8px;font-family:var(--sans);font-size:11.5px;font-weight:600;
     border-radius:6px;border:1px solid var(--line);background:var(--bg-0);
     color:var(--text-1);cursor:pointer;transition:all .12s;letter-spacing:-.1px;
   }
+  .wht-vendor-btn.is-icon{width:24px;height:24px;padding:0;font-size:12px}
   .wht-vendor-btn:hover{background:var(--bg-2);color:var(--text-0)}
   .wht-vendor-btn.is-danger:hover{color:#dc2626;background:rgba(220,38,38,.10);border-color:rgba(220,38,38,.3)}
   .wht-vendor-btn.is-primary{color:#fff;background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);border-color:rgba(79,70,229,.5)}
@@ -7875,7 +7911,7 @@
         </div>
         <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
           <button class="lg-tab active" data-mdp="home" onclick="mdpSwitch('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="mdpCountHome">8</span></button>
-          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">3</span></button>
+          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">5</span></button>
         </div>
         <div class="mdp-panel" data-mdp-panel="home">
           <div id="salesReportsWrap"></div>
@@ -10088,8 +10124,8 @@
     {id:'yar',  endpoint:'/admin-sales?brand=yar',  group:'식스샵',    display:'야르',       dot:'#a78bfa', hasItemAmount:false, hasOptions:false},
     {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true,  platforms:['smartstore']},
     {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
-    {id:'kop',  endpoint:'/admin-sales?brand=kop',  group:'식스샵',    display:'코페리',     dot:'#818cf8', hasItemAmount:false, hasOptions:false},
-    {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false},
+    {id:'kop',  endpoint:'/admin-sales?brand=kop',  group:'식스샵',    display:'코페리',     dot:'#818cf8', hasItemAmount:false, hasOptions:false, platforms:['ably']},
+    {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false, platforms:['ably']},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
   ];
   const _PLAT_LABEL={ably:'에이블리', smartstore:'스마트스토어', zigzag:'지그재그'};
@@ -10098,9 +10134,11 @@
   // hideUsd:true — 플랫폼 카드는 $USD 병기 생략.
   // brand: BRAND_SECTIONS id (플랫폼 탭에서 브랜드별 묶음 헤더 렌더용)
   const PLATFORM_SECTIONS=[
-    {id:'ably-6a',       brand:'6a', endpoint:'/ably-sales',       group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
-    {id:'smartstore-pp', brand:'pp', endpoint:'/smartstore-sales', group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
-    {id:'zigzag-6a',     brand:'6a', endpoint:'/zigzag-sales',     group:'지그재그',    display:'식스에이',     dot:'#ff2380', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'ably-6a',       brand:'6a',  endpoint:'/ably-sales',            group:'에이블리',    display:'식스에이',     dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
+    {id:'smartstore-pp', brand:'pp',  endpoint:'/smartstore-sales',      group:'스마트스토어', display:'프로덕트피알', dot:'#03c75a', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'zigzag-6a',     brand:'6a',  endpoint:'/zigzag-sales',          group:'지그재그',    display:'식스에이',     dot:'#ff2380', hasItemAmount:true,  hasOptions:false, hideUsd:true},
+    {id:'ably-kop',      brand:'kop', endpoint:'/ably-sales?brand=kop',  group:'에이블리',    display:'코페리',       dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
+    {id:'ably-apt',      brand:'apt', endpoint:'/ably-sales?brand=apt',  group:'에이블리',    display:'아페티',       dot:'#ff5a92', hasItemAmount:false, hasOptions:false, hideUsd:true},
   ];
   function _salesCfg(id){
     return BRAND_SECTIONS.find(b=>b.id===id) || PLATFORM_SECTIONS.find(b=>b.id===id);
@@ -20769,19 +20807,23 @@
     const bits=sc.map(f=>{
       const val=v[f];
       if(val==null||String(val).trim()==='') return '';
-      return `<span class="wht-vendor-info-chunk"><b>${WHT_VENDOR_LABELS[f]||f}</b>${_esc(val)}</span>`;
+      return `<div class="wht-vendor-info-chunk"><b>${WHT_VENDOR_LABELS[f]||f}</b><span class="wht-vendor-info-chunk-val" title="${_esc(val)}">${_esc(val)}</span></div>`;
     }).filter(Boolean).join('');
     const last=v.last_used_at?_whtFmtStamp(v.last_used_at):'';
+    const metaBits=[];
+    if(last) metaBits.push(_esc(last));
+    if(v.use_count>1) metaBits.push(_esc(String(v.use_count))+'회');
+    const meta=metaBits.join(' · ');
     return `<div class="wht-vendor-item" data-vkey="${_esc(key)}">
       <div class="wht-vendor-row-1">
-        <div class="wht-vendor-item-name">${_esc(v.name)}</div>
-        <div class="wht-vendor-item-meta">${last?'최근 '+_esc(last):''}${v.use_count>1?(last?' · ':'')+_esc(String(v.use_count))+'회':''}</div>
+        <div class="wht-vendor-item-name" title="${_esc(v.name)}">${_esc(v.name)}</div>
+        ${meta?`<div class="wht-vendor-item-meta">${meta}</div>`:''}
       </div>
-      ${bits?`<div class="wht-vendor-item-info">${bits}</div>`:'<div class="wht-vendor-item-info" style="color:var(--text-3);font-style:italic">추가 정보 없음</div>'}
       <div class="wht-vendor-actions">
-        <button type="button" class="wht-vendor-btn" onclick="whtVendorEdit('${_esc(key)}')">✏️ 수정</button>
-        <button type="button" class="wht-vendor-btn is-danger" onclick="whtVendorDelete('${_esc(key)}')">🗑 삭제</button>
+        <button type="button" class="wht-vendor-btn is-icon" onclick="whtVendorEdit('${_esc(key)}')" title="수정">✏️</button>
+        <button type="button" class="wht-vendor-btn is-icon is-danger" onclick="whtVendorDelete('${_esc(key)}')" title="삭제">🗑</button>
       </div>
+      ${bits?`<div class="wht-vendor-item-info">${bits}</div>`:'<div class="wht-vendor-item-info" style="color:var(--text-3);font-style:italic;font-size:10.5px">추가 정보 없음</div>'}
     </div>`;
   }
   function _whtFindVendorByKey(key){
