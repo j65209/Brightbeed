@@ -412,12 +412,11 @@ const CHARACTERS = [
   {
     id:'marketing', name:'자스민', team:'매출팀',
     hairColor:'#2c1810', cloth:'#65a30d',
-    agentIds:['pro-sales','admin-sales','platform-sales','brand-report','daily-pptx'],
-    taskLabel:'매출 수집·분석·리포트 업무', scheduleLabel:'매 30분 · 매일 08:00', intervalSec:1800,
+    agentIds:['pro-sales','admin-sales','platform-sales','brand-report'],
+    taskLabel:'매출 수집·분석·리포트 업무', scheduleLabel:'매 30분', intervalSec:1800,
     role:'전 브랜드·전 채널 매출 데이터 총괄',
     knows:[
       '식스샵프로(Pro) · 식스샵 admin · 외부 플랫폼(에이블리·지그재그·스마트스토어) 매출 30분 주기 수집',
-      '매일 08:00 매출 PPT 생성 후 대시보드에 업로드 (06:00 ERP 최신화 후)',
       '브랜드별 TOP10·리오더·핫아이템 리포트 (admin v2 orders 는 세션 살아있어야 응답)',
       'Pro item/top 은 자사몰만 집계 — 외부채널은 별도 플랫폼 데이터로 커버',
     ],
