@@ -106,10 +106,17 @@
   }
   .team-desks{display:flex;flex-direction:column;gap:10px;align-items:center}
 
-  /* 본부장 (리안) — 팀 최상단 임원 책상 · 골드 톤 강조 (모바일 스타일로 컴팩트) */
-  .cell.boss{align-self:center;position:relative;padding:14px 6px 4px;width:100%;max-width:320px}
-  .cell.boss .desk-svg{max-width:200px;margin:0 auto;display:block;filter:drop-shadow(0 12px 18px rgba(120,53,15,.2))}
-  .cell.boss.running .bubble,.cell.boss .bubble{max-width:280px;margin:0 auto 6px;background:linear-gradient(180deg,#fef3c7 0%,var(--bg-1) 55%);border:1.5px solid #a16207;padding:8px 10px 10px;box-shadow:0 10px 24px -12px rgba(120,53,15,.28),0 2px 6px -2px rgba(120,53,15,.14)}
+  /* 본부장 (리안) — 팀 최상단 임원 책상 · 골드 톤 · 위에서 팀원을 내려다보는 자세 */
+  .cell.boss{align-self:center;position:relative;padding:14px 6px 4px;width:100%;max-width:340px}
+  /* SVG 전체를 세로 반전 → 캐릭터가 위, 책상이 아래로 (팀원들을 마주 봄).
+     screen-content 는 다시 반전으로 상쇄해 코드 텍스트만 정상 방향. */
+  .cell.boss .desk-svg{max-width:220px;margin:0 auto;display:block;transform:scaleY(-1);filter:drop-shadow(0 -12px 18px rgba(120,53,15,.22))}
+  .cell.boss .desk-svg .screen-content{transform:scaleY(-1);transform-origin:100px 39px;transform-box:view-box}
+  .cell.boss .desk-svg .screen{fill:#1a2332}
+  .cell.boss.running .desk-svg .screen{fill:#0f172a}
+  /* 리안이 다른 팀원 마주보는 자세니 hover 시에도 반전 유지, 이동은 해제 */
+  .cell.boss:hover .desk-svg{transform:scaleY(-1)}
+  .cell.boss.running .bubble,.cell.boss .bubble{max-width:290px;margin:0 auto 6px;background:linear-gradient(180deg,#fef3c7 0%,var(--bg-1) 55%);border:1.5px solid #a16207;padding:8px 10px 10px;box-shadow:0 10px 24px -12px rgba(120,53,15,.28),0 2px 6px -2px rgba(120,53,15,.14)}
   .cell.boss .bubble .name{font-size:12.5px;color:#451a03}
   .cell.boss .bubble .name::before{content:"👑 ";margin-right:1px}
   .cell.boss .bubble .task{font-size:11px;color:var(--text-0);font-weight:600}
