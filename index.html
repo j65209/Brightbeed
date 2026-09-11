@@ -9302,6 +9302,7 @@
      숫자는 agents.html 의 CHARACTERS 기준(사람=책상 단위)과 일치시킨다 — raw launchd job 수가 아니라
      "책상 5개 중 몇 명 근무 중" 관점. 미루(재고팀)는 alwaysOn 이라 항상 근무 카운트. */
   const AGENTS_CHARACTERS = [
+    {id:'chief',     name:'리안',   team:'본부',     taskLabel:'전 팀 총괄 · 이슈 대응',   schedule:'상시 대응',     agentIds:['kd-brightbeed','kd-shinebeed','vendor-fetch','pro-sales','admin-sales','platform-sales','brand-report','fb-ads']},
     {id:'logistics', name:'콜리',   team:'물류팀',   taskLabel:'콰이디에어 동기화',        schedule:'매 10분',       agentIds:['kd-brightbeed','kd-shinebeed']},
     {id:'stock',     name:'미루',   team:'재고팀',   taskLabel:'식스샵 재고 관리',         schedule:'상시 대응',     agentIds:[], alwaysOn:true},
     {id:'vendor',    name:'노아',   team:'벤더팀',   taskLabel:'벤더 마진 시트 수집',      schedule:'매 10분',       agentIds:['vendor-fetch']},
