@@ -2260,8 +2260,8 @@
   }
   .md-cal-cell{
     background:var(--bg-1);
-    min-height:94px;padding:4px 0 5px;
-    display:flex;flex-direction:column;gap:2px;
+    min-height:128px;padding:5px 0 7px;
+    display:flex;flex-direction:column;gap:3px;
     cursor:pointer;transition:background .12s;
     border-right:1px solid var(--line);border-bottom:1px solid var(--line);
     position:relative;
@@ -2271,20 +2271,20 @@
   .md-cal-cell.is-out:hover{background:#eee7d2}
   .md-cal-cell.is-today{box-shadow:inset 0 0 0 1.5px rgba(225,29,72,.55)}
   .md-cal-daynum{
-    font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text-1);
-    letter-spacing:.02em;padding:0 6px;height:18px;line-height:18px;
+    font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text-1);
+    letter-spacing:.02em;padding:0 7px;height:20px;line-height:20px;
   }
   .md-cal-cell.is-out .md-cal-daynum{opacity:.4}
   .md-cal-cell.is-sun .md-cal-daynum{color:#e11d48}
   .md-cal-cell.is-sat .md-cal-daynum{color:#6ab7ff}
   .md-cal-cell.is-today .md-cal-daynum{color:#e11d48;font-weight:700}
   .md-cal-events{display:flex;flex-direction:column;gap:2px;padding:0 1px;overflow:hidden}
-  .md-cal-event-ph{height:16px;flex-shrink:0}
+  .md-cal-event-ph{height:20px;flex-shrink:0}
   .md-cal-event{
     --evcolor:#e11d48;
     display:block;width:calc(100% + 2px);margin:0 -1px;flex-shrink:0;
-    height:16px;line-height:16px;padding:0 6px;
-    font-size:10.5px;font-weight:500;letter-spacing:.01em;
+    height:20px;line-height:20px;padding:0 7px;
+    font-size:12px;font-weight:500;letter-spacing:0;
     background:color-mix(in srgb, var(--evcolor) 26%, transparent);
     color:var(--evcolor);
     border:none;cursor:pointer;
@@ -2339,6 +2339,79 @@
   .md-cal-hint{
     margin-top:10px;font-size:11px;color:var(--text-3);font-family:var(--mono);
     letter-spacing:.02em;text-align:right;
+  }
+
+  /* ===== MD 기획전 필터 (브랜드/플랫폼) ===== */
+  .md-cal-filters{
+    display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;
+    padding:10px 2px 12px;margin-bottom:8px;
+    border-bottom:1px dashed var(--line);
+  }
+  .md-cal-filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .md-cal-filter-glabel{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-3);
+    font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  }
+  .md-cal-filter-pills{display:flex;gap:5px;flex-wrap:wrap}
+  .md-cal-filter-pill{
+    --pillcolor:#94a3b8;
+    display:inline-flex;align-items:center;gap:5px;
+    height:24px;padding:0 10px;
+    font-family:var(--sans);font-size:11.5px;font-weight:500;
+    background:var(--bg-1);color:var(--text-3);
+    border:1px solid var(--line);border-radius:12px;
+    cursor:pointer;transition:all .12s;user-select:none;
+    line-height:1;
+  }
+  .md-cal-filter-pill:hover{border-color:var(--line-2);color:var(--text-1)}
+  .md-cal-filter-pill.is-active{
+    background:color-mix(in srgb, var(--pillcolor) 14%, var(--bg-1));
+    border-color:color-mix(in srgb, var(--pillcolor) 55%, transparent);
+    color:color-mix(in srgb, var(--pillcolor) 85%, var(--text-0));
+    font-weight:600;
+  }
+  .md-cal-filter-pill-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--pillcolor);
+    box-shadow:0 0 0 1px rgba(0,0,0,.03);
+    flex-shrink:0;
+  }
+  .md-cal-filter-pill:not(.is-active) .md-cal-filter-pill-dot{opacity:.5}
+  .md-cal-filter-reset{
+    font-family:var(--mono);font-size:11px;color:var(--text-3);
+    background:transparent;border:none;cursor:pointer;padding:2px 6px;
+    text-decoration:underline;text-underline-offset:2px;
+    margin-left:auto;
+  }
+  .md-cal-filter-reset:hover{color:var(--text-1)}
+  @media(max-width:600px){
+    .md-cal-filters{gap:8px 10px;padding:8px 2px 10px}
+    .md-cal-filter-pill{height:22px;font-size:10.5px;padding:0 8px}
+    .md-cal-filter-glabel{font-size:9.5px}
+    .md-cal-filter-reset{margin-left:0}
+  }
+
+  /* 모달용 브랜드/플랫폼 pill — filter pill 스타일 재활용, 라벨 없이 wrap만 다르게 */
+  .md-event-tag-wrap{
+    display:flex;flex-wrap:wrap;gap:5px;padding:2px 0;
+  }
+
+  /* 툴팁 브랜드/플랫폼 태그 */
+  .md-cal-tooltip-tags{
+    margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;
+  }
+  .md-cal-tooltip-tag{
+    display:inline-flex;align-items:center;gap:4px;
+    height:18px;padding:0 7px;
+    font-family:var(--sans);font-size:10.5px;font-weight:500;line-height:1;
+    background:color-mix(in srgb, var(--pillcolor,#94a3b8) 18%, var(--bg-1));
+    color:color-mix(in srgb, var(--pillcolor,#94a3b8) 85%, var(--text-0));
+    border:1px solid color-mix(in srgb, var(--pillcolor,#94a3b8) 45%, transparent);
+    border-radius:9px;
+  }
+  .md-cal-tooltip-tag-dot{
+    width:5px;height:5px;border-radius:50%;
+    background:var(--pillcolor,#94a3b8);
   }
 
   /* 공구 캘린더 (벤더팀) — 인디고 이벤트 칩 + 인라인 상태 */
@@ -5568,6 +5641,32 @@
   .dcs.dcs-active .dcs-stat-dot{background:#eab308;box-shadow:0 0 0 3px rgba(234,179,8,.15)}
   .dcs.dcs-complete .dcs-stat{background:#dcfce7;color:#14532d}
   .dcs.dcs-complete .dcs-stat-dot{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+  .dcs-head-right{display:inline-flex;align-items:center;gap:6px}
+  .dcs-hide-diary{
+    display:inline-flex;align-items:center;gap:3px;
+    font-size:10.5px;color:#7f1d1d;background:#fef2f2;border:1px solid #fecaca;
+    padding:3px 7px;border-radius:999px;font-weight:600;cursor:pointer;letter-spacing:-.01em;
+    transition:background .12s ease;
+  }
+  .dcs-hide-diary:hover{background:#fee2e2}
+  /* 업무일지 숨김 명단 패널 (마스터 전용, 있을 때만 표시) */
+  .diary-hidden-panel{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    padding:10px 14px;margin:0 0 14px;
+    background:#fefbf3;border:1px dashed #e7e2ce;border-radius:12px;
+    font-size:12.5px;color:#57534e;letter-spacing:-.01em;
+  }
+  .diary-hidden-panel-title{font-weight:700;color:#292524;letter-spacing:-.02em}
+  .diary-hidden-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px 4px 12px;border-radius:999px;
+    background:#fff;border:1px solid #e7e2ce;font-weight:600;color:#44403c;
+  }
+  .diary-hidden-chip button{
+    border:none;background:transparent;color:#78350f;cursor:pointer;
+    font-size:11px;font-weight:700;padding:0 2px;letter-spacing:-.01em;
+  }
+  .diary-hidden-chip button:hover{color:#7c2d12}
 
   /* 카드 내부 섹션 */
   .dcs-sec{display:flex;flex-direction:column;gap:8px}
@@ -7714,6 +7813,9 @@
       <div class="diary-alert-list" id="diaryAlertList"></div>
     </div>
 
+    <!-- 업무일지 숨김 명단 (master 전용, 있을 때만 표시) -->
+    <div class="diary-hidden-panel master-only" id="diaryHiddenPanel" hidden></div>
+
     <!-- 전 직원 카드 그리드 -->
     <div class="diary-board" id="diaryBoard"></div>
   </div><!-- /viewDiary -->
@@ -8063,6 +8165,17 @@
           </div>
         </div>
         <div class="md-cal-body">
+          <div class="md-cal-filters">
+            <div class="md-cal-filter-group">
+              <span class="md-cal-filter-glabel">브랜드</span>
+              <div class="md-cal-filter-pills" id="mdCalFilterBrands"></div>
+            </div>
+            <div class="md-cal-filter-group">
+              <span class="md-cal-filter-glabel">플랫폼</span>
+              <div class="md-cal-filter-pills" id="mdCalFilterPlatforms"></div>
+            </div>
+            <button type="button" class="md-cal-filter-reset" onclick="mdCalResetFilters()">전체 보기</button>
+          </div>
           <div class="md-cal-weekdays">
             <div class="md-cal-wd md-cal-sun">일</div>
             <div class="md-cal-wd">월</div>
@@ -9342,6 +9455,14 @@
         <label class="md-event-label">종료</label>
         <input class="modal-input md-event-input" id="mdEventEnd" type="date">
       </div>
+    </div>
+    <div class="md-event-field">
+      <label class="md-event-label">브랜드 <span style="color:var(--text-3);font-family:var(--sans);font-size:10px;text-transform:none;letter-spacing:0;margin-left:4px">복수 선택 · 미선택 = 전체</span></label>
+      <div class="md-event-tag-wrap" id="mdEventBrandPills"></div>
+    </div>
+    <div class="md-event-field">
+      <label class="md-event-label">플랫폼 <span style="color:var(--text-3);font-family:var(--sans);font-size:10px;text-transform:none;letter-spacing:0;margin-left:4px">복수 선택 · 미선택 = 전체</span></label>
+      <div class="md-event-tag-wrap" id="mdEventPlatformPills"></div>
     </div>
     <div class="md-event-field">
       <label class="md-event-label">색상</label>
@@ -10635,6 +10756,8 @@
     const role=getRole();
     document.body.classList.toggle('role-master',role==='master');
     document.body.classList.toggle('role-viewer',role!=='master');
+    // 마스터 ↔ 뷰어 전환 시 홈의 업무일지 카드 노출 재판정
+    if(typeof _diaryApplyHomeVisibility==='function') _diaryApplyHomeVisibility();
   }
   function requireMaster(action){
     if(!isMaster()){toast(`마스터 권한이 필요합니다${action?` (${action})`:''}`,'err');return false}
@@ -10657,6 +10780,11 @@
     if(typeof _startSysHealthPolling==='function') _startSysHealthPolling();
     // 업무일지 원격 sync 시작 (첫 pull + 15초 주기)
     if(typeof startDiarySync==='function') startDiarySync();
+    // 업무일지 숨김 명단 로드 → 홈 카드 즉시 반영, 이후 30초 주기 재동기화
+    if(typeof syncDiaryHiddenFromRemote==='function'){
+      syncDiaryHiddenFromRemote().finally(()=>{ if(typeof _diaryApplyHomeVisibility==='function') _diaryApplyHomeVisibility(); });
+      setInterval(()=>syncDiaryHiddenFromRemote().catch(()=>{}), 30000);
+    }
     // 에이전트 오피스 실시간 인원 표시 (홈 카드)
     if(typeof loadAgentsMini==='function'){ loadAgentsMini(); setInterval(loadAgentsMini, 30000); }
   }
@@ -11056,7 +11184,17 @@
   }
 
   function triggerHR(){ showView('viewHr'); if(typeof autoArchiveCycles==='function') autoArchiveCycles(); }
-  function triggerDiary(){ showView('viewDiary'); }
+  function triggerDiary(){
+    // 마스터가 아니고 로그인된 이름이 업무일지 숨김 명단에 있으면 진입 차단
+    if((typeof isMaster!=='function' || !isMaster())){
+      const me=(typeof _diaryGetMe==='function') ? _diaryGetMe() : '';
+      if(me && typeof isDiaryHidden==='function' && isDiaryHidden(me)){
+        toast(`업무일지 사용이 해제된 계정입니다 (${me})`,'err');
+        return;
+      }
+    }
+    showView('viewDiary');
+  }
   function triggerLogistics(brand){
     window._kdBrand = (brand === 'shinebeed') ? 'shinebeed' : 'brightbeed';
     _kdLastHash = ''; // 브랜드 스위치 시 dedup 캐시 초기화 → 강제 재렌더
@@ -12901,6 +13039,7 @@
       const nameEl = document.getElementById('diaryMeName');
       if(nameEl){ nameEl.textContent = name; }
       if(typeof whtRefreshAccess==='function') whtRefreshAccess();
+      if(typeof _diaryApplyHomeVisibility==='function') _diaryApplyHomeVisibility();
       toast(`${name}님으로 로그인되었습니다`, 'ok');
     };
   }
@@ -13034,8 +13173,11 @@
     // 렌더 진입 시 지난 주/달 계획 자동 정리
     _diaryPurgeStale();
 
+    // 업무일지 숨김 명단 패널 (master 전용, 있을 때만)
+    _diaryRenderHiddenPanel();
+
     // 전체 데이터 로드: 요청은 직원 단위(이월), 할일은 선택된 날짜 것만
-    // 퇴사(숨김) 처리된 직원은 카드도 알림도 만들지 않는다.
+    // 퇴사(숨김)·업무일지 숨김 처리된 직원은 카드도 알림도 만들지 않는다.
     _diaryEntries = {};
     const all = loadDiaryAll();
     const visible = _diaryVisibleStaff();
@@ -13072,7 +13214,15 @@
      activeStaff()는 대표(ceo)까지 걸러내지만 업무일지 보드에는 대표 카드도 그대로 보여야 하므로 별도로 둔다.
      staff_hidden 이 아직 로드되기 전이면(초기 진입) _hiddenStaff.size === 0 이라 자연스럽게 전원 표시. */
   function _diaryVisibleStaff(){
-    return STAFF.filter(st => !(typeof isStaffHidden === 'function' && isStaffHidden(st.name)));
+    return STAFF.filter(st => {
+      if(typeof isStaffHidden === 'function' && isStaffHidden(st.name)) return false;
+      if(typeof isDiaryHidden === 'function' && isDiaryHidden(st.name)) return false;
+      return true;
+    });
+  }
+  /* 마스터용 — 업무일지에서 숨긴 직원 명단 (STAFF 원본 순서 유지) */
+  function _diaryHiddenList(){
+    return STAFF.filter(st => isDiaryHidden(st.name) && !isStaffHidden(st.name));
   }
 
   /* 업무일지 카드 정렬 — 팀별 우선순위:
@@ -13118,6 +13268,20 @@
     return null;
   }
 
+  /* 업무일지 숨김 명단 패널 — 마스터 전용, 숨긴 사람이 있을 때만 표시 */
+  function _diaryRenderHiddenPanel(){
+    const panel=document.getElementById('diaryHiddenPanel');
+    if(!panel) return;
+    const list=_diaryHiddenList();
+    if(!list.length){ panel.hidden=true; panel.innerHTML=''; return; }
+    panel.hidden=false;
+    const chips=list.map(st=>{
+      const n=_esc(st.name);
+      return `<span class="diary-hidden-chip">${n}<button type="button" onclick="restoreStaffDiary('${n}')" title="업무일지 복원">복원</button></span>`;
+    }).join('');
+    panel.innerHTML=`<span class="diary-hidden-panel-title">🙈 업무일지 숨김</span>${chips}`;
+  }
+
   function _diaryBuildStaffCard(st){
     const name = st.name;
     const entry = _diaryEntries[name];
@@ -13136,7 +13300,10 @@
           <div class="dcs-name">${_esc(name)}</div>
           <div class="dcs-team">${_esc(teamLabel)}</div>
         </div>
-        <div class="dcs-stat"><span class="dcs-stat-dot"></span><span data-stat></span></div>
+        <div class="dcs-head-right">
+          <button class="dcs-hide-diary master-only" type="button" title="이 직원의 업무일지를 숨깁니다 (마스터 전용)" data-hide-diary>일지 숨김</button>
+          <div class="dcs-stat"><span class="dcs-stat-dot"></span><span data-stat></span></div>
+        </div>
       </header>
 
       <section class="dcs-sec dcs-sec-weekly">
@@ -13201,6 +13368,8 @@
     _diaryCardUpdateStat(card, st);
 
     // 이벤트 바인딩
+    const hideBtn = card.querySelector('[data-hide-diary]');
+    if(hideBtn) hideBtn.onclick = ()=> hideStaffDiary(name);
     card.querySelector('[data-add="weekly"]').onclick = ()=>{
       entry.weekly.push({id:_diaryUid(), text:'', createdAt:_diaryTodayStr()});
       _diaryCardRenderPlan(card, st, 'weekly', true);
@@ -16197,6 +16366,12 @@
   window.activeStaff=activeStaff;
   window.isStaffHidden=isStaffHidden;
 
+  /* 업무일지만 숨김(작성 안 하는 직원) — 재직 중이지만 업무일지 카드/버튼/뷰 접근을 차단.
+     staff_diary_hidden 테이블에서 동기화. 연차·조직도에는 그대로 남음. 마스터가 토글. */
+  const _diaryHiddenStaff=new Set();
+  function isDiaryHidden(name){return _diaryHiddenStaff.has(name)}
+  window.isDiaryHidden=isDiaryHidden;
+
   function _sbHeaders(extra){
     return Object.assign({
       'apikey': SUPABASE_KEY,
@@ -16366,6 +16541,51 @@
       return {ok:r.ok};
     }catch(e){return {ok:false}}
   }
+
+  /* 업무일지 숨김 — staff_diary_hidden 테이블 upsert/delete/fetch */
+  async function sbInsertStaffDiaryHidden(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_diary_hidden?on_conflict=staff_name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify({staff_name})
+      });
+      return r.ok?{ok:true}:{ok:false,reason:`http_${r.status}`};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+  async function sbDeleteStaffDiaryHidden(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_diary_hidden?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
+    }catch(e){return {ok:false}}
+  }
+  async function sbFetchStaffDiaryHidden(){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_diary_hidden?select=staff_name`,{headers:_sbHeaders(),cache:'no-cache'});
+      if(!r.ok) return null;
+      const rows=await r.json();
+      return (rows||[]).map(x=>x?.staff_name).filter(Boolean);
+    }catch(e){return null}
+  }
+  async function syncDiaryHiddenFromRemote(){
+    const names=await sbFetchStaffDiaryHidden();
+    if(!Array.isArray(names)) return false;
+    const before=[..._diaryHiddenStaff].sort().join('|');
+    _diaryHiddenStaff.clear();
+    for(const n of names) _diaryHiddenStaff.add(n);
+    const after=[..._diaryHiddenStaff].sort().join('|');
+    if(before!==after){
+      // 변경 감지 → 홈 카드 · 다이어리 보드 즉시 반영
+      _diaryApplyHomeVisibility();
+      if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function' && !_diaryIsEditing()){
+        _diaryRenderBoard();
+      }
+    }
+    return true;
+  }
+  window.syncDiaryHiddenFromRemote=syncDiaryHiddenFromRemote;
 
   /* 신규 입사자 append 목록 — staff_added 테이블 (마스터 전용 등록) */
   async function sbFetchStaffAdded(){
@@ -16555,6 +16775,51 @@
     toast(`✓ ${name}님을 복원했습니다`,'ok');
   }
   window.restoreStaffMember=restoreStaffMember;
+
+  /* 업무일지 숨김 · 복원 — master 전용.
+     · 업무일지 카드/버튼/뷰 접근을 해당 이름에서 차단 (연차·조직도엔 그대로 남음).
+     · 동일 이름이 다른 PC 에서도 즉시 반영. */
+  async function hideStaffDiary(name){
+    if(!name) return;
+    if(!requireMaster('업무일지 숨김')) return;
+    const ok=confirm(`'${name}'님을 업무일지에서 숨길까요?\n\n· 업무일지 카드가 사라지고, 이 이름으로 로그인한 PC 는 홈에서 업무일지 버튼도, 뷰 접근도 막힙니다.\n· 조직도·연차 현황엔 그대로 남습니다.\n· 언제든 마스터가 복원할 수 있고, 기존 기록도 보존됩니다.`);
+    if(!ok) return;
+    const r=await sbInsertStaffDiaryHidden(name);
+    if(!r.ok){ toast(`숨김 실패 (${r.reason||'?'})`,'err'); return; }
+    _diaryHiddenStaff.add(name);
+    _diaryApplyHomeVisibility();
+    if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
+      _diaryRenderBoard();
+    }
+    toast(`✓ ${name}님을 업무일지에서 숨겼습니다`,'ok');
+  }
+  async function restoreStaffDiary(name){
+    if(!name) return;
+    if(!requireMaster('업무일지 복원')) return;
+    const r=await sbDeleteStaffDiaryHidden(name);
+    if(!r.ok){ toast('복원 실패','err'); return; }
+    _diaryHiddenStaff.delete(name);
+    _diaryApplyHomeVisibility();
+    if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
+      _diaryRenderBoard();
+    }
+    toast(`✓ ${name}님 업무일지를 복원했습니다`,'ok');
+  }
+  window.hideStaffDiary=hideStaffDiary;
+  window.restoreStaffDiary=restoreStaffDiary;
+
+  /* 홈의 "업무일지" 버튼과 알림 배지 — 현재 PC 주인이 숨김 명단에 있으면 숨긴다.
+     마스터 계정은 항상 보이게 (관리 목적). */
+  function _diaryApplyHomeVisibility(){
+    const btn=document.getElementById('diaryBtn');
+    if(!btn) return;
+    const wrap=btn.closest('.hero-diary') || btn.parentElement;
+    const me=(typeof _diaryGetMe==='function') ? _diaryGetMe() : '';
+    const master=(typeof isMaster==='function') && isMaster();
+    const hide = !master && me && isDiaryHidden(me);
+    if(wrap) wrap.style.display = hide ? 'none' : '';
+  }
+  window._diaryApplyHomeVisibility=_diaryApplyHomeVisibility;
 
   /* 숨긴 직원 복원 패널 — leave-grid 아래에 chip 형태로 표시 */
   function renderHiddenStaffPanel(){
@@ -18401,6 +18666,34 @@
     {key:'slate',   hex:'#94a3b8', label:'그레이'},
   ];
 
+  // 기획전 필터/모달용 브랜드 · 플랫폼 정의
+  const MD_BRANDS=[
+    {key:'6a',   label:'식스에이',      color:'#22d3ee'},
+    {key:'ct',   label:'클리어타입',    color:'#22c55e'},
+    {key:'yar',  label:'야르',          color:'#a78bfa'},
+    {key:'pp',   label:'프로덕트피알',  color:'#f59e0b'},
+    {key:'akoi', label:'아코이하우스',  color:'#f472b6'},
+    {key:'kop',  label:'코페리',        color:'#818cf8'},
+    {key:'apt',  label:'아페티',        color:'#fb7185'},
+    {key:'koz',  label:'코즈미',        color:'#14b8a6'},
+  ];
+  const MD_PLATFORMS=[
+    {key:'own',        label:'자사몰',       color:'#0ea5e9'},
+    {key:'ably',       label:'에이블리',     color:'#ff5a92'},
+    {key:'smartstore', label:'스마트스토어', color:'#03c75a'},
+    {key:'zigzag',     label:'지그재그',     color:'#ff2380'},
+  ];
+  const _mdBrandMap=Object.fromEntries(MD_BRANDS.map(b=>[b.key,b]));
+  const _mdPlatMap=Object.fromEntries(MD_PLATFORMS.map(p=>[p.key,p]));
+
+  // 필터 상태 — 초기값: 모든 pill 활성 (=전체 표시)
+  const _mdFilterBrands=new Set(MD_BRANDS.map(b=>b.key));
+  const _mdFilterPlats=new Set(MD_PLATFORMS.map(p=>p.key));
+
+  // 모달 pill 상태 (열 때마다 초기화)
+  const _mdModalBrands=new Set();
+  const _mdModalPlats=new Set();
+
   const _mdToday=new Date();
   let _mdCal={year:_mdToday.getFullYear(), month:_mdToday.getMonth(), events:[]};
   let _mdCal_lastHash=null;
@@ -18469,6 +18762,56 @@
     renderMdCal();
   }
 
+  /* ===== 필터 pill 렌더 & 리셋 ===== */
+  function _mdRenderPillList(wrapId, defs, stateSet, onToggle){
+    const wrap=document.getElementById(wrapId);
+    if(!wrap) return;
+    wrap.innerHTML='';
+    defs.forEach(d=>{
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='md-cal-filter-pill' + (stateSet.has(d.key)?' is-active':'');
+      btn.style.setProperty('--pillcolor', d.color);
+      const dot=document.createElement('span');
+      dot.className='md-cal-filter-pill-dot';
+      btn.appendChild(dot);
+      btn.appendChild(document.createTextNode(d.label));
+      btn.addEventListener('click',()=>{
+        if(stateSet.has(d.key)) stateSet.delete(d.key);
+        else stateSet.add(d.key);
+        onToggle();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+  function renderMdCalFilters(){
+    _mdRenderPillList('mdCalFilterBrands', MD_BRANDS, _mdFilterBrands, ()=>{renderMdCalFilters(); renderMdCal();});
+    _mdRenderPillList('mdCalFilterPlatforms', MD_PLATFORMS, _mdFilterPlats, ()=>{renderMdCalFilters(); renderMdCal();});
+  }
+  function mdCalResetFilters(){
+    _mdFilterBrands.clear(); MD_BRANDS.forEach(b=>_mdFilterBrands.add(b.key));
+    _mdFilterPlats.clear();  MD_PLATFORMS.forEach(p=>_mdFilterPlats.add(p.key));
+    renderMdCalFilters();
+    renderMdCal();
+  }
+  window.mdCalResetFilters=mdCalResetFilters;
+
+  // 이벤트가 현재 필터를 통과하는가?
+  // - brand/platform 필드 없음(레거시) → 필터와 무관하게 표시
+  // - 있음 → 활성 pill 중 하나라도 매치되어야 표시
+  function _mdEventPassesFilter(ev){
+    const b=Array.isArray(ev.brands)?ev.brands:[];
+    const p=Array.isArray(ev.platforms)?ev.platforms:[];
+    if(b.length>0 && !b.some(x=>_mdFilterBrands.has(x))) return false;
+    if(p.length>0 && !p.some(x=>_mdFilterPlats.has(x))) return false;
+    return true;
+  }
+
+  function _mdRenderModalPills(){
+    _mdRenderPillList('mdEventBrandPills',    MD_BRANDS,    _mdModalBrands, _mdRenderModalPills);
+    _mdRenderPillList('mdEventPlatformPills', MD_PLATFORMS, _mdModalPlats,  _mdRenderModalPills);
+  }
+
   function mdCalNavPrev(){
     _mdCal.month--;
     if(_mdCal.month<0){_mdCal.month=11; _mdCal.year--;}
@@ -18489,6 +18832,10 @@
   function renderMdCal(){
     const grid=document.getElementById('mdCalGrid');
     if(!grid) return;
+    // 필터 pill이 아직 렌더되지 않았으면 함께 그림 (첫 진입/재렌더 대응)
+    if(document.getElementById('mdCalFilterBrands') && !document.getElementById('mdCalFilterBrands').firstChild){
+      renderMdCalFilters();
+    }
     const label=document.getElementById('mdCalMonthLabel');
     if(label) label.textContent=`${_mdCal.year}.${String(_mdCal.month+1).padStart(2,'0')}`;
 
@@ -18520,6 +18867,7 @@
 
       const weekEvs=(_mdCal.events||[]).filter(ev=>{
         if(!ev.start) return false;
+        if(!_mdEventPassesFilter(ev)) return false;
         const e=ev.end || ev.start;
         return ev.start<=weekEndIso && e>=weekStartIso;
       });
@@ -18704,6 +19052,25 @@
     dateEl.className='md-cal-tooltip-date';
     dateEl.textContent=rangeStr;
     tip.appendChild(dateEl);
+    const tagsWrap=document.createElement('div');
+    tagsWrap.className='md-cal-tooltip-tags';
+    const _mkTag=(def)=>{
+      const t=document.createElement('span');
+      t.className='md-cal-tooltip-tag';
+      t.style.setProperty('--pillcolor', def.color);
+      const d=document.createElement('span');
+      d.className='md-cal-tooltip-tag-dot';
+      t.appendChild(d);
+      t.appendChild(document.createTextNode(def.label));
+      return t;
+    };
+    (Array.isArray(ev.brands)?ev.brands:[]).forEach(b=>{
+      const m=_mdBrandMap[b]; if(m) tagsWrap.appendChild(_mkTag(m));
+    });
+    (Array.isArray(ev.platforms)?ev.platforms:[]).forEach(p=>{
+      const m=_mdPlatMap[p]; if(m) tagsWrap.appendChild(_mkTag(m));
+    });
+    if(tagsWrap.childElementCount>0) tip.appendChild(tagsWrap);
     if(ev.memo){
       const memoEl=document.createElement('div');
       memoEl.className='md-cal-tooltip-memo';
@@ -18757,6 +19124,9 @@
     document.getElementById('mdEventMemo').value='';
     _mdCal_pickedColor='rose';
     _mdRenderColorPicker();
+    _mdModalBrands.clear();
+    _mdModalPlats.clear();
+    _mdRenderModalPills();
     document.getElementById('mdEventDeleteBtn').style.display='none';
     document.getElementById('mdEventModal').classList.add('show');
     setTimeout(()=>document.getElementById('mdEventTitle').focus(), 60);
@@ -18773,6 +19143,11 @@
     document.getElementById('mdEventMemo').value=ev.memo||'';
     _mdCal_pickedColor=ev.color || 'rose';
     _mdRenderColorPicker();
+    _mdModalBrands.clear();
+    (Array.isArray(ev.brands)?ev.brands:[]).forEach(b=>{ if(_mdBrandMap[b]) _mdModalBrands.add(b); });
+    _mdModalPlats.clear();
+    (Array.isArray(ev.platforms)?ev.platforms:[]).forEach(p=>{ if(_mdPlatMap[p]) _mdModalPlats.add(p); });
+    _mdRenderModalPills();
     document.getElementById('mdEventDeleteBtn').style.display='';
     document.getElementById('mdEventModal').classList.add('show');
     setTimeout(()=>document.getElementById('mdEventTitle').focus(), 60);
@@ -18793,14 +19168,16 @@
     if(end<start) end=start;
     if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
 
+    const brands=Array.from(_mdModalBrands);
+    const platforms=Array.from(_mdModalPlats);
     const events=(_mdCal.events||[]).slice();
     if(_mdCal_editingId){
       const i=events.findIndex(e=>e.id===_mdCal_editingId);
-      if(i>=0) events[i]={...events[i], title, start, end, memo, color:_mdCal_pickedColor, updatedAt:Date.now()};
+      if(i>=0) events[i]={...events[i], title, start, end, memo, color:_mdCal_pickedColor, brands, platforms, updatedAt:Date.now()};
     }else{
       events.push({
         id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
-        title, start, end, memo, color:_mdCal_pickedColor,
+        title, start, end, memo, color:_mdCal_pickedColor, brands, platforms,
         createdAt:Date.now(), updatedAt:Date.now()
       });
     }
