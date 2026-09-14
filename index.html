@@ -5411,6 +5411,11 @@
     font-variant-numeric:tabular-nums;letter-spacing:-.01em;font-weight:600;
   }
   .diary-save-tag::before{content:'';width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+  .diary-save-tag[data-state="saving"]{color:#78350f;background:#fef3c7}
+  .diary-save-tag[data-state="saving"]::before{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.18);animation:diarySaveBlink .9s ease-in-out infinite}
+  .diary-save-tag[data-state="pending"]{color:#7f1d1d;background:#fee2e2;border-color:#fca5a5}
+  .diary-save-tag[data-state="pending"]::before{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18);animation:diarySaveBlink .9s ease-in-out infinite}
+  @keyframes diarySaveBlink{0%,100%{opacity:1}50%{opacity:.25}}
   .diary-date-nav{display:inline-flex;align-items:center;gap:4px;padding:3px;border:1px solid #d5cfb8;border-radius:9px;background:#fff}
   .diary-nav-btn{
     width:26px;height:26px;border-radius:6px;border:none;
@@ -11784,6 +11789,12 @@
   let _diary_lastEditTs = 0;          // 마지막 편집 시각 (ms) — 편집 중이면 pull 스킵
   let _diaryPushTimer = null;
   let _diaryPullTimer = null;
+  let _diaryPushing = false;          // push in-flight — 중복 PUT 방지
+  let _diaryPushAgain = false;        // in-flight 중 들어온 편집 → 끝나고 한 번 더
+  let _diary_lastPushTs = 0;          // 마지막 push 시작 시각 — leading edge 판정
+  let _diaryPushFailStreak = 0;       // 연속 실패 횟수 (백오프 재시도용)
+  let _diarySyncDeferred = false;     // 편집 중이라 미룬 pull — blur 시 실행
+  const _diaryEditSeq = {};           // 이름별 편집 시퀀스 — push 중에 들어온 편집 구분용
   /* 팀원별 카드 accent color — 파스텔톤, 폰트 잘 보이게 */
   const DIARY_COLORS = {
     '전승훈': '#d4af37', '전수빈': '#eab308', // 대표 — 골드/앰버
@@ -12049,9 +12060,22 @@
     }catch(e){ return null }
   }
 
+  /* 지금 업무일지 안에서 뭔가 입력 중인가?
+     contenteditable 에 캐럿이 있으면 pull/재렌더를 절대 하면 안 된다.
+     보드를 통째로 innerHTML 재생성하기 때문에, 포커스된 노드가 사라지면
+     그 뒤로 치는 글자는 어디에도 안 들어가고 통째로 날아간다. */
+  function _diaryIsEditing(){
+    const el = document.activeElement;
+    if(!el || el === document.body) return false;
+    const editable = el.isContentEditable || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT';
+    if(!editable) return false;
+    return !!el.closest('#viewDiary, .dcs-card, .diary-modal');
+  }
+
   async function syncDiaryFromRemote(force){
-    // 사용자가 편집 중이면 pull 스킵 (input focus 잃을 위험 방지)
-    if(!force && Date.now()-_diary_lastEditTs < 3000) return;
+    // 입력 중에도 데이터 병합은 그대로 진행한다 (업무 요청 알림이 끊기면 안 되므로).
+    // 캐럿을 죽이는 건 보드 재렌더뿐이라, 아래에서 재렌더만 blur 때까지 미룬다.
+    if(!force && !_diaryIsEditing() && Date.now()-_diary_lastEditTs < 3000) return;
     const remote=await _diaryFetchRemote();
     if(!remote) return;
     const local=loadDiaryAll();
@@ -12107,10 +12131,27 @@
     // dirty가 남았으면 push
     if(_diaryDirty.size>0) _diarySchedulePush();
     // diary 뷰가 열려있으면 리렌더 (편집 중인 카드는 dirty라서 그대로 유지)
+    // 단, 입력 중이면 재렌더를 미룬다. 보드를 innerHTML 로 다시 그리면 캐럿이 있던 노드가 사라져
+    // 그 뒤로 치는 글자가 통째로 유실된다 — "다 적었는데 없어졌다" 의 원인.
+    if(_diaryIsEditing()){ _diarySyncDeferred = true; return; }
     if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
       _diaryRenderBoard();
     }
   }
+
+  /* 입력이 끝나면(blur) 미뤄뒀던 재렌더를 실행 */
+  function _diaryFlushDeferredSync(){
+    if(!_diarySyncDeferred) return;
+    if(_diaryIsEditing()) return;
+    _diarySyncDeferred = false;
+    if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
+      _diaryRenderBoard();
+    }
+  }
+  document.addEventListener('focusout', ()=>{
+    // focusout 직후엔 activeElement 가 아직 이전 노드 → 다음 틱에 판정
+    setTimeout(_diaryFlushDeferredSync, 0);
+  }, true);
 
   /* 나에게 온 새 요청 감지 + 알림 발동 (Supabase realtime 백업).
      · me = 이 PC 주인 (없으면 스킵)
@@ -12423,11 +12464,29 @@
   window.syncDiaryFromRemote=syncDiaryFromRemote;
 
   async function pushDiaryToRemote(){
-    if(_diaryDirty.size===0) return;
-    // push 직전 remote pull → dirty만 로컬 것으로 덮기 → PUT (동시 편집 안전)
+    if(_diaryDirty.size===0){ _diarySetSaveState('saved'); return; }
+    if(_diaryPushing){ _diaryPushAgain = true; return; }
+    _diaryPushing = true;
+    _diary_lastPushTs = Date.now();
+    _diarySetSaveState('saving');
+    try{
+      await _diaryPushOnce();
+    } finally {
+      _diaryPushing = false;
+      if(_diaryPushAgain){
+        _diaryPushAgain = false;
+        _diarySchedulePush();
+      }
+    }
+  }
+
+  /* 최신 remote 위에 내 dirty 만 얹은 저장본을 만든다. remote 조회 실패면 null. */
+  async function _diaryBuildPayload(){
     const remote=await _diaryFetchRemote();
+    // remote 조회 실패(null)를 빈 객체로 취급하면 dirty 이외 전원의 일지가 통째로 지워진다.
+    if(!remote) return null;
     const local=loadDiaryAll();
-    const merged = remote ? {...remote} : {};
+    const merged = {...remote};
     const dirtyNames = Array.from(_diaryDirty);
     for(const name of dirtyNames){
       if(local[name]) merged[name]=local[name];
@@ -12453,24 +12512,75 @@
         }
       }
     }
-    const jsonBody=JSON.stringify(merged, null, 2);
-    const b64=btoa(unescape(encodeURIComponent(jsonBody)));
-    const r=await ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true});
-    if(r.ok){
-      // 성공: dirty 정리, 로컬을 merged로 통일
-      dirtyNames.forEach(n=>_diaryDirty.delete(n));
+    return {merged, dirtyNames};
+  }
+
+  async function _diaryPushOnce(){
+    // PUT 이 도는 동안 다른 사람도, 나도 계속 타이핑한다. 이름별 편집 시퀀스를 찍어두고
+    // 끝난 뒤 시퀀스가 바뀐 사람은 dirty 를 유지한다 (안 그러면 전송 중에 친 글자가 통째로 날아감)
+    const seqBefore = {};
+    for(const n of _diaryDirty) seqBefore[n] = _diaryEditSeq[n] || 0;
+
+    // 409(동시 저장 충돌)는 sha만 갈아끼워 재전송하면 남의 최신 저장을 덮어쓴다.
+    // 반드시 remote 를 다시 읽어 병합부터 새로 만든 뒤 재전송해야 한다.
+    let payload = null, r = null;
+    for(let attempt=0; attempt<3; attempt++){
+      payload = await _diaryBuildPayload();
+      if(!payload){ _diaryPushRetry(); return; }
+      const b64=btoa(unescape(encodeURIComponent(JSON.stringify(payload.merged, null, 2))));
+      r = await ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true, noConflictRetry:true});
+      if(r.ok || r.reason!=='conflict') break;
+    }
+
+    if(r && r.ok){
+      _diaryPushFailStreak = 0;
+      const merged = payload.merged;
+      // 성공: 전송 중에 추가 편집이 없었던 사람만 dirty 해제 (계속 치고 있던 사람은 dirty 유지)
+      const stillDirty = [];
+      payload.dirtyNames.forEach(n=>{
+        if((_diaryEditSeq[n]||0) !== (seqBefore[n]||0)) stillDirty.push(n);
+        else _diaryDirty.delete(n);
+      });
+      // 전송 중에 들어온 편집을 덮어쓰지 않도록, 저장 기준본에 최신 로컬을 다시 얹는다
+      const fresh = stillDirty.length ? loadDiaryAll() : null;
+      const finalState = {...merged};
+      stillDirty.forEach(n=>{
+        if(fresh && fresh[n]) finalState[n]=fresh[n];
+        else delete finalState[n];
+      });
       // tombstone 은 clear 하지 않음 — raw.githubusercontent.com CDN 이 몇 초 lag 하는 동안
       // 오래된 remote 를 그대로 쓰면 삭제한 항목이 부활하는 문제 발생. 24시간 후 자동 만료.
-      _diary_lastHash=JSON.stringify(merged);
+      _diary_lastHash=JSON.stringify(finalState);
       localStorage.setItem(DIARY_KEY, _diary_lastHash);
-    } else if(r.reason==='auth'){
+      if(stillDirty.length) _diarySchedulePush();
+      else _diarySetSaveState('saved');
+    } else if(r && r.reason==='auth'){
       console.warn('[diary] push auth 실패 — 로컬만 유지, tombstone 은 유지되어 다음 pull에서 자동 재제거');
+      _diarySetSaveState('pending');
+    } else {
+      _diaryPushRetry();
     }
   }
-  function _diarySchedulePush(){
+  /* push 실패 → 지수 백오프로 자동 재시도. dirty 는 그대로라 다음 성공 때 전부 올라간다. */
+  function _diaryPushRetry(){
+    _diaryPushFailStreak = Math.min(_diaryPushFailStreak + 1, 6);
+    _diarySetSaveState('pending');
     clearTimeout(_diaryPushTimer);
-    // 500ms debounce — 편집 후 반 초면 원격 반영
-    _diaryPushTimer=setTimeout(pushDiaryToRemote, 500);
+    _diaryPushTimer = setTimeout(pushDiaryToRemote, Math.min(1000 * 2 ** (_diaryPushFailStreak - 1), 30000));
+  }
+  /* 저장 타이밍 — 첫 글자는 즉시, 계속 치는 동안은 2초마다, 손 떼면 0.6초 뒤 마무리.
+     매 타건마다 전송하면 GitHub API 한도(공용 토큰)와 Pages 재빌드가 먼저 터진다. */
+  function _diarySchedulePush(){
+    if(_diaryDirty.size === 0) return;
+    _diarySetSaveState('saving');
+    const since = Date.now() - _diary_lastPushTs;
+    if(!_diaryPushing && since >= 2000){
+      clearTimeout(_diaryPushTimer);
+      pushDiaryToRemote();
+      return;
+    }
+    clearTimeout(_diaryPushTimer);
+    _diaryPushTimer=setTimeout(pushDiaryToRemote, 600);
   }
   window.pushDiaryToRemote=pushDiaryToRemote;
 
@@ -12491,20 +12601,45 @@
         syncDiaryFromRemote(false);
       }
     });
+    // 탭/창을 닫거나 새로고침 → 아직 안 올라간 편집을 마지막으로 한 번 더 밀어 올림
+    window.addEventListener('pagehide', ()=>{
+      if(_diaryDirty.size > 0){
+        clearTimeout(_diaryPushTimer);
+        pushDiaryToRemote();
+      }
+    });
+    // 그래도 못 올린 게 남아 있으면 닫기 전에 경고 (로컬엔 남아있지만 다른 PC에선 안 보임)
+    window.addEventListener('beforeunload', (e)=>{
+      if(_diaryDirty.size === 0) return;
+      e.preventDefault();
+      e.returnValue = '';
+    });
   }
   window.startDiarySync=startDiarySync;
   function _diaryUid(){ return 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6) }
 
-  function _diaryFlashSave(){
+  /* 저장 상태 표시 — 'saving'(전송 중) / 'saved'(서버 반영 완료) / 'pending'(실패, 재시도 중)
+     서버 응답 전에 '저장됨'을 띄우면 안 된다. 못 올라간 걸 올라간 줄 알고 창을 닫는 순간 유실된다. */
+  function _diarySetSaveState(state){
     const tag = document.getElementById('diarySaveTag');
     if(!tag) return;
-    const t = new Date();
-    const hh = String(t.getHours()).padStart(2,'0');
-    const mm = String(t.getMinutes()).padStart(2,'0');
-    tag.textContent = `저장됨 · ${hh}:${mm}`;
-    tag.hidden = false;
     clearTimeout(tag._t);
-    tag._t = setTimeout(()=>{ tag.hidden = true }, 2200);
+    tag.dataset.state = state;
+    tag.hidden = false;
+    if(state === 'saving'){
+      tag.textContent = '저장 중…';
+    } else if(state === 'pending'){
+      tag.textContent = '⚠ 저장 대기 중 · 창을 닫지 마세요';
+    } else {
+      const t = new Date();
+      const hh = String(t.getHours()).padStart(2,'0');
+      const mm = String(t.getMinutes()).padStart(2,'0');
+      tag.textContent = `저장됨 · ${hh}:${mm}`;
+      tag._t = setTimeout(()=>{ tag.hidden = true }, 2200);
+    }
+  }
+  function _diaryFlashSave(){
+    _diarySetSaveState(_diaryDirty.size > 0 ? 'saving' : 'saved');
   }
   function _diaryScheduleSave(){
     clearTimeout(_diaryState.saveTimer);
@@ -12829,14 +12964,13 @@
     _diaryState.saveTimers = _diaryState.saveTimers || {};
     clearTimeout(_diaryState.saveTimers[name]);
     _diaryDirty.add(name);
+    _diaryEditSeq[name] = (_diaryEditSeq[name] || 0) + 1;
     _diary_lastEditTs = Date.now();
     // localStorage 는 즉시 반영 → 새로고침해도 최신 상태 보임 (삭제한 항목이 돌아오는 문제 방지)
     _diaryPersistStaff(name);
-    _diaryState.saveTimers[name] = setTimeout(()=>{
-      _diaryFlashSave();
-      _diaryUpdateAlert();
-      _diarySchedulePush();
-    }, 250);
+    // 원격 전송도 지연 없이 바로 시작 (_diarySchedulePush 안에서 첫 타는 즉시, 연타는 400ms 간격)
+    _diarySchedulePush();
+    _diaryState.saveTimers[name] = setTimeout(_diaryUpdateAlert, 250);
   }
 
   // 현재 화면에 그려진 각 직원의 entry를 캐싱 (in-memory)
@@ -16022,13 +16156,16 @@
     const putOpts=(sha)=>({method:'PUT',forceMaster:!!opts.forceMaster,headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(sha)});
     let r=await ghFetch(apiUrl,putOpts(shaR.sha));
     let retries=0;
-    while(r.status===409 && retries<2){
+    // noConflictRetry: sha만 갈아끼운 재전송은 남이 방금 저장한 내용을 덮어쓴다.
+    // 호출부가 병합을 다시 해야 하는 경우(업무일지)엔 conflict 를 그대로 돌려준다.
+    while(r.status===409 && retries<2 && !opts.noConflictRetry){
       retries++;
       shaR=await ghGetSha(apiUrl);
       if(shaR.error==='auth') return {ok:false,reason:'auth'};
       r=await ghFetch(apiUrl,putOpts(shaR.sha));
     }
     if(r.ok) return {ok:true};
+    if(r.status===409) return {ok:false,reason:'conflict'};
     if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
     if(r.status===422||r.status===413) return {ok:false,reason:'too_large'};
     return {ok:false,reason:`http_${r.status}`};
