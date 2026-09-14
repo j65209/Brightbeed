@@ -2386,6 +2386,84 @@
     letter-spacing:.02em;text-align:right;
   }
 
+  /* ===== 공통 dropdown 필터 (펼치기 → 체크박스) ===== */
+  .filter-dd{position:relative;display:inline-block}
+  .filter-dd-btn{
+    display:inline-flex;align-items:center;gap:7px;
+    height:28px;padding:0 12px;
+    font-family:var(--sans);font-size:12px;font-weight:500;
+    background:var(--bg-1);color:var(--text-1);
+    border:1px solid var(--line);border-radius:6px;
+    cursor:pointer;transition:all .12s;line-height:1;user-select:none;
+  }
+  .filter-dd-btn:hover{background:var(--bg-2);border-color:var(--line-2)}
+  .filter-dd.is-open .filter-dd-btn{border-color:var(--text-2);background:var(--bg-2)}
+  .filter-dd-btn::after{
+    content:'▾';font-size:9px;color:var(--text-3);
+    transition:transform .12s;margin-left:2px;
+  }
+  .filter-dd.is-open .filter-dd-btn::after{transform:rotate(180deg)}
+  .filter-dd-btn-label{color:var(--text-2);font-weight:500}
+  .filter-dd-btn-summary{color:var(--text-0);font-weight:600}
+  .filter-dd-btn-summary.is-partial{color:var(--dd-accent, var(--text-0))}
+  .filter-dd-panel{
+    position:absolute;top:calc(100% + 4px);left:0;z-index:120;
+    min-width:220px;max-width:340px;
+    background:var(--bg-1);border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 12px 28px rgba(0,0,0,.14);
+    padding:6px;
+    max-height:360px;overflow:auto;
+    display:none;
+  }
+  .filter-dd.is-open .filter-dd-panel{display:block}
+  .filter-dd-item{
+    display:flex;align-items:center;gap:9px;
+    padding:7px 9px;cursor:pointer;user-select:none;
+    border-radius:5px;font-size:12.5px;color:var(--text-1);
+    transition:background .1s;
+  }
+  .filter-dd-item:hover{background:var(--bg-2)}
+  .filter-dd-item input[type=checkbox]{
+    flex-shrink:0;margin:0;cursor:pointer;
+    width:15px;height:15px;
+    accent-color:var(--item-color, var(--text-1));
+  }
+  .filter-dd-item-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--item-color,#94a3b8)}
+  .filter-dd-item-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .filter-dd-item-count{
+    font-family:var(--mono);font-size:11px;color:var(--text-3);font-weight:500;
+    flex-shrink:0;margin-left:auto;
+  }
+  .filter-dd-item.is-zero .filter-dd-item-label,
+  .filter-dd-item.is-zero .filter-dd-item-count{opacity:.45}
+  .filter-dd-actions{
+    display:flex;justify-content:flex-end;gap:2px;
+    padding:5px 4px 2px;border-top:1px solid var(--line);margin-top:4px;
+  }
+  .filter-dd-actions button{
+    font-family:var(--mono);font-size:11px;color:var(--text-3);
+    background:transparent;border:none;cursor:pointer;padding:4px 8px;
+    border-radius:4px;
+  }
+  .filter-dd-actions button:hover{background:var(--bg-2);color:var(--text-0)}
+  .filter-dd-bar{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    padding:10px 2px 12px;margin-bottom:8px;
+    border-bottom:1px dashed var(--line);
+  }
+  .filter-dd-bar .filter-dd-reset{
+    margin-left:auto;
+    font-family:var(--mono);font-size:11px;color:var(--text-3);
+    background:transparent;border:none;cursor:pointer;padding:2px 6px;
+    text-decoration:underline;text-underline-offset:2px;
+  }
+  .filter-dd-bar .filter-dd-reset:hover{color:var(--text-1)}
+  @media(max-width:600px){
+    .filter-dd-btn{height:26px;padding:0 10px;font-size:11.5px}
+    .filter-dd-panel{min-width:200px}
+    .filter-dd-bar .filter-dd-reset{margin-left:0}
+  }
+
   /* ===== MD 기획전 필터 (브랜드/플랫폼) ===== */
   .md-cal-filters{
     display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;
@@ -7908,10 +7986,15 @@
             </button>
           </div>
         </div>
-        <div id="kdStatusFilter" class="kd-status-filter" hidden>
-          <span class="kd-status-filter-glabel">상태</span>
-          <div id="kdStatusPills" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-          <button type="button" class="kd-status-filter-reset" onclick="kdResetStatusFilter()">전체 보기</button>
+        <div id="kdStatusFilter" class="filter-dd-bar" hidden>
+          <div class="filter-dd" id="kdStatusDD">
+            <button type="button" class="filter-dd-btn" onclick="mdCalToggleDD('kdStatusDD', event)">
+              <span class="filter-dd-btn-label">상태</span>
+              <span class="filter-dd-btn-summary" id="kdStatusDDSummary">전체</span>
+            </button>
+            <div class="filter-dd-panel" id="kdStatusDDPanel"></div>
+          </div>
+          <button type="button" class="filter-dd-reset" onclick="kdResetStatusFilter()">전체 보기</button>
         </div>
         <div id="poEmpty" class="po-empty">
           <div class="po-empty-icon">
@@ -8215,16 +8298,22 @@
           </div>
         </div>
         <div class="md-cal-body">
-          <div class="md-cal-filters">
-            <div class="md-cal-filter-group">
-              <span class="md-cal-filter-glabel">브랜드</span>
-              <div class="md-cal-filter-pills" id="mdCalFilterBrands"></div>
+          <div class="filter-dd-bar">
+            <div class="filter-dd" id="mdCalBrandDD">
+              <button type="button" class="filter-dd-btn" onclick="mdCalToggleDD('mdCalBrandDD', event)">
+                <span class="filter-dd-btn-label">브랜드</span>
+                <span class="filter-dd-btn-summary" id="mdCalBrandDDSummary">전체</span>
+              </button>
+              <div class="filter-dd-panel" id="mdCalBrandDDPanel"></div>
             </div>
-            <div class="md-cal-filter-group">
-              <span class="md-cal-filter-glabel">플랫폼</span>
-              <div class="md-cal-filter-pills" id="mdCalFilterPlatforms"></div>
+            <div class="filter-dd" id="mdCalPlatDD">
+              <button type="button" class="filter-dd-btn" onclick="mdCalToggleDD('mdCalPlatDD', event)">
+                <span class="filter-dd-btn-label">플랫폼</span>
+                <span class="filter-dd-btn-summary" id="mdCalPlatDDSummary">전체</span>
+              </button>
+              <div class="filter-dd-panel" id="mdCalPlatDDPanel"></div>
             </div>
-            <button type="button" class="md-cal-filter-reset" onclick="mdCalResetFilters()">전체 보기</button>
+            <button type="button" class="filter-dd-reset" onclick="mdCalResetFilters()">전체 보기</button>
           </div>
           <div class="md-cal-weekdays">
             <div class="md-cal-wd md-cal-sun">일</div>
@@ -15055,46 +15144,78 @@
   function _kdStatusBucket(s){
     return _kdStatusKeys.has(s) ? s : '기타';
   }
+  let _kdLastCounts={};
   function renderKDStatusFilter(counts){
-    const wrap=document.getElementById('kdStatusPills');
+    const panel=document.getElementById('kdStatusDDPanel');
     const section=document.getElementById('kdStatusFilter');
-    if(!wrap||!section) return;
+    if(!panel||!section) return;
     counts=counts||{};
+    _kdLastCounts=counts;
     const total=Object.values(counts).reduce((a,b)=>a+b,0);
     if(total===0){ section.hidden=true; return; }
     section.hidden=false;
-    wrap.innerHTML='';
+    panel.innerHTML='';
     KD_STATUSES.forEach(def=>{
       const n=counts[def.key]||0;
-      const btn=document.createElement('button');
-      btn.type='button';
-      btn.className='kd-status-pill'
-        + (_kdActiveStatuses.has(def.key)?' is-active':'')
-        + (n===0?' is-zero':'');
-      btn.style.setProperty('--pillcolor', def.color);
-      const dot=document.createElement('span');
-      dot.className='kd-status-pill-dot';
-      btn.appendChild(dot);
-      btn.appendChild(document.createTextNode(def.key));
-      const cnt=document.createElement('span');
-      cnt.className='kd-status-pill-count';
-      cnt.textContent=String(n);
-      btn.appendChild(cnt);
-      btn.addEventListener('click', ()=>{
-        if(_kdActiveStatuses.has(def.key)) _kdActiveStatuses.delete(def.key);
-        else _kdActiveStatuses.add(def.key);
-        renderKDStatusFilter(counts);
+      const item=document.createElement('label');
+      item.className='filter-dd-item'+(n===0?' is-zero':'');
+      item.style.setProperty('--item-color', def.color);
+      const cb=document.createElement('input');
+      cb.type='checkbox';
+      cb.checked=_kdActiveStatuses.has(def.key);
+      cb.addEventListener('change', ()=>{
+        if(cb.checked) _kdActiveStatuses.add(def.key);
+        else _kdActiveStatuses.delete(def.key);
+        renderKDStatusFilter(_kdLastCounts);
         const sb=document.getElementById('kdSearch');
         filterKDOrders(sb?sb.value:'');
       });
-      wrap.appendChild(btn);
+      item.appendChild(cb);
+      const dot=document.createElement('span');
+      dot.className='filter-dd-item-dot';
+      item.appendChild(dot);
+      const lbl=document.createElement('span');
+      lbl.className='filter-dd-item-label';
+      lbl.textContent=def.key;
+      item.appendChild(lbl);
+      const cnt=document.createElement('span');
+      cnt.className='filter-dd-item-count';
+      cnt.textContent=String(n);
+      item.appendChild(cnt);
+      panel.appendChild(item);
     });
+    // 하단 액션
+    const actions=document.createElement('div');
+    actions.className='filter-dd-actions';
+    const clearBtn=document.createElement('button');
+    clearBtn.type='button';
+    clearBtn.textContent='모두 해제';
+    clearBtn.addEventListener('click', ()=>{
+      _kdActiveStatuses.clear();
+      renderKDStatusFilter(_kdLastCounts);
+      const sb=document.getElementById('kdSearch');
+      filterKDOrders(sb?sb.value:'');
+    });
+    const allBtn=document.createElement('button');
+    allBtn.type='button';
+    allBtn.textContent='모두 선택';
+    allBtn.addEventListener('click', ()=>{
+      _kdActiveStatuses.clear();
+      KD_STATUSES.forEach(s=>_kdActiveStatuses.add(s.key));
+      renderKDStatusFilter(_kdLastCounts);
+      const sb=document.getElementById('kdSearch');
+      filterKDOrders(sb?sb.value:'');
+    });
+    actions.appendChild(clearBtn);
+    actions.appendChild(allBtn);
+    panel.appendChild(actions);
+    // 요약
+    _bbUpdateDDSummary('kdStatusDDSummary', KD_STATUSES, _kdActiveStatuses);
   }
   function kdResetStatusFilter(){
     _kdActiveStatuses.clear();
     KD_STATUSES.forEach(s=>_kdActiveStatuses.add(s.key));
-    const counts=_kdCountStatusesFromDom();
-    renderKDStatusFilter(counts);
+    renderKDStatusFilter(_kdCountStatusesFromDom());
     const sb=document.getElementById('kdSearch');
     filterKDOrders(sb?sb.value:'');
   }
@@ -18893,8 +19014,123 @@
     renderMdCal();
   }
 
-  /* ===== 필터 pill 렌더 & 리셋 ===== */
-  function _mdRenderPillList(wrapId, defs, stateSet, onToggle){
+  /* ===== 필터 dropdown 렌더 & 리셋 ===== */
+  function _bbSummarizeSet(defs, stateSet){
+    // 라벨 요약: 전체 = "전체", 0개 = "선택 안 됨", 1개 = 해당 라벨, N개 = "N개 선택"
+    if(stateSet.size===0) return {text:'선택 안 됨', partial:true};
+    if(stateSet.size===defs.length) return {text:'전체', partial:false};
+    if(stateSet.size===1){
+      const key=[...stateSet][0];
+      const d=defs.find(x=>x.key===key);
+      return {text:d?d.label:key, partial:true, color:d?d.color:null};
+    }
+    return {text:`${stateSet.size}개 선택`, partial:true};
+  }
+  function _bbRenderDDPanel(panelId, defs, stateSet, onChange){
+    const panel=document.getElementById(panelId);
+    if(!panel) return;
+    panel.innerHTML='';
+    defs.forEach(d=>{
+      const item=document.createElement('label');
+      item.className='filter-dd-item';
+      item.style.setProperty('--item-color', d.color);
+      const cb=document.createElement('input');
+      cb.type='checkbox';
+      cb.checked=stateSet.has(d.key);
+      cb.addEventListener('change', ()=>{
+        if(cb.checked) stateSet.add(d.key);
+        else stateSet.delete(d.key);
+        onChange();
+      });
+      item.appendChild(cb);
+      const dot=document.createElement('span');
+      dot.className='filter-dd-item-dot';
+      item.appendChild(dot);
+      const lbl=document.createElement('span');
+      lbl.className='filter-dd-item-label';
+      lbl.textContent=d.label;
+      item.appendChild(lbl);
+      panel.appendChild(item);
+    });
+    // 하단 액션 (모두 선택/해제)
+    const actions=document.createElement('div');
+    actions.className='filter-dd-actions';
+    const clearBtn=document.createElement('button');
+    clearBtn.type='button';
+    clearBtn.textContent='모두 해제';
+    clearBtn.addEventListener('click', ()=>{ stateSet.clear(); onChange(); });
+    const allBtn=document.createElement('button');
+    allBtn.type='button';
+    allBtn.textContent='모두 선택';
+    allBtn.addEventListener('click', ()=>{ stateSet.clear(); defs.forEach(d=>stateSet.add(d.key)); onChange(); });
+    actions.appendChild(clearBtn);
+    actions.appendChild(allBtn);
+    panel.appendChild(actions);
+  }
+  function _bbUpdateDDSummary(sumId, defs, stateSet){
+    const el=document.getElementById(sumId);
+    if(!el) return;
+    const s=_bbSummarizeSet(defs, stateSet);
+    el.textContent=s.text;
+    el.classList.toggle('is-partial', !!s.partial);
+    if(s.color) el.style.setProperty('--dd-accent', s.color);
+    else el.style.removeProperty('--dd-accent');
+  }
+  function _mdBrandDDChange(){
+    _bbUpdateDDSummary('mdCalBrandDDSummary', MD_BRANDS, _mdFilterBrands);
+    _bbRenderDDPanel('mdCalBrandDDPanel', MD_BRANDS, _mdFilterBrands, _mdBrandDDChange);
+    renderMdCal();
+  }
+  function _mdPlatDDChange(){
+    _bbUpdateDDSummary('mdCalPlatDDSummary', MD_PLATFORMS, _mdFilterPlats);
+    _bbRenderDDPanel('mdCalPlatDDPanel', MD_PLATFORMS, _mdFilterPlats, _mdPlatDDChange);
+    renderMdCal();
+  }
+  function renderMdCalFilters(){
+    _bbRenderDDPanel('mdCalBrandDDPanel', MD_BRANDS, _mdFilterBrands, _mdBrandDDChange);
+    _bbRenderDDPanel('mdCalPlatDDPanel', MD_PLATFORMS, _mdFilterPlats, _mdPlatDDChange);
+    _bbUpdateDDSummary('mdCalBrandDDSummary', MD_BRANDS, _mdFilterBrands);
+    _bbUpdateDDSummary('mdCalPlatDDSummary', MD_PLATFORMS, _mdFilterPlats);
+  }
+  function mdCalToggleDD(id, ev){
+    if(ev){ ev.stopPropagation(); }
+    const el=document.getElementById(id);
+    if(!el) return;
+    const wasOpen=el.classList.contains('is-open');
+    _bbCloseAllFilterDD();
+    if(!wasOpen) el.classList.add('is-open');
+  }
+  function mdCalResetFilters(){
+    _mdFilterBrands.clear(); MD_BRANDS.forEach(b=>_mdFilterBrands.add(b.key));
+    _mdFilterPlats.clear();  MD_PLATFORMS.forEach(p=>_mdFilterPlats.add(p.key));
+    renderMdCalFilters();
+    renderMdCal();
+  }
+  window.mdCalResetFilters=mdCalResetFilters;
+  window.mdCalToggleDD=mdCalToggleDD;
+
+  function _bbCloseAllFilterDD(){
+    document.querySelectorAll('.filter-dd.is-open').forEach(el=>el.classList.remove('is-open'));
+  }
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.filter-dd')) _bbCloseAllFilterDD();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='Escape') _bbCloseAllFilterDD();
+  });
+
+  // 이벤트가 현재 필터를 통과하는가?
+  // - brand/platform 필드 없음(레거시) → 필터와 무관하게 표시
+  // - 있음 → 활성 pill 중 하나라도 매치되어야 표시
+  function _mdEventPassesFilter(ev){
+    const b=Array.isArray(ev.brands)?ev.brands:[];
+    const p=Array.isArray(ev.platforms)?ev.platforms:[];
+    if(b.length>0 && !b.some(x=>_mdFilterBrands.has(x))) return false;
+    if(p.length>0 && !p.some(x=>_mdFilterPlats.has(x))) return false;
+    return true;
+  }
+
+  function _mdRenderModalPillsFor(wrapId, defs, stateSet){
     const wrap=document.getElementById(wrapId);
     if(!wrap) return;
     wrap.innerHTML='';
@@ -18910,37 +19146,14 @@
       btn.addEventListener('click',()=>{
         if(stateSet.has(d.key)) stateSet.delete(d.key);
         else stateSet.add(d.key);
-        onToggle();
+        _mdRenderModalPillsFor(wrapId, defs, stateSet);
       });
       wrap.appendChild(btn);
     });
   }
-  function renderMdCalFilters(){
-    _mdRenderPillList('mdCalFilterBrands', MD_BRANDS, _mdFilterBrands, ()=>{renderMdCalFilters(); renderMdCal();});
-    _mdRenderPillList('mdCalFilterPlatforms', MD_PLATFORMS, _mdFilterPlats, ()=>{renderMdCalFilters(); renderMdCal();});
-  }
-  function mdCalResetFilters(){
-    _mdFilterBrands.clear(); MD_BRANDS.forEach(b=>_mdFilterBrands.add(b.key));
-    _mdFilterPlats.clear();  MD_PLATFORMS.forEach(p=>_mdFilterPlats.add(p.key));
-    renderMdCalFilters();
-    renderMdCal();
-  }
-  window.mdCalResetFilters=mdCalResetFilters;
-
-  // 이벤트가 현재 필터를 통과하는가?
-  // - brand/platform 필드 없음(레거시) → 필터와 무관하게 표시
-  // - 있음 → 활성 pill 중 하나라도 매치되어야 표시
-  function _mdEventPassesFilter(ev){
-    const b=Array.isArray(ev.brands)?ev.brands:[];
-    const p=Array.isArray(ev.platforms)?ev.platforms:[];
-    if(b.length>0 && !b.some(x=>_mdFilterBrands.has(x))) return false;
-    if(p.length>0 && !p.some(x=>_mdFilterPlats.has(x))) return false;
-    return true;
-  }
-
   function _mdRenderModalPills(){
-    _mdRenderPillList('mdEventBrandPills',    MD_BRANDS,    _mdModalBrands, _mdRenderModalPills);
-    _mdRenderPillList('mdEventPlatformPills', MD_PLATFORMS, _mdModalPlats,  _mdRenderModalPills);
+    _mdRenderModalPillsFor('mdEventBrandPills',    MD_BRANDS,    _mdModalBrands);
+    _mdRenderModalPillsFor('mdEventPlatformPills', MD_PLATFORMS, _mdModalPlats);
   }
 
   function mdCalNavPrev(){
@@ -18963,8 +19176,8 @@
   function renderMdCal(){
     const grid=document.getElementById('mdCalGrid');
     if(!grid) return;
-    // 필터 pill이 아직 렌더되지 않았으면 함께 그림 (첫 진입/재렌더 대응)
-    if(document.getElementById('mdCalFilterBrands') && !document.getElementById('mdCalFilterBrands').firstChild){
+    // 필터 dropdown 패널이 아직 렌더되지 않았으면 함께 그림 (첫 진입/재렌더 대응)
+    if(document.getElementById('mdCalBrandDDPanel') && !document.getElementById('mdCalBrandDDPanel').firstChild){
       renderMdCalFilters();
     }
     const label=document.getElementById('mdCalMonthLabel');
