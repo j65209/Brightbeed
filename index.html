@@ -2821,6 +2821,85 @@
     .vm-table th,.vm-table td{padding:5px 7px}
   }
 
+  /* ===== 출금 요청서 (벤더팀 최하단, 전 벤더팀 + 대표) ===== */
+  .wr-section{margin-top:18px}
+  .wr-body{padding:14px 18px 18px}
+  .wr-head-row{
+    display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+    padding:14px 18px;border:1px solid #d5cfb8;border-bottom:none;
+    background:#fafaf7;border-radius:10px 10px 0 0;
+  }
+  .wr-title-big{font-size:20px;font-weight:800;letter-spacing:-.03em;color:#1c1917;text-align:center;
+    grid-column:1 / -1;position:relative;margin-bottom:6px}
+  .wr-date{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:13px;color:#57534e;font-weight:600;font-variant-numeric:tabular-nums}
+  .wr-table-wrap{border:1px solid #d5cfb8;border-radius:0 0 10px 10px;overflow:hidden;background:#fff}
+  .wr-table{width:100%;border-collapse:collapse;font-size:13px;color:#292524}
+  .wr-table th,.wr-table td{border:1px solid #e7e2ce;padding:8px 10px;vertical-align:middle;letter-spacing:-.01em}
+  .wr-table th{background:#f4f0e3;font-weight:700;color:#1c1917;text-align:center;font-size:13.5px}
+  .wr-table td{background:#fff}
+  .wr-table td.wr-cell-label{background:#f4f0e3;font-weight:700;text-align:center;width:110px;color:#1c1917}
+  .wr-table td.wr-cell-amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .wr-input{
+    width:100%;border:none;background:transparent;font:inherit;color:#1c1917;
+    padding:2px 0;outline:none;letter-spacing:-.01em;
+  }
+  .wr-input:focus{background:#fefbe9;box-shadow:inset 0 -1px 0 #eab308}
+  .wr-input.wr-amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .wr-row-del{
+    border:none;background:transparent;color:#a8a29e;cursor:pointer;font-size:14px;
+    width:24px;height:24px;border-radius:999px;
+  }
+  .wr-row-del:hover{background:#fee2e2;color:#b91c1c}
+  .wr-actions{
+    display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:12px;
+  }
+  .wr-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 16px;border-radius:9px;border:1px solid #d5cfb8;background:#fff;
+    font-size:13px;font-weight:700;color:#292524;letter-spacing:-.01em;cursor:pointer;
+    transition:background .12s ease,border-color .12s ease;
+  }
+  .wr-btn:hover{background:#fafaf7}
+  .wr-btn-add{color:#57534e}
+  .wr-btn-notify{background:#fef3c7;border-color:#fcd34d;color:#7c2d12}
+  .wr-btn-notify:hover{background:#fde68a}
+  .wr-btn-done{background:#dcfce7;border-color:#86efac;color:#14532d}
+  .wr-btn-done:hover{background:#bbf7d0}
+  .wr-btn-reset{color:#78716c}
+  .wr-hint{font-size:11.5px;color:#78716c;margin-right:auto;letter-spacing:-.01em}
+  .wr-batch{
+    margin-top:14px;padding:14px 16px;border:1px solid #e7e2ce;border-radius:12px;background:#fefbf3;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .wr-batch-head{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    font-size:12.5px;color:#44403c;font-weight:600;letter-spacing:-.01em;
+  }
+  .wr-batch-status{
+    display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
+    font-size:11px;font-weight:700;letter-spacing:-.01em;
+  }
+  .wr-batch-status.st-notified{background:#fef3c7;color:#78350f}
+  .wr-batch-status.st-done{background:#dcfce7;color:#14532d}
+  .wr-batch-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
+  .wr-batch-list-inline{
+    display:grid;grid-template-columns:auto 1fr auto auto 1fr auto;gap:6px 12px;
+    padding:8px 10px;background:#fff;border:1px solid #e7e2ce;border-radius:8px;font-size:12.5px;
+  }
+  .wr-batch-list-inline .wr-cell-th{color:#57534e;font-weight:700;font-size:11px}
+  .wr-batch-list-inline .wr-cell-amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .wr-batch-total{
+    margin-left:auto;background:#fff;border:1px solid #e7e2ce;border-radius:999px;
+    padding:3px 10px;font-weight:700;color:#1c1917;font-variant-numeric:tabular-nums;
+  }
+  .wr-batch-actions{display:flex;gap:8px;flex-wrap:wrap}
+  @media (max-width:640px){
+    .wr-table{font-size:12px}
+    .wr-table th,.wr-table td{padding:6px 6px}
+    .wr-batch-list-inline{grid-template-columns:1fr 1fr;font-size:12px}
+    .wr-title-big{font-size:17px}
+  }
+
   /* ===== 원천세 신고 · 정산 (벤더팀 최하단, 조혜인+대표 전용) ===== */
   .wht-section{margin-top:18px}
   .wht-body{padding:14px 18px 18px}
@@ -8555,6 +8634,43 @@
         </div>
       </div>
     </div>
+
+    <!-- 출금 요청서 (벤더팀 · 대표에게 알림) -->
+    <div class="po-section wr-section" id="wrSection">
+      <div class="wr-head-row">
+        <div class="wr-title-big">
+          출금 요청서
+          <span class="wr-date" id="wrDateLabel">2026-09-14</span>
+        </div>
+      </div>
+      <div class="wr-table-wrap">
+        <table class="wr-table">
+          <thead>
+            <tr>
+              <th style="width:110px">&nbsp;</th>
+              <th style="width:110px">은행</th>
+              <th>계좌번호</th>
+              <th style="width:130px">금액</th>
+              <th style="width:130px">예금주</th>
+              <th>비고</th>
+              <th style="width:36px">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody id="wrTbody">
+            <!-- rows rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+      <div class="wr-actions">
+        <span class="wr-hint" id="wrHint">작성한 뒤 <b>대표에게 알림</b>을 누르면 전승훈 대표에게 크롬 알림이 갑니다.</span>
+        <button type="button" class="wr-btn wr-btn-add" onclick="wrAddRow()">＋ 행 추가</button>
+        <button type="button" class="wr-btn wr-btn-reset" onclick="wrResetForm()">초기화</button>
+        <button type="button" class="wr-btn wr-btn-notify" onclick="wrSendNotify()">🔔 대표에게 알림 보내기</button>
+      </div>
+
+      <!-- 출금 요청 내역 (미완료·최근 완료) -->
+      <div id="wrBatchList"></div>
+    </div>
   </div>
 
   <!-- 업체 정보 모달 (원천세 신고 · 정산 전용) -->
@@ -10924,6 +11040,8 @@
       syncDiaryHiddenFromRemote().finally(()=>{ if(typeof _diaryApplyHomeVisibility==='function') _diaryApplyHomeVisibility(); });
       setInterval(()=>syncDiaryHiddenFromRemote().catch(()=>{}), 30000);
     }
+    // 출금 요청 실시간 알림 — 대표 PC 는 벤더 뷰에 안 들어와도 알림을 받아야 함
+    if(typeof _wrInitRealtime==='function') _wrInitRealtime();
     // 에이전트 오피스 실시간 인원 표시 (홈 카드)
     if(typeof loadAgentsMini==='function'){ loadAgentsMini(); setInterval(loadAgentsMini, 30000); }
   }
@@ -11267,6 +11385,7 @@
       if(typeof renderVMargin==='function') renderVMargin();
       if(typeof whtRefreshAccess==='function') whtRefreshAccess();
       if(typeof whtEnsureLoaded==='function') whtEnsureLoaded();
+      if(typeof wrEnsureLoaded==='function') wrEnsureLoaded();
     }
     if(id==='viewNamegen'){
       if(typeof initNamegenView==='function') initNamegenView();
@@ -21492,6 +21611,317 @@
   window.vMarginRefresh=vMarginRefresh;
   window.vMarginEnsureLoaded=vMarginEnsureLoaded;
   window.renderVMargin=renderVMargin;
+
+  /* ===== 출금 요청서 (viewVendor 최하단) =====
+     · 벤더팀 아무나 은행·계좌·금액·예금주·비고를 채운 뒤 [🔔 대표에게 알림] 클릭
+       → withdrawal_requests row INSERT (status=notified) → 전승훈 대표 PC 에 크롬 알림
+     · 대표는 아래 배치 카드에서 [송금완료] 클릭 → status=done, 요청자에게 완료 알림
+     · Supabase realtime + 30초 폴백 폴링. */
+  const WR_STORAGE_DRAFT = 'brightbeed_wr_draft_v1';
+  const WR_OWNER_NAME = '전승훈';
+  const WR_ROWS_INITIAL = 6;
+  let _wrRows = [];
+  let _wrBatches = [];
+  let _wrBatchesLastHash = '';
+  let _wrRealtimeChan = null;
+  let _wrPollTimer = null;
+
+  function _wrTodayStr(){
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function _wrFmtWon(n){
+    const v = Number(String(n||'').replace(/[^\d.-]/g,''));
+    if(!Number.isFinite(v) || v===0) return '';
+    return '₩' + v.toLocaleString('ko-KR');
+  }
+  function _wrParseAmt(s){
+    const v = Number(String(s||'').replace(/[^\d.-]/g,''));
+    return Number.isFinite(v) ? v : 0;
+  }
+  function _wrEmptyRow(){ return {bank:'', account:'', amount:'', holder:'', memo:''} }
+  function _wrLoadDraft(){
+    try{
+      const j=localStorage.getItem(WR_STORAGE_DRAFT);
+      if(!j) return null;
+      const p=JSON.parse(j);
+      if(!p || p.date !== _wrTodayStr()) return null; // 하루 지나면 초기화
+      return Array.isArray(p.rows) ? p.rows : null;
+    }catch(e){ return null }
+  }
+  function _wrSaveDraft(){
+    try{
+      localStorage.setItem(WR_STORAGE_DRAFT, JSON.stringify({date:_wrTodayStr(), rows:_wrRows}));
+    }catch(e){}
+  }
+  function wrResetForm(){
+    _wrRows = Array.from({length: WR_ROWS_INITIAL}, _wrEmptyRow);
+    _wrSaveDraft();
+    _wrRenderRows();
+  }
+  window.wrResetForm = wrResetForm;
+
+  function wrAddRow(){
+    _wrRows.push(_wrEmptyRow());
+    _wrSaveDraft();
+    _wrRenderRows();
+    // 새로 추가된 행의 첫 셀에 포커스
+    setTimeout(()=>{
+      const inputs = document.querySelectorAll('#wrTbody tr:last-child input');
+      if(inputs[0]) inputs[0].focus();
+    }, 0);
+  }
+  window.wrAddRow = wrAddRow;
+
+  function wrEnsureLoaded(){
+    // 폼 초기화 (하루 1회만 draft 유지)
+    if(_wrRows.length === 0){
+      const draft = _wrLoadDraft();
+      _wrRows = draft && draft.length ? draft : Array.from({length: WR_ROWS_INITIAL}, _wrEmptyRow);
+    }
+    const dateEl = document.getElementById('wrDateLabel');
+    if(dateEl) dateEl.textContent = _wrTodayStr();
+    _wrRenderRows();
+    _wrFetchBatches();
+    _wrStartPolling();
+    _wrInitRealtime();
+  }
+  window.wrEnsureLoaded = wrEnsureLoaded;
+
+  function _wrRenderRows(){
+    const tbody = document.getElementById('wrTbody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    _wrRows.forEach((row, idx)=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="wr-cell-label">${idx===0?'출금요청<br>리스트':'&nbsp;'}</td>
+        <td><input class="wr-input" data-f="bank" value="${_esc(row.bank||'')}" placeholder="예: 우리"></td>
+        <td><input class="wr-input" data-f="account" value="${_esc(row.account||'')}" placeholder="계좌번호"></td>
+        <td><input class="wr-input wr-amt" data-f="amount" value="${_esc(row.amount||'')}" placeholder="₩0" inputmode="decimal"></td>
+        <td><input class="wr-input" data-f="holder" value="${_esc(row.holder||'')}" placeholder="예금주"></td>
+        <td><input class="wr-input" data-f="memo" value="${_esc(row.memo||'')}" placeholder="비고"></td>
+        <td style="text-align:center">
+          <button type="button" class="wr-row-del" title="이 행 지우기">✕</button>
+        </td>
+      `;
+      tr.querySelectorAll('input.wr-input').forEach(inp=>{
+        inp.oninput = ()=>{
+          const f = inp.dataset.f;
+          _wrRows[idx][f] = inp.value;
+          _wrSaveDraft();
+        };
+        inp.onblur = ()=>{
+          if(inp.dataset.f === 'amount'){
+            const v = _wrParseAmt(inp.value);
+            inp.value = v ? _wrFmtWon(v).replace('₩','') : '';
+            _wrRows[idx].amount = inp.value;
+            _wrSaveDraft();
+          }
+        };
+      });
+      tr.querySelector('.wr-row-del').onclick = ()=>{
+        _wrRows.splice(idx,1);
+        if(_wrRows.length < 1) _wrRows = [_wrEmptyRow()];
+        _wrSaveDraft();
+        _wrRenderRows();
+      };
+      tbody.appendChild(tr);
+    });
+  }
+
+  function _wrCollectFilledRows(){
+    return _wrRows
+      .map(r=>({
+        bank: String(r.bank||'').trim(),
+        account: String(r.account||'').trim(),
+        amount: _wrParseAmt(r.amount),
+        holder: String(r.holder||'').trim(),
+        memo: String(r.memo||'').trim(),
+      }))
+      .filter(r=> r.bank || r.account || r.amount || r.holder || r.memo);
+  }
+
+  async function wrSendNotify(){
+    const filled = _wrCollectFilledRows();
+    if(!filled.length){
+      toast('한 줄 이상 입력해주세요', 'err');
+      return;
+    }
+    // 최소 필수 필드 안내 — 금액 없이 알림은 이상하므로 확인
+    const missing = filled.filter(r=> !r.amount);
+    if(missing.length){
+      if(!confirm(`금액이 비어 있는 행이 ${missing.length}개 있습니다.\n그래도 알림을 보낼까요?`)) return;
+    }
+    const requestedBy = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '벤더팀';
+    const payload = {
+      rows: filled,
+      requested_by: requestedBy,
+      status: 'notified',
+      notified_at: new Date().toISOString(),
+    };
+    try{
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests`, {
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'return=representation'}),
+        body: JSON.stringify(payload),
+      });
+      if(!r.ok){
+        toast(`알림 실패 (HTTP ${r.status})`, 'err');
+        return;
+      }
+      const total = filled.reduce((s,x)=>s+(x.amount||0),0);
+      toast(`✅ 전승훈 대표에게 알림 완료 (${filled.length}건 · ${_wrFmtWon(total)})`, 'ok');
+      wrResetForm();
+      _wrFetchBatches();
+    }catch(e){
+      toast('알림 실패 — 네트워크 확인', 'err');
+    }
+  }
+  window.wrSendNotify = wrSendNotify;
+
+  async function wrMarkDone(id){
+    if(!id) return;
+    const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
+    // 마스터 또는 전승훈 대표 본인만 완료 처리 가능
+    if(!isMaster() && me !== WR_OWNER_NAME){
+      toast('송금완료는 대표(전승훈)만 처리할 수 있습니다', 'err');
+      return;
+    }
+    if(!confirm('송금 완료로 표시할까요?')) return;
+    try{
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?id=eq.${encodeURIComponent(id)}`, {
+        method:'PATCH',
+        headers:_sbHeaders({'Prefer':'return=minimal'}),
+        body: JSON.stringify({status:'done', done_at:new Date().toISOString(), done_by: me || WR_OWNER_NAME}),
+      });
+      if(!r.ok){ toast(`실패 (HTTP ${r.status})`, 'err'); return; }
+      toast('✅ 송금완료 처리되었습니다', 'ok');
+      _wrFetchBatches();
+    }catch(e){ toast('처리 실패', 'err'); }
+  }
+  window.wrMarkDone = wrMarkDone;
+
+  async function _wrFetchBatches(){
+    try{
+      // 미완료 전부 + 최근 완료 5건
+      const [pR, dR] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?status=eq.notified&select=*&order=requested_at.desc`, {headers:_sbHeaders(),cache:'no-cache'}),
+        fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?status=eq.done&select=*&order=done_at.desc&limit=5`, {headers:_sbHeaders(),cache:'no-cache'}),
+      ]);
+      if(!pR.ok || !dR.ok) return;
+      const pending = await pR.json();
+      const done = await dR.json();
+      _wrBatches = [...(Array.isArray(pending)?pending:[]), ...(Array.isArray(done)?done:[])];
+      const h = JSON.stringify(_wrBatches.map(b=>[b.id,b.status,b.done_at,b.notified_at]));
+      if(h === _wrBatchesLastHash) return;
+      _wrBatchesLastHash = h;
+      _wrRenderBatches();
+    }catch(e){ /* silent */ }
+  }
+
+  function _wrRenderBatches(){
+    const wrap = document.getElementById('wrBatchList');
+    if(!wrap) return;
+    if(!_wrBatches.length){ wrap.innerHTML=''; return; }
+    const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
+    const canDone = isMaster() || me === WR_OWNER_NAME;
+    wrap.innerHTML = _wrBatches.map(b=>{
+      const rows = Array.isArray(b.rows)?b.rows:[];
+      const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
+      const isDone = b.status === 'done';
+      const badgeCls = isDone ? 'st-done' : 'st-notified';
+      const badgeText = isDone ? '송금완료' : '알림 전송됨';
+      const ts = isDone ? (b.done_at||b.requested_at) : (b.notified_at||b.requested_at);
+      const tsLabel = _wrFmtTs(ts);
+      const doneBtn = (!isDone && canDone)
+        ? `<button type="button" class="wr-btn wr-btn-done" onclick="wrMarkDone('${_esc(b.id)}')">✅ 송금완료</button>`
+        : '';
+      const rowsHtml = rows.map(r=>`
+        <div class="wr-cell-th">${_esc(r.bank||'')}</div>
+        <div>${_esc(r.account||'')}</div>
+        <div class="wr-cell-amt">${_wrFmtWon(r.amount)}</div>
+        <div>${_esc(r.holder||'')}</div>
+        <div>${_esc(r.memo||'')}</div>
+        <div></div>
+      `).join('');
+      return `
+        <div class="wr-batch">
+          <div class="wr-batch-head">
+            <span class="wr-batch-status ${badgeCls}"><span class="wr-batch-dot"></span>${badgeText}</span>
+            <span>요청자 <b>${_esc(b.requested_by||'-')}</b></span>
+            <span style="color:#78716c">· ${tsLabel}</span>
+            <span class="wr-batch-total">${_wrFmtWon(total)}</span>
+          </div>
+          <div class="wr-batch-list-inline">
+            <div class="wr-cell-th">은행</div>
+            <div class="wr-cell-th">계좌번호</div>
+            <div class="wr-cell-th" style="text-align:right">금액</div>
+            <div class="wr-cell-th">예금주</div>
+            <div class="wr-cell-th">비고</div>
+            <div></div>
+            ${rowsHtml}
+          </div>
+          ${doneBtn ? `<div class="wr-batch-actions">${doneBtn}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+  function _wrFmtTs(iso){
+    if(!iso) return '';
+    try{
+      const d=new Date(iso);
+      const M=String(d.getMonth()+1).padStart(2,'0'), D=String(d.getDate()).padStart(2,'0');
+      const h=String(d.getHours()).padStart(2,'0'), m=String(d.getMinutes()).padStart(2,'0');
+      return `${M}/${D} ${h}:${m}`;
+    }catch(e){ return '' }
+  }
+
+  function _wrStartPolling(){
+    if(_wrPollTimer) return;
+    _wrPollTimer = setInterval(()=>{
+      if(document.getElementById('viewVendor')?.hidden) return;
+      _wrFetchBatches();
+    }, 30000);
+  }
+
+  async function _wrInitRealtime(){
+    if(_wrRealtimeChan) return;
+    if(typeof supabase === 'undefined' || !supabase || !supabase.channel){
+      if(typeof _diaryLoadSupabaseClient === 'function') await _diaryLoadSupabaseClient();
+      if(typeof supabase === 'undefined' || !supabase) return;
+    }
+    const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
+    _wrRealtimeChan = supabase.channel('wr_all')
+      .on('postgres_changes', {event:'INSERT', schema:'public', table:'withdrawal_requests'}, (payload)=>{
+        _wrFetchBatches();
+        // 대표 PC 에는 크롬 알림
+        if(me === WR_OWNER_NAME){
+          const row = payload.new || {};
+          const rows = Array.isArray(row.rows) ? row.rows : [];
+          const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
+          _wrFireNotif(`🔔 출금 요청 (${rows.length}건)`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`);
+        }
+      })
+      .on('postgres_changes', {event:'UPDATE', schema:'public', table:'withdrawal_requests'}, (payload)=>{
+        _wrFetchBatches();
+        const row = payload.new || {};
+        // 요청자에게 완료 알림
+        if(row.status === 'done' && row.requested_by && me === row.requested_by){
+          _wrFireNotif(`✅ 송금완료`, `${row.done_by || WR_OWNER_NAME} 대표가 송금을 완료했습니다`);
+        }
+      })
+      .subscribe();
+  }
+  function _wrFireNotif(title, body){
+    toast(`${title} · ${body}`, 'info');
+    if('Notification' in window && Notification.permission === 'granted'){
+      try{
+        const n = new Notification(title, {body, tag:'wr-'+Date.now(), requireInteraction:true});
+        n.onclick = ()=>{ window.focus(); n.close(); if(typeof triggerVendor === 'function') triggerVendor(); };
+      }catch(e){}
+    }
+  }
 
   /* ===== 원천세 신고 · 정산 (viewVendor 최하단, 조혜인+대표 전용) =====
      · 3섹션: 사업자·개인 출금 / 프리랜서 3.3% 원천징수 / 세금계산서 발행 (입금)
