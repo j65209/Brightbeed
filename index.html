@@ -6791,9 +6791,58 @@
     color:#a8a29e;cursor:pointer;border-radius:4px;
     opacity:0;transition:all .1s;margin-top:1px;
   }
-  .dsg-blk:hover .dsg-blk-del{opacity:.7}
+  .dsg-blk:hover > .dsg-blk-del{opacity:.7}
   .dsg-blk-del:hover{opacity:1;background:#fee2e2;color:#dc2626}
   .dsg-blk-del svg{width:12px;height:12px}
+  /* ＋ 아이콘 — 각 블록 왼쪽 hover 시 */
+  .dsg-blk-plus{
+    flex:none;width:20px;height:20px;
+    display:flex;align-items:center;justify-content:center;
+    color:#a855f7;cursor:pointer;border-radius:4px;
+    opacity:0;transition:all .12s;margin-top:2px;
+  }
+  .dsg-blk:hover > .dsg-blk-plus{opacity:.6}
+  .dsg-blk-plus:hover{opacity:1 !important;background:#faf5ff}
+  .dsg-blk-plus svg{width:12px;height:12px}
+  /* 섹션 헤더 옆 hover + */
+  .dsg-sec-plus{opacity:0;margin-top:0;width:22px;height:22px}
+  .dsg-sec-head:hover .dsg-sec-plus{opacity:.7}
+  .dsg-sec-plus:hover{opacity:1 !important}
+  /* 빈 섹션 안 안내 */
+  .dsg-blk-empty{
+    display:flex;align-items:center;gap:6px;
+    padding:6px 4px;font-size:12.5px;color:#d6d3d1;cursor:text;
+    border-radius:4px;transition:all .12s;
+  }
+  .dsg-blk-empty:hover{background:#faf5ff;color:#a855f7}
+  .dsg-blk-empty-plus{font-weight:700;color:#a855f7;font-size:14px;line-height:1}
+  /* 문서 하단 상시 노출 추가 영역 (노션식) */
+  .dsg-doc-add{
+    max-width:820px;margin:14px auto 0;
+    display:flex;gap:10px;align-items:stretch;
+  }
+  .dsg-doc-add-item{
+    flex:1;display:flex;align-items:center;gap:10px;
+    padding:14px 16px;
+    background:#fff;border:1.5px dashed #e7e5e4;border-radius:10px;
+    color:#a8a29e;font-size:13px;font-family:inherit;
+    cursor:text;transition:all .15s;letter-spacing:-.005em;text-align:left;
+  }
+  .dsg-doc-add-item:hover{border-color:#c4b5fd;background:#faf5ff;color:#7c3aed}
+  .dsg-doc-add-plus{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;
+    background:#f5f3ff;color:#a855f7;font-weight:700;font-size:15px;line-height:1;
+    transition:all .15s;
+  }
+  .dsg-doc-add-item:hover .dsg-doc-add-plus{background:#a855f7;color:#fff}
+  .dsg-doc-add-sec{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:0 16px;font-size:12.5px;font-weight:600;color:#78716c;
+    background:#fff;border:1.5px dashed #e7e5e4;border-radius:10px;
+    cursor:pointer;font-family:inherit;transition:all .15s;
+  }
+  .dsg-doc-add-sec:hover{border-color:#c4b5fd;color:#7c3aed;background:#faf5ff}
 
   .dsg-blk.collapsed > .dsg-blk-children{display:none}
 
@@ -8594,21 +8643,30 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
           접기
         </button>
-        <button class="dsg-new-btn" onclick="dsgDocAddSection()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          섹션 추가
-        </button>
       </div>
 
       <div id="dsgBoardWrap" class="dsg-doc-wrap">
         <div class="dsg-empty" id="dsgEmpty" hidden>
           <div class="dsg-empty-icon">📝</div>
           <div class="dsg-empty-title">아직 작업이 없어요</div>
-          <div class="dsg-empty-sub">우측 상단 <b>+ 섹션 추가</b>로 시작하세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
+          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작해 보세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
         </div>
         <div id="dsgDoc" class="dsg-doc"></div>
+
+        <!-- 문서 하단 상시 노출 추가 영역 (노션식 "글쓰기 아이콘") -->
+        <div class="dsg-doc-add" id="dsgDocAdd">
+          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
+            <span class="dsg-doc-add-plus">＋</span>
+            <span>여기에 입력하세요</span>
+          </button>
+          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
+            새 섹션
+          </button>
+        </div>
+
         <div class="dsg-doc-hint">
-          <b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · <b>Cmd/Ctrl+↑↓</b> 위/아래 이동 · 빈 줄에서 <b>Backspace</b> 삭제
+          <b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목
         </div>
       </div>
     </div>
@@ -13234,6 +13292,9 @@
       if(q && !matched.has(b.id)) return '';
       if(hideDone && b.type==='todo' && b.checked) return '';
       const kids = (b.children||[]).map(renderBlock).join('');
+      const plusBtn = (id)=>`<div class="dsg-blk-plus" onclick="dsgDocInsertAfter('${id}')" title="아래에 새 항목"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>`;
+      const delBtn = (id, tt)=>`<div class="dsg-blk-del" onclick="dsgDocDelete('${id}')" title="${tt||'삭제'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></div>`;
+
       if(b.type==='section'){
         const collapsed = b.collapsed ? ' collapsed':'';
         return `<div class="dsg-sec${collapsed}" data-id="${b.id}">
@@ -13241,44 +13302,47 @@
             <div class="dsg-sec-caret" onclick="dsgDocToggleCollapse('${b.id}')" title="접기/펴기">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
-            <div class="dsg-sec-title dsg-editable" contenteditable="true" data-id="${b.id}" spellcheck="false">${_dsgBlockText(b.text)}</div>
+            <div class="dsg-sec-title dsg-editable" contenteditable="true" data-id="${b.id}" data-placeholder="섹션 제목" spellcheck="false">${_dsgBlockText(b.text)}</div>
             <div class="dsg-sec-actions">
-              <div class="dsg-blk-del" onclick="dsgDocDelete('${b.id}')" title="섹션 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></div>
+              <div class="dsg-blk-plus dsg-sec-plus" onclick="dsgDocAddChildAt('${b.id}')" title="이 섹션에 새 항목"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+              ${delBtn(b.id,'섹션 삭제')}
             </div>
           </div>
-          <div class="dsg-sec-body">${kids || '<div class="dsg-blk dsg-blk-add" onclick="dsgDocAddChildAt(\''+b.id+'\')"><div class="dsg-blk-gutter"></div><div class="dsg-blk-text" style="color:#d6d3d1;font-size:12.5px">＋ 아이템 추가</div></div>'}</div>
+          <div class="dsg-sec-body">${kids || `<div class="dsg-blk-empty" onclick="dsgDocAddChildAt('${b.id}')"><span class="dsg-blk-empty-plus">＋</span> 여기에 입력하세요</div>`}</div>
         </div>`;
       }
       if(b.type==='toggle'){
         const collapsed = b.collapsed ? ' collapsed':'';
-        return `<div class="dsg-blk dsg-blk-toggle-node${collapsed}" data-id="${b.id}" data-type="toggle">
+        return `<div class="dsg-blk${collapsed}" data-id="${b.id}" data-type="toggle">
+          ${plusBtn(b.id)}
           <div class="dsg-blk-toggle" onclick="dsgDocToggleCollapse('${b.id}')" title="접기/펴기">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <div class="dsg-blk-prio${b.priority?' on':''}" onclick="dsgDocCyclePrio('${b.id}')" title="${DSG_PRIO_TITLE[b.priority||'']}">${DSG_PRIO_DOT[b.priority]||'○'}</div>
           <div class="dsg-blk-text dsg-editable" contenteditable="true" data-id="${b.id}" data-placeholder="토글 제목" spellcheck="false">${_dsgBlockText(b.text)}</div>
-          <div class="dsg-blk-del" onclick="dsgDocDelete('${b.id}')" title="삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></div>
+          ${delBtn(b.id)}
           <div class="dsg-blk-children">${kids}</div>
         </div>`;
       }
       if(b.type==='text'){
         return `<div class="dsg-blk" data-id="${b.id}" data-type="text">
+          ${plusBtn(b.id)}
           <div class="dsg-blk-gutter"></div>
           <div class="dsg-blk-text dsg-editable" contenteditable="true" data-id="${b.id}" data-placeholder="내용을 입력하세요" spellcheck="false">${_dsgBlockText(b.text)}</div>
-          <div class="dsg-blk-del" onclick="dsgDocDelete('${b.id}')" title="삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></div>
+          ${delBtn(b.id)}
           <div class="dsg-blk-children">${kids}</div>
         </div>`;
       }
-      // todo (기본)
       const checked = b.checked ? ' checked':'';
       const doneCls = b.checked ? ' done':'';
       return `<div class="dsg-blk" data-id="${b.id}" data-type="todo">
+        ${plusBtn(b.id)}
         <div class="dsg-blk-check${checked}" onclick="dsgDocToggleCheck('${b.id}')" title="완료 토글">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="dsg-blk-prio${b.priority?' on':''}" onclick="dsgDocCyclePrio('${b.id}')" title="${DSG_PRIO_TITLE[b.priority||'']}">${DSG_PRIO_DOT[b.priority]||'○'}</div>
         <div class="dsg-blk-text dsg-editable${doneCls}" contenteditable="true" data-id="${b.id}" data-placeholder="할 일을 입력하세요" spellcheck="false">${_dsgBlockText(b.text)}</div>
-        <div class="dsg-blk-del" onclick="dsgDocDelete('${b.id}')" title="삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></div>
+        ${delBtn(b.id)}
         <div class="dsg-blk-children">${kids}</div>
       </div>`;
     }
@@ -13487,6 +13551,42 @@
     dsgDocRender();
     _dsgFocusBlockEnd(b.id);
   }
+  /* + 아이콘 클릭 시: 그 블록 바로 아래 형제로 새 todo 삽입 */
+  function dsgDocInsertAfter(id){
+    const info = _dsgFindPath(id);
+    if(!info) return;
+    const nb = {id:_dsgUidLocal(), type:'todo', text:'', checked:false, children:[]};
+    info.list.splice(info.index+1, 0, nb);
+    _dsgSaveDoc(); _dsgMarkDocDirty();
+    dsgDocRender();
+    _dsgFocusBlockEnd(nb.id);
+  }
+  /* 문서 하단 "+ 여기에 입력하세요" — 마지막 섹션 안 최하단에 추가, 섹션 없으면 새 섹션 안 첫 항목 */
+  function dsgDocAppendItem(){
+    if(!_dsgDoc.blocks.length){
+      // 완전 빈 문서: 이름 없는 섹션 하나 + todo 하나
+      const sec = {id:_dsgUidLocal(), type:'section', text:'', children:[]};
+      const nb  = {id:_dsgUidLocal(), type:'todo', text:'', checked:false, children:[]};
+      sec.children.push(nb);
+      _dsgDoc.blocks.push(sec);
+      _dsgSaveDoc(); _dsgMarkDocDirty();
+      dsgDocRender();
+      _dsgFocusBlockEnd(nb.id);
+      return;
+    }
+    const last = _dsgDoc.blocks[_dsgDoc.blocks.length-1];
+    if(last.type==='section'){
+      const nb = {id:_dsgUidLocal(), type:'todo', text:'', checked:false, children:[]};
+      last.children = last.children||[];
+      last.children.push(nb);
+      _dsgSaveDoc(); _dsgMarkDocDirty();
+      dsgDocRender();
+      _dsgFocusBlockEnd(nb.id);
+    } else {
+      // 마지막이 blocks 최상위의 non-section 이면 그 뒤에 형제로
+      dsgDocInsertAfter(last.id);
+    }
+  }
   function dsgDocAddChildAt(parentId){
     const info = _dsgFindPath(parentId);
     if(!info) return;
@@ -13515,6 +13615,8 @@
   window.dsgDocDelete = dsgDocDelete;
   window.dsgDocAddSection = dsgDocAddSection;
   window.dsgDocAddChildAt = dsgDocAddChildAt;
+  window.dsgDocInsertAfter = dsgDocInsertAfter;
+  window.dsgDocAppendItem = dsgDocAppendItem;
   window.dsgDocExpandAll = dsgDocExpandAll;
   window.dsgDocCollapseAll = dsgDocCollapseAll;
 
