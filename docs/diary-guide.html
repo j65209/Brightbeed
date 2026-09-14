@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>업무일지 사용법</title>
+<style>
+  :root{
+    --bg:#faf7ef; --card:#ffffff; --line:#e7e2ce; --line-2:#d5cfb8;
+    --ink-0:#1c1917; --ink-1:#292524; --ink-2:#57534e; --ink-3:#78716c;
+    --wk:#0ea5e9; --wk-soft:#e0f2fe;
+    --mo:#8b5cf6; --mo-soft:#ede9fe;
+    --req:#f59e0b; --req-soft:#fef3c7;
+    --task:#10b981; --task-soft:#dcfce7;
+    --prev:#a8a29e; --prev-soft:#f5f5f4;
+    --gold:#d4af37;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#e7e2ce;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR","맑은 고딕",sans-serif;color:var(--ink-0);-webkit-font-smoothing:antialiased;letter-spacing:-0.015em}
+  .page{
+    width:1080px;background:var(--bg);
+    padding:52px 56px 46px;
+    box-shadow:0 20px 60px -20px rgba(0,0,0,.25);
+  }
+  /* 헤더 */
+  .head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:26px}
+  .head-title{font-size:38px;font-weight:800;letter-spacing:-0.03em;color:var(--ink-0);line-height:1.1}
+  .head-title .sub{display:block;font-size:15px;font-weight:600;color:var(--ink-2);margin-top:8px;letter-spacing:-0.01em}
+  .brand-pill{
+    display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+    background:#fff;border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--ink-2);
+    letter-spacing:-0.01em;white-space:nowrap;
+  }
+  .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.18)}
+
+  /* 최상단 — 처음 1회 세팅 */
+  .setup{
+    display:grid;grid-template-columns:auto 1fr auto 1fr;gap:14px 16px;align-items:center;
+    background:#fff;border:1px solid var(--line);border-left:6px solid var(--gold);
+    border-radius:16px;padding:18px 22px;margin-bottom:22px;
+  }
+  .setup-badge{
+    background:#fef3c7;color:#78350f;font-weight:800;font-size:11px;letter-spacing:0.02em;
+    padding:6px 10px;border-radius:8px;border:1px solid #fde68a;
+  }
+  .setup-title{font-size:16px;font-weight:800;color:var(--ink-0);letter-spacing:-0.02em}
+  .setup-step{display:flex;align-items:center;gap:10px}
+  .setup-step-num{
+    width:26px;height:26px;border-radius:8px;background:#f4f0e3;color:var(--ink-1);
+    display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;
+    border:1px solid var(--line);
+  }
+  .setup-step-text{font-size:13.5px;color:var(--ink-1);font-weight:600}
+  .setup-step-text b{color:#111}
+
+  /* 섹션 카드들 */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;
+    position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--cat,#a8a29e);
+  }
+  .card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .card-dot{width:10px;height:10px;border-radius:50%;background:var(--cat)}
+  .card-title{font-size:17px;font-weight:800;color:var(--ink-0);letter-spacing:-0.02em}
+  .card-tag{
+    margin-left:auto;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;letter-spacing:-0.01em;
+    background:var(--cat-soft);color:var(--cat-ink,var(--ink-0));
+  }
+  .card-body{font-size:13.5px;line-height:1.6;color:var(--ink-1);letter-spacing:-0.01em}
+  .card-body b{color:#111}
+  .card-body ul{padding-left:18px;margin-top:4px}
+  .card-body li{margin-bottom:2px}
+  .card-body li::marker{color:var(--cat)}
+  .card-note{font-size:12px;color:var(--ink-3);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);letter-spacing:-0.01em}
+  .card-note b{color:var(--ink-1)}
+
+  .cat-wk{--cat:var(--wk);--cat-soft:var(--wk-soft);--cat-ink:#0369a1}
+  .cat-mo{--cat:var(--mo);--cat-soft:var(--mo-soft);--cat-ink:#5b21b6}
+  .cat-req{--cat:var(--req);--cat-soft:var(--req-soft);--cat-ink:#78350f}
+  .cat-task{--cat:var(--task);--cat-soft:var(--task-soft);--cat-ink:#14532d}
+  .cat-prev{--cat:var(--prev);--cat-soft:var(--prev-soft);--cat-ink:#44403c}
+
+  /* 저장 안내 */
+  .save-strip{
+    display:flex;align-items:center;gap:14px;
+    background:#dcfce7;border:1px solid #86efac;border-radius:16px;
+    padding:16px 22px;margin-bottom:16px;
+  }
+  .save-icon{
+    width:38px;height:38px;border-radius:50%;background:#22c55e;color:#fff;
+    display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;font-weight:800;
+    box-shadow:0 0 0 5px rgba(34,197,94,.18);
+  }
+  .save-text{font-size:14px;color:#14532d;font-weight:600;letter-spacing:-0.01em;line-height:1.5}
+  .save-text b{font-weight:800}
+  .save-tag-mock{
+    display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;
+    background:#fff;color:#14532d;font-size:11.5px;font-weight:700;letter-spacing:-0.01em;
+    border:1px solid #86efac;margin-left:6px;
+  }
+  .save-tag-mock::before{content:"";width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+
+  /* 팁 스트립 */
+  .tips{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+    background:#fff;border:1px solid var(--line);border-radius:16px;
+    padding:16px 20px;
+  }
+  .tip{display:flex;flex-direction:column;gap:4px;padding:4px 8px;border-left:3px solid var(--tip,#a8a29e);padding-left:12px}
+  .tip-key{
+    display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--ink-2);
+    letter-spacing:0.02em;
+  }
+  .tip-kbd{
+    display:inline-flex;align-items:center;padding:2px 7px;border-radius:6px;background:#f4f0e3;
+    border:1px solid var(--line);color:var(--ink-1);font-size:11px;font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    box-shadow:0 1px 0 var(--line);
+  }
+  .tip-desc{font-size:12.5px;color:var(--ink-1);font-weight:600;letter-spacing:-0.01em;line-height:1.4}
+
+  /* 푸터 */
+  .foot{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:22px;padding-top:14px;border-top:1px dashed var(--line);
+  }
+  .foot-left{font-size:12px;color:var(--ink-3);font-weight:600;letter-spacing:-0.01em}
+  .foot-left b{color:var(--ink-1)}
+  .foot-right{font-size:11.5px;color:var(--ink-3);letter-spacing:-0.01em}
+
+  .req-flow{
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    font-size:12px;font-weight:700;color:#7c2d12;background:#fff7ed;
+    padding:8px 12px;border-radius:10px;border:1px solid #fed7aa;margin-top:8px;
+  }
+  .req-flow .arr{color:var(--req);font-weight:900}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <div>
+      <div class="head-title">
+        업무일지 사용법
+        <span class="sub">브라이트비드 오피스 · 매일 5분, 팀 전체의 하루가 한 눈에</span>
+      </div>
+    </div>
+    <span class="brand-pill"><span class="brand-dot"></span>BEAD UNIVERSE · OFFICE</span>
+  </div>
+
+  <!-- 처음 1회 세팅 -->
+  <div class="setup">
+    <span class="setup-badge">처음 1회</span>
+    <div class="setup-title">본인 자리 PC에서 딱 두 번만 눌러주세요</div>
+    <div class="setup-step">
+      <span class="setup-step-num">1</span>
+      <span class="setup-step-text">상단 <b>&ldquo;나는 [○○○] 로그인&rdquo;</b> — 본인 이름 선택</span>
+    </div>
+    <div class="setup-step">
+      <span class="setup-step-num">2</span>
+      <span class="setup-step-text"><b>&ldquo;🔔 알림 허용&rdquo;</b> 눌러 크롬 알림 켜기</span>
+    </div>
+  </div>
+
+  <!-- 4개 카드 -->
+  <div class="grid">
+    <div class="card cat-wk">
+      <div class="card-head">
+        <span class="card-dot"></span>
+        <span class="card-title">주간 업무 계획</span>
+        <span class="card-tag">파랑</span>
+      </div>
+      <div class="card-body">
+        이번 주에 꼭 할 일. 매주 <b>월요일 오전 9시</b> 자동 초기화됩니다.
+        <ul>
+          <li>완료한 항목은 <b>✓ 체크</b>로 제거</li>
+          <li>안 끝낸 항목은 <b>아카이브</b>에 자동 보관</li>
+        </ul>
+      </div>
+      <div class="card-note"><b>우선순위</b> 버튼을 눌러 일반 → 중요 → 긴급 순환</div>
+    </div>
+
+    <div class="card cat-mo">
+      <div class="card-head">
+        <span class="card-dot"></span>
+        <span class="card-title">월 목표 계획</span>
+        <span class="card-tag">보라</span>
+      </div>
+      <div class="card-body">
+        이번 달 큰 목표. <b>매월 1일</b> 자동 초기화됩니다.
+        <ul>
+          <li>주간과 달리 <b>기간이 긴 목표</b>를 적어요</li>
+          <li>미완료 목표는 그대로 다음 달 검토용 아카이브로</li>
+        </ul>
+      </div>
+      <div class="card-note">예) &ldquo;신제품 A 소싱 완료&rdquo;, &ldquo;에이블리 매출 30% 증대&rdquo;</div>
+    </div>
+
+    <div class="card cat-req">
+      <div class="card-head">
+        <span class="card-dot"></span>
+        <span class="card-title">업무 요청</span>
+        <span class="card-tag">앰버</span>
+      </div>
+      <div class="card-body">
+        <b>다른 사람 카드</b>에 요청을 남기는 곳. 상대에게 즉시 알림이 갑니다.
+      </div>
+      <div class="req-flow">
+        내가 남김 <span class="arr">→</span> 상대 PC 크롬에 팝업 알림 <span class="arr">→</span> 완료 시 ✓
+      </div>
+      <div class="card-note">중요한 요청일수록 <b>구체적으로</b> 적어주세요 — 상대는 알림 팝업 한 줄로 판단합니다</div>
+    </div>
+
+    <div class="card cat-task">
+      <div class="card-head">
+        <span class="card-dot"></span>
+        <span class="card-title">오늘 한 일</span>
+        <span class="card-tag">초록</span>
+      </div>
+      <div class="card-body">
+        매일 <b>퇴근 전</b>에 오늘 처리한 일을 남겨주세요.
+        <ul>
+          <li>업무 성과가 팀에 자동 공유됩니다</li>
+          <li>오후 6시 이후 미작성자 명단이 상단에 뜹니다</li>
+        </ul>
+      </div>
+      <div class="card-note">어제 못 끝낸 일이 있으면 카드 아래 <b>&ldquo;↓ 오늘로&rdquo;</b> 버튼으로 이월</div>
+    </div>
+  </div>
+
+  <!-- 자동 저장 안내 -->
+  <div class="save-strip">
+    <div class="save-icon">✓</div>
+    <div class="save-text">
+      <b>적는 순간 자동 저장</b>됩니다 — 저장 버튼 없음, 창을 닫아도 안전해요.
+      상단에 <span class="save-tag-mock">저장됨 · 14:22</span> 표시가 뜨면 서버에 반영 완료.
+      아직 저장 중이면 <b>⚠ 저장 대기 중</b> 이 뜨는데, 그때만 창 닫지 말고 잠깐 기다려주세요.
+    </div>
+  </div>
+
+  <!-- 단축키 & 팁 -->
+  <div class="tips">
+    <div class="tip" style="--tip:#0ea5e9">
+      <span class="tip-key"><span class="tip-kbd">Enter</span> 새 줄</span>
+      <span class="tip-desc">항목 아래에 새 줄이 바로 추가됩니다</span>
+    </div>
+    <div class="tip" style="--tip:#ef4444">
+      <span class="tip-key"><span class="tip-kbd">⌫ Backspace</span> 삭제</span>
+      <span class="tip-desc">빈 줄에서 누르면 그 줄이 사라져요</span>
+    </div>
+    <div class="tip" style="--tip:#10b981">
+      <span class="tip-key">✓ 체크 = 완료</span>
+      <span class="tip-desc">부드럽게 사라지며 통계에 반영</span>
+    </div>
+    <div class="tip" style="--tip:#f59e0b">
+      <span class="tip-key">↕ 화살표 = 정렬</span>
+      <span class="tip-desc">항목을 위·아래로 순서 이동</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="foot-left">궁금하면 <b>조혜인</b>에게 물어보거나, 대시보드 우측 상단 <b>⚙ 설정</b> 확인</div>
+    <div class="foot-right">v1.0 · 2026-09-14</div>
+  </div>
+</div>
+</body>
+</html>
