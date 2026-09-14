@@ -6862,10 +6862,34 @@
   @media (max-width:560px){
     #viewDesign{padding:14px 12px 50px}
     #viewDesign .view-title{font-size:20px}
-    .dsg-toolbar{padding:8px 10px;gap:8px}
-    .dsg-new-btn{margin-left:0;width:100%;justify-content:center}
-    .dsg-search{width:100%}
     .dsg-refs-grid{columns:2 130px}
+    /* 편집 폰트 — iOS 자동 zoom-in 방지 (16px 이상) */
+    .dsg-blk-text{font-size:16px;line-height:1.5}
+    .dsg-sec-title{font-size:18px}
+    /* 문서 하단 추가 버튼 세로 stack */
+    .dsg-doc-add{flex-direction:column;gap:8px}
+    .dsg-doc-add-item{padding:14px 16px;font-size:15px}
+    .dsg-doc-add-sec{padding:12px 14px;justify-content:center;font-size:14px}
+    /* 검색바 폭 100% */
+    .dsg-doc-toolbar{padding:8px 10px;gap:8px}
+    .dsg-doc-toolbar .dsg-search{flex:1;min-width:0;font-size:16px;height:36px}
+    /* 힌트 문구 축소 */
+    .dsg-doc-hint{font-size:11.5px;line-height:1.5}
+    /* 서브탭 폰트 살짝 up */
+    .dsg-tab{padding:10px 12px;font-size:13.5px}
+    /* 레퍼런스 툴바 검색 iOS zoom 방지 */
+    #viewDesign .dsg-search{font-size:16px;height:34px}
+  }
+  /* 터치 기기 or 좁은 화면 — + / 삭제 아이콘 항상 살짝 노출 (hover 못 쓸때 대비) */
+  @media (hover: none), (max-width:560px){
+    .dsg-blk-plus, .dsg-blk-del, .dsg-sec-plus{opacity:.45 !important}
+    .dsg-blk-plus:active, .dsg-blk-del:active{opacity:1 !important}
+  }
+  /* 힌트 문구 데스크톱/모바일 분리 노출 */
+  .dsg-hint-mobile{display:none}
+  @media (max-width:560px), (hover: none){
+    .dsg-hint-desktop{display:none}
+    .dsg-hint-mobile{display:inline}
   }
 
   /* ===== 연차 (인사팀 뷰) ===== */
@@ -8672,7 +8696,8 @@
         </div>
 
         <div class="dsg-doc-hint">
-          <b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목
+          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
+          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
         </div>
       </div>
     </div>
@@ -8695,7 +8720,8 @@
       </div>
 
       <div class="dsg-refs-hint" id="dsgRefsHint">
-        <span class="dsg-refs-hint-key">Cmd+V</span> 로 이미지를 붙여넣거나 이 영역에 <b>드래그&드롭</b>하세요.
+        <span class="dsg-hint-desktop"><span class="dsg-refs-hint-key">Cmd+V</span> 로 이미지를 붙여넣거나 이 영역에 <b>드래그&드롭</b>하세요.</span>
+        <span class="dsg-hint-mobile">우측 상단 <b>+ 이미지 추가</b> 를 눌러 사진을 선택하세요.</span>
         선택한 카테고리(<b id="dsgRefsHintBoard">무드보드</b>)에 자동으로 저장됩니다.
       </div>
 
