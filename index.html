@@ -6689,31 +6689,46 @@
   }
   .dsg-doc-hint b{color:#78716c;font-weight:600}
 
-  /* 섹션 헤더 */
-  .dsg-sec{margin:0}
-  .dsg-sec + .dsg-sec{margin-top:34px}
+  /* 섹션 헤더 — 하이라이터 감성 (컬러 하이라이트 + 그라디언트 밑줄) */
+  .dsg-sec{margin:0;position:relative}
+  .dsg-sec + .dsg-sec{margin-top:36px}
   .dsg-sec-head{
     display:flex;align-items:center;gap:8px;
-    padding:6px 0 8px;
-    border-bottom:1px solid #f4f4f5;
-    margin-bottom:8px;
+    padding:8px 0 10px;
+    margin-bottom:10px;position:relative;
+  }
+  /* 두꺼운 그라디언트 밑줄 (보라 → 옅어짐) */
+  .dsg-sec-head::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;
+    height:3px;border-radius:2px;
+    background:linear-gradient(90deg, #a855f7 0%, #ddd6fe 40%, transparent 100%);
+    opacity:.9;
   }
   .dsg-sec-caret{
-    flex:none;width:20px;height:20px;border-radius:4px;
+    flex:none;width:22px;height:22px;border-radius:4px;
     display:flex;align-items:center;justify-content:center;
-    color:#a8a29e;cursor:pointer;transition:all .12s;
-    font-size:10px;
+    color:#a855f7;cursor:pointer;transition:all .12s;
   }
-  .dsg-sec-caret:hover{background:#f4f4f5;color:#57534e}
+  .dsg-sec-caret:hover{background:#faf5ff}
   .dsg-sec-caret svg{transition:transform .18s ease}
   .dsg-sec.collapsed .dsg-sec-caret svg{transform:rotate(-90deg)}
   .dsg-sec-title{
-    flex:1;font-size:17px;font-weight:700;color:#1c1917;letter-spacing:-.01em;
-    padding:2px 4px;border-radius:4px;outline:none;
-    line-height:1.35;min-height:24px;
+    flex:1;
+    font-size:19px;font-weight:700;color:#1c1917;letter-spacing:-.015em;
+    padding:2px 6px;border-radius:4px;outline:none;
+    line-height:1.35;min-height:26px;
+    /* 형광펜 하이라이트 — 텍스트 하단 40% 만 컬러로 덮기 */
+    background-image:linear-gradient(180deg, transparent 55%, rgba(168,85,247,.22) 55%, rgba(168,85,247,.22) 92%, transparent 92%);
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    box-decoration-break:clone;-webkit-box-decoration-break:clone;
+    display:inline-block;width:100%;
   }
-  .dsg-sec-title:focus{background:#faf5ff}
-  .dsg-sec-title:empty::before{content:'섹션 제목';color:#d6d3d1}
+  .dsg-sec-title:focus{
+    background-image:linear-gradient(180deg, transparent 55%, rgba(168,85,247,.35) 55%, rgba(168,85,247,.35) 92%, transparent 92%);
+  }
+  .dsg-sec-title:empty{background-image:none}
+  .dsg-sec-title:empty::before{content:'섹션 제목';color:#d6d3d1;font-weight:600}
   .dsg-sec-actions{display:none;gap:4px}
   .dsg-sec-head:hover .dsg-sec-actions{display:inline-flex}
   .dsg-sec-body{padding-left:4px}
