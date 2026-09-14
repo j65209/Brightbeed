@@ -6343,7 +6343,11 @@
   #viewDesign .view-title{font-size:26px;font-weight:700;color:#1c1917;letter-spacing:-.01em}
   #viewDesign .view-title-sub{font-size:14px;font-weight:500;color:#a8a29e;margin-left:8px;letter-spacing:0}
   .dsg-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
-  .dsg-save-tag{font-size:11px;color:#84cc16;font-weight:600;padding:3px 8px;border-radius:10px;background:rgba(132,204,22,.1);border:1px solid rgba(132,204,22,.3)}
+  .dsg-save-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;letter-spacing:-.005em;font-variant-numeric:tabular-nums;transition:all .18s}
+  .dsg-save-tag[data-state="saved"]  {color:#166534;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35)}
+  .dsg-save-tag[data-state="saving"] {color:#7c3aed;background:rgba(168,85,247,.10);border:1px solid rgba(168,85,247,.35)}
+  .dsg-save-tag[data-state="pending"]{color:#b45309;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4)}
+  .dsg-save-tag[data-state="error"]  {color:#b91c1c;background:rgba(220,38,38,.10);border:1px solid rgba(220,38,38,.4)}
 
   /* 서브탭 */
   .dsg-tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid #e7e5e4;padding-bottom:0}
@@ -8447,7 +8451,7 @@
       </button>
       <h1 class="view-title">디자인팀<span class="view-title-sub" id="dsgTitleSub">/ 작업 보드</span></h1>
       <div class="dsg-head-actions">
-        <span class="dsg-save-tag" id="dsgSaveTag" hidden></span>
+        <span class="dsg-save-tag" id="dsgSaveTag" data-state="saved" hidden>저장됨</span>
       </div>
     </div>
 
@@ -12798,6 +12802,14 @@
   const DSG_TASKS_KEY = 'brightbeed_design_tasks_v1';
   const DSG_REFS_KEY  = 'brightbeed_design_refs_v1';
   const DSG_UI_KEY    = 'brightbeed_design_ui_v1';   // viewMode/currentBoard 기억
+  const DSG_TOMB_KEY  = 'brightbeed_design_tomb_v1'; // 삭제된 id (부활 방지)
+  /* 원격 진실 저장소 — GitHub 리포 (업무일지와 동일 패턴) */
+  const DSG_TASKS_PATH='data/design_tasks.json';
+  const DSG_REFS_PATH ='data/design_refs.json';
+  const DSG_TASKS_RAW =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_TASKS_PATH}`;
+  const DSG_TASKS_API =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_TASKS_PATH}`;
+  const DSG_REFS_RAW  =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_REFS_PATH}`;
+  const DSG_REFS_API  =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_REFS_PATH}`;
   const DSG_STATUS_META = {
     idea:     {label:'💡 아이디어', order:0},
     todo:     {label:'📌 할 일',   order:1},
@@ -12820,6 +12832,354 @@
   let _dsgModalTaskId = null;
   let _dsgModalRefId  = null;
   let _dsgSaveTimer = null;
+
+  /* ===== 원격 동기화 상태 (업무일지 동일 패턴) =====
+     · _dsgTasksDirty  : 편집·삽입된 tasks id 집합 (push 대상)
+     · _dsgRefsDirty   : 편집·삽입된 refs id 집합
+     · _dsgTomb        : 삭제한 id + 만료(ms) — 부활 방지 (24h 자동 정리)
+     · _dsg_lastEditTs : 마지막 편집 시각 (pull 재렌더가 입력을 지우지 않도록)
+     · _dsg_editSeq    : id별 편집 sequence — push 도중 새 편집 감지 */
+  const _dsgTasksDirty = new Set();
+  const _dsgRefsDirty  = new Set();
+  let   _dsg_pendingPurge = false;  // 삭제된 항목을 remote 에서도 치워야 함
+  const _dsgEditSeq    = {};
+  let _dsg_lastEditTs  = 0;
+  let _dsg_pushing     = false;
+  let _dsg_pushAgain   = false;
+  let _dsg_pushTimer   = null;
+  let _dsg_pullTimer   = null;
+  let _dsg_lastPushTs  = 0;
+  let _dsg_failStreak  = 0;
+
+  function _dsgLoadTombs(){
+    try{ return JSON.parse(localStorage.getItem(DSG_TOMB_KEY)||'{}'); }
+    catch(e){ return {}; }
+  }
+  function _dsgSaveTombs(t){
+    try{ localStorage.setItem(DSG_TOMB_KEY, JSON.stringify(t)); }catch(e){}
+  }
+  function _dsgAddTomb(id){
+    if(!id) return;
+    const t = _dsgLoadTombs();
+    t[id] = Date.now() + 24*60*60*1000;
+    _dsgSaveTombs(t);
+  }
+  function _dsgPurgeTombs(){
+    const t = _dsgLoadTombs();
+    const now = Date.now();
+    let changed = false;
+    for(const k of Object.keys(t)){
+      if(!t[k] || t[k] < now){ delete t[k]; changed = true; }
+    }
+    if(changed) _dsgSaveTombs(t);
+    return t;
+  }
+  function _dsgMarkTaskDirty(id){
+    if(!id) return;
+    _dsgTasksDirty.add(id);
+    _dsgEditSeq[id] = (_dsgEditSeq[id]||0) + 1;
+    _dsg_lastEditTs = Date.now();
+    _dsgSchedPush();
+  }
+  function _dsgMarkRefDirty(id){
+    if(!id) return;
+    _dsgRefsDirty.add(id);
+    _dsgEditSeq[id] = (_dsgEditSeq[id]||0) + 1;
+    _dsg_lastEditTs = Date.now();
+    _dsgSchedPush();
+  }
+  function _dsgHasPending(){ return _dsgTasksDirty.size>0 || _dsgRefsDirty.size>0 || _dsg_pendingPurge; }
+
+  function _dsgSetSaveState(state){
+    const tag = document.getElementById('dsgSaveTag');
+    if(!tag) return;
+    clearTimeout(tag._t);
+    tag.dataset.state = state;
+    tag.hidden = false;
+    if(state==='saving')      tag.textContent = '저장 중…';
+    else if(state==='pending')tag.textContent = '⚠ 저장 대기 · 창을 닫지 마세요';
+    else if(state==='error')  tag.textContent = '⚠ 저장 실패 · 재시도 중';
+    else {
+      const t=new Date();
+      const hh=String(t.getHours()).padStart(2,'0');
+      const mm=String(t.getMinutes()).padStart(2,'0');
+      tag.textContent = `✓ 저장됨 · ${hh}:${mm}`;
+      tag._t = setTimeout(()=>{ tag.hidden = true }, 2400);
+    }
+  }
+
+  /* remote fetch — 없으면 빈 배열 */
+  async function _dsgFetchRemoteTasks(){
+    try{
+      const r=await fetch(`${DSG_TASKS_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return [];
+      if(!r.ok) return null;
+      const arr=JSON.parse(await r.text());
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return null; }
+  }
+  async function _dsgFetchRemoteRefs(){
+    try{
+      const r=await fetch(`${DSG_REFS_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return [];
+      if(!r.ok) return null;
+      const arr=JSON.parse(await r.text());
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return null; }
+  }
+
+  /* 지금 디자인탭 안에서 입력 중인가?
+     보드 재렌더로 캐럿을 잃지 않도록 판단. (모달 안 input/textarea 도 포함) */
+  function _dsgIsEditing(){
+    const el=document.activeElement;
+    if(!el || el===document.body) return false;
+    const editable = el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'||el.isContentEditable;
+    if(!editable) return false;
+    return !!el.closest('#viewDesign, .dsg-modal');
+  }
+
+  /* remote pull — dirty 아이템은 로컬 유지, tombstone id 는 remote 에서도 제외 */
+  async function _dsgSyncFromRemote(force){
+    if(!force && Date.now() - _dsg_lastEditTs < 3000) return;
+    const [rt, rr] = await Promise.all([_dsgFetchRemoteTasks(), _dsgFetchRemoteRefs()]);
+    const tombs = _dsgPurgeTombs();
+    const tombIds = new Set(Object.keys(tombs));
+
+    if(rt){
+      const remote = rt.filter(x=>x && x.id && !tombIds.has(x.id));
+      const remoteIds = new Set(remote.map(x=>x.id));
+      // ① 로컬에만 있는 아이템은 자동으로 dirty (아직 안 올라간 편집 보호)
+      for(const t of _dsgTasks){
+        if(t && t.id && !remoteIds.has(t.id) && !tombIds.has(t.id)) _dsgTasksDirty.add(t.id);
+      }
+      const dirtyIds = new Set(_dsgTasksDirty);
+      const localById = new Map(_dsgTasks.map(t=>[t.id, t]));
+      const merged = [];
+      const seen = new Set();
+      for(const r of remote){
+        if(dirtyIds.has(r.id) && localById.has(r.id)) merged.push(localById.get(r.id));
+        else merged.push(r);
+        seen.add(r.id);
+      }
+      for(const t of _dsgTasks){
+        if(!t || !t.id) continue;
+        if(!seen.has(t.id) && dirtyIds.has(t.id) && !tombIds.has(t.id)) merged.unshift(t);
+      }
+      _dsgTasks = merged;
+      _dsgSaveTasks();
+      if(_dsgTasksDirty.size > 0) _dsgSchedPush();
+    }
+
+    if(rr){
+      const remote = rr.filter(x=>x && x.id && !tombIds.has(x.id));
+      const remoteIds = new Set(remote.map(x=>x.id));
+      for(const r of _dsgRefs){
+        if(r && r.id && !remoteIds.has(r.id) && !tombIds.has(r.id)) _dsgRefsDirty.add(r.id);
+      }
+      const dirtyIds = new Set(_dsgRefsDirty);
+      const localById = new Map(_dsgRefs.map(r=>[r.id, r]));
+      const merged = [];
+      const seen = new Set();
+      for(const r of remote){
+        if(dirtyIds.has(r.id) && localById.has(r.id)) merged.push(localById.get(r.id));
+        else merged.push(r);
+        seen.add(r.id);
+      }
+      for(const r of _dsgRefs){
+        if(!r || !r.id) continue;
+        if(!seen.has(r.id) && dirtyIds.has(r.id) && !tombIds.has(r.id)) merged.unshift(r);
+      }
+      _dsgRefs = merged;
+      _dsgSaveRefs();
+      if(_dsgRefsDirty.size > 0) _dsgSchedPush();
+    }
+
+    // 입력 중이면 렌더 지연 — 모달·필터 입력 캐럿을 살린다.
+    if(_dsgIsEditing()) return;
+    if(!document.getElementById('viewDesign')?.hidden){
+      dsgRender();
+      dsgRefsRender();
+    }
+  }
+
+  /* push — dirty 만 최신 remote 위에 얹어 PUT. tombstone id 제거. */
+  async function _dsgBuildTasksPayload(){
+    const remote = await _dsgFetchRemoteTasks();
+    if(remote===null) return null;
+    const tombs = _dsgPurgeTombs();
+    const tombIds = new Set(Object.keys(tombs));
+    const dirtyIds = new Set(_dsgTasksDirty);
+    const localById = new Map(_dsgTasks.map(t=>[t.id, t]));
+    const seen = new Set();
+    const merged = [];
+    for(const r of remote){
+      if(!r || !r.id || tombIds.has(r.id)) continue;
+      if(dirtyIds.has(r.id) && localById.has(r.id)) merged.push(localById.get(r.id));
+      else merged.push(r);
+      seen.add(r.id);
+    }
+    for(const t of _dsgTasks){
+      if(!t || !t.id) continue;
+      if(!seen.has(t.id) && dirtyIds.has(t.id) && !tombIds.has(t.id)) merged.unshift(t);
+    }
+    return {merged, dirtyIds:Array.from(dirtyIds)};
+  }
+  async function _dsgBuildRefsPayload(){
+    const remote = await _dsgFetchRemoteRefs();
+    if(remote===null) return null;
+    const tombs = _dsgPurgeTombs();
+    const tombIds = new Set(Object.keys(tombs));
+    const dirtyIds = new Set(_dsgRefsDirty);
+    const localById = new Map(_dsgRefs.map(r=>[r.id, r]));
+    const seen = new Set();
+    const merged = [];
+    for(const r of remote){
+      if(!r || !r.id || tombIds.has(r.id)) continue;
+      if(dirtyIds.has(r.id) && localById.has(r.id)) merged.push(localById.get(r.id));
+      else merged.push(r);
+      seen.add(r.id);
+    }
+    for(const r of _dsgRefs){
+      if(!r || !r.id) continue;
+      if(!seen.has(r.id) && dirtyIds.has(r.id) && !tombIds.has(r.id)) merged.unshift(r);
+    }
+    return {merged, dirtyIds:Array.from(dirtyIds)};
+  }
+
+  async function _dsgPushOnce(){
+    // 편집 도중 push 나가면, PUT 이 돌아온 뒤 seq 가 바뀐 아이템은 dirty 유지
+    const seqBefore = {};
+    for(const id of _dsgTasksDirty) seqBefore[id] = _dsgEditSeq[id]||0;
+    for(const id of _dsgRefsDirty)  seqBefore[id] = _dsgEditSeq[id]||0;
+
+    let tasksOK = true, refsOK = true;
+    let tasksPayload=null, refsPayload=null;
+    let tasksResult=null, refsResult=null;
+
+    // dirty 없어도 삭제(tomb) 반영을 위해 push 는 두 파일 모두 시도
+    const runTasks = _dsgTasksDirty.size > 0 || _dsg_pendingPurge;
+    const runRefs  = _dsgRefsDirty.size  > 0 || _dsg_pendingPurge;
+
+    // ---- Tasks 저장 ----
+    if(runTasks){
+      for(let attempt=0; attempt<3; attempt++){
+        tasksPayload = await _dsgBuildTasksPayload();
+        if(!tasksPayload){ tasksOK=false; break; }
+        const json = JSON.stringify(tasksPayload.merged, null, 2);
+        const b64  = btoa(unescape(encodeURIComponent(json)));
+        tasksResult = await ghPut(DSG_TASKS_API, b64, 'chore: 디자인 작업 갱신', {forceMaster:true, noConflictRetry:true});
+        if(tasksResult.ok || tasksResult.reason!=='conflict') break;
+      }
+      if(!tasksResult || !tasksResult.ok) tasksOK = false;
+    }
+
+    // ---- Refs 저장 ----
+    if(runRefs){
+      for(let attempt=0; attempt<3; attempt++){
+        refsPayload = await _dsgBuildRefsPayload();
+        if(!refsPayload){ refsOK=false; break; }
+        const json = JSON.stringify(refsPayload.merged, null, 2);
+        const b64  = btoa(unescape(encodeURIComponent(json)));
+        refsResult = await ghPut(DSG_REFS_API, b64, 'chore: 디자인 레퍼런스 갱신', {forceMaster:true, noConflictRetry:true});
+        if(refsResult.ok || refsResult.reason!=='conflict') break;
+      }
+      if(!refsResult || !refsResult.ok) refsOK = false;
+    }
+
+    // 성공/부분성공/실패 처리
+    if(tasksOK && tasksPayload){
+      // seq가 바뀌지 않은 것만 dirty 해제 (계속 편집 중인 항목은 유지)
+      tasksPayload.dirtyIds.forEach(id=>{
+        if((_dsgEditSeq[id]||0) !== (seqBefore[id]||0)) return;
+        _dsgTasksDirty.delete(id);
+      });
+      // 저장된 merged 상태를 로컬에도 반영 (남이 편집한 다른 아이템 반영)
+      _dsgTasks = tasksPayload.merged;
+      _dsgSaveTasks();
+    }
+    if(refsOK && refsPayload){
+      refsPayload.dirtyIds.forEach(id=>{
+        if((_dsgEditSeq[id]||0) !== (seqBefore[id]||0)) return;
+        _dsgRefsDirty.delete(id);
+      });
+      _dsgRefs = refsPayload.merged;
+      _dsgSaveRefs();
+    }
+
+    if(tasksOK && refsOK){
+      _dsg_failStreak = 0;
+      _dsg_pendingPurge = false;   // tomb 반영 완료
+      if(_dsgHasPending()) _dsgSchedPush();
+      else                 _dsgSetSaveState('saved');
+      // 재렌더 (dirty 아이템은 로컬 유지되어 있으므로 편집 내용 보존)
+      if(!_dsgIsEditing() && !document.getElementById('viewDesign')?.hidden){
+        dsgRender();
+        dsgRefsRender();
+      }
+    } else {
+      // auth 실패면 사용자에게 알림 없이 재시도 (프록시가 처리)
+      const reason = (tasksResult&&tasksResult.reason) || (refsResult&&refsResult.reason);
+      _dsgPushRetry(reason);
+    }
+  }
+  function _dsgPushRetry(reason){
+    _dsg_failStreak = Math.min(_dsg_failStreak+1, 6);
+    _dsgSetSaveState(reason==='too_large' ? 'error' : 'pending');
+    clearTimeout(_dsg_pushTimer);
+    _dsg_pushTimer = setTimeout(_dsgPushRemote, Math.min(1000 * 2**(_dsg_failStreak-1), 30000));
+  }
+  async function _dsgPushRemote(){
+    if(!_dsgHasPending()){ _dsgSetSaveState('saved'); return; }
+    if(_dsg_pushing){ _dsg_pushAgain = true; return; }
+    _dsg_pushing = true;
+    _dsg_lastPushTs = Date.now();
+    _dsgSetSaveState('saving');
+    try { await _dsgPushOnce(); }
+    finally {
+      _dsg_pushing = false;
+      if(_dsg_pushAgain){ _dsg_pushAgain = false; _dsgSchedPush(); }
+    }
+  }
+  /* 첫 편집 후 즉시 (2초 지났으면), 아니면 600ms debounce */
+  function _dsgSchedPush(){
+    if(!_dsgHasPending()) return;
+    _dsgSetSaveState('saving');
+    const since = Date.now() - _dsg_lastPushTs;
+    if(!_dsg_pushing && since >= 2000){
+      clearTimeout(_dsg_pushTimer);
+      _dsgPushRemote();
+      return;
+    }
+    clearTimeout(_dsg_pushTimer);
+    _dsg_pushTimer = setTimeout(_dsgPushRemote, 600);
+  }
+  /* 뷰 진입 시 시작 — 첫 pull + 5초 주기 pull + 이벤트 훅 */
+  function _dsgStartSync(){
+    if(_dsg_pullTimer) return;
+    _dsgSyncFromRemote(true);
+    _dsg_pullTimer = setInterval(()=>_dsgSyncFromRemote(false), 5*1000);
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.hidden){
+        if(_dsgHasPending()){
+          clearTimeout(_dsg_pushTimer);
+          _dsgPushRemote();
+        }
+      } else {
+        _dsgSyncFromRemote(false);
+      }
+    });
+    window.addEventListener('pagehide', ()=>{
+      if(_dsgHasPending()){
+        clearTimeout(_dsg_pushTimer);
+        _dsgPushRemote();
+      }
+    });
+    window.addEventListener('beforeunload', (e)=>{
+      if(!_dsgHasPending()) return;
+      e.preventDefault();
+      e.returnValue = '';
+    });
+  }
 
   function _dsgLoadUI(){
     try{
@@ -12884,6 +13244,8 @@
       dsgInit._paste = true;
       window.addEventListener('paste', dsgHandlePaste);
     }
+    // 원격 동기화 시작 — 5초 주기 pull + 변경 시 즉시 push (업무일지 동일 패턴)
+    _dsgStartSync();
   }
 
   /* 서브탭 스위치 */
@@ -13046,6 +13408,7 @@
     };
     _dsgTasks.unshift(t);
     _dsgSaveTasks();
+    _dsgMarkTaskDirty(t.id);
     dsgRender();
     dsgOpenTask(t.id, true);
   }
@@ -13057,8 +13420,8 @@
     t.status = t.status==='done' ? 'todo' : 'done';
     t.updated_at = _dsgNowIso();
     _dsgSaveTasks();
+    _dsgMarkTaskDirty(id);
     dsgRender();
-    const tag=document.getElementById('dsgSaveTag'); if(tag){ tag.hidden=false; tag.textContent='✓ '+(t.status==='done'?'완료':'복원'); clearTimeout(tag._t); tag._t=setTimeout(()=>tag.hidden=true, 1200); }
   }
 
   /* 모달 열기 */
@@ -13088,8 +13451,13 @@
   function dsgDeleteTask(){
     if(!_dsgModalTaskId) return;
     if(!confirm('이 작업을 삭제할까요?')) return;
-    _dsgTasks = _dsgTasks.filter(x=>x.id!==_dsgModalTaskId);
+    const id = _dsgModalTaskId;
+    _dsgTasks = _dsgTasks.filter(x=>x.id!==id);
     _dsgSaveTasks();
+    _dsgAddTomb(id);
+    _dsgTasksDirty.delete(id);
+    _dsg_pendingPurge = true;   // remote 에서도 지우기 위한 push 트리거
+    _dsgSchedPush();
     _dsgModalTaskId = null;
     document.getElementById('dsgTaskModal').hidden = true;
     document.body.style.overflow='';
@@ -13115,6 +13483,7 @@
     // tags 는 chip 조작 시 이미 t.tags 갱신됨
     t.updated_at  = _dsgNowIso();
     _dsgSaveTasks();
+    _dsgMarkTaskDirty(t.id);
     dsgRender();
     if(!silent) _dsgShowSaveTag(document.getElementById('dsgModalSaveTag'));
   }
@@ -13137,6 +13506,7 @@
     if(!t.tags.includes(tagged)) t.tags.push(tagged);
     e.target.value='';
     _dsgRenderTags('dsgModalTagList', t.tags, true);
+    _dsgMarkTaskDirty(t.id);
     dsgSchedSave();
   }
   function dsgTagRemove(idx){
@@ -13144,6 +13514,7 @@
     if(!t || !t.tags) return;
     t.tags.splice(idx,1);
     _dsgRenderTags('dsgModalTagList', t.tags, true);
+    _dsgMarkTaskDirty(t.id);
     dsgSchedSave();
   }
 
@@ -13171,6 +13542,7 @@
       if(!t) return;
       t.cover_url = url;
       _dsgSaveTasks();
+      _dsgMarkTaskDirty(t.id);
       _dsgRenderCover(url);
       dsgSchedSave();
     });
@@ -13180,15 +13552,18 @@
     if(!t) return;
     t.cover_url = '';
     _dsgSaveTasks();
+    _dsgMarkTaskDirty(t.id);
     _dsgRenderCover('');
     dsgSchedSave();
   }
-  function _dsgFileToDataURL(file, cb){
-    // 크기 절약: 최대 1600px, JPEG 0.85로 리사이즈
+  function _dsgFileToDataURL(file, cb, opts){
+    // GitHub JSON 페이로드에 얹기 위해 이미지 크기 압축.
+    // opts.max: 최대 변 (기본 1200), opts.q: JPEG 품질 (기본 0.78)
+    const MAX = (opts&&opts.max) || 1200;
+    const Q   = (opts&&opts.q)   || 0.78;
     const img = new Image();
     const r = new FileReader();
     r.onload = ()=>{ img.onload = ()=>{
-      const MAX=1600;
       let w=img.naturalWidth, h=img.naturalHeight;
       if(w>MAX || h>MAX){
         const s = Math.min(MAX/w, MAX/h);
@@ -13197,7 +13572,7 @@
       const cv=document.createElement('canvas');
       cv.width=w; cv.height=h;
       cv.getContext('2d').drawImage(img,0,0,w,h);
-      try{ cb(cv.toDataURL('image/jpeg', 0.85)); }
+      try{ cb(cv.toDataURL('image/jpeg', Q)); }
       catch(e){ cb(r.result); }
     }; img.src = r.result; };
     r.readAsDataURL(file);
@@ -13313,9 +13688,8 @@
       };
       _dsgRefs.unshift(r);
       _dsgSaveRefs();
+      _dsgMarkRefDirty(r.id);
       dsgRefsRender();
-      // 최초 저장 시 저장 tag
-      const tag=document.getElementById('dsgSaveTag'); if(tag){ tag.hidden=false; tag.textContent='✓ 저장'; clearTimeout(tag._t); tag._t=setTimeout(()=>tag.hidden=true, 1200); }
     });
   }
 
@@ -13347,8 +13721,13 @@
   function dsgDeleteRef(){
     if(!_dsgModalRefId) return;
     if(!confirm('이 레퍼런스를 삭제할까요?')) return;
-    _dsgRefs = _dsgRefs.filter(x=>x.id!==_dsgModalRefId);
+    const id = _dsgModalRefId;
+    _dsgRefs = _dsgRefs.filter(x=>x.id!==id);
     _dsgSaveRefs();
+    _dsgAddTomb(id);
+    _dsgRefsDirty.delete(id);
+    _dsg_pendingPurge = true;
+    _dsgSchedPush();
     _dsgModalRefId = null;
     document.getElementById('dsgRefModal').hidden = true;
     document.body.style.overflow='';
@@ -13369,6 +13748,7 @@
     r.notes      = document.getElementById('dsgRefNotes').value;
     r.pinned     = document.getElementById('dsgRefPinned').checked;
     _dsgSaveRefs();
+    _dsgMarkRefDirty(r.id);
     dsgRefsRender();
     if(!silent) _dsgShowSaveTag(document.getElementById('dsgRefModalSaveTag'));
   }
@@ -13377,6 +13757,7 @@
     if(!r) return;
     r.pinned = !r.pinned;
     _dsgSaveRefs();
+    _dsgMarkRefDirty(id);
     dsgRefsRender();
   }
   function dsgRefTagKey(e){
@@ -13391,6 +13772,7 @@
     if(!r.tags.includes(tagged)) r.tags.push(tagged);
     e.target.value='';
     _dsgRenderTags('dsgRefTagList', r.tags, false);
+    _dsgMarkRefDirty(r.id);
     dsgRefSchedSave();
   }
   function dsgRefTagRemove(idx){
@@ -13398,6 +13780,7 @@
     if(!r || !r.tags) return;
     r.tags.splice(idx,1);
     _dsgRenderTags('dsgRefTagList', r.tags, false);
+    _dsgMarkRefDirty(r.id);
     dsgRefSchedSave();
   }
 
