@@ -2890,6 +2890,21 @@
   }
   .wr-batch-list-inline .wr-cell-th{color:#57534e;font-weight:700;font-size:11px}
   .wr-batch-list-inline .wr-cell-amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  /* 셀 안 값 + 복사 버튼 (은행앱 붙여넣기 편의) */
+  .wr-cell-copy{display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:100%}
+  .wr-cell-copy > .wr-cell-val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wr-cell-amt .wr-cell-copy{justify-content:flex-end;width:100%}
+  .wr-copy-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;padding:0;flex-shrink:0;
+    border:1px solid #e7e2ce;background:#fff;color:#78716c;
+    border-radius:5px;cursor:pointer;transition:all .12s;
+    font-family:inherit;line-height:1;
+  }
+  .wr-copy-btn:hover{background:#fef3c7;border-color:#fcd34d;color:#7c2d12}
+  .wr-copy-btn:active{transform:scale(.94)}
+  .wr-copy-btn.is-just-copied{background:#dcfce7;border-color:#86efac;color:#14532d}
+  .wr-copy-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   .wr-batch-total{
     margin-left:auto;background:#fff;border:1px solid #e7e2ce;border-radius:999px;
     padding:3px 10px;font-weight:700;color:#1c1917;font-variant-numeric:tabular-nums;
@@ -21825,6 +21840,40 @@
   }
   window.wrCancelBatch = wrCancelBatch;
 
+  // 복사 아이콘 (SVG) — 각 셀 복사 버튼용
+  const _wrCopyIcon = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+
+  async function wrCopyText(text, label){
+    if(!text) return;
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+      }else{
+        // fallback
+        const ta=document.createElement('textarea');
+        ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }finally{ ta.remove(); }
+      }
+      toast(`✓ ${label||'복사'}: ${text}`, 'ok');
+    }catch(e){
+      toast('복사 실패 — 브라우저 권한 확인', 'err');
+    }
+  }
+  window.wrCopyText = wrCopyText;
+
+  // 복사 버튼 delegation — 렌더될 때마다 리스너 붙일 필요 없이 한 번만 등록
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.wr-copy-btn');
+    if(!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    const val = btn.dataset.copy || '';
+    const label = btn.dataset.label || '';
+    wrCopyText(val, label);
+    btn.classList.add('is-just-copied');
+    setTimeout(()=>btn.classList.remove('is-just-copied'), 900);
+  });
+
   async function _wrFetchBatches(){
     try{
       // 미완료 전부 + 최근 완료 5건
@@ -21863,19 +21912,25 @@
       // 취소(삭제) — notified 상태이고 요청 본인 또는 마스터만 가능
       const canCancel = !isDone && (isMaster() || me === b.requested_by);
       const cancelBtn = canCancel
-        ? `<button type="button" class="wr-btn wr-btn-cancel" onclick="wrCancelBatch('${_esc(b.id)}', ${JSON.stringify(b.requested_by||'')})">🗑 알림 취소</button>`
+        ? `<button type="button" class="wr-btn wr-btn-cancel" onclick="wrCancelBatch('${_esc(b.id)}', '${_esc(b.requested_by||'')}')">🗑 알림 취소</button>`
         : '';
       const actionsHtml = (doneBtn || cancelBtn)
         ? `<div class="wr-batch-actions">${cancelBtn}${doneBtn}</div>`
         : '';
-      const rowsHtml = rows.map(r=>`
-        <div class="wr-cell-th">${_esc(r.bank||'')}</div>
-        <div>${_esc(r.account||'')}</div>
-        <div class="wr-cell-amt">${_wrFmtWon(r.amount)}</div>
-        <div>${_esc(r.holder||'')}</div>
-        <div>${_esc(r.memo||'')}</div>
-        <div></div>
-      `).join('');
+      const rowsHtml = rows.map(r=>{
+        const bank=String(r.bank||''), account=String(r.account||''), holder=String(r.holder||''), memo=String(r.memo||'');
+        const amountRaw = Number(r.amount)||0;
+        const accountDigits = account.replace(/[^0-9]/g,''); // 은행앱은 숫자만 받는 경우 많음
+        const mkBtn=(val,label)=> val ? `<button type="button" class="wr-copy-btn" data-copy="${_esc(val)}" data-label="${_esc(label)}" title="${_esc(label)} 복사">${_wrCopyIcon}</button>` : '';
+        return `
+          <div class="wr-cell-th"><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(bank)}</span>${mkBtn(bank,'은행')}</span></div>
+          <div><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(account)}</span>${mkBtn(accountDigits||account,'계좌번호')}</span></div>
+          <div class="wr-cell-amt"><span class="wr-cell-copy"><span class="wr-cell-val">${_wrFmtWon(r.amount)}</span>${mkBtn(String(amountRaw),'금액')}</span></div>
+          <div><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(holder)}</span>${mkBtn(holder,'예금주')}</span></div>
+          <div><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(memo)}</span>${mkBtn(memo,'비고')}</span></div>
+          <div></div>
+        `;
+      }).join('');
       return `
         <div class="wr-batch">
           <div class="wr-batch-head">
