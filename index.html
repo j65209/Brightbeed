@@ -2865,6 +2865,8 @@
   .wr-btn-notify:hover{background:#fde68a}
   .wr-btn-done{background:#dcfce7;border-color:#86efac;color:#14532d}
   .wr-btn-done:hover{background:#bbf7d0}
+  .wr-btn-cancel{background:#fff7ed;border-color:#fdba74;color:#9a3412}
+  .wr-btn-cancel:hover{background:#fee2e2;border-color:#fca5a5;color:#b91c1c}
   .wr-btn-reset{color:#78716c}
   .wr-hint{font-size:11.5px;color:#78716c;margin-right:auto;letter-spacing:-.01em}
   .wr-batch{
@@ -21802,6 +21804,27 @@
   }
   window.wrMarkDone = wrMarkDone;
 
+  async function wrCancelBatch(id, requestedBy){
+    if(!id) return;
+    const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
+    // 요청 본인 또는 마스터만 취소 가능
+    if(!isMaster() && me !== requestedBy){
+      toast('본인이 요청한 알림만 취소할 수 있습니다', 'err');
+      return;
+    }
+    if(!confirm('이 알림을 목록에서 지울까요?\n(이미 뜬 크롬 알림 자체는 사라지지 않습니다)')) return;
+    try{
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?id=eq.${encodeURIComponent(id)}`, {
+        method:'DELETE',
+        headers:_sbHeaders({'Prefer':'return=minimal'}),
+      });
+      if(!r.ok){ toast(`취소 실패 (HTTP ${r.status})`, 'err'); return; }
+      toast('알림을 취소했습니다', 'ok');
+      _wrFetchBatches();
+    }catch(e){ toast('취소 실패 — 네트워크 확인', 'err'); }
+  }
+  window.wrCancelBatch = wrCancelBatch;
+
   async function _wrFetchBatches(){
     try{
       // 미완료 전부 + 최근 완료 5건
@@ -21837,6 +21860,14 @@
       const doneBtn = (!isDone && canDone)
         ? `<button type="button" class="wr-btn wr-btn-done" onclick="wrMarkDone('${_esc(b.id)}')">✅ 송금완료</button>`
         : '';
+      // 취소(삭제) — notified 상태이고 요청 본인 또는 마스터만 가능
+      const canCancel = !isDone && (isMaster() || me === b.requested_by);
+      const cancelBtn = canCancel
+        ? `<button type="button" class="wr-btn wr-btn-cancel" onclick="wrCancelBatch('${_esc(b.id)}', ${JSON.stringify(b.requested_by||'')})">🗑 알림 취소</button>`
+        : '';
+      const actionsHtml = (doneBtn || cancelBtn)
+        ? `<div class="wr-batch-actions">${cancelBtn}${doneBtn}</div>`
+        : '';
       const rowsHtml = rows.map(r=>`
         <div class="wr-cell-th">${_esc(r.bank||'')}</div>
         <div>${_esc(r.account||'')}</div>
@@ -21862,7 +21893,7 @@
             <div></div>
             ${rowsHtml}
           </div>
-          ${doneBtn ? `<div class="wr-batch-actions">${doneBtn}</div>` : ''}
+          ${actionsHtml}
         </div>
       `;
     }).join('');
