@@ -75,6 +75,10 @@
     --neon-mkt:#84cc16;
     --neon-mkt-2:#4d7c0f;
     --neon-mkt-glow:rgba(132,204,22,.4);
+    /* 디자인팀 — 바이올렛/퍼플 (크리에이티브·감성) */
+    --neon-design:#a855f7;
+    --neon-design-2:#7c3aed;
+    --neon-design-glow:rgba(168,85,247,.45);
     /* 업무일지 — 옐로우/네온그린 (형광·주목, 마케팅 라임과 구분) */
     --neon-diary:#f59e0b;
     --neon-diary-2:#16a34a;
@@ -867,6 +871,26 @@
       0 0 0 1px rgba(132,204,22,.55),
       0 0 32px rgba(132,204,22,.65),
       0 0 96px rgba(77,124,15,.4),
+      inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 히어로 — 디자인팀 (바이올렛/퍼플) */
+  .hero.hero-design .hero-eyebrow{color:#a855f7;text-shadow:0 0 12px var(--neon-design-glow)}
+  .btn-neon.btn-design{
+    background:linear-gradient(135deg,var(--neon-design) 0%,var(--neon-design-2) 100%);
+    color:#ffffff;
+    border-color:rgba(168,85,247,.5);
+    box-shadow:
+      0 0 0 1px rgba(168,85,247,.35),
+      0 0 24px rgba(168,85,247,.45),
+      0 0 64px rgba(124,58,237,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-neon.btn-design:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(168,85,247,.55),
+      0 0 32px rgba(168,85,247,.65),
+      0 0 96px rgba(124,58,237,.4),
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
@@ -6311,6 +6335,371 @@
     .diary-alert-avatar{width:18px;height:18px;font-size:9.5px}
   }
 
+  /* ===== 디자인팀 뷰 — 노션 스타일 작업 보드 + 레퍼런스 갤러리 =====
+     사장님 요청: 노션과 유사한 편집 UX, 커버 이미지, 상태·우선순위·태그, 이미지 자유 저장 */
+  #viewDesign{padding:24px 32px 60px;max-width:1400px;margin:0 auto}
+  #viewDesign .view-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  #viewDesign .view-title{font-size:26px;font-weight:700;color:#1c1917;letter-spacing:-.01em}
+  #viewDesign .view-title-sub{font-size:14px;font-weight:500;color:#a8a29e;margin-left:8px;letter-spacing:0}
+  .dsg-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .dsg-save-tag{font-size:11px;color:#84cc16;font-weight:600;padding:3px 8px;border-radius:10px;background:rgba(132,204,22,.1);border:1px solid rgba(132,204,22,.3)}
+
+  /* 서브탭 */
+  .dsg-tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid #e7e5e4;padding-bottom:0}
+  .dsg-tab{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 16px;font-size:13px;font-weight:600;color:#78716c;
+    background:transparent;border:none;border-bottom:2px solid transparent;
+    cursor:pointer;transition:all .15s;font-family:inherit;
+    margin-bottom:-1px;letter-spacing:-.005em;
+  }
+  .dsg-tab:hover{color:#44403c;background:rgba(168,85,247,.05)}
+  .dsg-tab.active{color:#7c3aed;border-bottom-color:#a855f7}
+  .dsg-tab svg{opacity:.7;flex:none}
+  .dsg-tab.active svg{opacity:1}
+  .dsg-tab-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:20px;height:18px;padding:0 6px;
+    background:#e7e5e4;color:#78716c;
+    border-radius:10px;font-size:10.5px;font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+  .dsg-tab.active .dsg-tab-badge{background:rgba(168,85,247,.15);color:#7c3aed}
+
+  /* 툴바 */
+  .dsg-toolbar{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    margin-bottom:20px;padding:10px 14px;
+    background:#fafaf9;border:1px solid #e7e5e4;border-radius:10px;
+  }
+  .dsg-view-modes{display:inline-flex;background:#f5f5f4;border:1px solid #e7e5e4;border-radius:8px;padding:2px;gap:2px}
+  .dsg-vm{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:5px 10px;font-size:12px;font-weight:600;color:#78716c;
+    background:transparent;border:none;border-radius:6px;
+    cursor:pointer;transition:all .12s;font-family:inherit;
+  }
+  .dsg-vm:hover{color:#44403c;background:rgba(0,0,0,.03)}
+  .dsg-vm.active{background:#fff;color:#7c3aed;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .dsg-vm svg{opacity:.7}
+  .dsg-vm.active svg{opacity:1}
+  .dsg-filters{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .dsg-select,.dsg-search{
+    height:30px;padding:0 10px;font-size:12.5px;
+    background:#fff;border:1px solid #e7e5e4;border-radius:6px;
+    color:#1c1917;outline:none;font-family:inherit;
+    transition:border-color .12s;
+  }
+  .dsg-select:focus,.dsg-search:focus{border-color:#a855f7}
+  .dsg-search{width:180px}
+  .dsg-hide-done{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#78716c;cursor:pointer;user-select:none}
+  .dsg-hide-done input{accent-color:#a855f7;cursor:pointer}
+  .dsg-new-btn{
+    margin-left:auto;
+    display:inline-flex;align-items:center;gap:5px;
+    padding:7px 14px;font-size:12.5px;font-weight:600;color:#fff;
+    background:linear-gradient(135deg,#a855f7,#7c3aed);
+    border:none;border-radius:7px;
+    cursor:pointer;transition:transform .12s, box-shadow .12s;font-family:inherit;
+    box-shadow:0 2px 6px rgba(168,85,247,.3);
+  }
+  .dsg-new-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(168,85,247,.4)}
+  .dsg-new-btn:active{transform:translateY(0)}
+
+  /* 갤러리 뷰 */
+  .dsg-gallery{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:16px;
+  }
+  .dsg-card{
+    background:#fff;border:1px solid #e7e5e4;border-radius:10px;
+    overflow:hidden;cursor:pointer;
+    transition:transform .15s, box-shadow .15s, border-color .15s;
+    display:flex;flex-direction:column;
+  }
+  .dsg-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.06);border-color:#d6d3d1}
+  .dsg-card.done{opacity:.55}
+  .dsg-card-cover{
+    width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#f5f3ff,#faf5ff);
+    display:flex;align-items:center;justify-content:center;
+    color:#a78bfa;font-size:32px;overflow:hidden;position:relative;
+  }
+  .dsg-card-cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .dsg-card-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .dsg-card-title{
+    font-size:14px;font-weight:600;color:#1c1917;line-height:1.35;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .dsg-card-title.done{text-decoration:line-through;color:#a8a29e}
+  .dsg-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
+  .dsg-status-pill{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 8px;font-size:10.5px;font-weight:600;
+    border-radius:10px;border:1px solid transparent;letter-spacing:-.005em;
+  }
+  .dsg-status-pill[data-s="idea"]    {background:#fef3c7;color:#92400e;border-color:#fde68a}
+  .dsg-status-pill[data-s="todo"]    {background:#e0f2fe;color:#075985;border-color:#bae6fd}
+  .dsg-status-pill[data-s="progress"]{background:#ede9fe;color:#5b21b6;border-color:#ddd6fe}
+  .dsg-status-pill[data-s="review"]  {background:#fce7f3;color:#9d174d;border-color:#fbcfe8}
+  .dsg-status-pill[data-s="done"]    {background:#dcfce7;color:#166534;border-color:#bbf7d0}
+  .dsg-status-pill[data-s="hold"]    {background:#f5f5f4;color:#57534e;border-color:#e7e5e4}
+  .dsg-prio-dot{
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;line-height:1;
+  }
+  .dsg-tags{display:inline-flex;gap:4px;flex-wrap:wrap}
+  .dsg-tag{
+    padding:1px 7px;font-size:10.5px;font-weight:500;
+    color:#7c3aed;background:rgba(168,85,247,.08);
+    border-radius:10px;letter-spacing:-.005em;
+  }
+  .dsg-card-due{font-size:10.5px;color:#a8a29e;margin-left:auto;font-variant-numeric:tabular-nums}
+  .dsg-card-due.overdue{color:#dc2626;font-weight:600}
+  .dsg-card-owner{font-size:10.5px;color:#78716c}
+  .dsg-card-check{
+    position:absolute;top:8px;left:8px;
+    width:22px;height:22px;border-radius:50%;
+    background:rgba(255,255,255,.9);border:1.5px solid #d6d3d1;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:all .15s;color:#a8a29e;
+    backdrop-filter:blur(4px);
+  }
+  .dsg-card-check:hover{border-color:#22c55e;color:#22c55e}
+  .dsg-card-check.checked{background:#22c55e;border-color:#22c55e;color:#fff}
+  .dsg-card-check svg{width:12px;height:12px;stroke-width:3}
+
+  /* 칸반 */
+  .dsg-kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px}
+  .dsg-kb-col{flex:0 0 260px;display:flex;flex-direction:column;gap:10px}
+  .dsg-kb-head{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 10px;background:#fafaf9;
+    border:1px solid #e7e5e4;border-radius:8px;
+    font-size:12px;font-weight:700;color:#44403c;
+  }
+  .dsg-kb-head-count{
+    margin-left:auto;display:inline-flex;align-items:center;justify-content:center;
+    min-width:18px;height:16px;padding:0 5px;
+    background:#e7e5e4;color:#78716c;border-radius:8px;
+    font-size:10px;font-weight:700;
+  }
+  .dsg-kb-list{display:flex;flex-direction:column;gap:8px;min-height:60px}
+  .dsg-kb-card{
+    background:#fff;border:1px solid #e7e5e4;border-radius:8px;
+    padding:10px 12px;cursor:pointer;
+    transition:transform .12s, box-shadow .12s;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .dsg-kb-card:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.05)}
+  .dsg-kb-card-title{font-size:13px;font-weight:600;color:#1c1917;line-height:1.3}
+  .dsg-kb-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+  /* 리스트 */
+  .dsg-list{display:flex;flex-direction:column;gap:2px;background:#fafaf9;border:1px solid #e7e5e4;border-radius:10px;overflow:hidden}
+  .dsg-list-row{
+    display:grid;grid-template-columns:26px 1fr 90px 76px 100px 90px;
+    align-items:center;gap:12px;padding:8px 14px;
+    background:#fff;cursor:pointer;transition:background .1s;
+  }
+  .dsg-list-row:hover{background:#faf5ff}
+  .dsg-list-title{font-size:13px;font-weight:500;color:#1c1917;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dsg-list-title.done{text-decoration:line-through;color:#a8a29e}
+  .dsg-list-cell{font-size:11.5px;color:#78716c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dsg-list-row .dsg-status-pill{width:fit-content}
+
+  /* 빈 상태 */
+  .dsg-empty{
+    text-align:center;padding:60px 20px;color:#a8a29e;
+    background:#fafaf9;border:1px dashed #e7e5e4;border-radius:12px;
+  }
+  .dsg-empty-icon{font-size:44px;margin-bottom:10px}
+  .dsg-empty-title{font-size:15px;font-weight:600;color:#57534e;margin-bottom:6px}
+  .dsg-empty-sub{font-size:12.5px;line-height:1.6}
+  .dsg-empty-sub b{color:#7c3aed}
+
+  /* 레퍼런스 갤러리 — 노션 갤러리 뷰처럼 Masonry-lite */
+  .dsg-board-tabs{display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center}
+  .dsg-bt{
+    padding:5px 10px;font-size:12px;font-weight:600;color:#78716c;
+    background:#fff;border:1px solid #e7e5e4;border-radius:14px;
+    cursor:pointer;transition:all .12s;font-family:inherit;
+  }
+  .dsg-bt:hover{color:#7c3aed;border-color:#ddd6fe}
+  .dsg-bt.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+  .dsg-bt-count{opacity:.7;margin-left:3px;font-weight:500}
+  .dsg-bt-add{color:#a855f7;background:#faf5ff;border-style:dashed}
+  .dsg-refs-hint{
+    padding:9px 14px;margin-bottom:14px;
+    background:linear-gradient(135deg,#faf5ff,#fdf4ff);
+    border:1px dashed #d8b4fe;border-radius:8px;
+    font-size:12px;color:#6b21a8;text-align:center;
+  }
+  .dsg-refs-hint-key{
+    display:inline-block;padding:1px 6px;
+    font-family:var(--mono);font-size:11px;font-weight:700;
+    background:#fff;border:1px solid #d8b4fe;border-radius:4px;color:#7c3aed;
+  }
+  .dsg-refs-drop{position:relative;min-height:200px;border-radius:12px;transition:background .15s}
+  .dsg-refs-drop.dragover{background:rgba(168,85,247,.06);outline:2px dashed #a855f7;outline-offset:-6px}
+  .dsg-refs-grid{
+    columns:4 220px;column-gap:14px;
+  }
+  .dsg-ref-item{
+    break-inside:avoid;margin-bottom:14px;
+    background:#fff;border:1px solid #e7e5e4;border-radius:10px;overflow:hidden;
+    cursor:pointer;position:relative;
+    transition:transform .12s, box-shadow .12s;
+    display:block;
+  }
+  .dsg-ref-item:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+  .dsg-ref-item img{width:100%;height:auto;display:block;background:#fafaf9}
+  .dsg-ref-item-body{padding:8px 12px 10px}
+  .dsg-ref-item-title{font-size:12.5px;font-weight:600;color:#1c1917;margin-bottom:3px;line-height:1.3}
+  .dsg-ref-item-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+  .dsg-ref-item-pin{
+    position:absolute;top:8px;right:8px;
+    width:24px;height:24px;border-radius:50%;
+    background:rgba(255,255,255,.95);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;cursor:pointer;transition:transform .12s;
+    box-shadow:0 2px 6px rgba(0,0,0,.1);
+  }
+  .dsg-ref-item-pin:hover{transform:scale(1.1)}
+  .dsg-ref-item-pin.pinned{background:#fef3c7}
+
+  /* 모달 */
+  .dsg-modal{
+    position:fixed;inset:0;background:rgba(28,25,23,.55);
+    z-index:9999;display:flex;align-items:center;justify-content:center;
+    padding:20px;backdrop-filter:blur(4px);animation:dsgModalIn .18s ease-out;
+  }
+  .dsg-modal[hidden]{display:none}
+  @keyframes dsgModalIn{from{opacity:0}to{opacity:1}}
+  .dsg-modal-card{
+    background:#fff;border-radius:14px;overflow:hidden;
+    width:100%;max-width:640px;max-height:calc(100vh - 40px);
+    display:flex;flex-direction:column;
+    box-shadow:0 24px 60px rgba(0,0,0,.28);
+    animation:dsgModalCard .22s cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes dsgModalCard{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .dsg-modal-card-ref{max-width:720px}
+  .dsg-modal-cover{
+    position:relative;height:180px;
+    background:linear-gradient(135deg,#f5f3ff,#faf5ff);
+    display:flex;align-items:center;justify-content:center;
+    color:#a78bfa;
+  }
+  .dsg-modal-cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .dsg-cover-empty{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:24px;color:#a78bfa;font-size:13px;font-weight:600;cursor:pointer;
+    border:2px dashed #ddd6fe;border-radius:10px;
+    background:rgba(255,255,255,.5);transition:all .15s;
+  }
+  .dsg-cover-empty:hover{border-color:#a855f7;color:#7c3aed}
+  .dsg-cover-remove{
+    position:absolute;top:12px;right:12px;
+    width:28px;height:28px;border-radius:50%;
+    background:rgba(28,25,23,.7);color:#fff;border:none;
+    cursor:pointer;font-size:18px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .dsg-modal-body{padding:20px 24px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+  .dsg-modal-title{
+    font-size:22px;font-weight:700;color:#1c1917;
+    background:transparent;border:none;outline:none;
+    padding:2px 0;font-family:inherit;
+    border-bottom:1px solid transparent;transition:border-color .12s;
+  }
+  .dsg-modal-title:focus{border-bottom-color:#e7e5e4}
+  .dsg-modal-title::placeholder{color:#d6d3d1}
+  .dsg-modal-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+  .dsg-meta-row{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:10px;min-height:32px}
+  .dsg-meta-tags{grid-column:1 / -1}
+  .dsg-meta-label{font-size:11.5px;font-weight:600;color:#78716c;letter-spacing:-.005em}
+  .dsg-meta-select,.dsg-meta-input{
+    height:30px;padding:0 10px;font-size:12.5px;
+    background:#fafaf9;border:1px solid #e7e5e4;border-radius:6px;
+    color:#1c1917;outline:none;font-family:inherit;
+    transition:border-color .12s, background .12s;
+  }
+  .dsg-meta-select:focus,.dsg-meta-input:focus{border-color:#a855f7;background:#fff}
+  .dsg-tag-input-wrap{
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    padding:5px 8px;min-height:32px;
+    background:#fafaf9;border:1px solid #e7e5e4;border-radius:6px;
+  }
+  .dsg-tag-input-wrap:focus-within{border-color:#a855f7;background:#fff}
+  .dsg-tag-list{display:inline-flex;gap:4px;flex-wrap:wrap}
+  .dsg-tag-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 4px 2px 8px;font-size:11px;font-weight:600;
+    color:#7c3aed;background:rgba(168,85,247,.1);
+    border-radius:10px;
+  }
+  .dsg-tag-chip-x{cursor:pointer;opacity:.5;transition:opacity .12s;padding:0 4px;font-size:14px;line-height:1}
+  .dsg-tag-chip-x:hover{opacity:1}
+  .dsg-tag-input{
+    flex:1;min-width:80px;border:none;background:transparent;outline:none;
+    font-size:12px;color:#1c1917;font-family:inherit;padding:2px 0;
+  }
+  .dsg-modal-desc-label{font-size:11.5px;font-weight:600;color:#78716c;margin-top:4px}
+  .dsg-modal-desc{
+    min-height:140px;padding:12px;font-size:13.5px;line-height:1.55;
+    background:#fafaf9;border:1px solid #e7e5e4;border-radius:8px;
+    color:#1c1917;outline:none;font-family:inherit;resize:vertical;
+    transition:border-color .12s, background .12s;
+  }
+  .dsg-modal-desc:focus{border-color:#a855f7;background:#fff}
+  .dsg-modal-actions{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .dsg-modal-save-tag{
+    margin-left:auto;font-size:11px;color:#84cc16;font-weight:600;
+    padding:3px 10px;border-radius:10px;background:rgba(132,204,22,.1);
+    border:1px solid rgba(132,204,22,.3);
+    opacity:0;transition:opacity .3s;
+  }
+  .dsg-modal-save-tag.visible{opacity:1}
+  .dsg-btn-primary{
+    padding:8px 18px;font-size:12.5px;font-weight:600;color:#fff;
+    background:linear-gradient(135deg,#a855f7,#7c3aed);
+    border:none;border-radius:7px;cursor:pointer;font-family:inherit;
+    transition:transform .12s, box-shadow .12s;
+  }
+  .dsg-btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(168,85,247,.35)}
+  .dsg-btn-ghost{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:7px 12px;font-size:12px;font-weight:600;color:#dc2626;
+    background:transparent;border:1px solid transparent;border-radius:7px;
+    cursor:pointer;font-family:inherit;transition:all .12s;
+  }
+  .dsg-btn-ghost:hover{background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.2)}
+  .dsg-ref-preview{
+    background:#fafaf9;display:flex;align-items:center;justify-content:center;
+    min-height:200px;max-height:340px;overflow:hidden;
+  }
+  .dsg-ref-preview img{max-width:100%;max-height:340px;display:block}
+  .dsg-toggle{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#57534e;cursor:pointer;user-select:none}
+  .dsg-toggle input{accent-color:#a855f7;cursor:pointer}
+
+  /* 반응형 */
+  @media (max-width:900px){
+    #viewDesign{padding:20px 20px 60px}
+    .dsg-gallery{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .dsg-modal-meta{grid-template-columns:1fr}
+    .dsg-list-row{grid-template-columns:26px 1fr 90px 76px}
+    .dsg-list-row > *:nth-child(n+5){display:none}
+    .dsg-refs-grid{columns:2 160px}
+  }
+  @media (max-width:560px){
+    #viewDesign{padding:14px 12px 50px}
+    #viewDesign .view-title{font-size:20px}
+    .dsg-toolbar{padding:8px 10px;gap:8px}
+    .dsg-new-btn{margin-left:0;width:100%;justify-content:center}
+    .dsg-search{width:100%}
+    .dsg-refs-grid{columns:2 130px}
+  }
+
   /* ===== 연차 (인사팀 뷰) ===== */
   .leave-cta{display:flex;justify-content:center;margin:8px 0 18px}
 
@@ -7426,6 +7815,14 @@
         </button>
       </section>
 
+      <section class="hero hero-design">
+        <div class="hero-eyebrow">DESIGN</div>
+        <button class="btn-neon btn-design" id="designBtn" onclick="triggerDesign()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+          <span id="designBtnLabel">디자인팀</span>
+        </button>
+      </section>
+
       <section class="hero hero-vendor">
         <div class="hero-eyebrow">VENDOR</div>
         <button class="btn-neon btn-vendor" id="vendorBtn" onclick="triggerVendor()">
@@ -8038,6 +8435,239 @@
     <!-- 전 직원 카드 그리드 -->
     <div class="diary-board" id="diaryBoard"></div>
   </div><!-- /viewDiary -->
+
+  <!-- ============ 디자인팀 뷰: 노션 스타일 작업 보드 + 레퍼런스 갤러리 ============ -->
+  <div class="view" id="viewDesign" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">디자인팀<span class="view-title-sub" id="dsgTitleSub">/ 작업 보드</span></h1>
+      <div class="dsg-head-actions">
+        <span class="dsg-save-tag" id="dsgSaveTag" hidden></span>
+      </div>
+    </div>
+
+    <!-- 서브탭: 작업 보드 / 레퍼런스 갤러리 -->
+    <div class="dsg-tabs" role="tablist">
+      <button class="dsg-tab active" data-dsg="board" onclick="dsgSwitchTab('board')" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        작업 보드
+        <span class="dsg-tab-badge" id="dsgTabBoardBadge">0</span>
+      </button>
+      <button class="dsg-tab" data-dsg="refs" onclick="dsgSwitchTab('refs')" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        레퍼런스
+        <span class="dsg-tab-badge" id="dsgTabRefsBadge">0</span>
+      </button>
+    </div>
+
+    <!-- ============ 작업 보드 ============ -->
+    <div class="dsg-pane" data-pane="board">
+      <!-- 툴바: 뷰 모드 · 필터 · 새 작업 -->
+      <div class="dsg-toolbar">
+        <div class="dsg-view-modes">
+          <button class="dsg-vm active" data-vm="gallery" onclick="dsgSwitchView('gallery')" title="갤러리 (커버 크게)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            갤러리
+          </button>
+          <button class="dsg-vm" data-vm="kanban" onclick="dsgSwitchView('kanban')" title="칸반 (상태별 컬럼)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="6" height="18"/><rect x="10" y="3" width="6" height="10"/><rect x="17" y="3" width="4" height="14"/></svg>
+            칸반
+          </button>
+          <button class="dsg-vm" data-vm="list" onclick="dsgSwitchView('list')" title="리스트">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            리스트
+          </button>
+        </div>
+
+        <div class="dsg-filters">
+          <select id="dsgFilterStatus" class="dsg-select" onchange="dsgRender()">
+            <option value="">전체 상태</option>
+            <option value="idea">💡 아이디어</option>
+            <option value="todo">📌 할 일</option>
+            <option value="progress">✏️ 진행중</option>
+            <option value="review">👀 리뷰</option>
+            <option value="done">✅ 완료</option>
+            <option value="hold">⏸️ 보류</option>
+          </select>
+          <select id="dsgFilterPriority" class="dsg-select" onchange="dsgRender()">
+            <option value="">전체 우선순위</option>
+            <option value="urgent">🔴 긴급</option>
+            <option value="high">🟠 높음</option>
+            <option value="medium">🟡 중간</option>
+            <option value="low">🟢 낮음</option>
+          </select>
+          <input id="dsgFilterSearch" class="dsg-search" type="search" placeholder="제목·태그 검색" oninput="dsgRender()">
+          <label class="dsg-hide-done">
+            <input type="checkbox" id="dsgHideDone" onchange="dsgRender()">
+            <span>완료 숨김</span>
+          </label>
+        </div>
+
+        <button class="dsg-new-btn" onclick="dsgNewTask()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          새 작업
+        </button>
+      </div>
+
+      <!-- 카드 그리드 or 칸반 or 리스트 -->
+      <div id="dsgBoardWrap" class="dsg-board-wrap">
+        <div class="dsg-empty" id="dsgEmpty" hidden>
+          <div class="dsg-empty-icon">🎨</div>
+          <div class="dsg-empty-title">아직 작업이 없어요</div>
+          <div class="dsg-empty-sub">우측 상단 <b>+ 새 작업</b>을 눌러 첫 카드를 만들어보세요.<br/>커버 이미지·상태·우선순위·태그·마감일을 자유롭게 편집할 수 있어요.</div>
+        </div>
+        <div id="dsgGallery" class="dsg-gallery"></div>
+        <div id="dsgKanban" class="dsg-kanban" hidden></div>
+        <div id="dsgList" class="dsg-list" hidden></div>
+      </div>
+    </div>
+
+    <!-- ============ 레퍼런스 갤러리 ============ -->
+    <div class="dsg-pane" data-pane="refs" hidden>
+      <div class="dsg-toolbar">
+        <div class="dsg-board-tabs" id="dsgBoardTabs"></div>
+        <div class="dsg-filters">
+          <input id="dsgRefSearch" class="dsg-search" type="search" placeholder="레퍼런스 검색 (제목·노트·태그)" oninput="dsgRefsRender()">
+          <label class="dsg-hide-done">
+            <input type="checkbox" id="dsgRefPinnedOnly" onchange="dsgRefsRender()">
+            <span>📌 핀 고정만</span>
+          </label>
+        </div>
+        <button class="dsg-new-btn" onclick="dsgOpenRefUpload()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          이미지 추가
+        </button>
+      </div>
+
+      <div class="dsg-refs-hint" id="dsgRefsHint">
+        <span class="dsg-refs-hint-key">Cmd+V</span> 로 이미지를 붙여넣거나 이 영역에 <b>드래그&드롭</b>하세요.
+        선택한 카테고리(<b id="dsgRefsHintBoard">무드보드</b>)에 자동으로 저장됩니다.
+      </div>
+
+      <div id="dsgRefsWrap" class="dsg-refs-drop" ondragover="dsgRefDragOver(event)" ondragleave="dsgRefDragLeave(event)" ondrop="dsgRefDrop(event)">
+        <div class="dsg-empty" id="dsgRefEmpty" hidden>
+          <div class="dsg-empty-icon">🖼️</div>
+          <div class="dsg-empty-title">저장된 레퍼런스가 없어요</div>
+          <div class="dsg-empty-sub">이미지를 붙여넣거나 드래그&드롭 하세요.<br/>노트·태그·원본 링크도 함께 저장할 수 있습니다.</div>
+        </div>
+        <div id="dsgRefsGrid" class="dsg-refs-grid"></div>
+      </div>
+      <input type="file" id="dsgRefFile" accept="image/*" multiple hidden onchange="dsgRefFileChosen(event)">
+    </div>
+
+    <!-- ============ 작업 상세 편집 모달 ============ -->
+    <div class="dsg-modal" id="dsgTaskModal" hidden onclick="dsgCloseModal(event)">
+      <div class="dsg-modal-card" onclick="event.stopPropagation()">
+        <div class="dsg-modal-cover" id="dsgModalCover">
+          <div class="dsg-cover-empty" onclick="document.getElementById('dsgModalCoverFile').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>커버 이미지 추가</span>
+          </div>
+          <button class="dsg-cover-remove" id="dsgCoverRemove" onclick="dsgClearCover()" hidden title="커버 제거">×</button>
+          <input type="file" id="dsgModalCoverFile" accept="image/*" hidden onchange="dsgCoverFileChosen(event)">
+        </div>
+
+        <div class="dsg-modal-body">
+          <input class="dsg-modal-title" id="dsgModalTitle" placeholder="제목 없음" oninput="dsgSchedSave()">
+          <div class="dsg-modal-meta">
+            <div class="dsg-meta-row">
+              <label class="dsg-meta-label">상태</label>
+              <select class="dsg-meta-select" id="dsgModalStatus" onchange="dsgSchedSave()">
+                <option value="idea">💡 아이디어</option>
+                <option value="todo">📌 할 일</option>
+                <option value="progress">✏️ 진행중</option>
+                <option value="review">👀 리뷰</option>
+                <option value="done">✅ 완료</option>
+                <option value="hold">⏸️ 보류</option>
+              </select>
+            </div>
+            <div class="dsg-meta-row">
+              <label class="dsg-meta-label">우선순위</label>
+              <select class="dsg-meta-select" id="dsgModalPriority" onchange="dsgSchedSave()">
+                <option value="urgent">🔴 긴급</option>
+                <option value="high">🟠 높음</option>
+                <option value="medium">🟡 중간</option>
+                <option value="low">🟢 낮음</option>
+              </select>
+            </div>
+            <div class="dsg-meta-row">
+              <label class="dsg-meta-label">담당</label>
+              <input class="dsg-meta-input" id="dsgModalOwner" placeholder="이름" oninput="dsgSchedSave()">
+            </div>
+            <div class="dsg-meta-row">
+              <label class="dsg-meta-label">마감일</label>
+              <input class="dsg-meta-input" id="dsgModalDue" type="date" oninput="dsgSchedSave()">
+            </div>
+            <div class="dsg-meta-row dsg-meta-tags">
+              <label class="dsg-meta-label">태그</label>
+              <div class="dsg-tag-input-wrap">
+                <div class="dsg-tag-list" id="dsgModalTagList"></div>
+                <input class="dsg-tag-input" id="dsgModalTagInput" placeholder="#태그 입력 후 Enter" onkeydown="dsgTagKey(event)">
+              </div>
+            </div>
+          </div>
+          <div class="dsg-modal-desc-label">설명 · 메모</div>
+          <textarea class="dsg-modal-desc" id="dsgModalDesc" placeholder="세부 내용, 요구사항, 링크, 아이디어…" oninput="dsgSchedSave()"></textarea>
+          <div class="dsg-modal-actions">
+            <button class="dsg-btn-ghost" onclick="dsgDeleteTask()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+              삭제
+            </button>
+            <span class="dsg-modal-save-tag" id="dsgModalSaveTag">저장됨</span>
+            <button class="dsg-btn-primary" onclick="dsgCloseModal()">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 레퍼런스 상세 편집 모달 ============ -->
+    <div class="dsg-modal" id="dsgRefModal" hidden onclick="dsgCloseRefModal(event)">
+      <div class="dsg-modal-card dsg-modal-card-ref" onclick="event.stopPropagation()">
+        <div class="dsg-ref-preview" id="dsgRefPreview"></div>
+        <div class="dsg-modal-body">
+          <input class="dsg-modal-title" id="dsgRefTitle" placeholder="레퍼런스 제목" oninput="dsgRefSchedSave()">
+          <div class="dsg-modal-meta">
+            <div class="dsg-meta-row">
+              <label class="dsg-meta-label">카테고리</label>
+              <input class="dsg-meta-input" id="dsgRefBoard" placeholder="무드보드 / 컬러 / 컴페티터 / ..." oninput="dsgRefSchedSave()" list="dsgBoardOptions">
+              <datalist id="dsgBoardOptions"></datalist>
+            </div>
+            <div class="dsg-meta-row">
+              <label class="dsg-meta-label">원본 링크</label>
+              <input class="dsg-meta-input" id="dsgRefSource" placeholder="https://..." oninput="dsgRefSchedSave()">
+            </div>
+            <div class="dsg-meta-row dsg-meta-tags">
+              <label class="dsg-meta-label">태그</label>
+              <div class="dsg-tag-input-wrap">
+                <div class="dsg-tag-list" id="dsgRefTagList"></div>
+                <input class="dsg-tag-input" id="dsgRefTagInput" placeholder="#태그 입력 후 Enter" onkeydown="dsgRefTagKey(event)">
+              </div>
+            </div>
+            <div class="dsg-meta-row">
+              <label class="dsg-meta-label">📌 핀</label>
+              <label class="dsg-toggle">
+                <input type="checkbox" id="dsgRefPinned" onchange="dsgRefSchedSave()">
+                <span>상단 고정</span>
+              </label>
+            </div>
+          </div>
+          <div class="dsg-modal-desc-label">노트</div>
+          <textarea class="dsg-modal-desc" id="dsgRefNotes" placeholder="이 레퍼런스에 대한 메모, 어디에 참고할지…" oninput="dsgRefSchedSave()"></textarea>
+          <div class="dsg-modal-actions">
+            <button class="dsg-btn-ghost" onclick="dsgDeleteRef()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+              삭제
+            </button>
+            <span class="dsg-modal-save-tag" id="dsgRefModalSaveTag">저장됨</span>
+            <button class="dsg-btn-primary" onclick="dsgCloseRefModal()">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /viewDesign -->
 
   <!-- ============ 물류팀 뷰: 발주 관리 ============ -->
   <div class="view" id="viewLg" hidden>
@@ -11354,8 +11984,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx'};
+  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -11421,6 +12051,9 @@
     }
     if(id==='viewDiary'){
       if(typeof initDiaryView==='function') initDiaryView();
+    }
+    if(id==='viewDesign'){
+      if(typeof dsgInit==='function') dsgInit();
     }
     if(id==='viewFixedCosts'){
       // 뷰어 접근 방어 (해시 직입력·구 링크로 진입 시)
@@ -11519,6 +12152,7 @@
     renderAdSignage();
     _bestScheduleLoad();
   }
+  function triggerDesign(){ showView('viewDesign'); if(typeof dsgInit==='function') dsgInit(); }
   function triggerStock(){ showView('viewStock'); }
   function triggerSixStock(){ showView('viewSixStock'); sixStockOpen(); }
 
@@ -12149,6 +12783,631 @@
     localStorage.setItem(LEAVE_KEY,j);
     _leave_lastHash=j;
   }
+
+  /* ===== 디자인팀 (Design) — 노션 스타일 작업 보드 + 레퍼런스 갤러리 =====
+     저장 구조:
+       · tasks:  [{id, title, description, status, priority, tags[], cover_url, owner, due_date, sort_order, created_at, updated_at}]
+       · refs:   [{id, title, image_url, source_url, notes, tags[], board, pinned, sort_order, created_at}]
+     저장소 (Phase 1): localStorage. Phase 2: Supabase (design_tasks, design_references 테이블 승인 후 스위칭)
+     기능:
+       · 갤러리/칸반/리스트 3-view · 상태·우선순위·태그·마감일 필터
+       · 인라인 편집 (모달) · 커버 이미지 · 완료 체크 · 우선순위 이모지
+       · 레퍼런스: 붙여넣기(Cmd+V) · 드래그&드롭 · 카테고리(board) · 핀 고정 · 태그 · 원본 링크 */
+  const DSG_TASKS_KEY = 'brightbeed_design_tasks_v1';
+  const DSG_REFS_KEY  = 'brightbeed_design_refs_v1';
+  const DSG_UI_KEY    = 'brightbeed_design_ui_v1';   // viewMode/currentBoard 기억
+  const DSG_STATUS_META = {
+    idea:     {label:'💡 아이디어', order:0},
+    todo:     {label:'📌 할 일',   order:1},
+    progress: {label:'✏️ 진행중',   order:2},
+    review:   {label:'👀 리뷰',    order:3},
+    done:     {label:'✅ 완료',    order:4},
+    hold:     {label:'⏸️ 보류',    order:5},
+  };
+  const DSG_PRIO_META = {
+    urgent: {dot:'🔴', order:0},
+    high:   {dot:'🟠', order:1},
+    medium: {dot:'🟡', order:2},
+    low:    {dot:'🟢', order:3},
+  };
+  let _dsgTasks = [];
+  let _dsgRefs  = [];
+  let _dsgViewMode = 'gallery';       // gallery | kanban | list
+  let _dsgCurTab = 'board';           // board | refs
+  let _dsgCurBoard = 'moodboard';     // 현재 활성 레퍼런스 카테고리
+  let _dsgModalTaskId = null;
+  let _dsgModalRefId  = null;
+  let _dsgSaveTimer = null;
+
+  function _dsgLoadUI(){
+    try{
+      const j=JSON.parse(localStorage.getItem(DSG_UI_KEY)||'{}');
+      if(j.viewMode) _dsgViewMode=j.viewMode;
+      if(j.curBoard) _dsgCurBoard=j.curBoard;
+    }catch(e){}
+  }
+  function _dsgSaveUI(){
+    try{ localStorage.setItem(DSG_UI_KEY, JSON.stringify({viewMode:_dsgViewMode, curBoard:_dsgCurBoard})); }catch(e){}
+  }
+  function _dsgLoadTasks(){
+    try{ _dsgTasks = JSON.parse(localStorage.getItem(DSG_TASKS_KEY)||'[]'); }
+    catch(e){ _dsgTasks=[]; }
+  }
+  function _dsgSaveTasks(){
+    try{ localStorage.setItem(DSG_TASKS_KEY, JSON.stringify(_dsgTasks)); }catch(e){}
+  }
+  function _dsgLoadRefs(){
+    try{ _dsgRefs = JSON.parse(localStorage.getItem(DSG_REFS_KEY)||'[]'); }
+    catch(e){ _dsgRefs=[]; }
+  }
+  function _dsgSaveRefs(){
+    try{ localStorage.setItem(DSG_REFS_KEY, JSON.stringify(_dsgRefs)); }catch(e){}
+  }
+  function _dsgUid(){ return 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function _dsgNowIso(){ return new Date().toISOString(); }
+  function _dsgEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+  function _dsgShowSaveTag(el){
+    if(!el) return;
+    el.classList.add('visible');
+    clearTimeout(el._t);
+    el._t=setTimeout(()=>el.classList.remove('visible'), 1200);
+  }
+
+  /* 진입 — 최초 로드 + 렌더 */
+  function dsgInit(){
+    if(dsgInit._done) { dsgRender(); dsgRefsRender(); return; }
+    dsgInit._done = true;
+    _dsgLoadUI();
+    _dsgLoadTasks();
+    _dsgLoadRefs();
+    // 최초 진입 시 샘플 카드 하나 (사용자 감 잡을 수 있게)
+    if(_dsgTasks.length===0 && _dsgRefs.length===0 && !localStorage.getItem('brightbeed_design_seeded_v1')){
+      localStorage.setItem('brightbeed_design_seeded_v1','1');
+      _dsgTasks.push({
+        id:_dsgUid(),
+        title:'👋 첫 작업 카드 — 클릭해서 편집해보세요',
+        description:'노션 페이지처럼 이 카드를 클릭하면 커버 이미지·상태·우선순위·태그·마감일·설명을 자유롭게 수정할 수 있어요.\n\n• 상단 [+ 새 작업] 으로 카드를 계속 추가\n• 커버 이미지 위 ✓ 체크로 완료 처리\n• 갤러리/칸반/리스트 3가지 뷰 지원\n• 상태·우선순위·태그·검색으로 필터',
+        status:'idea', priority:'medium', tags:['#샘플','#튜토리얼'],
+        cover_url:'', owner:'', due_date:'',
+        sort_order:0, created_at:_dsgNowIso(), updated_at:_dsgNowIso()
+      });
+      _dsgSaveTasks();
+    }
+    _dsgApplyViewModeUI();
+    dsgSwitchTab(_dsgCurTab||'board');
+    dsgRender();
+    dsgRefsRender();
+    // 붙여넣기: 레퍼런스 탭 활성 시 활성 (전역 리스너 1회만 붙임)
+    if(!dsgInit._paste){
+      dsgInit._paste = true;
+      window.addEventListener('paste', dsgHandlePaste);
+    }
+  }
+
+  /* 서브탭 스위치 */
+  function dsgSwitchTab(tab){
+    _dsgCurTab = tab;
+    document.querySelectorAll('#viewDesign .dsg-tab').forEach(b=>{
+      const on = b.dataset.dsg===tab;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on?'true':'false');
+    });
+    document.querySelectorAll('#viewDesign .dsg-pane').forEach(p=>{
+      p.hidden = p.dataset.pane!==tab;
+    });
+    const sub = document.getElementById('dsgTitleSub');
+    if(sub) sub.textContent = tab==='refs' ? '/ 레퍼런스 갤러리' : '/ 작업 보드';
+  }
+
+  /* 뷰 모드 스위치 */
+  function dsgSwitchView(mode){
+    _dsgViewMode = mode;
+    _dsgSaveUI();
+    _dsgApplyViewModeUI();
+    dsgRender();
+  }
+  function _dsgApplyViewModeUI(){
+    document.querySelectorAll('#viewDesign .dsg-vm').forEach(b=>{
+      b.classList.toggle('active', b.dataset.vm===_dsgViewMode);
+    });
+    const g=document.getElementById('dsgGallery'), k=document.getElementById('dsgKanban'), l=document.getElementById('dsgList');
+    if(g) g.hidden = _dsgViewMode!=='gallery';
+    if(k) k.hidden = _dsgViewMode!=='kanban';
+    if(l) l.hidden = _dsgViewMode!=='list';
+  }
+
+  /* 필터 */
+  function _dsgFilter(){
+    const st = (document.getElementById('dsgFilterStatus')||{}).value||'';
+    const pr = (document.getElementById('dsgFilterPriority')||{}).value||'';
+    const q  = (((document.getElementById('dsgFilterSearch')||{}).value)||'').trim().toLowerCase();
+    const hideDone = (document.getElementById('dsgHideDone')||{}).checked;
+    return _dsgTasks.filter(t=>{
+      if(st && t.status!==st) return false;
+      if(pr && t.priority!==pr) return false;
+      if(hideDone && t.status==='done') return false;
+      if(q){
+        const hay = (t.title||'') + ' ' + (t.description||'') + ' ' + (t.tags||[]).join(' ');
+        if(!hay.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  /* 렌더 — 작업 보드 */
+  function dsgRender(){
+    const badge = document.getElementById('dsgTabBoardBadge');
+    if(badge) badge.textContent = _dsgTasks.length;
+    const list = _dsgFilter();
+    const empty = document.getElementById('dsgEmpty');
+    if(empty) empty.hidden = list.length>0;
+    if(_dsgViewMode==='gallery')      _dsgRenderGallery(list);
+    else if(_dsgViewMode==='kanban')  _dsgRenderKanban(list);
+    else                              _dsgRenderList(list);
+  }
+  function _dsgTaskCardHTML(t){
+    const isDone = t.status==='done';
+    const cover = t.cover_url ? `<img src="${_dsgEsc(t.cover_url)}" alt="">` : '🎨';
+    const tags = (t.tags||[]).slice(0,3).map(x=>`<span class="dsg-tag">${_dsgEsc(x)}</span>`).join('');
+    const due = t.due_date ? `<span class="dsg-card-due${_dsgDueClass(t.due_date,isDone)}">${_dsgFmtDue(t.due_date)}</span>` : '';
+    const owner = t.owner ? `<span class="dsg-card-owner">${_dsgEsc(t.owner)}</span>` : '';
+    const prioDot = DSG_PRIO_META[t.priority]?.dot || '🟡';
+    return `<div class="dsg-card${isDone?' done':''}" data-id="${t.id}" onclick="dsgOpenTask('${t.id}')">
+      <div class="dsg-card-cover">${cover}<div class="dsg-card-check${isDone?' checked':''}" onclick="event.stopPropagation();dsgToggleDone('${t.id}')" title="${isDone?'완료 취소':'완료로 표시'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+      </div></div>
+      <div class="dsg-card-body">
+        <div class="dsg-card-title${isDone?' done':''}">${_dsgEsc(t.title||'제목 없음')}</div>
+        ${tags?`<div class="dsg-tags">${tags}</div>`:''}
+        <div class="dsg-card-meta">
+          <span class="dsg-status-pill" data-s="${t.status}">${DSG_STATUS_META[t.status]?.label||t.status}</span>
+          <span class="dsg-prio-dot" title="우선순위">${prioDot}</span>
+          ${owner}
+          ${due}
+        </div>
+      </div>
+    </div>`;
+  }
+  function _dsgFmtDue(iso){
+    if(!iso) return '';
+    const d=new Date(iso+'T00:00:00'), today=new Date(); today.setHours(0,0,0,0);
+    const diff=Math.round((d-today)/(1000*60*60*24));
+    if(diff===0) return '오늘 마감';
+    if(diff===1) return '내일';
+    if(diff===-1) return '어제 지남';
+    if(diff<0) return `${-diff}일 지남`;
+    if(diff<7) return `${diff}일 후`;
+    return `${iso.slice(5).replace('-','/')}`;
+  }
+  function _dsgDueClass(iso, isDone){
+    if(!iso || isDone) return '';
+    const d=new Date(iso+'T00:00:00'), today=new Date(); today.setHours(0,0,0,0);
+    return d < today ? ' overdue' : '';
+  }
+  function _dsgRenderGallery(list){
+    const wrap=document.getElementById('dsgGallery');
+    if(!wrap) return;
+    wrap.innerHTML = list.map(_dsgTaskCardHTML).join('');
+  }
+  function _dsgRenderKanban(list){
+    const wrap=document.getElementById('dsgKanban');
+    if(!wrap) return;
+    const cols = Object.keys(DSG_STATUS_META);
+    const grouped = {}; cols.forEach(c=>grouped[c]=[]);
+    list.forEach(t=>{ if(grouped[t.status]) grouped[t.status].push(t); });
+    wrap.innerHTML = cols.map(s=>{
+      const items = grouped[s];
+      const cards = items.map(t=>{
+        const tags = (t.tags||[]).slice(0,2).map(x=>`<span class="dsg-tag">${_dsgEsc(x)}</span>`).join('');
+        const prio = DSG_PRIO_META[t.priority]?.dot || '🟡';
+        return `<div class="dsg-kb-card" onclick="dsgOpenTask('${t.id}')">
+          <div class="dsg-kb-card-title">${_dsgEsc(t.title||'제목 없음')}</div>
+          <div class="dsg-kb-card-meta">
+            <span class="dsg-prio-dot">${prio}</span>
+            ${tags}
+            ${t.owner?`<span class="dsg-card-owner">${_dsgEsc(t.owner)}</span>`:''}
+          </div>
+        </div>`;
+      }).join('') || '<div style="font-size:11px;color:#a8a29e;padding:8px 4px">비어 있음</div>';
+      return `<div class="dsg-kb-col">
+        <div class="dsg-kb-head">${DSG_STATUS_META[s].label}<span class="dsg-kb-head-count">${items.length}</span></div>
+        <div class="dsg-kb-list">${cards}</div>
+      </div>`;
+    }).join('');
+  }
+  function _dsgRenderList(list){
+    const wrap=document.getElementById('dsgList');
+    if(!wrap) return;
+    const rows = list.map(t=>{
+      const isDone = t.status==='done';
+      const tags = (t.tags||[]).slice(0,3).map(x=>`<span class="dsg-tag">${_dsgEsc(x)}</span>`).join('');
+      return `<div class="dsg-list-row" onclick="dsgOpenTask('${t.id}')">
+        <span class="dsg-prio-dot">${DSG_PRIO_META[t.priority]?.dot||'🟡'}</span>
+        <span class="dsg-list-title${isDone?' done':''}">${_dsgEsc(t.title||'제목 없음')}</span>
+        <span class="dsg-status-pill" data-s="${t.status}">${DSG_STATUS_META[t.status]?.label||t.status}</span>
+        <span class="dsg-list-cell">${_dsgEsc(t.owner||'')}</span>
+        <span class="dsg-list-cell">${tags}</span>
+        <span class="dsg-list-cell${_dsgDueClass(t.due_date,isDone)}">${t.due_date?_dsgFmtDue(t.due_date):''}</span>
+      </div>`;
+    }).join('');
+    wrap.innerHTML = rows || '<div class="dsg-empty" style="border:none;background:transparent;padding:30px"><div class="dsg-empty-sub">필터 결과가 없어요.</div></div>';
+  }
+
+  /* 새 작업 */
+  function dsgNewTask(){
+    const t = {
+      id:_dsgUid(), title:'', description:'',
+      status:'todo', priority:'medium', tags:[],
+      cover_url:'', owner:'', due_date:'',
+      sort_order: _dsgTasks.length,
+      created_at:_dsgNowIso(), updated_at:_dsgNowIso()
+    };
+    _dsgTasks.unshift(t);
+    _dsgSaveTasks();
+    dsgRender();
+    dsgOpenTask(t.id, true);
+  }
+
+  /* 완료 토글 */
+  function dsgToggleDone(id){
+    const t = _dsgTasks.find(x=>x.id===id);
+    if(!t) return;
+    t.status = t.status==='done' ? 'todo' : 'done';
+    t.updated_at = _dsgNowIso();
+    _dsgSaveTasks();
+    dsgRender();
+    const tag=document.getElementById('dsgSaveTag'); if(tag){ tag.hidden=false; tag.textContent='✓ '+(t.status==='done'?'완료':'복원'); clearTimeout(tag._t); tag._t=setTimeout(()=>tag.hidden=true, 1200); }
+  }
+
+  /* 모달 열기 */
+  function dsgOpenTask(id, focusTitle){
+    const t = _dsgTasks.find(x=>x.id===id);
+    if(!t) return;
+    _dsgModalTaskId = id;
+    document.getElementById('dsgModalTitle').value = t.title||'';
+    document.getElementById('dsgModalStatus').value = t.status||'todo';
+    document.getElementById('dsgModalPriority').value = t.priority||'medium';
+    document.getElementById('dsgModalOwner').value = t.owner||'';
+    document.getElementById('dsgModalDue').value = t.due_date||'';
+    document.getElementById('dsgModalDesc').value = t.description||'';
+    _dsgRenderTags('dsgModalTagList', t.tags||[], true);
+    _dsgRenderCover(t.cover_url);
+    document.getElementById('dsgTaskModal').hidden = false;
+    document.body.style.overflow='hidden';
+    if(focusTitle) setTimeout(()=>document.getElementById('dsgModalTitle').focus(), 60);
+  }
+  function dsgCloseModal(e){
+    if(e && e.target && !e.target.classList.contains('dsg-modal')) return;
+    _dsgFlushSave(true);
+    document.getElementById('dsgTaskModal').hidden = true;
+    document.body.style.overflow='';
+    _dsgModalTaskId = null;
+  }
+  function dsgDeleteTask(){
+    if(!_dsgModalTaskId) return;
+    if(!confirm('이 작업을 삭제할까요?')) return;
+    _dsgTasks = _dsgTasks.filter(x=>x.id!==_dsgModalTaskId);
+    _dsgSaveTasks();
+    _dsgModalTaskId = null;
+    document.getElementById('dsgTaskModal').hidden = true;
+    document.body.style.overflow='';
+    dsgRender();
+  }
+
+  /* 자동 저장 — 300ms 디바운스 */
+  function dsgSchedSave(){
+    clearTimeout(_dsgSaveTimer);
+    _dsgSaveTimer = setTimeout(()=>_dsgFlushSave(false), 300);
+  }
+  function _dsgFlushSave(silent){
+    clearTimeout(_dsgSaveTimer);
+    if(!_dsgModalTaskId) return;
+    const t = _dsgTasks.find(x=>x.id===_dsgModalTaskId);
+    if(!t) return;
+    t.title       = document.getElementById('dsgModalTitle').value;
+    t.status      = document.getElementById('dsgModalStatus').value;
+    t.priority    = document.getElementById('dsgModalPriority').value;
+    t.owner       = document.getElementById('dsgModalOwner').value;
+    t.due_date    = document.getElementById('dsgModalDue').value;
+    t.description = document.getElementById('dsgModalDesc').value;
+    // tags 는 chip 조작 시 이미 t.tags 갱신됨
+    t.updated_at  = _dsgNowIso();
+    _dsgSaveTasks();
+    dsgRender();
+    if(!silent) _dsgShowSaveTag(document.getElementById('dsgModalSaveTag'));
+  }
+
+  /* 태그 chip UI */
+  function _dsgRenderTags(elId, tags, forTask){
+    const wrap = document.getElementById(elId);
+    if(!wrap) return;
+    wrap.innerHTML = tags.map((tag,i)=>`<span class="dsg-tag-chip">${_dsgEsc(tag)}<span class="dsg-tag-chip-x" onclick="${forTask?'dsgTagRemove':'dsgRefTagRemove'}(${i})">×</span></span>`).join('');
+  }
+  function dsgTagKey(e){
+    if(e.key!=='Enter' && e.key!==',') return;
+    e.preventDefault();
+    const v=e.target.value.trim().replace(/^#+/,'');
+    if(!v) return;
+    const t = _dsgTasks.find(x=>x.id===_dsgModalTaskId);
+    if(!t) return;
+    t.tags = t.tags||[];
+    const tagged = '#'+v;
+    if(!t.tags.includes(tagged)) t.tags.push(tagged);
+    e.target.value='';
+    _dsgRenderTags('dsgModalTagList', t.tags, true);
+    dsgSchedSave();
+  }
+  function dsgTagRemove(idx){
+    const t = _dsgTasks.find(x=>x.id===_dsgModalTaskId);
+    if(!t || !t.tags) return;
+    t.tags.splice(idx,1);
+    _dsgRenderTags('dsgModalTagList', t.tags, true);
+    dsgSchedSave();
+  }
+
+  /* 커버 이미지 */
+  function _dsgRenderCover(url){
+    const cover = document.getElementById('dsgModalCover');
+    const rm    = document.getElementById('dsgCoverRemove');
+    if(!cover) return;
+    // empty picker 유지: querySelector로 유지되는 이전 노드 있으면 재활용
+    if(url){
+      cover.innerHTML = `<img src="${_dsgEsc(url)}" alt=""><button class="dsg-cover-remove" id="dsgCoverRemove" onclick="dsgClearCover()" title="커버 제거">×</button><input type="file" id="dsgModalCoverFile" accept="image/*" hidden onchange="dsgCoverFileChosen(event)">`;
+    } else {
+      cover.innerHTML = `<div class="dsg-cover-empty" onclick="document.getElementById('dsgModalCoverFile').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span>커버 이미지 추가</span>
+      </div>
+      <input type="file" id="dsgModalCoverFile" accept="image/*" hidden onchange="dsgCoverFileChosen(event)">`;
+    }
+  }
+  function dsgCoverFileChosen(e){
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    _dsgFileToDataURL(f, url=>{
+      const t = _dsgTasks.find(x=>x.id===_dsgModalTaskId);
+      if(!t) return;
+      t.cover_url = url;
+      _dsgSaveTasks();
+      _dsgRenderCover(url);
+      dsgSchedSave();
+    });
+  }
+  function dsgClearCover(){
+    const t = _dsgTasks.find(x=>x.id===_dsgModalTaskId);
+    if(!t) return;
+    t.cover_url = '';
+    _dsgSaveTasks();
+    _dsgRenderCover('');
+    dsgSchedSave();
+  }
+  function _dsgFileToDataURL(file, cb){
+    // 크기 절약: 최대 1600px, JPEG 0.85로 리사이즈
+    const img = new Image();
+    const r = new FileReader();
+    r.onload = ()=>{ img.onload = ()=>{
+      const MAX=1600;
+      let w=img.naturalWidth, h=img.naturalHeight;
+      if(w>MAX || h>MAX){
+        const s = Math.min(MAX/w, MAX/h);
+        w=Math.round(w*s); h=Math.round(h*s);
+      }
+      const cv=document.createElement('canvas');
+      cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      try{ cb(cv.toDataURL('image/jpeg', 0.85)); }
+      catch(e){ cb(r.result); }
+    }; img.src = r.result; };
+    r.readAsDataURL(file);
+  }
+
+  /* ============ 레퍼런스 갤러리 ============ */
+  function _dsgAllBoards(){
+    const set = new Set(['moodboard']);
+    _dsgRefs.forEach(r=>{ if(r.board) set.add(r.board); });
+    return Array.from(set);
+  }
+  function _dsgBoardLabel(b){
+    const map = {moodboard:'무드보드', competitor:'컴페티터', inspiration:'영감', color:'컬러', typography:'타이포', pattern:'패턴'};
+    return map[b] || b;
+  }
+  function _dsgRenderBoardTabs(){
+    const wrap = document.getElementById('dsgBoardTabs');
+    if(!wrap) return;
+    const boards = _dsgAllBoards();
+    const counts = {};
+    _dsgRefs.forEach(r=>{ counts[r.board]=(counts[r.board]||0)+1; });
+    const hintBoard = document.getElementById('dsgRefsHintBoard');
+    if(hintBoard) hintBoard.textContent = _dsgBoardLabel(_dsgCurBoard);
+    // datalist for modal
+    const dl = document.getElementById('dsgBoardOptions');
+    if(dl) dl.innerHTML = boards.map(b=>`<option value="${_dsgEsc(b)}">`).join('');
+    wrap.innerHTML = `<button class="dsg-bt${_dsgCurBoard==='__all'?' active':''}" onclick="dsgSetBoard('__all')">전체<span class="dsg-bt-count">${_dsgRefs.length}</span></button>` +
+      boards.map(b=>`<button class="dsg-bt${_dsgCurBoard===b?' active':''}" onclick="dsgSetBoard('${_dsgEsc(b)}')">${_dsgEsc(_dsgBoardLabel(b))}<span class="dsg-bt-count">${counts[b]||0}</span></button>`).join('') +
+      `<button class="dsg-bt dsg-bt-add" onclick="dsgAddBoard()">＋ 카테고리</button>`;
+  }
+  function dsgSetBoard(b){
+    _dsgCurBoard = b;
+    _dsgSaveUI();
+    dsgRefsRender();
+  }
+  function dsgAddBoard(){
+    const name = prompt('새 카테고리 이름을 입력하세요 (예: 컬러, 타이포, 컴페티터, 무드보드)');
+    if(!name) return;
+    _dsgCurBoard = name.trim();
+    _dsgSaveUI();
+    dsgRefsRender();
+  }
+  function dsgRefsRender(){
+    _dsgRenderBoardTabs();
+    const badge = document.getElementById('dsgTabRefsBadge');
+    if(badge) badge.textContent = _dsgRefs.length;
+    const q = ((document.getElementById('dsgRefSearch')||{}).value||'').trim().toLowerCase();
+    const pinnedOnly = (document.getElementById('dsgRefPinnedOnly')||{}).checked;
+    let list = _dsgRefs.filter(r=>{
+      if(_dsgCurBoard !== '__all' && r.board !== _dsgCurBoard) return false;
+      if(pinnedOnly && !r.pinned) return false;
+      if(q){
+        const hay = (r.title||'') + ' ' + (r.notes||'') + ' ' + (r.tags||[]).join(' ');
+        if(!hay.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+    // pinned 먼저, 그다음 created_at desc
+    list.sort((a,b)=>{
+      if((b.pinned?1:0) - (a.pinned?1:0)) return (b.pinned?1:0) - (a.pinned?1:0);
+      return (b.created_at||'').localeCompare(a.created_at||'');
+    });
+    const grid = document.getElementById('dsgRefsGrid');
+    const empty = document.getElementById('dsgRefEmpty');
+    if(empty) empty.hidden = list.length>0;
+    if(!grid) return;
+    grid.innerHTML = list.map(r=>{
+      const tags = (r.tags||[]).slice(0,4).map(x=>`<span class="dsg-tag">${_dsgEsc(x)}</span>`).join('');
+      return `<div class="dsg-ref-item" onclick="dsgOpenRef('${r.id}')">
+        <img src="${_dsgEsc(r.image_url)}" alt="" loading="lazy">
+        <div class="dsg-ref-item-pin${r.pinned?' pinned':''}" onclick="event.stopPropagation();dsgToggleRefPin('${r.id}')" title="핀 고정">📌</div>
+        ${(r.title||tags)?`<div class="dsg-ref-item-body">${r.title?`<div class="dsg-ref-item-title">${_dsgEsc(r.title)}</div>`:''}${tags?`<div class="dsg-ref-item-tags">${tags}</div>`:''}</div>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  /* 이미지 붙여넣기 */
+  function dsgHandlePaste(e){
+    if(_dsgCurTab!=='refs') return;
+    if(document.getElementById('dsgTaskModal').hidden===false) return;   // 태스크 모달 열려있을 때는 무시
+    const items = (e.clipboardData||{}).items || [];
+    for(const it of items){
+      if(it.type && it.type.startsWith('image/')){
+        const f = it.getAsFile();
+        if(f){ e.preventDefault(); _dsgIngestFile(f); }
+      }
+    }
+  }
+  /* 드래그 & 드롭 */
+  function dsgRefDragOver(e){ e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+  function dsgRefDragLeave(e){ e.currentTarget.classList.remove('dragover'); }
+  function dsgRefDrop(e){
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+    const files = e.dataTransfer && e.dataTransfer.files;
+    if(!files) return;
+    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgIngestFile(f); }
+  }
+  /* 파일 선택 */
+  function dsgOpenRefUpload(){ document.getElementById('dsgRefFile').click(); }
+  function dsgRefFileChosen(e){
+    const files = e.target.files;
+    if(!files) return;
+    for(const f of files){ if(f.type.startsWith('image/')) _dsgIngestFile(f); }
+    e.target.value='';
+  }
+  function _dsgIngestFile(f){
+    _dsgFileToDataURL(f, url=>{
+      const r = {
+        id:_dsgUid(), title:'', image_url:url, source_url:'',
+        notes:'', tags:[], board:(_dsgCurBoard==='__all'?'moodboard':_dsgCurBoard),
+        pinned:false, sort_order:_dsgRefs.length, created_at:_dsgNowIso()
+      };
+      _dsgRefs.unshift(r);
+      _dsgSaveRefs();
+      dsgRefsRender();
+      // 최초 저장 시 저장 tag
+      const tag=document.getElementById('dsgSaveTag'); if(tag){ tag.hidden=false; tag.textContent='✓ 저장'; clearTimeout(tag._t); tag._t=setTimeout(()=>tag.hidden=true, 1200); }
+    });
+  }
+
+  /* 레퍼런스 모달 */
+  function dsgOpenRef(id){
+    const r = _dsgRefs.find(x=>x.id===id);
+    if(!r) return;
+    _dsgModalRefId = id;
+    document.getElementById('dsgRefTitle').value = r.title||'';
+    document.getElementById('dsgRefBoard').value = r.board||'moodboard';
+    document.getElementById('dsgRefSource').value = r.source_url||'';
+    document.getElementById('dsgRefNotes').value = r.notes||'';
+    document.getElementById('dsgRefPinned').checked = !!r.pinned;
+    _dsgRenderTags('dsgRefTagList', r.tags||[], false);
+    document.getElementById('dsgRefPreview').innerHTML = `<img src="${_dsgEsc(r.image_url)}" alt="">`;
+    // datalist 갱신
+    const dl = document.getElementById('dsgBoardOptions');
+    if(dl) dl.innerHTML = _dsgAllBoards().map(b=>`<option value="${_dsgEsc(b)}">`).join('');
+    document.getElementById('dsgRefModal').hidden = false;
+    document.body.style.overflow='hidden';
+  }
+  function dsgCloseRefModal(e){
+    if(e && e.target && !e.target.classList.contains('dsg-modal')) return;
+    _dsgFlushRefSave(true);
+    document.getElementById('dsgRefModal').hidden = true;
+    document.body.style.overflow='';
+    _dsgModalRefId = null;
+  }
+  function dsgDeleteRef(){
+    if(!_dsgModalRefId) return;
+    if(!confirm('이 레퍼런스를 삭제할까요?')) return;
+    _dsgRefs = _dsgRefs.filter(x=>x.id!==_dsgModalRefId);
+    _dsgSaveRefs();
+    _dsgModalRefId = null;
+    document.getElementById('dsgRefModal').hidden = true;
+    document.body.style.overflow='';
+    dsgRefsRender();
+  }
+  function dsgRefSchedSave(){
+    clearTimeout(_dsgSaveTimer);
+    _dsgSaveTimer = setTimeout(()=>_dsgFlushRefSave(false), 300);
+  }
+  function _dsgFlushRefSave(silent){
+    clearTimeout(_dsgSaveTimer);
+    if(!_dsgModalRefId) return;
+    const r = _dsgRefs.find(x=>x.id===_dsgModalRefId);
+    if(!r) return;
+    r.title      = document.getElementById('dsgRefTitle').value;
+    r.board      = document.getElementById('dsgRefBoard').value.trim() || 'moodboard';
+    r.source_url = document.getElementById('dsgRefSource').value.trim();
+    r.notes      = document.getElementById('dsgRefNotes').value;
+    r.pinned     = document.getElementById('dsgRefPinned').checked;
+    _dsgSaveRefs();
+    dsgRefsRender();
+    if(!silent) _dsgShowSaveTag(document.getElementById('dsgRefModalSaveTag'));
+  }
+  function dsgToggleRefPin(id){
+    const r = _dsgRefs.find(x=>x.id===id);
+    if(!r) return;
+    r.pinned = !r.pinned;
+    _dsgSaveRefs();
+    dsgRefsRender();
+  }
+  function dsgRefTagKey(e){
+    if(e.key!=='Enter' && e.key!==',') return;
+    e.preventDefault();
+    const v=e.target.value.trim().replace(/^#+/,'');
+    if(!v) return;
+    const r = _dsgRefs.find(x=>x.id===_dsgModalRefId);
+    if(!r) return;
+    r.tags = r.tags||[];
+    const tagged = '#'+v;
+    if(!r.tags.includes(tagged)) r.tags.push(tagged);
+    e.target.value='';
+    _dsgRenderTags('dsgRefTagList', r.tags, false);
+    dsgRefSchedSave();
+  }
+  function dsgRefTagRemove(idx){
+    const r = _dsgRefs.find(x=>x.id===_dsgModalRefId);
+    if(!r || !r.tags) return;
+    r.tags.splice(idx,1);
+    _dsgRenderTags('dsgRefTagList', r.tags, false);
+    dsgRefSchedSave();
+  }
+
+  /* ESC로 모달 닫기 */
+  window.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){
+      const m=document.getElementById('dsgTaskModal');
+      const m2=document.getElementById('dsgRefModal');
+      if(m && !m.hidden){ dsgCloseModal({target:m}); }
+      else if(m2 && !m2.hidden){ dsgCloseRefModal({target:m2}); }
+    }
+  });
 
   /* ===== 업무일지 (Diary) — 애플/노션 스타일 · 전 직원 실시간 공유 =====
      저장 구조 (v3):
