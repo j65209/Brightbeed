@@ -1101,6 +1101,51 @@
   .kd-st-part{background:rgba(245,158,11,.12);color:#d97706;border:1px solid rgba(245,158,11,.4)}
   .kd-st-other{background:rgba(107,114,128,.12);color:var(--text-2);border:1px solid rgba(107,114,128,.3)}
 
+  /* ===== 상태별 필터 pill (물류팀 최근 발주 상단) ===== */
+  .kd-status-filter{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+    padding:10px 18px 12px;border-bottom:1px dashed var(--line);
+    background:var(--bg-1);
+  }
+  .kd-status-filter-glabel{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-3);
+    font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-right:2px;
+  }
+  .kd-status-pill{
+    --pillcolor:#94a3b8;
+    display:inline-flex;align-items:center;gap:6px;
+    height:26px;padding:0 11px;
+    font-family:var(--sans);font-size:11.5px;font-weight:600;
+    background:var(--bg-1);color:var(--text-3);
+    border:1px solid var(--line);border-radius:13px;
+    cursor:pointer;transition:all .12s;user-select:none;line-height:1;
+  }
+  .kd-status-pill:hover{border-color:var(--line-2);color:var(--text-1)}
+  .kd-status-pill.is-active{
+    background:color-mix(in srgb, var(--pillcolor) 14%, var(--bg-1));
+    border-color:color-mix(in srgb, var(--pillcolor) 55%, transparent);
+    color:color-mix(in srgb, var(--pillcolor) 90%, var(--text-0));
+  }
+  .kd-status-pill.is-zero{opacity:.42}
+  .kd-status-pill-dot{width:7px;height:7px;border-radius:50%;background:var(--pillcolor);flex-shrink:0}
+  .kd-status-pill:not(.is-active) .kd-status-pill-dot{opacity:.5}
+  .kd-status-pill-count{
+    font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.02em;
+    color:inherit;opacity:.75;
+  }
+  .kd-status-filter-reset{
+    font-family:var(--mono);font-size:11px;color:var(--text-3);
+    background:transparent;border:none;cursor:pointer;padding:2px 6px;
+    text-decoration:underline;text-underline-offset:2px;margin-left:auto;
+  }
+  .kd-status-filter-reset:hover{color:var(--text-1)}
+  @media(max-width:600px){
+    .kd-status-filter{gap:5px;padding:8px 10px 10px}
+    .kd-status-pill{height:24px;padding:0 9px;font-size:10.5px}
+    .kd-status-filter-glabel{font-size:9.5px}
+    .kd-status-filter-reset{margin-left:0}
+  }
+
   /* 이미지 셀 + hover 확대 */
   .kd-table td.col-img{padding:8px 4px;overflow:visible}
   .kd-thumb-wrap{position:relative;display:inline-block;cursor:zoom-in}
@@ -7862,6 +7907,11 @@
               새로고침
             </button>
           </div>
+        </div>
+        <div id="kdStatusFilter" class="kd-status-filter" hidden>
+          <span class="kd-status-filter-glabel">상태</span>
+          <div id="kdStatusPills" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+          <button type="button" class="kd-status-filter-reset" onclick="kdResetStatusFilter()">전체 보기</button>
         </div>
         <div id="poEmpty" class="po-empty">
           <div class="po-empty-icon">
@@ -14990,6 +15040,80 @@
     return await r.json();
   }
 
+  /* ===== 콰이디에어 상태 필터 pill ===== */
+  const KD_STATUSES=[
+    {key:'접수신청', color:'#94a3b8'},
+    {key:'부분입고', color:'#d97706'},
+    {key:'전체입고', color:'#0891b2'},
+    {key:'출고완료', color:'#059669'},
+    {key:'취소',    color:'#dc2626'},
+    {key:'기타',    color:'#6b7280'},
+  ];
+  const _kdStatusKeys=new Set(KD_STATUSES.slice(0,-1).map(s=>s.key));
+  const _kdActiveStatuses=new Set(KD_STATUSES.map(s=>s.key));
+
+  function _kdStatusBucket(s){
+    return _kdStatusKeys.has(s) ? s : '기타';
+  }
+  function renderKDStatusFilter(counts){
+    const wrap=document.getElementById('kdStatusPills');
+    const section=document.getElementById('kdStatusFilter');
+    if(!wrap||!section) return;
+    counts=counts||{};
+    const total=Object.values(counts).reduce((a,b)=>a+b,0);
+    if(total===0){ section.hidden=true; return; }
+    section.hidden=false;
+    wrap.innerHTML='';
+    KD_STATUSES.forEach(def=>{
+      const n=counts[def.key]||0;
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='kd-status-pill'
+        + (_kdActiveStatuses.has(def.key)?' is-active':'')
+        + (n===0?' is-zero':'');
+      btn.style.setProperty('--pillcolor', def.color);
+      const dot=document.createElement('span');
+      dot.className='kd-status-pill-dot';
+      btn.appendChild(dot);
+      btn.appendChild(document.createTextNode(def.key));
+      const cnt=document.createElement('span');
+      cnt.className='kd-status-pill-count';
+      cnt.textContent=String(n);
+      btn.appendChild(cnt);
+      btn.addEventListener('click', ()=>{
+        if(_kdActiveStatuses.has(def.key)) _kdActiveStatuses.delete(def.key);
+        else _kdActiveStatuses.add(def.key);
+        renderKDStatusFilter(counts);
+        const sb=document.getElementById('kdSearch');
+        filterKDOrders(sb?sb.value:'');
+      });
+      wrap.appendChild(btn);
+    });
+  }
+  function kdResetStatusFilter(){
+    _kdActiveStatuses.clear();
+    KD_STATUSES.forEach(s=>_kdActiveStatuses.add(s.key));
+    const counts=_kdCountStatusesFromDom();
+    renderKDStatusFilter(counts);
+    const sb=document.getElementById('kdSearch');
+    filterKDOrders(sb?sb.value:'');
+  }
+  function _kdCountStatusesFromDom(){
+    const counts={};
+    KD_STATUSES.forEach(s=>counts[s.key]=0);
+    // 신청서번호(ord_no) 기준으로 세되, ord_no 첫 행에만 상태 표기가 있으므로 그 행만 카운트
+    document.querySelectorAll('#poBody tr.kd-row').forEach(tr=>{
+      const st=tr.querySelector('.kd-status');
+      if(!st) return; // 그룹의 후속 행 — 상태 안 그림
+      const raw=(st.textContent||'').trim();
+      if(!raw) return;
+      const bucket=_kdStatusBucket(raw);
+      counts[bucket]=(counts[bucket]||0)+1;
+    });
+    return counts;
+  }
+  window.kdResetStatusFilter=kdResetStatusFilter;
+
   let _kdLastHash='';
   async function renderKDOrders(opts){
     opts=opts||{};
@@ -15110,7 +15234,8 @@
         : '';
       const memoText=escapeHTML(r.memo||'');
       const oidAttr = r.product_url ? escapeHTML(r.product_url) : '';
-      return `<tr class="${groupCls} kd-row" data-ord="${escapeHTML(r.ord_no)}" data-purl="${oidAttr}">
+      const stBucket=_kdStatusBucket(r.status||'');
+      return `<tr class="${groupCls} kd-row" data-ord="${escapeHTML(r.ord_no)}" data-purl="${oidAttr}" data-status="${escapeHTML(stBucket)}">
         <td class="col-ord">${ordCell}</td>
         <td class="col-img">${imgCell}</td>
         <td class="col-price">¥${escapeHTML(r.price_cny||'0')}</td>
@@ -15121,9 +15246,11 @@
     }).join('');
     tbody.innerHTML=renderedHTML;
     attachKDHistoryChips();
-    // 검색어가 입력돼 있으면 재렌더 후 다시 필터 적용
+    // 상태별 필터 pill 카운트 갱신
+    renderKDStatusFilter(_kdCountStatusesFromDom());
+    // 검색어/상태 필터 재적용 (재렌더가 tr을 새로 만들었으므로)
     const sb=document.getElementById('kdSearch');
-    if(sb && sb.value) filterKDOrders(sb.value);
+    filterKDOrders(sb?sb.value:'');
   }
 
   // 각 KD 행에 이전 발주 뱃지 부착 (렌더 후 또는 orders.json 로드 후 호출)
@@ -15278,22 +15405,26 @@
     }
   });
 
-  /* 신청서번호 검색 — 부분 매치 (대소문자 무관, 공백 제거) */
+  /* 신청서번호 검색 + 상태 필터 결합 (같은 신청서 = 같은 상태이므로 tr 단위로 체크) */
   function filterKDOrders(q){
     const needle=String(q||'').replace(/\s+/g,'').toLowerCase();
     const rows=document.querySelectorAll('#poBody tr');
-    let shown=0;
+    const activeAll=_kdActiveStatuses.size===KD_STATUSES.length;
+    const shownOrds=new Set();
     rows.forEach(tr=>{
       const ord=(tr.dataset.ord||'').toLowerCase();
-      const match=!needle || ord.includes(needle);
+      const st=tr.dataset.status||'기타';
+      const matchNeedle=!needle || ord.includes(needle);
+      const matchStatus=activeAll || _kdActiveStatuses.has(st);
+      const match=matchNeedle && matchStatus;
       tr.style.display = match ? '' : 'none';
-      if(match) shown++;
+      if(match && tr.dataset.ord) shownOrds.add(tr.dataset.ord);
     });
     const cnt=document.getElementById('poCount');
     if(cnt){
-      if(needle) cnt.textContent=`${shown}건 (검색)`;
+      const filtered = !!needle || !activeAll;
+      if(filtered) cnt.textContent=`${shownOrds.size}건 (필터)`;
       else{
-        // 검색 해제 시 신청서 단위 카운트로 복원 — DOM 의 unique data-ord 기준
         const ords=new Set();
         rows.forEach(tr=>{ if(tr.dataset.ord) ords.add(tr.dataset.ord); });
         cnt.textContent=`${ords.size}건`;
