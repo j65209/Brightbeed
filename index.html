@@ -21819,24 +21819,27 @@
   }
   window.wrMarkDone = wrMarkDone;
 
-  async function wrCancelBatch(id, requestedBy){
+  async function wrCancelBatch(id, requestedBy, isDone){
     if(!id) return;
     const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
-    // 요청 본인 또는 마스터만 취소 가능
-    if(!isMaster() && me !== requestedBy){
-      toast('본인이 요청한 알림만 취소할 수 있습니다', 'err');
+    // 마스터는 완료된 이력까지 삭제 가능, 요청 본인은 미완료만 취소 가능
+    if(!isMaster() && (isDone || me !== requestedBy)){
+      toast(isDone ? '완료된 내역은 마스터만 삭제할 수 있습니다' : '본인이 요청한 알림만 취소할 수 있습니다', 'err');
       return;
     }
-    if(!confirm('이 알림을 목록에서 지울까요?\n(이미 뜬 크롬 알림 자체는 사라지지 않습니다)')) return;
+    const msg = isDone
+      ? '송금완료된 이 내역을 목록에서 삭제할까요?\n(실제 송금은 이미 완료된 상태입니다)'
+      : '이 알림을 목록에서 지울까요?\n(이미 뜬 크롬 알림 자체는 사라지지 않습니다)';
+    if(!confirm(msg)) return;
     try{
       const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?id=eq.${encodeURIComponent(id)}`, {
         method:'DELETE',
         headers:_sbHeaders({'Prefer':'return=minimal'}),
       });
-      if(!r.ok){ toast(`취소 실패 (HTTP ${r.status})`, 'err'); return; }
-      toast('알림을 취소했습니다', 'ok');
+      if(!r.ok){ toast(`삭제 실패 (HTTP ${r.status})`, 'err'); return; }
+      toast(isDone?'내역을 삭제했습니다':'알림을 취소했습니다', 'ok');
       _wrFetchBatches();
-    }catch(e){ toast('취소 실패 — 네트워크 확인', 'err'); }
+    }catch(e){ toast('삭제 실패 — 네트워크 확인', 'err'); }
   }
   window.wrCancelBatch = wrCancelBatch;
 
@@ -21909,10 +21912,11 @@
       const doneBtn = (!isDone && canDone)
         ? `<button type="button" class="wr-btn wr-btn-done" onclick="wrMarkDone('${_esc(b.id)}')">✅ 송금완료</button>`
         : '';
-      // 취소(삭제) — notified 상태이고 요청 본인 또는 마스터만 가능
-      const canCancel = !isDone && (isMaster() || me === b.requested_by);
+      // 취소(삭제) — 마스터는 완료된 이력까지 삭제 가능, 요청 본인은 미완료만
+      const canCancel = isMaster() || (!isDone && me === b.requested_by);
+      const cancelLabel = isDone ? '🗑 내역 삭제' : '🗑 알림 취소';
       const cancelBtn = canCancel
-        ? `<button type="button" class="wr-btn wr-btn-cancel" onclick="wrCancelBatch('${_esc(b.id)}', '${_esc(b.requested_by||'')}')">🗑 알림 취소</button>`
+        ? `<button type="button" class="wr-btn wr-btn-cancel" onclick="wrCancelBatch('${_esc(b.id)}', '${_esc(b.requested_by||'')}', ${isDone?1:0})">${cancelLabel}</button>`
         : '';
       const actionsHtml = (doneBtn || cancelBtn)
         ? `<div class="wr-batch-actions">${cancelBtn}${doneBtn}</div>`
