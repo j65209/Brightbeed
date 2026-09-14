@@ -6800,6 +6800,21 @@
   .dsg-blk:hover > .dsg-blk-del{opacity:.7}
   .dsg-blk-del:hover{opacity:1;background:#fee2e2;color:#dc2626}
   .dsg-blk-del svg{width:12px;height:12px}
+  /* 순서 이동 ▲▼ (hover 시 노출, 클릭 시 한 칸씩) */
+  .dsg-blk-move{
+    flex:none;display:inline-flex;flex-direction:column;
+    gap:1px;margin-top:1px;
+    opacity:0;transition:opacity .1s;
+  }
+  .dsg-blk:hover > .dsg-blk-move,
+  .dsg-sec-head:hover .dsg-blk-move{opacity:.65}
+  .dsg-blk-move-btn{
+    width:20px;height:11px;border-radius:3px;
+    display:flex;align-items:center;justify-content:center;
+    color:#78716c;cursor:pointer;transition:all .1s;
+  }
+  .dsg-blk-move-btn:hover{background:#f4f4f5;color:#7c3aed}
+  .dsg-blk-move-btn svg{width:12px;height:10px}
   /* ＋ 아이콘 — 각 블록 왼쪽 hover 시 */
   .dsg-blk-plus{
     flex:none;width:20px;height:20px;
@@ -6882,8 +6897,11 @@
   }
   /* 터치 기기 or 좁은 화면 — + / 삭제 아이콘 항상 살짝 노출 (hover 못 쓸때 대비) */
   @media (hover: none), (max-width:560px){
-    .dsg-blk-plus, .dsg-blk-del, .dsg-sec-plus{opacity:.45 !important}
-    .dsg-blk-plus:active, .dsg-blk-del:active{opacity:1 !important}
+    .dsg-blk-plus, .dsg-blk-del, .dsg-sec-plus, .dsg-blk-move{opacity:.5 !important}
+    .dsg-blk-plus:active, .dsg-blk-del:active, .dsg-blk-move-btn:active{opacity:1 !important}
+    /* 터치 대응 — 이동 버튼 더 크게 */
+    .dsg-blk-move-btn{width:26px;height:16px}
+    .dsg-blk-move{gap:2px}
   }
   /* 힌트 문구 데스크톱/모바일 분리 노출 */
   .dsg-hint-mobile{display:none}
@@ -13326,6 +13344,7 @@
       const kids = (b.children||[]).map(renderBlock).join('');
       const plusBtn = (id)=>`<div class="dsg-blk-plus" onclick="dsgDocInsertAfter('${id}')" title="아래에 새 항목"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>`;
       const delBtn = (id, tt)=>`<div class="dsg-blk-del" onclick="dsgDocDelete('${id}')" title="${tt||'삭제'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg></div>`;
+      const moveBtns = (id)=>`<div class="dsg-blk-move"><div class="dsg-blk-move-btn" onclick="dsgDocMove('${id}',-1)" title="위로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="18 15 12 9 6 15"/></svg></div><div class="dsg-blk-move-btn" onclick="dsgDocMove('${id}',1)" title="아래로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg></div></div>`;
 
       if(b.type==='section'){
         const collapsed = b.collapsed ? ' collapsed':'';
@@ -13336,6 +13355,7 @@
             </div>
             <div class="dsg-sec-title dsg-editable" contenteditable="true" data-id="${b.id}" data-placeholder="섹션 제목" spellcheck="false">${_dsgBlockText(b.text)}</div>
             <div class="dsg-sec-actions">
+              ${moveBtns(b.id)}
               <div class="dsg-blk-plus dsg-sec-plus" onclick="dsgDocAddChildAt('${b.id}')" title="이 섹션에 새 항목"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
               ${delBtn(b.id,'섹션 삭제')}
             </div>
@@ -13352,6 +13372,7 @@
           </div>
           <div class="dsg-blk-prio${b.priority?' on':''}" onclick="dsgDocCyclePrio('${b.id}')" title="${DSG_PRIO_TITLE[b.priority||'']}">${DSG_PRIO_DOT[b.priority]||'○'}</div>
           <div class="dsg-blk-text dsg-editable" contenteditable="true" data-id="${b.id}" data-placeholder="토글 제목" spellcheck="false">${_dsgBlockText(b.text)}</div>
+          ${moveBtns(b.id)}
           ${delBtn(b.id)}
           <div class="dsg-blk-children">${kids}</div>
         </div>`;
@@ -13361,6 +13382,7 @@
           ${plusBtn(b.id)}
           <div class="dsg-blk-gutter"></div>
           <div class="dsg-blk-text dsg-editable" contenteditable="true" data-id="${b.id}" data-placeholder="내용을 입력하세요" spellcheck="false">${_dsgBlockText(b.text)}</div>
+          ${moveBtns(b.id)}
           ${delBtn(b.id)}
           <div class="dsg-blk-children">${kids}</div>
         </div>`;
@@ -13374,6 +13396,7 @@
         </div>
         <div class="dsg-blk-prio${b.priority?' on':''}" onclick="dsgDocCyclePrio('${b.id}')" title="${DSG_PRIO_TITLE[b.priority||'']}">${DSG_PRIO_DOT[b.priority]||'○'}</div>
         <div class="dsg-blk-text dsg-editable${doneCls}" contenteditable="true" data-id="${b.id}" data-placeholder="할 일을 입력하세요" spellcheck="false">${_dsgBlockText(b.text)}</div>
+        ${moveBtns(b.id)}
         ${delBtn(b.id)}
         <div class="dsg-blk-children">${kids}</div>
       </div>`;
@@ -13507,6 +13530,33 @@
     if(j<0 || j>=info.list.length) return;
     const [it] = info.list.splice(info.index, 1);
     info.list.splice(j, 0, it);
+    _dsgSaveDoc(); _dsgMarkDocDirty();
+    dsgDocRender();
+    _dsgFocusBlockEnd(id);
+  }
+  /* dsgDocMove — ▲/▼ 버튼용. 같은 레벨 내에서 스왑,
+     끝에서 더 이동하려 하면 부모의 다음/이전 이웃 위치로 승격. */
+  function dsgDocMove(id, dir){
+    const info = _dsgFindPath(id);
+    if(!info) return;
+    const nextIdx = info.index + dir;
+    // 같은 레벨에서 이동 가능하면 스왑
+    if(nextIdx >= 0 && nextIdx < info.list.length){
+      const [it] = info.list.splice(info.index, 1);
+      info.list.splice(nextIdx, 0, it);
+      _dsgSaveDoc(); _dsgMarkDocDirty();
+      dsgDocRender();
+      _dsgFocusBlockEnd(id);
+      return;
+    }
+    // 부모가 없으면 (최상위 리스트 끝) 더 이동 못함
+    if(!info.parent) return;
+    // 부모의 상위 위치에서 부모 옆으로 승격 (dir 방향)
+    const parentInfo = _dsgFindPath(info.parent.id);
+    if(!parentInfo) return;
+    info.list.splice(info.index, 1);
+    const insertAt = dir > 0 ? parentInfo.index + 1 : parentInfo.index;
+    parentInfo.list.splice(insertAt, 0, info.block);
     _dsgSaveDoc(); _dsgMarkDocDirty();
     dsgDocRender();
     _dsgFocusBlockEnd(id);
@@ -13649,6 +13699,7 @@
   window.dsgDocAddChildAt = dsgDocAddChildAt;
   window.dsgDocInsertAfter = dsgDocInsertAfter;
   window.dsgDocAppendItem = dsgDocAppendItem;
+  window.dsgDocMove = dsgDocMove;
   window.dsgDocExpandAll = dsgDocExpandAll;
   window.dsgDocCollapseAll = dsgDocCollapseAll;
 
