@@ -25267,6 +25267,8 @@
     }, 30000);
   }
 
+  /* 대표 PC 에서 이미 알림 띄운 요청 id 기록 (탭 wake 시 중복 알림 방지) */
+  const _wrNotifiedIds = new Set();
   async function _wrInitRealtime(){
     if(_wrRealtimeChan) return;
     if(typeof supabase === 'undefined' || !supabase || !supabase.channel){
@@ -25280,6 +25282,8 @@
         // 대표 PC 에는 크롬 알림
         if(me === WR_OWNER_NAME){
           const row = payload.new || {};
+          if(row.id && _wrNotifiedIds.has(row.id)) return;
+          if(row.id) _wrNotifiedIds.add(row.id);
           const rows = Array.isArray(row.rows) ? row.rows : [];
           const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
           _wrFireNotif(`🔔 출금 요청 (${rows.length}건)`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`);
@@ -25294,6 +25298,44 @@
         }
       })
       .subscribe();
+
+    /* 탭 sleep/네트워크 hiccup 로 realtime 드롭 시 놓친 알림 catch-up.
+       탭 visible 로 돌아올 때 대표 PC 는 최근 24h notified 항목을 훑어 놓친 알림 재발생. */
+    if(!_wrInitRealtime._wakeBound){
+      _wrInitRealtime._wakeBound = true;
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.visibilityState !== 'visible') return;
+        const meNow = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
+        if(meNow !== WR_OWNER_NAME) return;
+        _wrCatchUpMissed().catch(()=>{});
+      });
+      /* 페이지 로드 직후 대표 PC 면 한 번 catch-up 실행 (최근 24h 알림 dedupe) */
+      setTimeout(()=>{
+        const meNow = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
+        if(meNow === WR_OWNER_NAME) _wrCatchUpMissed(true).catch(()=>{});
+      }, 1500);
+    }
+  }
+
+  /* 대표 PC 전용 — 최근 24시간 notified 요청 중 로컬에 이미 알린 것 빼고 새로 알리기.
+     초기 로드(silent=true)에서는 이미 존재하던 것들을 알렸다고 mark 만 하고 실제 알림은 안 띄움. */
+  async function _wrCatchUpMissed(silent){
+    try{
+      const since = new Date(Date.now() - 24*3600*1000).toISOString();
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?status=eq.notified&requested_at=gte.${since}&order=requested_at.asc&select=id,requested_by,rows,requested_at`, {headers:_sbHeaders(), cache:'no-cache'});
+      if(!r.ok) return;
+      const list = await r.json();
+      if(!Array.isArray(list)) return;
+      list.forEach(row=>{
+        if(!row || !row.id) return;
+        if(_wrNotifiedIds.has(row.id)) return;
+        _wrNotifiedIds.add(row.id);
+        if(silent) return;                                   // 첫 로드는 조용히 mark 만
+        const rows = Array.isArray(row.rows) ? row.rows : [];
+        const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
+        _wrFireNotif(`🔔 출금 요청 (${rows.length}건) · 놓친 알림`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`);
+      });
+    }catch(e){}
   }
   function _wrFireNotif(title, body){
     toast(`${title} · ${body}`, 'info');
