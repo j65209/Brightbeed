@@ -3929,6 +3929,174 @@
     .fx-field-row{grid-template-columns:1fr}
   }
 
+  /* ===== 관리자 전용: 대표 캘린더 (viewCeoCal) — 골드 톤 ===== */
+  #viewCeoCal{padding:22px 28px 60px;max-width:1200px;margin:0 auto}
+  #viewCeoCal .view-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .cec-add-btn{
+    margin-left:auto;display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;font-size:12.5px;font-weight:600;color:#854d0e;
+    background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.5);
+    border-radius:6px;cursor:pointer;font-family:var(--sans);transition:all .15s;
+  }
+  .cec-add-btn:hover{background:rgba(212,175,55,.20);box-shadow:0 0 12px rgba(212,175,55,.25)}
+  .cec-wrap{display:flex;flex-direction:column;gap:18px}
+  /* 요약 */
+  .cec-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .cec-summary-card{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;
+  }
+  .cec-summary-label{font-size:11.5px;color:var(--text-3);font-weight:600;letter-spacing:.02em;margin-bottom:6px}
+  .cec-summary-value{font-size:22px;font-weight:700;color:var(--text-0);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .cec-summary-sub{font-size:11.5px;color:var(--text-2);margin-top:4px;font-variant-numeric:tabular-nums}
+  /* 캘린더 헤더 */
+  .cec-cal-section{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .cec-cal-head{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg-2);flex-wrap:wrap;
+  }
+  .cec-cal-nav{display:inline-flex;align-items:center;gap:6px}
+  .cec-cal-monthlabel{font-size:15px;font-weight:700;color:var(--text-0);min-width:110px;text-align:center;letter-spacing:-.01em}
+  .btn-cec-cal-nav{
+    padding:5px 10px;font-size:13px;font-weight:600;color:var(--text-1);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:5px;
+    cursor:pointer;font-family:var(--sans);transition:all .12s;line-height:1;
+  }
+  .btn-cec-cal-nav:hover{border-color:#d4af37;color:#854d0e;background:rgba(212,175,55,.06)}
+  .cec-cal-nav-arrow{padding:5px 9px;font-size:15px;font-weight:700}
+  .cec-cal-legend{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .cec-legend-item{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2);font-weight:500}
+  .cec-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  /* 캘린더 그리드 */
+  .cec-cal-body{}
+  .cec-cal-weekdays{
+    display:grid;grid-template-columns:repeat(7,1fr);
+    padding:8px 12px;border-bottom:1px solid var(--line);background:var(--bg-1);
+  }
+  .cec-cal-wd{font-size:10.5px;font-weight:700;color:var(--text-3);text-align:center;letter-spacing:.05em}
+  .cec-cal-sun{color:#dc2626}
+  .cec-cal-sat{color:#2563eb}
+  .cec-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);background:var(--line)}
+  .cec-cal-day{
+    background:var(--bg-1);min-height:96px;padding:6px 8px 8px;
+    display:flex;flex-direction:column;gap:3px;cursor:pointer;transition:background .12s;
+    position:relative;
+  }
+  .cec-cal-day:hover{background:rgba(212,175,55,.05)}
+  .cec-cal-day.other-month{background:var(--bg-2);opacity:.55}
+  .cec-cal-day.today{background:rgba(212,175,55,.10);box-shadow:inset 0 0 0 2px rgba(212,175,55,.45)}
+  .cec-cal-daynum{font-size:11.5px;font-weight:600;color:var(--text-2);letter-spacing:-.005em;font-variant-numeric:tabular-nums}
+  .cec-cal-day.sun .cec-cal-daynum{color:#dc2626}
+  .cec-cal-day.sat .cec-cal-daynum{color:#2563eb}
+  .cec-cal-day.today .cec-cal-daynum{color:#854d0e;font-weight:700}
+  .cec-cal-events{display:flex;flex-direction:column;gap:2px;overflow:hidden}
+  .cec-cal-ev{
+    display:flex;align-items:center;gap:4px;
+    padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:500;
+    color:#1c1917;line-height:1.35;letter-spacing:-.01em;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    border-left:3px solid var(--cev-c,#a8a29e);background:color-mix(in srgb, var(--cev-c,#a8a29e) 14%, transparent);
+  }
+  .cec-cal-ev-time{font-family:var(--mono);font-size:10px;color:var(--text-3);font-weight:600;flex-shrink:0}
+  .cec-cal-more{
+    font-size:10px;color:var(--text-3);padding:1px 6px;font-weight:600;letter-spacing:-.005em;
+  }
+  /* 리스트 */
+  .cec-list-section{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .cec-list-head{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+    padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg-2);
+  }
+  .cec-list-title{font-size:13px;font-weight:700;color:var(--text-0);letter-spacing:-.01em}
+  .cec-list-meta{font-size:11px;color:var(--text-3);font-family:var(--mono);font-weight:600}
+  .cec-list-body{padding:8px 4px}
+  .cec-empty{padding:26px 20px;text-align:center;color:var(--text-3);font-size:12.5px;line-height:1.6}
+  .cec-empty b{color:#854d0e;font-weight:700}
+  .cec-list-row{
+    display:grid;grid-template-columns:88px 60px 60px 1fr auto;gap:10px;
+    align-items:center;padding:9px 12px;
+    border-radius:6px;transition:background .12s;cursor:pointer;
+  }
+  .cec-list-row:hover{background:var(--bg-2)}
+  .cec-list-date{font-family:var(--mono);font-size:12px;color:var(--text-1);font-weight:600;font-variant-numeric:tabular-nums}
+  .cec-list-time{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+  .cec-list-cat{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;
+    background:color-mix(in srgb, var(--cev-c,#a8a29e) 14%, transparent);
+    color:color-mix(in srgb, var(--cev-c,#a8a29e) 60%, #1c1917 40%);
+    border:1px solid color-mix(in srgb, var(--cev-c,#a8a29e) 35%, transparent);
+    white-space:nowrap;justify-self:start;
+  }
+  .cec-list-title-cell{font-size:13px;color:var(--text-0);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cec-list-memo{font-size:11px;color:var(--text-3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cec-list-del{
+    width:22px;height:22px;border-radius:5px;
+    background:transparent;border:1px solid transparent;color:var(--text-3);
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:14px;line-height:1;
+    transition:all .12s;
+  }
+  .cec-list-del:hover{color:#dc2626;border-color:rgba(220,38,38,.4);background:rgba(220,38,38,.05)}
+
+  /* 모달 */
+  .cec-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center}
+  .cec-modal[hidden]{display:none}
+  .cec-modal-backdrop{position:absolute;inset:0;background:rgba(28,25,23,.5);backdrop-filter:blur(3px)}
+  .cec-modal-panel{
+    position:relative;background:var(--bg-1);border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 24px 60px rgba(0,0,0,.28);
+    width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;
+  }
+  .cec-modal-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 18px;border-bottom:1px solid var(--line);background:var(--bg-2);
+  }
+  .cec-modal-title{font-size:14.5px;font-weight:700;color:var(--text-0);letter-spacing:-.01em}
+  .cec-modal-close{
+    background:transparent;border:none;color:var(--text-3);cursor:pointer;
+    padding:4px 8px;border-radius:5px;font-size:14px;line-height:1;
+  }
+  .cec-modal-close:hover{color:var(--text-0);background:var(--bg-3)}
+  .cec-modal-body{padding:18px;display:flex;flex-direction:column;gap:12px}
+  .cec-field{display:flex;flex-direction:column;gap:5px}
+  .cec-field-label{font-size:11.5px;font-weight:600;color:var(--text-2);letter-spacing:-.005em}
+  .cec-field-label em{color:#dc2626;font-style:normal;margin-left:2px}
+  .cec-field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cec-input{
+    padding:8px 10px;font-size:13px;font-family:var(--sans);color:var(--text-0);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:6px;outline:none;
+    transition:border-color .12s;width:100%;
+  }
+  .cec-input:focus{border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.14)}
+  .cec-textarea{min-height:70px;resize:vertical;line-height:1.5}
+  .cec-modal-actions{
+    display:flex;justify-content:flex-end;align-items:center;gap:8px;
+    padding:14px 18px;border-top:1px solid var(--line);background:var(--bg-2);
+  }
+  .cec-spacer{flex:1}
+  .cec-btn{
+    padding:8px 14px;border-radius:6px;border:1px solid var(--line);
+    font-family:var(--sans);font-size:12.5px;font-weight:600;letter-spacing:.02em;
+    cursor:pointer;transition:all .12s;background:var(--bg-1);color:var(--text-1);
+  }
+  .cec-btn-ghost{background:transparent;color:var(--text-2)}
+  .cec-btn-ghost:hover{background:var(--bg-3);color:var(--text-0)}
+  .cec-btn-primary{background:linear-gradient(135deg,#d4af37,#b8901f);color:#fff;border-color:transparent}
+  .cec-btn-primary:hover{filter:brightness(1.08)}
+  .cec-btn-danger{background:transparent;color:#dc2626;border-color:rgba(220,38,38,.4)}
+  .cec-btn-danger:hover{background:rgba(220,38,38,.08)}
+  @media (max-width:900px){
+    #viewCeoCal{padding:16px 14px 50px}
+    .cec-summary{grid-template-columns:1fr;gap:8px}
+    .cec-cal-day{min-height:74px;padding:5px 6px 6px}
+    .cec-list-row{grid-template-columns:1fr auto;gap:6px}
+    .cec-list-time,.cec-list-cat{display:none}
+    .cec-list-date{grid-column:1/-1;font-size:11px;color:var(--text-3)}
+  }
+  @media (max-width:520px){
+    .cec-field-row{grid-template-columns:1fr}
+  }
+
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
   .view{display:block}
   .view[hidden]{display:none}
@@ -4035,6 +4203,9 @@
   .sub-module.m-promo {--m-color:#06b6d4;--m-border:rgba(6,182,212,.4)}
   .sub-module.m-promo .sub-module-icon{color:#06b6d4}
   .sub-module.m-promo .sub-module-tag{color:#06b6d4;border-color:rgba(6,182,212,.45);border-style:solid}
+  .sub-module.m-ceocal {--m-color:#d4af37;--m-border:rgba(212,175,55,.45)}
+  .sub-module.m-ceocal .sub-module-icon{color:#d4af37}
+  .sub-module.m-ceocal .sub-module-tag{color:#854d0e;border-color:rgba(212,175,55,.5);border-style:solid;background:rgba(212,175,55,.08)}
 
   /* 메타 광고 분석 리포트 — 8 브랜드 (Facebook Marketing API) */
   .sub-modules-metaads::before{background:linear-gradient(90deg,#22d3ee 0%,#22c55e 15%,#a78bfa 30%,#f59e0b 45%,#f472b6 60%,#818cf8 75%,#fb7185 90%,#14b8a6 100%)}
@@ -8319,6 +8490,12 @@
           <div class="sub-module-sub">월세 · 정기결제 · 계좌 관리 (마스터 전용)</div>
           <div class="sub-module-tag">ADMIN</div>
         </div>
+        <div class="sub-module m-ceocal" onclick="triggerCeoCal()">
+          <div class="sub-module-icon">👑</div>
+          <div class="sub-module-title">대표 캘린더</div>
+          <div class="sub-module-sub">대표 일정·미팅·출장 (마스터 전용)</div>
+          <div class="sub-module-tag">ADMIN</div>
+        </div>
       </div>
     </div>
 
@@ -10504,6 +10681,127 @@
     </div>
   </div>
 
+  <!-- ============ 대표 캘린더 (관리자 전용) ============ -->
+  <div class="view master-only" id="viewCeoCal" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">대표 캘린더<span class="view-title-sub">/ 관리자 전용 · 대표 일정·미팅·출장</span></h1>
+      <button type="button" class="cec-add-btn" onclick="cecOpenAddModal()" aria-label="일정 추가">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        일정 추가
+      </button>
+    </div>
+
+    <div class="cec-wrap">
+      <div class="cec-summary">
+        <div class="cec-summary-card">
+          <div class="cec-summary-label">이번 달 일정</div>
+          <div class="cec-summary-value" id="cecSummaryMonth">0건</div>
+          <div class="cec-summary-sub" id="cecSummaryMonthSub">미팅 0 · 출장 0 · 개인 0 · 기타 0</div>
+        </div>
+        <div class="cec-summary-card">
+          <div class="cec-summary-label">다음 일정</div>
+          <div class="cec-summary-value" id="cecSummaryNext">—</div>
+          <div class="cec-summary-sub" id="cecSummaryNextSub">등록된 일정이 없습니다</div>
+        </div>
+        <div class="cec-summary-card">
+          <div class="cec-summary-label">오늘 일정</div>
+          <div class="cec-summary-value" id="cecSummaryToday">0건</div>
+          <div class="cec-summary-sub" id="cecSummaryTodaySub">—</div>
+        </div>
+      </div>
+
+      <div class="cec-cal-section">
+        <div class="cec-cal-head">
+          <div class="cec-cal-nav">
+            <button class="btn-cec-cal-nav cec-cal-nav-arrow" onclick="cecCalPrev()" aria-label="이전 달">‹</button>
+            <span class="cec-cal-monthlabel" id="cecCalMonthLabel">—</span>
+            <button class="btn-cec-cal-nav cec-cal-nav-arrow" onclick="cecCalNext()" aria-label="다음 달">›</button>
+            <button class="btn-cec-cal-nav" onclick="cecCalToday()">오늘</button>
+          </div>
+          <div class="cec-cal-legend">
+            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#f97316"></span>미팅</span>
+            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#0ea5e9"></span>출장</span>
+            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#22c55e"></span>개인</span>
+            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#a8a29e"></span>기타</span>
+          </div>
+        </div>
+        <div class="cec-cal-body">
+          <div class="cec-cal-weekdays">
+            <div class="cec-cal-wd cec-cal-sun">SUN</div>
+            <div class="cec-cal-wd">MON</div>
+            <div class="cec-cal-wd">TUE</div>
+            <div class="cec-cal-wd">WED</div>
+            <div class="cec-cal-wd">THU</div>
+            <div class="cec-cal-wd">FRI</div>
+            <div class="cec-cal-wd cec-cal-sat">SAT</div>
+          </div>
+          <div class="cec-cal-grid" id="cecCalGrid"></div>
+        </div>
+      </div>
+
+      <div class="cec-list-section">
+        <div class="cec-list-head">
+          <div class="cec-list-title">📋 다가오는 일정</div>
+          <div class="cec-list-meta" id="cecListMeta">0건</div>
+        </div>
+        <div class="cec-list-body" id="cecEventList">
+          <div class="cec-empty">등록된 일정이 없습니다. 우측 상단 <b>+ 일정 추가</b> 또는 캘린더의 날짜를 클릭해 등록하세요.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cec-modal" id="cecModal" hidden>
+      <div class="cec-modal-backdrop" onclick="cecCloseModal()"></div>
+      <div class="cec-modal-panel" role="dialog" aria-modal="true">
+        <form onsubmit="cecSaveFromModal(event)">
+          <div class="cec-modal-head">
+            <div class="cec-modal-title" id="cecModalTitle">일정 추가</div>
+            <button type="button" class="cec-modal-close" onclick="cecCloseModal()" aria-label="닫기">✕</button>
+          </div>
+          <div class="cec-modal-body">
+            <label class="cec-field">
+              <span class="cec-field-label">제목 <em>*</em></span>
+              <input class="cec-input" id="cecEvTitle" type="text" maxlength="60" required placeholder="예: 홍대 카페 미팅">
+            </label>
+            <div class="cec-field-row">
+              <label class="cec-field">
+                <span class="cec-field-label">날짜 <em>*</em></span>
+                <input class="cec-input" id="cecEvDate" type="date" required>
+              </label>
+              <label class="cec-field">
+                <span class="cec-field-label">시간 (선택)</span>
+                <input class="cec-input" id="cecEvTime" type="time">
+              </label>
+            </div>
+            <label class="cec-field">
+              <span class="cec-field-label">카테고리</span>
+              <select class="cec-input" id="cecEvCat">
+                <option value="meet">🤝 미팅</option>
+                <option value="trip">✈️ 출장</option>
+                <option value="personal">🎁 개인</option>
+                <option value="etc">📌 기타</option>
+              </select>
+            </label>
+            <label class="cec-field">
+              <span class="cec-field-label">메모 (선택)</span>
+              <textarea class="cec-input cec-textarea" id="cecEvMemo" maxlength="500" placeholder="장소·안건·연락처 등"></textarea>
+            </label>
+          </div>
+          <div class="cec-modal-actions">
+            <button type="button" class="cec-btn cec-btn-danger" id="cecDeleteBtn" style="display:none" onclick="cecDeleteFromModal()">삭제</button>
+            <span class="cec-spacer"></span>
+            <button type="button" class="cec-btn cec-btn-ghost" onclick="cecCloseModal()">취소</button>
+            <button type="submit" class="cec-btn cec-btn-primary">저장</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   </main>
 
   <footer class="footer">
@@ -12181,8 +12479,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx'};
+  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts','viewCeoCal'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx',viewCeoCal:'ceocal'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -12260,6 +12558,15 @@
         return;
       }
       if(typeof fxRenderView==='function') fxRenderView();
+    }
+    if(id==='viewCeoCal'){
+      // 뷰어 접근 방어
+      if(!isMaster()){
+        toast('관리자 전용 화면입니다','err');
+        applyView('viewHome');
+        return;
+      }
+      if(typeof cecRenderView==='function') cecRenderView();
     }
     // 홈 진입 시 · 이 PC 주인 미설정이면 세팅 팝업
     if(id==='viewHome'){
@@ -23479,6 +23786,329 @@
     if(e.key==='Escape'){
       const m = document.getElementById('fxModal');
       if(m && !m.hidden) fxCloseModal();
+    }
+  });
+
+  /* ===== 관리자 전용 · 대표 캘린더 (localStorage 저장) =====
+     사장님 요청 (2026-09-15): 대표 일정·미팅·출장 관리용 캘린더.
+     저장소: localStorage. 마스터 전용. */
+  const CEC_KEY = 'brightbeed_ceo_calendar_v1';
+  const CEC_CATS = {
+    meet:     {label:'미팅',   short:'MEET', color:'#f97316'},
+    trip:     {label:'출장',   short:'TRIP', color:'#0ea5e9'},
+    personal: {label:'개인',   short:'PSNL', color:'#22c55e'},
+    etc:      {label:'기타',   short:'ETC',  color:'#a8a29e'},
+  };
+  const _cecState = (()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth(),events:null,editingId:null};})();
+
+  function cecLoad(){
+    if(_cecState.events) return _cecState.events;
+    try{
+      const raw = localStorage.getItem(CEC_KEY);
+      if(raw){
+        const p = JSON.parse(raw);
+        if(Array.isArray(p?.events)) _cecState.events = p.events;
+      }
+    }catch(e){}
+    if(!_cecState.events) _cecState.events = [];
+    return _cecState.events;
+  }
+  function cecSave(){
+    try{
+      localStorage.setItem(CEC_KEY, JSON.stringify({events:_cecState.events||[], updatedAt:Date.now()}));
+    }catch(e){ if(typeof toast==='function') toast('저장 실패 (스토리지)','err'); }
+  }
+  function _cecUid(){ return 'ce'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function _cecEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+  function _cecTodayStr(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function _cecCmpDatetime(a,b){
+    /* date 문자열(YYYY-MM-DD)·시간(HH:MM) 비교 — 시간 없으면 하루 끝(23:59)로 취급하지 않고 이른 시간(00:00)로 취급 */
+    const at = (a.date||'') + 'T' + (a.time || '00:00');
+    const bt = (b.date||'') + 'T' + (b.time || '00:00');
+    return at.localeCompare(bt);
+  }
+
+  function cecTriggerCeoCal(){
+    if(typeof isMaster==='function' && !isMaster()){
+      if(typeof toast==='function') toast('관리자 전용 화면입니다','err');
+      return;
+    }
+    showView('viewCeoCal');
+  }
+  window.triggerCeoCal = cecTriggerCeoCal;
+
+  function cecRenderView(){
+    cecLoad();
+    cecRenderCalendar();
+    cecRenderSummary();
+    cecRenderList();
+  }
+  window.cecRenderView = cecRenderView;
+
+  function _cecMonthLabel(y,m){ return `${y}년 ${m+1}월`; }
+  function _cecDaysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+
+  function cecRenderCalendar(){
+    const y = _cecState.year, m = _cecState.month;
+    const label = document.getElementById('cecCalMonthLabel');
+    if(label) label.textContent = _cecMonthLabel(y,m);
+    const grid = document.getElementById('cecCalGrid');
+    if(!grid) return;
+
+    const events = cecLoad();
+    /* day(YYYY-MM-DD) → events[] */
+    const byDay = {};
+    events.forEach(ev=>{
+      if(!ev || !ev.date) return;
+      (byDay[ev.date] = byDay[ev.date] || []).push(ev);
+    });
+    /* 각 날짜 안에서 시간 오름차순 */
+    Object.keys(byDay).forEach(k=>{ byDay[k].sort(_cecCmpDatetime); });
+
+    const firstDow = new Date(y, m, 1).getDay();                 // 0=Sun
+    const daysInMonth = _cecDaysInMonth(y,m);
+    const prevMonthDays = _cecDaysInMonth(y, m-1);
+    const today = _cecTodayStr();
+
+    const cells = [];
+    /* leading blanks (이전 달) */
+    for(let i=firstDow-1; i>=0; i--){
+      const d = prevMonthDays - i;
+      const dt = new Date(y, m-1, d);
+      cells.push({y:dt.getFullYear(), m:dt.getMonth(), d, other:true});
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      cells.push({y, m, d, other:false});
+    }
+    /* trailing blanks (다음 달) — 42칸 채움 */
+    while(cells.length < 42){
+      const last = cells[cells.length-1];
+      const dt = new Date(last.y, last.m, last.d + 1);
+      cells.push({y:dt.getFullYear(), m:dt.getMonth(), d:dt.getDate(), other: dt.getMonth()!==m});
+    }
+    /* 마지막 주가 다 다음달이면 잘라도 되지만, 항상 6주 표시로 통일 */
+
+    const html = cells.map(c=>{
+      const dateStr = `${c.y}-${String(c.m+1).padStart(2,'0')}-${String(c.d).padStart(2,'0')}`;
+      const dow = new Date(c.y, c.m, c.d).getDay();
+      const dayEvents = byDay[dateStr] || [];
+      const shown = dayEvents.slice(0, 3);
+      const more = dayEvents.length - shown.length;
+      const evHtml = shown.map(ev=>{
+        const cat = CEC_CATS[ev.category] || CEC_CATS.etc;
+        const timePrefix = ev.time ? `<span class="cec-cal-ev-time">${_cecEsc(ev.time)}</span>` : '';
+        return `<div class="cec-cal-ev" style="--cev-c:${cat.color}" title="${_cecEsc(ev.title)}${ev.time?' · '+_cecEsc(ev.time):''}" onclick="event.stopPropagation();cecOpenEditModal('${ev.id}')">${timePrefix}${_cecEsc(ev.title)}</div>`;
+      }).join('');
+      const moreHtml = more>0 ? `<div class="cec-cal-more">+${more}개 더</div>` : '';
+      const cls = ['cec-cal-day'];
+      if(c.other) cls.push('other-month');
+      if(dateStr===today) cls.push('today');
+      if(dow===0) cls.push('sun');
+      if(dow===6) cls.push('sat');
+      return `<div class="${cls.join(' ')}" data-date="${dateStr}" onclick="cecOpenAddModal('${dateStr}')">
+        <div class="cec-cal-daynum">${c.d}</div>
+        <div class="cec-cal-events">${evHtml}${moreHtml}</div>
+      </div>`;
+    }).join('');
+    grid.innerHTML = html;
+  }
+
+  function cecRenderSummary(){
+    const events = cecLoad();
+    const y = _cecState.year, m = _cecState.month;
+    const monthPrefix = `${y}-${String(m+1).padStart(2,'0')}`;
+    const monthEvents = events.filter(e => (e.date||'').startsWith(monthPrefix));
+    const cnt = {meet:0, trip:0, personal:0, etc:0};
+    monthEvents.forEach(e => { if(cnt[e.category]!=null) cnt[e.category]++; else cnt.etc++; });
+    const mVal = document.getElementById('cecSummaryMonth');
+    const mSub = document.getElementById('cecSummaryMonthSub');
+    if(mVal) mVal.textContent = `${monthEvents.length}건`;
+    if(mSub) mSub.textContent = `미팅 ${cnt.meet} · 출장 ${cnt.trip} · 개인 ${cnt.personal} · 기타 ${cnt.etc}`;
+
+    /* 다음 일정 — 오늘 이후 가장 이른 것 */
+    const today = _cecTodayStr();
+    const upcoming = events
+      .filter(e => (e.date||'') >= today)
+      .sort(_cecCmpDatetime);
+    const next = upcoming[0];
+    const nVal = document.getElementById('cecSummaryNext');
+    const nSub = document.getElementById('cecSummaryNextSub');
+    if(next){
+      const cat = CEC_CATS[next.category] || CEC_CATS.etc;
+      if(nVal) nVal.textContent = next.title || '(제목 없음)';
+      const dLabel = _cecFmtDate(next.date) + (next.time ? ` ${next.time}` : '');
+      if(nSub) nSub.textContent = `${dLabel} · ${cat.label}`;
+    } else {
+      if(nVal) nVal.textContent = '—';
+      if(nSub) nSub.textContent = '등록된 일정이 없습니다';
+    }
+
+    /* 오늘 일정 */
+    const todayEvents = events.filter(e => e.date === today).sort(_cecCmpDatetime);
+    const tVal = document.getElementById('cecSummaryToday');
+    const tSub = document.getElementById('cecSummaryTodaySub');
+    if(tVal) tVal.textContent = `${todayEvents.length}건`;
+    if(tSub){
+      if(!todayEvents.length) tSub.textContent = '오늘은 일정이 없습니다';
+      else tSub.textContent = todayEvents.map(e => (e.time?e.time+' ':'')+ (e.title||'')).join(' · ');
+    }
+  }
+
+  function _cecFmtDate(s){
+    if(!s) return '';
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) return s;
+    const dt = new Date(+m[1], +m[2]-1, +m[3]);
+    const wd = ['일','월','화','수','목','금','토'][dt.getDay()];
+    return `${+m[2]}/${+m[3]} (${wd})`;
+  }
+
+  function cecRenderList(){
+    const list = document.getElementById('cecEventList');
+    const meta = document.getElementById('cecListMeta');
+    if(!list) return;
+    const events = cecLoad();
+    const today = _cecTodayStr();
+    const upcoming = events
+      .filter(e => (e.date||'') >= today)
+      .sort(_cecCmpDatetime)
+      .slice(0, 30);
+    if(meta) meta.textContent = `${upcoming.length}건`;
+    if(!upcoming.length){
+      list.innerHTML = `<div class="cec-empty">앞으로 예정된 일정이 없습니다. 우측 상단 <b>+ 일정 추가</b> 또는 캘린더 날짜를 클릭해 등록하세요.</div>`;
+      return;
+    }
+    list.innerHTML = upcoming.map(ev=>{
+      const cat = CEC_CATS[ev.category] || CEC_CATS.etc;
+      const timeCell = ev.time ? `<div class="cec-list-time">${_cecEsc(ev.time)}</div>` : `<div class="cec-list-time">·</div>`;
+      const memo = ev.memo ? `<div class="cec-list-memo">${_cecEsc(ev.memo)}</div>` : '';
+      return `<div class="cec-list-row" onclick="cecOpenEditModal('${ev.id}')">
+        <div class="cec-list-date">${_cecEsc(_cecFmtDate(ev.date))}</div>
+        ${timeCell}
+        <span class="cec-list-cat" style="--cev-c:${cat.color}">${_cecEsc(cat.label)}</span>
+        <div>
+          <div class="cec-list-title-cell">${_cecEsc(ev.title||'(제목 없음)')}</div>
+          ${memo}
+        </div>
+        <button class="cec-list-del" type="button" onclick="event.stopPropagation();cecDeleteEvent('${ev.id}')" title="삭제">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  function cecCalPrev(){
+    _cecState.month--;
+    if(_cecState.month < 0){ _cecState.month = 11; _cecState.year--; }
+    cecRenderCalendar();
+  }
+  function cecCalNext(){
+    _cecState.month++;
+    if(_cecState.month > 11){ _cecState.month = 0; _cecState.year++; }
+    cecRenderCalendar();
+  }
+  function cecCalToday(){
+    const n = new Date();
+    _cecState.year = n.getFullYear();
+    _cecState.month = n.getMonth();
+    cecRenderCalendar();
+  }
+  window.cecCalPrev = cecCalPrev;
+  window.cecCalNext = cecCalNext;
+  window.cecCalToday = cecCalToday;
+
+  function cecOpenAddModal(dateStr){
+    _cecState.editingId = null;
+    const modal = document.getElementById('cecModal');
+    if(!modal) return;
+    document.getElementById('cecModalTitle').textContent = '일정 추가';
+    document.getElementById('cecEvTitle').value = '';
+    document.getElementById('cecEvDate').value = dateStr || _cecTodayStr();
+    document.getElementById('cecEvTime').value = '';
+    document.getElementById('cecEvCat').value = 'meet';
+    document.getElementById('cecEvMemo').value = '';
+    document.getElementById('cecDeleteBtn').style.display = 'none';
+    modal.hidden = false;
+    setTimeout(()=>document.getElementById('cecEvTitle')?.focus(), 40);
+  }
+  function cecOpenEditModal(id){
+    const ev = cecLoad().find(e => e.id === id);
+    if(!ev) return;
+    _cecState.editingId = id;
+    const modal = document.getElementById('cecModal');
+    if(!modal) return;
+    document.getElementById('cecModalTitle').textContent = '일정 수정';
+    document.getElementById('cecEvTitle').value = ev.title || '';
+    document.getElementById('cecEvDate').value = ev.date || '';
+    document.getElementById('cecEvTime').value = ev.time || '';
+    document.getElementById('cecEvCat').value = ev.category || 'meet';
+    document.getElementById('cecEvMemo').value = ev.memo || '';
+    document.getElementById('cecDeleteBtn').style.display = '';
+    modal.hidden = false;
+    setTimeout(()=>document.getElementById('cecEvTitle')?.focus(), 40);
+  }
+  function cecCloseModal(){
+    const modal = document.getElementById('cecModal');
+    if(modal) modal.hidden = true;
+    _cecState.editingId = null;
+  }
+  window.cecOpenAddModal = cecOpenAddModal;
+  window.cecOpenEditModal = cecOpenEditModal;
+  window.cecCloseModal = cecCloseModal;
+
+  function cecSaveFromModal(e){
+    if(e && e.preventDefault) e.preventDefault();
+    const title = (document.getElementById('cecEvTitle').value||'').trim();
+    const date  = document.getElementById('cecEvDate').value;
+    const time  = document.getElementById('cecEvTime').value;
+    const cat   = document.getElementById('cecEvCat').value;
+    const memo  = (document.getElementById('cecEvMemo').value||'').trim();
+    if(!title){ if(typeof toast==='function') toast('제목을 입력해주세요','err'); return; }
+    if(!date){  if(typeof toast==='function') toast('날짜를 선택해주세요','err'); return; }
+    const events = cecLoad();
+    if(_cecState.editingId){
+      const idx = events.findIndex(x => x.id === _cecState.editingId);
+      if(idx>=0){
+        events[idx] = {...events[idx], title, date, time: time||'', category: cat, memo, updatedAt: Date.now()};
+      }
+    } else {
+      events.push({id:_cecUid(), title, date, time: time||'', category: cat, memo, createdAt: Date.now()});
+    }
+    _cecState.events = events;
+    cecSave();
+    cecCloseModal();
+    cecRenderView();
+    if(typeof toast==='function') toast('저장되었습니다');
+  }
+  window.cecSaveFromModal = cecSaveFromModal;
+
+  function cecDeleteFromModal(){
+    const id = _cecState.editingId;
+    if(!id) return;
+    if(!confirm('이 일정을 삭제할까요?')) return;
+    _cecState.events = cecLoad().filter(x => x.id !== id);
+    cecSave();
+    cecCloseModal();
+    cecRenderView();
+    if(typeof toast==='function') toast('삭제되었습니다');
+  }
+  function cecDeleteEvent(id){
+    if(!id) return;
+    if(!confirm('이 일정을 삭제할까요?')) return;
+    _cecState.events = cecLoad().filter(x => x.id !== id);
+    cecSave();
+    cecRenderView();
+    if(typeof toast==='function') toast('삭제되었습니다');
+  }
+  window.cecDeleteFromModal = cecDeleteFromModal;
+  window.cecDeleteEvent = cecDeleteEvent;
+
+  // ESC 로 대표 캘린더 모달 닫기
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){
+      const m = document.getElementById('cecModal');
+      if(m && !m.hidden) cecCloseModal();
     }
   });
 
