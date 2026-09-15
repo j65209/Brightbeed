@@ -10788,10 +10788,8 @@
             <button class="btn-cec-cal-nav" onclick="cecCalToday()">오늘</button>
           </div>
           <div class="cec-cal-legend">
-            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#f97316"></span>미팅</span>
-            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#0ea5e9"></span>출장</span>
-            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#22c55e"></span>개인</span>
-            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#a8a29e"></span>기타</span>
+            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#2563eb"></span>전승훈</span>
+            <span class="cec-legend-item"><span class="cec-legend-dot" style="background:#dc2626"></span>전수빈</span>
           </div>
         </div>
         <div class="cec-cal-body">
@@ -23867,6 +23865,19 @@
     personal: {label:'개인',   short:'PSNL', color:'#22c55e'},
     etc:      {label:'기타',   short:'ETC',  color:'#a8a29e'},
   };
+  /* 작성자별 색상 — 사장님 요청: 전승훈=파란색, 전수빈=빨간색.
+     카테고리는 라벨용으로 유지하되 실제 색은 작성자 기준. */
+  const CEC_AUTHOR_COLORS = {
+    '전승훈': '#2563eb', // 블루
+    '전수빈': '#dc2626', // 레드
+  };
+  function _cecColor(ev){
+    const by = ev && ev.createdBy;
+    if(by && CEC_AUTHOR_COLORS[by]) return CEC_AUTHOR_COLORS[by];
+    /* 작성자 없거나 매핑 안 되면 카테고리 색 fallback (기존 이벤트 호환) */
+    const cat = ev && CEC_CATS[ev.category];
+    return (cat && cat.color) || '#a8a29e';
+  }
   const _cecState = (()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth(),events:null,editingId:null};})();
 
   function cecLoad(){
@@ -23967,9 +23978,10 @@
       const shown = dayEvents.slice(0, 3);
       const more = dayEvents.length - shown.length;
       const evHtml = shown.map(ev=>{
-        const cat = CEC_CATS[ev.category] || CEC_CATS.etc;
+        const color = _cecColor(ev);
         const timePrefix = ev.time ? `<span class="cec-cal-ev-time">${_cecEsc(ev.time)}</span>` : '';
-        return `<div class="cec-cal-ev" style="--cev-c:${cat.color}" title="${_cecEsc(ev.title)}${ev.time?' · '+_cecEsc(ev.time):''}" onclick="event.stopPropagation();cecOpenEditModal('${ev.id}')">${timePrefix}${_cecEsc(ev.title)}</div>`;
+        const byTitle = ev.createdBy ? ` (by ${_cecEsc(ev.createdBy)})` : '';
+        return `<div class="cec-cal-ev" style="--cev-c:${color}" title="${_cecEsc(ev.title)}${ev.time?' · '+_cecEsc(ev.time):''}${byTitle}" onclick="event.stopPropagation();cecOpenEditModal('${ev.id}')">${timePrefix}${_cecEsc(ev.title)}</div>`;
       }).join('');
       const moreHtml = more>0 ? `<div class="cec-cal-more">+${more}개 더</div>` : '';
       const cls = ['cec-cal-day'];
@@ -24052,12 +24064,14 @@
     }
     list.innerHTML = upcoming.map(ev=>{
       const cat = CEC_CATS[ev.category] || CEC_CATS.etc;
+      const color = _cecColor(ev);
       const timeCell = ev.time ? `<div class="cec-list-time">${_cecEsc(ev.time)}</div>` : `<div class="cec-list-time">·</div>`;
       const memo = ev.memo ? `<div class="cec-list-memo">${_cecEsc(ev.memo)}</div>` : '';
+      const catLabel = ev.createdBy ? `${cat.label} · ${ev.createdBy}` : cat.label;
       return `<div class="cec-list-row" onclick="cecOpenEditModal('${ev.id}')">
         <div class="cec-list-date">${_cecEsc(_cecFmtDate(ev.date))}</div>
         ${timeCell}
-        <span class="cec-list-cat" style="--cev-c:${cat.color}">${_cecEsc(cat.label)}</span>
+        <span class="cec-list-cat" style="--cev-c:${color}">${_cecEsc(catLabel)}</span>
         <div>
           <div class="cec-list-title-cell">${_cecEsc(ev.title||'(제목 없음)')}</div>
           ${memo}
@@ -24136,13 +24150,15 @@
     if(!title){ if(typeof toast==='function') toast('제목을 입력해주세요','err'); return; }
     if(!date){  if(typeof toast==='function') toast('날짜를 선택해주세요','err'); return; }
     const events = cecLoad();
+    const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
     if(_cecState.editingId){
       const idx = events.findIndex(x => x.id === _cecState.editingId);
       if(idx>=0){
+        /* 편집 시 createdBy 유지 (원 작성자 색 유지) */
         events[idx] = {...events[idx], title, date, time: time||'', category: cat, memo, updatedAt: Date.now()};
       }
     } else {
-      events.push({id:_cecUid(), title, date, time: time||'', category: cat, memo, createdAt: Date.now()});
+      events.push({id:_cecUid(), title, date, time: time||'', category: cat, memo, createdBy: me, createdAt: Date.now()});
     }
     _cecState.events = events;
     cecSave();
@@ -24215,14 +24231,16 @@
     }
     list.innerHTML = shown.map(ev=>{
       const cat = CEC_CATS[ev.category] || CEC_CATS.etc;
+      const color = _cecColor(ev);
       const isToday = ev.date === today;
       const dateLabel = isToday ? '오늘' : _cecFmtDate(ev.date);
       const dateCls = 'hcc-row-date' + (isToday ? ' today' : '');
       const timeCell = ev.time ? _cecEsc(ev.time) : '·';
+      const catLabel = ev.createdBy ? `${cat.label} · ${ev.createdBy}` : cat.label;
       return `<div class="hcc-row" onclick="cecOpenEditModal('${ev.id}')">
         <div class="${dateCls}">${_cecEsc(dateLabel)}</div>
         <div class="hcc-row-time">${timeCell}</div>
-        <span class="hcc-row-cat" style="--cev-c:${cat.color}">${_cecEsc(cat.label)}</span>
+        <span class="hcc-row-cat" style="--cev-c:${color}">${_cecEsc(catLabel)}</span>
         <div class="hcc-row-title">${_cecEsc(ev.title || '(제목 없음)')}</div>
       </div>`;
     }).join('');
@@ -25289,7 +25307,7 @@
           if(row.id) _wrNotifiedIds.add(row.id);
           const rows = Array.isArray(row.rows) ? row.rows : [];
           const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
-          _wrFireNotif(`🔔 출금 요청 (${rows.length}건)`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`);
+          _wrFireNotif(`🔔 출금 요청 (${rows.length}건)`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`, row.id);
         }
       })
       .on('postgres_changes', {event:'UPDATE', schema:'public', table:'withdrawal_requests'}, (payload)=>{
@@ -25310,6 +25328,7 @@
         if(document.visibilityState !== 'visible') return;
         if(_wrCurrentMe() !== WR_OWNER_NAME) return;
         _wrCatchUpMissed().catch(()=>{});
+        _wrPersistNotify().catch(()=>{});
       });
       /* 페이지 로드 직후 대표 PC 면 한 번 silent catch-up (기존 알림 dedupe seed).
          diary_me 가 늦게 셋 될 수 있어 500ms · 3000ms 두 번 시도. */
@@ -25320,6 +25339,30 @@
         if(_wrCurrentMe() === WR_OWNER_NAME) _wrCatchUpMissed(true).catch(()=>{});
       }, 3000);
     }
+    /* 지속 알림 — 사장님이 송금완료 누르기 전까지 5분마다 재알림. 마스터 PC 안에서만 돌게. */
+    if(!_wrInitRealtime._nagTimer){
+      _wrInitRealtime._nagTimer = setInterval(()=>{
+        if(_wrCurrentMe() !== WR_OWNER_NAME) return;
+        _wrPersistNotify().catch(()=>{});
+      }, 5 * 60 * 1000);
+    }
+  }
+  /* status='notified' (아직 미완료) 요청을 훑어 각각 크롬 알림 재발생.
+     tag='wr-<id>' 로 같은 알림 슬롯 재사용 (기존 뜬 것 replace 하며 다시 flash). */
+  async function _wrPersistNotify(){
+    try{
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?status=eq.notified&order=requested_at.asc&select=id,requested_by,rows,requested_at`, {headers:_sbHeaders(), cache:'no-cache'});
+      if(!r.ok) return;
+      const list = await r.json();
+      if(!Array.isArray(list) || !list.length) return;
+      list.forEach(row=>{
+        if(!row || !row.id) return;
+        _wrNotifiedIds.add(row.id);            // 마킹 (INSERT 중복 방지)
+        const rows = Array.isArray(row.rows) ? row.rows : [];
+        const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
+        _wrFireNotif(`🔔 출금 요청 대기 (${rows.length}건)`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)} — 송금완료 눌러주세요`, row.id);
+      });
+    }catch(e){}
   }
 
   /* 대표 PC 전용 — 최근 24시간 notified 요청 중 로컬에 이미 알린 것 빼고 새로 알리기.
@@ -25338,15 +25381,17 @@
         if(silent) return;                                   // 첫 로드는 조용히 mark 만
         const rows = Array.isArray(row.rows) ? row.rows : [];
         const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
-        _wrFireNotif(`🔔 출금 요청 (${rows.length}건) · 놓친 알림`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`);
+        _wrFireNotif(`🔔 출금 요청 (${rows.length}건) · 놓친 알림`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`, row.id);
       });
     }catch(e){}
   }
-  function _wrFireNotif(title, body){
+  function _wrFireNotif(title, body, stableId){
     toast(`${title} · ${body}`, 'info');
     if('Notification' in window && Notification.permission === 'granted'){
       try{
-        const n = new Notification(title, {body, tag:'wr-'+Date.now(), requireInteraction:true});
+        /* 같은 요청은 stableId 로 tag 통일 → 재알림 시 이전 팝업을 대체 (스택 안 쌓임). renotify=true 로 다시 flash. */
+        const tag = 'wr-' + (stableId || Date.now());
+        const n = new Notification(title, {body, tag, requireInteraction:true, renotify:true});
         n.onclick = ()=>{ window.focus(); n.close(); if(typeof triggerVendor === 'function') triggerVendor(); };
       }catch(e){}
     }
