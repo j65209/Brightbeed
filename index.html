@@ -4097,6 +4097,58 @@
     .cec-field-row{grid-template-columns:1fr}
   }
 
+  /* ===== 홈 대표 캘린더 위젯 (대표 두 분 로그인 PC 전용) ===== */
+  .home-ceocal-card{
+    max-width:1020px;margin:6px auto 18px;
+    background:linear-gradient(180deg,rgba(212,175,55,.07),rgba(212,175,55,.02));
+    border:1px solid rgba(212,175,55,.45);border-radius:12px;
+    padding:14px 18px 16px;
+    box-shadow:0 4px 20px rgba(212,175,55,.10);
+  }
+  .home-ceocal-card[hidden]{display:none}
+  .hcc-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+  .hcc-title{
+    font-size:14px;font-weight:700;color:#854d0e;letter-spacing:-.01em;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .hcc-meta{
+    font-size:11.5px;color:var(--text-2);font-family:var(--mono);font-weight:600;
+    flex:1;min-width:100px;letter-spacing:.01em;
+  }
+  .hcc-actions{display:inline-flex;gap:6px}
+  .hcc-btn{
+    padding:6px 12px;font-size:11.5px;font-weight:600;font-family:var(--sans);
+    border-radius:6px;cursor:pointer;transition:all .12s;letter-spacing:-.005em;
+    background:var(--bg-1);border:1px solid rgba(212,175,55,.4);color:#854d0e;
+  }
+  .hcc-btn:hover{background:rgba(212,175,55,.12);border-color:#d4af37}
+  .hcc-btn-open{background:linear-gradient(135deg,#d4af37,#b8901f);color:#fff;border-color:transparent}
+  .hcc-btn-open:hover{filter:brightness(1.08);border-color:transparent}
+  .hcc-body{display:flex;flex-direction:column;gap:4px}
+  .hcc-row{
+    display:grid;grid-template-columns:88px 58px 60px 1fr;gap:10px;align-items:center;
+    padding:7px 12px;border-radius:6px;background:var(--bg-1);border:1px solid transparent;
+    font-size:12.5px;color:var(--text-1);cursor:pointer;transition:all .12s;
+  }
+  .hcc-row:hover{background:rgba(212,175,55,.06);border-color:rgba(212,175,55,.35)}
+  .hcc-row-date{font-family:var(--mono);font-size:11.5px;color:var(--text-1);font-weight:600;font-variant-numeric:tabular-nums}
+  .hcc-row-date.today{color:#854d0e;font-weight:700}
+  .hcc-row-time{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+  .hcc-row-cat{
+    padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;
+    background:color-mix(in srgb, var(--cev-c,#a8a29e) 14%, transparent);
+    color:color-mix(in srgb, var(--cev-c,#a8a29e) 60%, #1c1917 40%);
+    border:1px solid color-mix(in srgb, var(--cev-c,#a8a29e) 35%, transparent);
+    justify-self:start;white-space:nowrap;
+  }
+  .hcc-row-title{color:var(--text-0);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hcc-empty{padding:14px;text-align:center;color:var(--text-3);font-size:12px;background:var(--bg-1);border-radius:6px}
+  @media (max-width:600px){
+    .home-ceocal-card{margin:6px 8px 14px;padding:12px 14px 14px}
+    .hcc-row{grid-template-columns:70px 1fr auto;gap:6px}
+    .hcc-row-time{display:none}
+  }
+
   /* ===== 뷰 (홈 / 인사팀 / 물류팀 / 추가 모듈) ===== */
   .view{display:block}
   .view[hidden]{display:none}
@@ -8160,6 +8212,19 @@
       <span id="diaryMeBadgeNotif" class="diary-me-badge-notif" hidden></span>
     </div>
 
+    <!-- 대표 캘린더 홈 위젯 (대표 두 분 로그인 PC 에만 노출, 마스터 전용) -->
+    <div id="homeCeoCalCard" class="home-ceocal-card" hidden>
+      <div class="hcc-head">
+        <div class="hcc-title">👑 <span>대표 캘린더</span></div>
+        <div class="hcc-meta" id="homeCeoCalMeta">—</div>
+        <div class="hcc-actions">
+          <button class="hcc-btn" type="button" onclick="cecOpenAddModal()">+ 일정</button>
+          <button class="hcc-btn hcc-btn-open" type="button" onclick="triggerCeoCal()">열기 →</button>
+        </div>
+      </div>
+      <div class="hcc-body" id="homeCeoCalList"></div>
+    </div>
+
     <!-- 에이전트 오피스 (실시간 자동화 현황) -->
     <div class="hero-row hero-row-agents">
       <a class="hero hero-agents" href="./agents.html">
@@ -10753,52 +10818,53 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="cec-modal" id="cecModal" hidden>
-      <div class="cec-modal-backdrop" onclick="cecCloseModal()"></div>
-      <div class="cec-modal-panel" role="dialog" aria-modal="true">
-        <form onsubmit="cecSaveFromModal(event)">
-          <div class="cec-modal-head">
-            <div class="cec-modal-title" id="cecModalTitle">일정 추가</div>
-            <button type="button" class="cec-modal-close" onclick="cecCloseModal()" aria-label="닫기">✕</button>
-          </div>
-          <div class="cec-modal-body">
+  <!-- 대표 캘린더 모달 — 홈 위젯에서도 열려야 하므로 viewCeoCal 밖(main 자식) 으로 -->
+  <div class="cec-modal" id="cecModal" hidden>
+    <div class="cec-modal-backdrop" onclick="cecCloseModal()"></div>
+    <div class="cec-modal-panel" role="dialog" aria-modal="true">
+      <form onsubmit="cecSaveFromModal(event)">
+        <div class="cec-modal-head">
+          <div class="cec-modal-title" id="cecModalTitle">일정 추가</div>
+          <button type="button" class="cec-modal-close" onclick="cecCloseModal()" aria-label="닫기">✕</button>
+        </div>
+        <div class="cec-modal-body">
+          <label class="cec-field">
+            <span class="cec-field-label">제목 <em>*</em></span>
+            <input class="cec-input" id="cecEvTitle" type="text" maxlength="60" required placeholder="예: 홍대 카페 미팅">
+          </label>
+          <div class="cec-field-row">
             <label class="cec-field">
-              <span class="cec-field-label">제목 <em>*</em></span>
-              <input class="cec-input" id="cecEvTitle" type="text" maxlength="60" required placeholder="예: 홍대 카페 미팅">
-            </label>
-            <div class="cec-field-row">
-              <label class="cec-field">
-                <span class="cec-field-label">날짜 <em>*</em></span>
-                <input class="cec-input" id="cecEvDate" type="date" required>
-              </label>
-              <label class="cec-field">
-                <span class="cec-field-label">시간 (선택)</span>
-                <input class="cec-input" id="cecEvTime" type="time">
-              </label>
-            </div>
-            <label class="cec-field">
-              <span class="cec-field-label">카테고리</span>
-              <select class="cec-input" id="cecEvCat">
-                <option value="meet">🤝 미팅</option>
-                <option value="trip">✈️ 출장</option>
-                <option value="personal">🎁 개인</option>
-                <option value="etc">📌 기타</option>
-              </select>
+              <span class="cec-field-label">날짜 <em>*</em></span>
+              <input class="cec-input" id="cecEvDate" type="date" required>
             </label>
             <label class="cec-field">
-              <span class="cec-field-label">메모 (선택)</span>
-              <textarea class="cec-input cec-textarea" id="cecEvMemo" maxlength="500" placeholder="장소·안건·연락처 등"></textarea>
+              <span class="cec-field-label">시간 (선택)</span>
+              <input class="cec-input" id="cecEvTime" type="time">
             </label>
           </div>
-          <div class="cec-modal-actions">
-            <button type="button" class="cec-btn cec-btn-danger" id="cecDeleteBtn" style="display:none" onclick="cecDeleteFromModal()">삭제</button>
-            <span class="cec-spacer"></span>
-            <button type="button" class="cec-btn cec-btn-ghost" onclick="cecCloseModal()">취소</button>
-            <button type="submit" class="cec-btn cec-btn-primary">저장</button>
-          </div>
-        </form>
-      </div>
+          <label class="cec-field">
+            <span class="cec-field-label">카테고리</span>
+            <select class="cec-input" id="cecEvCat">
+              <option value="meet">🤝 미팅</option>
+              <option value="trip">✈️ 출장</option>
+              <option value="personal">🎁 개인</option>
+              <option value="etc">📌 기타</option>
+            </select>
+          </label>
+          <label class="cec-field">
+            <span class="cec-field-label">메모 (선택)</span>
+            <textarea class="cec-input cec-textarea" id="cecEvMemo" maxlength="500" placeholder="장소·안건·연락처 등"></textarea>
+          </label>
+        </div>
+        <div class="cec-modal-actions">
+          <button type="button" class="cec-btn cec-btn-danger" id="cecDeleteBtn" style="display:none" onclick="cecDeleteFromModal()">삭제</button>
+          <span class="cec-spacer"></span>
+          <button type="button" class="cec-btn cec-btn-ghost" onclick="cecCloseModal()">취소</button>
+          <button type="submit" class="cec-btn cec-btn-primary">저장</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -12576,6 +12642,8 @@
       if(typeof _diaryRenderMeBadge === 'function') _diaryRenderMeBadge();
       // 홈에서도 realtime 활성화 (다른 뷰에서 요청 받아도 알림 뜨게)
       if(typeof _diaryInitRealtime === 'function') _diaryInitRealtime();
+      // 대표 캘린더 위젯 (전승훈/전수빈 PC + 마스터 에만 노출)
+      if(typeof cecRenderHomeCard === 'function') cecRenderHomeCard();
     }
   }
 
@@ -23845,6 +23913,7 @@
     cecRenderCalendar();
     cecRenderSummary();
     cecRenderList();
+    if(typeof cecRenderHomeCard === 'function') cecRenderHomeCard();
   }
   window.cecRenderView = cecRenderView;
 
@@ -24111,6 +24180,54 @@
       if(m && !m.hidden) cecCloseModal();
     }
   });
+
+  /* ===== 홈 대표 캘린더 위젯 (대표 두 분 로그인 PC 전용) =====
+     사장님 요청: 전승훈 / 전수빈 로그인된 PC 에서만 홈 최상단에 캘린더 요약 노출.
+     마스터 권한 필수 (뷰어 PC 에는 자동 숨김). */
+  const _CEC_HOME_OWNERS = ['전승훈','전수빈'];
+  function _cecHomeVisible(){
+    if(typeof isMaster === 'function' && !isMaster()) return false;
+    const me = (typeof _diaryGetMe === 'function') ? _diaryGetMe() : '';
+    return _CEC_HOME_OWNERS.includes(me);
+  }
+  function cecRenderHomeCard(){
+    const card = document.getElementById('homeCeoCalCard');
+    if(!card) return;
+    if(!_cecHomeVisible()){ card.hidden = true; return; }
+    card.hidden = false;
+    const events = cecLoad();
+    const today = _cecTodayStr();
+    const upcoming = events
+      .filter(e => (e.date||'') >= today)
+      .sort(_cecCmpDatetime);
+    const meta = document.getElementById('homeCeoCalMeta');
+    const todayCount = upcoming.filter(e => e.date === today).length;
+    if(meta){
+      if(!upcoming.length) meta.textContent = '앞으로 예정된 일정 없음';
+      else meta.textContent = `오늘 ${todayCount}건 · 예정 ${upcoming.length}건`;
+    }
+    const list = document.getElementById('homeCeoCalList');
+    if(!list) return;
+    const shown = upcoming.slice(0, 4);
+    if(!shown.length){
+      list.innerHTML = `<div class="hcc-empty">등록된 일정이 없습니다. 우측 <b>+ 일정</b> 으로 시작하세요.</div>`;
+      return;
+    }
+    list.innerHTML = shown.map(ev=>{
+      const cat = CEC_CATS[ev.category] || CEC_CATS.etc;
+      const isToday = ev.date === today;
+      const dateLabel = isToday ? '오늘' : _cecFmtDate(ev.date);
+      const dateCls = 'hcc-row-date' + (isToday ? ' today' : '');
+      const timeCell = ev.time ? _cecEsc(ev.time) : '·';
+      return `<div class="hcc-row" onclick="cecOpenEditModal('${ev.id}')">
+        <div class="${dateCls}">${_cecEsc(dateLabel)}</div>
+        <div class="hcc-row-time">${timeCell}</div>
+        <span class="hcc-row-cat" style="--cev-c:${cat.color}">${_cecEsc(cat.label)}</span>
+        <div class="hcc-row-title">${_cecEsc(ev.title || '(제목 없음)')}</div>
+      </div>`;
+    }).join('');
+  }
+  window.cecRenderHomeCard = cecRenderHomeCard;
 
   /* ===== 벤더팀 — 블로그페이 매출 현황판 (/bp/sales 프록시) =====
      이 달 전체 주문을 프록시에서 5분 캐시로 fetch → 오늘 / 어제 / 이번 달 revenue 표시.
