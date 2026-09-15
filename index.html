@@ -12248,6 +12248,8 @@
     }
     // 출금 요청 실시간 알림 — 대표 PC 는 벤더 뷰에 안 들어와도 알림을 받아야 함
     if(typeof _wrInitRealtime==='function') _wrInitRealtime();
+    // 대표 캘린더 Supabase 동기화 — 앱 진입 시 즉시 fetch + realtime subscribe
+    if(typeof cecBootSync==='function') cecBootSync().catch(()=>{});
     // 에이전트 오피스 실시간 인원 표시 (홈 카드)
     if(typeof loadAgentsMini==='function'){ loadAgentsMini(); setInterval(loadAgentsMini, 30000); }
   }
@@ -12631,6 +12633,12 @@
         return;
       }
       if(typeof cecRenderView==='function') cecRenderView();
+      /* 원격 최신 데이터 강제 pull (모바일에서 왔을 때 즉시 최신) */
+      if(typeof _cecSbFetchAll === 'function'){
+        _cecSbFetchAll().then(()=>{
+          if(typeof cecRenderView==='function') cecRenderView();
+        });
+      }
     }
     // 홈 진입 시 · 이 PC 주인 미설정이면 세팅 팝업
     if(id==='viewHome'){
@@ -23882,7 +23890,8 @@
     const cat = ev && CEC_CATS[ev.category];
     return (cat && cat.color) || '#a8a29e';
   }
-  const _cecState = (()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth(),events:null,editingId:null};})();
+  const _cecState = (()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth(),events:null,editingId:null,sbLoaded:false,sbLoading:false,rtChan:null,bootDone:false};})();
+  const CEC_SB_URL = `${SUPABASE_URL}/rest/v1/ceo_calendar_events`;
 
   function cecLoad(){
     if(_cecState.events) return _cecState.events;
@@ -23901,7 +23910,129 @@
       localStorage.setItem(CEC_KEY, JSON.stringify({events:_cecState.events||[], updatedAt:Date.now()}));
     }catch(e){ if(typeof toast==='function') toast('저장 실패 (스토리지)','err'); }
   }
-  function _cecUid(){ return 'ce'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  /* UUID 우선 (Supabase pk 호환). crypto.randomUUID 없으면 fallback 형식. */
+  function _cecUid(){
+    if(typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{
+      const r=Math.random()*16|0; const v=c==='x'?r:(r&0x3|0x8); return v.toString(16);
+    });
+  }
+  function _cecIsUuid(id){ return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id); }
+
+  /* Supabase row(snake_case) → local event(camelCase) 변환 */
+  function _cecFromSb(r){
+    if(!r) return null;
+    return {
+      id: r.id,
+      title: r.title || '',
+      date: r.event_date || '',
+      time: r.event_time || '',
+      category: r.category || 'meet',
+      memo: r.memo || '',
+      createdBy: r.created_by || '',
+      createdAt: r.created_at ? Date.parse(r.created_at) : Date.now(),
+      updatedAt: r.updated_at ? Date.parse(r.updated_at) : Date.now(),
+    };
+  }
+  /* local event → SB row body */
+  function _cecToSb(ev){
+    return {
+      id: ev.id,
+      title: ev.title || '',
+      event_date: ev.date || null,
+      event_time: ev.time || null,
+      category: ev.category || null,
+      memo: ev.memo || null,
+      created_by: ev.createdBy || null,
+    };
+  }
+
+  /* Supabase 전체 fetch (soft-delete 제외). 성공 시 로컬 캐시 통째 교체. */
+  async function _cecSbFetchAll(){
+    if(_cecState.sbLoading) return _cecState.events;
+    _cecState.sbLoading = true;
+    try{
+      const r = await fetch(`${CEC_SB_URL}?select=*&deleted_at=is.null&order=event_date.asc`, {headers:_sbHeaders(), cache:'no-cache'});
+      if(!r.ok) throw new Error('http '+r.status);
+      const rows = await r.json();
+      _cecState.events = (Array.isArray(rows) ? rows : []).map(_cecFromSb).filter(Boolean);
+      _cecState.sbLoaded = true;
+      cecSave();
+      return _cecState.events;
+    }catch(e){
+      /* 실패 시 로컬 유지 */
+      return _cecState.events || [];
+    }finally{
+      _cecState.sbLoading = false;
+    }
+  }
+  /* 단일 이벤트 upsert (id 는 이미 UUID) */
+  async function _cecSbUpsert(ev){
+    const body = _cecToSb(ev);
+    try{
+      const r = await fetch(`${CEC_SB_URL}?on_conflict=id`, {
+        method: 'POST',
+        headers: _sbHeaders({'Prefer':'resolution=merge-duplicates,return=representation'}),
+        body: JSON.stringify(body),
+      });
+      if(!r.ok) return null;
+      const rows = await r.json();
+      return Array.isArray(rows) && rows[0] ? _cecFromSb(rows[0]) : null;
+    }catch(e){ return null; }
+  }
+  /* soft delete */
+  async function _cecSbDelete(id){
+    try{
+      const r = await fetch(`${CEC_SB_URL}?id=eq.${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: _sbHeaders({'Prefer':'return=minimal'}),
+        body: JSON.stringify({deleted_at: new Date().toISOString()}),
+      });
+      return r.ok;
+    }catch(e){ return false; }
+  }
+  /* Realtime — 다른 기기 변경 감지 시 전체 재fetch + 리렌더 */
+  async function _cecInitRealtime(){
+    if(_cecState.rtChan) return;
+    if(typeof supabase === 'undefined' || !supabase || !supabase.channel){
+      if(typeof _diaryLoadSupabaseClient === 'function') await _diaryLoadSupabaseClient();
+      if(typeof supabase === 'undefined' || !supabase) return;
+    }
+    _cecState.rtChan = supabase.channel('cec_all')
+      .on('postgres_changes', {event:'*', schema:'public', table:'ceo_calendar_events'}, ()=>{
+        _cecSbFetchAll().then(()=>{
+          if(typeof cecRenderCalendar === 'function' && document.getElementById('cecCalGrid')) cecRenderCalendar();
+          if(typeof cecRenderSummary === 'function' && document.getElementById('cecSummaryMonth')) cecRenderSummary();
+          if(typeof cecRenderList === 'function' && document.getElementById('cecEventList')) cecRenderList();
+          if(typeof cecRenderHomeCard === 'function') cecRenderHomeCard();
+        });
+      })
+      .subscribe();
+  }
+  /* 최초 진입 시: 로컬 캐시 로드 → 옛 non-uuid id 마이그레이션 → Supabase 진실로 교체 */
+  async function cecBootSync(){
+    if(_cecState.bootDone) return;
+    _cecState.bootDone = true;
+    cecLoad();
+    const local = _cecState.events || [];
+    const orphans = local.filter(e => e && e.id && !_cecIsUuid(e.id));
+    if(orphans.length){
+      const migrated = [];
+      for(const e of orphans){
+        const oldId = e.id;
+        const newId = _cecUid();
+        const mig = {...e, id:newId};
+        const idx = _cecState.events.findIndex(x=>x.id===oldId);
+        if(idx>=0) _cecState.events[idx] = mig;
+        migrated.push(mig);
+      }
+      cecSave();
+      await Promise.all(migrated.map(m => _cecSbUpsert(m).catch(()=>null)));
+    }
+    await _cecSbFetchAll();
+    _cecInitRealtime();
+  }
+  window.cecBootSync = cecBootSync;
   function _cecEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
   function _cecTodayStr(){
     const d = new Date();
@@ -24155,20 +24286,35 @@
     if(!date){  if(typeof toast==='function') toast('날짜를 선택해주세요','err'); return; }
     const events = cecLoad();
     const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
+    let target;
     if(_cecState.editingId){
       const idx = events.findIndex(x => x.id === _cecState.editingId);
       if(idx>=0){
-        /* 편집 시 createdBy 유지 (원 작성자 색 유지) */
         events[idx] = {...events[idx], title, date, time: time||'', category: cat, memo, updatedAt: Date.now()};
+        target = events[idx];
       }
     } else {
-      events.push({id:_cecUid(), title, date, time: time||'', category: cat, memo, createdBy: me, createdAt: Date.now()});
+      target = {id:_cecUid(), title, date, time: time||'', category: cat, memo, createdBy: me, createdAt: Date.now()};
+      events.push(target);
     }
     _cecState.events = events;
     cecSave();
     cecCloseModal();
     cecRenderView();
-    if(typeof toast==='function') toast('저장되었습니다');
+    if(typeof toast==='function') toast('저장 중…', 'info');
+    /* Supabase 동기화 (백그라운드) — 성공 시 서버 진실로 재fetch */
+    if(target){
+      _cecSbUpsert(target).then(saved=>{
+        if(saved){
+          const idx = _cecState.events.findIndex(x=>x.id===saved.id);
+          if(idx>=0) _cecState.events[idx] = saved;
+          cecSave();
+          if(typeof toast==='function') toast('저장됨 (동기화 완료)', 'ok');
+        }else{
+          if(typeof toast==='function') toast('로컬 저장됨 (서버 동기화 실패 — 나중에 재시도)', 'err');
+        }
+      });
+    }
   }
   window.cecSaveFromModal = cecSaveFromModal;
 
@@ -24181,6 +24327,7 @@
     cecCloseModal();
     cecRenderView();
     if(typeof toast==='function') toast('삭제되었습니다');
+    _cecSbDelete(id);
   }
   function cecDeleteEvent(id){
     if(!id) return;
@@ -24189,6 +24336,7 @@
     cecSave();
     cecRenderView();
     if(typeof toast==='function') toast('삭제되었습니다');
+    _cecSbDelete(id);
   }
   window.cecDeleteFromModal = cecDeleteFromModal;
   window.cecDeleteEvent = cecDeleteEvent;
