@@ -16137,17 +16137,21 @@
     if(!modal) return;
     // 이미 로그인된 상태면 팝업 다시 안 뜸 (변경 불가)
     if(_diaryGetMe()) return;
+    /* 뷰어(비마스터) PC 에서는 대표 두 분(전승훈·전수빈) 이름 아예 노출 안 함.
+       마스터 PIN 을 아는 대표 본인만 CEO 로 선택 가능. */
+    const isM = (typeof isMaster === 'function') && isMaster();
+    const staffOptions = STAFF.filter(s => isM || !s.ceo);
+    const buildOptions = ()=> '<option value="">— 이름 선택 —</option>' +
+      staffOptions.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
     if(_diaryOpenSetupPopup._bound){
-      sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
-        STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
+      sel.innerHTML = buildOptions();
       sel.value = '';
       saveBtn.disabled = true;
       modal.hidden = false;
       return;
     }
     _diaryOpenSetupPopup._bound = true;
-    sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
-      STAFF.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
+    sel.innerHTML = buildOptions();
     sel.value = '';
     saveBtn.disabled = true;
     modal.hidden = false;
@@ -25339,12 +25343,12 @@
         if(_wrCurrentMe() === WR_OWNER_NAME) _wrCatchUpMissed(true).catch(()=>{});
       }, 3000);
     }
-    /* 지속 알림 — 사장님이 송금완료 누르기 전까지 5분마다 재알림. 마스터 PC 안에서만 돌게. */
+    /* 지속 알림 — 사장님이 송금완료 누르기 전까지 1시간마다 재알림. 마스터 PC 안에서만 돌게. */
     if(!_wrInitRealtime._nagTimer){
       _wrInitRealtime._nagTimer = setInterval(()=>{
         if(_wrCurrentMe() !== WR_OWNER_NAME) return;
         _wrPersistNotify().catch(()=>{});
-      }, 5 * 60 * 1000);
+      }, 60 * 60 * 1000);
     }
   }
   /* status='notified' (아직 미완료) 요청을 훑어 각각 크롬 알림 재발생.
