@@ -14005,6 +14005,97 @@
   let _diaryPushFailStreak = 0;       // 연속 실패 횟수 (백오프 재시도용)
   let _diarySyncDeferred = false;     // 편집 중이라 미룬 pull — blur 시 실행
   const _diaryEditSeq = {};           // 이름별 편집 시퀀스 — push 중에 들어온 편집 구분용
+
+  /* ── 미저장 편집 보호 (로컬 우선 · 메모장처럼 "쓰고 그냥 꺼도 남는다") ──────────
+     · dirty(아직 원격에 못 올린 스태프)를 localStorage 에도 기록한다.
+       브라우저를 그냥 닫아도, 프록시가 꺼져 있어도, 다음 접속 때 로컬 것이 살아남고 자동 재전송된다.
+       (예전엔 dirty 가 메모리에만 있어서, 새로고침하면 "안 올라간 편집"이라는 사실 자체가 사라지고
+        곧바로 remote 로 로컬을 덮어써서 방금 쓴 내용이 통째로 날아갔다.)
+     · pushed 스냅샷 = 방금 올린 내용. raw.githubusercontent CDN 은 커밋 후 몇 초간 이전 내용을 주기 때문에,
+       그 오래된 remote 로 로컬을 덮으면 역시 방금 쓴 게 사라진다 → 반영이 확인될 때까지 로컬을 지킨다. */
+  const DIARY_DIRTY_KEY  = 'brightbeed_diary_dirty_v1';
+  const DIARY_PUSHED_KEY = 'brightbeed_diary_pushed_v1';
+  const DIARY_CONFIRM_MS = 3*60*1000;   // 원격 반영 확인 대기 상한
+  function _diaryPersistDirty(){
+    try{ localStorage.setItem(DIARY_DIRTY_KEY, JSON.stringify(Array.from(_diaryDirty))) }catch(e){}
+  }
+  function _diaryMarkDirty(name){ if(!name) return; _diaryDirty.add(name); _diaryPersistDirty(); }
+  function _diaryClearDirty(name){ if(_diaryDirty.delete(name)) _diaryPersistDirty(); }
+  function _diaryRestoreDirty(){
+    try{
+      const arr = JSON.parse(localStorage.getItem(DIARY_DIRTY_KEY)||'[]');
+      if(Array.isArray(arr)) arr.forEach(n=>{ if(n) _diaryDirty.add(n) });
+    }catch(e){}
+  }
+  let _diaryPushedSnap = {};      // name -> {json, ts} — 방금 올린 스태프별 내용
+  let _diary_lastPushDoneTs = 0;  // 마지막 push 성공 시각 — 그 전에 출발한 pull 응답은 버린다
+  let _diary_lastSha = null;      // 마지막으로 확인/저장한 data/diary.json sha (창 닫을 때 flush용)
+  let _diaryPulling = false;      // pull in-flight — 늦게 온 옛 응답이 최신을 덮지 않도록
+  let _diaryPullStartedAt = 0;    // 응답 없이 멈춘 pull 때문에 영영 잠기지 않도록
+  let _diaryPullGen = 0;          // pull 세대 — 옛 응답이 뒤늦게 도착하면 버린다
+  function _diaryLoadPushedSnap(){
+    try{ _diaryPushedSnap = JSON.parse(localStorage.getItem(DIARY_PUSHED_KEY)||'{}') || {} }catch(e){ _diaryPushedSnap = {} }
+    const now = Date.now();
+    Object.keys(_diaryPushedSnap).forEach(n=>{
+      const sn = _diaryPushedSnap[n];
+      if(!sn || typeof sn.ts !== 'number' || now - sn.ts > DIARY_CONFIRM_MS) delete _diaryPushedSnap[n];
+    });
+    return _diaryPushedSnap;
+  }
+  function _diarySavePushedSnap(){
+    try{ localStorage.setItem(DIARY_PUSHED_KEY, JSON.stringify(_diaryPushedSnap)) }catch(e){}
+  }
+  /* base 스냅샷 = "마지막으로 확인된 원격 상태"(스태프별). 3-way 병합의 기준점.
+     내 글자는 지키면서, 그 사이 다른 사람이 넣은 항목(업무 요청 등)은 살리기 위해 필요하다. */
+  const DIARY_BASE_KEY = 'brightbeed_diary_base_v1';
+  function _diaryLoadBaseSnap(){
+    try{ return JSON.parse(localStorage.getItem(DIARY_BASE_KEY)||'{}') || {} }catch(e){ return {} }
+  }
+  function _diarySaveBaseSnap(b){
+    try{ localStorage.setItem(DIARY_BASE_KEY, JSON.stringify(b||{})) }catch(e){}
+  }
+  /* 목록 3-way 병합 — base(공통 조상) 기준으로 mine(로컬)과 theirs(원격)를 합친다.
+     · 양쪽에 다 있는 항목 → 내 것 (방금 친 글자가 원격의 옛 내용에 밀리지 않도록)
+     · base 에 있었는데 내 로컬에 없다 → 내가 지운 것 → 되살리지 않는다
+     · base 에 없고 원격에만 있다 → 그 사이 다른 사람이 새로 넣은 것 → 살린다
+     · tombstone 에 있는 id 는 어떤 경우에도 되살리지 않는다 */
+  function _diaryMergeLists(mine, theirs, base, tombIds){
+    const out = Array.isArray(mine) ? mine.slice() : [];
+    const ids = new Set(out.map(x=>x && x.id).filter(Boolean));
+    const baseIds = new Set((Array.isArray(base)?base:[]).map(x=>x && x.id).filter(Boolean));
+    (Array.isArray(theirs)?theirs:[]).forEach(x=>{
+      if(!x || !x.id) return;
+      if(ids.has(x.id)) return;
+      if(baseIds.has(x.id)) return;
+      if(tombIds && tombIds.has(x.id)) return;
+      out.push(x);
+    });
+    return out;
+  }
+  function _diaryMergeRecords(mine, theirs, base, tombIds){
+    if(!mine) return theirs || null;
+    if(!theirs) return mine;
+    const out = {
+      reqs:    _diaryMergeLists(mine.reqs,    theirs.reqs,    base && base.reqs,    tombIds),
+      weekly:  _diaryMergeLists(mine.weekly,  theirs.weekly,  base && base.weekly,  tombIds),
+      monthly: _diaryMergeLists(mine.monthly, theirs.monthly, base && base.monthly, tombIds),
+      daily:   {},
+      weeklyArchive:  Object.assign({}, theirs.weeklyArchive  || {}, mine.weeklyArchive  || {}),
+      monthlyArchive: Object.assign({}, theirs.monthlyArchive || {}, mine.monthlyArchive || {}),
+    };
+    const dates = new Set(Object.keys(mine.daily||{}).concat(Object.keys(theirs.daily||{})));
+    dates.forEach(d=>{
+      const m = (mine.daily   && mine.daily[d]   && mine.daily[d].tasks)   || null;
+      const t = (theirs.daily && theirs.daily[d] && theirs.daily[d].tasks) || null;
+      const b = (base && base.daily && base.daily[d] && base.daily[d].tasks) || null;
+      if(!m && b) return;                       // 내가 그 날짜를 통째로 비웠다 → 되살리지 않음
+      const tasks = _diaryMergeLists(m, t, b, tombIds);
+      if(tasks.length) out.daily[d] = {tasks};
+    });
+    return out;
+  }
+  _diaryRestoreDirty();
+  _diaryLoadPushedSnap();
   /* 팀원별 카드 accent color — 파스텔톤, 폰트 잘 보이게 */
   const DIARY_COLORS = {
     '전승훈': '#d4af37', '전수빈': '#eab308', // 대표 — 골드/앰버
@@ -14283,18 +14374,33 @@
   }
 
   async function syncDiaryFromRemote(force){
+    // pull 을 겹쳐 돌리면 느린 옛 응답이 나중에 도착해 최신 로컬을 덮어쓴다 → 한 번에 하나만.
+    // (응답이 영영 안 오는 경우에 대비해 30초 넘으면 새 pull 을 허용한다)
+    if(_diaryPulling && Date.now() - _diaryPullStartedAt < 30000) return;
+    _diaryPulling = true;
+    _diaryPullStartedAt = Date.now();
+    const gen = ++_diaryPullGen;
+    try { await _diarySyncFromRemoteInner(force, gen); }
+    finally { if(gen === _diaryPullGen) _diaryPulling = false; }
+  }
+  async function _diarySyncFromRemoteInner(force, gen){
     // 입력 중에도 데이터 병합은 그대로 진행한다 (업무 요청 알림이 끊기면 안 되므로).
     // 캐럿을 죽이는 건 보드 재렌더뿐이라, 아래에서 재렌더만 blur 때까지 미룬다.
     if(!force && !_diaryIsEditing() && Date.now()-_diary_lastEditTs < 3000) return;
+    const fetchStartedAt = Date.now();
     const remote=await _diaryFetchRemote();
     if(!remote) return;
+    if(gen !== _diaryPullGen) return;   // 더 새로운 pull 이 이미 돌았다 → 이 응답은 낡았다
+    // 이 응답이 출발한 뒤에 내 저장이 끝났다면 받아온 건 "저장 직전" 상태다.
+    // 그대로 병합하면 방금 올린 내용이 로컬에서 되돌려진다 → 버리고 다음 주기에 다시 받는다.
+    if(_diary_lastPushDoneTs >= fetchStartedAt) return;
     const local=loadDiaryAll();
     // ⓪ Tombstone 자동 정리 (24h 지난 것) + 지금 유효한 tombstone id 집합
     const tombs = _diaryPurgeTombstones();
     const tombIds = new Set(Object.keys(tombs));
     // ① 로컬에만 있는 스태프는 자동으로 dirty로 편입 → 나중에 push (아직 원격에 안 올라간 편집 보호)
     for(const name of Object.keys(local)){
-      if(!(name in remote)) _diaryDirty.add(name);
+      if(!(name in remote)) _diaryMarkDirty(name);
     }
     // ② 삭제된 요청 부활 방지: remote 에 tombstone id 가 남아있으면 자동 제외 + 스태프 dirty 마킹
     if(tombIds.size > 0){
@@ -14319,15 +14425,42 @@
             }
           }
         }
-        if(touched) _diaryDirty.add(name);
+        if(touched) _diaryMarkDirty(name);
       }
     }
-    // ③ dirty 스태프는 로컬 것 유지, 나머지는 remote로 갱신
-    const merged={...remote};
-    for(const name of _diaryDirty){
-      if(local[name]) merged[name]=local[name];
-      else delete merged[name];
+    // ③ 로컬을 지켜야 하는 스태프 추리기
+    //    · dirty  = 아직 원격에 못 올린 편집이 있는 사람
+    //    · pushed = 방금 올렸는데 원격(raw CDN)이 아직 이전 파일을 주고 있는 사람
+    //      → 그 옛 파일로 덮으면 방금 적은 줄이 화면에서 사라진다 ("계속 쓰면 지워진다"의 원인)
+    const _snapNow = Date.now();
+    let _snapChanged = false;
+    const protectedNames = new Set(_diaryDirty);
+    for(const name of Object.keys(_diaryPushedSnap)){
+      const sn = _diaryPushedSnap[name];
+      const remoteJson = JSON.stringify(remote[name] === undefined ? null : remote[name]);
+      if(!sn || remoteJson === sn.json || _snapNow - sn.ts > DIARY_CONFIRM_MS){
+        delete _diaryPushedSnap[name]; _snapChanged = true; continue;   // 원격 반영 확인(또는 만료) → 이제 remote 수용
+      }
+      protectedNames.add(name);
     }
+    if(_snapChanged) _diarySavePushedSnap();
+    // ③-1 보호 대상은 통째로 로컬을 쓰지 않고 3-way 병합한다.
+    //     통째로 덮으면 그 사이 다른 사람이 넣어준 업무 요청이 조용히 사라지기 때문.
+    const baseSnap = _diaryLoadBaseSnap();
+    const merged={...remote};
+    for(const name of protectedNames){
+      if(!local[name]){ delete merged[name]; continue; }
+      const sn = _diaryPushedSnap[name];
+      const baseJson = sn ? sn.json : baseSnap[name];
+      let baseRec = null;
+      if(baseJson){ try{ baseRec = JSON.parse(baseJson) }catch(e){ baseRec = null } }
+      merged[name] = _diaryMergeRecords(local[name], remote[name], baseRec, tombIds);
+    }
+    // base 갱신 — 보호 중인 스태프는 원격이 아직 옛 파일일 수 있으므로 기존 base 를 유지한다
+    const nextBase = {};
+    Object.keys(remote).forEach(n=>{ if(!protectedNames.has(n)) nextBase[n] = JSON.stringify(remote[n]) });
+    protectedNames.forEach(n=>{ if(baseSnap[n]) nextBase[n] = baseSnap[n] });
+    _diarySaveBaseSnap(nextBase);
     // ③ 나에게 온 새 요청 감지 → 크롬 알림 + toast (Supabase realtime 백업)
     try{ _diaryDetectIncomingReqs(local, merged); }catch(e){}
     const j=JSON.stringify(merged);
@@ -14690,11 +14823,19 @@
     }
   }
 
-  /* 최신 remote 위에 내 dirty 만 얹은 저장본을 만든다. remote 조회 실패면 null. */
+  /* 최신 remote 위에 내 dirty 만 얹은 저장본을 만든다. remote 조회 실패면 null.
+     기준본은 반드시 contents API(sha 와 같은 응답)에서 읽는다. raw.githubusercontent 는
+     커밋 후 몇 초간 옛 파일을 주는데, 그걸 기준으로 병합하고 최신 sha 로 PUT 하면
+     그 사이 남이 저장한 일지가 충돌 없이 조용히 지워진다 — 여럿이 동시에 쓸 때의 유실 원인. */
   async function _diaryBuildPayload(){
-    const remote=await _diaryFetchRemote();
-    // remote 조회 실패(null)를 빈 객체로 취급하면 dirty 이외 전원의 일지가 통째로 지워진다.
-    if(!remote) return null;
+    const file = await ghGetFile(DIARY_API);
+    if(file.error) return null;
+    let parsed = {};
+    if(file.text){
+      try { parsed = JSON.parse(file.text) } catch(e){ return null }   // 깨진 응답으로 덮어쓰지 않는다
+    }
+    const remote = _diaryMigrate(parsed);
+    _diary_lastSha = file.sha || null;
     const local=loadDiaryAll();
     const merged = {...remote};
     const dirtyNames = Array.from(_diaryDirty);
@@ -14722,7 +14863,7 @@
         }
       }
     }
-    return {merged, dirtyNames};
+    return {merged, dirtyNames, sha: file.sha || null};
   }
 
   async function _diaryPushOnce(){
@@ -14738,18 +14879,21 @@
       payload = await _diaryBuildPayload();
       if(!payload){ _diaryPushRetry(); return; }
       const b64=btoa(unescape(encodeURIComponent(JSON.stringify(payload.merged, null, 2))));
-      r = await ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true, noConflictRetry:true});
+      // 병합 기준본을 읽어온 그 sha 로 PUT — 그 사이 누가 저장했으면 409 로 튕기고 아래에서 다시 병합한다.
+      r = await ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true, noConflictRetry:true, sha:payload.sha});
       if(r.ok || r.reason!=='conflict') break;
     }
 
     if(r && r.ok){
       _diaryPushFailStreak = 0;
+      _diary_lastPushDoneTs = Date.now();
+      if(r.sha) _diary_lastSha = r.sha;
       const merged = payload.merged;
       // 성공: 전송 중에 추가 편집이 없었던 사람만 dirty 해제 (계속 치고 있던 사람은 dirty 유지)
       const stillDirty = [];
       payload.dirtyNames.forEach(n=>{
         if((_diaryEditSeq[n]||0) !== (seqBefore[n]||0)) stillDirty.push(n);
-        else _diaryDirty.delete(n);
+        else _diaryClearDirty(n);
       });
       // 전송 중에 들어온 편집을 덮어쓰지 않도록, 저장 기준본에 최신 로컬을 다시 얹는다
       const fresh = stillDirty.length ? loadDiaryAll() : null;
@@ -14758,6 +14902,18 @@
         if(fresh && fresh[n]) finalState[n]=fresh[n];
         else delete finalState[n];
       });
+      // 방금 올린 내용을 스태프별로 기록해 둔다. 다음 pull 이 이 내용을 보여줄 때까지는
+      // remote 가 아직 옛 파일이라는 뜻이므로 로컬을 지킨다 (아래 syncDiaryFromRemote ③-1).
+      const _snapTs = _diary_lastPushDoneTs;
+      payload.dirtyNames.forEach(n=>{
+        if(stillDirty.indexOf(n) !== -1) return;   // 아직 dirty — dirty 보호로 충분
+        _diaryPushedSnap[n] = {json: JSON.stringify(merged[n] === undefined ? null : merged[n]), ts: _snapTs};
+      });
+      _diarySavePushedSnap();
+      // 저장에 성공한 순간 원격 파일 = payload.merged 이므로, 그것이 새 base 가 된다
+      const baseAfter = {};
+      Object.keys(merged).forEach(n=>{ if(merged[n] !== undefined) baseAfter[n] = JSON.stringify(merged[n]) });
+      _diarySaveBaseSnap(baseAfter);
       // tombstone 은 clear 하지 않음 — raw.githubusercontent.com CDN 이 몇 초 lag 하는 동안
       // 오래된 remote 를 그대로 쓰면 삭제한 항목이 부활하는 문제 발생. 24시간 후 자동 만료.
       _diary_lastHash=JSON.stringify(finalState);
@@ -14794,10 +14950,34 @@
   }
   window.pushDiaryToRemote=pushDiaryToRemote;
 
+  /* 창이 닫히는 순간의 마지막 저장 시도.
+     이 시점엔 await 를 여러 번 도는 일반 push 가 중간에 잘린다. 그래서 로컬 전체 상태를
+     마지막으로 확인된 sha 와 함께 keepalive PUT 한 방으로 보낸다 (창이 닫혀도 전송 완료됨).
+     실패해도 로컬 내용과 dirty 가 localStorage 에 남아 다음 접속 때 자동으로 다시 올라간다. */
+  function _diaryExitFlush(){
+    if(_diaryDirty.size === 0) return;
+    clearTimeout(_diaryPushTimer);
+    if(_diary_lastSha){
+      try{
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(loadDiaryAll(), null, 2))));
+        if(b64.length < 60000){   // keepalive 본문 한도(64KB)
+          ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true, noConflictRetry:true, sha:_diary_lastSha, keepalive:true});
+          return;
+        }
+      }catch(e){}
+    }
+    pushDiaryToRemote();
+  }
+
   function startDiarySync(){
     if(_diaryPullTimer) return;
     // 첫 pull은 즉시 (force=true — 편집 idle 체크 우회)
     syncDiaryFromRemote(true);
+    // 지난 접속 때 못 올린 편집이 남아 있으면(창을 그냥 닫았거나 프록시가 꺼져 있었던 경우) 바로 재전송
+    if(_diaryDirty.size > 0){
+      _diarySetSaveState('pending');
+      _diarySchedulePush();
+    }
     // 이후 5초 주기 — 요청이 다른 사람에게 빨리 뜨도록 폴링 단축
     _diaryPullTimer=setInterval(()=>syncDiaryFromRemote(false), 5*1000);
     // 창이 다시 활성화 → 즉시 pull / 창이 숨겨짐 → 대기 중인 push 즉시 flush (미저장 삭제 유실 방지)
@@ -14811,19 +14991,9 @@
         syncDiaryFromRemote(false);
       }
     });
-    // 탭/창을 닫거나 새로고침 → 아직 안 올라간 편집을 마지막으로 한 번 더 밀어 올림
-    window.addEventListener('pagehide', ()=>{
-      if(_diaryDirty.size > 0){
-        clearTimeout(_diaryPushTimer);
-        pushDiaryToRemote();
-      }
-    });
-    // 그래도 못 올린 게 남아 있으면 닫기 전에 경고 (로컬엔 남아있지만 다른 PC에선 안 보임)
-    window.addEventListener('beforeunload', (e)=>{
-      if(_diaryDirty.size === 0) return;
-      e.preventDefault();
-      e.returnValue = '';
-    });
+    // 탭/창을 닫거나 새로고침 → keepalive 요청으로 마지막 한 번 더 밀어 올린다.
+    // 못 올라가도 로컬 + dirty 가 남아 다음 접속 때 자동 복구되므로 "닫지 마세요" 경고창은 띄우지 않는다.
+    window.addEventListener('pagehide', _diaryExitFlush);
   }
   window.startDiarySync=startDiarySync;
   function _diaryUid(){ return 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6) }
@@ -14839,7 +15009,7 @@
     if(state === 'saving'){
       tag.textContent = '저장 중…';
     } else if(state === 'pending'){
-      tag.textContent = '⚠ 저장 대기 중 · 창을 닫지 마세요';
+      tag.textContent = '저장 대기 중 · 창을 닫아도 남아 있어요';
     } else {
       const t = new Date();
       const hh = String(t.getHours()).padStart(2,'0');
@@ -15137,14 +15307,32 @@
     const entry = _diaryEntries[name];
     if(!entry) return;
     const all = loadDiaryAll();
-    const s = all[name] || {reqs:[], weekly:[], monthly:[], daily:{}, weeklyArchive:{}, monthlyArchive:{}};
-    s.reqs    = entry.reqs    || [];
-    s.weekly  = entry.weekly  || [];
-    s.monthly = entry.monthly || [];
+    const prev = all[name] || null;
+    const s = prev || {reqs:[], weekly:[], monthly:[], daily:{}, weeklyArchive:{}, monthlyArchive:{}};
+    /* _diaryEntries 는 "마지막 렌더 시점"의 화면 사본이다. 입력 중에는 재렌더를 미루기 때문에,
+       그 사이 동기화로 들어온 새 항목(다른 PC에서 보낸 업무 요청 등)이 사본에는 없다.
+       사본으로 통째로 덮으면 그 항목이 조용히 사라진다 → 화면에 있는 건 화면 것을 쓰고,
+       저장본에만 있는 항목은 내가 지운 것(tombstone)이 아닌 한 그대로 둔다. */
+    const _tombIds = new Set(Object.keys(_diaryLoadTombstones()));
+    const _keepIncoming = (mem, stored)=>{
+      const out = Array.isArray(mem) ? mem.slice() : [];
+      const ids = new Set(out.map(x=>x && x.id).filter(Boolean));
+      (Array.isArray(stored) ? stored : []).forEach(x=>{
+        if(!x || !x.id) return;
+        if(ids.has(x.id) || _tombIds.has(x.id)) return;
+        out.push(x);
+      });
+      return out;
+    };
+    const _prevDayTasks = (prev && prev.daily && prev.daily[_diaryState.date] && Array.isArray(prev.daily[_diaryState.date].tasks))
+      ? prev.daily[_diaryState.date].tasks : [];
+    s.reqs    = _keepIncoming(entry.reqs,    prev && prev.reqs);
+    s.weekly  = _keepIncoming(entry.weekly,  prev && prev.weekly);
+    s.monthly = _keepIncoming(entry.monthly, prev && prev.monthly);
     if(!s.daily) s.daily = {};
     if(!s.weeklyArchive) s.weeklyArchive = {};
     if(!s.monthlyArchive) s.monthlyArchive = {};
-    const dayTasks = entry.tasks || [];
+    const dayTasks = _keepIncoming(entry.tasks, _prevDayTasks);
     if(dayTasks.length > 0){
       s.daily[_diaryState.date] = {tasks: dayTasks};
     } else if(s.daily[_diaryState.date]){
@@ -15174,7 +15362,7 @@
   function _diaryScheduleSaveFor(name){
     _diaryState.saveTimers = _diaryState.saveTimers || {};
     clearTimeout(_diaryState.saveTimers[name]);
-    _diaryDirty.add(name);
+    _diaryMarkDirty(name);
     _diaryEditSeq[name] = (_diaryEditSeq[name] || 0) + 1;
     _diary_lastEditTs = Date.now();
     // localStorage 는 즉시 반영 → 새로고침해도 최신 상태 보임 (삭제한 항목이 돌아오는 문제 방지)
@@ -18502,12 +18690,39 @@
       return {sha:j.sha};
     }catch(e){return {error:'fetch'}}
   }
+  /* 파일 내용 + sha 를 한 번에 읽는다 (contents API).
+     raw.githubusercontent 는 커밋 직후 몇 초간 옛 파일을 주기 때문에, 저장 병합의 기준본으로 쓰면
+     그 사이 남이 저장한 내용을 조용히 덮어쓴다. 기준본과 sha 는 반드시 같은 응답에서 가져와야 한다. */
+  async function ghGetFile(apiUrl){
+    try{
+      const r=await ghFetch(`${apiUrl}?ref=${PO_BRANCH}&_=${Date.now()}`,{
+        headers:{'Accept':'application/vnd.github+json'},
+        cache:'no-cache'
+      });
+      if(r.status===401||r.status===403) return {error:'auth'};
+      if(r.status===404) return {sha:null, text:''};
+      if(!r.ok) return {error:`http_${r.status}`};
+      const j=await r.json();
+      let text='';
+      if(typeof j.content==='string' && j.content){
+        try{ text=decodeURIComponent(escape(atob(j.content.replace(/\s/g,'')))) }
+        catch(e){ return {error:'decode'} }
+      }
+      return {sha:j.sha||null, text};
+    }catch(e){ return {error:'fetch'} }
+  }
   async function ghPut(apiUrl, base64Content, message, opts){
     opts=opts||{};
-    let shaR=await ghGetSha(apiUrl);
+    // opts.sha: 호출부가 이미 읽어둔 sha (그 sha 의 내용 위에서 병합했을 때). 재조회하면
+    // 기준본과 sha 가 어긋나 충돌 감지가 무력화된다.
+    let shaR = (opts.sha !== undefined) ? {sha: opts.sha} : await ghGetSha(apiUrl);
     if(shaR.error==='auth') return {ok:false,reason:'auth'};
     const buildBody=(sha)=>{const b={message,content:base64Content,branch:PO_BRANCH};if(sha)b.sha=sha;return JSON.stringify(b)};
-    const putOpts=(sha)=>({method:'PUT',forceMaster:!!opts.forceMaster,headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(sha)});
+    const putOpts=(sha)=>{
+      const o={method:'PUT',forceMaster:!!opts.forceMaster,headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:buildBody(sha)};
+      if(opts.keepalive) o.keepalive=true;   // 창이 닫혀도 요청이 끝까지 전송됨
+      return o;
+    };
     let r=await ghFetch(apiUrl,putOpts(shaR.sha));
     let retries=0;
     // noConflictRetry: sha만 갈아끼운 재전송은 남이 방금 저장한 내용을 덮어쓴다.
@@ -18518,7 +18733,11 @@
       if(shaR.error==='auth') return {ok:false,reason:'auth'};
       r=await ghFetch(apiUrl,putOpts(shaR.sha));
     }
-    if(r.ok) return {ok:true};
+    if(r.ok){
+      let newSha=null;
+      try{ const j=await r.json(); newSha=(j && j.content && j.content.sha) || null }catch(e){}
+      return {ok:true, sha:newSha};
+    }
     if(r.status===409) return {ok:false,reason:'conflict'};
     if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
     if(r.status===422||r.status===413) return {ok:false,reason:'too_large'};
