@@ -15223,11 +15223,20 @@
     try{
       const r = await fetch(`${_diarySbUrl()}?${query}`, {headers: _sbHeaders(), cache: 'no-cache'});
       if(!r.ok) return null;
-      return await r.json();
+      const j = await r.json();
+      // 에러 객체를 "행 0개"로 오해하면 화면이 통째로 비고 로컬 캐시까지 지워진다 → 배열일 때만 성공으로 본다
+      return Array.isArray(j) ? j : null;
     }catch(e){ return null }
   }
+  /* 조회는 단순한 조건 두 개로 나눠 보낸다 (복합 or 필터 한 방보다 실패 여지가 적다).
+     · 요청/주간/월간 = 전부   · 한 일 = 최근 DIARY_SCOPE_DAYS 일 (그보다 옛 날짜는 열 때 따로) */
   async function _diaryFetchAllRows(){
-    return _diarySbGet(`select=*&deleted_at=is.null&or=(kind.neq.task,day.gte.${_diaryScopeStart()})&order=updated_at.asc&limit=10000`);
+    const [plans, tasks] = await Promise.all([
+      _diarySbGet(`select=*&deleted_at=is.null&kind=neq.task&order=updated_at.asc&limit=5000`),
+      _diarySbGet(`select=*&deleted_at=is.null&kind=eq.task&day=gte.${_diaryScopeStart()}&order=updated_at.asc&limit=5000`),
+    ]);
+    if(!plans || !tasks) return null;      // 하나라도 실패하면 반영하지 않는다 (반쪽 데이터로 덮어쓰기 방지)
+    return plans.concat(tasks);
   }
   async function _diaryPollRows(){
     if(!_diaryRowsLoaded){          // 첫 조회가 실패했던 경우 — 될 때까지 계속 시도
