@@ -25269,17 +25269,20 @@
 
   /* 대표 PC 에서 이미 알림 띄운 요청 id 기록 (탭 wake 시 중복 알림 방지) */
   const _wrNotifiedIds = new Set();
+  /* 현재 로그인된 me 를 매번 실시간으로 읽는다 — 구독 시점에 캡처하면 diary_me 가 아직 셋 되기 전이라
+     (설정 팝업 뜨기 전) 빈 문자열이 잡혀서 이후 알림이 영구 무음이 됨. 2026-09-15 사건. */
+  function _wrCurrentMe(){ return (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || ''; }
+
   async function _wrInitRealtime(){
     if(_wrRealtimeChan) return;
     if(typeof supabase === 'undefined' || !supabase || !supabase.channel){
       if(typeof _diaryLoadSupabaseClient === 'function') await _diaryLoadSupabaseClient();
       if(typeof supabase === 'undefined' || !supabase) return;
     }
-    const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
     _wrRealtimeChan = supabase.channel('wr_all')
       .on('postgres_changes', {event:'INSERT', schema:'public', table:'withdrawal_requests'}, (payload)=>{
         _wrFetchBatches();
-        // 대표 PC 에는 크롬 알림
+        const me = _wrCurrentMe();          // ← fresh read, not closure-captured
         if(me === WR_OWNER_NAME){
           const row = payload.new || {};
           if(row.id && _wrNotifiedIds.has(row.id)) return;
@@ -25291,8 +25294,8 @@
       })
       .on('postgres_changes', {event:'UPDATE', schema:'public', table:'withdrawal_requests'}, (payload)=>{
         _wrFetchBatches();
+        const me = _wrCurrentMe();
         const row = payload.new || {};
-        // 요청자에게 완료 알림
         if(row.status === 'done' && row.requested_by && me === row.requested_by){
           _wrFireNotif(`✅ 송금완료`, `${row.done_by || WR_OWNER_NAME} 대표가 송금을 완료했습니다`);
         }
@@ -25305,15 +25308,17 @@
       _wrInitRealtime._wakeBound = true;
       document.addEventListener('visibilitychange', ()=>{
         if(document.visibilityState !== 'visible') return;
-        const meNow = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
-        if(meNow !== WR_OWNER_NAME) return;
+        if(_wrCurrentMe() !== WR_OWNER_NAME) return;
         _wrCatchUpMissed().catch(()=>{});
       });
-      /* 페이지 로드 직후 대표 PC 면 한 번 catch-up 실행 (최근 24h 알림 dedupe) */
+      /* 페이지 로드 직후 대표 PC 면 한 번 silent catch-up (기존 알림 dedupe seed).
+         diary_me 가 늦게 셋 될 수 있어 500ms · 3000ms 두 번 시도. */
       setTimeout(()=>{
-        const meNow = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
-        if(meNow === WR_OWNER_NAME) _wrCatchUpMissed(true).catch(()=>{});
-      }, 1500);
+        if(_wrCurrentMe() === WR_OWNER_NAME) _wrCatchUpMissed(true).catch(()=>{});
+      }, 500);
+      setTimeout(()=>{
+        if(_wrCurrentMe() === WR_OWNER_NAME) _wrCatchUpMissed(true).catch(()=>{});
+      }, 3000);
     }
   }
 
