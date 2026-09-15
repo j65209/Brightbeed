@@ -6338,10 +6338,10 @@
 
   /* ===== 디자인팀 뷰 — 노션 스타일 작업 보드 + 레퍼런스 갤러리 =====
      사장님 요청: 노션과 유사한 편집 UX, 커버 이미지, 상태·우선순위·태그, 이미지 자유 저장 */
-  #viewDesign{padding:24px 32px 60px;max-width:1400px;margin:0 auto}
-  #viewDesign .view-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
-  #viewDesign .view-title{font-size:26px;font-weight:700;color:#1c1917;letter-spacing:-.01em}
-  #viewDesign .view-title-sub{font-size:14px;font-weight:500;color:#a8a29e;margin-left:8px;letter-spacing:0}
+  #viewDesign{padding:20px 24px 60px;max-width:1400px;margin:0 auto}
+  #viewDesign .view-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  #viewDesign .view-title{font-size:24px;font-weight:700;color:#1c1917;letter-spacing:-.01em}
+  #viewDesign .view-title-sub{font-size:13px;font-weight:500;color:#a8a29e;margin-left:6px;letter-spacing:0}
   .dsg-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
   .dsg-save-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;letter-spacing:-.005em;font-variant-numeric:tabular-nums;transition:all .18s}
   .dsg-save-tag[data-state="saved"]  {color:#166534;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35)}
@@ -6350,10 +6350,10 @@
   .dsg-save-tag[data-state="error"]  {color:#b91c1c;background:rgba(220,38,38,.10);border:1px solid rgba(220,38,38,.4)}
 
   /* 서브탭 */
-  .dsg-tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid #e7e5e4;padding-bottom:0}
+  .dsg-tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid #e7e5e4;padding-bottom:0}
   .dsg-tab{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:10px 16px;font-size:13px;font-weight:600;color:#78716c;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 12px;font-size:12.5px;font-weight:600;color:#78716c;
     background:transparent;border:none;border-bottom:2px solid transparent;
     cursor:pointer;transition:all .15s;font-family:inherit;
     margin-bottom:-1px;letter-spacing:-.005em;
@@ -6676,13 +6676,37 @@
     cursor:pointer;font-family:inherit;transition:all .12s;
   }
   .dsg-doc-btn-ghost:hover{color:#7c3aed;border-color:#ddd6fe;background:#faf5ff}
+  /* 폰트 크기 픽커 (A− A A+) */
+  .dsg-fs-picker{
+    display:inline-flex;background:#fff;border:1px solid #e7e5e4;border-radius:6px;
+    padding:2px;gap:1px;align-items:stretch;
+  }
+  .dsg-fs-btn{
+    padding:2px 8px;font-weight:700;color:#78716c;
+    background:transparent;border:none;border-radius:4px;
+    cursor:pointer;transition:all .12s;font-family:inherit;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;min-width:22px;
+  }
+  .dsg-fs-btn[data-fs="s"]{font-size:10.5px}
+  .dsg-fs-btn[data-fs="m"]{font-size:12.5px}
+  .dsg-fs-btn[data-fs="l"]{font-size:14.5px}
+  .dsg-fs-btn[data-fs="xl"]{font-size:16px}
+  .dsg-fs-btn:hover{color:#44403c;background:#faf5ff}
+  .dsg-fs-btn.active{background:#faf5ff;color:#7c3aed;box-shadow:inset 0 0 0 1px #ddd6fe}
   .dsg-doc-wrap{position:relative;padding-bottom:80px}
   .dsg-doc{
-    max-width:820px;margin:0 auto;
+    max-width:960px;margin:0 auto;
     background:#fff;border:1px solid #f4f4f5;border-radius:10px;
-    padding:36px 44px 40px;
+    padding:26px 30px 30px;
     box-shadow:0 1px 2px rgba(28,25,23,.03);
   }
+  /* 폰트 크기 프리셋 (툴바 A− / A / A+ ) */
+  .dsg-doc[data-fs="s"] .dsg-blk-text{font-size:12px;line-height:1.5}
+  .dsg-doc[data-fs="s"] .dsg-sec-title{font-size:16px}
+  .dsg-doc[data-fs="l"] .dsg-blk-text{font-size:15.5px;line-height:1.6}
+  .dsg-doc[data-fs="l"] .dsg-sec-title{font-size:22px}
+  .dsg-doc[data-fs="xl"] .dsg-blk-text{font-size:17.5px;line-height:1.6}
+  .dsg-doc[data-fs="xl"] .dsg-sec-title{font-size:24px}
   .dsg-doc-hint{
     max-width:820px;margin:14px auto 0;padding:0 6px;
     font-size:11.5px;color:#a8a29e;text-align:center;letter-spacing:-.005em;
@@ -6727,14 +6751,14 @@
 
   /* 개별 블록 (todo/text/toggle) — 첫 줄은 flex row, 자식은 새 줄 */
   .dsg-blk{
-    display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;
+    display:flex;align-items:flex-start;gap:3px;flex-wrap:wrap;
     padding:1px 0;position:relative;border-radius:4px;
     transition:background .12s;
   }
   .dsg-blk:hover{background:rgba(168,85,247,.03)}
-  .dsg-blk-children{flex-basis:100%;padding-left:26px}
+  .dsg-blk-children{flex-basis:100%;padding-left:20px}
   .dsg-blk-gutter{
-    flex:none;width:20px;display:flex;align-items:center;justify-content:center;
+    flex:none;width:14px;display:flex;align-items:center;justify-content:center;
     padding-top:6px;color:#a8a29e;
   }
   .dsg-blk-gutter-btn{
@@ -6781,9 +6805,9 @@
   .dsg-blk-text.done{text-decoration:line-through;color:#a8a29e}
   /* 우선순위 옆 마커 (호버 시) */
   .dsg-blk-prio{
-    flex:none;width:22px;height:22px;font-size:12px;line-height:1;
+    flex:none;width:18px;height:18px;font-size:11px;line-height:1;
     display:flex;align-items:center;justify-content:center;
-    border-radius:4px;cursor:pointer;margin-top:1px;
+    border-radius:4px;cursor:pointer;margin-top:3px;
     transition:background .12s;opacity:.35;
   }
   .dsg-blk-prio.on{opacity:1}
@@ -6792,10 +6816,10 @@
   .dsg-blk-prio:hover{background:#f4f4f5}
   /* 삭제 (호버 시) */
   .dsg-blk-del{
-    flex:none;width:22px;height:22px;
+    flex:none;width:18px;height:18px;
     display:flex;align-items:center;justify-content:center;
     color:#a8a29e;cursor:pointer;border-radius:4px;
-    opacity:0;transition:all .1s;margin-top:1px;
+    opacity:0;transition:all .1s;margin-top:3px;
   }
   .dsg-blk:hover > .dsg-blk-del{opacity:.7}
   .dsg-blk-del:hover{opacity:1;background:#fee2e2;color:#dc2626}
@@ -6803,28 +6827,28 @@
   /* 순서 이동 ▲▼ (hover 시 노출, 클릭 시 한 칸씩) */
   .dsg-blk-move{
     flex:none;display:inline-flex;flex-direction:column;
-    gap:1px;margin-top:1px;
+    gap:1px;margin-top:3px;
     opacity:0;transition:opacity .1s;
   }
   .dsg-blk:hover > .dsg-blk-move,
   .dsg-sec-head:hover .dsg-blk-move{opacity:.65}
   .dsg-blk-move-btn{
-    width:20px;height:11px;border-radius:3px;
+    width:16px;height:10px;border-radius:3px;
     display:flex;align-items:center;justify-content:center;
     color:#78716c;cursor:pointer;transition:all .1s;
   }
   .dsg-blk-move-btn:hover{background:#f4f4f5;color:#7c3aed}
-  .dsg-blk-move-btn svg{width:12px;height:10px}
+  .dsg-blk-move-btn svg{width:10px;height:9px}
   /* ＋ 아이콘 — 각 블록 왼쪽 hover 시 */
   .dsg-blk-plus{
-    flex:none;width:20px;height:20px;
+    flex:none;width:16px;height:18px;
     display:flex;align-items:center;justify-content:center;
     color:#a855f7;cursor:pointer;border-radius:4px;
-    opacity:0;transition:all .12s;margin-top:2px;
+    opacity:0;transition:all .12s;margin-top:3px;
   }
   .dsg-blk:hover > .dsg-blk-plus{opacity:.6}
   .dsg-blk-plus:hover{opacity:1 !important;background:#faf5ff}
-  .dsg-blk-plus svg{width:12px;height:12px}
+  .dsg-blk-plus svg{width:11px;height:11px}
   /* 섹션 헤더 옆 hover + */
   .dsg-sec-plus{opacity:0;margin-top:0;width:22px;height:22px}
   .dsg-sec-head:hover .dsg-sec-plus{opacity:.7}
@@ -6869,39 +6893,61 @@
 
   /* 반응형 */
   @media (max-width:900px){
-    #viewDesign{padding:20px 20px 60px}
+    #viewDesign{padding:16px 14px 50px}
     .dsg-modal-meta{grid-template-columns:1fr}
     .dsg-refs-grid{columns:2 160px}
-    .dsg-doc{padding:24px 22px 30px}
+    .dsg-doc{padding:20px 16px 24px}
   }
   @media (max-width:560px){
-    #viewDesign{padding:14px 12px 50px}
-    #viewDesign .view-title{font-size:20px}
+    #viewDesign{padding:10px 4px 40px}
+    #viewDesign .view-title{font-size:19px}
+    #viewDesign .view-head{gap:8px;margin-bottom:12px}
+    .dsg-tabs{margin-bottom:10px}
     .dsg-refs-grid{columns:2 130px}
+    /* 문서 카드 — 좌우 여백 최소화, 텍스트가 화면 폭 최대로 */
+    .dsg-doc{padding:14px 8px 20px;border-radius:8px}
+    .dsg-blk{gap:2px}
+    .dsg-blk-children{padding-left:14px}
     /* 편집 폰트 — iOS 자동 zoom-in 방지 (16px 이상) */
-    .dsg-blk-text{font-size:16px;line-height:1.5}
-    .dsg-sec-title{font-size:18px}
+    .dsg-blk-text{font-size:16px;line-height:1.5;padding:3px 4px 3px 2px}
+    .dsg-sec-title{font-size:17px}
+    /* 폰트 프리셋도 iOS 안전 (모두 16px 이상) */
+    .dsg-doc[data-fs="s"] .dsg-blk-text{font-size:16px;line-height:1.45}
+    .dsg-doc[data-fs="m"] .dsg-blk-text{font-size:16px;line-height:1.5}
+    .dsg-doc[data-fs="l"] .dsg-blk-text{font-size:17.5px;line-height:1.55}
+    .dsg-doc[data-fs="xl"] .dsg-blk-text{font-size:19px;line-height:1.6}
+    /* 아이콘 컬럼 극단 압축 */
+    .dsg-blk-gutter{width:10px}
+    .dsg-blk-plus{width:14px;height:18px}
+    .dsg-blk-plus svg{width:10px;height:10px}
+    .dsg-blk-check{width:15px;height:15px;margin-top:5px}
+    .dsg-blk-toggle,.dsg-blk-bullet{width:12px;height:18px}
+    .dsg-blk-prio{width:16px;height:18px}
+    .dsg-blk-del{width:16px;height:16px}
+    .dsg-blk-del svg{width:11px;height:11px}
     /* 문서 하단 추가 버튼 세로 stack */
-    .dsg-doc-add{flex-direction:column;gap:8px}
-    .dsg-doc-add-item{padding:14px 16px;font-size:15px}
-    .dsg-doc-add-sec{padding:12px 14px;justify-content:center;font-size:14px}
-    /* 검색바 폭 100% */
-    .dsg-doc-toolbar{padding:8px 10px;gap:8px}
-    .dsg-doc-toolbar .dsg-search{flex:1;min-width:0;font-size:16px;height:36px}
+    .dsg-doc-add{flex-direction:column;gap:8px;margin-top:10px}
+    .dsg-doc-add-item{padding:12px 14px;font-size:14px}
+    .dsg-doc-add-sec{padding:10px 12px;justify-content:center;font-size:13px}
+    /* 툴바 — 검색바 폭 최대화 */
+    .dsg-doc-toolbar{padding:6px 8px;gap:6px}
+    .dsg-doc-toolbar .dsg-search{flex:1;min-width:0;font-size:16px;height:34px}
+    .dsg-doc-btn-ghost{padding:0 8px;font-size:11.5px;height:28px}
+    .dsg-fs-btn{padding:2px 6px;min-width:20px}
     /* 힌트 문구 축소 */
-    .dsg-doc-hint{font-size:11.5px;line-height:1.5}
-    /* 서브탭 폰트 살짝 up */
-    .dsg-tab{padding:10px 12px;font-size:13.5px}
+    .dsg-doc-hint{font-size:11px;line-height:1.5;margin-top:10px}
+    /* 서브탭 (탭 헤더) 살짝 up + 여백 슬림 */
+    .dsg-tab{padding:8px 10px;font-size:13px;gap:5px}
     /* 레퍼런스 툴바 검색 iOS zoom 방지 */
     #viewDesign .dsg-search{font-size:16px;height:34px}
   }
   /* 터치 기기 or 좁은 화면 — + / 삭제 아이콘 항상 살짝 노출 (hover 못 쓸때 대비) */
   @media (hover: none), (max-width:560px){
-    .dsg-blk-plus, .dsg-blk-del, .dsg-sec-plus, .dsg-blk-move{opacity:.5 !important}
+    .dsg-blk-plus, .dsg-blk-del, .dsg-sec-plus, .dsg-blk-move{opacity:.55 !important}
     .dsg-blk-plus:active, .dsg-blk-del:active, .dsg-blk-move-btn:active{opacity:1 !important}
     /* 터치 대응 — 이동 버튼 더 크게 */
-    .dsg-blk-move-btn{width:26px;height:16px}
-    .dsg-blk-move{gap:2px}
+    .dsg-blk-move-btn{width:20px;height:14px}
+    .dsg-blk-move{gap:1px}
   }
   /* 힌트 문구 데스크톱/모바일 분리 노출 */
   .dsg-hint-mobile{display:none}
@@ -8676,13 +8722,19 @@
 
     <!-- ============ 작업 보드 — 노션 스타일 아웃라이너 ============ -->
     <div class="dsg-pane" data-pane="board">
-      <!-- 단순 툴바: 검색 · 완료 숨김 · 접기/펴기 · 섹션 추가 -->
+      <!-- 단순 툴바: 검색 · 완료 숨김 · 폰트 크기 · 접기/펴기 · 섹션 추가 -->
       <div class="dsg-doc-toolbar">
         <input id="dsgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
         <label class="dsg-hide-done">
           <input type="checkbox" id="dsgDocHideDone" onchange="dsgDocRender()">
           <span>완료 숨김</span>
         </label>
+        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="dsgFsPicker">
+          <button class="dsg-fs-btn" data-fs="s"  onclick="dsgDocFsChange('s')"  title="작게">가</button>
+          <button class="dsg-fs-btn" data-fs="m"  onclick="dsgDocFsChange('m')"  title="보통">가</button>
+          <button class="dsg-fs-btn" data-fs="l"  onclick="dsgDocFsChange('l')"  title="크게">가</button>
+          <button class="dsg-fs-btn" data-fs="xl" onclick="dsgDocFsChange('xl')" title="아주 크게">가</button>
+        </div>
         <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
           펼치기
@@ -12927,6 +12979,9 @@
   const DSG_DOC_KEY   = 'brightbeed_design_doc_v1';   // 노션 스타일 아웃라이너 트리
   const DSG_REFS_KEY  = 'brightbeed_design_refs_v1';
   const DSG_UI_KEY    = 'brightbeed_design_ui_v1';
+  const DSG_FS_KEY    = 'brightbeed_design_fs_v1';    // 문서 폰트 프리셋 (s/m/l/xl)
+  const DSG_FS_ALLOWED= ['s','m','l','xl'];
+  let _dsgFs = 'm';
   /* 원격 진실 저장소 — GitHub 리포 (업무일지와 동일 패턴) */
   const DSG_DOC_PATH  ='data/design_doc.json';
   const DSG_REFS_PATH ='data/design_refs.json';
@@ -13240,19 +13295,42 @@
 
   /* 진입 — 최초 로드 + 렌더 */
   function dsgInit(){
-    if(dsgInit._done) { dsgDocRender(); dsgRefsRender(); return; }
+    if(dsgInit._done) { dsgDocRender(); dsgRefsRender(); _dsgApplyFs(); return; }
     dsgInit._done = true;
     _dsgLoadUI();
+    _dsgLoadFs();
     _dsgLoadDoc();
     _dsgLoadRefs();
     dsgSwitchTab(_dsgCurTab||'board');
     dsgDocRender();
+    _dsgApplyFs();
     dsgRefsRender();
     if(!dsgInit._paste){
       dsgInit._paste = true;
       window.addEventListener('paste', dsgHandlePaste);
     }
     _dsgStartSync();
+  }
+
+  /* 폰트 크기 프리셋 (s/m/l/xl) — 툴바에서 조절, localStorage 저장 */
+  function _dsgLoadFs(){
+    try{
+      const v = localStorage.getItem(DSG_FS_KEY);
+      if(v && DSG_FS_ALLOWED.includes(v)) _dsgFs = v;
+    }catch(e){}
+  }
+  function _dsgApplyFs(){
+    const doc = document.getElementById('dsgDoc');
+    if(doc) doc.setAttribute('data-fs', _dsgFs);
+    document.querySelectorAll('#dsgFsPicker .dsg-fs-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.fs===_dsgFs);
+    });
+  }
+  function dsgDocFsChange(v){
+    if(!DSG_FS_ALLOWED.includes(v)) return;
+    _dsgFs = v;
+    try{ localStorage.setItem(DSG_FS_KEY, v); }catch(e){}
+    _dsgApplyFs();
   }
 
   /* 서브탭 스위치 */
