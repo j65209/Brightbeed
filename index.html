@@ -11612,20 +11612,25 @@
   function _salesBuildCard(cfg, opts){
     const hideBrandName = !!(opts && opts.hideBrandName);
     const plats=Array.isArray(cfg.platforms)?cfg.platforms:[];
-    let platPills=plats.map(k=>{
-      const lbl=_PLAT_LABEL[k]||k;
-      return `<span class="brand-plat-pill is-${k}" title="${_akoiEsc(lbl)} 채널 판매 중 — 자세한 매출은 플랫폼 탭">${_akoiEsc(lbl)}</span>`;
-    }).join('');
-    // 플랫폼 탭 카드는 group(에이블리·스마트스토어) 자체를 pill 로 표시 → 공홈 탭 스타일 통일
+    /* 플랫폼 pills: 플랫폼 탭에서만 사용. 공홈 탭에서는 탭 자체가 공홈이라 중복이라 생략. */
+    let platPills = '';
+    if(hideBrandName){
+      platPills = plats.map(k=>{
+        const lbl=_PLAT_LABEL[k]||k;
+        return `<span class="brand-plat-pill is-${k}" title="${_akoiEsc(lbl)} 채널">${_akoiEsc(lbl)}</span>`;
+      }).join('');
+      /* 플랫폼 탭 카드는 group(에이블리·스마트스토어) 자체도 pill 로 표시 */
+      const platKey=_GROUP_TO_PLAT[cfg.group];
+      if(platKey){
+        platPills += `<span class="brand-plat-pill is-${platKey}" title="${_akoiEsc(cfg.group)} 채널">${_akoiEsc(cfg.group)}</span>`;
+      }
+    }
     const platKey=_GROUP_TO_PLAT[cfg.group];
     const subGroupText = platKey ? '' : `${_akoiEsc(cfg.group)} · `;
-    if(platKey){
-      platPills += `<span class="brand-plat-pill is-${platKey}" title="${_akoiEsc(cfg.group)} 채널">${_akoiEsc(cfg.group)}</span>`;
-    }
-    // 브랜드별 묶음 헤더 아래 렌더될 때는 카드 타이틀에서 브랜드명·닷 생략 (헤더가 이미 표시)
+    /* 브랜드별 묶음 헤더 아래 렌더될 때는 카드 타이틀에서 브랜드명·닷 생략 (헤더가 이미 표시) */
     const titleLeft = hideBrandName
       ? `${platPills}`
-      : `<span class="brand-dot" style="background:${cfg.dot}"></span>${_akoiEsc(cfg.display)}${platPills}`;
+      : `<span class="brand-dot" style="background:${cfg.dot}"></span>${_akoiEsc(cfg.display)}`;
     return `<div class="akoi-section po-section" data-brand="${cfg.id}" data-expanded="0" style="margin-bottom:14px">
       <div class="po-section-head">
         <div class="po-section-title">
