@@ -5854,16 +5854,19 @@
     align-items:start;
   }
 
-  /* 각 직원 카드 — 노션 페이지 감성 */
+  /* 각 직원 카드 — 노션 페이지 감성.
+     테두리는 --dcs-accent (팀별 컬러) 로. 상태 활성/완료 시 shadow 로 신호. */
   .dcs{
-    background:#fff;border:2px solid #cfc7ab;border-radius:14px;
+    background:#fff;
+    border:2px solid var(--dcs-accent, #cfc7ab);
+    border-radius:14px;
     padding:20px 22px 22px;display:flex;flex-direction:column;gap:18px;
     box-shadow:0 1px 2px rgba(28,25,23,.04);
-    transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+    transition:transform .18s ease,box-shadow .18s ease;
   }
-  .dcs:hover{border-color:#b3ab8d}
-  .dcs.dcs-active{border-color:#f6d99a;box-shadow:0 1px 0 rgba(234,179,8,.06),0 8px 20px -12px rgba(234,179,8,.28)}
-  .dcs.dcs-complete{border-color:#bbf7d0;box-shadow:0 1px 0 rgba(34,197,94,.05),0 8px 20px -12px rgba(34,197,94,.22)}
+  .dcs:hover{box-shadow:0 4px 14px rgba(28,25,23,.08)}
+  .dcs.dcs-active{box-shadow:0 1px 0 rgba(234,179,8,.06),0 8px 20px -10px rgba(234,179,8,.32)}
+  .dcs.dcs-complete{box-shadow:0 1px 0 rgba(34,197,94,.05),0 8px 20px -10px rgba(34,197,94,.28)}
   .dcs.dcs-empty{opacity:.72}
   .dcs.dcs-empty:hover{opacity:1}
 
@@ -6143,8 +6146,7 @@
   .dcs-prev-row:hover .dcs-prev-del{opacity:.7}
   .dcs-prev-del:hover{background:#fee2e2;color:#dc2626;opacity:1}
 
-  /* 팀원별 카드 accent color — 파스텔톤, 폰트 가독성 우선 */
-  .dcs{border-top:3px solid var(--dcs-accent,#eae7dc)}
+  /* 이름 옆 팀 컬러 dot — 카드 테두리 자체도 팀 컬러라 이중 신호이지만 인식 보조용으로 유지 */
   .dcs .dcs-name{display:inline-flex;align-items:center;gap:8px}
   .dcs .dcs-name::before{
     content:'';width:8px;height:8px;border-radius:50%;
@@ -14227,21 +14229,26 @@
   }
   _diaryRestoreDirty();
   _diaryLoadPushedSnap();
-  /* 팀원별 카드 accent color — 파스텔톤, 폰트 잘 보이게 */
-  const DIARY_COLORS = {
-    '전승훈': '#d4af37', '전수빈': '#eab308', // 대표 — 골드/앰버
-    '김성군': '#60a5fa', '전준호': '#818cf8', '이소영': '#22d3ee',
-    '김수민': '#84cc16', '이승원': '#facc15', '박규현': '#fb923c',
-    '정신혜': '#f472b6', '조혜인': '#e879f9', '김완성': '#a78bfa',
-    '김채원': '#2dd4bf', '지희선': '#fb7185', '박시호': '#38bdf8',
+  /* 카드 accent — STAFF.color(팀 키) → 팀 테마 컬러로 매핑.
+     사장님 요청 (2026-09-15): 카드 테두리를 팀별로 통일 */
+  const _DIARY_TEAM_ACCENT = {
+    ceo:    '#d4af37', // 대표 — 골드
+    logi:   '#7c3aed', // 물류 — 바이올렛
+    mkt:    '#84cc16', // 마케팅 — 라임
+    design: '#f97316', // 디자인 — 오렌지
+    md2:    '#e11d48', // MD — 로즈
+    share:  '#0284c7', // CS — 스카이
+    vendor: '#4f46e5', // 벤더 — 인디고
   };
-  /* 신규 입사자 자동 컬러 팔레트 — 이름 해시로 결정, 파스텔톤 */
+  /* 팀 키 없는 신규 입사자 fallback — 이름 해시로 결정 */
   const _diaryFallbackPool = [
     '#4ade80','#f87171','#c084fc','#fbbf24','#5eead4','#f9a8d4',
     '#93c5fd','#fde047','#a3e635','#67e8f9','#fcd34d','#f0abfc'
   ];
   function _diaryAccent(name){
-    if(DIARY_COLORS[name]) return DIARY_COLORS[name];
+    const st = (typeof STAFF !== 'undefined') ? STAFF.find(s => s && s.name === name) : null;
+    const teamKey = st && st.color;
+    if(teamKey && _DIARY_TEAM_ACCENT[teamKey]) return _DIARY_TEAM_ACCENT[teamKey];
     let h = 0;
     for(let i=0;i<(name||'').length;i++) h = (h*31 + name.charCodeAt(i))>>>0;
     return _diaryFallbackPool[h % _diaryFallbackPool.length];
