@@ -14950,49 +14950,413 @@
   }
   window.pushDiaryToRemote=pushDiaryToRemote;
 
-  /* 창이 닫히는 순간의 마지막 저장 시도.
-     이 시점엔 await 를 여러 번 도는 일반 push 가 중간에 잘린다. 그래서 로컬 전체 상태를
-     마지막으로 확인된 sha 와 함께 keepalive PUT 한 방으로 보낸다 (창이 닫혀도 전송 완료됨).
-     실패해도 로컬 내용과 dirty 가 localStorage 에 남아 다음 접속 때 자동으로 다시 올라간다. */
-  function _diaryExitFlush(){
-    if(_diaryDirty.size === 0) return;
-    clearTimeout(_diaryPushTimer);
-    if(_diary_lastSha){
-      try{
-        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(loadDiaryAll(), null, 2))));
-        if(b64.length < 60000){   // keepalive 본문 한도(64KB)
-          ghPut(DIARY_API, b64, 'chore: 업무일지 갱신', {forceMaster:true, noConflictRetry:true, sha:_diary_lastSha, keepalive:true});
-          return;
-        }
-      }catch(e){}
-    }
-    pushDiaryToRemote();
+  /* ══════════════════════════════════════════════════════════════════════════
+     업무일지 저장소 — Supabase 줄 단위 저장 (노션 방식)
+     ──────────────────────────────────────────────────────────────────────────
+     예전 구조: 전 직원 일지가 GitHub 파일 하나. 한 글자만 고쳐도 그 파일을 통째로
+     다시 썼다. 그래서 늦게 도착한 저장이 남이 방금 쓴 줄을 덮어 지우는 사고가 났다.
+     지금 구조: 한 줄 = 한 행(diary_items). 내가 고친 줄만 서버로 가고, 남의 줄은
+     아예 건드리지 않는다. 덮어쓸 수 있는 구조 자체가 없다.
+
+     안전장치
+      ① 로컬 우선   — 타이핑은 즉시 localStorage 에 남는다. 서버 전송은 그 다음.
+      ② 전송 대기열 — 못 보낸 줄은 대기열에 쌓이고 그 대기열도 localStorage 에 있다.
+                      창을 닫든 인터넷이 끊기든, 다음 접속 때 자동으로 다시 올라간다.
+      ③ 시각 도장   — 줄마다 client_ts. 서버 트리거가 더 오래된 편집을 거부한다.
+      ④ 소프트 삭제 — 삭제는 deleted_at 표시만. 행 자체는 서버에 남는다.
+      ⑤ 변경 이력   — 서버 트리거가 모든 변경을 diary_item_history 에 자동 적재.
+      ⑥ 대량삭제 차단 — 한 번에 20줄 넘게 지우려 하면 사고로 보고 중단 + 경고.
+      ⑦ GitHub 백업 — 10분마다 data/diary.json 스냅샷. 사람이 읽을 수 있는 별도 백업.
+      ⑧ 실시간 + 폴링 — 실시간 채널이 끊겨도 15초 폴링이 받아온다.
+     ══════════════════════════════════════════════════════════════════════════ */
+  const DIARY_QUEUE_KEY  = 'brightbeed_diary_queue_v2';
+  const DIARY_ROWS_KEY   = 'brightbeed_diary_rows_v2';
+  const DIARY_SCOPE_DAYS = 365;     // 이 기간의 '한 일'을 기본으로 불러온다 (그보다 옛 날짜는 열 때 추가로)
+  const DIARY_MAX_DELETE = 20;      // 한 번에 이만큼 넘게 지워지려 하면 사고로 간주하고 중단
+  let _diaryRows = {};              // id -> 서버에서 받은 행
+  let _diaryQueue = {};             // id -> 아직 못 보낸 행 (localStorage 에도 보관)
+  let _diaryRowsLoaded = false;     // 서버에서 한 번이라도 받아왔는지 (받기 전엔 삭제 전송 금지)
+  let _diaryFlushTimer = null, _diaryFlushing = false, _diaryFlushFail = 0;
+  let _diaryRenderTimer = null, _diaryPollTimer = null, _diaryItemsChan = null;
+  let _diarySbSince = '';           // 폴링 커서 (서버 updated_at)
+  let _diaryBackupDirty = false, _diaryBackupTimer = null;
+  const _diaryLoadedDays = {};      // 추가로 불러온 옛 날짜
+
+  function _diarySbUrl(){ return `${SUPABASE_URL}/rest/v1/diary_items` }
+  function _diaryScopeStart(){
+    const d = new Date(); d.setDate(d.getDate() - DIARY_SCOPE_DAYS);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function _diarySaveQueue(){ try{ localStorage.setItem(DIARY_QUEUE_KEY, JSON.stringify(_diaryQueue)) }catch(e){} }
+  function _diarySaveRows(){
+    try{ localStorage.setItem(DIARY_ROWS_KEY, JSON.stringify({rows:_diaryRows, since:_diarySbSince})) }catch(e){}
+  }
+  function _diaryLoadCache(){
+    try{ _diaryQueue = JSON.parse(localStorage.getItem(DIARY_QUEUE_KEY)||'{}') || {} }catch(e){ _diaryQueue = {} }
+    try{
+      const c = JSON.parse(localStorage.getItem(DIARY_ROWS_KEY)||'{}') || {};
+      _diaryRows = (c && c.rows) || {}; _diarySbSince = (c && c.since) || '';
+    }catch(e){ _diaryRows = {}; _diarySbSince = ''; }
   }
 
-  function startDiarySync(){
-    if(_diaryPullTimer) return;
-    // 첫 pull은 즉시 (force=true — 편집 idle 체크 우회)
-    syncDiaryFromRemote(true);
-    // 지난 접속 때 못 올린 편집이 남아 있으면(창을 그냥 닫았거나 프록시가 꺼져 있었던 경우) 바로 재전송
-    if(_diaryDirty.size > 0){
-      _diarySetSaveState('pending');
-      _diarySchedulePush();
-    }
-    // 이후 5초 주기 — 요청이 다른 사람에게 빨리 뜨도록 폴링 단축
-    _diaryPullTimer=setInterval(()=>syncDiaryFromRemote(false), 5*1000);
-    // 창이 다시 활성화 → 즉시 pull / 창이 숨겨짐 → 대기 중인 push 즉시 flush (미저장 삭제 유실 방지)
-    document.addEventListener('visibilitychange', ()=>{
-      if(document.hidden){
-        if(_diaryDirty.size > 0){
-          clearTimeout(_diaryPushTimer);
-          pushDiaryToRemote();
-        }
+  /* ── 화면 모델 ↔ 행 변환 ─────────────────────────────────────────────── */
+  function _diaryRowsForStaff(name, all){
+    const s = (all || loadDiaryAll())[name];
+    const out = {};
+    if(!s) return out;
+    const mk = (it, kind, day, pos, createdOn)=>{
+      if(!it || !it.id) return;
+      out[it.id] = {
+        id: it.id, staff_name: name, kind,
+        day: day || null,
+        text: String(it.text || ''),
+        done: !!it.done,
+        from_name: String(it.from || ''),
+        priority: Number(it.priority || 0),
+        pos,
+        created_on: createdOn || null,
+        deleted_at: null,
+      };
+    };
+    (s.reqs    || []).forEach((r,i)=> mk(r, 'req',     null, i, r.createdAt || null));
+    (s.weekly  || []).forEach((it,i)=> mk(it,'weekly',  null, i, it.createdAt || null));
+    (s.monthly || []).forEach((it,i)=> mk(it,'monthly', null, i, it.createdAt || null));
+    Object.keys(s.weeklyArchive  || {}).forEach(k=> (s.weeklyArchive[k]  || []).forEach((it,i)=> mk(it,'weekly', null, i, it.createdAt || k)));
+    Object.keys(s.monthlyArchive || {}).forEach(k=> (s.monthlyArchive[k] || []).forEach((it,i)=> mk(it,'monthly',null, i, it.createdAt || (k.length===7 ? k+'-01' : k))));
+    Object.keys(s.daily || {}).forEach(d=>{
+      ((s.daily[d] && s.daily[d].tasks) || []).forEach((t,i)=> mk(t, 'task', d, i, d));
+    });
+    return out;
+  }
+  /* 행들을 기존 화면 모델로 되돌린다. 주간/월간은 작성일 기준으로 "이번 주/달"과
+     지난 것(아카이브)에 자동 배치된다 — 예전처럼 데이터를 옮기지 않으므로 유실이 없다. */
+  function _diaryRowsToLocal(rowMap){
+    const out = {};
+    const today = _diaryTodayStr();
+    const curWeek = _diaryWeekStart(today), curMonth = _diaryMonthKey(today);
+    const ensure = n => out[n] || (out[n] = {reqs:[], weekly:[], monthly:[], daily:{}, weeklyArchive:{}, monthlyArchive:{}});
+    const list = Object.keys(rowMap).map(id=>rowMap[id]).filter(r=> r && r.id && r.staff_name && !r.deleted_at);
+    list.sort((a,b)=>{
+      const pa = Number(a.pos||0), pb = Number(b.pos||0);
+      if(pa !== pb) return pa - pb;
+      return String(a.id) < String(b.id) ? -1 : 1;
+    });
+    list.forEach(r=>{
+      const s = ensure(r.staff_name);
+      const item = {id: r.id, text: r.text || '', done: !!r.done};
+      if(r.priority) item.priority = Number(r.priority);
+      if(r.kind === 'req'){
+        item.from = r.from_name || '';
+        if(r.created_on) item.createdAt = r.created_on;
+        s.reqs.push(item); return;
+      }
+      if(r.kind === 'task'){
+        if(!r.day) return;
+        (s.daily[r.day] = s.daily[r.day] || {tasks: []}).tasks.push(item);
+        return;
+      }
+      item.createdAt = r.created_on || '';
+      if(r.kind === 'weekly'){
+        const wk = _diaryWeekStart(item.createdAt);
+        if(!item.createdAt || wk >= curWeek) s.weekly.push(item);
+        else (s.weeklyArchive[wk] = s.weeklyArchive[wk] || []).push(item);
       } else {
-        syncDiaryFromRemote(false);
+        const mo = _diaryMonthKey(item.createdAt);
+        if(!item.createdAt || mo >= curMonth) s.monthly.push(item);
+        else (s.monthlyArchive[mo] = s.monthlyArchive[mo] || []).push(item);
       }
     });
-    // 탭/창을 닫거나 새로고침 → keepalive 요청으로 마지막 한 번 더 밀어 올린다.
-    // 못 올라가도 로컬 + dirty 가 남아 다음 접속 때 자동 복구되므로 "닫지 마세요" 경고창은 띄우지 않는다.
+    return out;
+  }
+  function _diaryMergedRows(){
+    const m = {};
+    Object.keys(_diaryRows).forEach(id=>{ m[id] = _diaryRows[id] });
+    Object.keys(_diaryQueue).forEach(id=>{ m[id] = _diaryQueue[id] });   // 아직 못 보낸 내 편집이 우선
+    return m;
+  }
+  function _diaryRowSame(a, b){
+    if(!a || !b) return false;
+    return String(a.text||'') === String(b.text||'')
+      && !!a.done === !!b.done
+      && String(a.from_name||'') === String(b.from_name||'')
+      && Number(a.priority||0) === Number(b.priority||0)
+      && Number(a.pos||0) === Number(b.pos||0)
+      && String(a.day||'') === String(b.day||'')
+      && String(a.kind||'') === String(b.kind||'')
+      && String(a.created_on||'') === String(b.created_on||'')
+      && !a.deleted_at === !b.deleted_at;
+  }
+  const DIARY_ROW_COLS = ['id','staff_name','kind','day','text','done','from_name','priority','pos','created_on','deleted_at','client_ts','updated_by'];
+  function _diaryRowPayload(r){
+    const out = {};
+    DIARY_ROW_COLS.forEach(k=>{
+      let v = r ? r[k] : null;
+      if(k === 'done') v = !!v;
+      else if(k === 'priority' || k === 'pos' || k === 'client_ts') v = Number(v || 0);
+      else if(k === 'text' || k === 'from_name' || k === 'updated_by' || k === 'staff_name' || k === 'kind') v = String(v == null ? '' : v);
+      else if(v === undefined) v = null;
+      out[k] = v;
+    });
+    return out;
+  }
+  function _diaryRowInScope(r){
+    if(!r) return false;
+    if(r.kind !== 'task') return true;
+    if(!r.day) return false;
+    return r.day >= _diaryScopeStart() || !!_diaryLoadedDays[r.day];
+  }
+
+  /* 화면에 반영 — 서버 행 + 대기열을 합쳐 localStorage 를 다시 만든다.
+     입력 중이면 재렌더만 미룬다 (커서가 날아가면 그 뒤 글자가 유실되므로). */
+  function _diaryApplyRows(render){
+    const prev = loadDiaryAll();
+    const next = _diaryRowsToLocal(_diaryMergedRows());
+    saveDiaryAll(next);
+    _diarySaveRows();
+    try{ _diaryDetectIncomingReqs(prev, next) }catch(e){}
+    if(render === false) return;
+    clearTimeout(_diaryRenderTimer);
+    _diaryRenderTimer = setTimeout(()=>{
+      if(_diaryIsEditing()){ _diarySyncDeferred = true; return; }
+      if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard === 'function') _diaryRenderBoard();
+    }, 150);
+  }
+
+  /* ── 쓰기: 바뀐 줄만 대기열에 넣는다 ──────────────────────────────────── */
+  function _diaryEnqueueChanges(name){
+    if(!name) return;
+    const fresh = _diaryRowsForStaff(name, loadDiaryAll());
+    const merged = _diaryMergedRows();
+    const ts = Date.now();
+    const me = (typeof _diaryGetMe === 'function' ? _diaryGetMe() : '') || '';
+    let n = 0;
+    Object.keys(fresh).forEach(id=>{
+      const cur = merged[id];
+      if(cur && !cur.deleted_at && _diaryRowSame(cur, fresh[id])) return;   // 바뀐 게 없으면 보내지 않는다
+      _diaryQueue[id] = Object.assign({}, fresh[id], {client_ts: ts, updated_by: me});
+      n++;
+    });
+    // 삭제: 서버엔 있는데 화면에서 사라진 줄. 서버 내용을 한 번도 못 받아왔으면 절대 지우지 않는다.
+    if(_diaryRowsLoaded){
+      const gone = Object.keys(merged).filter(id=>{
+        const r = merged[id];
+        return r && r.staff_name === name && !r.deleted_at && !fresh[id] && _diaryRowInScope(r);
+      });
+      if(gone.length > DIARY_MAX_DELETE){
+        console.warn('[업무일지] 한 번에', gone.length, '줄이 사라져 삭제 전송을 보류했습니다');
+        if(typeof toast === 'function') toast('업무일지가 비정상적으로 많이 지워져 저장을 보류했습니다. 새로고침 해주세요.', 'err');
+      } else {
+        gone.forEach(id=>{
+          _diaryQueue[id] = Object.assign({}, merged[id], {deleted_at: new Date().toISOString(), client_ts: ts, updated_by: me});
+          n++;
+        });
+      }
+    }
+    if(!n) return;
+    _diarySaveQueue();
+    _diaryScheduleFlush();
+  }
+  function _diaryScheduleFlush(delay){
+    clearTimeout(_diaryFlushTimer);
+    if(Object.keys(_diaryQueue).length) _diarySetSaveState('saving');
+    _diaryFlushTimer = setTimeout(_diaryFlushQueue, delay === undefined ? 400 : delay);
+  }
+  async function _diaryFlushQueue(){
+    if(_diaryFlushing) return;
+    const ids = Object.keys(_diaryQueue);
+    if(!ids.length){ _diarySetSaveState('saved'); return; }
+    _diaryFlushing = true;
+    const batch = ids.slice(0, 200).map(id=>_diaryRowPayload(_diaryQueue[id]));
+    const sentTs = {}; batch.forEach(b=>{ sentTs[b.id] = b.client_ts || 0 });
+    try{
+      const r = await fetch(`${_diarySbUrl()}?on_conflict=id`, {
+        method: 'POST',
+        headers: _sbHeaders({'Prefer':'resolution=merge-duplicates,return=representation'}),
+        body: JSON.stringify(batch),
+      });
+      if(!r.ok) throw new Error('http '+r.status);
+      let saved = null;
+      try{ saved = await r.json() }catch(e){}
+      (Array.isArray(saved) && saved.length ? saved : batch).forEach(row=>{
+        if(!row || !row.id) return;
+        _diaryRows[row.id] = row;
+        if(row.updated_at && row.updated_at > _diarySbSince) _diarySbSince = row.updated_at;
+        const q = _diaryQueue[row.id];
+        // 전송하는 사이에 또 고쳤으면 대기열에 그대로 둔다 (그 편집이 유실되면 안 되므로)
+        if(q && (q.client_ts || 0) <= (sentTs[row.id] || 0)) delete _diaryQueue[row.id];
+      });
+      _diaryFlushFail = 0;
+      _diaryBackupDirty = true;
+      _diarySaveQueue(); _diarySaveRows();
+      if(Object.keys(_diaryQueue).length) _diaryScheduleFlush(0);
+      else _diarySetSaveState('saved');
+    }catch(e){
+      // 실패해도 대기열은 그대로 — localStorage 에 남아 다음 기회에 자동 재전송된다
+      _diaryFlushFail = Math.min(_diaryFlushFail + 1, 6);
+      _diarySetSaveState('pending');
+      _diaryScheduleFlush(Math.min(1000 * Math.pow(2, _diaryFlushFail - 1), 30000));
+    }finally{
+      _diaryFlushing = false;
+    }
+  }
+
+  /* ── 읽기: 최초 전체 + 이후 변경분만 ──────────────────────────────────── */
+  function _diaryIngestRows(rows, replace){
+    if(!Array.isArray(rows)) return 0;
+    if(replace) _diaryRows = {};
+    let n = 0;
+    rows.forEach(row=>{
+      if(!row || !row.id) return;
+      const q = _diaryQueue[row.id];
+      if(q){
+        if((q.client_ts || 0) > (row.client_ts || 0)) return;   // 내 최신 편집이 아직 안 올라감 → 서버 것 무시
+        delete _diaryQueue[row.id];                             // 더 최신 편집이 이미 반영됨
+        _diarySaveQueue();
+      }
+      _diaryRows[row.id] = row;
+      if(row.updated_at && row.updated_at > _diarySbSince) _diarySbSince = row.updated_at;
+      n++;
+    });
+    return n;
+  }
+  async function _diarySbGet(query){
+    try{
+      const r = await fetch(`${_diarySbUrl()}?${query}`, {headers: _sbHeaders(), cache: 'no-cache'});
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){ return null }
+  }
+  async function _diaryFetchAllRows(){
+    return _diarySbGet(`select=*&deleted_at=is.null&or=(kind.neq.task,day.gte.${_diaryScopeStart()})&order=updated_at.asc&limit=10000`);
+  }
+  async function _diaryPollRows(){
+    if(!_diaryRowsLoaded){          // 첫 조회가 실패했던 경우 — 될 때까지 계속 시도
+      const first = await _diaryFetchAllRows();
+      if(first){
+        _diaryIngestRows(first, true);
+        _diaryRowsLoaded = true;
+        _diaryImportLocalOrphans();
+        _diaryApplyRows();
+        if(Object.keys(_diaryQueue).length) _diaryScheduleFlush(0);
+      }
+      return;
+    }
+    const rows = _diarySbSince
+      ? await _diarySbGet(`select=*&updated_at=gt.${encodeURIComponent(_diarySbSince)}&order=updated_at.asc&limit=2000`)
+      : await _diaryFetchAllRows();
+    if(rows && _diaryIngestRows(rows)) _diaryApplyRows();
+  }
+  /* 기본 조회 범위보다 옛 날짜를 열면 그 날짜만 추가로 불러온다 */
+  async function _diaryEnsureDay(date){
+    if(!date || !_diaryRowsLoaded) return;
+    if(date >= _diaryScopeStart() || _diaryLoadedDays[date]) return;
+    _diaryLoadedDays[date] = true;
+    const rows = await _diarySbGet(`select=*&kind=eq.task&day=eq.${date}&deleted_at=is.null&limit=2000`);
+    if(!rows){ delete _diaryLoadedDays[date]; return; }   // 실패하면 다음에 다시 시도
+    if(_diaryIngestRows(rows)) _diaryApplyRows();
+  }
+  /* 안전장치 ⑨ — 예전 파일 방식으로 이 PC 에만 남아 있던 줄을 서버로 한 번 끌어올린다.
+     이 단계가 없으면 이관 시점 이후 이 PC 에서만 쓴 줄이 화면에서 사라진다. 기기당 딱 한 번. */
+  const DIARY_IMPORT_KEY = 'brightbeed_diary_imported_v2';
+  function _diaryImportLocalOrphans(){
+    try{ if(localStorage.getItem(DIARY_IMPORT_KEY)) return 0 }catch(e){ return 0 }
+    const all = loadDiaryAll();
+    const merged = _diaryMergedRows();
+    const ts = Date.now();
+    let n = 0;
+    Object.keys(all).forEach(name=>{
+      const rows = _diaryRowsForStaff(name, all);
+      Object.keys(rows).forEach(id=>{
+        if(merged[id]) return;                     // 서버에 이미 있는 줄
+        _diaryQueue[id] = Object.assign({}, rows[id], {client_ts: ts, updated_by: 'local-import'});
+        n++;
+      });
+    });
+    try{ localStorage.setItem(DIARY_IMPORT_KEY, String(Date.now())) }catch(e){}
+    if(n){ _diarySaveQueue(); _diaryScheduleFlush(0); }
+    return n;
+  }
+
+  /* 실시간 — 누가 한 줄 고치면 전 직원 화면에 즉시 반영 */
+  async function _diaryStartItemsRealtime(){
+    try{
+      await _diaryLoadSupabaseClient();
+      if(typeof supabase === 'undefined' || !supabase || !supabase.channel) return false;
+      if(_diaryItemsChan) return true;
+      _diaryItemsChan = supabase
+        .channel('diary_items_live')
+        .on('postgres_changes', {event:'*', schema:'public', table:'diary_items'}, payload=>{
+          const row = (payload && payload.new && payload.new.id) ? payload.new : (payload && payload.old);
+          if(!row || !row.id) return;
+          if(_diaryIngestRows([row])) _diaryApplyRows();
+        })
+        .subscribe();
+      return true;
+    }catch(e){ return false }
+  }
+
+  /* ── GitHub 백업 (사람이 읽을 수 있는 스냅샷, 10분 간격) ───────────────── */
+  async function _diaryBackupToGithub(){
+    if(!_diaryBackupDirty) return;
+    _diaryBackupDirty = false;
+    try{
+      const file = await ghGetFile(DIARY_API);
+      if(file.error){ _diaryBackupDirty = true; return; }
+      const json = JSON.stringify(loadDiaryAll(), null, 2);
+      if(file.text === json) return;
+      const b64 = btoa(unescape(encodeURIComponent(json)));
+      const r = await ghPut(DIARY_API, b64, 'chore: 업무일지 백업', {forceMaster:true, noConflictRetry:true, sha:file.sha});
+      if(!r.ok) _diaryBackupDirty = true;   // 다음 차례에 다시 시도
+    }catch(e){ _diaryBackupDirty = true }
+  }
+
+  /* 창이 닫히는 순간 — 대기열을 keepalive 요청으로 한 번 더 보낸다.
+     못 보내도 대기열이 localStorage 에 남아 다음 접속 때 자동으로 다시 올라간다. */
+  function _diaryExitFlush(){
+    const ids = Object.keys(_diaryQueue);
+    if(!ids.length) return;
+    clearTimeout(_diaryFlushTimer);
+    try{
+      const body = JSON.stringify(ids.slice(0, 200).map(id=>_diaryRowPayload(_diaryQueue[id])));
+      fetch(`${_diarySbUrl()}?on_conflict=id`, {
+        method: 'POST',
+        headers: _sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body,
+        keepalive: body.length < 60000,   // keepalive 본문 한도(64KB)
+      });
+    }catch(e){}
+  }
+
+  let _diarySyncStarted = false;
+  function startDiarySync(){
+    if(_diarySyncStarted) return;
+    _diarySyncStarted = true;
+    _diaryLoadCache();
+    // 캐시 + 대기열로 먼저 그린다 — 인터넷이 느려도 화면이 비어 보이지 않는다
+    if(Object.keys(_diaryRows).length || Object.keys(_diaryQueue).length) _diaryApplyRows();
+    (async ()=>{
+      const rows = await _diaryFetchAllRows();
+      if(rows){
+        _diaryIngestRows(rows, true);
+        _diaryRowsLoaded = true;
+        _diaryImportLocalOrphans();               // 이 PC 에만 있던 옛 줄 구제 (기기당 1회)
+        _diaryApplyRows();
+        // 지난 접속 때 못 보낸 줄이 있으면 즉시 재전송 (창을 그냥 닫았거나 인터넷이 끊겼던 경우)
+        if(Object.keys(_diaryQueue).length) _diaryScheduleFlush(0);
+      } else {
+        // Supabase 가 안 될 때: GitHub 백업 파일로라도 화면을 채운다
+        syncDiaryFromRemote(true);
+      }
+      _diaryStartItemsRealtime();
+    })();
+    clearInterval(_diaryPollTimer);
+    _diaryPollTimer = setInterval(_diaryPollRows, 15*1000);          // 실시간이 끊겨도 받아오는 보조 경로
+    clearInterval(_diaryBackupTimer);
+    _diaryBackupTimer = setInterval(_diaryBackupToGithub, 10*60*1000); // 사람이 읽을 수 있는 백업
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.hidden){ _diaryExitFlush(); _diaryBackupToGithub(); }
+      else { _diaryPollRows(); }
+    });
     window.addEventListener('pagehide', _diaryExitFlush);
   }
   window.startDiarySync=startDiarySync;
@@ -15365,10 +15729,10 @@
     _diaryMarkDirty(name);
     _diaryEditSeq[name] = (_diaryEditSeq[name] || 0) + 1;
     _diary_lastEditTs = Date.now();
-    // localStorage 는 즉시 반영 → 새로고침해도 최신 상태 보임 (삭제한 항목이 돌아오는 문제 방지)
+    // localStorage 는 즉시 반영 → 새로고침해도, 창을 닫아도 방금 친 글자가 남는다
     _diaryPersistStaff(name);
-    // 원격 전송도 지연 없이 바로 시작 (_diarySchedulePush 안에서 첫 타는 즉시, 연타는 400ms 간격)
-    _diarySchedulePush();
+    // 서버에는 "바뀐 줄"만 보낸다 (남의 줄은 건드리지 않는다)
+    _diaryEnqueueChanges(name);
     _diaryState.saveTimers[name] = setTimeout(_diaryUpdateAlert, 250);
   }
 
@@ -15421,6 +15785,7 @@
   function _diaryRenderBoard(){
     const board = document.getElementById('diaryBoard');
     if(!board) return;
+    if(typeof _diaryEnsureDay === 'function') _diaryEnsureDay(_diaryState.date);   // 오래된 날짜면 그 날치를 마저 불러온다
 
     // 알림 권한 상태 배너 (denied 이면 눈에 확 띄게 유도)
     if(typeof _diaryUpdateNotifBanner === 'function') _diaryUpdateNotifBanner();
