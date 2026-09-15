@@ -100,6 +100,47 @@ git add . && git commit -m "수정 내용" && git push
 - 외부 연동 시(드롭박스/구글/ERP) 토큰은 GitHub Secrets 또는 별도 백엔드로 분리
 - PIN 노출 우려가 생기면 `index.html` 상단 `PIN` 상수만 바꿔서 commit
 
+## 9. 업무일지 저장 구조 (v0.5 — 줄 단위 실시간)
+
+업무일지는 **Supabase `diary_items` 테이블에 "한 줄 = 한 행"** 으로 저장된다.
+예전에는 전 직원 일지가 `data/diary.json` 파일 하나였고, 한 글자만 고쳐도 파일을
+통째로 다시 써서 **동시에 쓰면 남의 줄이 지워지는** 사고가 있었다. 지금은 내가 고친
+줄만 서버로 가므로 남의 줄을 덮어쓸 방법 자체가 없다.
+
+| 항목 | 값 |
+|---|---|
+| 프로젝트 | `브라이트비드오피스` (`ckyjkxbqsyjoqpuqwoce`) |
+| 테이블 | `diary_items` (본문) · `diary_item_history` (전 변경 이력) |
+| 실시간 | `supabase_realtime` 퍼블리케이션 등록 — 한 줄 고치면 전 직원 화면에 즉시 반영 |
+| 백업 | 10분마다 `data/diary.json` 스냅샷 자동 커밋 (사람이 읽을 수 있는 백업) |
+
+### 유실 방지 안전장치 9종
+
+1. **로컬 우선** — 타이핑은 즉시 localStorage 에 저장. 서버 전송은 그 다음.
+2. **전송 대기열** — 못 보낸 줄은 대기열에 남고, 대기열도 localStorage 에 보관.
+   창을 닫든 인터넷이 끊기든 다음 접속 때 자동 재전송.
+3. **시각 도장(`client_ts`)** — 서버 트리거가 더 오래된 편집을 거부한다.
+4. **소프트 삭제** — 삭제는 `deleted_at` 표시만. 행은 남는다.
+5. **변경 이력** — 모든 변경이 `diary_item_history` 에 자동 적재.
+6. **대량삭제 차단** — 한 번에 20줄 넘게 지워지려 하면 중단하고 경고.
+7. **GitHub 백업** — 10분 간격 스냅샷.
+8. **실시간 + 폴링 이중화** — 실시간 채널이 끊겨도 15초 폴링이 받아온다.
+9. **첫 접속 구제** — 예전 방식으로 그 PC 에만 남아 있던 줄을 서버로 한 번 끌어올린다.
+
+### 지워진 줄 복구하는 법
+
+```sql
+-- 최근에 지워진 줄 보기
+select id, staff_name, day, text, logged_at
+from diary_item_history
+where deleted_at is not null
+order by logged_at desc limit 50;
+
+-- 특정 줄을 되살리기
+update diary_items set deleted_at = null, client_ts = extract(epoch from now())*1000
+where id = '<줄 id>';
+```
+
 ---
 
 © 2025 브라이트비드 · 내부 사용 전용
