@@ -2292,6 +2292,9 @@
     .sales-archive-del{order:4;opacity:.6}
   }
 
+  /* ===== 브랜드별 기획전 탭 (식스에이 · 프로덕트피알 · 아코이) ===== */
+  .mdpromo-section .mdpromo-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px;background:var(--bg-1);border:1px dashed var(--line);border-radius:8px}
+
   /* ===== MD팀 기획전 일정 캘린더 ===== */
   .md-cal-section{margin-bottom:18px}
   .md-cal-head{flex-wrap:wrap;gap:10px}
@@ -9558,6 +9561,27 @@
         </div>
       </div>
 
+      <!-- 브랜드별 기획전 (식스에이 · 프로덕트피알 · 아코이) -->
+      <div class="po-section mdpromo-section" style="margin-top:28px">
+        <div class="po-section-head">
+          <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전</span></div>
+        </div>
+        <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
+          <button class="lg-tab active" data-mdpromo="sixA" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true">식스에이</button>
+          <button class="lg-tab" data-mdpromo="pp" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false">프로덕트피알</button>
+          <button class="lg-tab" data-mdpromo="akoi" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false">아코이</button>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="sixA">
+          <div class="mdpromo-empty">식스에이 기획전이 곧 여기에 추가됩니다.</div>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="pp" hidden>
+          <div class="mdpromo-empty">프로덕트피알 기획전이 곧 여기에 추가됩니다.</div>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
+          <div class="mdpromo-empty">아코이 기획전이 곧 여기에 추가됩니다.</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -12239,6 +12263,19 @@
   }
   window.mdpSwitch=mdpSwitch;
   window.mdpRefreshActive=mdpRefreshActive;
+
+  /* 브랜드별 기획전 탭 스위치 (식스에이 · 프로덕트피알 · 아코이) */
+  function mdPromoSwitch(tab){
+    document.querySelectorAll('.lg-tab[data-mdpromo]').forEach(btn=>{
+      const on=btn.dataset.mdpromo===tab;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-selected', on?'true':'false');
+    });
+    document.querySelectorAll('.mdpromo-panel[data-mdpromo-panel]').forEach(pn=>{
+      pn.hidden = pn.dataset.mdpromoPanel!==tab;
+    });
+  }
+  window.mdPromoSwitch=mdPromoSwitch;
 
   /* ===== 브랜드 카드 순서 재정렬 (최근 30일 매출 많은 순) =====
      · salesLoad 성공마다 _salesRev30 업데이트 후 호출
