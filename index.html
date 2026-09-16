@@ -12439,7 +12439,22 @@
     };
   }
   function _akpLoad(){
-    try{ const raw=localStorage.getItem(AKP_LS); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.items)&&Array.isArray(s.platforms)) return s; } }catch(e){}
+    try{ const raw=localStorage.getItem(AKP_LS); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.items)&&Array.isArray(s.platforms)){
+      // 마이그레이션: 사라진 1+1 rows를 default에서 복원 (사장님이 저장한 판매가/하한은 유지)
+      const def=_akpDefault();
+      for(const pl of s.platforms){
+        if(!pl.rows) pl.rows={};
+        const defPl=def.platforms.find(dp => _akpNum(dp.feeRate)===_akpNum(pl.feeRate));
+        if(!defPl || !defPl.rows) continue;
+        for(const it of s.items){
+          const pairKey=it.code+' 1+1';
+          if(!pl.rows[pairKey] && defPl.rows[pairKey]){
+            pl.rows[pairKey] = {...defPl.rows[pairKey]};
+          }
+        }
+      }
+      return s;
+    } } }catch(e){}
     return _akpDefault();
   }
   function _akpSave(){ try{ localStorage.setItem(AKP_LS, JSON.stringify(_akpState)); }catch(e){} }
