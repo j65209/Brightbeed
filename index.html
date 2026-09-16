@@ -12492,7 +12492,7 @@
           </div>
           <div class="akp-fee-field">
             <span class="akp-head-label">수수료율</span>
-            <input type="number" step="0.5" min="0" max="100" value="${rate}" oninput="akpEditPlatMeta(${pIdx},'feeRate',this.value)">
+            <input type="number" step="0.5" min="0" max="100" value="${rate}" onchange="akpEditPlatMeta(${pIdx},'feeRate',this.value)">
           </div>
           <button class="akp-del-btn" onclick="akpDelPlat(${pIdx})">플랫폼 삭제</button>
         </div>
@@ -12522,15 +12522,13 @@
 
   function akpEditItem(idx, field, val){
     const it=_akpState.items[idx]; if(!it) return;
-    if(field==='costKrw') it[field]=_akpNum(val);
-    else it[field]=val;
-    akpRender();
+    if(field==='costKrw'){ it[field]=_akpNum(val); akpRender(); }
+    else { it[field]=val; _akpSave(); }  // 텍스트 입력: 리렌더 금지 (캐럿 유실 방지)
   }
   function akpEditPlatMeta(pIdx, field, val){
     const pl=_akpState.platforms[pIdx]; if(!pl) return;
-    if(field==='feeRate') pl[field]=_akpNum(val);
-    else pl[field]=val;
-    akpRender();
+    if(field==='feeRate'){ pl[field]=_akpNum(val); akpRender(); }
+    else { pl[field]=val; _akpSave(); }  // 텍스트 입력: 리렌더 금지 (캐럿 유실 방지)
   }
   function akpEditPlat(pIdx, key, field, val){
     const pl=_akpState.platforms[pIdx]; if(!pl) return;
