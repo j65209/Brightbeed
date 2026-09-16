@@ -2294,6 +2294,8 @@
 
   /* ===== 브랜드별 기획전 탭 (식스에이 · 프로덕트피알 · 아코이) ===== */
   .mdpromo-section .mdpromo-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px;background:var(--bg-1);border:1px dashed var(--line);border-radius:8px}
+  .mdpromo-section .lg-tab{display:inline-flex;align-items:center;gap:8px}
+  .mdpromo-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
 
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
@@ -2344,8 +2346,8 @@
   .akp-cell-auto.is-bad{color:#dc2626}
   .akp-row-lbl{background:var(--bg-1)}
   .akp-section-title{padding:8px 12px;font-size:11px;font-weight:800;color:var(--text-2);background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);letter-spacing:.03em;text-transform:uppercase}
-  .akp-section-title-flex{display:flex;justify-content:space-between;align-items:center;gap:8px;border-radius:8px 8px 0 0;border-top:1px solid var(--line);margin-top:4px}
-  .akp-section-title-flex .akp-btn-edit,.akp-section-title-flex .akp-btn-save{text-transform:none;letter-spacing:0}
+  .akp-section-title-flex{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--line);border-bottom:0}
+  .akp-section-title-flex .akp-btn-edit,.akp-section-title-flex .akp-btn-save{text-transform:none;letter-spacing:0;font-size:11px;padding:4px 10px}
   .akp-hint{font-size:11.5px;color:var(--text-3);text-align:center;padding:6px 0}
 
   /* ===== MD팀 기획전 일정 캘린더 ===== */
@@ -9620,9 +9622,9 @@
           <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전</span></div>
         </div>
         <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
-          <button class="lg-tab active" data-mdpromo="sixA" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true">식스에이</button>
-          <button class="lg-tab" data-mdpromo="pp" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false">프로덕트피알</button>
-          <button class="lg-tab" data-mdpromo="akoi" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false">아코이</button>
+          <button class="lg-tab active" data-mdpromo="sixA" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true"><span class="mdpromo-dot" style="background:#22d3ee;box-shadow:0 0 8px rgba(34,211,238,.55)"></span>식스에이</button>
+          <button class="lg-tab" data-mdpromo="pp" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.55)"></span>프로덕트피알</button>
+          <button class="lg-tab" data-mdpromo="akoi" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f472b6;box-shadow:0 0 8px rgba(244,114,182,.55)"></span>아코이</button>
         </div>
         <div class="mdpromo-panel" data-mdpromo-panel="sixA">
           <div class="mdpromo-empty">식스에이 기획전이 곧 여기에 추가됩니다.</div>
