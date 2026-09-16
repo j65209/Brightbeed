@@ -2295,6 +2295,43 @@
   /* ===== 브랜드별 기획전 탭 (식스에이 · 프로덕트피알 · 아코이) ===== */
   .mdpromo-section .mdpromo-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px;background:var(--bg-1);border:1px dashed var(--line);border-radius:8px}
 
+  /* ===== 아코이 기획전 계산기 ===== */
+  .akp-wrap{display:flex;flex-direction:column;gap:14px}
+  .akp-settings{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;padding:14px 16px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px;align-items:end}
+  .akp-set-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .akp-set-field label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.02em}
+  .akp-set-field input{height:30px;padding:0 8px;font-size:12.5px;font-family:var(--mono);border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--text-0)}
+  .akp-set-field input:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.12)}
+  .akp-set-actions{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+  .akp-set-actions .btn{white-space:nowrap;font-size:11.5px;padding:6px 12px;height:auto;min-height:28px}
+  @media (max-width:900px){.akp-settings{grid-template-columns:repeat(2,1fr);row-gap:14px}.akp-set-actions{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}}
+
+  .akp-list{display:flex;flex-direction:column;gap:12px}
+  .akp-item{border:1px solid var(--line);border-radius:10px;background:var(--bg-0);overflow:hidden}
+  .akp-item-head{display:grid;grid-template-columns:60px minmax(180px,1.4fr) 100px 110px auto;gap:10px;padding:10px 12px;background:var(--bg-1);border-bottom:1px solid var(--line);align-items:center}
+  .akp-item-head .akp-code{font-family:var(--mono);font-size:12px;font-weight:800;color:#dc2626;text-align:center}
+  .akp-item-head textarea{resize:vertical;min-height:32px;padding:6px 8px;font-size:12.5px;border:1px solid var(--line);border-radius:6px;background:#fff;font-family:var(--sans)}
+  .akp-item-head input[type=text]{height:32px;padding:0 8px;font-size:12.5px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .akp-item-head input[type=number]{height:32px;padding:0 8px;font-size:12.5px;font-family:var(--mono);text-align:right;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .akp-item-head input:focus,.akp-item-head textarea:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.12)}
+  .akp-head-label{font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:2px}
+  .akp-del-btn{padding:5px 10px;font-size:11px;background:#fff;border:1px solid var(--line);border-radius:6px;color:var(--text-2);cursor:pointer;justify-self:end}
+  .akp-del-btn:hover{background:#fef2f2;color:#dc2626;border-color:#fca5a5}
+
+  .akp-table-wrap{overflow-x:auto}
+  .akp-table{width:100%;border-collapse:collapse;font-size:12px}
+  .akp-table th,.akp-table td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-family:var(--mono)}
+  .akp-table th{background:var(--bg-1);font-weight:700;color:var(--text-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;font-family:var(--sans)}
+  .akp-table td:first-child,.akp-table th:first-child{text-align:left;font-family:var(--sans);font-weight:700;color:var(--text-1)}
+  .akp-table input{width:100%;height:26px;padding:0 6px;font-size:12px;font-family:var(--mono);text-align:right;border:1px solid var(--line);border-radius:5px;background:#fff}
+  .akp-table input:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.12)}
+  .akp-cell-auto{background:var(--bg-1);color:var(--text-1);font-weight:600}
+  .akp-cell-auto.is-good{color:#059669}
+  .akp-cell-auto.is-bad{color:#dc2626}
+  .akp-row-lbl{background:var(--bg-1)}
+  .akp-section-title{padding:8px 12px;font-size:11px;font-weight:800;color:var(--text-2);background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);letter-spacing:.03em;text-transform:uppercase}
+  .akp-hint{font-size:11.5px;color:var(--text-3);text-align:center;padding:6px 0}
+
   /* ===== MD팀 기획전 일정 캘린더 ===== */
   .md-cal-section{margin-bottom:18px}
   .md-cal-head{flex-wrap:wrap;gap:10px}
@@ -9578,7 +9615,36 @@
           <div class="mdpromo-empty">프로덕트피알 기획전이 곧 여기에 추가됩니다.</div>
         </div>
         <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
-          <div class="mdpromo-empty">아코이 기획전이 곧 여기에 추가됩니다.</div>
+          <div class="akp-wrap">
+            <!-- 공용 설정 -->
+            <div class="akp-settings">
+              <div class="akp-set-field">
+                <label>환율 (₩/$)</label>
+                <input type="number" id="akpEx" step="0.1" value="1506.6" oninput="akpRender()">
+              </div>
+              <div class="akp-set-field">
+                <label>에코백 원가 (원)</label>
+                <input type="number" id="akpEcoCost" step="100" value="1400" oninput="akpRender()">
+              </div>
+              <div class="akp-set-field">
+                <label>에코백 판매가 (원)</label>
+                <input type="number" id="akpEcoSale" step="100" value="5000" oninput="akpRender()">
+              </div>
+              <div class="akp-set-field">
+                <label>셀러마진율 (%)</label>
+                <input type="number" id="akpSellerRate" step="1" value="30" oninput="akpRender()">
+              </div>
+              <div class="akp-set-actions">
+                <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+                <button class="btn po-import" onclick="akpImportSheet()" title="위쪽 아코이 구글시트에서 다시 불러오기">🔄 시트 불러오기</button>
+                <button class="btn po-import" onclick="akpExportJson()">📥 JSON 내보내기</button>
+              </div>
+            </div>
+
+            <!-- 상품 카드 리스트 -->
+            <div id="akpItemList" class="akp-list"></div>
+            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+          </div>
         </div>
       </div>
 
@@ -12274,8 +12340,231 @@
     document.querySelectorAll('.mdpromo-panel[data-mdpromo-panel]').forEach(pn=>{
       pn.hidden = pn.dataset.mdpromoPanel!==tab;
     });
+    if(tab==='akoi' && typeof akpInit==='function') akpInit();
   }
   window.mdPromoSwitch=mdPromoSwitch;
+
+  /* ===== 아코이 기획전 계산기 ===== */
+  const AKP_LS='akoiPromoV1';
+  const AKP_SHEET_ID='1qg58PnOFtkhz1a02dz0hCIog64haXBGDzliPwjljlJI';
+  let _akpState=null, _akpInited=false;
+
+  function _akpDefault(){
+    return {
+      ex:1506.6, ecoCost:1400, ecoSale:5000, sellerRate:30,
+      items:[
+        {code:'#001',name:'Butter Cloud Terry Room Shoes',color:'lemon yellow, orange, sky blue, green',
+         costUsd:2.55, single:{price:19000,retail:24000,groupPrice:19000}, setPair:{price:32000,retail:48000,groupPrice:35000}},
+        {code:'#002',name:'Daisy Terry Room Shoes / Vega Terry Room Shoes',color:'Black · Daisy / Vega',
+         costUsd:2.85, single:{price:21000,retail:26000,groupPrice:21000}, setPair:{price:35000,retail:52000,groupPrice:37000}},
+        {code:'#003',name:'Mallow EVA Room Shoes',color:'navy, gray, blue, lavender',
+         costUsd:3.05, single:{price:23000,retail:28000,groupPrice:23000}, setPair:{price:38000,retail:56000,groupPrice:38000}},
+      ]
+    };
+  }
+  function _akpLoad(){
+    try{ const raw=localStorage.getItem(AKP_LS); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.items)) return s; } }catch(e){}
+    return _akpDefault();
+  }
+  function _akpSave(){ try{ localStorage.setItem(AKP_LS, JSON.stringify(_akpState)); }catch(e){} }
+  function _akpNum(n){ n=Number(n); return Number.isFinite(n)?n:0; }
+  function _akpFmt(n){ n=Math.round(_akpNum(n)); return n.toLocaleString('ko-KR'); }
+  function _akpPct(x){ return (x*100).toFixed(1)+'%'; }
+  function _akpMul(x){ return x.toFixed(1); }
+
+  function akpInit(){
+    if(_akpInited) return;
+    _akpState=_akpLoad();
+    document.getElementById('akpEx').value=_akpState.ex;
+    document.getElementById('akpEcoCost').value=_akpState.ecoCost;
+    document.getElementById('akpEcoSale').value=_akpState.ecoSale;
+    document.getElementById('akpSellerRate').value=_akpState.sellerRate;
+    _akpInited=true;
+    akpRender();
+  }
+  function _akpReadSettings(){
+    _akpState.ex=_akpNum(document.getElementById('akpEx').value)||1506.6;
+    _akpState.ecoCost=_akpNum(document.getElementById('akpEcoCost').value);
+    _akpState.ecoSale=_akpNum(document.getElementById('akpEcoSale').value);
+    _akpState.sellerRate=_akpNum(document.getElementById('akpSellerRate').value);
+  }
+  function akpRender(){
+    if(!_akpState) return;
+    _akpReadSettings();
+    const wrap=document.getElementById('akpItemList');
+    if(!wrap) return;
+    wrap.innerHTML=_akpState.items.map((it,idx)=>_akpItemHtml(it,idx)).join('');
+    _akpSave();
+  }
+  window.akpRender=akpRender;
+  window.akpInit=akpInit;
+
+  function _akpCalcRow(costUsd, mult, priceInput, retailInput, groupInput, ex, ecoCost, sellerRate){
+    // 단품 mult=1, 세트 mult=2 · (원가$ * 수량 * 환율)을 100원 단위 반올림 (시트 관행)
+    const costKrw = Math.round(costUsd*mult*ex/100)*100;
+    const price = _akpNum(priceInput);
+    const retail = _akpNum(retailInput);
+    const group = _akpNum(groupInput);
+    const profit = price - costKrw;
+    const margin = price>0 ? profit/price : 0;
+    const multiplier = costKrw>0 ? price/costKrw : 0;
+    const discount = retail>0 ? (retail-price)/retail : 0;
+    const costWithEco = costKrw + ecoCost;
+    const sellerMargin = Math.round(group * sellerRate/100);
+    const gProfit = group - costWithEco - sellerMargin;
+    return {costKrw, price, retail, group, profit, margin, multiplier, discount, costWithEco, sellerMargin, gProfit};
+  }
+
+  function _akpItemHtml(it, idx){
+    const ex=_akpState.ex, ecoCost=_akpState.ecoCost, sRate=_akpState.sellerRate;
+    const s=_akpCalcRow(it.costUsd, 1, it.single.price, it.single.retail, it.single.groupPrice, ex, ecoCost, sRate);
+    const p=_akpCalcRow(it.costUsd, 2, it.setPair.price, it.setPair.retail, it.setPair.groupPrice, ex, ecoCost, sRate);
+    const good = x => x>0 ? 'is-good' : (x<0 ? 'is-bad' : '');
+    return `
+      <div class="akp-item" data-idx="${idx}">
+        <div class="akp-item-head">
+          <input class="akp-code" type="text" value="${it.code||''}" oninput="akpEdit(${idx},'code',this.value)" placeholder="#000">
+          <div>
+            <span class="akp-head-label">제품명</span>
+            <textarea rows="1" oninput="akpEdit(${idx},'name',this.value)" placeholder="제품명">${it.name||''}</textarea>
+          </div>
+          <div>
+            <span class="akp-head-label">컬러/옵션</span>
+            <textarea rows="1" oninput="akpEdit(${idx},'color',this.value)" placeholder="컬러">${it.color||''}</textarea>
+          </div>
+          <div>
+            <span class="akp-head-label">원가 ($)</span>
+            <input type="number" step="0.01" value="${it.costUsd||0}" oninput="akpEdit(${idx},'costUsd',this.value)">
+          </div>
+          <button class="akp-del-btn" onclick="akpDelItem(${idx})" title="삭제">삭제</button>
+        </div>
+
+        <div class="akp-section-title">📦 단품 · 2개 세트 판매 계산</div>
+        <div class="akp-table-wrap">
+          <table class="akp-table">
+            <thead>
+              <tr>
+                <th>구분</th><th>원가(원)</th><th>판매가(원)</th><th>진열가(원)</th>
+                <th>이익(원)</th><th>마진율</th><th>배수</th><th>진열대비 할인</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="akp-row-lbl">단품 1개</td>
+                <td class="akp-cell-auto">${_akpFmt(s.costKrw)}</td>
+                <td><input type="number" step="500" value="${it.single.price}" oninput="akpEditRow(${idx},'single','price',this.value)"></td>
+                <td><input type="number" step="500" value="${it.single.retail}" oninput="akpEditRow(${idx},'single','retail',this.value)"></td>
+                <td class="akp-cell-auto ${good(s.profit)}">${_akpFmt(s.profit)}</td>
+                <td class="akp-cell-auto">${_akpPct(s.margin)}</td>
+                <td class="akp-cell-auto">${_akpMul(s.multiplier)}</td>
+                <td class="akp-cell-auto">${_akpPct(s.discount)}</td>
+              </tr>
+              <tr>
+                <td class="akp-row-lbl">세트 2개</td>
+                <td class="akp-cell-auto">${_akpFmt(p.costKrw)}</td>
+                <td><input type="number" step="500" value="${it.setPair.price}" oninput="akpEditRow(${idx},'setPair','price',this.value)"></td>
+                <td><input type="number" step="500" value="${it.setPair.retail}" oninput="akpEditRow(${idx},'setPair','retail',this.value)"></td>
+                <td class="akp-cell-auto ${good(p.profit)}">${_akpFmt(p.profit)}</td>
+                <td class="akp-cell-auto">${_akpPct(p.margin)}</td>
+                <td class="akp-cell-auto">${_akpMul(p.multiplier)}</td>
+                <td class="akp-cell-auto">${_akpPct(p.discount)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="akp-section-title">🎁 공구가 + 에코백 (셀러마진 ${sRate}%)</div>
+        <div class="akp-table-wrap">
+          <table class="akp-table">
+            <thead>
+              <tr>
+                <th>구분</th><th>공구가(원)</th><th>원가 슈즈+에코백</th><th>셀러마진</th><th>이익(원)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="akp-row-lbl">단품 1개</td>
+                <td><input type="number" step="500" value="${it.single.groupPrice}" oninput="akpEditRow(${idx},'single','groupPrice',this.value)"></td>
+                <td class="akp-cell-auto">${_akpFmt(s.costWithEco)}</td>
+                <td class="akp-cell-auto">${_akpFmt(s.sellerMargin)}</td>
+                <td class="akp-cell-auto ${good(s.gProfit)}">${_akpFmt(s.gProfit)}</td>
+              </tr>
+              <tr>
+                <td class="akp-row-lbl">세트 2개</td>
+                <td><input type="number" step="500" value="${it.setPair.groupPrice}" oninput="akpEditRow(${idx},'setPair','groupPrice',this.value)"></td>
+                <td class="akp-cell-auto">${_akpFmt(p.costWithEco)}</td>
+                <td class="akp-cell-auto">${_akpFmt(p.sellerMargin)}</td>
+                <td class="akp-cell-auto ${good(p.gProfit)}">${_akpFmt(p.gProfit)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function akpEdit(idx, field, val){
+    const it=_akpState.items[idx]; if(!it) return;
+    if(field==='costUsd') it[field]=_akpNum(val);
+    else it[field]=val;
+    if(field==='costUsd') akpRender();
+    else _akpSave();
+  }
+  function akpEditRow(idx, group, field, val){
+    const it=_akpState.items[idx]; if(!it||!it[group]) return;
+    it[group][field]=_akpNum(val);
+    akpRender();
+  }
+  function akpAddItem(){
+    const n=_akpState.items.length+1;
+    _akpState.items.push({code:'#'+String(n).padStart(3,'0'), name:'', color:'', costUsd:0,
+      single:{price:0,retail:0,groupPrice:0}, setPair:{price:0,retail:0,groupPrice:0}});
+    akpRender();
+  }
+  function akpDelItem(idx){
+    if(!confirm('이 상품을 삭제할까요?')) return;
+    _akpState.items.splice(idx,1);
+    akpRender();
+  }
+  window.akpEdit=akpEdit; window.akpEditRow=akpEditRow; window.akpAddItem=akpAddItem; window.akpDelItem=akpDelItem;
+
+  function akpExportJson(){
+    const blob=new Blob([JSON.stringify(_akpState,null,2)], {type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='akoi-promo-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+  }
+  window.akpExportJson=akpExportJson;
+
+  async function akpImportSheet(){
+    if(!confirm('구글시트에서 다시 불러올까요? (현재 편집중인 값이 덮어써집니다)')) return;
+    try{
+      const url='https://docs.google.com/spreadsheets/d/'+AKP_SHEET_ID+'/gviz/tq?tqx=out:json&headers=1';
+      const res=await fetch(url); const txt=await res.text();
+      const jsonStart=txt.indexOf('{'), jsonEnd=txt.lastIndexOf('}')+1;
+      const data=JSON.parse(txt.slice(jsonStart,jsonEnd));
+      const rows=data.table.rows||[];
+      const items=[]; let cur=null;
+      for(const r of rows){
+        const c=r.c||[]; const code=c[0]?.v; const name=c[2]?.v;
+        if(code){ // new item row (개별 판매)
+          cur={code, name:name||'', color:'', costUsd:_akpNum(c[3]?.v),
+            single:{price:_akpNum(c[5]?.v), retail:_akpNum(c[6]?.v), groupPrice:_akpNum(c[12]?.v)},
+            setPair:{price:0, retail:0, groupPrice:0}};
+          items.push(cur);
+        } else if(cur){ // 2번째 행 = 세트
+          if(name) cur.color = name;
+          cur.setPair.price = _akpNum(c[5]?.v);
+          cur.setPair.retail = _akpNum(c[6]?.v);
+          cur.setPair.groupPrice = _akpNum(c[12]?.v);
+          cur=null;
+        }
+      }
+      if(items.length){ _akpState.items=items; akpRender(); alert('불러오기 완료: '+items.length+'개 상품'); }
+      else alert('상품 데이터를 찾지 못했습니다.');
+    }catch(e){ alert('시트 불러오기 실패: '+(e.message||e)); }
+  }
+  window.akpImportSheet=akpImportSheet;
 
   /* ===== 브랜드 카드 순서 재정렬 (최근 30일 매출 많은 순) =====
      · salesLoad 성공마다 _salesRev30 업데이트 후 호출
