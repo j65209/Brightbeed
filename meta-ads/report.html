@@ -197,7 +197,118 @@
   .direction-block .dir-verdict.flat { color:var(--warn) }
   .direction-block .dir-detail { font-size:11px; color:var(--muted); white-space:nowrap }
 
-  /* Ads grid (active ads thumbnails) */
+  /* ===== 소재 성과 섹션 (크리에이티브 카드 그리드) ===== */
+  .creative-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:16px;
+  }
+  @media (max-width:600px) { .creative-grid { grid-template-columns:1fr 1fr } }
+
+  .creative-card {
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden;
+    display:flex; flex-direction:column;
+    transition:border-color .15s, transform .12s;
+    cursor:pointer;
+  }
+  .creative-card:hover { border-color:var(--accent); transform:translateY(-2px) }
+  .creative-card.verdict-off   { border-color:rgba(239,68,68,.45) }
+  .creative-card.verdict-scale { border-color:rgba(245,158,11,.45) }
+  .creative-card.verdict-ok    { border-color:rgba(34,197,94,.35) }
+  .creative-card.verdict-refresh { border-color:rgba(34,211,238,.35) }
+
+  .creative-thumb-wrap {
+    position:relative; width:100%; aspect-ratio:1/1; overflow:hidden;
+    background:linear-gradient(135deg, #1a2233, #0f1524);
+    flex-shrink:0;
+  }
+  .creative-thumb-wrap img {
+    width:100%; height:100%; object-fit:cover;
+    display:block; cursor:zoom-in;
+  }
+  .creative-thumb-wrap .creative-thumb-placeholder {
+    width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:var(--muted); font-size:28px; gap:6px;
+  }
+  .creative-thumb-wrap .creative-thumb-placeholder span {
+    font-size:11px; color:var(--muted);
+  }
+  .creative-thumb-wrap .video-badge {
+    position:absolute; top:8px; left:8px;
+    background:rgba(0,0,0,.75); color:#fff; padding:2px 7px;
+    border-radius:4px; font-size:10px; font-weight:700;
+  }
+  .creative-thumb-wrap .verdict-pill {
+    position:absolute; top:8px; right:8px;
+    padding:3px 9px; border-radius:20px;
+    font-size:10px; font-weight:800; white-space:nowrap;
+    backdrop-filter:blur(4px);
+  }
+  .creative-thumb-wrap .rank-badge {
+    position:absolute; bottom:8px; left:8px;
+    background:rgba(0,0,0,.75); color:#fff;
+    width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:800;
+  }
+
+  .creative-body {
+    padding:10px 12px 12px;
+    display:flex; flex-direction:column; gap:6px;
+    flex:1;
+  }
+  .creative-name {
+    font-size:11.5px; font-weight:700; color:var(--text);
+    line-height:1.35; overflow:hidden; text-overflow:ellipsis;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  }
+  .creative-camp-tag {
+    font-size:10px; color:var(--muted);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .creative-kpi-row {
+    display:grid; grid-template-columns:1fr 1fr 1fr;
+    gap:4px; margin-top:2px;
+  }
+  .creative-kpi-cell {
+    background:var(--panel-2); border-radius:5px; padding:4px 5px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .creative-kpi-cell .ck-label {
+    font-size:8.5px; color:var(--muted); font-weight:700;
+    text-transform:uppercase; letter-spacing:.3px; white-space:nowrap;
+  }
+  .creative-kpi-cell .ck-val {
+    font-size:12px; font-weight:800; color:var(--text); letter-spacing:-.3px;
+  }
+  .creative-kpi-cell.ok .ck-val  { color:var(--ok) }
+  .creative-kpi-cell.warn .ck-val { color:var(--warn) }
+  .creative-kpi-cell.err .ck-val  { color:var(--err) }
+  .creative-kpi-cell.info .ck-val { color:var(--info) }
+
+  .creative-action {
+    font-size:10.5px; color:var(--muted); line-height:1.45;
+    padding-top:5px; border-top:1px dashed rgba(38,49,74,.6);
+  }
+  .creative-action .ca-today {
+    color:var(--warn); font-weight:700;
+  }
+
+  /* 소재 정렬/필터 바 */
+  .creative-toolbar {
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;
+  }
+  .creative-sort-btn {
+    background:var(--panel-2); border:1px solid var(--border);
+    color:var(--muted); padding:5px 11px; border-radius:6px;
+    font-size:11.5px; font-weight:600; cursor:pointer;
+  }
+  .creative-sort-btn.active { background:var(--accent); color:#fff; border-color:var(--accent) }
+  .creative-sort-btn:hover:not(.active) { color:var(--text) }
+
+  /* Ads grid (active ads thumbnails) - accordion 안 작은 카드 */
   .ads-expand-title {
     font-size:11px; color:var(--muted); text-transform:uppercase;
     letter-spacing:.5px; font-weight:700; margin-bottom:10px;
@@ -818,7 +929,21 @@
       <div id="subKpiCards"></div>
     </section>`);
 
-    // === 캠페인 상세 (보조지표 바로 밑 — 피드백 섹션보다 먼저) ===
+    // === 소재 성과 섹션 (KPI 바로 아래, 캠페인 위) ===
+    html.push(`<section id="creativeSection">
+      <h2>🎬 소재 성과 <span class="count" id="creativeCount"></span></h2>
+      <div class="creative-toolbar">
+        <span style="font-size:11px;color:var(--muted)">정렬:</span>
+        <button class="creative-sort-btn active" data-csort="spend">지출↓</button>
+        <button class="creative-sort-btn" data-csort="roas">ROAS↓</button>
+        <button class="creative-sort-btn" data-csort="purchases">구매↓</button>
+        <button class="creative-sort-btn" data-csort="ctr">CTR↓</button>
+        <span style="margin-left:auto;font-size:11px;color:var(--muted)" id="creativeNote"></span>
+      </div>
+      <div class="creative-grid" id="creativeGrid"></div>
+    </section>`);
+
+    // === 캠페인 상세 ===
     html.push(`<section id="campSection">
       <h2>📋 캠페인 상세 <span class="count" id="campCount"></span></h2>
       ${buildDateFilterHtml('camp')}
@@ -891,6 +1016,10 @@
     // KPI 초기 렌더
     renderKpiCards(data);
 
+    // 소재 섹션 초기 렌더
+    renderCreatives('spend');
+    setupCreativeSort();
+
     // 테이블 초기 렌더
     renderTable('severity', 'desc');
     setupSort();
@@ -914,6 +1043,7 @@
             currentPeriod = btn.dataset.period;
             syncAllFilters();
             renderKpiCards(lastRenderedData);
+            renderCreatives(currentCreativeSort);
             renderTable(currentSortKey, currentSortDir);
           });
         });
@@ -929,6 +1059,7 @@
           customSince = s; customUntil = u;
           syncAllFilters();
           renderKpiCards(lastRenderedData);
+          renderCreatives(currentCreativeSort);
           renderTable(currentSortKey, currentSortDir);
         });
       }
@@ -939,6 +1070,7 @@
           customSince = null; customUntil = null;
           syncAllFilters();
           renderKpiCards(lastRenderedData);
+          renderCreatives(currentCreativeSort);
           renderTable(currentSortKey, currentSortDir);
         });
       }
@@ -970,6 +1102,7 @@
           customSince = null; customUntil = null;
           syncAllFilters();
           renderKpiCards(lastRenderedData);
+          renderCreatives(currentCreativeSort);
           renderTable(currentSortKey, currentSortDir);
         });
       }
@@ -1268,8 +1401,162 @@
     attachThumbPopovers();
   }
 
+  // 썸네일 경로 픽스: 빌드 스크립트가 "data/meta-ads/..." 형태로 저장하는데
+  // 뷰어는 meta-ads/ 하위에 있으므로 "../data/meta-ads/..." 로 변환 필요
+  function fixThumbPath(url) {
+    if (!url) return url;
+    if (url.startsWith('data/meta-ads/')) return '../' + url;
+    return url;
+  }
+
+  // === 소재 성과 렌더러 ===
+  let currentCreativeSort = 'spend';
+
+  function getAllAdsForPeriod() {
+    if (!lastRenderedData) return [];
+    const periodCampaigns = lastRenderedData.campaigns_by_period || {};
+    const camps = (currentPeriod && periodCampaigns[currentPeriod]) || lastRenderedData.campaigns || [];
+    const all = [];
+    camps.forEach(c => {
+      (c.all_ads || c.active_ads || []).forEach(ad => {
+        all.push({
+          ...ad,
+          _camp_name: c.name || '',
+          _camp_id: c.campaign_id || '',
+          _camp_grade: c.grade || '',
+          _is_camp_active: c.is_active,
+        });
+      });
+    });
+    return all;
+  }
+
+  function renderCreatives(sortKey) {
+    currentCreativeSort = sortKey;
+    const grid = el('creativeGrid');
+    const countEl = el('creativeCount');
+    const noteEl = el('creativeNote');
+    if (!grid) return;
+
+    let ads = getAllAdsForPeriod();
+    if (!ads.length) {
+      grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0">소재 데이터 없음 — refresh_dashboard.sh 실행 후 갱신하세요.</div>';
+      if (countEl) countEl.textContent = '';
+      return;
+    }
+
+    // 정렬
+    ads.sort((a, b) => {
+      const ai = a.insights || {}, bi = b.insights || {};
+      if (sortKey === 'roas') return (bi.roas||0) - (ai.roas||0);
+      if (sortKey === 'purchases') return (bi.purchases||0) - (ai.purchases||0);
+      if (sortKey === 'ctr') return (bi.ctr||0) - (ai.ctr||0);
+      return (bi.spend||0) - (ai.spend||0); // default: spend
+    });
+
+    const total = ads.length;
+    const active = ads.filter(a => (a.status||'').toUpperCase() === 'ACTIVE').length;
+    if (countEl) countEl.textContent = `· ${active}개 집행중 / 전체 ${total}개`;
+
+    const periodMeta = (lastRenderedData.period_meta || {})[currentPeriod];
+    if (noteEl) noteEl.textContent = periodMeta ? `${periodMeta.label} 기준` : (currentPeriod || '');
+
+    grid.innerHTML = ads.map((ad, idx) => renderCreativeCard(ad, idx)).join('');
+    attachThumbPopovers();
+  }
+
+  function renderCreativeCard(ad, rank) {
+    const ins = ad.insights || {};
+    const thumb = fixThumbPath(ad.thumbnail_url || ad.image_url);
+    const vd = ad.verdict || {};
+
+    const vColorMap = { '즉시OFF':'off', '증액후보':'scale', '리프레시':'refresh', '유지':'ok', '학습중':'' };
+    const vPillStyle = {
+      '즉시OFF': 'background:rgba(239,68,68,.85);color:#fff',
+      '증액후보': 'background:rgba(245,158,11,.85);color:#fff',
+      '리프레시': 'background:rgba(34,211,238,.85);color:#0a0d14',
+      '유지':    'background:rgba(34,197,94,.85);color:#fff',
+      '학습중':  'background:rgba(139,145,158,.7);color:#fff',
+    };
+    const cardVerdictCls = vColorMap[vd.verdict] ? `verdict-${vColorMap[vd.verdict]}` : '';
+
+    const thumbHtml = thumb
+      ? `<img src="${escapeHtml(thumb)}" alt="${escapeHtml(ad.name||'')}" loading="lazy"
+             data-fullsrc="${escapeHtml(thumb)}" data-adname="${escapeHtml(ad.name||'')}"
+             onerror="this.outerHTML='<div class=\\'creative-thumb-placeholder\\'><span>📷</span><span>이미지 없음</span></div>'">`
+      : `<div class="creative-thumb-placeholder"><span>📷</span><span>썸네일 없음</span></div>`;
+
+    const verdictPill = vd.verdict
+      ? `<span class="verdict-pill" style="${vPillStyle[vd.verdict]||''}">${vd.verdict_badge||''} ${escapeHtml(vd.verdict)}</span>`
+      : '';
+    const videoBadge = ad.is_video ? '<span class="video-badge">영상</span>' : '';
+    const rankBadge = rank < 3
+      ? `<span class="rank-badge">${['1','2','3'][rank]}</span>` : '';
+
+    // KPI 셀
+    const roasCls = (ins.spend||0) > 0 ? (ins.roas>=2?'ok':ins.roas>=1?'warn':'err') : '';
+    const ctrCls  = (ins.impressions||0) > 0 ? (ins.ctr>=2?'ok':ins.ctr>=1?'warn':'err') : '';
+    const spendVal = (ins.spend||0) > 0 ? fmt.money(ins.spend) : '—';
+    const roasVal  = (ins.spend||0) > 0 ? fmt.dec(ins.roas) : '—';
+    const purchVal = (ins.purchases||0) > 0 ? ins.purchases+'건' : '0건';
+    const ctrVal   = (ins.impressions||0) > 0 ? fmt.pct(ins.ctr) : '—';
+    const cpaVal   = (ins.purchases||0) > 0 ? fmt.money(ins.cpa||0) : '—';
+    const freqVal  = (ins.impressions||0) > 0 ? fmt.dec(ins.frequency||0,2) : '—';
+    const freqCls  = (ins.frequency||0)>=3.5?'err':(ins.frequency||0)>=2.5?'warn':'ok';
+
+    const isActive = (ad.status||'').toUpperCase() === 'ACTIVE';
+    const cardOpacity = isActive ? '' : 'opacity:0.55;';
+
+    // 오늘 액션 (verdict 있을 때)
+    const actionHtml = vd.action_today
+      ? `<div class="creative-action"><span class="ca-today">오늘:</span> ${escapeHtml(vd.action_today)}</div>`
+      : '';
+
+    return `<div class="creative-card ${cardVerdictCls}" style="${cardOpacity}">
+      <div class="creative-thumb-wrap">
+        ${thumbHtml}${videoBadge}${verdictPill}${rankBadge}
+      </div>
+      <div class="creative-body">
+        <div class="creative-name" title="${escapeHtml(ad.name||'')}">${escapeHtml(ad.name||'(무명)')}</div>
+        <div class="creative-camp-tag" title="${escapeHtml(ad._camp_name||'')}">${escapeHtml(ad._camp_name||'')}</div>
+        <div class="creative-kpi-row">
+          <div class="creative-kpi-cell ${roasCls}">
+            <span class="ck-label">ROAS</span><span class="ck-val">${roasVal}</span>
+          </div>
+          <div class="creative-kpi-cell ${ins.purchases>0?'ok':'err'}">
+            <span class="ck-label">구매</span><span class="ck-val">${purchVal}</span>
+          </div>
+          <div class="creative-kpi-cell">
+            <span class="ck-label">지출</span><span class="ck-val">${spendVal}</span>
+          </div>
+          <div class="creative-kpi-cell ${ctrCls}">
+            <span class="ck-label">CTR</span><span class="ck-val">${ctrVal}</span>
+          </div>
+          <div class="creative-kpi-cell">
+            <span class="ck-label">CPA</span><span class="ck-val">${cpaVal}</span>
+          </div>
+          <div class="creative-kpi-cell ${freqCls}">
+            <span class="ck-label">빈도</span><span class="ck-val">${freqVal}</span>
+          </div>
+        </div>
+        ${actionHtml}
+      </div>
+    </div>`;
+  }
+
+  function setupCreativeSort() {
+    document.querySelectorAll('.creative-sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.creative-sort-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderCreatives(btn.dataset.csort);
+      });
+    });
+  }
+
   function renderAdCard(ad){
-    const thumb = ad.thumbnail_url || ad.image_url;
+    const rawThumb = ad.thumbnail_url || ad.image_url;
+    const thumb = fixThumbPath(rawThumb);
     const videoBadge = ad.is_video ? '<span class="video-badge">▶ 영상</span>' : '';
     const thumbHtml = thumb
       ? `<img class="ad-thumb-img" src="${escapeHtml(thumb)}" alt="${escapeHtml(ad.name||'')}" loading="lazy"
