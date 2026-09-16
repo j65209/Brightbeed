@@ -9693,7 +9693,6 @@
                     <th style="width:80px">코드</th>
                     <th>제품명</th>
                     <th style="width:130px">원가 (원)</th>
-                    <th style="width:130px">1+1 원가 (원)</th>
                     <th style="width:60px"></th>
                   </tr>
                 </thead>
@@ -12489,7 +12488,6 @@
     const edit=_akpEditingMaster;
     tb.innerHTML=_akpState.items.map((it,idx)=>{
       const c1=_akpNum(it.costKrw);
-      const c2=c1*2;
       const esc=(s)=>String(s??'').replace(/</g,'&lt;').replace(/"/g,'&quot;');
       const codeCell = edit
         ? `<input type="text" data-field="item-code" data-idx="${idx}" value="${esc(it.code)}" style="width:100%;height:26px;padding:0 6px;font-size:12px;border:1px solid var(--line);border-radius:5px;background:#fff">`
@@ -12505,10 +12503,9 @@
         <td>${codeCell}</td>
         <td style="text-align:left;font-family:var(--sans);font-weight:600">${nameCell}</td>
         <td>${costCell}</td>
-        <td class="akp-cell-auto">${_akpFmt(c2)}</td>
         <td>${delCell}</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--text-3)">상품을 추가해주세요.</td></tr>';
+    }).join('') || '<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--text-3)">상품을 추가해주세요.</td></tr>';
   }
 
   function _renderPlatforms(){
@@ -12523,8 +12520,7 @@
     const rows=[];
     for(const it of _akpState.items){
       const c=_akpNum(it.costKrw);
-      rows.push({key:it.code,        label:it.code,        name:it.name,           costKrw:c});
-      rows.push({key:it.code+' 1+1', label:it.code+' 1+1', name:it.name+' · 1+1',  costKrw:c*2});
+      rows.push({key:it.code, label:it.code, name:it.name, costKrw:c});
     }
     const bodyHtml=rows.map(r=>{
       const cell = pl.rows?.[r.key] || {price:0, floor:0};
@@ -12615,8 +12611,7 @@
     const removed=_akpState.items[idx];
     _akpState.items.splice(idx,1);
     if(removed){
-      const keys=[removed.code, removed.code+' 1+1'];
-      _akpState.platforms.forEach(pl=>{ if(!pl.rows) return; keys.forEach(k=>delete pl.rows[k]); });
+      _akpState.platforms.forEach(pl=>{ if(pl.rows) delete pl.rows[removed.code]; });
     }
     akpRender();
   }
@@ -12675,12 +12670,10 @@
     if(r<=0){ alert('수수료율이 100% 이상이면 계산할 수 없습니다.'); return; }
     if(!pl.rows) pl.rows={};
     for(const it of _akpState.items){
-      const c1=_akpNum(it.costKrw);
-      const pairs=[[it.code,c1],[it.code+' 1+1',c1*2]];
-      for(const [key,cost] of pairs){
-        if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
-        pl.rows[key].floor = Math.ceil(target*cost/r/100)*100;
-      }
+      const cost=_akpNum(it.costKrw);
+      const key=it.code;
+      if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
+      pl.rows[key].floor = Math.ceil(target*cost/r/100)*100;
     }
     akpRender();
   }
