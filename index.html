@@ -2297,23 +2297,20 @@
 
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
-  .akp-settings{display:grid;grid-template-columns:220px 1fr;gap:12px;padding:14px 16px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px;align-items:end}
-  .akp-set-field{display:flex;flex-direction:column;gap:4px;min-width:0}
-  .akp-set-field label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.02em}
-  .akp-set-field input{height:30px;padding:0 8px;font-size:12.5px;font-family:var(--mono);border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--text-0)}
-  .akp-set-field input:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.12)}
-  .akp-set-actions{display:flex;flex-direction:row;gap:8px;align-items:end;flex-wrap:wrap;justify-content:flex-end}
-  .akp-set-actions .btn{white-space:nowrap;font-size:11.5px;padding:6px 12px;height:auto;min-height:28px}
-  @media (max-width:900px){.akp-settings{grid-template-columns:1fr}.akp-set-actions{justify-content:flex-start}}
+  .akp-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding:10px 12px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px}
+  .akp-actions .btn{white-space:nowrap;font-size:11.5px;padding:6px 12px;height:auto;min-height:28px}
 
   .akp-master-wrap{border:1px solid var(--line);border-radius:10px;overflow-x:auto;background:var(--bg-0);margin-bottom:8px}
   .akp-master-table th,.akp-master-table td{padding:6px 8px}
   .akp-plat{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg-0)}
-  .akp-plat-head{display:grid;grid-template-columns:1fr 140px 140px auto;gap:10px;padding:10px 14px;background:var(--bg-1);border-bottom:1px solid var(--line);align-items:end}
+  .akp-plat-head{display:grid;grid-template-columns:1fr 200px auto;gap:12px;padding:10px 14px;background:var(--bg-1);border-bottom:1px solid var(--line);align-items:end}
   .akp-plat-head .akp-head-label{margin-bottom:2px}
   .akp-plat-head input{height:32px;padding:0 10px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fff}
   .akp-plat-head input[type=number]{font-family:var(--mono);text-align:right}
   .akp-plat-head input:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.12)}
+  .akp-fee-field{position:relative}
+  .akp-fee-field input{padding-right:28px}
+  .akp-fee-field::after{content:'%';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:12.5px;font-family:var(--mono);pointer-events:none}
 
   .akp-list{display:flex;flex-direction:column;gap:12px}
   .akp-item{border:1px solid var(--line);border-radius:10px;background:var(--bg-0);overflow:hidden}
@@ -9625,31 +9622,24 @@
         </div>
         <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
           <div class="akp-wrap">
-            <!-- 공용 설정 -->
-            <div class="akp-settings">
-              <div class="akp-set-field">
-                <label>환율 (₩/$)</label>
-                <input type="number" id="akpEx" step="0.1" value="1506.6" oninput="akpRender()">
-              </div>
-              <div class="akp-set-actions">
-                <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
-                <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
-                <button class="btn po-import" onclick="akpImportSheet()" title="아코이 구글시트에서 다시 불러오기">🔄 시트 불러오기</button>
-                <button class="btn po-import" onclick="akpExportJson()">📥 JSON 내보내기</button>
-              </div>
+            <!-- 공용 액션 -->
+            <div class="akp-actions">
+              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+              <button class="btn po-import" onclick="akpImportSheet()" title="아코이 구글시트에서 다시 불러오기">🔄 시트 불러오기</button>
+              <button class="btn po-import" onclick="akpExportJson()">📥 JSON 내보내기</button>
             </div>
 
             <!-- 상품 마스터 (원가 관리) -->
-            <div class="akp-section-title">📦 상품 마스터 (원가 · 자동 환산)</div>
+            <div class="akp-section-title">📦 상품 마스터</div>
             <div class="akp-master-wrap">
               <table class="akp-table akp-master-table">
                 <thead>
                   <tr>
-                    <th style="width:70px">코드</th>
+                    <th style="width:80px">코드</th>
                     <th>제품명</th>
-                    <th style="width:110px">원가 ($)</th>
-                    <th style="width:110px">원가 (원)</th>
-                    <th style="width:110px">1+1 원가 (원)</th>
+                    <th style="width:130px">원가 (원)</th>
+                    <th style="width:130px">1+1 원가 (원)</th>
                     <th style="width:60px"></th>
                   </tr>
                 </thead>
@@ -12372,20 +12362,17 @@
        floorSettled = floor − round(floor × feeRate/100 / 100) × 100
        floorMultiplier = floorSettled / costKrw
   */
-  const AKP_LS='akoiPromoV2';
+  const AKP_LS='akoiPromoV3';
   const AKP_SHEET_ID='1qg58PnOFtkhz1a02dz0hCIog64haXBGDzliPwjljlJI';
   let _akpState=null, _akpInited=false;
 
   function _akpDefault(){
-    const items=[
-      {code:'001', name:'Butter Cloud Terry Room Shoes', costUsd:2.55},
-      {code:'002', name:'Daisy · Vega Terry Room Shoes', costUsd:2.85},
-      {code:'003', name:'Mallow EVA Room Shoes',        costUsd:3.05},
-    ];
-    // 시트 관측치 재현
     return {
-      ex:1506.6,
-      items,
+      items:[
+        {code:'001', name:'Butter Cloud Terry Room Shoes', costKrw:3800},
+        {code:'002', name:'Daisy · Vega Terry Room Shoes', costKrw:4300},
+        {code:'003', name:'Mallow EVA Room Shoes',        costKrw:4600},
+      ],
       platforms:[
         {name:'플랫폼 A (30%)', feeRate:30, rows:{
           '001':{price:23000, floor:22000}, '001 1+1':{price:39000, floor:39000},
@@ -12405,17 +12392,15 @@
     return _akpDefault();
   }
   function _akpSave(){ try{ localStorage.setItem(AKP_LS, JSON.stringify(_akpState)); }catch(e){} }
-  function _akpNum(n){ n=Number(n); return Number.isFinite(n)?n:0; }
+  function _akpNum(n){ if(typeof n==='string') n=n.replace(/[,\s]/g,''); n=Number(n); return Number.isFinite(n)?n:0; }
   function _akpFmt(n){ n=Math.round(_akpNum(n)); return n.toLocaleString('ko-KR'); }
   function _akpPct(x){ if(!Number.isFinite(x)) return '—'; return Math.round(x*100)+'%'; }
   function _akpMul(x){ if(!Number.isFinite(x)||x<=0) return '—'; return x.toFixed(2); }
-  function _akpCostKrw(costUsd, ex, mult){ return Math.round(_akpNum(costUsd)*mult*_akpNum(ex)/100)*100; }
   function _akpFee(price, rate){ return Math.round(_akpNum(price)*_akpNum(rate)/100/100)*100; }
 
   function akpInit(){
     if(_akpInited){ akpRender(); return; }
     _akpState=_akpLoad();
-    document.getElementById('akpEx').value=_akpState.ex;
     _akpInited=true;
     akpRender();
   }
@@ -12423,28 +12408,36 @@
 
   function akpRender(){
     if(!_akpState) return;
-    _akpState.ex=_akpNum(document.getElementById('akpEx').value)||1506.6;
     _renderMaster();
     _renderPlatforms();
     _akpSave();
   }
   window.akpRender=akpRender;
 
+  // 콤마 입력 필드: focus 시 raw 숫자, blur 시 콤마 재적용 · 저장은 blur 시점 리렌더로 반영
+  function akpNumFocus(el){ el.value = String(_akpNum(el.value)); el.select(); }
+  function akpNumBlur(el, kind, ...args){
+    const val = _akpNum(el.value);
+    if(kind==='item')       akpEditItem(args[0], args[1], val);
+    else if(kind==='plat')  akpEditPlat(args[0], args[1], args[2], val);
+    else if(kind==='meta')  akpEditPlatMeta(args[0], args[1], val);
+  }
+  window.akpNumFocus=akpNumFocus; window.akpNumBlur=akpNumBlur;
+
   function _renderMaster(){
     const tb=document.getElementById('akpMasterBody');
     if(!tb) return;
     tb.innerHTML=_akpState.items.map((it,idx)=>{
-      const c1=_akpCostKrw(it.costUsd, _akpState.ex, 1);
-      const c2=_akpCostKrw(it.costUsd, _akpState.ex, 2);
+      const c1=_akpNum(it.costKrw);
+      const c2=c1*2;
       return `<tr>
         <td><input type="text" value="${it.code||''}" oninput="akpEditItem(${idx},'code',this.value)" style="width:100%;height:26px;padding:0 6px;font-size:12px;border:1px solid var(--line);border-radius:5px;background:#fff"></td>
         <td style="text-align:left;font-family:var(--sans);font-weight:600"><input type="text" value="${it.name||''}" oninput="akpEditItem(${idx},'name',this.value)" style="width:100%;height:26px;padding:0 6px;font-size:12px;border:1px solid var(--line);border-radius:5px;background:#fff"></td>
-        <td><input type="number" step="0.01" value="${it.costUsd||0}" oninput="akpEditItem(${idx},'costUsd',this.value)"></td>
-        <td class="akp-cell-auto">${_akpFmt(c1)}</td>
+        <td><input type="text" inputmode="numeric" value="${_akpFmt(c1)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this,'item',${idx},'costKrw')"></td>
         <td class="akp-cell-auto">${_akpFmt(c2)}</td>
         <td><button class="akp-del-btn" onclick="akpDelItem(${idx})" title="삭제">삭제</button></td>
       </tr>`;
-    }).join('') || '<tr><td colspan="6" style="padding:16px;text-align:center;color:var(--text-3)">상품을 추가해주세요.</td></tr>';
+    }).join('') || '<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--text-3)">상품을 추가해주세요.</td></tr>';
   }
 
   function _renderPlatforms(){
@@ -12457,8 +12450,9 @@
     const rate=_akpNum(pl.feeRate);
     const rows=[];
     for(const it of _akpState.items){
-      rows.push({key:it.code,        label:it.code,        name:it.name, costKrw:_akpCostKrw(it.costUsd, _akpState.ex, 1)});
-      rows.push({key:it.code+' 1+1', label:it.code+' 1+1', name:it.name+' · 1+1', costKrw:_akpCostKrw(it.costUsd, _akpState.ex, 2)});
+      const c=_akpNum(it.costKrw);
+      rows.push({key:it.code,        label:it.code,        name:it.name,           costKrw:c});
+      rows.push({key:it.code+' 1+1', label:it.code+' 1+1', name:it.name+' · 1+1',  costKrw:c*2});
     }
     const bodyHtml=rows.map(r=>{
       const cell = pl.rows?.[r.key] || {price:0, floor:0};
@@ -12477,14 +12471,14 @@
       return `<tr>
         <td class="akp-row-lbl" title="${r.name}">${r.label}</td>
         <td class="akp-cell-auto">${_akpFmt(r.costKrw)}</td>
-        <td><input type="number" step="500" value="${price}" oninput="akpEditPlat(${pIdx},'${rowKey}','price',this.value)"></td>
+        <td><input type="text" inputmode="numeric" value="${_akpFmt(price)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this,'plat',${pIdx},'${rowKey}','price')"></td>
         <td class="akp-cell-auto">${rate}%</td>
         <td class="akp-cell-auto">${_akpFmt(fee)}</td>
         <td class="akp-cell-auto">${_akpFmt(settled)}</td>
         <td class="akp-cell-auto ${goodCls}">${_akpFmt(profit)}</td>
         <td class="akp-cell-auto">${_akpPct(margin)}</td>
         <td class="akp-cell-auto">${_akpMul(mult)}</td>
-        <td><input type="number" step="500" value="${floor}" oninput="akpEditPlat(${pIdx},'${rowKey}','floor',this.value)"></td>
+        <td><input type="text" inputmode="numeric" value="${_akpFmt(floor)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this,'plat',${pIdx},'${rowKey}','floor')"></td>
         <td class="akp-cell-auto">${_akpMul(floorMult)}</td>
       </tr>`;
     }).join('');
@@ -12496,13 +12490,9 @@
             <span class="akp-head-label">플랫폼 이름</span>
             <input type="text" value="${pl.name||''}" oninput="akpEditPlatMeta(${pIdx},'name',this.value)" placeholder="예: 지그재그">
           </div>
-          <div>
-            <span class="akp-head-label">수수료율 (%)</span>
-            <input type="number" step="0.5" value="${rate}" oninput="akpEditPlatMeta(${pIdx},'feeRate',this.value)">
-          </div>
-          <div>
-            <span class="akp-head-label">상품 수</span>
-            <div style="height:32px;display:flex;align-items:center;padding:0 8px;font-family:var(--mono);color:var(--text-2)">${rows.length}행</div>
+          <div class="akp-fee-field">
+            <span class="akp-head-label">수수료율</span>
+            <input type="number" step="0.5" min="0" max="100" value="${rate}" oninput="akpEditPlatMeta(${pIdx},'feeRate',this.value)">
           </div>
           <button class="akp-del-btn" onclick="akpDelPlat(${pIdx})">플랫폼 삭제</button>
         </div>
@@ -12532,7 +12522,7 @@
 
   function akpEditItem(idx, field, val){
     const it=_akpState.items[idx]; if(!it) return;
-    if(field==='costUsd') it[field]=_akpNum(val);
+    if(field==='costKrw') it[field]=_akpNum(val);
     else it[field]=val;
     akpRender();
   }
@@ -12551,7 +12541,7 @@
   }
   function akpAddItem(){
     const n=_akpState.items.length+1;
-    _akpState.items.push({code:String(n).padStart(3,'0'), name:'', costUsd:0});
+    _akpState.items.push({code:String(n).padStart(3,'0'), name:'', costKrw:0});
     akpRender();
   }
   function akpDelItem(idx){
@@ -12601,7 +12591,7 @@
       const items=[];
       for(const r of rows){
         const c=r.c||[]; const code=c[0]?.v; const name=c[2]?.v;
-        if(code){ items.push({code:String(code).replace(/^#/,''), name:name||'', costUsd:_akpNum(c[3]?.v)}); }
+        if(code){ items.push({code:String(code).replace(/^#/,''), name:name||'', costKrw:_akpNum(c[4]?.v)}); }
       }
       if(items.length){ _akpState.items=items; akpRender(); alert('불러오기 완료: '+items.length+'개 상품'); }
       else alert('상품 데이터를 찾지 못했습니다.');
