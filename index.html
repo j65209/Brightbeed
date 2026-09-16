@@ -11134,10 +11134,6 @@
       <label class="md-event-label">플랫폼 <span style="color:var(--text-3);font-family:var(--sans);font-size:10px;text-transform:none;letter-spacing:0;margin-left:4px">복수 선택 · 미선택 = 전체</span></label>
       <div class="md-event-tag-wrap" id="mdEventPlatformPills"></div>
     </div>
-    <div class="md-event-field">
-      <label class="md-event-label">색상</label>
-      <div class="md-event-colors" id="mdEventColors"></div>
-    </div>
     <div class="md-event-field md-event-field-memo">
       <label class="md-event-label">메모 (선택)</label>
       <textarea class="modal-input md-event-memo" id="mdEventMemo" rows="2" maxlength="200" placeholder="상세 메모"></textarea>
@@ -23720,8 +23716,8 @@
       groups.push({brand:{key:'_none', label:'브랜드 미지정', color:'#94a3b8'}, events:orphans});
     }
 
-    const _eventRowHtml = (ev)=>{
-      const c=_mdEvColor(ev.color);
+    const _eventRowHtml = (ev, brandColor)=>{
+      const barColor = brandColor || _mdEvColor(ev.color).hex;
       const evStart=ev.start;
       const evEnd=ev.end||ev.start;
       const cellsHtml = days.map(x=>{
@@ -23735,7 +23731,7 @@
           if(x.iso===evStart) cls.push('is-fill-start');
           if(x.iso===evEnd)   cls.push('is-fill-end');
         }
-        const style = inRange ? `--evc:${c.hex}` : '';
+        const style = inRange ? `--evc:${barColor}` : '';
         return `<td class="${cls.join(' ')}" style="${style}" ${inRange?`data-ev-id="${escapeHTML(ev.id||'')}"`:''}></td>`;
       }).join('');
       const range = ev.end && ev.end!==ev.start
@@ -23743,7 +23739,7 @@
         : ev.start.slice(5).replace('-','/');
       return `<tr class="md-gantt-row-nested" data-ev-id="${escapeHTML(ev.id||'')}">
         <td class="md-gantt-td-label" title="${escapeHTML(ev.title||'')}">
-          <span class="md-gantt-rowlabel-dot" style="background:${c.hex}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
+          <span class="md-gantt-rowlabel-dot" style="background:${barColor}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
         </td>
         ${cellsHtml}
       </tr>`;
@@ -23764,7 +23760,7 @@
         </td>
         ${emptyDaysHtml}
       </tr>`;
-      return groupHead + g.events.map(_eventRowHtml).join('');
+      return groupHead + g.events.map(ev=>_eventRowHtml(ev, g.brand.color)).join('');
     }).join('');
 
     grid.innerHTML = `
