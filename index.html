@@ -9717,48 +9717,74 @@
         <div class="po-section-head">
           <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전</span></div>
         </div>
-        <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
+        <div class="lg-tabs" role="tablist" style="padding:0 0 12px 12px;max-width:none;margin:0">
           <button class="lg-tab active" data-mdpromo="sixA" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true"><span class="mdpromo-dot" style="background:#22d3ee;box-shadow:0 0 8px rgba(34,211,238,.55)"></span>식스에이</button>
           <button class="lg-tab" data-mdpromo="pp" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.55)"></span>프로덕트피알</button>
           <button class="lg-tab" data-mdpromo="akoi" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f472b6;box-shadow:0 0 8px rgba(244,114,182,.55)"></span>아코이</button>
         </div>
         <div class="mdpromo-panel" data-mdpromo-panel="sixA">
-          <div class="mdpromo-empty">식스에이 기획전이 곧 여기에 추가됩니다.</div>
-        </div>
-        <div class="mdpromo-panel" data-mdpromo-panel="pp" hidden>
-          <div class="mdpromo-empty">프로덕트피알 기획전이 곧 여기에 추가됩니다.</div>
-        </div>
-        <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
-          <div class="akp-wrap">
-            <!-- 공용 액션 -->
+          <div class="akp-wrap" data-akp-brand="sixA">
             <div class="akp-actions">
               <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
               <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
-              <span class="akp-status" id="akpStatus">불러오는 중…</span>
+              <span class="akp-status akp-status-el">불러오는 중…</span>
               <div class="akp-actions-spacer"></div>
               <button class="btn po-import" onclick="akpShowHistory()" title="최근 10개 자동 스냅샷 중 하나로 되돌리기">🕓 이력</button>
               <button class="btn po-import" onclick="akpExportJson()" title="현재 데이터를 JSON 파일로 저장">💾 백업 저장</button>
               <button class="btn po-import" onclick="akpImportJson()" title="JSON 파일에서 복원">📤 백업 불러오기</button>
             </div>
-
-            <!-- 상품 마스터 (원가 관리) -->
-            <div id="akpMasterHeader" class="akp-section-title akp-section-title-flex"></div>
+            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
             <div class="akp-master-wrap">
               <table class="akp-table akp-master-table">
-                <thead>
-                  <tr>
-                    <th style="width:80px">코드</th>
-                    <th>제품명</th>
-                    <th style="width:130px">원가 (원)</th>
-                    <th style="width:60px"></th>
-                  </tr>
-                </thead>
-                <tbody id="akpMasterBody"></tbody>
+                <thead><tr><th style="width:80px">코드</th><th>제품명</th><th style="width:130px">원가 (원)</th><th style="width:60px"></th></tr></thead>
+                <tbody class="akp-master-body"></tbody>
               </table>
             </div>
-
-            <!-- 플랫폼 카드 리스트 -->
-            <div id="akpPlatformList" class="akp-list"></div>
+            <div class="akp-list akp-platform-list"></div>
+            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+          </div>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="pp" hidden>
+          <div class="akp-wrap" data-akp-brand="pp">
+            <div class="akp-actions">
+              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+              <span class="akp-status akp-status-el">불러오는 중…</span>
+              <div class="akp-actions-spacer"></div>
+              <button class="btn po-import" onclick="akpShowHistory()" title="최근 10개 자동 스냅샷 중 하나로 되돌리기">🕓 이력</button>
+              <button class="btn po-import" onclick="akpExportJson()" title="현재 데이터를 JSON 파일로 저장">💾 백업 저장</button>
+              <button class="btn po-import" onclick="akpImportJson()" title="JSON 파일에서 복원">📤 백업 불러오기</button>
+            </div>
+            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
+            <div class="akp-master-wrap">
+              <table class="akp-table akp-master-table">
+                <thead><tr><th style="width:80px">코드</th><th>제품명</th><th style="width:130px">원가 (원)</th><th style="width:60px"></th></tr></thead>
+                <tbody class="akp-master-body"></tbody>
+              </table>
+            </div>
+            <div class="akp-list akp-platform-list"></div>
+            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+          </div>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
+          <div class="akp-wrap" data-akp-brand="akoi">
+            <div class="akp-actions">
+              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+              <span class="akp-status akp-status-el">불러오는 중…</span>
+              <div class="akp-actions-spacer"></div>
+              <button class="btn po-import" onclick="akpShowHistory()" title="최근 10개 자동 스냅샷 중 하나로 되돌리기">🕓 이력</button>
+              <button class="btn po-import" onclick="akpExportJson()" title="현재 데이터를 JSON 파일로 저장">💾 백업 저장</button>
+              <button class="btn po-import" onclick="akpImportJson()" title="JSON 파일에서 복원">📤 백업 불러오기</button>
+            </div>
+            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
+            <div class="akp-master-wrap">
+              <table class="akp-table akp-master-table">
+                <thead><tr><th style="width:80px">코드</th><th>제품명</th><th style="width:130px">원가 (원)</th><th style="width:60px"></th></tr></thead>
+                <tbody class="akp-master-body"></tbody>
+              </table>
+            </div>
+            <div class="akp-list akp-platform-list"></div>
             <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
           </div>
         </div>
@@ -12452,7 +12478,7 @@
     document.querySelectorAll('.mdpromo-panel[data-mdpromo-panel]').forEach(pn=>{
       pn.hidden = pn.dataset.mdpromoPanel!==tab;
     });
-    if(tab==='akoi' && typeof akpInit==='function') akpInit();
+    if((tab==='sixA'||tab==='pp'||tab==='akoi') && typeof akpInit==='function') akpInit(tab);
   }
   window.mdPromoSwitch=mdPromoSwitch;
 
@@ -12468,48 +12494,64 @@
        floorSettled = floor − round(floor × feeRate/100 / 100) × 100
        floorMultiplier = floorSettled / costKrw
   */
-  const AKP_LS='akoiPromoV3';
-  const AKP_HIST_LS='akoiPromoV3.history';
-  const AKP_BACKUP_LS='akoiPromoV3.backup';
-  const AKP_REMOTE_TS_LS='akoiPromoV3.lastRemote';
-  const AKP_PATH='data/akoi-promo.json';
-  // NOTE: PO_REPO/PO_BRANCH는 여기 실행 시점에 TDZ라 하드코딩 (변경 시 두 곳 동시)
-  const AKP_API='https://api.github.com/repos/j65209/Brightbeed/contents/'+AKP_PATH;
-  const AKP_RAW='https://raw.githubusercontent.com/j65209/Brightbeed/main/'+AKP_PATH;
-  const AKP_SHEET_ID='1qg58PnOFtkhz1a02dz0hCIog64haXBGDzliPwjljlJI';
-  let _akpState=null, _akpInited=false;
-  let _akpRemoteTimer=null;
-  let _akpLastLocalSaveAt=0;
-  const _akpEditingPlats=new Set(); // 편집 모드인 플랫폼 index 세트 (세션 로컬)
-  let _akpEditingMaster=false;      // 상품 마스터 편집 모드 (세션 로컬)
+  const AKP_BRANDS=['sixA','pp','akoi'];
+  const AKP_PREFIX='brandPromoV3.';
+  const _akpLSKey       = (b)=>AKP_PREFIX+b;
+  const _akpHistLSKey   = (b)=>AKP_PREFIX+b+'.history';
+  const _akpBackupLSKey = (b)=>AKP_PREFIX+b+'.backup';
+  const _akpRemoteTsKey = (b)=>AKP_PREFIX+b+'.lastRemote';
+  const _akpRemotePath  = (b)=>'data/promo-'+b+'.json';
+  const _akpRemoteApi   = (b)=>'https://api.github.com/repos/j65209/Brightbeed/contents/'+_akpRemotePath(b);
+  const _akpRemoteRaw   = (b)=>'https://raw.githubusercontent.com/j65209/Brightbeed/main/'+_akpRemotePath(b);
+  // 브랜드별 독립 상태
+  const _akpStates={sixA:null, pp:null, akoi:null};
+  const _akpInited={sixA:false, pp:false, akoi:false};
+  const _akpRemoteTimers={sixA:null, pp:null, akoi:null};
+  const _akpLastLocalSave={sixA:0, pp:0, akoi:0};
+  const _akpEditingPlats={sixA:new Set(), pp:new Set(), akoi:new Set()};
+  const _akpEditingMaster={sixA:false, pp:false, akoi:false};
+  let _akpBrand='sixA';   // 활성 탭 (mdPromoSwitch로 변경)
+  // 활성 상태 · getter (state는 현재 브랜드 alias)
+  Object.defineProperty(window,'_akpState',{get:()=>_akpStates[_akpBrand], set:(v)=>{_akpStates[_akpBrand]=v}, configurable:true});
+  // 활성 wrap DOM
+  function _akpActiveWrap(brand){ return document.querySelector('.akp-wrap[data-akp-brand="'+(brand||_akpBrand)+'"]'); }
 
-  function _akpDefault(){
+  function _akpDefault(brand){
+    if(brand==='akoi'){
+      return {
+        items:[
+          {code:'001', name:'Butter Cloud Terry Room Shoes', costKrw:3800},
+          {code:'002', name:'Daisy · Vega Terry Room Shoes', costKrw:4300},
+          {code:'003', name:'Mallow EVA Room Shoes',        costKrw:4600},
+        ],
+        platforms:[
+          {name:'플랫폼 A (30%)', feeRate:30, rows:{
+            '001':{price:23000, floor:22000}, '001 1+1':{price:39000, floor:39000},
+            '002':{price:25000, floor:23000}, '002 1+1':{price:43000, floor:40500},
+            '003':{price:27000, floor:24000}, '003 1+1':{price:46000, floor:43300},
+          }},
+          {name:'플랫폼 B (23%)', feeRate:23, rows:{
+            '001':{price:21000, floor:17900}, '001 1+1':{price:37000, floor:35800},
+            '002':{price:23000, floor:20300}, '002 1+1':{price:39000, floor:40500},
+            '003':{price:23000, floor:21700}, '003 1+1':{price:40000, floor:43300},
+          }},
+        ]
+      };
+    }
     return {
-      items:[
-        {code:'001', name:'Butter Cloud Terry Room Shoes', costKrw:3800},
-        {code:'002', name:'Daisy · Vega Terry Room Shoes', costKrw:4300},
-        {code:'003', name:'Mallow EVA Room Shoes',        costKrw:4600},
-      ],
+      items:[{code:'001', name:'', costKrw:0}],
       platforms:[
-        {name:'플랫폼 A (30%)', feeRate:30, rows:{
-          '001':{price:23000, floor:22000}, '001 1+1':{price:39000, floor:39000},
-          '002':{price:25000, floor:23000}, '002 1+1':{price:43000, floor:40500},
-          '003':{price:27000, floor:24000}, '003 1+1':{price:46000, floor:43300},
-        }},
-        {name:'플랫폼 B (23%)', feeRate:23, rows:{
-          '001':{price:21000, floor:17900}, '001 1+1':{price:37000, floor:35800},
-          '002':{price:23000, floor:20300}, '002 1+1':{price:39000, floor:40500},
-          '003':{price:23000, floor:21700}, '003 1+1':{price:40000, floor:43300},
-        }},
+        {name:'플랫폼 A (30%)', feeRate:30, rows:{}},
+        {name:'플랫폼 B (23%)', feeRate:23, rows:{}},
       ]
     };
   }
   function _akpIsValid(s){
     return !!(s && Array.isArray(s.items) && Array.isArray(s.platforms) && s.items.length>0);
   }
-  function _akpMigrate(s){
-    // 마이그레이션: 사라진 1+1 rows를 default에서 복원 (사장님이 저장한 판매가/하한은 유지)
-    const def=_akpDefault();
+  function _akpMigrate(s, brand){
+    // 사라진 1+1 rows를 default에서 복원 (사장님이 저장한 판매가/하한은 유지)
+    const def=_akpDefault(brand);
     for(const pl of s.platforms){
       if(!pl.rows) pl.rows={};
       const defPl=def.platforms.find(dp => _akpNum(dp.feeRate)===_akpNum(pl.feeRate));
@@ -12523,93 +12565,107 @@
     }
     return s;
   }
-  function _akpLoad(){
+  // 레거시 akoi 저장값 (`akoiPromoV3`)을 새 키로 마이그레이션 — 한 번만
+  function _akpMigrateLegacyAkoi(){
+    try{
+      const newKey=_akpLSKey('akoi');
+      if(localStorage.getItem(newKey)) return;
+      const legacy=localStorage.getItem('akoiPromoV3');
+      if(!legacy) return;
+      localStorage.setItem(newKey, legacy);
+      const bak=localStorage.getItem('akoiPromoV3.backup'); if(bak) localStorage.setItem(_akpBackupLSKey('akoi'), bak);
+      const hist=localStorage.getItem('akoiPromoV3.history'); if(hist) localStorage.setItem(_akpHistLSKey('akoi'), hist);
+      const rts=localStorage.getItem('akoiPromoV3.lastRemote'); if(rts) localStorage.setItem(_akpRemoteTsKey('akoi'), rts);
+    }catch(e){}
+  }
+  function _akpLoad(brand){
+    if(brand==='akoi') _akpMigrateLegacyAkoi();
     // 1) 정상 저장값 시도
     try{
-      const raw=localStorage.getItem(AKP_LS);
+      const raw=localStorage.getItem(_akpLSKey(brand));
       if(raw){
         const s=JSON.parse(raw);
-        if(_akpIsValid(s)) return _akpMigrate(s);
-        console.warn('[akp] saved state invalid, trying backup slot');
+        if(_akpIsValid(s)) return _akpMigrate(s, brand);
+        console.warn('[akp] saved state invalid, trying backup slot', brand);
       }
-    }catch(e){ console.warn('[akp] parse main failed', e); }
+    }catch(e){ console.warn('[akp] parse main failed', brand, e); }
     // 2) 백업 슬롯 시도
     try{
-      const raw=localStorage.getItem(AKP_BACKUP_LS);
+      const raw=localStorage.getItem(_akpBackupLSKey(brand));
       if(raw){
         const s=JSON.parse(raw);
-        if(_akpIsValid(s)){ console.warn('[akp] restored from backup slot'); return _akpMigrate(s); }
+        if(_akpIsValid(s)){ console.warn('[akp] restored from backup slot', brand); return _akpMigrate(s, brand); }
       }
     }catch(e){}
-    // 3) 히스토리에서 가장 최신 유효값
+    // 3) 히스토리
     try{
-      const hist=JSON.parse(localStorage.getItem(AKP_HIST_LS)||'[]');
+      const hist=JSON.parse(localStorage.getItem(_akpHistLSKey(brand))||'[]');
       for(let i=hist.length-1;i>=0;i--){
         if(_akpIsValid(hist[i]?.data)){
-          console.warn('[akp] restored from history slot', i);
-          return _akpMigrate(hist[i].data);
+          console.warn('[akp] restored from history slot', brand, i);
+          return _akpMigrate(hist[i].data, brand);
         }
       }
     }catch(e){}
-    // 4) 최후: default
-    console.warn('[akp] using default state');
-    return _akpDefault();
+    console.warn('[akp] using default state', brand);
+    return _akpDefault(brand);
   }
-  function _akpSave(){
-    if(!_akpIsValid(_akpState)) return;  // 이상 상태 저장 방지
+  function _akpSave(brand){
+    brand=brand||_akpBrand;
+    const state=_akpStates[brand];
+    if(!_akpIsValid(state)) return;
     try{
-      const json=JSON.stringify(_akpState);
-      localStorage.setItem(AKP_LS, json);
-      localStorage.setItem(AKP_BACKUP_LS, json);
-      _akpLastLocalSaveAt=Date.now();
-      // 히스토리: 최근 10개 스냅샷 (변경 간격 60초 이상만 추가해 슬롯 낭비 방지)
-      const hist=JSON.parse(localStorage.getItem(AKP_HIST_LS)||'[]');
+      const json=JSON.stringify(state);
+      localStorage.setItem(_akpLSKey(brand), json);
+      localStorage.setItem(_akpBackupLSKey(brand), json);
+      _akpLastLocalSave[brand]=Date.now();
+      const hist=JSON.parse(localStorage.getItem(_akpHistLSKey(brand))||'[]');
       const last=hist[hist.length-1];
-      if(!last || (_akpLastLocalSaveAt - last.ts) >= 60*1000){
-        hist.push({ts:_akpLastLocalSaveAt, data:_akpState});
+      if(!last || (_akpLastLocalSave[brand] - last.ts) >= 60*1000){
+        hist.push({ts:_akpLastLocalSave[brand], data:state});
         while(hist.length>10) hist.shift();
-        localStorage.setItem(AKP_HIST_LS, JSON.stringify(hist));
+        localStorage.setItem(_akpHistLSKey(brand), JSON.stringify(hist));
       }
-      // 원격 백업 큐 (debounced 8초)
-      _akpQueueRemoteSave();
-      _akpUpdateStatus();
-    }catch(e){ console.error('[akp] save failed', e); }
+      _akpQueueRemoteSave(brand);
+      _akpUpdateStatus(brand);
+    }catch(e){ console.error('[akp] save failed', brand, e); }
   }
 
-  function _akpQueueRemoteSave(){
-    if(_akpRemoteTimer) clearTimeout(_akpRemoteTimer);
-    _akpRemoteTimer=setTimeout(_akpRemoteSaveNow, 8000);
+  function _akpQueueRemoteSave(brand){
+    brand=brand||_akpBrand;
+    if(_akpRemoteTimers[brand]) clearTimeout(_akpRemoteTimers[brand]);
+    _akpRemoteTimers[brand]=setTimeout(()=>_akpRemoteSaveNow(brand), 8000);
   }
-  async function _akpRemoteSaveNow(){
-    if(!_akpIsValid(_akpState)) return;
+  async function _akpRemoteSaveNow(brand){
+    brand=brand||_akpBrand;
+    const state=_akpStates[brand];
+    if(!_akpIsValid(state)) return;
     if(typeof ghPut!=='function') return;
     try{
-      const payload={data:_akpState, updatedAt:Date.now()};
+      const payload={data:state, updatedAt:Date.now()};
       const jsonTxt=JSON.stringify(payload,null,2);
       const b64=btoa(unescape(encodeURIComponent(jsonTxt)));
-      const r=await ghPut(AKP_API, b64, 'chore: 아코이 기획전 자동 백업', {forceMaster:true, noConflictRetry:true});
-      if(r && r.ok){
-        localStorage.setItem(AKP_REMOTE_TS_LS, String(payload.updatedAt));
-      }
-      _akpUpdateStatus();
-    }catch(e){ console.warn('[akp] remote save failed', e); _akpUpdateStatus(); }
+      const r=await ghPut(_akpRemoteApi(brand), b64, 'chore: '+brand+' 기획전 자동 백업', {forceMaster:true, noConflictRetry:true});
+      if(r && r.ok){ localStorage.setItem(_akpRemoteTsKey(brand), String(payload.updatedAt)); }
+      _akpUpdateStatus(brand);
+    }catch(e){ console.warn('[akp] remote save failed', brand, e); _akpUpdateStatus(brand); }
   }
-  async function _akpSyncFromRemote(){
+  async function _akpSyncFromRemote(brand){
+    brand=brand||_akpBrand;
     if(typeof fetch!=='function') return;
     try{
-      const r=await fetch(`${AKP_RAW}?cb=${Date.now()}`, {cache:'no-cache'});
+      const r=await fetch(_akpRemoteRaw(brand)+'?cb='+Date.now(), {cache:'no-cache'});
       if(!r.ok) return;
       const remote=await r.json();
       if(!remote || !_akpIsValid(remote.data)) return;
-      const localRemoteTs = Number(localStorage.getItem(AKP_REMOTE_TS_LS)||0);
+      const localRemoteTs = Number(localStorage.getItem(_akpRemoteTsKey(brand))||0);
       const remoteTs = Number(remote.updatedAt)||0;
-      // 원격이 로컬 마지막 원격 push 시각보다 새롭고, 로컬 최근 편집(60초 내)이 아닐 때만 적용
-      if(remoteTs > localRemoteTs && (Date.now()-_akpLastLocalSaveAt) > 60*1000){
-        _akpState=_akpMigrate(remote.data);
-        localStorage.setItem(AKP_LS, JSON.stringify(_akpState));
-        localStorage.setItem(AKP_BACKUP_LS, JSON.stringify(_akpState));
-        localStorage.setItem(AKP_REMOTE_TS_LS, String(remoteTs));
-        akpRender();
+      if(remoteTs > localRemoteTs && (Date.now()-_akpLastLocalSave[brand]) > 60*1000){
+        _akpStates[brand]=_akpMigrate(remote.data, brand);
+        localStorage.setItem(_akpLSKey(brand), JSON.stringify(_akpStates[brand]));
+        localStorage.setItem(_akpBackupLSKey(brand), JSON.stringify(_akpStates[brand]));
+        localStorage.setItem(_akpRemoteTsKey(brand), String(remoteTs));
+        if(brand===_akpBrand) akpRender();
       }
     }catch(e){}
   }
@@ -12623,13 +12679,15 @@
     if(s<86400) return Math.floor(s/3600)+'시간 전';
     return new Date(ts).toLocaleDateString('ko-KR');
   }
-  function _akpUpdateStatus(){
-    const el=document.getElementById('akpStatus');
+  function _akpUpdateStatus(brand){
+    brand=brand||_akpBrand;
+    const wrap=_akpActiveWrap(brand); if(!wrap) return;
+    const el=wrap.querySelector('.akp-status-el');
     if(!el) return;
-    const remoteTs=Number(localStorage.getItem(AKP_REMOTE_TS_LS)||0);
-    const localAgo=_akpTimeAgo(_akpLastLocalSaveAt);
+    const remoteTs=Number(localStorage.getItem(_akpRemoteTsKey(brand))||0);
+    const localAgo=_akpTimeAgo(_akpLastLocalSave[brand]);
     const remoteAgo=remoteTs ? _akpTimeAgo(remoteTs) : '대기';
-    el.innerHTML=`<span class="akp-status-ok">💾 저장됨</span> · 로컬 ${localAgo} · 원격 ${remoteAgo}`;
+    el.innerHTML='<span class="akp-status-ok">💾 저장됨</span> · 로컬 '+localAgo+' · 원격 '+remoteAgo;
   }
   function _akpNum(n){ if(typeof n==='string') n=n.replace(/[,\s]/g,''); n=Number(n); return Number.isFinite(n)?n:0; }
   function _akpFmt(n){ n=Math.round(_akpNum(n)); return n.toLocaleString('ko-KR'); }
@@ -12637,15 +12695,19 @@
   function _akpMul(x){ if(!Number.isFinite(x)||x<=0) return '—'; return x.toFixed(2); }
   function _akpFee(price, rate){ return Math.round(_akpNum(price)*_akpNum(rate)/100/100)*100; }
 
-  function akpInit(){
-    if(_akpInited){ akpRender(); _akpUpdateStatus(); return; }
-    _akpState=_akpLoad();
-    _akpInited=true;
+  function akpInit(brand){
+    brand=brand||_akpBrand;
+    _akpBrand=brand;
+    if(!_akpInited[brand]){
+      _akpStates[brand]=_akpLoad(brand);
+      _akpInited[brand]=true;
+    }
     akpRender();
-    _akpUpdateStatus();
-    if(!window._akpStatusTick){ window._akpStatusTick=setInterval(_akpUpdateStatus, 30000); }
-    // 원격 동기화 (첫 진입 시 · 로컬이 60초 이상 편집 없을 때 적용)
-    _akpSyncFromRemote();
+    _akpUpdateStatus(brand);
+    if(!window._akpStatusTick){
+      window._akpStatusTick=setInterval(()=>{ AKP_BRANDS.forEach(b=>_akpUpdateStatus(b)); }, 30000);
+    }
+    _akpSyncFromRemote(brand);
   }
   window.akpInit=akpInit;
 
@@ -12653,7 +12715,7 @@
     const blob=new Blob([JSON.stringify(_akpState,null,2)], {type:'application/json'});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download=`akoi-promo-${new Date().toISOString().slice(0,19).replace(/[:]/g,'')}.json`;
+    a.download=_akpBrand+'-promo-'+new Date().toISOString().slice(0,19).replace(/[:]/g,'')+'.json';
     a.click();
     setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
   }
@@ -12667,8 +12729,8 @@
         const s=JSON.parse(txt);
         const target = _akpIsValid(s) ? s : (_akpIsValid(s?.data) ? s.data : null);
         if(!target){ alert('올바른 백업 파일이 아닙니다.'); return; }
-        if(!confirm(`이 백업으로 현재 데이터를 덮어쓸까요?\n\n상품 ${target.items.length}개 · 플랫폼 ${target.platforms.length}개`)) return;
-        _akpState=_akpMigrate(target);
+        if(!confirm('이 백업으로 [' + _akpBrand + '] 브랜드 데이터를 덮어쓸까요?\n\n상품 ' + target.items.length + '개 · 플랫폼 ' + target.platforms.length + '개')) return;
+        _akpStates[_akpBrand]=_akpMigrate(target, _akpBrand);
         _akpSave();
         akpRender();
         alert('백업에서 복원되었습니다.');
@@ -12678,7 +12740,7 @@
   }
   function akpShowHistory(){
     let hist=[];
-    try{ hist=JSON.parse(localStorage.getItem(AKP_HIST_LS)||'[]'); }catch(e){}
+    try{ hist=JSON.parse(localStorage.getItem(_akpHistLSKey(_akpBrand))||'[]'); }catch(e){}
     if(!hist.length){ alert('저장된 이력이 없습니다.'); return; }
     const lines = hist.slice().reverse().map((h,i)=>{
       const d=new Date(h.ts);
@@ -12693,8 +12755,8 @@
     const idx=hist.length-1-revIdx;
     const snap=hist[idx];
     if(!snap || !_akpIsValid(snap.data)){ alert('이 스냅샷은 유효하지 않습니다.'); return; }
-    if(!confirm(`${new Date(snap.ts).toLocaleString('ko-KR')} 시점으로 복원할까요?`)) return;
-    _akpState=_akpMigrate(snap.data);
+    if(!confirm(new Date(snap.ts).toLocaleString('ko-KR') + ' 시점으로 복원할까요?')) return;
+    _akpStates[_akpBrand]=_akpMigrate(snap.data, _akpBrand);
     _akpSave();
     akpRender();
     alert('선택한 시점으로 복원되었습니다.');
@@ -12713,11 +12775,12 @@
   window.akpRender=akpRender;
 
   function _renderMasterHeader(){
-    const el=document.getElementById('akpMasterHeader');
+    const wrap=_akpActiveWrap(); if(!wrap) return;
+    const el=wrap.querySelector('.akp-master-header');
     if(!el) return;
     el.innerHTML = `
       <span>📦 상품 마스터</span>
-      ${_akpEditingMaster
+      ${_akpEditingMaster[_akpBrand]
         ? `<button class="akp-btn-save" onclick="akpEndEditMaster(false)">저장</button>`
         : `<button class="akp-btn-edit" onclick="akpStartEditMaster()">✏️ 수정</button>`}
     `;
@@ -12729,9 +12792,10 @@
   window.akpNumFocus=akpNumFocus; window.akpNumBlur=akpNumBlur;
 
   function _renderMaster(){
-    const tb=document.getElementById('akpMasterBody');
+    const wrap=_akpActiveWrap(); if(!wrap) return;
+    const tb=wrap.querySelector('.akp-master-body');
     if(!tb) return;
-    const edit=_akpEditingMaster;
+    const edit=_akpEditingMaster[_akpBrand];
     tb.innerHTML=_akpState.items.map((it,idx)=>{
       const c1=_akpNum(it.costKrw);
       const esc=(s)=>String(s??'').replace(/</g,'&lt;').replace(/"/g,'&quot;');
@@ -12755,14 +12819,15 @@
   }
 
   function _renderPlatforms(){
-    const wrap=document.getElementById('akpPlatformList');
-    if(!wrap) return;
-    wrap.innerHTML=_akpState.platforms.map((pl,pIdx)=>_platformHtml(pl,pIdx)).join('');
+    const wrap=_akpActiveWrap(); if(!wrap) return;
+    const listEl=wrap.querySelector('.akp-platform-list');
+    if(!listEl) return;
+    listEl.innerHTML=_akpState.platforms.map((pl,pIdx)=>_platformHtml(pl,pIdx)).join('');
   }
 
   function _platformHtml(pl, pIdx){
     const rate=_akpNum(pl.feeRate);
-    const editing=_akpEditingPlats.has(pIdx);
+    const editing=_akpEditingPlats[_akpBrand].has(pIdx);
     const rows=[];
     for(const it of _akpState.items){
       const c=_akpNum(it.costKrw);
@@ -12810,7 +12875,7 @@
 
     const titleBlock = editing
       ? `<div class="akp-plat-title-wrap">
-          <input class="akp-plat-title-input" id="akpPlatName${pIdx}" data-field="platform-name" type="text" value="${(pl.name||'').replace(/"/g,'&quot;')}" placeholder="예: 지그재그" onkeydown="if(event.key==='Enter')akpEndEditPlat(${pIdx},false); if(event.key==='Escape')akpEndEditPlat(${pIdx},true)">
+          <input class="akp-plat-title-input" data-akp-platname="${pIdx}" data-field="platform-name" type="text" value="${(pl.name||'').replace(/"/g,'&quot;')}" placeholder="예: 지그재그" onkeydown="if(event.key==='Enter')akpEndEditPlat(${pIdx},false); if(event.key==='Escape')akpEndEditPlat(${pIdx},true)">
           <span class="akp-fee-input-wrap">
             <input class="akp-fee-input" data-field="platform-fee" type="number" step="0.5" min="0" max="100" value="${rate}">
           </span>
@@ -12882,16 +12947,18 @@
     akpRender();
   }
   function akpStartEditPlat(pIdx){
-    _akpEditingPlats.add(pIdx);
+    _akpEditingPlats[_akpBrand].add(pIdx);
     akpRender();
     setTimeout(()=>{
-      const el=document.getElementById('akpPlatName'+pIdx);
+      const wrap=_akpActiveWrap(); if(!wrap) return;
+      const el=wrap.querySelector('[data-akp-platname="'+pIdx+'"]');
       if(el){ el.focus(); el.select(); }
     }, 0);
   }
   function akpEndEditPlat(pIdx, cancel){
     if(!cancel){
-      const card=document.querySelector('.akp-plat[data-plat="'+pIdx+'"]');
+      const active=_akpActiveWrap();
+      const card=active?.querySelector('.akp-plat[data-plat="'+pIdx+'"]');
       const pl=_akpState.platforms[pIdx];
       if(card && pl){
         const nameInp=card.querySelector('[data-field="platform-name"]');
@@ -12911,7 +12978,7 @@
         });
       }
     }
-    _akpEditingPlats.delete(pIdx);
+    _akpEditingPlats[_akpBrand].delete(pIdx);
     akpRender();
   }
 
@@ -12940,12 +13007,13 @@
   window.akpAutoFloor=akpAutoFloor;
 
   function akpStartEditMaster(){
-    _akpEditingMaster=true;
+    _akpEditingMaster[_akpBrand]=true;
     akpRender();
   }
   function akpEndEditMaster(cancel){
     if(!cancel){
-      const tb=document.getElementById('akpMasterBody');
+      const wrap=_akpActiveWrap();
+      const tb=wrap?.querySelector('.akp-master-body');
       if(tb){
         tb.querySelectorAll('[data-field="item-code"]').forEach(inp=>{
           const idx=+inp.dataset.idx; if(_akpState.items[idx]) _akpState.items[idx].code=inp.value;
@@ -12958,7 +13026,7 @@
         });
       }
     }
-    _akpEditingMaster=false;
+    _akpEditingMaster[_akpBrand]=false;
     akpRender();
   }
 
@@ -13374,6 +13442,10 @@
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
       if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
       if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
+      if(typeof akpInit==='function'){
+        const activeTab=document.querySelector('.lg-tab.active[data-mdpromo]')?.dataset.mdpromo || 'sixA';
+        akpInit(activeTab);
+      }
     }
     if(id==='viewNotice'){
       if(typeof renderNotice==='function') renderNotice();
@@ -23652,6 +23724,10 @@
     {key:'ably',       label:'에이블리',     color:'#ff5a92'},
     {key:'smartstore', label:'스마트스토어', color:'#03c75a'},
     {key:'zigzag',     label:'지그재그',     color:'#ff2380'},
+    {key:'eql',        label:'EQL',          color:'#111827'},
+    {key:'29cm',       label:'29CM',         color:'#5b21b6'},
+    {key:'ohouse',     label:'오늘의집',     color:'#f97316'},
+    {key:'wconcept',   label:'W컨셉',        color:'#4b5563'},
   ];
   const _mdBrandMap=Object.fromEntries(MD_BRANDS.map(b=>[b.key,b]));
   const _mdPlatMap=Object.fromEntries(MD_PLATFORMS.map(p=>[p.key,p]));
@@ -23708,6 +23784,10 @@
       if(pf.key==='ably')      { patterns.add('ably'); patterns.add('에이블리'); patterns.add('abl'); }
       if(pf.key==='smartstore'){ patterns.add('smartstore'); patterns.add('스마트스토어'); patterns.add('네이버'); patterns.add('스스'); }
       if(pf.key==='zigzag')    { patterns.add('zigzag'); patterns.add('지그재그'); patterns.add('zz'); }
+      if(pf.key==='eql')       { patterns.add('eql'); patterns.add('EQL'.toLowerCase()); }
+      if(pf.key==='29cm')      { patterns.add('29cm'); patterns.add('29 cm'); }
+      if(pf.key==='ohouse')    { patterns.add('오늘의집'); patterns.add('ohouse'); patterns.add('ohou'); patterns.add('오하우스'); }
+      if(pf.key==='wconcept')  { patterns.add('wconcept'); patterns.add('w컨셉'); patterns.add('더블유컨셉'); patterns.add('더블유'); }
       for(const p of patterns){ if(p && title.includes(p)){ matched.push(pf.key); break; } }
     }
     return matched;
