@@ -6146,32 +6146,80 @@
   }
   .dcs.dcs-flash-new{animation:dcsFlash 1.2s ease-in-out 3;border-color:#f6d99a !important}
 
-  /* 미작성 알림 배너 (평일 18시↑, 오늘만) */
-  .diary-alert{
-    background:linear-gradient(180deg,#fffbeb 0%,#fff 55%);
-    border:1px solid #f6d99a;border-radius:14px;
-    padding:14px 18px 16px;margin-bottom:20px;
-    display:flex;flex-direction:column;gap:10px;
+  /* 미작성 전광판 (평일 · 오늘 · 미작성자 있을 때만) — LED 스코어보드 */
+  .diary-scoreboard{
+    position:relative;
+    background:
+      radial-gradient(120% 220% at 50% 0%, rgba(250,204,21,.14), transparent 60%),
+      linear-gradient(180deg,#0a0a0a 0%,#111 100%);
+    border:1.5px solid #f59e0b;
+    border-radius:16px;
+    padding:18px 22px 20px;margin:0 0 20px;
+    box-shadow:
+      0 0 0 1px rgba(245,158,11,.35) inset,
+      0 0 22px rgba(245,158,11,.28),
+      0 10px 28px -14px rgba(245,158,11,.45);
+    display:flex;flex-direction:column;gap:14px;
+    overflow:hidden;
   }
-  .diary-alert-head{
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:13px;font-weight:700;color:#78350f;letter-spacing:-.01em;
+  .diary-scoreboard::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px);
+    mix-blend-mode:overlay;
   }
-  .diary-alert-head svg{color:#b45309}
-  .diary-alert-count{
-    margin-left:auto;font-size:11.5px;color:#78350f;font-weight:700;
-    background:rgba(234,179,8,.2);padding:3px 10px;border-radius:999px;
-    letter-spacing:-.01em;font-variant-numeric:tabular-nums;
+  .diary-scoreboard-head{
+    position:relative;z-index:1;
+    display:flex;align-items:center;gap:12px;
   }
-  .diary-alert-list{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-  .diary-alert-item{
+  .diary-scoreboard-live{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:10.5px;font-weight:800;letter-spacing:.18em;
+    color:#fca5a5;text-transform:uppercase;
+    padding:4px 9px;border-radius:4px;
+    background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.45);
+  }
+  .diary-scoreboard-live-dot{
+    width:7px;height:7px;border-radius:50%;background:#ef4444;
+    box-shadow:0 0 0 3px rgba(239,68,68,.25);
+    animation:diaryScoreLive 1.1s ease-in-out infinite;
+  }
+  @keyframes diaryScoreLive{0%,100%{opacity:1}50%{opacity:.35}}
+  .diary-scoreboard-label{
+    font-size:14px;font-weight:800;letter-spacing:-.01em;
+    color:#fef3c7;text-shadow:0 0 10px rgba(250,204,21,.5);
+  }
+  .diary-scoreboard-count{
+    margin-left:auto;
+    font-family:'Courier New',ui-monospace,monospace;
+    font-size:32px;font-weight:900;line-height:1;
+    color:#facc15;text-shadow:0 0 14px rgba(250,204,21,.75),0 0 4px rgba(250,204,21,.9);
+    font-variant-numeric:tabular-nums;letter-spacing:.02em;
+    padding:4px 12px;border-radius:8px;
+    background:rgba(250,204,21,.08);
+    border:1px solid rgba(250,204,21,.35);
+    min-width:56px;text-align:center;
+  }
+  .diary-scoreboard-count::after{content:'명';font-size:14px;margin-left:4px;opacity:.7}
+  .diary-scoreboard-list{
+    position:relative;z-index:1;
+    display:flex;flex-wrap:wrap;gap:8px;
+  }
+  .diary-scoreboard-item{
     display:inline-flex;align-items:center;
-    padding:6px 12px;border-radius:999px;
-    background:#fff;border:1px solid #f6d99a;
-    font-size:13px;color:#1c1917;font-weight:600;letter-spacing:-.01em;
-    transition:all .15s ease;
+    padding:8px 16px;border-radius:8px;
+    background:linear-gradient(180deg,#1c1917 0%,#0a0a0a 100%);
+    border:1px solid rgba(250,204,21,.55);
+    font-size:16px;font-weight:800;letter-spacing:-.01em;
+    color:#fef3c7;text-shadow:0 0 8px rgba(250,204,21,.55);
+    box-shadow:0 0 12px -4px rgba(250,204,21,.4) inset;
+    animation:diaryScoreGlow 2.4s ease-in-out infinite;
   }
-  .diary-alert-item:hover{border-color:#eab308;background:#fffbeb}
+  @keyframes diaryScoreGlow{
+    0%,100%{border-color:rgba(250,204,21,.55);box-shadow:0 0 12px -4px rgba(250,204,21,.4) inset}
+    50%{border-color:rgba(250,204,21,.85);box-shadow:0 0 18px -2px rgba(250,204,21,.7) inset}
+  }
+  /* 이전 클래스명 대비 호환 (혹시 남은 참조용) */
+  .diary-alert{display:none}
 
   /* 전 직원 카드 그리드 */
   .diary-board{
@@ -6221,10 +6269,10 @@
     transition:background .12s ease;
   }
   .dcs-hide-diary:hover{background:#fee2e2}
-  /* 업무일지 숨김 명단 패널 (마스터 전용, 있을 때만 표시) */
+  /* 업무일지 숨김 명단 패널 (마스터 전용, 있을 때만 표시) — 보드 아래 배치 */
   .diary-hidden-panel{
     display:flex;flex-wrap:wrap;align-items:center;gap:8px;
-    padding:10px 14px;margin:0 0 14px;
+    padding:10px 14px;margin:20px 0 0;
     background:#fefbf3;border:1px dashed #e7e2ce;border-radius:12px;
     font-size:12.5px;color:#57534e;letter-spacing:-.01em;
   }
@@ -9155,21 +9203,21 @@
       </div>
     </div>
 
-    <!-- 미작성 알림 (평일 · 오후 6시 이후 · 오늘만) -->
-    <div class="diary-alert" id="diaryAlert" hidden>
-      <div class="diary-alert-head">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
-        <span>오늘 업무일지 미작성</span>
-        <span class="diary-alert-count" id="diaryAlertCount">0명</span>
+    <!-- 미작성 전광판 (오늘 · 평일) -->
+    <div class="diary-scoreboard" id="diaryAlert" hidden>
+      <div class="diary-scoreboard-head">
+        <span class="diary-scoreboard-live"><span class="diary-scoreboard-live-dot"></span>LIVE</span>
+        <span class="diary-scoreboard-label">오늘 업무일지 미작성</span>
+        <span class="diary-scoreboard-count" id="diaryAlertCount">0</span>
       </div>
-      <div class="diary-alert-list" id="diaryAlertList"></div>
+      <div class="diary-scoreboard-list" id="diaryAlertList"></div>
     </div>
-
-    <!-- 업무일지 숨김 명단 (master 전용, 있을 때만 표시) -->
-    <div class="diary-hidden-panel master-only" id="diaryHiddenPanel" hidden></div>
 
     <!-- 전 직원 카드 그리드 -->
     <div class="diary-board" id="diaryBoard"></div>
+
+    <!-- 업무일지 숨김 명단 (master 전용, 있을 때만 표시) — 보드 아래 -->
+    <div class="diary-hidden-panel master-only" id="diaryHiddenPanel" hidden></div>
   </div><!-- /viewDiary -->
 
   <!-- ============ 디자인팀 뷰: 노션 스타일 작업 보드 + 레퍼런스 갤러리 ============ -->
@@ -17704,7 +17752,7 @@
   // 현재 화면에 그려진 각 직원의 entry를 캐싱 (in-memory)
   let _diaryEntries = {};
 
-  /* 오늘 · 평일 · 오후 6시 이후 조건일 때 미작성자 명단 표시 */
+  /* 오늘·평일이면 상시 전광판 노출. 미작성자 0명이면 자동 숨김. */
   function _diaryUpdateAlert(){
     const alert = document.getElementById('diaryAlert');
     const list = document.getElementById('diaryAlertList');
@@ -17716,9 +17764,8 @@
     const now = new Date();
     const dow = now.getDay();      // 0=일, 6=토
     const isWeekday = (dow >= 1 && dow <= 5);
-    const isAfter6 = (now.getHours() >= 18);
 
-    if(!(isToday && isWeekday && isAfter6)){
+    if(!(isToday && isWeekday)){
       alert.hidden = true;
       return;
     }
@@ -17737,11 +17784,11 @@
     }
 
     alert.hidden = false;
-    cnt.textContent = `${missing.length}명`;
+    cnt.textContent = String(missing.length);
     list.innerHTML = '';
     missing.forEach(st=>{
       const chip = document.createElement('span');
-      chip.className = 'diary-alert-item';
+      chip.className = 'diary-scoreboard-item';
       chip.textContent = st.name;
       list.appendChild(chip);
     });
