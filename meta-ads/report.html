@@ -308,6 +308,49 @@
   .creative-sort-btn.active { background:var(--accent); color:#fff; border-color:var(--accent) }
   .creative-sort-btn:hover:not(.active) { color:var(--text) }
 
+  /* 소재 캠페인 그룹 */
+  .creative-camp-group {
+    margin-bottom:28px;
+  }
+  .creative-camp-header {
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:10px 14px; border-radius:10px;
+    background:var(--panel); border:1px solid var(--border);
+    margin-bottom:12px; cursor:pointer; user-select:none;
+  }
+  .creative-camp-header:hover { border-color:var(--accent) }
+  .cch-toggle {
+    font-size:13px; color:var(--muted); flex-shrink:0; transition:transform .15s;
+  }
+  .creative-camp-group.collapsed .cch-toggle { transform:rotate(-90deg) }
+  .cch-name {
+    font-size:13px; font-weight:700; color:var(--text); flex:1; min-width:0;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .cch-status {
+    font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px;
+    flex-shrink:0;
+  }
+  .cch-status.active { background:rgba(34,197,94,.15); color:var(--ok) }
+  .cch-status.paused { background:rgba(139,145,158,.12); color:var(--muted) }
+  .cch-kpi-row {
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    margin-left:auto; flex-shrink:0;
+  }
+  .cch-kpi {
+    display:flex; flex-direction:column; align-items:flex-end;
+    min-width:48px;
+  }
+  .cch-kpi .kl { font-size:9px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.3px }
+  .cch-kpi .kv { font-size:13px; font-weight:800; color:var(--text) }
+  .cch-kpi.ok .kv { color:var(--ok) }
+  .cch-kpi.warn .kv { color:var(--warn) }
+  .cch-kpi.err .kv { color:var(--err) }
+  .cch-ad-count {
+    font-size:10.5px; color:var(--muted); flex-shrink:0;
+  }
+  .creative-camp-group.collapsed .creative-camp-body { display:none }
+
   /* Ads grid (active ads thumbnails) - accordion 안 작은 카드 */
   .ads-expand-title {
     font-size:11px; color:var(--muted); text-transform:uppercase;
@@ -933,14 +976,14 @@
     html.push(`<section id="creativeSection">
       <h2>🎬 소재 성과 <span class="count" id="creativeCount"></span></h2>
       <div class="creative-toolbar">
-        <span style="font-size:11px;color:var(--muted)">정렬:</span>
+        <span style="font-size:11px;color:var(--muted)">그룹 내 정렬:</span>
         <button class="creative-sort-btn active" data-csort="spend">지출↓</button>
         <button class="creative-sort-btn" data-csort="roas">ROAS↓</button>
         <button class="creative-sort-btn" data-csort="purchases">구매↓</button>
         <button class="creative-sort-btn" data-csort="ctr">CTR↓</button>
         <span style="margin-left:auto;font-size:11px;color:var(--muted)" id="creativeNote"></span>
       </div>
-      <div class="creative-grid" id="creativeGrid"></div>
+      <div id="creativeGroupsWrap"></div>
     </section>`);
 
     // === 캠페인 상세 ===
@@ -1433,36 +1476,119 @@
 
   function renderCreatives(sortKey) {
     currentCreativeSort = sortKey;
-    const grid = el('creativeGrid');
+    const wrap = el('creativeGroupsWrap');
     const countEl = el('creativeCount');
     const noteEl = el('creativeNote');
-    if (!grid) return;
+    if (!wrap) return;
 
-    let ads = getAllAdsForPeriod();
-    if (!ads.length) {
-      grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0">소재 데이터 없음 — refresh_dashboard.sh 실행 후 갱신하세요.</div>';
+    if (!lastRenderedData) {
+      wrap.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0">소재 데이터 없음 — refresh_dashboard.sh 실행 후 갱신하세요.</div>';
       if (countEl) countEl.textContent = '';
       return;
     }
 
-    // 정렬
-    ads.sort((a, b) => {
-      const ai = a.insights || {}, bi = b.insights || {};
-      if (sortKey === 'roas') return (bi.roas||0) - (ai.roas||0);
-      if (sortKey === 'purchases') return (bi.purchases||0) - (ai.purchases||0);
-      if (sortKey === 'ctr') return (bi.ctr||0) - (ai.ctr||0);
-      return (bi.spend||0) - (ai.spend||0); // default: spend
-    });
+    // 기간에 맞는 캠페인 목록
+    const periodCampaigns = lastRenderedData.campaigns_by_period || {};
+    const camps = (currentPeriod && periodCampaigns[currentPeriod]) || lastRenderedData.campaigns || [];
 
-    const total = ads.length;
-    const active = ads.filter(a => (a.status||'').toUpperCase() === 'ACTIVE').length;
-    if (countEl) countEl.textContent = `· ${active}개 집행중 / 전체 ${total}개`;
+    if (!camps.length) {
+      wrap.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0">소재 데이터 없음 — refresh_dashboard.sh 실행 후 갱신하세요.</div>';
+      if (countEl) countEl.textContent = '';
+      return;
+    }
 
+    // 캠페인을 지출↓로 정렬
+    const sortedCamps = [...camps].sort((a, b) => (b.spend||0) - (a.spend||0));
+
+    let totalAdCount = 0;
+    let totalActiveCount = 0;
+
+    // 각 캠페인 그룹 렌더
+    const groupHtmlParts = sortedCamps.map(c => {
+      const ads = (c.all_ads || c.active_ads || []).slice();
+      if (!ads.length) return '';
+
+      totalAdCount += ads.length;
+      const activeCount = ads.filter(a => (a.status||'').toUpperCase() === 'ACTIVE').length;
+      totalActiveCount += activeCount;
+
+      // ads에 캠페인 메타 주입 (renderCreativeCard용)
+      const enrichedAds = ads.map(ad => ({
+        ...ad,
+        _camp_name: c.name || '',
+        _camp_id: c.campaign_id || '',
+        _camp_grade: c.grade || '',
+        _is_camp_active: c.is_active,
+      }));
+
+      // 그룹 내부 정렬
+      enrichedAds.sort((a, b) => {
+        const ai = a.insights || {}, bi = b.insights || {};
+        if (sortKey === 'roas') return (bi.roas||0) - (ai.roas||0);
+        if (sortKey === 'purchases') return (bi.purchases||0) - (ai.purchases||0);
+        if (sortKey === 'ctr') return (bi.ctr||0) - (ai.ctr||0);
+        return (bi.spend||0) - (ai.spend||0);
+      });
+
+      // 캠페인 헤더 KPI
+      const roasCls = c.spend > 0 ? (c.roas >= 2 ? 'ok' : c.roas >= 1 ? 'warn' : 'err') : '';
+      const statusCls = c.is_active ? 'active' : 'paused';
+      const statusLabel = c.is_active ? '집행중' : (c.effective_status === 'PAUSED' ? '일시정지' : (c.effective_status||'종료'));
+      const spendStr = c.spend > 0 ? fmt.money(c.spend) : '$0';
+      const roasStr = c.spend > 0 ? fmt.dec(c.roas) : '—';
+      const purchStr = (c.purchases||0) > 0 ? c.purchases + '건' : '0건';
+      const adCountStr = activeCount > 0 ? `${activeCount}개 집행 / 전체 ${ads.length}개` : `전체 ${ads.length}개`;
+
+      const campGroupId = 'cg_' + (c.campaign_id || Math.random().toString(36).slice(2));
+
+      const headerHtml = `<div class="creative-camp-header" data-group="${campGroupId}">
+        <span class="cch-toggle">▼</span>
+        <span class="cch-name" title="${escapeHtml(c.name||'')}">${escapeHtml(c.name||'(이름 없음)')}</span>
+        <span class="cch-status ${statusCls}">${statusLabel}</span>
+        <span class="cch-ad-count">${adCountStr}</span>
+        <div class="cch-kpi-row">
+          <div class="cch-kpi">
+            <span class="kl">지출</span><span class="kv">${spendStr}</span>
+          </div>
+          <div class="cch-kpi ${roasCls}">
+            <span class="kl">ROAS</span><span class="kv">${roasStr}</span>
+          </div>
+          <div class="cch-kpi">
+            <span class="kl">구매</span><span class="kv">${purchStr}</span>
+          </div>
+        </div>
+      </div>`;
+
+      const cardsHtml = enrichedAds.map((ad, idx) => renderCreativeCard(ad, idx)).join('');
+
+      return `<div class="creative-camp-group" id="${campGroupId}">
+        ${headerHtml}
+        <div class="creative-camp-body">
+          <div class="creative-grid">${cardsHtml}</div>
+        </div>
+      </div>`;
+    }).filter(Boolean);
+
+    if (!groupHtmlParts.length) {
+      wrap.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0">소재 데이터 없음 — refresh_dashboard.sh 실행 후 갱신하세요.</div>';
+      if (countEl) countEl.textContent = '';
+      return;
+    }
+
+    if (countEl) countEl.textContent = `· ${totalActiveCount}개 집행중 / 전체 ${totalAdCount}개`;
     const periodMeta = (lastRenderedData.period_meta || {})[currentPeriod];
     if (noteEl) noteEl.textContent = periodMeta ? `${periodMeta.label} 기준` : (currentPeriod || '');
 
-    grid.innerHTML = ads.map((ad, idx) => renderCreativeCard(ad, idx)).join('');
+    wrap.innerHTML = groupHtmlParts.join('');
     attachThumbPopovers();
+
+    // 캠페인 헤더 클릭 → 접기/펼치기
+    wrap.querySelectorAll('.creative-camp-header').forEach(hdr => {
+      hdr.addEventListener('click', () => {
+        const groupEl = el(hdr.dataset.group);
+        if (groupEl) groupEl.classList.toggle('collapsed');
+      });
+    });
   }
 
   function renderCreativeCard(ad, rank) {
@@ -1518,7 +1644,6 @@
       </div>
       <div class="creative-body">
         <div class="creative-name" title="${escapeHtml(ad.name||'')}">${escapeHtml(ad.name||'(무명)')}</div>
-        <div class="creative-camp-tag" title="${escapeHtml(ad._camp_name||'')}">${escapeHtml(ad._camp_name||'')}</div>
         <div class="creative-kpi-row">
           <div class="creative-kpi-cell ${roasCls}">
             <span class="ck-label">ROAS</span><span class="ck-val">${roasVal}</span>
