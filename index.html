@@ -12651,7 +12651,12 @@
       if(!remote || !_akpIsValid(remote.data)) return;
       const localRemoteTs = Number(localStorage.getItem(_akpRemoteTsKey(brand))||0);
       const remoteTs = Number(remote.updatedAt)||0;
-      if(remoteTs > localRemoteTs && (Date.now()-_akpLastLocalSave[brand]) > 60*1000){
+      // 로컬이 default(빈 상품 1개, 판매가/원가 없음)면 즉시 원격 반영
+      const s=_akpStates[brand];
+      const isEmptyDefault = !!(s && s.items && s.items.length<=1
+        && (!s.items[0] || !_akpNum(s.items[0].costKrw))
+        && s.platforms && s.platforms.every(p=>!p.rows || Object.keys(p.rows).length===0));
+      if(remoteTs > localRemoteTs && (isEmptyDefault || (Date.now()-_akpLastLocalSave[brand]) > 60*1000)){
         _akpStates[brand]=_akpMigrate(remote.data, brand);
         localStorage.setItem(_akpLSKey(brand), JSON.stringify(_akpStates[brand]));
         localStorage.setItem(_akpBackupLSKey(brand), JSON.stringify(_akpStates[brand]));
