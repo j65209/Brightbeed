@@ -7188,6 +7188,63 @@
     .dsg-hint-mobile{display:inline}
   }
 
+  /* ===== 발송보드 (posts) — 알약탭 게시글 ===== */
+  .dsg-post-toolbar{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .dsg-post-pills{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
+  .dsg-post-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:#fff;border:1.5px solid #e7e5e4;color:#57534e;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;max-width:240px}
+  .dsg-post-pill:hover{background:#fef7f0;border-color:#fbd8b4;color:#9a3412}
+  .dsg-post-pill.active{background:linear-gradient(135deg,#fb923c,#f97316);color:#fff;border-color:#f97316;box-shadow:0 2px 10px rgba(249,115,22,.28)}
+  .dsg-post-pill-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+  .dsg-post-pill.done{background:#f5f5f4;color:#a8a29e;border-color:#e7e5e4}
+  .dsg-post-pill.done.active{background:linear-gradient(135deg,#a8a29e,#78716c);color:#fff;border-color:#78716c}
+  .dsg-post-pill.done .dsg-post-pill-title{text-decoration:line-through}
+  .dsg-post-pill-check{width:16px;height:16px;border:1.5px solid currentColor;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex:none;opacity:.7}
+  .dsg-post-pill-check svg{width:10px;height:10px;stroke:currentColor;stroke-width:3;fill:none;opacity:0;transition:opacity .12s}
+  .dsg-post-pill.done .dsg-post-pill-check{opacity:1}
+  .dsg-post-pill.done .dsg-post-pill-check svg{opacity:1}
+  .dsg-post-toolbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .dsg-post-detail{background:#fff;border:1px solid #eee;border-radius:14px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.03);position:relative;transition:background .15s, border-color .15s}
+  .dsg-post-detail.dragover{background:#fff8f0;border-color:#f97316;border-style:dashed}
+  .dsg-post-detail.done{background:#fafaf9}
+  .dsg-post-detail.done .dsg-post-title,.dsg-post-detail.done .dsg-post-body{color:#78716c}
+  .dsg-post-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .dsg-post-check{width:36px;height:36px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:all .15s;color:#78716c}
+  .dsg-post-check:hover{border-color:#f97316;color:#f97316;background:#fff8f0}
+  .dsg-post-check svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.8;fill:none;opacity:0;transition:opacity .12s}
+  .dsg-post-detail.done .dsg-post-check{background:#22c55e;border-color:#16a34a;color:#fff}
+  .dsg-post-detail.done .dsg-post-check svg{opacity:1}
+  .dsg-post-title{flex:1;min-width:0;font-size:20px;font-weight:700;color:#1c1917;border:none;background:transparent;padding:6px 8px;outline:none;letter-spacing:-.01em;border-radius:8px}
+  .dsg-post-title:focus{background:#fef7f0}
+  .dsg-post-title::placeholder{color:#d6d3d1;font-weight:600}
+  .dsg-post-del{width:34px;height:34px;border-radius:8px;border:none;background:transparent;color:#a8a29e;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:all .12s}
+  .dsg-post-del:hover{color:#dc2626;background:#fef2f2}
+  .dsg-post-del svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
+  .dsg-post-body{width:100%;min-height:110px;resize:vertical;border:1px solid #f1efec;background:#fafaf9;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.55;color:#292524;font-family:inherit;outline:none;transition:border-color .15s, background .15s;box-sizing:border-box}
+  .dsg-post-body:focus{border-color:#fbd8b4;background:#fff}
+  .dsg-post-body::placeholder{color:#a8a29e}
+  .dsg-post-img-drop-hint{margin-top:12px;padding:9px 12px;background:#fef7f0;border-radius:8px;color:#9a3412;font-size:12px;line-height:1.5}
+  .dsg-post-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:14px}
+  .dsg-post-images:empty{margin-top:0}
+  .dsg-post-img-tile{background:#fafaf9;border:1px solid #efedea;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+  .dsg-post-img-thumb{width:100%;aspect-ratio:1;background:#f5f5f4;overflow:hidden;position:relative}
+  .dsg-post-img-thumb img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+  .dsg-post-img-rm{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s}
+  .dsg-post-img-tile:hover .dsg-post-img-rm{opacity:1}
+  .dsg-post-img-rm svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.6;fill:none}
+  .dsg-post-img-cap{border:none;outline:none;padding:8px 10px;font-size:12.5px;color:#44403c;background:#fff;border-top:1px solid #efedea;resize:vertical;min-height:38px;font-family:inherit;line-height:1.4;box-sizing:border-box;width:100%}
+  .dsg-post-img-cap::placeholder{color:#c8c5c1}
+  .dsg-post-img-cap:focus{background:#fffaf0}
+  .dsg-post-imgadd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .dsg-post-meta{color:#a8a29e;font-size:12px}
+  @media (max-width:560px){
+    .dsg-post-detail{padding:14px 12px;border-radius:12px}
+    .dsg-post-title{font-size:17px}
+    .dsg-post-images{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+    .dsg-post-toolbar{gap:8px}
+    .dsg-post-pill{padding:7px 12px;font-size:12.5px;max-width:190px}
+    .dsg-post-pill-title{max-width:120px}
+  }
+
   /* ===== 연차 (인사팀 뷰) ===== */
   .leave-cta{display:flex;justify-content:center;margin:8px 0 18px}
 
@@ -8957,9 +9014,14 @@
       </div>
     </div>
 
-    <!-- 서브탭: 작업 보드 / 레퍼런스 갤러리 -->
+    <!-- 서브탭: 발송보드 / 작업 보드 / 레퍼런스 갤러리 -->
     <div class="dsg-tabs" role="tablist">
-      <button class="dsg-tab active" data-dsg="board" onclick="dsgSwitchTab('board')" role="tab" aria-selected="true">
+      <button class="dsg-tab active" data-dsg="posts" onclick="dsgSwitchTab('posts')" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h12l4 4v14H4z"/><path d="M16 4v4h4"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
+        발송보드
+        <span class="dsg-tab-badge" id="dsgTabPostsBadge">0</span>
+      </button>
+      <button class="dsg-tab" data-dsg="board" onclick="dsgSwitchTab('board')" role="tab" aria-selected="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         작업 보드
         <span class="dsg-tab-badge" id="dsgTabBoardBadge">0</span>
@@ -8971,8 +9033,60 @@
       </button>
     </div>
 
+    <!-- ============ 발송보드 — 알약탭 게시글 ============ -->
+    <div class="dsg-pane" data-pane="posts">
+      <!-- 상단: 알약탭 리스트 + 필터 + 새 게시 -->
+      <div class="dsg-post-toolbar">
+        <div class="dsg-post-pills" id="dsgPostPills"></div>
+        <div class="dsg-post-toolbar-actions">
+          <label class="dsg-hide-done">
+            <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
+            <span>완료 숨김</span>
+          </label>
+          <button class="dsg-new-btn" onclick="dsgPostAdd()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            새 게시
+          </button>
+        </div>
+      </div>
+
+      <!-- 빈 상태 -->
+      <div class="dsg-empty" id="dsgPostEmpty" hidden>
+        <div class="dsg-empty-icon">📮</div>
+        <div class="dsg-empty-title">아직 게시글이 없어요</div>
+        <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0914 한국=&gt;중국 발송</b> · 내용에 스와치·샘플 목록 · 사진 드래그&드롭.</div>
+      </div>
+
+      <!-- 상세 (선택된 게시글) -->
+      <div class="dsg-post-detail" id="dsgPostDetail" hidden ondragover="dsgPostDragOver(event)" ondragleave="dsgPostDragLeave(event)" ondrop="dsgPostDrop(event)">
+        <div class="dsg-post-head">
+          <button class="dsg-post-check" id="dsgPostCheckBtn" onclick="dsgPostToggleDone()" title="완료 토글">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <input class="dsg-post-title" id="dsgPostTitle" placeholder="예) 0914 한국=>중국 발송" oninput="dsgPostSchedSave()">
+          <button class="dsg-post-del" onclick="dsgPostDelete()" title="게시글 삭제">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+        </div>
+        <textarea class="dsg-post-body" id="dsgPostBody" placeholder="예) 수배요청 스와치 샘플, 가방 완성 샘플…" oninput="dsgPostSchedSave()"></textarea>
+        <div class="dsg-post-img-drop-hint">
+          <span class="dsg-hint-desktop">이미지를 <b>드래그&드롭</b>하거나 <b>Cmd/Ctrl+V</b> 로 붙여넣기 · 사진마다 설명 입력 가능</span>
+          <span class="dsg-hint-mobile">아래 <b>＋ 사진 추가</b> 로 사진을 선택하세요.</span>
+        </div>
+        <div class="dsg-post-images" id="dsgPostImages"></div>
+        <div class="dsg-post-imgadd">
+          <button class="dsg-btn-ghost" onclick="dsgPostOpenUpload()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            사진 추가
+          </button>
+          <span class="dsg-post-meta" id="dsgPostMeta"></span>
+        </div>
+        <input type="file" id="dsgPostFile" accept="image/*" multiple hidden onchange="dsgPostFileChosen(event)">
+      </div>
+    </div>
+
     <!-- ============ 작업 보드 — 노션 스타일 아웃라이너 ============ -->
-    <div class="dsg-pane" data-pane="board">
+    <div class="dsg-pane" data-pane="board" hidden>
       <!-- 단순 툴바: 검색 · 완료 숨김 · 폰트 크기 · 접기/펴기 · 섹션 추가 -->
       <div class="dsg-doc-toolbar">
         <input id="dsgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
@@ -13373,6 +13487,7 @@
        · 레퍼런스: 붙여넣기(Cmd+V) · 드래그&드롭 · 카테고리(board) · 핀 고정 · 태그 · 원본 링크 */
   const DSG_DOC_KEY   = 'brightbeed_design_doc_v1';   // 노션 스타일 아웃라이너 트리
   const DSG_REFS_KEY  = 'brightbeed_design_refs_v1';
+  const DSG_POSTS_KEY = 'brightbeed_design_posts_v1'; // 발송보드 게시글
   const DSG_UI_KEY    = 'brightbeed_design_ui_v1';
   const DSG_FS_KEY    = 'brightbeed_design_fs_v1';    // 문서 폰트 크기 (px, 숫자)
   const DSG_FS_MIN    = 8;
@@ -13382,25 +13497,33 @@
   /* 원격 진실 저장소 — GitHub 리포 (업무일지와 동일 패턴) */
   const DSG_DOC_PATH  ='data/design_doc.json';
   const DSG_REFS_PATH ='data/design_refs.json';
+  const DSG_POSTS_PATH='data/design_posts.json';
   const DSG_DOC_RAW   =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_DOC_PATH}`;
   const DSG_DOC_API   =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_DOC_PATH}`;
   const DSG_REFS_RAW  =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_REFS_PATH}`;
   const DSG_REFS_API  =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_REFS_PATH}`;
+  const DSG_POSTS_RAW =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_POSTS_PATH}`;
+  const DSG_POSTS_API =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_POSTS_PATH}`;
   /* 우선순위: 클릭할 때마다 없음 → high → medium → low → 없음 순환 */
   const DSG_PRIO_CYCLE = ['','high','medium','low'];
   const DSG_PRIO_DOT   = {high:'🔴', medium:'🟡', low:'🟢'};
   const DSG_PRIO_TITLE = {'':'우선순위 없음', high:'높음', medium:'중간', low:'낮음'};
   let _dsgDoc   = {version:1, blocks:[]};   // 노션 아웃라이너 트리
   let _dsgRefs  = [];
-  let _dsgCurTab = 'board';
+  let _dsgPosts = [];                       // 발송보드 게시글 배열
+  let _dsgCurTab = 'posts';
   let _dsgCurBoard = 'moodboard';
+  let _dsgCurPostId = null;
   let _dsgModalRefId  = null;
   let _dsgSaveTimer = null;
+  let _dsgPostSaveTimer = null;
   let _dsg_docDirty = false;                 // doc 전체를 하나의 dirty flag 로
 
   /* ===== 원격 동기화 상태 (업무일지 동일 패턴) =====
-     doc 은 트리 하나라 _dsg_docDirty 플래그 하나로 관리. refs 는 id 기반 세트. */
+     doc 은 트리 하나라 _dsg_docDirty 플래그 하나로 관리. refs / posts 는 id 기반 세트. */
   const _dsgRefsDirty  = new Set();
+  const _dsgPostsDirty = new Set();
+  const _dsgPostEditSeq = {};
   const _dsgEditSeq    = {};       // refs id별 편집 seq
   let _dsg_lastEditTs  = 0;
   let _dsg_pushing     = false;
@@ -13422,7 +13545,14 @@
     _dsg_lastEditTs = Date.now();
     _dsgSchedPush();
   }
-  function _dsgHasPending(){ return _dsg_docDirty || _dsgRefsDirty.size>0; }
+  function _dsgMarkPostDirty(id){
+    if(!id) return;
+    _dsgPostsDirty.add(id);
+    _dsgPostEditSeq[id] = (_dsgPostEditSeq[id]||0) + 1;
+    _dsg_lastEditTs = Date.now();
+    _dsgSchedPush();
+  }
+  function _dsgHasPending(){ return _dsg_docDirty || _dsgRefsDirty.size>0 || _dsgPostsDirty.size>0; }
 
   function _dsgSetSaveState(state){
     const tag = document.getElementById('dsgSaveTag');
@@ -13462,6 +13592,15 @@
       return Array.isArray(arr) ? arr : [];
     }catch(e){ return null; }
   }
+  async function _dsgFetchRemotePosts(){
+    try{
+      const r=await fetch(`${DSG_POSTS_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return [];
+      if(!r.ok) return null;
+      const arr=JSON.parse(await r.text());
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return null; }
+  }
 
   /* 지금 디자인탭 안에서 입력 중인가?
      보드 재렌더로 캐럿을 잃지 않도록 판단. (모달 안 input/textarea 도 포함) */
@@ -13476,7 +13615,7 @@
   /* remote pull — doc 은 dirty 아니면 통째로 remote 로 갱신, dirty 면 로컬 유지 */
   async function _dsgSyncFromRemote(force){
     if(!force && Date.now() - _dsg_lastEditTs < 3000) return;
-    const [rd, rr] = await Promise.all([_dsgFetchRemoteDoc(), _dsgFetchRemoteRefs()]);
+    const [rd, rr, rp] = await Promise.all([_dsgFetchRemoteDoc(), _dsgFetchRemoteRefs(), _dsgFetchRemotePosts()]);
 
     if(rd){
       // 방금 push 한 뒤엔 raw CDN 캐시가 오래된 remote 를 반환할 수 있어
@@ -13512,10 +13651,36 @@
       if(_dsgRefsDirty.size > 0) _dsgSchedPush();
     }
 
+    if(rp){
+      const remote = rp;
+      const remoteIds = new Set(remote.map(x=>x.id));
+      for(const p of _dsgPosts){
+        if(p && p.id && !remoteIds.has(p.id)) _dsgPostsDirty.add(p.id);
+      }
+      const dirtyIds = new Set(_dsgPostsDirty);
+      const localById = new Map(_dsgPosts.map(p=>[p.id, p]));
+      const merged = [];
+      const seen = new Set();
+      for(const p of remote){
+        if(!p || !p.id) continue;
+        if(dirtyIds.has(p.id) && localById.has(p.id)) merged.push(localById.get(p.id));
+        else merged.push(p);
+        seen.add(p.id);
+      }
+      for(const p of _dsgPosts){
+        if(!p || !p.id) continue;
+        if(!seen.has(p.id) && dirtyIds.has(p.id)) merged.unshift(p);
+      }
+      _dsgPosts = merged;
+      _dsgSavePosts();
+      if(_dsgPostsDirty.size > 0) _dsgSchedPush();
+    }
+
     if(_dsgIsEditing()) return;
     if(!document.getElementById('viewDesign')?.hidden){
       dsgDocRender();
       dsgRefsRender();
+      dsgPostsRender();
     }
   }
 
@@ -13538,15 +13703,37 @@
     }
     return {merged, dirtyIds:Array.from(dirtyIds)};
   }
+  async function _dsgBuildPostsPayload(){
+    const remote = await _dsgFetchRemotePosts();
+    if(remote===null) return null;
+    const dirtyIds = new Set(_dsgPostsDirty);
+    const localById = new Map(_dsgPosts.map(p=>[p.id, p]));
+    const seen = new Set();
+    const merged = [];
+    for(const p of remote){
+      if(!p || !p.id) continue;
+      if(dirtyIds.has(p.id) && localById.has(p.id)) merged.push(localById.get(p.id));
+      else merged.push(p);
+      seen.add(p.id);
+    }
+    for(const p of _dsgPosts){
+      if(!p || !p.id) continue;
+      if(!seen.has(p.id) && dirtyIds.has(p.id)) merged.unshift(p);
+    }
+    return {merged, dirtyIds:Array.from(dirtyIds)};
+  }
 
   async function _dsgPushOnce(){
     const seqBefore = {};
-    for(const id of _dsgRefsDirty)  seqBefore[id] = _dsgEditSeq[id]||0;
+    for(const id of _dsgRefsDirty)  seqBefore[id]  = _dsgEditSeq[id]||0;
+    const postSeqBefore = {};
+    for(const id of _dsgPostsDirty) postSeqBefore[id] = _dsgPostEditSeq[id]||0;
     const docWasDirty = _dsg_docDirty;
     _dsg_docDirty = false;         // 여기서 flip. 편집이 push 도중 들어오면 다시 true 됨.
 
-    let docOK = true, refsOK = true;
+    let docOK = true, refsOK = true, postsOK = true;
     let docResult=null, refsResult=null, refsPayload=null;
+    let postsResult=null, postsPayload=null;
 
     // doc 저장 — 통째로 덮어쓰기 (트리 하나)
     if(docWasDirty){
@@ -13572,6 +13759,19 @@
       if(!refsResult || !refsResult.ok) refsOK = false;
     }
 
+    // Posts (발송보드) 저장
+    if(_dsgPostsDirty.size > 0){
+      for(let attempt=0; attempt<3; attempt++){
+        postsPayload = await _dsgBuildPostsPayload();
+        if(!postsPayload){ postsOK=false; break; }
+        const json = JSON.stringify(postsPayload.merged, null, 2);
+        const b64  = btoa(unescape(encodeURIComponent(json)));
+        postsResult = await ghPut(DSG_POSTS_API, b64, 'chore: 디자인 발송보드 갱신', {forceMaster:true, noConflictRetry:true});
+        if(postsResult.ok || postsResult.reason!=='conflict') break;
+      }
+      if(!postsResult || !postsResult.ok) postsOK = false;
+    }
+
     if(refsOK && refsPayload){
       refsPayload.dirtyIds.forEach(id=>{
         if((_dsgEditSeq[id]||0) !== (seqBefore[id]||0)) return;
@@ -13580,17 +13780,26 @@
       _dsgRefs = refsPayload.merged;
       _dsgSaveRefs();
     }
+    if(postsOK && postsPayload){
+      postsPayload.dirtyIds.forEach(id=>{
+        if((_dsgPostEditSeq[id]||0) !== (postSeqBefore[id]||0)) return;
+        _dsgPostsDirty.delete(id);
+      });
+      _dsgPosts = postsPayload.merged;
+      _dsgSavePosts();
+    }
     if(!docOK) _dsg_docDirty = true;   // 실패 시 다시 dirty 로 마킹
 
-    if(docOK && refsOK){
+    if(docOK && refsOK && postsOK){
       _dsg_failStreak = 0;
       if(_dsgHasPending()) _dsgSchedPush();
       else                 _dsgSetSaveState('saved');
       if(!_dsgIsEditing() && !document.getElementById('viewDesign')?.hidden){
         dsgRefsRender();
+        dsgPostsRender();
       }
     } else {
-      const reason = (docResult&&docResult.reason) || (refsResult&&refsResult.reason);
+      const reason = (docResult&&docResult.reason) || (refsResult&&refsResult.reason) || (postsResult&&postsResult.reason);
       _dsgPushRetry(reason);
     }
   }
@@ -13680,6 +13889,14 @@
   function _dsgSaveRefs(){
     try{ localStorage.setItem(DSG_REFS_KEY, JSON.stringify(_dsgRefs)); }catch(e){}
   }
+  function _dsgLoadPosts(){
+    try{ _dsgPosts = JSON.parse(localStorage.getItem(DSG_POSTS_KEY)||'[]'); }
+    catch(e){ _dsgPosts=[]; }
+    if(!Array.isArray(_dsgPosts)) _dsgPosts=[];
+  }
+  function _dsgSavePosts(){
+    try{ localStorage.setItem(DSG_POSTS_KEY, JSON.stringify(_dsgPosts)); }catch(e){}
+  }
   function _dsgUid(){ return 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
   function _dsgNowIso(){ return new Date().toISOString(); }
   function _dsgEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
@@ -13692,16 +13909,18 @@
 
   /* 진입 — 최초 로드 + 렌더 */
   function dsgInit(){
-    if(dsgInit._done) { dsgDocRender(); dsgRefsRender(); _dsgApplyFs(); return; }
+    if(dsgInit._done) { dsgDocRender(); dsgRefsRender(); dsgPostsRender(); _dsgApplyFs(); return; }
     dsgInit._done = true;
     _dsgLoadUI();
     _dsgLoadFs();
     _dsgLoadDoc();
     _dsgLoadRefs();
-    dsgSwitchTab(_dsgCurTab||'board');
+    _dsgLoadPosts();
+    dsgSwitchTab(_dsgCurTab||'posts');
     dsgDocRender();
     _dsgApplyFs();
     dsgRefsRender();
+    dsgPostsRender();
     if(!dsgInit._paste){
       dsgInit._paste = true;
       window.addEventListener('paste', dsgHandlePaste);
@@ -13781,7 +14000,12 @@
       p.hidden = p.dataset.pane!==tab;
     });
     const sub = document.getElementById('dsgTitleSub');
-    if(sub) sub.textContent = tab==='refs' ? '/ 레퍼런스 갤러리' : '/ 작업 보드';
+    if(sub){
+      sub.textContent = tab==='refs' ? '/ 레퍼런스 갤러리'
+                       : tab==='posts' ? '/ 발송보드'
+                       : '/ 작업 보드';
+    }
+    if(tab==='posts') dsgPostsRender();
   }
 
   /* ===== 노션 아웃라이너 뷰 — 렌더 + 인라인 편집 ===== */
@@ -14246,6 +14470,266 @@
     r.readAsDataURL(file);
   }
 
+  /* ============ 발송보드 (posts) ============ */
+  function _dsgPostById(id){ return _dsgPosts.find(p=>p.id===id) || null; }
+  function _dsgCurPost(){ return _dsgCurPostId ? _dsgPostById(_dsgCurPostId) : null; }
+  function _dsgPostSortKey(p){
+    // 생성 순 desc (최근 게시글이 pill 앞쪽)
+    return -(new Date(p.created_at||0).getTime());
+  }
+  function _dsgVisiblePosts(){
+    const hideDone = (document.getElementById('dsgPostHideDone')||{}).checked;
+    return _dsgPosts.filter(p=>!(hideDone && p.done)).sort((a,b)=>_dsgPostSortKey(a)-_dsgPostSortKey(b));
+  }
+
+  function dsgPostsRender(){
+    const list = _dsgVisiblePosts();
+    const totalBadge = document.getElementById('dsgTabPostsBadge');
+    if(totalBadge) totalBadge.textContent = _dsgPosts.length;
+    const pills = document.getElementById('dsgPostPills');
+    const empty = document.getElementById('dsgPostEmpty');
+    const detail = document.getElementById('dsgPostDetail');
+    if(!pills) return;
+
+    // 선택 유효성 검증 — 숨겨졌거나 삭제됐으면 첫 번째로 이동
+    if(_dsgCurPostId && !list.find(p=>p.id===_dsgCurPostId)){
+      _dsgCurPostId = list[0] ? list[0].id : null;
+    }
+    if(!_dsgCurPostId && list.length) _dsgCurPostId = list[0].id;
+
+    // 알약 렌더
+    pills.innerHTML = list.map(p=>{
+      const active = p.id===_dsgCurPostId ? ' active':'';
+      const done   = p.done ? ' done':'';
+      const title  = _dsgEsc(p.title || '무제');
+      return `<button class="dsg-post-pill${active}${done}" onclick="dsgPostSelect('${p.id}')" title="${title}">
+        <span class="dsg-post-pill-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="dsg-post-pill-title">${title}</span>
+      </button>`;
+    }).join('');
+
+    // 상세
+    if(!_dsgCurPostId){
+      if(empty)  empty.hidden  = false;
+      if(detail) detail.hidden = true;
+      return;
+    }
+    if(empty)  empty.hidden  = true;
+    if(detail) detail.hidden = false;
+    const p = _dsgCurPost();
+    if(!p) return;
+    const titleInp = document.getElementById('dsgPostTitle');
+    const bodyInp  = document.getElementById('dsgPostBody');
+    if(titleInp && document.activeElement!==titleInp) titleInp.value = p.title || '';
+    if(bodyInp  && document.activeElement!==bodyInp)  bodyInp.value  = p.body || '';
+    detail.classList.toggle('done', !!p.done);
+    const meta = document.getElementById('dsgPostMeta');
+    if(meta){
+      const imgs = (p.images||[]).length;
+      const c = p.created_at ? new Date(p.created_at) : null;
+      const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
+      meta.textContent = [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
+    }
+    _dsgRenderPostImages(p);
+  }
+
+  function _dsgRenderPostImages(p){
+    const wrap = document.getElementById('dsgPostImages');
+    if(!wrap) return;
+    const imgs = p.images || [];
+    wrap.innerHTML = imgs.map(img=>{
+      const cap = _dsgEsc(img.caption||'');
+      return `<div class="dsg-post-img-tile" data-img="${img.id}">
+        <div class="dsg-post-img-thumb">
+          <img src="${_dsgEsc(img.url)}" alt="" onclick="dsgPostImgZoom('${img.id}')">
+          <button class="dsg-post-img-rm" onclick="dsgPostRemoveImage('${img.id}')" title="삭제">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <textarea class="dsg-post-img-cap" placeholder="사진 설명 (선택)" oninput="dsgPostImgCapInput('${img.id}', this.value)">${cap}</textarea>
+      </div>`;
+    }).join('');
+  }
+
+  function dsgPostAdd(silent){
+    const now = _dsgNowIso();
+    const d = new Date();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const p = {
+      id: _dsgUid(),
+      title: `${mm}${dd} `,
+      body: '',
+      images: [],
+      done: false,
+      created_at: now,
+      updated_at: now
+    };
+    _dsgPosts.unshift(p);
+    _dsgSavePosts();
+    _dsgCurPostId = p.id;
+    _dsgMarkPostDirty(p.id);
+    dsgPostsRender();
+    if(!silent){
+      // 새로 만든 게시글의 제목 입력에 커서
+      setTimeout(()=>{
+        const t = document.getElementById('dsgPostTitle');
+        if(t){ t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
+      }, 30);
+    }
+  }
+
+  function dsgPostSelect(id){
+    if(_dsgPostSaveTimer) _dsgFlushPostSave();
+    _dsgCurPostId = id;
+    dsgPostsRender();
+  }
+
+  function dsgPostDelete(){
+    const p = _dsgCurPost();
+    if(!p) return;
+    if(!confirm(`"${p.title||'무제'}" 게시글을 삭제할까요?`)) return;
+    const id = p.id;
+    _dsgPosts = _dsgPosts.filter(x=>x.id!==id);
+    _dsgSavePosts();
+    _dsgPostsDirty.delete(id);
+    // 삭제를 remote 에 반영하려면 전체를 dirty 로 마킹
+    _dsgPosts.forEach(x=>_dsgPostsDirty.add(x.id));
+    if(!_dsgPosts.length){
+      // 삭제로 배열이 비어도 dirty가 없으면 push 안 됨 → 강제로 push 스케줄
+      _dsg_lastEditTs = Date.now();
+      _dsgSchedPush();
+    } else {
+      _dsgSchedPush();
+    }
+    _dsgCurPostId = _dsgPosts[0] ? _dsgPosts[0].id : null;
+    dsgPostsRender();
+  }
+
+  function dsgPostToggleDone(){
+    const p = _dsgCurPost();
+    if(!p) return;
+    p.done = !p.done;
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    _dsgMarkPostDirty(p.id);
+    dsgPostsRender();
+  }
+
+  function dsgPostSchedSave(){
+    clearTimeout(_dsgPostSaveTimer);
+    _dsgPostSaveTimer = setTimeout(()=>_dsgFlushPostSave(), 300);
+  }
+  function _dsgFlushPostSave(){
+    clearTimeout(_dsgPostSaveTimer);
+    _dsgPostSaveTimer = null;
+    const p = _dsgCurPost();
+    if(!p) return;
+    const t = document.getElementById('dsgPostTitle');
+    const b = document.getElementById('dsgPostBody');
+    let changed = false;
+    if(t && t.value!==p.title){ p.title = t.value; changed = true; }
+    if(b && b.value!==p.body){  p.body  = b.value; changed = true; }
+    if(!changed) return;
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    _dsgMarkPostDirty(p.id);
+    // pill 라벨 갱신 (전체 재렌더는 캐럿 유실 우려 — pill 만 부분 갱신)
+    const pillWrap = document.getElementById('dsgPostPills');
+    if(pillWrap){
+      const btn = pillWrap.querySelector(`.dsg-post-pill[onclick*="'${p.id}'"] .dsg-post-pill-title`);
+      if(btn) btn.textContent = p.title || '무제';
+    }
+  }
+
+  /* 사진 첨부 — 드래그/드롭 · 파일선택 · 붙여넣기 공통 */
+  function dsgPostOpenUpload(){
+    if(!_dsgCurPostId){ dsgPostAdd(); }
+    const f = document.getElementById('dsgPostFile');
+    if(f) f.click();
+  }
+  function dsgPostFileChosen(e){
+    const files = e.target.files;
+    if(!files) return;
+    if(!_dsgCurPostId){ dsgPostAdd(true); }
+    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f); }
+    e.target.value = '';
+  }
+  function dsgPostDragOver(e){
+    e.preventDefault();
+    e.currentTarget.classList.add('dragover');
+  }
+  function dsgPostDragLeave(e){
+    e.currentTarget.classList.remove('dragover');
+  }
+  function dsgPostDrop(e){
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+    if(!_dsgCurPostId){ dsgPostAdd(true); }
+    const files = e.dataTransfer && e.dataTransfer.files;
+    if(!files) return;
+    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f); }
+  }
+  function _dsgPostIngestFile(f){
+    const targetId = _dsgCurPostId;
+    _dsgFileToDataURL(f, url=>{
+      const p = _dsgPostById(targetId);
+      if(!p) return;
+      p.images = p.images || [];
+      p.images.push({ id:_dsgUid(), url, caption:'' });
+      p.updated_at = _dsgNowIso();
+      _dsgSavePosts();
+      _dsgMarkPostDirty(p.id);
+      if(targetId===_dsgCurPostId) _dsgRenderPostImages(p);
+      const meta = document.getElementById('dsgPostMeta');
+      if(meta && targetId===_dsgCurPostId){
+        const imgs = p.images.length;
+        const c = p.created_at ? new Date(p.created_at) : null;
+        const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
+        meta.textContent = [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
+      }
+    });
+  }
+  function dsgPostRemoveImage(imgId){
+    const p = _dsgCurPost();
+    if(!p) return;
+    p.images = (p.images||[]).filter(x=>x.id!==imgId);
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    _dsgMarkPostDirty(p.id);
+    _dsgRenderPostImages(p);
+    const meta = document.getElementById('dsgPostMeta');
+    if(meta){
+      const imgs = p.images.length;
+      const c = p.created_at ? new Date(p.created_at) : null;
+      const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
+      meta.textContent = [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
+    }
+  }
+  function dsgPostImgCapInput(imgId, val){
+    const p = _dsgCurPost();
+    if(!p) return;
+    const img = (p.images||[]).find(x=>x.id===imgId);
+    if(!img) return;
+    if(img.caption === val) return;
+    img.caption = val;
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    // 캡션 편집 중 재렌더 없이 dirty 만 마킹 (캐럿 보존)
+    _dsgMarkPostDirty(p.id);
+  }
+  function dsgPostImgZoom(imgId){
+    const p = _dsgCurPost();
+    if(!p) return;
+    const img = (p.images||[]).find(x=>x.id===imgId);
+    if(!img) return;
+    // 새 창에 원본 열기 (data URL)
+    const w = window.open('', '_blank');
+    if(!w) return;
+    w.document.write(`<html><head><title>${_dsgEsc(img.caption||'사진')}</title><style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh}img{max-width:100%;max-height:100vh}</style></head><body><img src="${_dsgEsc(img.url)}"></body></html>`);
+    w.document.close();
+  }
+
   /* ============ 레퍼런스 갤러리 ============ */
   function _dsgAllBoards(){
     const set = new Set(['moodboard']);
@@ -14317,15 +14801,42 @@
     }).join('');
   }
 
-  /* 이미지 붙여넣기 */
+  /* 이미지 붙여넣기 (refs / posts 두 탭에서 활성) */
   function dsgHandlePaste(e){
-    if(_dsgCurTab!=='refs') return;
-    if(document.getElementById('dsgTaskModal').hidden===false) return;   // 태스크 모달 열려있을 때는 무시
-    const items = (e.clipboardData||{}).items || [];
-    for(const it of items){
-      if(it.type && it.type.startsWith('image/')){
-        const f = it.getAsFile();
-        if(f){ e.preventDefault(); _dsgIngestFile(f); }
+    if(document.getElementById('viewDesign')?.hidden) return;
+    // 활성 요소가 편집 가능한 텍스트라면(제목/본문/캡션 입력 중) 텍스트 붙여넣기를 우선
+    const ae = document.activeElement;
+    const isTextEdit = ae && (
+      (ae.tagName==='INPUT' && ae.type!=='file' && ae.type!=='checkbox') ||
+      ae.tagName==='TEXTAREA' || ae.isContentEditable
+    );
+    if(_dsgCurTab==='refs'){
+      if(isTextEdit) return;
+      const items = (e.clipboardData||{}).items || [];
+      for(const it of items){
+        if(it.type && it.type.startsWith('image/')){
+          const f = it.getAsFile();
+          if(f){ e.preventDefault(); _dsgIngestFile(f); }
+        }
+      }
+      return;
+    }
+    if(_dsgCurTab==='posts'){
+      if(isTextEdit) return;
+      if(!_dsgCurPostId){
+        // 게시글 없거나 미선택이면 자동으로 새 게시글 만들고 넣음
+        const items = (e.clipboardData||{}).items || [];
+        let has=false;
+        for(const it of items){ if(it.type && it.type.startsWith('image/')){ has=true; break; } }
+        if(!has) return;
+        dsgPostAdd(true);
+      }
+      const items = (e.clipboardData||{}).items || [];
+      for(const it of items){
+        if(it.type && it.type.startsWith('image/')){
+          const f = it.getAsFile();
+          if(f){ e.preventDefault(); _dsgPostIngestFile(f); }
+        }
       }
     }
   }
