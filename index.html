@@ -7223,7 +7223,11 @@
   .dsg-post-body:focus{border-color:#fbd8b4;background:#fff}
   .dsg-post-body::placeholder{color:#a8a29e}
   .dsg-post-img-drop-hint{margin-top:12px;padding:9px 12px;background:#fef7f0;border-radius:8px;color:#9a3412;font-size:12px;line-height:1.5}
-  .dsg-post-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:14px}
+  .dsg-post-imgtoolbar{display:flex;align-items:center;gap:10px;margin-top:12px;padding:6px 12px;background:#fafaf9;border:1px solid #efedea;border-radius:8px;font-size:12px;color:#57534e;max-width:360px}
+  .dsg-post-imgtoolbar-label{font-weight:600;flex:none}
+  .dsg-post-imgtoolbar input[type="range"]{flex:1;accent-color:#f97316;height:16px;cursor:pointer}
+  .dsg-post-imgtoolbar-val{flex:none;color:#a8a29e;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+  .dsg-post-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--dsg-post-img-size,180px),1fr));gap:14px;margin-top:14px}
   .dsg-post-images:empty{margin-top:0}
   .dsg-post-img-tile{background:#fafaf9;border:1px solid #efedea;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;position:relative}
   .dsg-post-img-thumb{width:100%;aspect-ratio:1;background:#f5f5f4;overflow:hidden;position:relative}
@@ -9008,29 +9012,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">디자인팀<span class="view-title-sub" id="dsgTitleSub">/ 작업 보드</span></h1>
+      <h1 class="view-title">디자인팀<span class="view-title-sub" id="dsgTitleSub">/ 발송보드</span></h1>
       <div class="dsg-head-actions">
         <span class="dsg-save-tag" id="dsgSaveTag" data-state="saved" hidden>저장됨</span>
       </div>
-    </div>
-
-    <!-- 서브탭: 발송보드 / 작업 보드 / 레퍼런스 갤러리 -->
-    <div class="dsg-tabs" role="tablist">
-      <button class="dsg-tab active" data-dsg="posts" onclick="dsgSwitchTab('posts')" role="tab" aria-selected="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h12l4 4v14H4z"/><path d="M16 4v4h4"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
-        발송보드
-        <span class="dsg-tab-badge" id="dsgTabPostsBadge">0</span>
-      </button>
-      <button class="dsg-tab" data-dsg="board" onclick="dsgSwitchTab('board')" role="tab" aria-selected="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        작업 보드
-        <span class="dsg-tab-badge" id="dsgTabBoardBadge">0</span>
-      </button>
-      <button class="dsg-tab" data-dsg="refs" onclick="dsgSwitchTab('refs')" role="tab" aria-selected="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        레퍼런스
-        <span class="dsg-tab-badge" id="dsgTabRefsBadge">0</span>
-      </button>
     </div>
 
     <!-- ============ 발송보드 — 알약탭 게시글 ============ -->
@@ -9073,6 +9058,11 @@
           <span class="dsg-hint-desktop">이미지를 <b>드래그&드롭</b>하거나 <b>Cmd/Ctrl+V</b> 로 붙여넣기 · 사진마다 설명 입력 가능</span>
           <span class="dsg-hint-mobile">아래 <b>＋ 사진 추가</b> 로 사진을 선택하세요.</span>
         </div>
+        <div class="dsg-post-imgtoolbar" id="dsgPostImgToolbar" hidden>
+          <span class="dsg-post-imgtoolbar-label">🖼️ 크기</span>
+          <input type="range" min="100" max="360" step="20" value="180" id="dsgPostImgSize" oninput="dsgPostSetImgSize(this.value)" aria-label="이미지 크기 (px)">
+          <span class="dsg-post-imgtoolbar-val" id="dsgPostImgSizeVal">180px</span>
+        </div>
         <div class="dsg-post-images" id="dsgPostImages"></div>
         <div class="dsg-post-imgadd">
           <button class="dsg-btn-ghost" onclick="dsgPostOpenUpload()">
@@ -9085,136 +9075,6 @@
       </div>
     </div>
 
-    <!-- ============ 작업 보드 — 노션 스타일 아웃라이너 ============ -->
-    <div class="dsg-pane" data-pane="board" hidden>
-      <!-- 단순 툴바: 검색 · 완료 숨김 · 폰트 크기 · 접기/펴기 · 섹션 추가 -->
-      <div class="dsg-doc-toolbar">
-        <input id="dsgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
-        <label class="dsg-hide-done">
-          <input type="checkbox" id="dsgDocHideDone" onchange="dsgDocRender()">
-          <span>완료 숨김</span>
-        </label>
-        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="dsgFsPicker" title="글꼴 크기 (8~28px)">
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
-          <input class="dsg-fs-num" id="dsgFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
-          <span class="dsg-fs-suffix">px</span>
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
-        </div>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
-          펼치기
-        </button>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
-          접기
-        </button>
-      </div>
-
-      <div id="dsgBoardWrap" class="dsg-doc-wrap">
-        <div class="dsg-empty" id="dsgEmpty" hidden>
-          <div class="dsg-empty-icon">📝</div>
-          <div class="dsg-empty-title">아직 작업이 없어요</div>
-          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작해 보세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
-        </div>
-        <div id="dsgDoc" class="dsg-doc"></div>
-
-        <!-- 문서 하단 상시 노출 추가 영역 (노션식 "글쓰기 아이콘") -->
-        <div class="dsg-doc-add" id="dsgDocAdd">
-          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
-            <span class="dsg-doc-add-plus">＋</span>
-            <span>여기에 입력하세요</span>
-          </button>
-          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
-            새 섹션
-          </button>
-        </div>
-
-        <div class="dsg-doc-hint">
-          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
-          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ 레퍼런스 갤러리 ============ -->
-    <div class="dsg-pane" data-pane="refs" hidden>
-      <div class="dsg-toolbar">
-        <div class="dsg-board-tabs" id="dsgBoardTabs"></div>
-        <div class="dsg-filters">
-          <input id="dsgRefSearch" class="dsg-search" type="search" placeholder="레퍼런스 검색 (제목·노트·태그)" oninput="dsgRefsRender()">
-          <label class="dsg-hide-done">
-            <input type="checkbox" id="dsgRefPinnedOnly" onchange="dsgRefsRender()">
-            <span>📌 핀 고정만</span>
-          </label>
-        </div>
-        <button class="dsg-new-btn" onclick="dsgOpenRefUpload()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          이미지 추가
-        </button>
-      </div>
-
-      <div class="dsg-refs-hint" id="dsgRefsHint">
-        <span class="dsg-hint-desktop"><span class="dsg-refs-hint-key">Cmd+V</span> 로 이미지를 붙여넣거나 이 영역에 <b>드래그&드롭</b>하세요.</span>
-        <span class="dsg-hint-mobile">우측 상단 <b>+ 이미지 추가</b> 를 눌러 사진을 선택하세요.</span>
-        선택한 카테고리(<b id="dsgRefsHintBoard">무드보드</b>)에 자동으로 저장됩니다.
-      </div>
-
-      <div id="dsgRefsWrap" class="dsg-refs-drop" ondragover="dsgRefDragOver(event)" ondragleave="dsgRefDragLeave(event)" ondrop="dsgRefDrop(event)">
-        <div class="dsg-empty" id="dsgRefEmpty" hidden>
-          <div class="dsg-empty-icon">🖼️</div>
-          <div class="dsg-empty-title">저장된 레퍼런스가 없어요</div>
-          <div class="dsg-empty-sub">이미지를 붙여넣거나 드래그&드롭 하세요.<br/>노트·태그·원본 링크도 함께 저장할 수 있습니다.</div>
-        </div>
-        <div id="dsgRefsGrid" class="dsg-refs-grid"></div>
-      </div>
-      <input type="file" id="dsgRefFile" accept="image/*" multiple hidden onchange="dsgRefFileChosen(event)">
-    </div>
-
-    <!-- ============ 레퍼런스 상세 편집 모달 ============ -->
-    <div class="dsg-modal" id="dsgRefModal" hidden onclick="dsgCloseRefModal(event)">
-      <div class="dsg-modal-card dsg-modal-card-ref" onclick="event.stopPropagation()">
-        <div class="dsg-ref-preview" id="dsgRefPreview"></div>
-        <div class="dsg-modal-body">
-          <input class="dsg-modal-title" id="dsgRefTitle" placeholder="레퍼런스 제목" oninput="dsgRefSchedSave()">
-          <div class="dsg-modal-meta">
-            <div class="dsg-meta-row">
-              <label class="dsg-meta-label">카테고리</label>
-              <input class="dsg-meta-input" id="dsgRefBoard" placeholder="무드보드 / 컬러 / 컴페티터 / ..." oninput="dsgRefSchedSave()" list="dsgBoardOptions">
-              <datalist id="dsgBoardOptions"></datalist>
-            </div>
-            <div class="dsg-meta-row">
-              <label class="dsg-meta-label">원본 링크</label>
-              <input class="dsg-meta-input" id="dsgRefSource" placeholder="https://..." oninput="dsgRefSchedSave()">
-            </div>
-            <div class="dsg-meta-row dsg-meta-tags">
-              <label class="dsg-meta-label">태그</label>
-              <div class="dsg-tag-input-wrap">
-                <div class="dsg-tag-list" id="dsgRefTagList"></div>
-                <input class="dsg-tag-input" id="dsgRefTagInput" placeholder="#태그 입력 후 Enter" onkeydown="dsgRefTagKey(event)">
-              </div>
-            </div>
-            <div class="dsg-meta-row">
-              <label class="dsg-meta-label">📌 핀</label>
-              <label class="dsg-toggle">
-                <input type="checkbox" id="dsgRefPinned" onchange="dsgRefSchedSave()">
-                <span>상단 고정</span>
-              </label>
-            </div>
-          </div>
-          <div class="dsg-modal-desc-label">노트</div>
-          <textarea class="dsg-modal-desc" id="dsgRefNotes" placeholder="이 레퍼런스에 대한 메모, 어디에 참고할지…" oninput="dsgRefSchedSave()"></textarea>
-          <div class="dsg-modal-actions">
-            <button class="dsg-btn-ghost" onclick="dsgDeleteRef()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
-              삭제
-            </button>
-            <span class="dsg-modal-save-tag" id="dsgRefModalSaveTag">저장됨</span>
-            <button class="dsg-btn-primary" onclick="dsgCloseRefModal()">닫기</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div><!-- /viewDesign -->
 
   <!-- ============ 물류팀 뷰: 발주 관리 ============ -->
@@ -14531,12 +14391,15 @@
       meta.textContent = [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
     }
     _dsgRenderPostImages(p);
+    _dsgApplyPostImgSize(p);
   }
 
   function _dsgRenderPostImages(p){
     const wrap = document.getElementById('dsgPostImages');
     if(!wrap) return;
     const imgs = p.images || [];
+    const toolbar = document.getElementById('dsgPostImgToolbar');
+    if(toolbar) toolbar.hidden = imgs.length===0;
     wrap.innerHTML = imgs.map(img=>{
       const cap = _dsgEsc(img.caption||'');
       return `<div class="dsg-post-img-tile" data-img="${img.id}">
@@ -14561,6 +14424,7 @@
       title: `${mm}${dd} `,
       body: '',
       images: [],
+      imgSize: 180,
       done: false,
       created_at: now,
       updated_at: now
@@ -14616,13 +14480,9 @@
     dsgPostsRender();
   }
 
-  function dsgPostSchedSave(){
-    clearTimeout(_dsgPostSaveTimer);
-    _dsgPostSaveTimer = setTimeout(()=>_dsgFlushPostSave(), 300);
-  }
+  /* 저장은 매 입력마다 즉시 (로컬은 바로, 원격은 _dsgSchedPush 안에서 debounce) */
+  function dsgPostSchedSave(){ _dsgFlushPostSave(); }
   function _dsgFlushPostSave(){
-    clearTimeout(_dsgPostSaveTimer);
-    _dsgPostSaveTimer = null;
     const p = _dsgCurPost();
     if(!p) return;
     const t = document.getElementById('dsgPostTitle');
@@ -14640,6 +14500,25 @@
       const btn = pillWrap.querySelector(`.dsg-post-pill[onclick*="'${p.id}'"] .dsg-post-pill-title`);
       if(btn) btn.textContent = p.title || '무제';
     }
+  }
+  function dsgPostSetImgSize(px){
+    const p = _dsgCurPost();
+    if(!p) return;
+    const n = Math.max(80, Math.min(500, parseInt(px,10)||180));
+    p.imgSize = n;
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    _dsgMarkPostDirty(p.id);
+    _dsgApplyPostImgSize(p);
+  }
+  function _dsgApplyPostImgSize(p){
+    const wrap = document.getElementById('dsgPostImages');
+    const val  = document.getElementById('dsgPostImgSizeVal');
+    const inp  = document.getElementById('dsgPostImgSize');
+    const n = p && p.imgSize ? p.imgSize : 180;
+    if(wrap) wrap.style.setProperty('--dsg-post-img-size', n+'px');
+    if(val)  val.textContent = n+'px';
+    if(inp && document.activeElement!==inp) inp.value = n;
   }
 
   /* 사진 첨부 — 드래그/드롭 · 파일선택 · 붙여넣기 공통 */
@@ -14801,42 +14680,25 @@
     }).join('');
   }
 
-  /* 이미지 붙여넣기 (refs / posts 두 탭에서 활성) */
+  /* 이미지 붙여넣기 — 발송보드 게시글로 라우팅 */
   function dsgHandlePaste(e){
     if(document.getElementById('viewDesign')?.hidden) return;
-    // 활성 요소가 편집 가능한 텍스트라면(제목/본문/캡션 입력 중) 텍스트 붙여넣기를 우선
+    // 활성 요소가 편집 가능한 텍스트라면(제목/본문/캡션 입력 중) 텍스트 붙여넣기 우선
     const ae = document.activeElement;
     const isTextEdit = ae && (
       (ae.tagName==='INPUT' && ae.type!=='file' && ae.type!=='checkbox') ||
       ae.tagName==='TEXTAREA' || ae.isContentEditable
     );
-    if(_dsgCurTab==='refs'){
-      if(isTextEdit) return;
-      const items = (e.clipboardData||{}).items || [];
-      for(const it of items){
-        if(it.type && it.type.startsWith('image/')){
-          const f = it.getAsFile();
-          if(f){ e.preventDefault(); _dsgIngestFile(f); }
-        }
-      }
-      return;
-    }
-    if(_dsgCurTab==='posts'){
-      if(isTextEdit) return;
-      if(!_dsgCurPostId){
-        // 게시글 없거나 미선택이면 자동으로 새 게시글 만들고 넣음
-        const items = (e.clipboardData||{}).items || [];
-        let has=false;
-        for(const it of items){ if(it.type && it.type.startsWith('image/')){ has=true; break; } }
-        if(!has) return;
-        dsgPostAdd(true);
-      }
-      const items = (e.clipboardData||{}).items || [];
-      for(const it of items){
-        if(it.type && it.type.startsWith('image/')){
-          const f = it.getAsFile();
-          if(f){ e.preventDefault(); _dsgPostIngestFile(f); }
-        }
+    if(isTextEdit) return;
+    const items = (e.clipboardData||{}).items || [];
+    let hasImg = false;
+    for(const it of items){ if(it.type && it.type.startsWith('image/')){ hasImg=true; break; } }
+    if(!hasImg) return;
+    if(!_dsgCurPostId) dsgPostAdd(true);
+    for(const it of items){
+      if(it.type && it.type.startsWith('image/')){
+        const f = it.getAsFile();
+        if(f){ e.preventDefault(); _dsgPostIngestFile(f); }
       }
     }
   }
