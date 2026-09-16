@@ -7188,47 +7188,65 @@
     .dsg-hint-mobile{display:inline}
   }
 
-  /* ===== 발송보드 (posts) — 알약탭 게시글 ===== */
-  .dsg-post-toolbar{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-  .dsg-post-pills{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
-  .dsg-post-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:#fff;border:1.5px solid #e7e5e4;color:#57534e;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;max-width:240px}
-  .dsg-post-pill:hover{background:#fef7f0;border-color:#fbd8b4;color:#9a3412}
-  .dsg-post-pill.active{background:linear-gradient(135deg,#fb923c,#f97316);color:#fff;border-color:#f97316;box-shadow:0 2px 10px rgba(249,115,22,.28)}
-  .dsg-post-pill-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
-  .dsg-post-pill.done{background:#f5f5f4;color:#a8a29e;border-color:#e7e5e4}
-  .dsg-post-pill.done.active{background:linear-gradient(135deg,#a8a29e,#78716c);color:#fff;border-color:#78716c}
-  .dsg-post-pill.done .dsg-post-pill-title{text-decoration:line-through}
-  .dsg-post-pill-check{width:16px;height:16px;border:1.5px solid currentColor;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex:none;opacity:.7}
-  .dsg-post-pill-check svg{width:10px;height:10px;stroke:currentColor;stroke-width:3;fill:none;opacity:0;transition:opacity .12s}
-  .dsg-post-pill.done .dsg-post-pill-check{opacity:1}
-  .dsg-post-pill.done .dsg-post-pill-check svg{opacity:1}
-  .dsg-post-toolbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .dsg-post-detail{background:#fff;border:1px solid #eee;border-radius:14px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.03);position:relative;transition:background .15s, border-color .15s}
-  .dsg-post-detail.dragover{background:#fff8f0;border-color:#f97316;border-style:dashed}
-  .dsg-post-detail.done{background:#fafaf9}
-  .dsg-post-detail.done .dsg-post-title,.dsg-post-detail.done .dsg-post-body{color:#78716c}
-  .dsg-post-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-  .dsg-post-check{width:36px;height:36px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:all .15s;color:#78716c}
-  .dsg-post-check:hover{border-color:#f97316;color:#f97316;background:#fff8f0}
-  .dsg-post-check svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.8;fill:none;opacity:0;transition:opacity .12s}
-  .dsg-post-detail.done .dsg-post-check{background:#22c55e;border-color:#16a34a;color:#fff}
-  .dsg-post-detail.done .dsg-post-check svg{opacity:1}
-  .dsg-post-title{flex:1;min-width:0;font-size:20px;font-weight:700;color:#1c1917;border:none;background:transparent;padding:6px 8px;outline:none;letter-spacing:-.01em;border-radius:8px}
-  .dsg-post-title:focus{background:#fef7f0}
+  /* ===== 디자인 보드 (posts) — 아코디언 게시글 리스트 ===== */
+  .dsg-post-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .dsg-post-toolbar-spacer{flex:1}
+  .dsg-post-list{display:flex;flex-direction:column;gap:10px}
+
+  /* 각 게시글 = 알약 헤더 + 접힘/펼침 본문 */
+  .dsg-post-item{border-radius:14px;background:#fff;border:1.5px solid #e7e5e4;transition:border-color .15s, box-shadow .15s;overflow:hidden}
+  .dsg-post-item.open{border-color:#f97316;box-shadow:0 3px 14px rgba(249,115,22,.14)}
+  .dsg-post-item.done{background:#fafaf9}
+  .dsg-post-item.dragover{border-color:#f97316;border-style:dashed;background:#fff8f0}
+
+  /* 헤더 (알약 스타일) */
+  .dsg-post-item-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none;background:transparent;transition:background .12s}
+  .dsg-post-item-head:hover{background:#fef7f0}
+  .dsg-post-item.open .dsg-post-item-head{background:linear-gradient(135deg,#fb923c,#f97316);color:#fff}
+  .dsg-post-item.open .dsg-post-item-head:hover{filter:brightness(1.02)}
+  .dsg-post-item.done .dsg-post-item-head{background:#f5f5f4;color:#a8a29e}
+  .dsg-post-item.done.open .dsg-post-item-head{background:linear-gradient(135deg,#a8a29e,#78716c);color:#fff}
+
+  .dsg-post-item-check{width:22px;height:22px;border-radius:6px;border:1.5px solid currentColor;background:transparent;display:flex;align-items:center;justify-content:center;flex:none;color:inherit;opacity:.7;cursor:pointer;transition:opacity .12s}
+  .dsg-post-item-check:hover{opacity:1}
+  .dsg-post-item-check svg{width:12px;height:12px;stroke:currentColor;stroke-width:3;fill:none;opacity:0;transition:opacity .12s}
+  .dsg-post-item.done .dsg-post-item-check{background:currentColor;opacity:1}
+  .dsg-post-item.done .dsg-post-item-check svg{opacity:1;stroke:#fff}
+
+  .dsg-post-item-title{flex:1;min-width:0;font-size:14.5px;font-weight:600;color:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.005em}
+  .dsg-post-item.done .dsg-post-item-title{text-decoration:line-through}
+
+  .dsg-post-item-badge{flex:none;font-size:11.5px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.28);color:inherit;font-weight:600}
+  .dsg-post-item:not(.open) .dsg-post-item-badge{background:#f5f5f4;color:#78716c}
+
+  .dsg-post-item-del{width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:inherit;opacity:.55;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:opacity .12s, background .12s}
+  .dsg-post-item-del:hover{opacity:1;background:rgba(220,38,38,.14);color:#dc2626}
+  .dsg-post-item.open .dsg-post-item-del:hover{background:rgba(255,255,255,.22);color:#fff}
+  .dsg-post-item-del svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+
+  .dsg-post-item-chev{width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex:none;color:inherit;opacity:.6;transition:transform .18s}
+  .dsg-post-item.open .dsg-post-item-chev{transform:rotate(180deg);opacity:1}
+  .dsg-post-item-chev svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none}
+
+  /* 본문 (펼쳤을 때 노출) */
+  .dsg-post-item-body{padding:14px 16px 18px;border-top:1px solid #f1efec;background:#fff;display:flex;flex-direction:column;gap:12px}
+  .dsg-post-item.done .dsg-post-item-body{background:#fafaf9}
+  .dsg-post-item:not(.open) .dsg-post-item-body{display:none}
+
+  .dsg-post-title{width:100%;font-size:17px;font-weight:700;color:#1c1917;border:1px solid transparent;background:transparent;padding:6px 8px;outline:none;letter-spacing:-.01em;border-radius:8px;box-sizing:border-box}
+  .dsg-post-title:focus{background:#fef7f0;border-color:#fbd8b4}
   .dsg-post-title::placeholder{color:#d6d3d1;font-weight:600}
-  .dsg-post-del{width:34px;height:34px;border-radius:8px;border:none;background:transparent;color:#a8a29e;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:all .12s}
-  .dsg-post-del:hover{color:#dc2626;background:#fef2f2}
-  .dsg-post-del svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
-  .dsg-post-body{width:100%;min-height:110px;resize:vertical;border:1px solid #f1efec;background:#fafaf9;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.55;color:#292524;font-family:inherit;outline:none;transition:border-color .15s, background .15s;box-sizing:border-box}
+  .dsg-post-body{width:100%;min-height:80px;resize:vertical;border:1px solid #f1efec;background:#fafaf9;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.55;color:#292524;font-family:inherit;outline:none;transition:border-color .15s, background .15s;box-sizing:border-box}
   .dsg-post-body:focus{border-color:#fbd8b4;background:#fff}
   .dsg-post-body::placeholder{color:#a8a29e}
-  .dsg-post-img-drop-hint{margin-top:12px;padding:9px 12px;background:#fef7f0;border-radius:8px;color:#9a3412;font-size:12px;line-height:1.5}
-  .dsg-post-imgtoolbar{display:flex;align-items:center;gap:10px;margin-top:12px;padding:6px 12px;background:#fafaf9;border:1px solid #efedea;border-radius:8px;font-size:12px;color:#57534e;max-width:360px}
+
+  .dsg-post-img-drop-hint{padding:8px 12px;background:#fef7f0;border-radius:8px;color:#9a3412;font-size:12px;line-height:1.5}
+  .dsg-post-imgtoolbar{display:flex;align-items:center;gap:10px;padding:6px 12px;background:#fafaf9;border:1px solid #efedea;border-radius:8px;font-size:12px;color:#57534e;max-width:360px}
   .dsg-post-imgtoolbar-label{font-weight:600;flex:none}
   .dsg-post-imgtoolbar input[type="range"]{flex:1;accent-color:#f97316;height:16px;cursor:pointer}
   .dsg-post-imgtoolbar-val{flex:none;color:#a8a29e;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
-  .dsg-post-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--dsg-post-img-size,180px),1fr));gap:14px;margin-top:14px}
-  .dsg-post-images:empty{margin-top:0}
+  .dsg-post-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--dsg-post-img-size,180px),1fr));gap:14px}
+  .dsg-post-images:empty{display:none}
   .dsg-post-img-tile{background:#fafaf9;border:1px solid #efedea;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;position:relative}
   .dsg-post-img-thumb{width:100%;aspect-ratio:1;background:#f5f5f4;overflow:hidden;position:relative}
   .dsg-post-img-thumb img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
@@ -7238,15 +7256,15 @@
   .dsg-post-img-cap{border:none;outline:none;padding:8px 10px;font-size:12.5px;color:#44403c;background:#fff;border-top:1px solid #efedea;resize:vertical;min-height:38px;font-family:inherit;line-height:1.4;box-sizing:border-box;width:100%}
   .dsg-post-img-cap::placeholder{color:#c8c5c1}
   .dsg-post-img-cap:focus{background:#fffaf0}
-  .dsg-post-imgadd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .dsg-post-imgadd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
   .dsg-post-meta{color:#a8a29e;font-size:12px}
   @media (max-width:560px){
-    .dsg-post-detail{padding:14px 12px;border-radius:12px}
-    .dsg-post-title{font-size:17px}
+    .dsg-post-item-head{padding:9px 12px;gap:8px}
+    .dsg-post-item-title{font-size:13.5px}
+    .dsg-post-item-body{padding:12px}
+    .dsg-post-title{font-size:15.5px}
     .dsg-post-images{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
     .dsg-post-toolbar{gap:8px}
-    .dsg-post-pill{padding:7px 12px;font-size:12.5px;max-width:190px}
-    .dsg-post-pill-title{max-width:120px}
   }
 
   /* ===== 연차 (인사팀 뷰) ===== */
@@ -9012,27 +9030,24 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">디자인팀<span class="view-title-sub" id="dsgTitleSub">/ 발송보드</span></h1>
+      <h1 class="view-title">디자인팀<span class="view-title-sub" id="dsgTitleSub">/ 디자인 보드</span></h1>
       <div class="dsg-head-actions">
         <span class="dsg-save-tag" id="dsgSaveTag" data-state="saved" hidden>저장됨</span>
       </div>
     </div>
 
-    <!-- ============ 발송보드 — 알약탭 게시글 ============ -->
+    <!-- ============ 디자인 보드 — 아코디언 게시글 리스트 ============ -->
     <div class="dsg-pane" data-pane="posts">
-      <!-- 상단: 알약탭 리스트 + 필터 + 새 게시 -->
       <div class="dsg-post-toolbar">
-        <div class="dsg-post-pills" id="dsgPostPills"></div>
-        <div class="dsg-post-toolbar-actions">
-          <label class="dsg-hide-done">
-            <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
-            <span>완료 숨김</span>
-          </label>
-          <button class="dsg-new-btn" onclick="dsgPostAdd()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            새 게시
-          </button>
-        </div>
+        <label class="dsg-hide-done">
+          <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
+          <span>완료 숨김</span>
+        </label>
+        <div class="dsg-post-toolbar-spacer"></div>
+        <button class="dsg-new-btn" onclick="dsgPostAdd()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          새 게시
+        </button>
       </div>
 
       <!-- 빈 상태 -->
@@ -9042,37 +9057,8 @@
         <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0914 한국=&gt;중국 발송</b> · 내용에 스와치·샘플 목록 · 사진 드래그&드롭.</div>
       </div>
 
-      <!-- 상세 (선택된 게시글) -->
-      <div class="dsg-post-detail" id="dsgPostDetail" hidden ondragover="dsgPostDragOver(event)" ondragleave="dsgPostDragLeave(event)" ondrop="dsgPostDrop(event)">
-        <div class="dsg-post-head">
-          <button class="dsg-post-check" id="dsgPostCheckBtn" onclick="dsgPostToggleDone()" title="완료 토글">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          </button>
-          <input class="dsg-post-title" id="dsgPostTitle" placeholder="예) 0914 한국=>중국 발송" oninput="dsgPostSchedSave()">
-          <button class="dsg-post-del" onclick="dsgPostDelete()" title="게시글 삭제">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
-          </button>
-        </div>
-        <textarea class="dsg-post-body" id="dsgPostBody" placeholder="예) 수배요청 스와치 샘플, 가방 완성 샘플…" oninput="dsgPostSchedSave()"></textarea>
-        <div class="dsg-post-img-drop-hint">
-          <span class="dsg-hint-desktop">이미지를 <b>드래그&드롭</b>하거나 <b>Cmd/Ctrl+V</b> 로 붙여넣기 · 사진마다 설명 입력 가능</span>
-          <span class="dsg-hint-mobile">아래 <b>＋ 사진 추가</b> 로 사진을 선택하세요.</span>
-        </div>
-        <div class="dsg-post-imgtoolbar" id="dsgPostImgToolbar" hidden>
-          <span class="dsg-post-imgtoolbar-label">🖼️ 크기</span>
-          <input type="range" min="100" max="360" step="20" value="180" id="dsgPostImgSize" oninput="dsgPostSetImgSize(this.value)" aria-label="이미지 크기 (px)">
-          <span class="dsg-post-imgtoolbar-val" id="dsgPostImgSizeVal">180px</span>
-        </div>
-        <div class="dsg-post-images" id="dsgPostImages"></div>
-        <div class="dsg-post-imgadd">
-          <button class="dsg-btn-ghost" onclick="dsgPostOpenUpload()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            사진 추가
-          </button>
-          <span class="dsg-post-meta" id="dsgPostMeta"></span>
-        </div>
-        <input type="file" id="dsgPostFile" accept="image/*" multiple hidden onchange="dsgPostFileChosen(event)">
-      </div>
+      <!-- 아코디언 리스트 (게시글마다 헤더 + 접힘/펼침 본문) -->
+      <div class="dsg-post-list" id="dsgPostList"></div>
     </div>
 
   </div><!-- /viewDesign -->
@@ -13347,7 +13333,7 @@
        · 레퍼런스: 붙여넣기(Cmd+V) · 드래그&드롭 · 카테고리(board) · 핀 고정 · 태그 · 원본 링크 */
   const DSG_DOC_KEY   = 'brightbeed_design_doc_v1';   // 노션 스타일 아웃라이너 트리
   const DSG_REFS_KEY  = 'brightbeed_design_refs_v1';
-  const DSG_POSTS_KEY = 'brightbeed_design_posts_v1'; // 발송보드 게시글
+  const DSG_POSTS_KEY = 'brightbeed_design_posts_v1'; // 디자인 보드 게시글
   const DSG_UI_KEY    = 'brightbeed_design_ui_v1';
   const DSG_FS_KEY    = 'brightbeed_design_fs_v1';    // 문서 폰트 크기 (px, 숫자)
   const DSG_FS_MIN    = 8;
@@ -13370,7 +13356,7 @@
   const DSG_PRIO_TITLE = {'':'우선순위 없음', high:'높음', medium:'중간', low:'낮음'};
   let _dsgDoc   = {version:1, blocks:[]};   // 노션 아웃라이너 트리
   let _dsgRefs  = [];
-  let _dsgPosts = [];                       // 발송보드 게시글 배열
+  let _dsgPosts = [];                       // 디자인 보드 게시글 배열
   let _dsgCurTab = 'posts';
   let _dsgCurBoard = 'moodboard';
   let _dsgCurPostId = null;
@@ -13619,14 +13605,14 @@
       if(!refsResult || !refsResult.ok) refsOK = false;
     }
 
-    // Posts (발송보드) 저장
+    // Posts (디자인 보드) 저장
     if(_dsgPostsDirty.size > 0){
       for(let attempt=0; attempt<3; attempt++){
         postsPayload = await _dsgBuildPostsPayload();
         if(!postsPayload){ postsOK=false; break; }
         const json = JSON.stringify(postsPayload.merged, null, 2);
         const b64  = btoa(unescape(encodeURIComponent(json)));
-        postsResult = await ghPut(DSG_POSTS_API, b64, 'chore: 디자인 발송보드 갱신', {forceMaster:true, noConflictRetry:true});
+        postsResult = await ghPut(DSG_POSTS_API, b64, 'chore: 디자인 디자인 보드 갱신', {forceMaster:true, noConflictRetry:true});
         if(postsResult.ok || postsResult.reason!=='conflict') break;
       }
       if(!postsResult || !postsResult.ok) postsOK = false;
@@ -13862,7 +13848,7 @@
     const sub = document.getElementById('dsgTitleSub');
     if(sub){
       sub.textContent = tab==='refs' ? '/ 레퍼런스 갤러리'
-                       : tab==='posts' ? '/ 발송보드'
+                       : tab==='posts' ? '/ 디자인 보드'
                        : '/ 작업 보드';
     }
     if(tab==='posts') dsgPostsRender();
@@ -14330,88 +14316,179 @@
     r.readAsDataURL(file);
   }
 
-  /* ============ 발송보드 (posts) ============ */
+  /* ============ 디자인 보드 (posts) — 아코디언 리스트 ============ */
   function _dsgPostById(id){ return _dsgPosts.find(p=>p.id===id) || null; }
-  function _dsgCurPost(){ return _dsgCurPostId ? _dsgPostById(_dsgCurPostId) : null; }
-  function _dsgPostSortKey(p){
-    // 생성 순 desc (최근 게시글이 pill 앞쪽)
-    return -(new Date(p.created_at||0).getTime());
-  }
+  function _dsgPostSortKey(p){ return -(new Date(p.created_at||0).getTime()); }
   function _dsgVisiblePosts(){
     const hideDone = (document.getElementById('dsgPostHideDone')||{}).checked;
     return _dsgPosts.filter(p=>!(hideDone && p.done)).sort((a,b)=>_dsgPostSortKey(a)-_dsgPostSortKey(b));
   }
+  function _dsgPostMetaText(p){
+    const imgs = (p.images||[]).length;
+    const c = p.created_at ? new Date(p.created_at) : null;
+    const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
+    return [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
+  }
+
+  function _dsgPostItemHtml(p){
+    const open = p.id===_dsgCurPostId;
+    const cls  = ['dsg-post-item', open?'open':'', p.done?'done':''].filter(Boolean).join(' ');
+    const imgs = p.images || [];
+    const size = p.imgSize || 180;
+    const title = _dsgEsc(p.title||'무제');
+    const rawTitle = _dsgEsc(p.title||'');
+    const rawBody  = _dsgEsc(p.body||'');
+    const badge = imgs.length ? `<span class="dsg-post-item-badge">🖼 ${imgs.length}</span>` : '';
+    const imgTiles = imgs.map(img=>`<div class="dsg-post-img-tile" data-img="${img.id}">
+      <div class="dsg-post-img-thumb">
+        <img src="${_dsgEsc(img.url)}" alt="" onclick="dsgPostImgZoom('${p.id}','${img.id}')">
+        <button class="dsg-post-img-rm" onclick="dsgPostRemoveImage('${p.id}','${img.id}')" title="삭제">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <textarea class="dsg-post-img-cap" placeholder="사진 설명 (선택)" oninput="dsgPostImgCapInput('${p.id}','${img.id}', this.value)">${_dsgEsc(img.caption||'')}</textarea>
+    </div>`).join('');
+
+    return `<div class="${cls}" data-id="${p.id}">
+      <div class="dsg-post-item-head" onclick="dsgPostToggleOpen('${p.id}', event)">
+        <button class="dsg-post-item-check" onclick="event.stopPropagation();dsgPostToggleDone('${p.id}')" title="완료 토글" aria-label="완료 토글">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <span class="dsg-post-item-title">${title}</span>
+        ${badge}
+        <button class="dsg-post-item-del" onclick="event.stopPropagation();dsgPostDelete('${p.id}')" title="게시글 삭제" aria-label="삭제">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+        <span class="dsg-post-item-chev" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </span>
+      </div>
+      <div class="dsg-post-item-body" ondragover="dsgPostDragOver(event,'${p.id}')" ondragleave="dsgPostDragLeave(event)" ondrop="dsgPostDrop(event,'${p.id}')">
+        <input class="dsg-post-title" data-post="${p.id}" placeholder="예) 0914 한국=>중국 발송" value="${rawTitle}" oninput="dsgPostTitleInput('${p.id}', this.value)">
+        <textarea class="dsg-post-body" data-post="${p.id}" placeholder="예) 수배요청 스와치 샘플, 가방 완성 샘플…" oninput="dsgPostBodyInput('${p.id}', this.value)">${rawBody}</textarea>
+        <div class="dsg-post-img-drop-hint">
+          <span class="dsg-hint-desktop">이미지를 <b>드래그&드롭</b>하거나 <b>Cmd/Ctrl+V</b> 로 붙여넣기 · 사진마다 설명 입력 가능</span>
+          <span class="dsg-hint-mobile">아래 <b>＋ 사진 추가</b> 로 사진을 선택하세요.</span>
+        </div>
+        ${imgs.length ? `<div class="dsg-post-imgtoolbar">
+          <span class="dsg-post-imgtoolbar-label">🖼️ 크기</span>
+          <input type="range" min="100" max="360" step="20" value="${size}" oninput="dsgPostSetImgSize('${p.id}', this.value)" aria-label="이미지 크기 (px)">
+          <span class="dsg-post-imgtoolbar-val" data-size-val="${p.id}">${size}px</span>
+        </div>` : ''}
+        <div class="dsg-post-images" data-post-imgs="${p.id}" style="--dsg-post-img-size:${size}px">${imgTiles}</div>
+        <div class="dsg-post-imgadd">
+          <button class="dsg-btn-ghost" onclick="dsgPostOpenUpload('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            사진 추가
+          </button>
+          <span class="dsg-post-meta" data-post-meta="${p.id}">${_dsgEsc(_dsgPostMetaText(p))}</span>
+        </div>
+        <input type="file" data-post-file="${p.id}" accept="image/*" multiple hidden onchange="dsgPostFileChosen(event,'${p.id}')">
+      </div>
+    </div>`;
+  }
 
   function dsgPostsRender(){
     const list = _dsgVisiblePosts();
-    const totalBadge = document.getElementById('dsgTabPostsBadge');
-    if(totalBadge) totalBadge.textContent = _dsgPosts.length;
-    const pills = document.getElementById('dsgPostPills');
+    const badge = document.getElementById('dsgTabPostsBadge');
+    if(badge) badge.textContent = _dsgPosts.length;
+    const wrap  = document.getElementById('dsgPostList');
     const empty = document.getElementById('dsgPostEmpty');
-    const detail = document.getElementById('dsgPostDetail');
-    if(!pills) return;
-
-    // 선택 유효성 검증 — 숨겨졌거나 삭제됐으면 첫 번째로 이동
+    if(!wrap) return;
+    // 열림 상태 유효성 — 필터/삭제로 사라졌으면 첫번째 열림
     if(_dsgCurPostId && !list.find(p=>p.id===_dsgCurPostId)){
       _dsgCurPostId = list[0] ? list[0].id : null;
     }
-    if(!_dsgCurPostId && list.length) _dsgCurPostId = list[0].id;
-
-    // 알약 렌더
-    pills.innerHTML = list.map(p=>{
-      const active = p.id===_dsgCurPostId ? ' active':'';
-      const done   = p.done ? ' done':'';
-      const title  = _dsgEsc(p.title || '무제');
-      return `<button class="dsg-post-pill${active}${done}" onclick="dsgPostSelect('${p.id}')" title="${title}">
-        <span class="dsg-post-pill-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="dsg-post-pill-title">${title}</span>
-      </button>`;
-    }).join('');
-
-    // 상세
-    if(!_dsgCurPostId){
-      if(empty)  empty.hidden  = false;
-      if(detail) detail.hidden = true;
+    if(!list.length){
+      if(empty) empty.hidden = false;
+      wrap.innerHTML = '';
       return;
     }
-    if(empty)  empty.hidden  = true;
-    if(detail) detail.hidden = false;
-    const p = _dsgCurPost();
-    if(!p) return;
-    const titleInp = document.getElementById('dsgPostTitle');
-    const bodyInp  = document.getElementById('dsgPostBody');
-    if(titleInp && document.activeElement!==titleInp) titleInp.value = p.title || '';
-    if(bodyInp  && document.activeElement!==bodyInp)  bodyInp.value  = p.body || '';
-    detail.classList.toggle('done', !!p.done);
-    const meta = document.getElementById('dsgPostMeta');
-    if(meta){
-      const imgs = (p.images||[]).length;
-      const c = p.created_at ? new Date(p.created_at) : null;
-      const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
-      meta.textContent = [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
-    }
-    _dsgRenderPostImages(p);
-    _dsgApplyPostImgSize(p);
+    if(empty) empty.hidden = true;
+    wrap.innerHTML = list.map(_dsgPostItemHtml).join('');
   }
 
-  function _dsgRenderPostImages(p){
-    const wrap = document.getElementById('dsgPostImages');
-    if(!wrap) return;
+  /* 아이템 헤더에서 부분 갱신 (전체 재렌더 없이) */
+  function _dsgPostItemEl(id){ return document.querySelector(`.dsg-post-item[data-id="${id}"]`); }
+  function _dsgUpdateItemHeader(p){
+    const el = _dsgPostItemEl(p.id);
+    if(!el) return;
+    el.classList.toggle('done', !!p.done);
+    const t = el.querySelector('.dsg-post-item-title');
+    if(t) t.textContent = p.title || '무제';
+    const badgeWrap = el.querySelector('.dsg-post-item-head');
+    if(badgeWrap){
+      let badge = badgeWrap.querySelector('.dsg-post-item-badge');
+      const n = (p.images||[]).length;
+      if(n){
+        if(!badge){
+          badge = document.createElement('span');
+          badge.className = 'dsg-post-item-badge';
+          const titleEl = badgeWrap.querySelector('.dsg-post-item-title');
+          if(titleEl && titleEl.nextSibling) badgeWrap.insertBefore(badge, titleEl.nextSibling);
+          else badgeWrap.appendChild(badge);
+        }
+        badge.textContent = `🖼 ${n}`;
+      } else if(badge){
+        badge.remove();
+      }
+    }
+    const metaEl = el.querySelector(`[data-post-meta="${p.id}"]`);
+    if(metaEl) metaEl.textContent = _dsgPostMetaText(p);
+  }
+
+  /* 이미지 그리드/툴바만 부분 갱신 (본문 캐럿 보존) */
+  function _dsgUpdateItemImages(p){
+    const el = _dsgPostItemEl(p.id);
+    if(!el) return;
     const imgs = p.images || [];
-    const toolbar = document.getElementById('dsgPostImgToolbar');
-    if(toolbar) toolbar.hidden = imgs.length===0;
-    wrap.innerHTML = imgs.map(img=>{
-      const cap = _dsgEsc(img.caption||'');
-      return `<div class="dsg-post-img-tile" data-img="${img.id}">
+    const size = p.imgSize || 180;
+    const grid = el.querySelector(`[data-post-imgs="${p.id}"]`);
+    if(grid){
+      grid.style.setProperty('--dsg-post-img-size', size+'px');
+      grid.innerHTML = imgs.map(img=>`<div class="dsg-post-img-tile" data-img="${img.id}">
         <div class="dsg-post-img-thumb">
-          <img src="${_dsgEsc(img.url)}" alt="" onclick="dsgPostImgZoom('${img.id}')">
-          <button class="dsg-post-img-rm" onclick="dsgPostRemoveImage('${img.id}')" title="삭제">
+          <img src="${_dsgEsc(img.url)}" alt="" onclick="dsgPostImgZoom('${p.id}','${img.id}')">
+          <button class="dsg-post-img-rm" onclick="dsgPostRemoveImage('${p.id}','${img.id}')" title="삭제">
             <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <textarea class="dsg-post-img-cap" placeholder="사진 설명 (선택)" oninput="dsgPostImgCapInput('${img.id}', this.value)">${cap}</textarea>
-      </div>`;
-    }).join('');
+        <textarea class="dsg-post-img-cap" placeholder="사진 설명 (선택)" oninput="dsgPostImgCapInput('${p.id}','${img.id}', this.value)">${_dsgEsc(img.caption||'')}</textarea>
+      </div>`).join('');
+    }
+    // 툴바: 이미지 개수에 따라 있음/없음
+    const body = el.querySelector('.dsg-post-item-body');
+    let toolbar = el.querySelector('.dsg-post-imgtoolbar');
+    if(imgs.length){
+      if(!toolbar && body && grid){
+        toolbar = document.createElement('div');
+        toolbar.className = 'dsg-post-imgtoolbar';
+        toolbar.innerHTML = `<span class="dsg-post-imgtoolbar-label">🖼️ 크기</span>
+          <input type="range" min="100" max="360" step="20" value="${size}" oninput="dsgPostSetImgSize('${p.id}', this.value)" aria-label="이미지 크기 (px)">
+          <span class="dsg-post-imgtoolbar-val" data-size-val="${p.id}">${size}px</span>`;
+        body.insertBefore(toolbar, grid);
+      } else if(toolbar){
+        const rng = toolbar.querySelector('input[type="range"]');
+        const val = toolbar.querySelector('[data-size-val]');
+        if(rng && document.activeElement!==rng) rng.value = size;
+        if(val) val.textContent = size+'px';
+      }
+    } else if(toolbar){
+      toolbar.remove();
+    }
+    _dsgUpdateItemHeader(p);
+  }
+
+  /* 한 번에 하나만 펼침 */
+  function dsgPostToggleOpen(id, evt){
+    if(evt){
+      // 편집 UI 위 클릭 (input/textarea/button) 은 무시
+      const t = evt.target;
+      if(t && t.closest && t.closest('input,textarea,button')) return;
+    }
+    _dsgCurPostId = (_dsgCurPostId===id) ? null : id;
+    // 열림 상태만 재렌더 (아이템 head/body 는 전부 재작성)
+    dsgPostsRender();
   }
 
   function dsgPostAdd(silent){
@@ -14431,178 +14508,150 @@
     };
     _dsgPosts.unshift(p);
     _dsgSavePosts();
-    _dsgCurPostId = p.id;
+    _dsgCurPostId = p.id;   // 새 게시글 자동 펼침
     _dsgMarkPostDirty(p.id);
     dsgPostsRender();
     if(!silent){
-      // 새로 만든 게시글의 제목 입력에 커서
       setTimeout(()=>{
-        const t = document.getElementById('dsgPostTitle');
+        const t = document.querySelector(`.dsg-post-item[data-id="${p.id}"] .dsg-post-title`);
         if(t){ t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
       }, 30);
     }
   }
 
-  function dsgPostSelect(id){
-    if(_dsgPostSaveTimer) _dsgFlushPostSave();
-    _dsgCurPostId = id;
-    dsgPostsRender();
-  }
-
-  function dsgPostDelete(){
-    const p = _dsgCurPost();
+  function dsgPostDelete(id){
+    const p = _dsgPostById(id);
     if(!p) return;
     if(!confirm(`"${p.title||'무제'}" 게시글을 삭제할까요?`)) return;
-    const id = p.id;
     _dsgPosts = _dsgPosts.filter(x=>x.id!==id);
     _dsgSavePosts();
     _dsgPostsDirty.delete(id);
-    // 삭제를 remote 에 반영하려면 전체를 dirty 로 마킹
     _dsgPosts.forEach(x=>_dsgPostsDirty.add(x.id));
-    if(!_dsgPosts.length){
-      // 삭제로 배열이 비어도 dirty가 없으면 push 안 됨 → 강제로 push 스케줄
-      _dsg_lastEditTs = Date.now();
-      _dsgSchedPush();
-    } else {
-      _dsgSchedPush();
-    }
-    _dsgCurPostId = _dsgPosts[0] ? _dsgPosts[0].id : null;
+    _dsg_lastEditTs = Date.now();
+    _dsgSchedPush();
+    if(_dsgCurPostId===id) _dsgCurPostId = _dsgPosts[0] ? _dsgPosts[0].id : null;
     dsgPostsRender();
   }
 
-  function dsgPostToggleDone(){
-    const p = _dsgCurPost();
+  function dsgPostToggleDone(id){
+    const p = _dsgPostById(id);
     if(!p) return;
     p.done = !p.done;
     p.updated_at = _dsgNowIso();
     _dsgSavePosts();
     _dsgMarkPostDirty(p.id);
-    dsgPostsRender();
+    _dsgUpdateItemHeader(p);
+    // 완료 숨김 필터가 켜져있으면 리스트 재렌더
+    if((document.getElementById('dsgPostHideDone')||{}).checked) dsgPostsRender();
   }
 
-  /* 저장은 매 입력마다 즉시 (로컬은 바로, 원격은 _dsgSchedPush 안에서 debounce) */
-  function dsgPostSchedSave(){ _dsgFlushPostSave(); }
-  function _dsgFlushPostSave(){
-    const p = _dsgCurPost();
-    if(!p) return;
-    const t = document.getElementById('dsgPostTitle');
-    const b = document.getElementById('dsgPostBody');
-    let changed = false;
-    if(t && t.value!==p.title){ p.title = t.value; changed = true; }
-    if(b && b.value!==p.body){  p.body  = b.value; changed = true; }
-    if(!changed) return;
+  /* 매 입력마다 즉시 로컬 저장. 원격은 _dsgSchedPush 사이클 안에서 debounce */
+  function dsgPostTitleInput(id, val){
+    const p = _dsgPostById(id);
+    if(!p || p.title===val) return;
+    p.title = val;
     p.updated_at = _dsgNowIso();
     _dsgSavePosts();
     _dsgMarkPostDirty(p.id);
-    // pill 라벨 갱신 (전체 재렌더는 캐럿 유실 우려 — pill 만 부분 갱신)
-    const pillWrap = document.getElementById('dsgPostPills');
-    if(pillWrap){
-      const btn = pillWrap.querySelector(`.dsg-post-pill[onclick*="'${p.id}'"] .dsg-post-pill-title`);
-      if(btn) btn.textContent = p.title || '무제';
+    // 헤더 제목만 부분 갱신 (아이템 body 는 그대로)
+    const el = _dsgPostItemEl(p.id);
+    if(el){
+      const t = el.querySelector('.dsg-post-item-title');
+      if(t) t.textContent = p.title || '무제';
     }
   }
-  function dsgPostSetImgSize(px){
-    const p = _dsgCurPost();
+  function dsgPostBodyInput(id, val){
+    const p = _dsgPostById(id);
+    if(!p || p.body===val) return;
+    p.body = val;
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    _dsgMarkPostDirty(p.id);
+  }
+  function dsgPostSetImgSize(id, px){
+    const p = _dsgPostById(id);
     if(!p) return;
     const n = Math.max(80, Math.min(500, parseInt(px,10)||180));
+    if(p.imgSize===n) return;
     p.imgSize = n;
     p.updated_at = _dsgNowIso();
     _dsgSavePosts();
     _dsgMarkPostDirty(p.id);
-    _dsgApplyPostImgSize(p);
-  }
-  function _dsgApplyPostImgSize(p){
-    const wrap = document.getElementById('dsgPostImages');
-    const val  = document.getElementById('dsgPostImgSizeVal');
-    const inp  = document.getElementById('dsgPostImgSize');
-    const n = p && p.imgSize ? p.imgSize : 180;
-    if(wrap) wrap.style.setProperty('--dsg-post-img-size', n+'px');
-    if(val)  val.textContent = n+'px';
-    if(inp && document.activeElement!==inp) inp.value = n;
+    const el = _dsgPostItemEl(id);
+    if(el){
+      const grid = el.querySelector(`[data-post-imgs="${id}"]`);
+      if(grid) grid.style.setProperty('--dsg-post-img-size', n+'px');
+      const val = el.querySelector('[data-size-val]');
+      if(val) val.textContent = n+'px';
+    }
   }
 
-  /* 사진 첨부 — 드래그/드롭 · 파일선택 · 붙여넣기 공통 */
-  function dsgPostOpenUpload(){
-    if(!_dsgCurPostId){ dsgPostAdd(); }
-    const f = document.getElementById('dsgPostFile');
+  /* 사진 첨부 — 드래그/드롭 · 파일선택 · 붙여넣기 공통 (id 파라미터) */
+  function dsgPostOpenUpload(id){
+    if(!id){ if(!_dsgCurPostId) dsgPostAdd(true); id = _dsgCurPostId; }
+    const f = document.querySelector(`[data-post-file="${id}"]`);
     if(f) f.click();
   }
-  function dsgPostFileChosen(e){
+  function dsgPostFileChosen(e, id){
     const files = e.target.files;
     if(!files) return;
-    if(!_dsgCurPostId){ dsgPostAdd(true); }
-    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f); }
+    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f, id); }
     e.target.value = '';
   }
-  function dsgPostDragOver(e){
+  function dsgPostDragOver(e, id){
     e.preventDefault();
-    e.currentTarget.classList.add('dragover');
+    const el = _dsgPostItemEl(id);
+    if(el) el.classList.add('dragover');
   }
   function dsgPostDragLeave(e){
-    e.currentTarget.classList.remove('dragover');
+    const el = e.currentTarget.closest('.dsg-post-item');
+    if(el) el.classList.remove('dragover');
   }
-  function dsgPostDrop(e){
+  function dsgPostDrop(e, id){
     e.preventDefault();
-    e.currentTarget.classList.remove('dragover');
-    if(!_dsgCurPostId){ dsgPostAdd(true); }
+    const el = _dsgPostItemEl(id);
+    if(el) el.classList.remove('dragover');
     const files = e.dataTransfer && e.dataTransfer.files;
     if(!files) return;
-    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f); }
+    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f, id); }
   }
-  function _dsgPostIngestFile(f){
-    const targetId = _dsgCurPostId;
+  function _dsgPostIngestFile(f, id){
     _dsgFileToDataURL(f, url=>{
-      const p = _dsgPostById(targetId);
+      const p = _dsgPostById(id);
       if(!p) return;
       p.images = p.images || [];
       p.images.push({ id:_dsgUid(), url, caption:'' });
       p.updated_at = _dsgNowIso();
       _dsgSavePosts();
       _dsgMarkPostDirty(p.id);
-      if(targetId===_dsgCurPostId) _dsgRenderPostImages(p);
-      const meta = document.getElementById('dsgPostMeta');
-      if(meta && targetId===_dsgCurPostId){
-        const imgs = p.images.length;
-        const c = p.created_at ? new Date(p.created_at) : null;
-        const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
-        meta.textContent = [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
-      }
+      _dsgUpdateItemImages(p);
     });
   }
-  function dsgPostRemoveImage(imgId){
-    const p = _dsgCurPost();
+  function dsgPostRemoveImage(postId, imgId){
+    const p = _dsgPostById(postId);
     if(!p) return;
     p.images = (p.images||[]).filter(x=>x.id!==imgId);
     p.updated_at = _dsgNowIso();
     _dsgSavePosts();
     _dsgMarkPostDirty(p.id);
-    _dsgRenderPostImages(p);
-    const meta = document.getElementById('dsgPostMeta');
-    if(meta){
-      const imgs = p.images.length;
-      const c = p.created_at ? new Date(p.created_at) : null;
-      const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
-      meta.textContent = [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
-    }
+    _dsgUpdateItemImages(p);
   }
-  function dsgPostImgCapInput(imgId, val){
-    const p = _dsgCurPost();
+  function dsgPostImgCapInput(postId, imgId, val){
+    const p = _dsgPostById(postId);
     if(!p) return;
     const img = (p.images||[]).find(x=>x.id===imgId);
-    if(!img) return;
-    if(img.caption === val) return;
+    if(!img || img.caption===val) return;
     img.caption = val;
     p.updated_at = _dsgNowIso();
     _dsgSavePosts();
-    // 캡션 편집 중 재렌더 없이 dirty 만 마킹 (캐럿 보존)
     _dsgMarkPostDirty(p.id);
+    // 캡션 편집 중 재렌더 없이 dirty 만 마킹 (캐럿 보존)
   }
-  function dsgPostImgZoom(imgId){
-    const p = _dsgCurPost();
+  function dsgPostImgZoom(postId, imgId){
+    const p = _dsgPostById(postId);
     if(!p) return;
     const img = (p.images||[]).find(x=>x.id===imgId);
     if(!img) return;
-    // 새 창에 원본 열기 (data URL)
     const w = window.open('', '_blank');
     if(!w) return;
     w.document.write(`<html><head><title>${_dsgEsc(img.caption||'사진')}</title><style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh}img{max-width:100%;max-height:100vh}</style></head><body><img src="${_dsgEsc(img.url)}"></body></html>`);
@@ -14680,7 +14729,7 @@
     }).join('');
   }
 
-  /* 이미지 붙여넣기 — 발송보드 게시글로 라우팅 */
+  /* 이미지 붙여넣기 — 디자인 보드 게시글로 라우팅 */
   function dsgHandlePaste(e){
     if(document.getElementById('viewDesign')?.hidden) return;
     // 활성 요소가 편집 가능한 텍스트라면(제목/본문/캡션 입력 중) 텍스트 붙여넣기 우선
