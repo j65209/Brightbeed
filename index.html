@@ -2297,14 +2297,23 @@
 
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
-  .akp-settings{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;padding:14px 16px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px;align-items:end}
+  .akp-settings{display:grid;grid-template-columns:220px 1fr;gap:12px;padding:14px 16px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px;align-items:end}
   .akp-set-field{display:flex;flex-direction:column;gap:4px;min-width:0}
   .akp-set-field label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.02em}
   .akp-set-field input{height:30px;padding:0 8px;font-size:12.5px;font-family:var(--mono);border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--text-0)}
   .akp-set-field input:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.12)}
-  .akp-set-actions{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+  .akp-set-actions{display:flex;flex-direction:row;gap:8px;align-items:end;flex-wrap:wrap;justify-content:flex-end}
   .akp-set-actions .btn{white-space:nowrap;font-size:11.5px;padding:6px 12px;height:auto;min-height:28px}
-  @media (max-width:900px){.akp-settings{grid-template-columns:repeat(2,1fr);row-gap:14px}.akp-set-actions{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}}
+  @media (max-width:900px){.akp-settings{grid-template-columns:1fr}.akp-set-actions{justify-content:flex-start}}
+
+  .akp-master-wrap{border:1px solid var(--line);border-radius:10px;overflow-x:auto;background:var(--bg-0);margin-bottom:8px}
+  .akp-master-table th,.akp-master-table td{padding:6px 8px}
+  .akp-plat{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg-0)}
+  .akp-plat-head{display:grid;grid-template-columns:1fr 140px 140px auto;gap:10px;padding:10px 14px;background:var(--bg-1);border-bottom:1px solid var(--line);align-items:end}
+  .akp-plat-head .akp-head-label{margin-bottom:2px}
+  .akp-plat-head input{height:32px;padding:0 10px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .akp-plat-head input[type=number]{font-family:var(--mono);text-align:right}
+  .akp-plat-head input:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.12)}
 
   .akp-list{display:flex;flex-direction:column;gap:12px}
   .akp-item{border:1px solid var(--line);border-radius:10px;background:var(--bg-0);overflow:hidden}
@@ -9622,27 +9631,34 @@
                 <label>환율 (₩/$)</label>
                 <input type="number" id="akpEx" step="0.1" value="1506.6" oninput="akpRender()">
               </div>
-              <div class="akp-set-field">
-                <label>에코백 원가 (원)</label>
-                <input type="number" id="akpEcoCost" step="100" value="1400" oninput="akpRender()">
-              </div>
-              <div class="akp-set-field">
-                <label>에코백 판매가 (원)</label>
-                <input type="number" id="akpEcoSale" step="100" value="5000" oninput="akpRender()">
-              </div>
-              <div class="akp-set-field">
-                <label>셀러마진율 (%)</label>
-                <input type="number" id="akpSellerRate" step="1" value="30" oninput="akpRender()">
-              </div>
               <div class="akp-set-actions">
                 <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
-                <button class="btn po-import" onclick="akpImportSheet()" title="위쪽 아코이 구글시트에서 다시 불러오기">🔄 시트 불러오기</button>
+                <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+                <button class="btn po-import" onclick="akpImportSheet()" title="아코이 구글시트에서 다시 불러오기">🔄 시트 불러오기</button>
                 <button class="btn po-import" onclick="akpExportJson()">📥 JSON 내보내기</button>
               </div>
             </div>
 
-            <!-- 상품 카드 리스트 -->
-            <div id="akpItemList" class="akp-list"></div>
+            <!-- 상품 마스터 (원가 관리) -->
+            <div class="akp-section-title">📦 상품 마스터 (원가 · 자동 환산)</div>
+            <div class="akp-master-wrap">
+              <table class="akp-table akp-master-table">
+                <thead>
+                  <tr>
+                    <th style="width:70px">코드</th>
+                    <th>제품명</th>
+                    <th style="width:110px">원가 ($)</th>
+                    <th style="width:110px">원가 (원)</th>
+                    <th style="width:110px">1+1 원가 (원)</th>
+                    <th style="width:60px"></th>
+                  </tr>
+                </thead>
+                <tbody id="akpMasterBody"></tbody>
+              </table>
+            </div>
+
+            <!-- 플랫폼 카드 리스트 -->
+            <div id="akpPlatformList" class="akp-list"></div>
             <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
           </div>
         </div>
@@ -12344,189 +12360,227 @@
   }
   window.mdPromoSwitch=mdPromoSwitch;
 
-  /* ===== 아코이 기획전 계산기 ===== */
-  const AKP_LS='akoiPromoV1';
+  /* ===== 아코이 기획전 계산기 · 플랫폼별 정산 표 =====
+     상품 마스터: {code, name, costUsd} · 자동 계산: 원가(원) = round(costUsd × ex / 100) × 100
+     플랫폼 카드: {name, feeRate, rows: {code: {price, floor}, code+' 1+1': {price, floor}, ...}}
+     자동 계산 (100원 단위 반올림):
+       fee = round(price × feeRate/100 / 100) × 100
+       settled = price − fee
+       profit = settled − costKrw
+       marginRate = profit / price
+       multiplier = settled / costKrw
+       floorSettled = floor − round(floor × feeRate/100 / 100) × 100
+       floorMultiplier = floorSettled / costKrw
+  */
+  const AKP_LS='akoiPromoV2';
   const AKP_SHEET_ID='1qg58PnOFtkhz1a02dz0hCIog64haXBGDzliPwjljlJI';
   let _akpState=null, _akpInited=false;
 
   function _akpDefault(){
+    const items=[
+      {code:'001', name:'Butter Cloud Terry Room Shoes', costUsd:2.55},
+      {code:'002', name:'Daisy · Vega Terry Room Shoes', costUsd:2.85},
+      {code:'003', name:'Mallow EVA Room Shoes',        costUsd:3.05},
+    ];
+    // 시트 관측치 재현
     return {
-      ex:1506.6, ecoCost:1400, ecoSale:5000, sellerRate:30,
-      items:[
-        {code:'#001',name:'Butter Cloud Terry Room Shoes',color:'lemon yellow, orange, sky blue, green',
-         costUsd:2.55, single:{price:19000,retail:24000,groupPrice:19000}, setPair:{price:32000,retail:48000,groupPrice:35000}},
-        {code:'#002',name:'Daisy Terry Room Shoes / Vega Terry Room Shoes',color:'Black · Daisy / Vega',
-         costUsd:2.85, single:{price:21000,retail:26000,groupPrice:21000}, setPair:{price:35000,retail:52000,groupPrice:37000}},
-        {code:'#003',name:'Mallow EVA Room Shoes',color:'navy, gray, blue, lavender',
-         costUsd:3.05, single:{price:23000,retail:28000,groupPrice:23000}, setPair:{price:38000,retail:56000,groupPrice:38000}},
+      ex:1506.6,
+      items,
+      platforms:[
+        {name:'플랫폼 A (30%)', feeRate:30, rows:{
+          '001':{price:23000, floor:22000}, '001 1+1':{price:39000, floor:39000},
+          '002':{price:25000, floor:23000}, '002 1+1':{price:43000, floor:40500},
+          '003':{price:27000, floor:24000}, '003 1+1':{price:46000, floor:43300},
+        }},
+        {name:'플랫폼 B (23%)', feeRate:23, rows:{
+          '001':{price:21000, floor:17900}, '001 1+1':{price:37000, floor:35800},
+          '002':{price:23000, floor:20300}, '002 1+1':{price:39000, floor:40500},
+          '003':{price:23000, floor:21700}, '003 1+1':{price:40000, floor:43300},
+        }},
       ]
     };
   }
   function _akpLoad(){
-    try{ const raw=localStorage.getItem(AKP_LS); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.items)) return s; } }catch(e){}
+    try{ const raw=localStorage.getItem(AKP_LS); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.items)&&Array.isArray(s.platforms)) return s; } }catch(e){}
     return _akpDefault();
   }
   function _akpSave(){ try{ localStorage.setItem(AKP_LS, JSON.stringify(_akpState)); }catch(e){} }
   function _akpNum(n){ n=Number(n); return Number.isFinite(n)?n:0; }
   function _akpFmt(n){ n=Math.round(_akpNum(n)); return n.toLocaleString('ko-KR'); }
-  function _akpPct(x){ return (x*100).toFixed(1)+'%'; }
-  function _akpMul(x){ return x.toFixed(1); }
+  function _akpPct(x){ if(!Number.isFinite(x)) return '—'; return Math.round(x*100)+'%'; }
+  function _akpMul(x){ if(!Number.isFinite(x)||x<=0) return '—'; return x.toFixed(2); }
+  function _akpCostKrw(costUsd, ex, mult){ return Math.round(_akpNum(costUsd)*mult*_akpNum(ex)/100)*100; }
+  function _akpFee(price, rate){ return Math.round(_akpNum(price)*_akpNum(rate)/100/100)*100; }
 
   function akpInit(){
-    if(_akpInited) return;
+    if(_akpInited){ akpRender(); return; }
     _akpState=_akpLoad();
     document.getElementById('akpEx').value=_akpState.ex;
-    document.getElementById('akpEcoCost').value=_akpState.ecoCost;
-    document.getElementById('akpEcoSale').value=_akpState.ecoSale;
-    document.getElementById('akpSellerRate').value=_akpState.sellerRate;
     _akpInited=true;
     akpRender();
   }
-  function _akpReadSettings(){
-    _akpState.ex=_akpNum(document.getElementById('akpEx').value)||1506.6;
-    _akpState.ecoCost=_akpNum(document.getElementById('akpEcoCost').value);
-    _akpState.ecoSale=_akpNum(document.getElementById('akpEcoSale').value);
-    _akpState.sellerRate=_akpNum(document.getElementById('akpSellerRate').value);
-  }
+  window.akpInit=akpInit;
+
   function akpRender(){
     if(!_akpState) return;
-    _akpReadSettings();
-    const wrap=document.getElementById('akpItemList');
-    if(!wrap) return;
-    wrap.innerHTML=_akpState.items.map((it,idx)=>_akpItemHtml(it,idx)).join('');
+    _akpState.ex=_akpNum(document.getElementById('akpEx').value)||1506.6;
+    _renderMaster();
+    _renderPlatforms();
     _akpSave();
   }
   window.akpRender=akpRender;
-  window.akpInit=akpInit;
 
-  function _akpCalcRow(costUsd, mult, priceInput, retailInput, groupInput, ex, ecoCost, sellerRate){
-    // 단품 mult=1, 세트 mult=2 · (원가$ * 수량 * 환율)을 100원 단위 반올림 (시트 관행)
-    const costKrw = Math.round(costUsd*mult*ex/100)*100;
-    const price = _akpNum(priceInput);
-    const retail = _akpNum(retailInput);
-    const group = _akpNum(groupInput);
-    const profit = price - costKrw;
-    const margin = price>0 ? profit/price : 0;
-    const multiplier = costKrw>0 ? price/costKrw : 0;
-    const discount = retail>0 ? (retail-price)/retail : 0;
-    const costWithEco = costKrw + ecoCost;
-    const sellerMargin = Math.round(group * sellerRate/100);
-    const gProfit = group - costWithEco - sellerMargin;
-    return {costKrw, price, retail, group, profit, margin, multiplier, discount, costWithEco, sellerMargin, gProfit};
+  function _renderMaster(){
+    const tb=document.getElementById('akpMasterBody');
+    if(!tb) return;
+    tb.innerHTML=_akpState.items.map((it,idx)=>{
+      const c1=_akpCostKrw(it.costUsd, _akpState.ex, 1);
+      const c2=_akpCostKrw(it.costUsd, _akpState.ex, 2);
+      return `<tr>
+        <td><input type="text" value="${it.code||''}" oninput="akpEditItem(${idx},'code',this.value)" style="width:100%;height:26px;padding:0 6px;font-size:12px;border:1px solid var(--line);border-radius:5px;background:#fff"></td>
+        <td style="text-align:left;font-family:var(--sans);font-weight:600"><input type="text" value="${it.name||''}" oninput="akpEditItem(${idx},'name',this.value)" style="width:100%;height:26px;padding:0 6px;font-size:12px;border:1px solid var(--line);border-radius:5px;background:#fff"></td>
+        <td><input type="number" step="0.01" value="${it.costUsd||0}" oninput="akpEditItem(${idx},'costUsd',this.value)"></td>
+        <td class="akp-cell-auto">${_akpFmt(c1)}</td>
+        <td class="akp-cell-auto">${_akpFmt(c2)}</td>
+        <td><button class="akp-del-btn" onclick="akpDelItem(${idx})" title="삭제">삭제</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="6" style="padding:16px;text-align:center;color:var(--text-3)">상품을 추가해주세요.</td></tr>';
   }
 
-  function _akpItemHtml(it, idx){
-    const ex=_akpState.ex, ecoCost=_akpState.ecoCost, sRate=_akpState.sellerRate;
-    const s=_akpCalcRow(it.costUsd, 1, it.single.price, it.single.retail, it.single.groupPrice, ex, ecoCost, sRate);
-    const p=_akpCalcRow(it.costUsd, 2, it.setPair.price, it.setPair.retail, it.setPair.groupPrice, ex, ecoCost, sRate);
-    const good = x => x>0 ? 'is-good' : (x<0 ? 'is-bad' : '');
+  function _renderPlatforms(){
+    const wrap=document.getElementById('akpPlatformList');
+    if(!wrap) return;
+    wrap.innerHTML=_akpState.platforms.map((pl,pIdx)=>_platformHtml(pl,pIdx)).join('');
+  }
+
+  function _platformHtml(pl, pIdx){
+    const rate=_akpNum(pl.feeRate);
+    const rows=[];
+    for(const it of _akpState.items){
+      rows.push({key:it.code,        label:it.code,        name:it.name, costKrw:_akpCostKrw(it.costUsd, _akpState.ex, 1)});
+      rows.push({key:it.code+' 1+1', label:it.code+' 1+1', name:it.name+' · 1+1', costKrw:_akpCostKrw(it.costUsd, _akpState.ex, 2)});
+    }
+    const bodyHtml=rows.map(r=>{
+      const cell = pl.rows?.[r.key] || {price:0, floor:0};
+      const price = _akpNum(cell.price);
+      const floor = _akpNum(cell.floor);
+      // 판매가: 100단위 반올림 수수료 기반 (시트 관행) / 하한 배수: raw 기반
+      const fee = _akpFee(price, rate);
+      const settled = price - fee;
+      const profit = settled - r.costKrw;
+      const margin = price>0 ? profit/price : NaN;
+      const mult = r.costKrw>0 ? settled/r.costKrw : NaN;
+      const floorSettled = floor - floor*rate/100;
+      const floorMult = r.costKrw>0 ? floorSettled/r.costKrw : NaN;
+      const goodCls = profit>0 ? 'is-good' : (profit<0 ? 'is-bad' : '');
+      const rowKey = r.key.replace(/'/g,"\\'");
+      return `<tr>
+        <td class="akp-row-lbl" title="${r.name}">${r.label}</td>
+        <td class="akp-cell-auto">${_akpFmt(r.costKrw)}</td>
+        <td><input type="number" step="500" value="${price}" oninput="akpEditPlat(${pIdx},'${rowKey}','price',this.value)"></td>
+        <td class="akp-cell-auto">${rate}%</td>
+        <td class="akp-cell-auto">${_akpFmt(fee)}</td>
+        <td class="akp-cell-auto">${_akpFmt(settled)}</td>
+        <td class="akp-cell-auto ${goodCls}">${_akpFmt(profit)}</td>
+        <td class="akp-cell-auto">${_akpPct(margin)}</td>
+        <td class="akp-cell-auto">${_akpMul(mult)}</td>
+        <td><input type="number" step="500" value="${floor}" oninput="akpEditPlat(${pIdx},'${rowKey}','floor',this.value)"></td>
+        <td class="akp-cell-auto">${_akpMul(floorMult)}</td>
+      </tr>`;
+    }).join('');
+
     return `
-      <div class="akp-item" data-idx="${idx}">
-        <div class="akp-item-head">
-          <input class="akp-code" type="text" value="${it.code||''}" oninput="akpEdit(${idx},'code',this.value)" placeholder="#000">
+      <div class="akp-plat" data-plat="${pIdx}">
+        <div class="akp-plat-head">
           <div>
-            <span class="akp-head-label">제품명</span>
-            <textarea rows="1" oninput="akpEdit(${idx},'name',this.value)" placeholder="제품명">${it.name||''}</textarea>
+            <span class="akp-head-label">플랫폼 이름</span>
+            <input type="text" value="${pl.name||''}" oninput="akpEditPlatMeta(${pIdx},'name',this.value)" placeholder="예: 지그재그">
           </div>
           <div>
-            <span class="akp-head-label">컬러/옵션</span>
-            <textarea rows="1" oninput="akpEdit(${idx},'color',this.value)" placeholder="컬러">${it.color||''}</textarea>
+            <span class="akp-head-label">수수료율 (%)</span>
+            <input type="number" step="0.5" value="${rate}" oninput="akpEditPlatMeta(${pIdx},'feeRate',this.value)">
           </div>
           <div>
-            <span class="akp-head-label">원가 ($)</span>
-            <input type="number" step="0.01" value="${it.costUsd||0}" oninput="akpEdit(${idx},'costUsd',this.value)">
+            <span class="akp-head-label">상품 수</span>
+            <div style="height:32px;display:flex;align-items:center;padding:0 8px;font-family:var(--mono);color:var(--text-2)">${rows.length}행</div>
           </div>
-          <button class="akp-del-btn" onclick="akpDelItem(${idx})" title="삭제">삭제</button>
+          <button class="akp-del-btn" onclick="akpDelPlat(${pIdx})">플랫폼 삭제</button>
         </div>
-
-        <div class="akp-section-title">📦 단품 · 2개 세트 판매 계산</div>
         <div class="akp-table-wrap">
           <table class="akp-table">
             <thead>
               <tr>
-                <th>구분</th><th>원가(원)</th><th>판매가(원)</th><th>진열가(원)</th>
-                <th>이익(원)</th><th>마진율</th><th>배수</th><th>진열대비 할인</th>
+                <th>제품명</th>
+                <th>원가</th>
+                <th>판매가</th>
+                <th>수수료율</th>
+                <th>플랫폼 수수료</th>
+                <th>정산금액</th>
+                <th>최종이익</th>
+                <th>마진율</th>
+                <th>배수</th>
+                <th>절대하한</th>
+                <th>절대하한 배수</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td class="akp-row-lbl">단품 1개</td>
-                <td class="akp-cell-auto">${_akpFmt(s.costKrw)}</td>
-                <td><input type="number" step="500" value="${it.single.price}" oninput="akpEditRow(${idx},'single','price',this.value)"></td>
-                <td><input type="number" step="500" value="${it.single.retail}" oninput="akpEditRow(${idx},'single','retail',this.value)"></td>
-                <td class="akp-cell-auto ${good(s.profit)}">${_akpFmt(s.profit)}</td>
-                <td class="akp-cell-auto">${_akpPct(s.margin)}</td>
-                <td class="akp-cell-auto">${_akpMul(s.multiplier)}</td>
-                <td class="akp-cell-auto">${_akpPct(s.discount)}</td>
-              </tr>
-              <tr>
-                <td class="akp-row-lbl">세트 2개</td>
-                <td class="akp-cell-auto">${_akpFmt(p.costKrw)}</td>
-                <td><input type="number" step="500" value="${it.setPair.price}" oninput="akpEditRow(${idx},'setPair','price',this.value)"></td>
-                <td><input type="number" step="500" value="${it.setPair.retail}" oninput="akpEditRow(${idx},'setPair','retail',this.value)"></td>
-                <td class="akp-cell-auto ${good(p.profit)}">${_akpFmt(p.profit)}</td>
-                <td class="akp-cell-auto">${_akpPct(p.margin)}</td>
-                <td class="akp-cell-auto">${_akpMul(p.multiplier)}</td>
-                <td class="akp-cell-auto">${_akpPct(p.discount)}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="akp-section-title">🎁 공구가 + 에코백 (셀러마진 ${sRate}%)</div>
-        <div class="akp-table-wrap">
-          <table class="akp-table">
-            <thead>
-              <tr>
-                <th>구분</th><th>공구가(원)</th><th>원가 슈즈+에코백</th><th>셀러마진</th><th>이익(원)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="akp-row-lbl">단품 1개</td>
-                <td><input type="number" step="500" value="${it.single.groupPrice}" oninput="akpEditRow(${idx},'single','groupPrice',this.value)"></td>
-                <td class="akp-cell-auto">${_akpFmt(s.costWithEco)}</td>
-                <td class="akp-cell-auto">${_akpFmt(s.sellerMargin)}</td>
-                <td class="akp-cell-auto ${good(s.gProfit)}">${_akpFmt(s.gProfit)}</td>
-              </tr>
-              <tr>
-                <td class="akp-row-lbl">세트 2개</td>
-                <td><input type="number" step="500" value="${it.setPair.groupPrice}" oninput="akpEditRow(${idx},'setPair','groupPrice',this.value)"></td>
-                <td class="akp-cell-auto">${_akpFmt(p.costWithEco)}</td>
-                <td class="akp-cell-auto">${_akpFmt(p.sellerMargin)}</td>
-                <td class="akp-cell-auto ${good(p.gProfit)}">${_akpFmt(p.gProfit)}</td>
-              </tr>
-            </tbody>
+            <tbody>${bodyHtml}</tbody>
           </table>
         </div>
       </div>
     `;
   }
 
-  function akpEdit(idx, field, val){
+  function akpEditItem(idx, field, val){
     const it=_akpState.items[idx]; if(!it) return;
     if(field==='costUsd') it[field]=_akpNum(val);
     else it[field]=val;
-    if(field==='costUsd') akpRender();
-    else _akpSave();
+    akpRender();
   }
-  function akpEditRow(idx, group, field, val){
-    const it=_akpState.items[idx]; if(!it||!it[group]) return;
-    it[group][field]=_akpNum(val);
+  function akpEditPlatMeta(pIdx, field, val){
+    const pl=_akpState.platforms[pIdx]; if(!pl) return;
+    if(field==='feeRate') pl[field]=_akpNum(val);
+    else pl[field]=val;
+    akpRender();
+  }
+  function akpEditPlat(pIdx, key, field, val){
+    const pl=_akpState.platforms[pIdx]; if(!pl) return;
+    if(!pl.rows) pl.rows={};
+    if(!pl.rows[key]) pl.rows[key]={price:0, floor:0};
+    pl.rows[key][field]=_akpNum(val);
     akpRender();
   }
   function akpAddItem(){
     const n=_akpState.items.length+1;
-    _akpState.items.push({code:'#'+String(n).padStart(3,'0'), name:'', color:'', costUsd:0,
-      single:{price:0,retail:0,groupPrice:0}, setPair:{price:0,retail:0,groupPrice:0}});
+    _akpState.items.push({code:String(n).padStart(3,'0'), name:'', costUsd:0});
     akpRender();
   }
   function akpDelItem(idx){
-    if(!confirm('이 상품을 삭제할까요?')) return;
+    if(!confirm('이 상품을 삭제할까요? 모든 플랫폼에서도 함께 제거됩니다.')) return;
+    const removed=_akpState.items[idx];
     _akpState.items.splice(idx,1);
+    if(removed){
+      const keys=[removed.code, removed.code+' 1+1'];
+      _akpState.platforms.forEach(pl=>{ if(!pl.rows) return; keys.forEach(k=>delete pl.rows[k]); });
+    }
     akpRender();
   }
-  window.akpEdit=akpEdit; window.akpEditRow=akpEditRow; window.akpAddItem=akpAddItem; window.akpDelItem=akpDelItem;
+  function akpAddPlatform(){
+    const n=_akpState.platforms.length+1;
+    _akpState.platforms.push({name:'플랫폼 '+n, feeRate:20, rows:{}});
+    akpRender();
+  }
+  function akpDelPlat(pIdx){
+    if(!confirm('이 플랫폼을 삭제할까요?')) return;
+    _akpState.platforms.splice(pIdx,1);
+    akpRender();
+  }
+  window.akpEditItem=akpEditItem;
+  window.akpEditPlatMeta=akpEditPlatMeta;
+  window.akpEditPlat=akpEditPlat;
+  window.akpAddItem=akpAddItem;
+  window.akpDelItem=akpDelItem;
+  window.akpAddPlatform=akpAddPlatform;
+  window.akpDelPlat=akpDelPlat;
 
   function akpExportJson(){
     const blob=new Blob([JSON.stringify(_akpState,null,2)], {type:'application/json'});
@@ -12537,28 +12591,17 @@
   window.akpExportJson=akpExportJson;
 
   async function akpImportSheet(){
-    if(!confirm('구글시트에서 다시 불러올까요? (현재 편집중인 값이 덮어써집니다)')) return;
+    if(!confirm('구글시트에서 상품 마스터를 다시 불러올까요? (플랫폼 설정은 유지됩니다)')) return;
     try{
-      const url='https://docs.google.com/spreadsheets/d/'+AKP_SHEET_ID+'/gviz/tq?tqx=out:json&headers=1';
+      const url='https://docs.google.com/spreadsheets/d/'+AKP_SHEET_ID+'/gviz/tq?tqx=out:json&headers=1&gid=87915788';
       const res=await fetch(url); const txt=await res.text();
       const jsonStart=txt.indexOf('{'), jsonEnd=txt.lastIndexOf('}')+1;
       const data=JSON.parse(txt.slice(jsonStart,jsonEnd));
       const rows=data.table.rows||[];
-      const items=[]; let cur=null;
+      const items=[];
       for(const r of rows){
         const c=r.c||[]; const code=c[0]?.v; const name=c[2]?.v;
-        if(code){ // new item row (개별 판매)
-          cur={code, name:name||'', color:'', costUsd:_akpNum(c[3]?.v),
-            single:{price:_akpNum(c[5]?.v), retail:_akpNum(c[6]?.v), groupPrice:_akpNum(c[12]?.v)},
-            setPair:{price:0, retail:0, groupPrice:0}};
-          items.push(cur);
-        } else if(cur){ // 2번째 행 = 세트
-          if(name) cur.color = name;
-          cur.setPair.price = _akpNum(c[5]?.v);
-          cur.setPair.retail = _akpNum(c[6]?.v);
-          cur.setPair.groupPrice = _akpNum(c[12]?.v);
-          cur=null;
-        }
+        if(code){ items.push({code:String(code).replace(/^#/,''), name:name||'', costUsd:_akpNum(c[3]?.v)}); }
       }
       if(items.length){ _akpState.items=items; akpRender(); alert('불러오기 완료: '+items.length+'개 상품'); }
       else alert('상품 데이터를 찾지 못했습니다.');
