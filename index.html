@@ -9039,8 +9039,34 @@
       </div>
     </div>
 
+    <!-- ============ 디자인 보드 — 아코디언 게시글 리스트 (최상단) ============ -->
+    <div class="dsg-pane" data-pane="posts" style="margin-bottom:26px">
+      <div class="dsg-section-label">📮 디자인 보드</div>
+      <div class="dsg-post-toolbar">
+        <label class="dsg-hide-done">
+          <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
+          <span>완료 숨김</span>
+        </label>
+        <div class="dsg-post-toolbar-spacer"></div>
+        <button class="dsg-new-btn" onclick="dsgPostAdd()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          새 게시
+        </button>
+      </div>
+
+      <!-- 빈 상태 -->
+      <div class="dsg-empty" id="dsgPostEmpty" hidden>
+        <div class="dsg-empty-icon">📮</div>
+        <div class="dsg-empty-title">아직 게시글이 없어요</div>
+        <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0914 한국=&gt;중국 발송</b> · 내용에 스와치·샘플 목록 · 사진 드래그&드롭.</div>
+      </div>
+
+      <!-- 아코디언 리스트 (게시글마다 헤더 + 접힘/펼침 본문) -->
+      <div class="dsg-post-list" id="dsgPostList"></div>
+    </div>
+
     <!-- ============ 작업 리스트 — 노션 스타일 아웃라이너 (기존 내용 유지) ============ -->
-    <div class="dsg-pane" data-pane="board" style="margin-bottom:26px">
+    <div class="dsg-pane" data-pane="board">
       <div class="dsg-section-label">🗂 작업 리스트</div>
       <div class="dsg-doc-toolbar">
         <input id="dsgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
@@ -9088,32 +9114,6 @@
           <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
         </div>
       </div>
-    </div>
-
-    <!-- ============ 디자인 보드 — 아코디언 게시글 리스트 ============ -->
-    <div class="dsg-pane" data-pane="posts">
-      <div class="dsg-section-label">📮 디자인 보드</div>
-      <div class="dsg-post-toolbar">
-        <label class="dsg-hide-done">
-          <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
-          <span>완료 숨김</span>
-        </label>
-        <div class="dsg-post-toolbar-spacer"></div>
-        <button class="dsg-new-btn" onclick="dsgPostAdd()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          새 게시
-        </button>
-      </div>
-
-      <!-- 빈 상태 -->
-      <div class="dsg-empty" id="dsgPostEmpty" hidden>
-        <div class="dsg-empty-icon">📮</div>
-        <div class="dsg-empty-title">아직 게시글이 없어요</div>
-        <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0914 한국=&gt;중국 발송</b> · 내용에 스와치·샘플 목록 · 사진 드래그&드롭.</div>
-      </div>
-
-      <!-- 아코디언 리스트 (게시글마다 헤더 + 접힘/펼침 본문) -->
-      <div class="dsg-post-list" id="dsgPostList"></div>
     </div>
 
   </div><!-- /viewDesign -->
