@@ -12521,6 +12521,12 @@
     for(const it of _akpState.items){
       const c=_akpNum(it.costKrw);
       rows.push({key:it.code, label:it.code, name:it.name, costKrw:c});
+      // 기존 데이터에 1+1 rows가 어느 플랫폼에라도 있으면 그 행도 유지 (자동 생성 X · 기존 데이터 보존)
+      const pairKey = it.code + ' 1+1';
+      const hasPair = _akpState.platforms.some(p => p.rows && p.rows[pairKey]);
+      if(hasPair){
+        rows.push({key:pairKey, label:pairKey, name:it.name+' · 1+1', costKrw:c*2});
+      }
     }
     const bodyHtml=rows.map(r=>{
       const cell = pl.rows?.[r.key] || {price:0, floor:0};
@@ -12611,7 +12617,11 @@
     const removed=_akpState.items[idx];
     _akpState.items.splice(idx,1);
     if(removed){
-      _akpState.platforms.forEach(pl=>{ if(pl.rows) delete pl.rows[removed.code]; });
+      _akpState.platforms.forEach(pl=>{
+        if(!pl.rows) return;
+        delete pl.rows[removed.code];
+        delete pl.rows[removed.code+' 1+1'];
+      });
     }
     akpRender();
   }
@@ -12671,9 +12681,13 @@
     if(!pl.rows) pl.rows={};
     for(const it of _akpState.items){
       const cost=_akpNum(it.costKrw);
-      const key=it.code;
-      if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
-      pl.rows[key].floor = Math.ceil(target*cost/r/100)*100;
+      if(!pl.rows[it.code]) pl.rows[it.code]={price:0,floor:0};
+      pl.rows[it.code].floor = Math.ceil(target*cost/r/100)*100;
+      // 기존 1+1 rows 있으면 같이 재계산 (원가 × 2)
+      const pairKey=it.code+' 1+1';
+      if(pl.rows[pairKey]){
+        pl.rows[pairKey].floor = Math.ceil(target*cost*2/r/100)*100;
+      }
     }
     akpRender();
   }
