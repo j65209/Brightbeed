@@ -6568,11 +6568,12 @@
   #viewDesign .view-title{font-size:24px;font-weight:700;color:#1c1917;letter-spacing:-.01em}
   #viewDesign .view-title-sub{font-size:13px;font-weight:500;color:#a8a29e;margin-left:6px;letter-spacing:0}
   .dsg-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
-  .dsg-save-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;letter-spacing:-.005em;font-variant-numeric:tabular-nums;transition:all .18s}
-  .dsg-save-tag[data-state="saved"]  {color:#166534;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35)}
-  .dsg-save-tag[data-state="saving"] {color:#9a3412;background:rgba(249,115,22,.10);border:1px solid rgba(249,115,22,.35)}
-  .dsg-save-tag[data-state="pending"]{color:#b45309;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4)}
-  .dsg-save-tag[data-state="error"]  {color:#b91c1c;background:rgba(220,38,38,.10);border:1px solid rgba(220,38,38,.4)}
+  .dsg-save-tag{font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:12px;letter-spacing:-.005em;font-variant-numeric:tabular-nums;transition:all .18s;display:inline-flex;align-items:center;gap:6px}
+  .dsg-save-tag[data-state="saved"]  {color:#166534;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.4)}
+  .dsg-save-tag[data-state="saving"] {color:#9a3412;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.4);animation:dsgSaveBlink 1s ease-in-out infinite}
+  .dsg-save-tag[data-state="pending"]{color:#b45309;background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.45);animation:dsgSaveBlink 1s ease-in-out infinite}
+  .dsg-save-tag[data-state="error"]  {color:#b91c1c;background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.45);animation:dsgSaveBlink .8s ease-in-out infinite}
+  @keyframes dsgSaveBlink{0%,100%{opacity:1}50%{opacity:.5}}
 
   /* 서브탭 */
   .dsg-tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid #e7e5e4;padding-bottom:0}
@@ -7187,6 +7188,14 @@
     .dsg-hint-desktop{display:none}
     .dsg-hint-mobile{display:inline}
   }
+
+  /* 삭제 Undo 스낵바 */
+  .dsg-post-snackbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#1c1917;color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:flex;align-items:center;gap:14px;font-size:13.5px;font-weight:500;z-index:9999;animation:dsgSnackIn .18s ease-out}
+  @keyframes dsgSnackIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+  .dsg-post-snackbar-msg{color:#fafaf9}
+  .dsg-post-snackbar-undo{background:transparent;color:#fdba74;border:none;font-weight:700;font-size:13.5px;padding:4px 8px;border-radius:6px;cursor:pointer;letter-spacing:-.005em}
+  .dsg-post-snackbar-undo:hover{background:rgba(253,186,116,.14)}
+  .dsg-post-snackbar-timer{width:22px;height:22px;border-radius:11px;background:rgba(255,255,255,.14);color:#fdba74;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
 
   /* ===== 디자인팀 뷰 섹션 라벨 (작업 리스트 / 디자인 보드 구분) ===== */
   .dsg-section-label{font-size:13px;font-weight:700;letter-spacing:.02em;color:#9a3412;padding:6px 4px 10px;border-bottom:1px solid #f1efec;margin-bottom:14px;display:flex;align-items:center;gap:6px}
@@ -9035,7 +9044,7 @@
       </button>
       <h1 class="view-title">디자인팀<span class="view-title-sub" id="dsgTitleSub">/ 디자인 보드</span></h1>
       <div class="dsg-head-actions">
-        <span class="dsg-save-tag" id="dsgSaveTag" data-state="saved" hidden>저장됨</span>
+        <span class="dsg-save-tag" id="dsgSaveTag" data-state="saved" title="현재 저장 상태">✓ 저장됨</span>
       </div>
     </div>
 
@@ -9063,6 +9072,13 @@
 
       <!-- 아코디언 리스트 (게시글마다 헤더 + 접힘/펼침 본문) -->
       <div class="dsg-post-list" id="dsgPostList"></div>
+
+      <!-- 삭제 Undo 스낵바 (5초) -->
+      <div class="dsg-post-snackbar" id="dsgPostSnackbar" hidden>
+        <span class="dsg-post-snackbar-msg" id="dsgPostSnackbarMsg">게시글이 삭제됐어요</span>
+        <button class="dsg-post-snackbar-undo" onclick="dsgPostUndoDelete()">되돌리기</button>
+        <span class="dsg-post-snackbar-timer" id="dsgPostSnackbarTimer">5</span>
+      </div>
     </div>
 
     <!-- ============ 작업 리스트 — 노션 스타일 아웃라이너 (기존 내용 유지) ============ -->
@@ -13389,6 +13405,18 @@
   const DSG_DOC_KEY   = 'brightbeed_design_doc_v1';   // 노션 스타일 아웃라이너 트리
   const DSG_REFS_KEY  = 'brightbeed_design_refs_v1';
   const DSG_POSTS_KEY = 'brightbeed_design_posts_v1'; // 디자인 보드 게시글
+  /* ── 방어 장치 (업무일지와 동일 급) ───────────────────────────────────
+       · dirty persist: 미푸시 편집이 새로고침 후에도 남아 자동 재전송
+       · tombstones:    삭제한 id 를 24h 보관 → push 실패해도 remote 부활 X
+       · pushed snap:   방금 올린 배열의 JSON 을 3분간 보관 → CDN 지연으로 오래된 remote 가 로컬 덮는 사고 방지
+       · history:       매 저장마다 마지막 20개 스냅샷 로컬 보관 (극한 복구용) */
+  const DSG_POSTS_DIRTY_KEY   = 'brightbeed_design_posts_dirty_v1';
+  const DSG_POSTS_TOMB_KEY    = 'brightbeed_design_posts_tomb_v1';
+  const DSG_POSTS_PUSHED_KEY  = 'brightbeed_design_posts_pushed_v1';
+  const DSG_POSTS_HISTORY_KEY = 'brightbeed_design_posts_history_v1';
+  const DSG_POSTS_PUSH_CONFIRM_MS = 3*60*1000;
+  const DSG_POSTS_TOMB_TTL_MS     = 24*3600*1000;
+  const DSG_POSTS_HISTORY_MAX     = 20;
   const DSG_UI_KEY    = 'brightbeed_design_ui_v1';
   const DSG_FS_KEY    = 'brightbeed_design_fs_v1';    // 문서 폰트 크기 (px, 숫자)
   const DSG_FS_MIN    = 8;
@@ -13449,6 +13477,7 @@
   function _dsgMarkPostDirty(id){
     if(!id) return;
     _dsgPostsDirty.add(id);
+    _dsgPersistPostsDirty();
     _dsgPostEditSeq[id] = (_dsgPostEditSeq[id]||0) + 1;
     _dsg_lastEditTs = Date.now();
     _dsgSchedPush();
@@ -13460,8 +13489,8 @@
     if(!tag) return;
     clearTimeout(tag._t);
     tag.dataset.state = state;
-    tag.hidden = false;
-    if(state==='saving')      tag.textContent = '저장 중…';
+    tag.hidden = false;    // 상시 표시 (업무일지 스타일)
+    if(state==='saving')      tag.textContent = '● 저장 중…';
     else if(state==='pending')tag.textContent = '⚠ 저장 대기 · 창을 닫지 마세요';
     else if(state==='error')  tag.textContent = '⚠ 저장 실패 · 재시도 중';
     else {
@@ -13469,7 +13498,6 @@
       const hh=String(t.getHours()).padStart(2,'0');
       const mm=String(t.getMinutes()).padStart(2,'0');
       tag.textContent = `✓ 저장됨 · ${hh}:${mm}`;
-      tag._t = setTimeout(()=>{ tag.hidden = true }, 2400);
     }
   }
 
@@ -13553,28 +13581,42 @@
     }
 
     if(rp){
-      const remote = rp;
-      const remoteIds = new Set(remote.map(x=>x.id));
-      for(const p of _dsgPosts){
-        if(p && p.id && !remoteIds.has(p.id)) _dsgPostsDirty.add(p.id);
+      const tombs = _dsgPurgePostTombs();
+      // pushed-snap: 방금 push한 JSON이 remote로 아직 반영 안됐으면(CDN 지연) 로컬 유지
+      const pushedSnap = _dsgLoadPostsPushedSnap();
+      let remoteJson;
+      try{ remoteJson = JSON.stringify(rp); }catch(e){ remoteJson = null; }
+      const remoteEchoesPush = pushedSnap && remoteJson && remoteJson === pushedSnap.json;
+      if(pushedSnap && !remoteEchoesPush){
+        // remote가 아직 우리 push를 반영 안했으니 pull 스킵 (로컬 우선)
+        // 단 dirty 재푸시는 계속
+        if(_dsgPostsDirty.size > 0) _dsgSchedPush();
+      } else {
+        if(pushedSnap && remoteEchoesPush) _dsgClearPostsPushedSnap(); // 반영 확인
+        const remote = rp.filter(p=>p && p.id && !tombs[p.id]);
+        const remoteIds = new Set(remote.map(x=>x.id));
+        for(const p of _dsgPosts){
+          if(p && p.id && !tombs[p.id] && !remoteIds.has(p.id)) _dsgPostsDirty.add(p.id);
+        }
+        const dirtyIds = new Set(_dsgPostsDirty);
+        const localById = new Map(_dsgPosts.map(p=>[p.id, p]));
+        const merged = [];
+        const seen = new Set();
+        for(const p of remote){
+          if(tombs[p.id]) continue;
+          if(dirtyIds.has(p.id) && localById.has(p.id)) merged.push(localById.get(p.id));
+          else merged.push(p);
+          seen.add(p.id);
+        }
+        for(const p of _dsgPosts){
+          if(!p || !p.id || tombs[p.id]) continue;
+          if(!seen.has(p.id) && dirtyIds.has(p.id)) merged.unshift(p);
+        }
+        _dsgPosts = merged;
+        _dsgPersistPostsDirty();
+        _dsgSavePosts();
+        if(_dsgPostsDirty.size > 0) _dsgSchedPush();
       }
-      const dirtyIds = new Set(_dsgPostsDirty);
-      const localById = new Map(_dsgPosts.map(p=>[p.id, p]));
-      const merged = [];
-      const seen = new Set();
-      for(const p of remote){
-        if(!p || !p.id) continue;
-        if(dirtyIds.has(p.id) && localById.has(p.id)) merged.push(localById.get(p.id));
-        else merged.push(p);
-        seen.add(p.id);
-      }
-      for(const p of _dsgPosts){
-        if(!p || !p.id) continue;
-        if(!seen.has(p.id) && dirtyIds.has(p.id)) merged.unshift(p);
-      }
-      _dsgPosts = merged;
-      _dsgSavePosts();
-      if(_dsgPostsDirty.size > 0) _dsgSchedPush();
     }
 
     if(_dsgIsEditing()) return;
@@ -13607,18 +13649,21 @@
   async function _dsgBuildPostsPayload(){
     const remote = await _dsgFetchRemotePosts();
     if(remote===null) return null;
+    const tombs = _dsgPurgePostTombs();
     const dirtyIds = new Set(_dsgPostsDirty);
     const localById = new Map(_dsgPosts.map(p=>[p.id, p]));
     const seen = new Set();
     const merged = [];
     for(const p of remote){
       if(!p || !p.id) continue;
+      if(tombs[p.id]) continue;  // tombstoned → remote 부활 X
       if(dirtyIds.has(p.id) && localById.has(p.id)) merged.push(localById.get(p.id));
       else merged.push(p);
       seen.add(p.id);
     }
     for(const p of _dsgPosts){
       if(!p || !p.id) continue;
+      if(tombs[p.id]) continue;
       if(!seen.has(p.id) && dirtyIds.has(p.id)) merged.unshift(p);
     }
     return {merged, dirtyIds:Array.from(dirtyIds)};
@@ -13686,8 +13731,11 @@
         if((_dsgPostEditSeq[id]||0) !== (postSeqBefore[id]||0)) return;
         _dsgPostsDirty.delete(id);
       });
+      _dsgPersistPostsDirty();
       _dsgPosts = postsPayload.merged;
       _dsgSavePosts();
+      // 방금 올린 배열을 pushed-snap 으로 저장 → CDN 지연 방어 (pull 결과와 비교하려 indent 없이)
+      try{ _dsgSavePostsPushedSnap(JSON.stringify(postsPayload.merged)); }catch(e){}
     }
     if(!docOK) _dsg_docDirty = true;   // 실패 시 다시 dirty 로 마킹
 
@@ -13751,13 +13799,16 @@
       }
     });
     window.addEventListener('pagehide', ()=>{
+      // pending 삭제도 확정 (사장님이 실수로 창을 닫아도 5초 안이면 취소된 것으로 처리하려 했지만,
+      // 창을 닫을 정도면 이미 삭제 의도로 판단 → tombstone 확정 + push)
+      if(_dsgPendingDelete) _dsgCommitPendingDelete();
       if(_dsgHasPending()){
         clearTimeout(_dsg_pushTimer);
         _dsgPushRemote();
       }
     });
     window.addEventListener('beforeunload', (e)=>{
-      if(!_dsgHasPending()) return;
+      if(!_dsgHasPending() && !_dsgPendingDelete) return;
       e.preventDefault();
       e.returnValue = '';
     });
@@ -13797,7 +13848,108 @@
   }
   function _dsgSavePosts(){
     try{ localStorage.setItem(DSG_POSTS_KEY, JSON.stringify(_dsgPosts)); }catch(e){}
+    _dsgPushHistorySnap();
   }
+  /* ── dirty persist (재부팅해도 미푸시 편집 복구) ── */
+  function _dsgPersistPostsDirty(){
+    try{ localStorage.setItem(DSG_POSTS_DIRTY_KEY, JSON.stringify(Array.from(_dsgPostsDirty))); }catch(e){}
+  }
+  function _dsgRestorePostsDirty(){
+    try{
+      const arr = JSON.parse(localStorage.getItem(DSG_POSTS_DIRTY_KEY)||'[]');
+      if(Array.isArray(arr)) arr.forEach(id=>{ if(id) _dsgPostsDirty.add(id); });
+    }catch(e){}
+  }
+  /* ── tombstones (삭제한 id — push 실패해도 부활 X) ── */
+  function _dsgLoadPostTombs(){
+    try{ return JSON.parse(localStorage.getItem(DSG_POSTS_TOMB_KEY)||'{}') || {}; }catch(e){ return {}; }
+  }
+  function _dsgSavePostTombs(t){
+    try{ localStorage.setItem(DSG_POSTS_TOMB_KEY, JSON.stringify(t)); }catch(e){}
+  }
+  function _dsgAddPostTomb(id){
+    if(!id) return;
+    const t = _dsgLoadPostTombs();
+    t[id] = Date.now();
+    _dsgSavePostTombs(t);
+  }
+  function _dsgPurgePostTombs(){
+    const t = _dsgLoadPostTombs();
+    const cut = Date.now() - DSG_POSTS_TOMB_TTL_MS;
+    let ch = false;
+    for(const id of Object.keys(t)){ if(t[id] < cut){ delete t[id]; ch = true; } }
+    if(ch) _dsgSavePostTombs(t);
+    return t;
+  }
+  function _dsgIsTombed(id){
+    const t = _dsgLoadPostTombs();
+    return !!t[id];
+  }
+  /* ── pushed snapshot (CDN 지연 방지) ── */
+  function _dsgSavePostsPushedSnap(json){
+    try{ localStorage.setItem(DSG_POSTS_PUSHED_KEY, JSON.stringify({json, ts:Date.now()})); }catch(e){}
+  }
+  function _dsgLoadPostsPushedSnap(){
+    try{
+      const sn = JSON.parse(localStorage.getItem(DSG_POSTS_PUSHED_KEY)||'null');
+      if(!sn || typeof sn.ts!=='number') return null;
+      if(Date.now() - sn.ts > DSG_POSTS_PUSH_CONFIRM_MS){
+        try{ localStorage.removeItem(DSG_POSTS_PUSHED_KEY); }catch(e){}
+        return null;
+      }
+      return sn;
+    }catch(e){ return null; }
+  }
+  function _dsgClearPostsPushedSnap(){
+    try{ localStorage.removeItem(DSG_POSTS_PUSHED_KEY); }catch(e){}
+  }
+  /* ── rolling history (극한 복구 — 매 저장마다 최대 20개 스냅샷) ── */
+  let _dsgLastHistoryJson = null;
+  function _dsgPushHistorySnap(){
+    let json;
+    try{ json = JSON.stringify(_dsgPosts); }catch(e){ return; }
+    if(json === _dsgLastHistoryJson) return;
+    _dsgLastHistoryJson = json;
+    let hist;
+    try{ hist = JSON.parse(localStorage.getItem(DSG_POSTS_HISTORY_KEY)||'[]'); }
+    catch(e){ hist = []; }
+    if(!Array.isArray(hist)) hist = [];
+    hist.push({ ts:Date.now(), json });
+    if(hist.length > DSG_POSTS_HISTORY_MAX) hist = hist.slice(-DSG_POSTS_HISTORY_MAX);
+    try{ localStorage.setItem(DSG_POSTS_HISTORY_KEY, JSON.stringify(hist)); }catch(e){
+      // 용량 초과 시 오래된 절반 버리고 재시도
+      try{
+        hist = hist.slice(-Math.floor(DSG_POSTS_HISTORY_MAX/2));
+        localStorage.setItem(DSG_POSTS_HISTORY_KEY, JSON.stringify(hist));
+      }catch(e2){}
+    }
+  }
+  /* 콘솔에서 복구용 — window.dsgListHistory() / window.dsgRestoreHistory(idx) */
+  window.dsgListHistory = function(){
+    try{
+      const hist = JSON.parse(localStorage.getItem(DSG_POSTS_HISTORY_KEY)||'[]');
+      return hist.map((h,i)=>({
+        i, when:new Date(h.ts).toLocaleString(),
+        posts:(JSON.parse(h.json)||[]).length,
+        preview:(JSON.parse(h.json)||[]).slice(0,3).map(p=>p.title||'무제')
+      }));
+    }catch(e){ return []; }
+  };
+  window.dsgRestoreHistory = function(idx){
+    try{
+      const hist = JSON.parse(localStorage.getItem(DSG_POSTS_HISTORY_KEY)||'[]');
+      const snap = hist[idx];
+      if(!snap) return '해당 스냅샷 없음';
+      if(!confirm(`${new Date(snap.ts).toLocaleString()} 시점 스냅샷 복원할까요? (게시글 ${JSON.parse(snap.json).length}개)`)) return '취소';
+      _dsgPosts = JSON.parse(snap.json);
+      _dsgSavePosts();
+      _dsgPosts.forEach(p=>{ _dsgPostsDirty.add(p.id); });
+      _dsgPersistPostsDirty();
+      _dsgSchedPush();
+      dsgPostsRender();
+      return `${_dsgPosts.length}개 복원됨. 원격 push 진행 중.`;
+    }catch(e){ return '복원 실패: '+e.message; }
+  };
   function _dsgUid(){ return 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
   function _dsgNowIso(){ return new Date().toISOString(); }
   function _dsgEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
@@ -13817,6 +13969,9 @@
     _dsgLoadDoc();
     _dsgLoadRefs();
     _dsgLoadPosts();
+    _dsgRestorePostsDirty();
+    _dsgPurgePostTombs();
+    if(_dsgPostsDirty.size > 0) _dsgSchedPush();  // 새로고침 후 미푸시 편집 자동 재전송
     dsgSwitchTab(_dsgCurTab||'posts');
     dsgDocRender();
     _dsgApplyFs();
@@ -14565,18 +14720,75 @@
     }
   }
 
+  /* 삭제는 즉시 확정하지 않고 5초 Undo 스낵바로 유예 — 실수 방어 */
+  let _dsgPendingDelete = null; // {post, prevIndex, timer, tickTimer, deadline}
   function dsgPostDelete(id){
     const p = _dsgPostById(id);
     if(!p) return;
-    if(!confirm(`"${p.title||'무제'}" 게시글을 삭제할까요?`)) return;
+    // 이전 pending 이 있으면 그것 먼저 확정
+    _dsgCommitPendingDelete();
+    const idx = _dsgPosts.findIndex(x=>x.id===id);
     _dsgPosts = _dsgPosts.filter(x=>x.id!==id);
     _dsgSavePosts();
-    _dsgPostsDirty.delete(id);
-    _dsgPosts.forEach(x=>_dsgPostsDirty.add(x.id));
-    _dsg_lastEditTs = Date.now();
-    _dsgSchedPush();
     if(_dsgCurPostId===id) _dsgCurPostId = _dsgPosts[0] ? _dsgPosts[0].id : null;
     dsgPostsRender();
+    // 5초 대기 — Undo 안 누르면 tombstone 확정 + push
+    const deadline = Date.now() + 5000;
+    _dsgPendingDelete = { post:p, prevIndex: idx>=0 ? idx : 0, deadline };
+    _dsgShowSnackbar(`"${p.title||'무제'}" 게시글이 삭제됐어요`);
+    _dsgPendingDelete.tickTimer = setInterval(()=>{
+      const left = Math.max(0, Math.ceil((_dsgPendingDelete.deadline - Date.now())/1000));
+      const t = document.getElementById('dsgPostSnackbarTimer');
+      if(t) t.textContent = String(left);
+      if(left<=0){
+        clearInterval(_dsgPendingDelete.tickTimer);
+      }
+    }, 250);
+    _dsgPendingDelete.timer = setTimeout(_dsgCommitPendingDelete, 5000);
+  }
+  function _dsgCommitPendingDelete(){
+    if(!_dsgPendingDelete) return;
+    const pd = _dsgPendingDelete;
+    clearTimeout(pd.timer);
+    clearInterval(pd.tickTimer);
+    _dsgAddPostTomb(pd.post.id);
+    _dsgPostsDirty.delete(pd.post.id);
+    _dsgPosts.forEach(x=>_dsgPostsDirty.add(x.id));
+    _dsgPersistPostsDirty();
+    _dsg_lastEditTs = Date.now();
+    _dsgSchedPush();
+    _dsgPendingDelete = null;
+    _dsgHideSnackbar();
+  }
+  function dsgPostUndoDelete(){
+    if(!_dsgPendingDelete) return;
+    const pd = _dsgPendingDelete;
+    clearTimeout(pd.timer);
+    clearInterval(pd.tickTimer);
+    // 원 위치에 복원
+    const idx = Math.min(pd.prevIndex, _dsgPosts.length);
+    _dsgPosts.splice(idx, 0, pd.post);
+    _dsgSavePosts();
+    _dsgPostsDirty.add(pd.post.id);
+    _dsgPersistPostsDirty();
+    _dsgCurPostId = pd.post.id;
+    _dsgSchedPush();
+    _dsgPendingDelete = null;
+    _dsgHideSnackbar();
+    dsgPostsRender();
+  }
+  function _dsgShowSnackbar(msg){
+    const bar = document.getElementById('dsgPostSnackbar');
+    const m   = document.getElementById('dsgPostSnackbarMsg');
+    const t   = document.getElementById('dsgPostSnackbarTimer');
+    if(!bar) return;
+    if(m) m.textContent = msg;
+    if(t) t.textContent = '5';
+    bar.hidden = false;
+  }
+  function _dsgHideSnackbar(){
+    const bar = document.getElementById('dsgPostSnackbar');
+    if(bar) bar.hidden = true;
   }
 
   function dsgPostToggleDone(id){
