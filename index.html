@@ -7189,6 +7189,15 @@
     .dsg-hint-mobile{display:inline}
   }
 
+  /* 첨부 파일 hover 프리뷰 */
+  .dsg-file-preview{position:fixed;z-index:9998;background:#fff;border:1px solid #e7e5e4;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.22);padding:6px;pointer-events:none;max-width:440px;max-height:540px;display:flex;flex-direction:column;gap:4px;transition:opacity .1s}
+  .dsg-file-preview[hidden]{display:none}
+  .dsg-file-preview img{max-width:420px;max-height:480px;border-radius:8px;display:block;background:#f5f5f4;object-fit:contain}
+  .dsg-file-preview embed{width:420px;height:500px;border-radius:8px;background:#f5f5f4;display:block}
+  .dsg-file-preview .dsg-fp-icon{width:150px;height:150px;font-size:96px;display:flex;align-items:center;justify-content:center;background:#fafaf9;border-radius:8px;color:#78716c;line-height:1}
+  .dsg-file-preview .dsg-fp-caption{padding:6px 8px 4px;font-size:12px;color:#57534e;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:420px}
+  .dsg-file-preview .dsg-fp-sub{padding:0 8px 4px;font-size:11px;color:#a8a29e;font-variant-numeric:tabular-nums}
+
   /* 삭제 Undo 스낵바 */
   .dsg-post-snackbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#1c1917;color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:flex;align-items:center;gap:14px;font-size:13.5px;font-weight:500;z-index:9999;animation:dsgSnackIn .18s ease-out}
   .dsg-post-snackbar[hidden]{display:none}
@@ -9098,6 +9107,9 @@
 
       <!-- 아코디언 리스트 (게시글마다 헤더 + 접힘/펼침 본문) -->
       <div class="dsg-post-list" id="dsgPostList"></div>
+
+      <!-- 첨부 파일 hover 프리뷰 (전역) -->
+      <div class="dsg-file-preview" id="dsgFilePreview" hidden aria-hidden="true"></div>
 
       <!-- 삭제 Undo 스낵바 (5초) -->
       <div class="dsg-post-snackbar" id="dsgPostSnackbar" hidden>
@@ -14571,7 +14583,7 @@
       imgs.length ? `<span class="dsg-post-item-badge">🖼 ${imgs.length}</span>` : '',
       files.length ? `<span class="dsg-post-item-badge">📎 ${files.length}</span>` : ''
     ].join('');
-    const imgTiles = imgs.map(img=>`<div class="dsg-post-img-tile" data-img="${img.id}">
+    const imgTiles = imgs.map(img=>`<div class="dsg-post-img-tile" data-img="${img.id}" data-post="${p.id}" onmouseenter="dsgFilePreviewShowImage(event, this)" onmousemove="dsgFilePreviewMove(event)" onmouseleave="dsgFilePreviewHide()">
       <div class="dsg-post-img-thumb">
         <img src="${_dsgEsc(img.url)}" alt="" onclick="dsgPostImgZoom('${p.id}','${img.id}')">
         <button class="dsg-post-img-rm" onclick="dsgPostRemoveImage('${p.id}','${img.id}')" title="삭제">
@@ -15005,7 +15017,9 @@
     const icon = _dsgFileIcon(f.mime, f.name);
     const name = _dsgEsc(f.name||'파일');
     const meta = [_dsgFileSizeLabel(f.size), (f.mime||'').split('/').pop()].filter(Boolean).join(' · ');
-    return `<div class="dsg-post-file-tile" data-file="${f.id}">
+    // hover 시 file id 로 찾아서 프리뷰 렌더 (data URL 인라인 삽입 회피 — escape 안전)
+    const hoverAttrs = `onmouseenter="dsgFilePreviewShowFile(event, this)" onmousemove="dsgFilePreviewMove(event)" onmouseleave="dsgFilePreviewHide()"`;
+    return `<div class="dsg-post-file-tile" data-file="${f.id}" data-post="${postId}" ${hoverAttrs}>
       <div class="dsg-post-file-main">
         <span class="dsg-post-file-icon">${icon}</span>
         <div class="dsg-post-file-info">
@@ -15040,6 +15054,99 @@
     _dsgMarkPostDirty(p.id);
     _dsgUpdateItemFiles(p);
   }
+  /* ── 파일 hover 프리뷰 (이미지·PDF·기타 아이콘) ─────────────
+       300ms 지연 후 표시. 마우스 좌표 근처, 화면 벗어나지 않게 clamp. */
+  let _dsgFpTimer = null;
+  let _dsgFpLastEvent = null;
+  function _dsgFilePreviewKind(mime, name){
+    const m = (mime||'').toLowerCase();
+    const ext = (name||'').split('.').pop().toLowerCase();
+    if(m.startsWith('image/')) return 'image';
+    if(m==='application/pdf' || ext==='pdf') return 'pdf';
+    return 'icon';
+  }
+  function _dsgFilePreviewContent(kind, url, name, mime, size){
+    const icon = _dsgFileIcon(mime, name);
+    const meta = [_dsgFileSizeLabel(size), (mime||'').split('/').pop()].filter(Boolean).join(' · ');
+    if(kind==='image'){
+      return `<img src="${_dsgEsc(url)}" alt="">
+        <div class="dsg-fp-caption">${_dsgEsc(name||'')}</div>
+        <div class="dsg-fp-sub">${_dsgEsc(meta)}</div>`;
+    }
+    if(kind==='pdf'){
+      return `<embed src="${_dsgEsc(url)}#toolbar=0&navpanes=0" type="application/pdf">
+        <div class="dsg-fp-caption">${_dsgEsc(name||'')}</div>
+        <div class="dsg-fp-sub">${_dsgEsc(meta)}</div>`;
+    }
+    return `<div class="dsg-fp-icon">${icon}</div>
+      <div class="dsg-fp-caption">${_dsgEsc(name||'')}</div>
+      <div class="dsg-fp-sub">${_dsgEsc(meta)}</div>`;
+  }
+  function _dsgFilePreviewPosition(evt){
+    const pv = document.getElementById('dsgFilePreview');
+    if(!pv || pv.hidden) return;
+    const pad = 16;
+    const w = pv.offsetWidth || 300;
+    const h = pv.offsetHeight || 200;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let x = (evt.clientX||0) + 18;
+    let y = (evt.clientY||0) + 18;
+    // 오른쪽 벗어나면 왼쪽으로
+    if(x + w + pad > vw) x = (evt.clientX||0) - w - 18;
+    if(x < pad) x = pad;
+    if(y + h + pad > vh) y = vh - h - pad;
+    if(y < pad) y = pad;
+    pv.style.left = x+'px';
+    pv.style.top  = y+'px';
+  }
+  function dsgFilePreviewShow(evt, kind, url, name, mime, size){
+    _dsgFpLastEvent = { clientX:evt.clientX, clientY:evt.clientY };
+    clearTimeout(_dsgFpTimer);
+    _dsgFpTimer = setTimeout(()=>{
+      const pv = document.getElementById('dsgFilePreview');
+      if(!pv) return;
+      pv.innerHTML = _dsgFilePreviewContent(kind, url, name, mime, size);
+      pv.hidden = false;
+      _dsgFilePreviewPosition(_dsgFpLastEvent||evt);
+    }, 300);
+  }
+  function dsgFilePreviewMove(evt){
+    _dsgFpLastEvent = { clientX:evt.clientX, clientY:evt.clientY };
+    const pv = document.getElementById('dsgFilePreview');
+    if(!pv || pv.hidden) return;
+    _dsgFilePreviewPosition(_dsgFpLastEvent);
+  }
+  function dsgFilePreviewHide(){
+    clearTimeout(_dsgFpTimer);
+    _dsgFpTimer = null;
+    const pv = document.getElementById('dsgFilePreview');
+    if(pv){ pv.hidden = true; pv.innerHTML=''; }
+  }
+  /* data-post/data-file/data-img 로 id 만 가져와서 실제 데이터에서 프리뷰 렌더
+     — data URL 을 인라인 attribute 에 안 넣어서 escape 이슈 없음 */
+  function dsgFilePreviewShowFile(evt, el){
+    if(!el) return;
+    const postId = el.getAttribute('data-post');
+    const fileId = el.getAttribute('data-file');
+    const p = _dsgPostById(postId);
+    if(!p) return;
+    const f = (p.files||[]).find(x=>x.id===fileId);
+    if(!f) return;
+    const kind = _dsgFilePreviewKind(f.mime, f.name);
+    dsgFilePreviewShow(evt, kind, f.url, f.name, f.mime, f.size);
+  }
+  function dsgFilePreviewShowImage(evt, el){
+    if(!el) return;
+    const postId = el.getAttribute('data-post');
+    const imgId  = el.getAttribute('data-img');
+    const p = _dsgPostById(postId);
+    if(!p) return;
+    const img = (p.images||[]).find(x=>x.id===imgId);
+    if(!img) return;
+    dsgFilePreviewShow(evt, 'image', img.url, img.caption||'사진', 'image/*', 0);
+  }
+
   function dsgPostFileCapInput(postId, fileId, val){
     const p = _dsgPostById(postId);
     if(!p) return;
