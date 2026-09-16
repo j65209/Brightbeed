@@ -4296,7 +4296,14 @@
   .sub-modules-eyebrow .folder-meta b{color:var(--text-1);font-weight:600}
   @media(max-width:600px){
     .sub-modules-section{padding:14px 14px 16px;margin:20px auto 32px}
-    .sub-modules-eyebrow{font-size:11px;letter-spacing:.08em}
+    .sub-modules-eyebrow{
+      font-size:11px;letter-spacing:.08em;
+      flex-wrap:wrap;row-gap:4px;
+    }
+    .sub-modules-eyebrow .folder-meta{
+      margin-left:0;flex-basis:100%;
+      padding-left:24px;
+    }
   }
   .sub-modules{
     display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
