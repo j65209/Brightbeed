@@ -7188,6 +7188,9 @@
     .dsg-hint-mobile{display:inline}
   }
 
+  /* ===== 디자인팀 뷰 섹션 라벨 (작업 리스트 / 디자인 보드 구분) ===== */
+  .dsg-section-label{font-size:13px;font-weight:700;letter-spacing:.02em;color:#9a3412;padding:6px 4px 10px;border-bottom:1px solid #f1efec;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+
   /* ===== 디자인 보드 (posts) — 아코디언 게시글 리스트 ===== */
   .dsg-post-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
   .dsg-post-toolbar-spacer{flex:1}
@@ -9036,8 +9039,60 @@
       </div>
     </div>
 
+    <!-- ============ 작업 리스트 — 노션 스타일 아웃라이너 (기존 내용 유지) ============ -->
+    <div class="dsg-pane" data-pane="board" style="margin-bottom:26px">
+      <div class="dsg-section-label">🗂 작업 리스트</div>
+      <div class="dsg-doc-toolbar">
+        <input id="dsgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
+        <label class="dsg-hide-done">
+          <input type="checkbox" id="dsgDocHideDone" onchange="dsgDocRender()">
+          <span>완료 숨김</span>
+        </label>
+        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="dsgFsPicker" title="글꼴 크기 (8~28px)">
+          <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
+          <input class="dsg-fs-num" id="dsgFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
+          <span class="dsg-fs-suffix">px</span>
+          <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
+        </div>
+        <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+          펼치기
+        </button>
+        <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+          접기
+        </button>
+      </div>
+
+      <div id="dsgBoardWrap" class="dsg-doc-wrap">
+        <div class="dsg-empty" id="dsgEmpty" hidden>
+          <div class="dsg-empty-icon">📝</div>
+          <div class="dsg-empty-title">아직 작업이 없어요</div>
+          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작해 보세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
+        </div>
+        <div id="dsgDoc" class="dsg-doc"></div>
+
+        <div class="dsg-doc-add" id="dsgDocAdd">
+          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
+            <span class="dsg-doc-add-plus">＋</span>
+            <span>여기에 입력하세요</span>
+          </button>
+          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
+            새 섹션
+          </button>
+        </div>
+
+        <div class="dsg-doc-hint">
+          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
+          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
+        </div>
+      </div>
+    </div>
+
     <!-- ============ 디자인 보드 — 아코디언 게시글 리스트 ============ -->
     <div class="dsg-pane" data-pane="posts">
+      <div class="dsg-section-label">📮 디자인 보드</div>
       <div class="dsg-post-toolbar">
         <label class="dsg-hide-done">
           <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
@@ -13834,24 +13889,15 @@
     _dsgApplyFs();
   }
 
-  /* 서브탭 스위치 */
+  /* 서브탭 스위치 — 사장님 요청으로 서브탭 UI 는 없어졌지만, 두 pane 모두 항상 표시 */
   function dsgSwitchTab(tab){
-    _dsgCurTab = tab;
-    document.querySelectorAll('#viewDesign .dsg-tab').forEach(b=>{
-      const on = b.dataset.dsg===tab;
-      b.classList.toggle('active', on);
-      b.setAttribute('aria-selected', on?'true':'false');
-    });
+    _dsgCurTab = tab || 'posts';
     document.querySelectorAll('#viewDesign .dsg-pane').forEach(p=>{
-      p.hidden = p.dataset.pane!==tab;
+      // refs pane 은 이미 DOM 에서 제거됨. board / posts 는 항상 표시.
+      p.hidden = false;
     });
-    const sub = document.getElementById('dsgTitleSub');
-    if(sub){
-      sub.textContent = tab==='refs' ? '/ 레퍼런스 갤러리'
-                       : tab==='posts' ? '/ 디자인 보드'
-                       : '/ 작업 보드';
-    }
-    if(tab==='posts') dsgPostsRender();
+    if(typeof dsgPostsRender==='function') dsgPostsRender();
+    if(typeof dsgDocRender==='function')   dsgDocRender();
   }
 
   /* ===== 노션 아웃라이너 뷰 — 렌더 + 인라인 편집 ===== */
