@@ -2297,6 +2297,36 @@
   .mdpromo-section .lg-tab{display:inline-flex;align-items:center;gap:8px}
   .mdpromo-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
 
+  /* ===== 기획전 일정 · 간트(가로 타임라인) 표 ===== */
+  .md-cal-section .md-cal-weekdays{display:none}
+  .md-gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .md-gantt-tbl{border-collapse:collapse;font-size:12px}
+  .md-gantt-tbl th,.md-gantt-tbl td{border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+  .md-gantt-tbl th{background:var(--bg-1);padding:6px 4px;text-align:center;color:var(--text-2);font-weight:700;font-size:11px;font-family:var(--mono)}
+  .md-gantt-th-label{text-align:left !important;padding:8px 12px !important;position:sticky;left:0;background:var(--bg-1) !important;z-index:3;min-width:260px;max-width:260px;width:260px;font-family:var(--sans) !important;font-size:12px !important}
+  .md-gantt-th-day{min-width:26px;width:26px;padding:6px 0 !important}
+  .md-gantt-th-day.is-today{background:#dc2626 !important;color:#fff !important}
+  .md-gantt-th-day.is-sun{color:#dc2626}
+  .md-gantt-th-day.is-sat{color:#2563eb}
+  .md-gantt-th-wd{font-size:9.5px;color:var(--text-3);display:block;font-weight:600;margin-top:2px}
+  .md-gantt-tbl tbody td{height:34px;padding:0}
+  .md-gantt-td-label{padding:6px 12px !important;position:sticky;left:0;background:#fff;z-index:2;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:260px;max-width:260px;width:260px;font-size:12.5px;color:var(--text-0);cursor:pointer}
+  .md-gantt-tbl tbody tr:hover .md-gantt-td-label{background:var(--bg-1)}
+  .md-gantt-td-day{position:relative;text-align:center}
+  .md-gantt-td-day.is-today{background:rgba(220,38,38,.08)}
+  .md-gantt-td-day.is-sun{background:rgba(220,38,38,.03)}
+  .md-gantt-td-day.is-sat{background:rgba(37,99,235,.03)}
+  .md-gantt-td-day.md-gantt-fill{cursor:pointer}
+  .md-gantt-td-day.md-gantt-fill::before{content:'';position:absolute;left:0;right:0;top:6px;bottom:6px;background:var(--evc);opacity:.95}
+  .md-gantt-td-day.md-gantt-fill.is-fill-start::before{left:3px;border-top-left-radius:5px;border-bottom-left-radius:5px}
+  .md-gantt-td-day.md-gantt-fill.is-fill-end::before{right:3px;border-top-right-radius:5px;border-bottom-right-radius:5px}
+  .md-gantt-td-day.md-gantt-fill:hover::before{opacity:1;filter:brightness(.92)}
+  .md-gantt-rowlabel-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle;flex-shrink:0}
+  .md-gantt-rowlabel-title{color:var(--text-0)}
+  .md-gantt-rowlabel-range{color:var(--text-3);font-size:11px;font-family:var(--mono);font-weight:500;margin-left:6px}
+  .md-gantt-empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px;background:#fff;border:1px dashed var(--line);border-radius:8px}
+  .md-cal-hint{padding-top:10px}
+
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
   .akp-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding:10px 12px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px}
@@ -23613,124 +23643,95 @@
     const label=document.getElementById('mdCalMonthLabel');
     if(label) label.textContent=`${_mdCal.year}.${String(_mdCal.month+1).padStart(2,'0')}`;
 
-    const firstDay=new Date(_mdCal.year, _mdCal.month, 1);
-    const startWd=firstDay.getDay();
-    const monthLast=new Date(_mdCal.year, _mdCal.month+1, 0).getDate();
-    const prevMonthLast=new Date(_mdCal.year, _mdCal.month, 0).getDate();
+    const year=_mdCal.year, month=_mdCal.month;
+    const daysInMonth=new Date(year, month+1, 0).getDate();
+    const monthStartIso=_mdIso(new Date(year, month, 1));
+    const monthEndIso=_mdIso(new Date(year, month, daysInMonth));
     const todayIso=_mdIso(new Date());
+    const wdShort=['일','월','화','수','목','금','토'];
 
-    const cells=[];
-    for(let i=startWd-1; i>=0; i--){
-      cells.push({date:new Date(_mdCal.year, _mdCal.month-1, prevMonthLast-i), isOut:true});
+    const evs=(_mdCal.events||[]).filter(ev=>{
+      if(!ev.start) return false;
+      if(!_mdEventPassesFilter(ev)) return false;
+      const e=ev.end || ev.start;
+      return ev.start<=monthEndIso && e>=monthStartIso;
+    }).sort((a,b)=>{
+      if(a.start!==b.start) return a.start<b.start?-1:1;
+      const aE=a.end||a.start, bE=b.end||b.start;
+      if(aE!==bE) return aE<bE?-1:1;
+      return (a.title||'').localeCompare(b.title||'');
+    });
+
+    grid.className='md-gantt-wrap';
+
+    if(evs.length===0){
+      grid.innerHTML='<div class="md-gantt-empty">이 달에 해당하는 기획전이 없습니다. 위쪽 "일정 추가"로 만들어보세요.</div>';
+      return;
     }
-    for(let d=1; d<=monthLast; d++){
-      cells.push({date:new Date(_mdCal.year, _mdCal.month, d), isOut:false});
+
+    // 헤더: 날짜 (일/요일)
+    const days=[];
+    for(let d=1; d<=daysInMonth; d++){
+      const date=new Date(year, month, d);
+      const wd=date.getDay();
+      const iso=_mdIso(date);
+      const cls=['md-gantt-th-day'];
+      if(iso===todayIso) cls.push('is-today');
+      if(wd===0) cls.push('is-sun');
+      if(wd===6) cls.push('is-sat');
+      days.push({d, iso, wd, cls});
     }
-    while(cells.length<42){
-      const lc=cells[cells.length-1].date;
-      cells.push({date:new Date(lc.getFullYear(), lc.getMonth(), lc.getDate()+1), isOut:true});
-    }
+    const headerHtml = days.map(x=>`<th class="${x.cls.join(' ')}">${x.d}<span class="md-gantt-th-wd">${wdShort[x.wd]}</span></th>`).join('');
 
-    grid.innerHTML='';
-    const MAX_LANES=4;
-
-    for(let wi=0; wi<6; wi++){
-      const week=cells.slice(wi*7, wi*7+7);
-      const weekStartIso=_mdIso(week[0].date);
-      const weekEndIso=_mdIso(week[6].date);
-
-      const weekEvs=(_mdCal.events||[]).filter(ev=>{
-        if(!ev.start) return false;
-        if(!_mdEventPassesFilter(ev)) return false;
-        const e=ev.end || ev.start;
-        return ev.start<=weekEndIso && e>=weekStartIso;
-      });
-      weekEvs.sort((a,b)=>{
-        if(a.start!==b.start) return a.start<b.start?-1:1;
-        const aE=a.end||a.start, bE=b.end||b.start;
-        if(aE!==bE) return aE>bE?-1:1;
-        return (a.id||'').localeCompare(b.id||'');
-      });
-
-      const lanes=[];
-      const evLane=new Map();
-      weekEvs.forEach(ev=>{
-        const s=ev.start<weekStartIso ? weekStartIso : ev.start;
-        const e=(ev.end||ev.start)>weekEndIso ? weekEndIso : (ev.end||ev.start);
-        let li=-1;
-        for(let i=0;i<lanes.length;i++){
-          if(lanes[i].every(seg=>seg.end<s || seg.start>e)){li=i; break;}
+    // 각 이벤트 행
+    const rowsHtml = evs.map(ev=>{
+      const c=_mdEvColor(ev.color);
+      const evStart=ev.start;
+      const evEnd=ev.end||ev.start;
+      const cellsHtml = days.map(x=>{
+        const inRange = x.iso>=evStart && x.iso<=evEnd;
+        const cls=['md-gantt-td-day'];
+        if(x.iso===todayIso) cls.push('is-today');
+        if(x.wd===0) cls.push('is-sun');
+        if(x.wd===6) cls.push('is-sat');
+        if(inRange){
+          cls.push('md-gantt-fill');
+          // 셀에서 이벤트 실제 시작/끝 확인 (월 밖으로 뻗어나가면 시작·끝이 월 안이 아닐 수 있음)
+          if(x.iso===evStart) cls.push('is-fill-start');
+          if(x.iso===evEnd)   cls.push('is-fill-end');
         }
-        if(li<0){lanes.push([{start:s,end:e}]); li=lanes.length-1;}
-        else{lanes[li].push({start:s,end:e});}
-        evLane.set(ev, li);
+        const style = inRange ? `--evc:${c.hex}` : '';
+        return `<td class="${cls.join(' ')}" style="${style}" ${inRange?`data-ev-id="${escapeHTML(ev.id||'')}"`:''}></td>`;
+      }).join('');
+      const range = ev.end && ev.end!==ev.start
+        ? `${ev.start.slice(5).replace('-','/')} ~ ${ev.end.slice(5).replace('-','/')}`
+        : ev.start.slice(5).replace('-','/');
+      return `<tr data-ev-id="${escapeHTML(ev.id||'')}">
+        <td class="md-gantt-td-label" title="${escapeHTML(ev.title||'')}">
+          <span class="md-gantt-rowlabel-dot" style="background:${c.hex}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
+        </td>
+        ${cellsHtml}
+      </tr>`;
+    }).join('');
+
+    grid.innerHTML = `
+      <table class="md-gantt-tbl">
+        <thead>
+          <tr>
+            <th class="md-gantt-th-label">기획전 (${evs.length}건)</th>
+            ${headerHtml}
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    `;
+
+    grid.querySelectorAll('tr[data-ev-id]').forEach(tr=>{
+      tr.addEventListener('click', (e)=>{
+        const id=tr.dataset.evId; if(!id) return;
+        mdCalOpenEdit(id);
       });
-
-      week.forEach(cell=>{
-        const iso=_mdIso(cell.date);
-        const wd=cell.date.getDay();
-        const cellEl=document.createElement('div');
-        cellEl.className='md-cal-cell';
-        if(cell.isOut) cellEl.classList.add('is-out');
-        if(iso===todayIso) cellEl.classList.add('is-today');
-        if(wd===0) cellEl.classList.add('is-sun');
-        if(wd===6) cellEl.classList.add('is-sat');
-        cellEl.dataset.date=iso;
-
-        const numEl=document.createElement('div');
-        numEl.className='md-cal-daynum';
-        numEl.textContent=cell.date.getDate();
-        cellEl.appendChild(numEl);
-
-        const eventsEl=document.createElement('div');
-        eventsEl.className='md-cal-events';
-
-        const visibleLanes=Math.min(lanes.length, MAX_LANES);
-        for(let li=0; li<visibleLanes; li++){
-          const ev=weekEvs.find(e=>{
-            if(evLane.get(e)!==li) return false;
-            const s=e.start<weekStartIso?weekStartIso:e.start;
-            const en=(e.end||e.start)>weekEndIso?weekEndIso:(e.end||e.start);
-            return iso>=s && iso<=en;
-          });
-          if(ev){
-            eventsEl.appendChild(_mdRenderChip(ev, iso, weekStartIso, weekEndIso));
-          }else{
-            const ph=document.createElement('div');
-            ph.className='md-cal-event-ph';
-            eventsEl.appendChild(ph);
-          }
-        }
-
-        const evsHere=weekEvs.filter(e=>{
-          const s=e.start<weekStartIso?weekStartIso:e.start;
-          const en=(e.end||e.start)>weekEndIso?weekEndIso:(e.end||e.start);
-          return iso>=s && iso<=en;
-        });
-        const hidden=evsHere.filter(e=>evLane.get(e)>=MAX_LANES).length;
-        if(hidden>0){
-          const more=document.createElement('button');
-          more.type='button';
-          more.className='md-cal-more';
-          more.textContent=`+${hidden} 더보기`;
-          more.addEventListener('click', (e)=>{
-            e.stopPropagation();
-            mdCalShowDayPopover(iso, evsHere, cellEl);
-          });
-          eventsEl.appendChild(more);
-        }
-
-        cellEl.appendChild(eventsEl);
-
-        cellEl.addEventListener('click', (e)=>{
-          if(e.target.closest('.md-cal-event')) return;
-          if(e.target.closest('.md-cal-more')) return;
-          mdCalOpenAdd(iso);
-        });
-
-        grid.appendChild(cellEl);
-      });
-    }
+    });
   }
 
   /* +N 더보기 클릭 — 그 날짜의 모든 일정을 popover로 표시 (클릭하면 편집 모달) */
