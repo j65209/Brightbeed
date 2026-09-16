@@ -2303,7 +2303,7 @@
   .akp-master-wrap{border:1px solid var(--line);border-radius:10px;overflow-x:auto;background:var(--bg-0);margin-bottom:8px}
   .akp-master-table th,.akp-master-table td{padding:6px 8px}
   .akp-plat{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg-0)}
-  .akp-plat-head{display:grid;grid-template-columns:1fr 200px auto;gap:12px;padding:10px 14px;background:var(--bg-1);border-bottom:1px solid var(--line);align-items:end}
+  .akp-plat-head{display:grid;grid-template-columns:1fr 180px auto;gap:12px;padding:12px 16px;background:var(--bg-1);border-bottom:1px solid var(--line);align-items:center}
   .akp-plat-head .akp-head-label{margin-bottom:2px}
   .akp-plat-head input{height:32px;padding:0 10px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fff}
   .akp-plat-head input[type=number]{font-family:var(--mono);text-align:right}
@@ -2311,6 +2311,14 @@
   .akp-fee-field{position:relative}
   .akp-fee-field input{padding-right:28px}
   .akp-fee-field::after{content:'%';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:12.5px;font-family:var(--mono);pointer-events:none}
+
+  .akp-plat-title-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+  .akp-plat-title{font-size:16px;font-weight:800;color:var(--text-0);margin:0;line-height:1.3;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .akp-plat-title-input{flex:1;height:34px !important;padding:0 12px !important;font-size:15px !important;font-weight:700 !important;border:1.5px solid #dc2626 !important;border-radius:6px;background:#fff;min-width:0}
+  .akp-btn-edit{padding:5px 12px;font-size:11.5px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:6px;color:var(--text-2);cursor:pointer;white-space:nowrap;transition:all .12s}
+  .akp-btn-edit:hover{background:var(--bg-2);color:var(--text-0);border-color:var(--line-2)}
+  .akp-btn-save{padding:5px 14px;font-size:11.5px;font-weight:700;background:#dc2626;border:1px solid #dc2626;border-radius:6px;color:#fff;cursor:pointer;white-space:nowrap;transition:all .12s}
+  .akp-btn-save:hover{background:#b91c1c;border-color:#b91c1c}
 
   .akp-list{display:flex;flex-direction:column;gap:12px}
   .akp-item{border:1px solid var(--line);border-radius:10px;background:var(--bg-0);overflow:hidden}
@@ -12365,6 +12373,7 @@
   const AKP_LS='akoiPromoV3';
   const AKP_SHEET_ID='1qg58PnOFtkhz1a02dz0hCIog64haXBGDzliPwjljlJI';
   let _akpState=null, _akpInited=false;
+  const _akpEditingPlats=new Set(); // 편집 모드인 플랫폼 index 세트 (세션 로컬)
 
   function _akpDefault(){
     return {
@@ -12483,13 +12492,20 @@
       </tr>`;
     }).join('');
 
+    const editing=_akpEditingPlats.has(pIdx);
+    const titleBlock = editing
+      ? `<div class="akp-plat-title-wrap">
+          <input class="akp-plat-title-input" id="akpPlatName${pIdx}" type="text" value="${(pl.name||'').replace(/"/g,'&quot;')}" placeholder="예: 지그재그" onkeydown="if(event.key==='Enter')akpEndEditPlat(${pIdx},this.value); if(event.key==='Escape')akpEndEditPlat(${pIdx})">
+          <button class="akp-btn-save" onclick="akpEndEditPlat(${pIdx}, document.getElementById('akpPlatName${pIdx}').value)">저장</button>
+        </div>`
+      : `<div class="akp-plat-title-wrap">
+          <h3 class="akp-plat-title">${(pl.name||'(이름 없음)').replace(/</g,'&lt;')}</h3>
+          <button class="akp-btn-edit" onclick="akpStartEditPlat(${pIdx})">✏️ 수정</button>
+        </div>`;
     return `
       <div class="akp-plat" data-plat="${pIdx}">
         <div class="akp-plat-head">
-          <div>
-            <span class="akp-head-label">플랫폼 이름</span>
-            <input type="text" value="${pl.name||''}" oninput="akpEditPlatMeta(${pIdx},'name',this.value)" placeholder="예: 지그재그">
-          </div>
+          ${titleBlock}
           <div class="akp-fee-field">
             <span class="akp-head-label">수수료율</span>
             <input type="number" step="0.5" min="0" max="100" value="${rate}" onchange="akpEditPlatMeta(${pIdx},'feeRate',this.value)">
@@ -12562,6 +12578,23 @@
     _akpState.platforms.splice(pIdx,1);
     akpRender();
   }
+  function akpStartEditPlat(pIdx){
+    _akpEditingPlats.add(pIdx);
+    akpRender();
+    setTimeout(()=>{
+      const el=document.getElementById('akpPlatName'+pIdx);
+      if(el){ el.focus(); el.select(); }
+    }, 0);
+  }
+  function akpEndEditPlat(pIdx, newName){
+    if(typeof newName==='string'){
+      const pl=_akpState.platforms[pIdx];
+      if(pl){ pl.name=newName; }
+    }
+    _akpEditingPlats.delete(pIdx);
+    akpRender();
+  }
+
   window.akpEditItem=akpEditItem;
   window.akpEditPlatMeta=akpEditPlatMeta;
   window.akpEditPlat=akpEditPlat;
@@ -12569,6 +12602,8 @@
   window.akpDelItem=akpDelItem;
   window.akpAddPlatform=akpAddPlatform;
   window.akpDelPlat=akpDelPlat;
+  window.akpStartEditPlat=akpStartEditPlat;
+  window.akpEndEditPlat=akpEndEditPlat;
 
   function akpExportJson(){
     const blob=new Blob([JSON.stringify(_akpState,null,2)], {type:'application/json'});
