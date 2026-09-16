@@ -2341,8 +2341,12 @@
 
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
-  .akp-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding:10px 12px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px}
+  .akp-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px}
   .akp-actions .btn{white-space:nowrap;font-size:11.5px;padding:6px 12px;height:auto;min-height:28px}
+  .akp-actions-spacer{flex:1}
+  .akp-status{font-size:11px;color:var(--text-3);font-family:var(--mono);padding:0 4px;min-width:0}
+  .akp-status-ok{color:#059669;font-weight:700}
+  .akp-status-warn{color:#dc2626;font-weight:700}
 
   .akp-master-wrap{border:1px solid var(--line);border-radius:10px;overflow-x:auto;background:var(--bg-0);margin-bottom:8px}
   .akp-master-table th,.akp-master-table td{padding:6px 8px}
@@ -9730,6 +9734,11 @@
             <div class="akp-actions">
               <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
               <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+              <span class="akp-status" id="akpStatus">불러오는 중…</span>
+              <div class="akp-actions-spacer"></div>
+              <button class="btn po-import" onclick="akpShowHistory()" title="최근 10개 자동 스냅샷 중 하나로 되돌리기">🕓 이력</button>
+              <button class="btn po-import" onclick="akpExportJson()" title="현재 데이터를 JSON 파일로 저장">💾 백업 저장</button>
+              <button class="btn po-import" onclick="akpImportJson()" title="JSON 파일에서 복원">📤 백업 불러오기</button>
             </div>
 
             <!-- 상품 마스터 (원가 관리) -->
@@ -12460,8 +12469,17 @@
        floorMultiplier = floorSettled / costKrw
   */
   const AKP_LS='akoiPromoV3';
+  const AKP_HIST_LS='akoiPromoV3.history';
+  const AKP_BACKUP_LS='akoiPromoV3.backup';
+  const AKP_REMOTE_TS_LS='akoiPromoV3.lastRemote';
+  const AKP_PATH='data/akoi-promo.json';
+  // NOTE: PO_REPO/PO_BRANCH는 여기 실행 시점에 TDZ라 하드코딩 (변경 시 두 곳 동시)
+  const AKP_API='https://api.github.com/repos/j65209/Brightbeed/contents/'+AKP_PATH;
+  const AKP_RAW='https://raw.githubusercontent.com/j65209/Brightbeed/main/'+AKP_PATH;
   const AKP_SHEET_ID='1qg58PnOFtkhz1a02dz0hCIog64haXBGDzliPwjljlJI';
   let _akpState=null, _akpInited=false;
+  let _akpRemoteTimer=null;
+  let _akpLastLocalSaveAt=0;
   const _akpEditingPlats=new Set(); // 편집 모드인 플랫폼 index 세트 (세션 로컬)
   let _akpEditingMaster=false;      // 상품 마스터 편집 모드 (세션 로컬)
 
@@ -12486,26 +12504,133 @@
       ]
     };
   }
-  function _akpLoad(){
-    try{ const raw=localStorage.getItem(AKP_LS); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.items)&&Array.isArray(s.platforms)){
-      // 마이그레이션: 사라진 1+1 rows를 default에서 복원 (사장님이 저장한 판매가/하한은 유지)
-      const def=_akpDefault();
-      for(const pl of s.platforms){
-        if(!pl.rows) pl.rows={};
-        const defPl=def.platforms.find(dp => _akpNum(dp.feeRate)===_akpNum(pl.feeRate));
-        if(!defPl || !defPl.rows) continue;
-        for(const it of s.items){
-          const pairKey=it.code+' 1+1';
-          if(!pl.rows[pairKey] && defPl.rows[pairKey]){
-            pl.rows[pairKey] = {...defPl.rows[pairKey]};
-          }
+  function _akpIsValid(s){
+    return !!(s && Array.isArray(s.items) && Array.isArray(s.platforms) && s.items.length>0);
+  }
+  function _akpMigrate(s){
+    // 마이그레이션: 사라진 1+1 rows를 default에서 복원 (사장님이 저장한 판매가/하한은 유지)
+    const def=_akpDefault();
+    for(const pl of s.platforms){
+      if(!pl.rows) pl.rows={};
+      const defPl=def.platforms.find(dp => _akpNum(dp.feeRate)===_akpNum(pl.feeRate));
+      if(!defPl || !defPl.rows) continue;
+      for(const it of s.items){
+        const pairKey=it.code+' 1+1';
+        if(!pl.rows[pairKey] && defPl.rows[pairKey]){
+          pl.rows[pairKey] = {...defPl.rows[pairKey]};
         }
       }
-      return s;
-    } } }catch(e){}
+    }
+    return s;
+  }
+  function _akpLoad(){
+    // 1) 정상 저장값 시도
+    try{
+      const raw=localStorage.getItem(AKP_LS);
+      if(raw){
+        const s=JSON.parse(raw);
+        if(_akpIsValid(s)) return _akpMigrate(s);
+        console.warn('[akp] saved state invalid, trying backup slot');
+      }
+    }catch(e){ console.warn('[akp] parse main failed', e); }
+    // 2) 백업 슬롯 시도
+    try{
+      const raw=localStorage.getItem(AKP_BACKUP_LS);
+      if(raw){
+        const s=JSON.parse(raw);
+        if(_akpIsValid(s)){ console.warn('[akp] restored from backup slot'); return _akpMigrate(s); }
+      }
+    }catch(e){}
+    // 3) 히스토리에서 가장 최신 유효값
+    try{
+      const hist=JSON.parse(localStorage.getItem(AKP_HIST_LS)||'[]');
+      for(let i=hist.length-1;i>=0;i--){
+        if(_akpIsValid(hist[i]?.data)){
+          console.warn('[akp] restored from history slot', i);
+          return _akpMigrate(hist[i].data);
+        }
+      }
+    }catch(e){}
+    // 4) 최후: default
+    console.warn('[akp] using default state');
     return _akpDefault();
   }
-  function _akpSave(){ try{ localStorage.setItem(AKP_LS, JSON.stringify(_akpState)); }catch(e){} }
+  function _akpSave(){
+    if(!_akpIsValid(_akpState)) return;  // 이상 상태 저장 방지
+    try{
+      const json=JSON.stringify(_akpState);
+      localStorage.setItem(AKP_LS, json);
+      localStorage.setItem(AKP_BACKUP_LS, json);
+      _akpLastLocalSaveAt=Date.now();
+      // 히스토리: 최근 10개 스냅샷 (변경 간격 60초 이상만 추가해 슬롯 낭비 방지)
+      const hist=JSON.parse(localStorage.getItem(AKP_HIST_LS)||'[]');
+      const last=hist[hist.length-1];
+      if(!last || (_akpLastLocalSaveAt - last.ts) >= 60*1000){
+        hist.push({ts:_akpLastLocalSaveAt, data:_akpState});
+        while(hist.length>10) hist.shift();
+        localStorage.setItem(AKP_HIST_LS, JSON.stringify(hist));
+      }
+      // 원격 백업 큐 (debounced 8초)
+      _akpQueueRemoteSave();
+      _akpUpdateStatus();
+    }catch(e){ console.error('[akp] save failed', e); }
+  }
+
+  function _akpQueueRemoteSave(){
+    if(_akpRemoteTimer) clearTimeout(_akpRemoteTimer);
+    _akpRemoteTimer=setTimeout(_akpRemoteSaveNow, 8000);
+  }
+  async function _akpRemoteSaveNow(){
+    if(!_akpIsValid(_akpState)) return;
+    if(typeof ghPut!=='function') return;
+    try{
+      const payload={data:_akpState, updatedAt:Date.now()};
+      const jsonTxt=JSON.stringify(payload,null,2);
+      const b64=btoa(unescape(encodeURIComponent(jsonTxt)));
+      const r=await ghPut(AKP_API, b64, 'chore: 아코이 기획전 자동 백업', {forceMaster:true, noConflictRetry:true});
+      if(r && r.ok){
+        localStorage.setItem(AKP_REMOTE_TS_LS, String(payload.updatedAt));
+      }
+      _akpUpdateStatus();
+    }catch(e){ console.warn('[akp] remote save failed', e); _akpUpdateStatus(); }
+  }
+  async function _akpSyncFromRemote(){
+    if(typeof fetch!=='function') return;
+    try{
+      const r=await fetch(`${AKP_RAW}?cb=${Date.now()}`, {cache:'no-cache'});
+      if(!r.ok) return;
+      const remote=await r.json();
+      if(!remote || !_akpIsValid(remote.data)) return;
+      const localRemoteTs = Number(localStorage.getItem(AKP_REMOTE_TS_LS)||0);
+      const remoteTs = Number(remote.updatedAt)||0;
+      // 원격이 로컬 마지막 원격 push 시각보다 새롭고, 로컬 최근 편집(60초 내)이 아닐 때만 적용
+      if(remoteTs > localRemoteTs && (Date.now()-_akpLastLocalSaveAt) > 60*1000){
+        _akpState=_akpMigrate(remote.data);
+        localStorage.setItem(AKP_LS, JSON.stringify(_akpState));
+        localStorage.setItem(AKP_BACKUP_LS, JSON.stringify(_akpState));
+        localStorage.setItem(AKP_REMOTE_TS_LS, String(remoteTs));
+        akpRender();
+      }
+    }catch(e){}
+  }
+
+  function _akpTimeAgo(ts){
+    if(!ts) return '없음';
+    const s=Math.floor((Date.now()-ts)/1000);
+    if(s<10) return '방금';
+    if(s<60) return s+'초 전';
+    if(s<3600) return Math.floor(s/60)+'분 전';
+    if(s<86400) return Math.floor(s/3600)+'시간 전';
+    return new Date(ts).toLocaleDateString('ko-KR');
+  }
+  function _akpUpdateStatus(){
+    const el=document.getElementById('akpStatus');
+    if(!el) return;
+    const remoteTs=Number(localStorage.getItem(AKP_REMOTE_TS_LS)||0);
+    const localAgo=_akpTimeAgo(_akpLastLocalSaveAt);
+    const remoteAgo=remoteTs ? _akpTimeAgo(remoteTs) : '대기';
+    el.innerHTML=`<span class="akp-status-ok">💾 저장됨</span> · 로컬 ${localAgo} · 원격 ${remoteAgo}`;
+  }
   function _akpNum(n){ if(typeof n==='string') n=n.replace(/[,\s]/g,''); n=Number(n); return Number.isFinite(n)?n:0; }
   function _akpFmt(n){ n=Math.round(_akpNum(n)); return n.toLocaleString('ko-KR'); }
   function _akpPct(x){ if(!Number.isFinite(x)) return '—'; return Math.round(x*100)+'%'; }
@@ -12513,12 +12638,70 @@
   function _akpFee(price, rate){ return Math.round(_akpNum(price)*_akpNum(rate)/100/100)*100; }
 
   function akpInit(){
-    if(_akpInited){ akpRender(); return; }
+    if(_akpInited){ akpRender(); _akpUpdateStatus(); return; }
     _akpState=_akpLoad();
     _akpInited=true;
     akpRender();
+    _akpUpdateStatus();
+    if(!window._akpStatusTick){ window._akpStatusTick=setInterval(_akpUpdateStatus, 30000); }
+    // 원격 동기화 (첫 진입 시 · 로컬이 60초 이상 편집 없을 때 적용)
+    _akpSyncFromRemote();
   }
   window.akpInit=akpInit;
+
+  function akpExportJson(){
+    const blob=new Blob([JSON.stringify(_akpState,null,2)], {type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`akoi-promo-${new Date().toISOString().slice(0,19).replace(/[:]/g,'')}.json`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  }
+  function akpImportJson(){
+    const inp=document.createElement('input');
+    inp.type='file'; inp.accept='application/json,.json';
+    inp.onchange=async(e)=>{
+      const f=e.target.files && e.target.files[0]; if(!f) return;
+      try{
+        const txt=await f.text();
+        const s=JSON.parse(txt);
+        const target = _akpIsValid(s) ? s : (_akpIsValid(s?.data) ? s.data : null);
+        if(!target){ alert('올바른 백업 파일이 아닙니다.'); return; }
+        if(!confirm(`이 백업으로 현재 데이터를 덮어쓸까요?\n\n상품 ${target.items.length}개 · 플랫폼 ${target.platforms.length}개`)) return;
+        _akpState=_akpMigrate(target);
+        _akpSave();
+        akpRender();
+        alert('백업에서 복원되었습니다.');
+      }catch(err){ alert('파일 읽기 실패: '+(err.message||err)); }
+    };
+    inp.click();
+  }
+  function akpShowHistory(){
+    let hist=[];
+    try{ hist=JSON.parse(localStorage.getItem(AKP_HIST_LS)||'[]'); }catch(e){}
+    if(!hist.length){ alert('저장된 이력이 없습니다.'); return; }
+    const lines = hist.slice().reverse().map((h,i)=>{
+      const d=new Date(h.ts);
+      const items=h.data?.items?.length||0;
+      const plats=h.data?.platforms?.length||0;
+      return `${i+1}. ${d.toLocaleString('ko-KR')} · 상품 ${items} · 플랫폼 ${plats}`;
+    });
+    const choice=prompt(`복원할 시점 번호를 입력하세요 (취소=닫기):\n\n${lines.join('\n')}\n\n번호:`, '1');
+    if(!choice) return;
+    const revIdx=parseInt(choice,10)-1;
+    if(!Number.isFinite(revIdx) || revIdx<0 || revIdx>=hist.length){ alert('잘못된 번호'); return; }
+    const idx=hist.length-1-revIdx;
+    const snap=hist[idx];
+    if(!snap || !_akpIsValid(snap.data)){ alert('이 스냅샷은 유효하지 않습니다.'); return; }
+    if(!confirm(`${new Date(snap.ts).toLocaleString('ko-KR')} 시점으로 복원할까요?`)) return;
+    _akpState=_akpMigrate(snap.data);
+    _akpSave();
+    akpRender();
+    alert('선택한 시점으로 복원되었습니다.');
+  }
+  window.akpExportJson=akpExportJson;
+  window.akpImportJson=akpImportJson;
+  window.akpShowHistory=akpShowHistory;
 
   function akpRender(){
     if(!_akpState) return;
