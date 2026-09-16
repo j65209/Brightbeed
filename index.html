@@ -12537,6 +12537,7 @@
           <span class="akp-plat-sub-sep">·</span>
           <span class="akp-plat-sub">수수료 ${rate}%</span>
           <button class="akp-btn-edit" onclick="akpStartEditPlat(${pIdx})">✏️ 수정</button>
+          <button class="akp-btn-edit" onclick="akpAutoFloor(${pIdx})" title="목표 배수에 맞춰 절대하한을 자동 계산합니다">🎯 하한 자동</button>
         </div>`;
     return `
       <div class="akp-plat" data-plat="${pIdx}">
@@ -12626,6 +12627,28 @@
     _akpEditingPlats.delete(pIdx);
     akpRender();
   }
+
+  function akpAutoFloor(pIdx){
+    const pl=_akpState.platforms[pIdx]; if(!pl) return;
+    const input=prompt('목표 배수를 입력하세요 (예: 3)', '3');
+    if(input===null) return;
+    const target=parseFloat(input);
+    if(!Number.isFinite(target) || target<=0){ alert('올바른 배수를 입력하세요.'); return; }
+    const rate=_akpNum(pl.feeRate);
+    const r=1 - rate/100;
+    if(r<=0){ alert('수수료율이 100% 이상이면 계산할 수 없습니다.'); return; }
+    if(!pl.rows) pl.rows={};
+    for(const it of _akpState.items){
+      const c1=_akpNum(it.costKrw);
+      const pairs=[[it.code,c1],[it.code+' 1+1',c1*2]];
+      for(const [key,cost] of pairs){
+        if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
+        pl.rows[key].floor = Math.ceil(target*cost/r/100)*100;
+      }
+    }
+    akpRender();
+  }
+  window.akpAutoFloor=akpAutoFloor;
 
   function akpStartEditMaster(){
     _akpEditingMaster=true;
