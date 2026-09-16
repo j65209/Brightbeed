@@ -7272,6 +7272,28 @@
   .dsg-post-img-cap{border:none;outline:none;padding:8px 10px;font-size:12.5px;color:#44403c;background:#fff;border-top:1px solid #efedea;resize:vertical;min-height:38px;font-family:inherit;line-height:1.4;box-sizing:border-box;width:100%}
   .dsg-post-img-cap::placeholder{color:#c8c5c1}
   .dsg-post-img-cap:focus{background:#fffaf0}
+  /* 파일 첨부 (PDF/엑셀/기타) */
+  .dsg-post-files{display:flex;flex-direction:column;gap:8px}
+  .dsg-post-files:empty{display:none}
+  .dsg-post-file-tile{background:#fafaf9;border:1px solid #efedea;border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:6px;transition:border-color .12s, background .12s}
+  .dsg-post-file-tile:hover{border-color:#fbd8b4;background:#fffaf3}
+  .dsg-post-file-main{display:flex;align-items:center;gap:10px}
+  .dsg-post-file-icon{font-size:22px;flex:none;line-height:1}
+  .dsg-post-file-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .dsg-post-file-name{font-size:14px;font-weight:600;color:#1c1917;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.005em}
+  .dsg-post-file-name:hover{color:#9a3412;text-decoration:underline}
+  .dsg-post-file-meta{font-size:11.5px;color:#a8a29e;font-variant-numeric:tabular-nums}
+  .dsg-post-file-dl{width:32px;height:32px;border-radius:8px;background:transparent;color:#78716c;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none;transition:all .12s;border:1px solid transparent}
+  .dsg-post-file-dl:hover{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
+  .dsg-post-file-dl svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none}
+  .dsg-post-file-rm{width:32px;height:32px;border-radius:8px;background:transparent;color:#a8a29e;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;opacity:0;transition:all .12s}
+  .dsg-post-file-tile:hover .dsg-post-file-rm{opacity:1}
+  .dsg-post-file-rm:hover{background:#fef2f2;color:#dc2626}
+  .dsg-post-file-rm svg{width:13px;height:13px;stroke:currentColor;stroke-width:2.4;fill:none}
+  .dsg-post-file-cap{border:1px solid transparent;background:transparent;outline:none;padding:4px 6px;font-size:12.5px;color:#57534e;font-family:inherit;border-radius:6px;box-sizing:border-box;width:100%}
+  .dsg-post-file-cap::placeholder{color:#c8c5c1}
+  .dsg-post-file-cap:focus{background:#fff;border-color:#fbd8b4}
+
   .dsg-post-imgadd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
   .dsg-post-meta{color:#a8a29e;font-size:12px}
   @media (max-width:560px){
@@ -14529,21 +14551,26 @@
     return _dsgPosts.filter(p=>!(hideDone && p.done)).sort((a,b)=>_dsgPostSortKey(a)-_dsgPostSortKey(b));
   }
   function _dsgPostMetaText(p){
-    const imgs = (p.images||[]).length;
+    const imgs  = (p.images||[]).length;
+    const files = (p.files ||[]).length;
     const c = p.created_at ? new Date(p.created_at) : null;
     const cs = c ? `${c.getMonth()+1}/${c.getDate()} 생성` : '';
-    return [cs, imgs? `사진 ${imgs}개`:''].filter(Boolean).join(' · ');
+    return [cs, imgs? `사진 ${imgs}개`:'', files? `파일 ${files}개`:''].filter(Boolean).join(' · ');
   }
 
   function _dsgPostItemHtml(p){
     const open = p.id===_dsgCurPostId;
     const cls  = ['dsg-post-item', open?'open':'', p.done?'done':''].filter(Boolean).join(' ');
     const imgs = p.images || [];
+    const files = p.files || [];
     const size = p.imgSize || 180;
     const title = _dsgEsc(p.title||'무제');
     const rawTitle = _dsgEsc(p.title||'');
     const rawBody  = _dsgEsc(p.body||'');
-    const badge = imgs.length ? `<span class="dsg-post-item-badge">🖼 ${imgs.length}</span>` : '';
+    const badges = [
+      imgs.length ? `<span class="dsg-post-item-badge">🖼 ${imgs.length}</span>` : '',
+      files.length ? `<span class="dsg-post-item-badge">📎 ${files.length}</span>` : ''
+    ].join('');
     const imgTiles = imgs.map(img=>`<div class="dsg-post-img-tile" data-img="${img.id}">
       <div class="dsg-post-img-thumb">
         <img src="${_dsgEsc(img.url)}" alt="" onclick="dsgPostImgZoom('${p.id}','${img.id}')">
@@ -14560,7 +14587,7 @@
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
         <span class="dsg-post-item-title">${title}</span>
-        ${badge}
+        ${badges}
         <button class="dsg-post-item-del" onclick="event.stopPropagation();dsgPostDelete('${p.id}')" title="게시글 삭제" aria-label="삭제">
           <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
         </button>
@@ -14581,14 +14608,15 @@
           <span class="dsg-post-imgtoolbar-val" data-size-val="${p.id}">${size}px</span>
         </div>` : ''}
         <div class="dsg-post-images" data-post-imgs="${p.id}" style="--dsg-post-img-size:${size}px">${imgTiles}</div>
+        <div class="dsg-post-files" data-post-files="${p.id}">${files.map(f=>_dsgPostFileTileHtml(p.id, f)).join('')}</div>
         <div class="dsg-post-imgadd">
-          <button class="dsg-btn-ghost" onclick="dsgPostOpenUpload('${p.id}')">
+          <button class="dsg-btn-ghost" onclick="dsgPostOpenUpload('${p.id}')" title="사진·PDF·엑셀 등 어떤 파일이든 첨부 가능">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            사진 추가
+            파일 추가
           </button>
           <span class="dsg-post-meta" data-post-meta="${p.id}">${_dsgEsc(_dsgPostMetaText(p))}</span>
         </div>
-        <input type="file" data-post-file="${p.id}" accept="image/*" multiple hidden onchange="dsgPostFileChosen(event,'${p.id}')">
+        <input type="file" data-post-file="${p.id}" multiple hidden onchange="dsgPostFileChosen(event,'${p.id}')">
       </div>
     </div>`;
   }
@@ -14621,22 +14649,23 @@
     el.classList.toggle('done', !!p.done);
     const t = el.querySelector('.dsg-post-item-title');
     if(t) t.textContent = p.title || '무제';
-    const badgeWrap = el.querySelector('.dsg-post-item-head');
-    if(badgeWrap){
-      let badge = badgeWrap.querySelector('.dsg-post-item-badge');
-      const n = (p.images||[]).length;
-      if(n){
-        if(!badge){
-          badge = document.createElement('span');
-          badge.className = 'dsg-post-item-badge';
-          const titleEl = badgeWrap.querySelector('.dsg-post-item-title');
-          if(titleEl && titleEl.nextSibling) badgeWrap.insertBefore(badge, titleEl.nextSibling);
-          else badgeWrap.appendChild(badge);
-        }
-        badge.textContent = `🖼 ${n}`;
-      } else if(badge){
-        badge.remove();
-      }
+    const head = el.querySelector('.dsg-post-item-head');
+    if(head){
+      // 두 뱃지 모두 부분 갱신 — 기존 badge 요소 전부 지우고 다시 삽입 (제목 바로 뒤에)
+      head.querySelectorAll('.dsg-post-item-badge').forEach(b=>b.remove());
+      const nImg = (p.images||[]).length;
+      const nFile = (p.files||[]).length;
+      const titleEl = head.querySelector('.dsg-post-item-title');
+      const anchor = titleEl && titleEl.nextSibling;
+      const insert = (text)=>{
+        const s = document.createElement('span');
+        s.className = 'dsg-post-item-badge';
+        s.textContent = text;
+        if(anchor) head.insertBefore(s, anchor);
+        else head.appendChild(s);
+      };
+      if(nImg)  insert(`🖼 ${nImg}`);
+      if(nFile) insert(`📎 ${nFile}`);
     }
     const metaEl = el.querySelector(`[data-post-meta="${p.id}"]`);
     if(metaEl) metaEl.textContent = _dsgPostMetaText(p);
@@ -14706,6 +14735,7 @@
       title: `${mm}${dd} `,
       body: '',
       images: [],
+      files: [],           // 첨부 파일 (PDF/엑셀/기타)
       imgSize: 180,
       done: false,
       created_at: now,
@@ -14857,8 +14887,14 @@
   function dsgPostFileChosen(e, id){
     const files = e.target.files;
     if(!files) return;
-    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f, id); }
+    for(const f of files){ _dsgPostRouteFile(f, id); }
     e.target.value = '';
+  }
+  /* 이미지면 images, 아니면 files 로 라우팅 */
+  function _dsgPostRouteFile(f, id){
+    if(!f) return;
+    if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f, id);
+    else _dsgPostIngestDoc(f, id);
   }
   function dsgPostDragOver(e, id){
     e.preventDefault();
@@ -14875,7 +14911,7 @@
     if(el) el.classList.remove('dragover');
     const files = e.dataTransfer && e.dataTransfer.files;
     if(!files) return;
-    for(const f of files){ if(f.type && f.type.startsWith('image/')) _dsgPostIngestFile(f, id); }
+    for(const f of files){ _dsgPostRouteFile(f, id); }
   }
   function _dsgPostIngestFile(f, id){
     _dsgFileToDataURL(f, url=>{
@@ -14918,6 +14954,101 @@
     if(!w) return;
     w.document.write(`<html><head><title>${_dsgEsc(img.caption||'사진')}</title><style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh}img{max-width:100%;max-height:100vh}</style></head><body><img src="${_dsgEsc(img.url)}"></body></html>`);
     w.document.close();
+  }
+
+  /* ── PDF / 엑셀 / 기타 파일 첨부 ─────────────────────────────
+       크기 5MB 넘으면 경고 (GitHub PUT 10MB 한계 + 기타 게시글 payload 여유) */
+  const DSG_POST_FILE_WARN = 5*1024*1024;
+  const DSG_POST_FILE_HARD = 9*1024*1024;
+  function _dsgFileIcon(mime, name){
+    const m = (mime||'').toLowerCase();
+    const ext = (name||'').split('.').pop().toLowerCase();
+    if(m==='application/pdf' || ext==='pdf') return '📄';
+    if(m.includes('spreadsheet') || m.includes('excel') || ['xlsx','xls','csv','tsv'].includes(ext)) return '📊';
+    if(m.includes('presentation') || ['pptx','ppt','key'].includes(ext)) return '📽';
+    if(m.includes('wordprocessing') || m.includes('msword') || ['docx','doc','rtf'].includes(ext)) return '📝';
+    if(m.startsWith('audio/') || ['mp3','wav','m4a'].includes(ext)) return '🎧';
+    if(m.startsWith('video/') || ['mp4','mov','avi','mkv'].includes(ext)) return '🎬';
+    if(m.startsWith('text/') || ['txt','md'].includes(ext)) return '📃';
+    if(m==='application/zip' || ['zip','tar','gz','7z','rar'].includes(ext)) return '🗜';
+    return '📎';
+  }
+  function _dsgFileSizeLabel(bytes){
+    if(bytes==null) return '';
+    if(bytes < 1024) return `${bytes} B`;
+    if(bytes < 1024*1024) return `${(bytes/1024).toFixed(1)} KB`;
+    return `${(bytes/1024/1024).toFixed(2)} MB`;
+  }
+  function _dsgPostIngestDoc(f, id){
+    if(!f) return;
+    if(f.size > DSG_POST_FILE_HARD){
+      alert(`"${f.name}" 은 ${_dsgFileSizeLabel(f.size)} 로 너무 큽니다.\n한 파일당 최대 9MB 까지 첨부 가능합니다.`);
+      return;
+    }
+    if(f.size > DSG_POST_FILE_WARN){
+      if(!confirm(`"${f.name}" (${_dsgFileSizeLabel(f.size)}) 큰 파일입니다. 저장 실패 위험이 있는데 계속할까요?`)) return;
+    }
+    const r = new FileReader();
+    r.onload = ()=>{
+      const p = _dsgPostById(id);
+      if(!p) return;
+      p.files = p.files || [];
+      p.files.push({ id:_dsgUid(), name:f.name, url:r.result, mime:f.type||'', size:f.size, caption:'' });
+      p.updated_at = _dsgNowIso();
+      _dsgSavePosts();
+      _dsgMarkPostDirty(p.id);
+      _dsgUpdateItemFiles(p);
+    };
+    r.readAsDataURL(f);
+  }
+  function _dsgPostFileTileHtml(postId, f){
+    const icon = _dsgFileIcon(f.mime, f.name);
+    const name = _dsgEsc(f.name||'파일');
+    const meta = [_dsgFileSizeLabel(f.size), (f.mime||'').split('/').pop()].filter(Boolean).join(' · ');
+    return `<div class="dsg-post-file-tile" data-file="${f.id}">
+      <div class="dsg-post-file-main">
+        <span class="dsg-post-file-icon">${icon}</span>
+        <div class="dsg-post-file-info">
+          <a class="dsg-post-file-name" href="${_dsgEsc(f.url)}" download="${name}" title="${name}">${name}</a>
+          <span class="dsg-post-file-meta">${_dsgEsc(meta)}</span>
+        </div>
+        <a class="dsg-post-file-dl" href="${_dsgEsc(f.url)}" download="${name}" title="다운로드">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-5-5m5 5l5-5"/><path d="M4 21h16"/></svg>
+        </a>
+        <button class="dsg-post-file-rm" onclick="dsgPostRemoveFile('${postId}','${f.id}')" title="파일 삭제">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <input class="dsg-post-file-cap" type="text" placeholder="설명 (선택)" value="${_dsgEsc(f.caption||'')}" oninput="dsgPostFileCapInput('${postId}','${f.id}', this.value)">
+    </div>`;
+  }
+  function _dsgUpdateItemFiles(p){
+    const el = _dsgPostItemEl(p.id);
+    if(!el) return;
+    const wrap = el.querySelector(`[data-post-files="${p.id}"]`);
+    if(!wrap) return;
+    const files = p.files || [];
+    wrap.innerHTML = files.map(f=>_dsgPostFileTileHtml(p.id, f)).join('');
+    _dsgUpdateItemHeader(p);
+  }
+  function dsgPostRemoveFile(postId, fileId){
+    const p = _dsgPostById(postId);
+    if(!p) return;
+    p.files = (p.files||[]).filter(x=>x.id!==fileId);
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    _dsgMarkPostDirty(p.id);
+    _dsgUpdateItemFiles(p);
+  }
+  function dsgPostFileCapInput(postId, fileId, val){
+    const p = _dsgPostById(postId);
+    if(!p) return;
+    const f = (p.files||[]).find(x=>x.id===fileId);
+    if(!f || f.caption===val) return;
+    f.caption = val;
+    p.updated_at = _dsgNowIso();
+    _dsgSavePosts();
+    _dsgMarkPostDirty(p.id);
   }
 
   /* ============ 레퍼런스 갤러리 ============ */
