@@ -12500,9 +12500,7 @@
       const costCell = edit
         ? `<input type="text" inputmode="numeric" data-field="item-cost" data-idx="${idx}" value="${_akpFmt(c1)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)">`
         : `<span class="akp-cell-auto" style="display:block">${_akpFmt(c1)}</span>`;
-      const delCell = edit
-        ? `<button class="akp-del-btn" onclick="akpDelItem(${idx})" title="삭제">삭제</button>`
-        : `<span style="color:var(--text-3);font-size:11px">—</span>`;
+      const delCell = `<button class="akp-del-btn" onclick="akpDelItem(${idx})" title="상품 삭제">삭제</button>`;
       return `<tr>
         <td>${codeCell}</td>
         <td style="text-align:left;font-family:var(--sans);font-weight:600">${nameCell}</td>
