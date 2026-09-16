@@ -2326,6 +2326,13 @@
   .md-gantt-rowlabel-range{color:var(--text-3);font-size:11px;font-family:var(--mono);font-weight:500;margin-left:6px}
   .md-gantt-empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px;background:#fff;border:1px dashed var(--line);border-radius:8px}
   .md-cal-hint{padding-top:10px}
+  /* 브랜드 그룹 헤더 */
+  .md-gantt-group-head td{background:var(--bg-2) !important;height:28px !important;border-top:2px solid var(--line-2)}
+  .md-gantt-group-head .md-gantt-td-label{background:var(--bg-2) !important;font-size:12.5px !important;font-weight:800;color:var(--text-1);cursor:default}
+  .md-gantt-group-head .md-gantt-td-label:hover{background:var(--bg-2) !important}
+  .md-gantt-group-count{color:var(--text-3);font-size:11px;font-weight:600;font-family:var(--mono);margin-left:8px}
+  .md-gantt-td-label-inner{display:flex;align-items:center;gap:0;min-width:0}
+  .md-gantt-row-nested .md-gantt-td-label{padding-left:26px !important}
 
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
@@ -23420,6 +23427,25 @@
   function _mdEvColor(key){
     return MD_EVENT_COLORS.find(c=>c.key===key) || MD_EVENT_COLORS[0];
   }
+  // 이벤트에서 브랜드 리스트 추출 — brands 필드 우선, 없으면 제목에서 자동 감지
+  function _mdEventBrands(ev){
+    if(Array.isArray(ev.brands) && ev.brands.length>0) return ev.brands;
+    const title=String(ev.title||'').toLowerCase();
+    const matched=[];
+    for(const b of MD_BRANDS){
+      const patterns=new Set([b.key.toLowerCase(), b.label.toLowerCase()]);
+      if(b.key==='akoi'){ patterns.add('아코이'); patterns.add('akoi'); patterns.add('ak'); }
+      if(b.key==='6a')  { patterns.add('6a'); patterns.add('식스에이'); patterns.add('sixa'); }
+      if(b.key==='ct')  { patterns.add('ct'); patterns.add('클리어타입'); patterns.add('cleartype'); }
+      if(b.key==='pp')  { patterns.add('pp'); patterns.add('프로덕트피알'); patterns.add('productpr'); }
+      if(b.key==='yar') { patterns.add('yar'); patterns.add('야르'); }
+      if(b.key==='kop') { patterns.add('kop'); patterns.add('코페리'); patterns.add('koperi'); }
+      if(b.key==='apt') { patterns.add('apt'); patterns.add('아페티'); patterns.add('apeti'); }
+      if(b.key==='koz') { patterns.add('koz'); patterns.add('코즈미'); patterns.add('cosmi'); }
+      for(const p of patterns){ if(p && title.includes(p)){ matched.push(b.key); break; } }
+    }
+    return matched;
+  }
 
   function loadMdEvents(){
     try{
@@ -23583,7 +23609,7 @@
   // - brand/platform 필드 없음(레거시) → 필터와 무관하게 표시
   // - 있음 → 활성 pill 중 하나라도 매치되어야 표시
   function _mdEventPassesFilter(ev){
-    const b=Array.isArray(ev.brands)?ev.brands:[];
+    const b=_mdEventBrands(ev);
     const p=Array.isArray(ev.platforms)?ev.platforms:[];
     if(b.length>0 && !b.some(x=>_mdFilterBrands.has(x))) return false;
     if(p.length>0 && !p.some(x=>_mdFilterPlats.has(x))) return false;
@@ -23683,8 +23709,18 @@
     }
     const headerHtml = days.map(x=>`<th class="${x.cls.join(' ')}">${x.d}<span class="md-gantt-th-wd">${wdShort[x.wd]}</span></th>`).join('');
 
-    // 각 이벤트 행
-    const rowsHtml = evs.map(ev=>{
+    // 브랜드별 그룹핑 (필터에 통과한 브랜드만) — _mdEventBrands()는 brands 필드 없어도 제목에서 자동 감지
+    const activeBrands = MD_BRANDS.filter(b=>_mdFilterBrands.has(b.key));
+    const groups = activeBrands.map(b=>({
+      brand:b,
+      events:evs.filter(ev => _mdEventBrands(ev).includes(b.key))
+    })).filter(g=>g.events.length>0);
+    const orphans = evs.filter(ev => _mdEventBrands(ev).length===0);
+    if(orphans.length>0){
+      groups.push({brand:{key:'_none', label:'브랜드 미지정', color:'#94a3b8'}, events:orphans});
+    }
+
+    const _eventRowHtml = (ev)=>{
       const c=_mdEvColor(ev.color);
       const evStart=ev.start;
       const evEnd=ev.end||ev.start;
@@ -23696,7 +23732,6 @@
         if(x.wd===6) cls.push('is-sat');
         if(inRange){
           cls.push('md-gantt-fill');
-          // 셀에서 이벤트 실제 시작/끝 확인 (월 밖으로 뻗어나가면 시작·끝이 월 안이 아닐 수 있음)
           if(x.iso===evStart) cls.push('is-fill-start');
           if(x.iso===evEnd)   cls.push('is-fill-end');
         }
@@ -23706,19 +23741,37 @@
       const range = ev.end && ev.end!==ev.start
         ? `${ev.start.slice(5).replace('-','/')} ~ ${ev.end.slice(5).replace('-','/')}`
         : ev.start.slice(5).replace('-','/');
-      return `<tr data-ev-id="${escapeHTML(ev.id||'')}">
+      return `<tr class="md-gantt-row-nested" data-ev-id="${escapeHTML(ev.id||'')}">
         <td class="md-gantt-td-label" title="${escapeHTML(ev.title||'')}">
           <span class="md-gantt-rowlabel-dot" style="background:${c.hex}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
         </td>
         ${cellsHtml}
       </tr>`;
+    };
+
+    // 각 브랜드 그룹 헤더 + 이벤트 행들
+    const rowsHtml = groups.map(g=>{
+      const emptyDaysHtml = days.map(x=>{
+        const cls=['md-gantt-td-day'];
+        if(x.iso===todayIso) cls.push('is-today');
+        if(x.wd===0) cls.push('is-sun');
+        if(x.wd===6) cls.push('is-sat');
+        return `<td class="${cls.join(' ')}"></td>`;
+      }).join('');
+      const groupHead = `<tr class="md-gantt-group-head">
+        <td class="md-gantt-td-label">
+          <span class="md-gantt-rowlabel-dot" style="background:${g.brand.color}"></span>${escapeHTML(g.brand.label)}<span class="md-gantt-group-count">${g.events.length}건</span>
+        </td>
+        ${emptyDaysHtml}
+      </tr>`;
+      return groupHead + g.events.map(_eventRowHtml).join('');
     }).join('');
 
     grid.innerHTML = `
       <table class="md-gantt-tbl">
         <thead>
           <tr>
-            <th class="md-gantt-th-label">기획전 (${evs.length}건)</th>
+            <th class="md-gantt-th-label">기획전 · ${evs.length}건 / ${groups.length}개 브랜드</th>
             ${headerHtml}
           </tr>
         </thead>
