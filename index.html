@@ -2345,6 +2345,7 @@
   .akp-cell-auto{background:var(--bg-1);color:var(--text-1);font-weight:600}
   .akp-cell-auto.is-good{color:#059669}
   .akp-cell-auto.is-bad{color:#dc2626}
+  .akp-floor{color:#dc2626 !important;font-weight:700 !important}
   .akp-row-lbl{background:var(--bg-1)}
   .akp-section-title{padding:8px 12px;font-size:11px;font-weight:800;color:var(--text-2);background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);letter-spacing:.03em;text-transform:uppercase}
   .akp-section-title-flex{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--line);border-bottom:0}
@@ -12506,8 +12507,8 @@
         ? `<input type="text" inputmode="numeric" data-field="row-price" data-row-key="${r.key}" value="${_akpFmt(price)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)">`
         : `<span class="akp-cell-auto" style="display:block">${_akpFmt(price)}</span>`;
       const floorCell = editing
-        ? `<input type="text" inputmode="numeric" data-field="row-floor" data-row-key="${r.key}" value="${_akpFmt(floor)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)">`
-        : `<span class="akp-cell-auto" style="display:block">${_akpFmt(floor)}</span>`;
+        ? `<input class="akp-floor" type="text" inputmode="numeric" data-field="row-floor" data-row-key="${r.key}" value="${_akpFmt(floor)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)">`
+        : `<span class="akp-cell-auto akp-floor" style="display:block">${_akpFmt(floor)}</span>`;
       return `<tr>
         <td class="akp-row-lbl" title="${r.name}">${r.label}</td>
         <td class="akp-cell-auto">${_akpFmt(r.costKrw)}</td>
