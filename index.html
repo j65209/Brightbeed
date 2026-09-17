@@ -9251,18 +9251,13 @@
       </div>
     </div>
 
-    <!-- ============ 탭 바 ============ -->
+    <!-- ============ 탭 바 (디자인팀 · 코페리 디자인센터) ============ -->
     <div class="dsg-tabs" role="tablist" aria-label="디자인팀 뷰">
-      <button class="dsg-tab" id="dsgTabPosts" role="tab" onclick="dsgSwitchTab('posts')">
-        <span>📮</span><span>디자인 보드</span>
-        <span class="dsg-tab-badge" id="dsgTabPostsBadge" hidden>0</span>
-      </button>
-      <button class="dsg-tab" id="dsgTabBoard" role="tab" onclick="dsgSwitchTab('board')">
-        <span>🗂</span><span>작업 보드</span>
-        <span class="dsg-tab-badge" id="dsgTabBoardBadge" hidden>0</span>
+      <button class="dsg-tab" id="dsgTabDesign" role="tab" onclick="dsgSwitchTab('design')">
+        <span>🗂</span><span>디자인팀</span>
       </button>
       <button class="dsg-tab" id="dsgTabCoferry" role="tab" onclick="dsgSwitchTab('coferry')">
-        <span>📓</span><span>코페리</span>
+        <span>📓</span><span>코페리 디자인센터</span>
       </button>
     </div>
 
@@ -14865,7 +14860,7 @@
     _dsgPurgePostTombs();
     if(_dsgPostsDirty.size > 0) _dsgSchedPush();  // 새로고침 후 미푸시 편집 자동 재전송
     try{ const saved = localStorage.getItem('dsgCurTab'); if(saved) _dsgCurTab = saved; }catch(e){}
-    dsgSwitchTab(_dsgCurTab||'posts');
+    dsgSwitchTab(_dsgCurTab||'design');
     dsgDocRender();
     _dsgApplyFs();
     dsgRefsRender();
@@ -14939,23 +14934,32 @@
 
   /* 서브탭 스위치 — 사장님 요청으로 서브탭 UI 는 없어졌지만, 두 pane 모두 항상 표시 */
   function dsgSwitchTab(tab){
-    _dsgCurTab = tab || 'posts';
+    // 이전 값 'posts' / 'board' 은 새 구조에서 'design' 하나로 합쳐졌다
+    if(tab === 'posts' || tab === 'board') tab = 'design';
+    _dsgCurTab = tab || 'design';
     // 탭 active 표시
-    ['posts','board','coferry'].forEach(t=>{
+    ['design','coferry'].forEach(t=>{
       const btn = document.getElementById('dsgTab' + t[0].toUpperCase() + t.slice(1));
       if(btn) btn.classList.toggle('active', t===_dsgCurTab);
     });
-    // 패널 표시 · 숨김
+    // 패널 표시 · 숨김:
+    //   design 탭 → posts + board 두 패널 스택 노출
+    //   coferry 탭 → coferry 패널만
+    const showDesign = (_dsgCurTab === 'design');
     document.querySelectorAll('#viewDesign .dsg-pane').forEach(p=>{
-      p.hidden = (p.dataset.pane !== _dsgCurTab);
+      const paneId = p.dataset.pane;
+      if(paneId === 'coferry') p.hidden = showDesign;
+      else                     p.hidden = !showDesign;
     });
     // 코페리 iframe 은 실제로 열 때 처음 로드 (부팅 비용 절약)
     if(_dsgCurTab === 'coferry'){
       const fr = document.getElementById('dsgCofFrame');
       if(fr && fr.src === 'about:blank' && fr.dataset.src) fr.src = fr.dataset.src;
     }
-    if(_dsgCurTab === 'posts' && typeof dsgPostsRender==='function') dsgPostsRender();
-    if(_dsgCurTab === 'board' && typeof dsgDocRender  ==='function') dsgDocRender();
+    if(showDesign){
+      if(typeof dsgPostsRender==='function') dsgPostsRender();
+      if(typeof dsgDocRender  ==='function') dsgDocRender();
+    }
     try{ localStorage.setItem('dsgCurTab', _dsgCurTab); }catch(e){}
   }
 
