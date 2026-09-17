@@ -6757,6 +6757,13 @@
     font-variant-numeric:tabular-nums;
   }
   .dsg-tab.active .dsg-tab-badge{background:rgba(249,115,22,.15);color:#9a3412}
+  /* 코페리 embed frame */
+  .dsg-cof-frame{background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .dsg-cof-frame iframe{display:block;width:100%;height:calc(100vh - 200px);min-height:640px;border:0;background:#fff}
+  .dsg-cof-hint{font-size:12px;color:#78716c;padding:8px 12px;background:#f5f5f4;border-top:1px solid #e7e5e4}
+  .dsg-cof-hint a{color:#9a3412;text-decoration:none;font-weight:600}
+  .dsg-cof-hint a:hover{text-decoration:underline}
 
   /* 툴바 */
   .dsg-toolbar{
@@ -9244,6 +9251,21 @@
       </div>
     </div>
 
+    <!-- ============ 탭 바 ============ -->
+    <div class="dsg-tabs" role="tablist" aria-label="디자인팀 뷰">
+      <button class="dsg-tab" id="dsgTabPosts" role="tab" onclick="dsgSwitchTab('posts')">
+        <span>📮</span><span>디자인 보드</span>
+        <span class="dsg-tab-badge" id="dsgTabPostsBadge" hidden>0</span>
+      </button>
+      <button class="dsg-tab" id="dsgTabBoard" role="tab" onclick="dsgSwitchTab('board')">
+        <span>🗂</span><span>작업 보드</span>
+        <span class="dsg-tab-badge" id="dsgTabBoardBadge" hidden>0</span>
+      </button>
+      <button class="dsg-tab" id="dsgTabCoferry" role="tab" onclick="dsgSwitchTab('coferry')">
+        <span>📓</span><span>코페리</span>
+      </button>
+    </div>
+
     <!-- ============ 디자인 보드 — 아코디언 게시글 리스트 (최상단) ============ -->
     <div class="dsg-pane" data-pane="posts" style="margin-bottom:26px">
       <div class="dsg-section-label">📮 디자인 보드</div>
@@ -9327,6 +9349,23 @@
         <div class="dsg-doc-hint">
           <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
           <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 코페리 (embed iframe) ============ -->
+    <div class="dsg-pane" data-pane="coferry" hidden>
+      <div class="dsg-cof-frame">
+        <iframe id="dsgCofFrame"
+                src="about:blank"
+                data-src="https://j65209.github.io/coferry/?embed=1&amp;me=대표"
+                title="코페리 디자인센터"
+                loading="lazy"
+                allow="clipboard-read; clipboard-write"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div class="dsg-cof-hint">
+          독립 앱: <a href="https://j65209.github.io/coferry/" target="_blank" rel="noopener">j65209.github.io/coferry</a>
+          · 오수영 · 박시호 두 분이 여기서 편집하면 이 화면에도 실시간 반영됩니다
         </div>
       </div>
     </div>
@@ -14825,6 +14864,7 @@
     _dsgRestorePostsDirty();
     _dsgPurgePostTombs();
     if(_dsgPostsDirty.size > 0) _dsgSchedPush();  // 새로고침 후 미푸시 편집 자동 재전송
+    try{ const saved = localStorage.getItem('dsgCurTab'); if(saved) _dsgCurTab = saved; }catch(e){}
     dsgSwitchTab(_dsgCurTab||'posts');
     dsgDocRender();
     _dsgApplyFs();
@@ -14900,12 +14940,23 @@
   /* 서브탭 스위치 — 사장님 요청으로 서브탭 UI 는 없어졌지만, 두 pane 모두 항상 표시 */
   function dsgSwitchTab(tab){
     _dsgCurTab = tab || 'posts';
-    document.querySelectorAll('#viewDesign .dsg-pane').forEach(p=>{
-      // refs pane 은 이미 DOM 에서 제거됨. board / posts 는 항상 표시.
-      p.hidden = false;
+    // 탭 active 표시
+    ['posts','board','coferry'].forEach(t=>{
+      const btn = document.getElementById('dsgTab' + t[0].toUpperCase() + t.slice(1));
+      if(btn) btn.classList.toggle('active', t===_dsgCurTab);
     });
-    if(typeof dsgPostsRender==='function') dsgPostsRender();
-    if(typeof dsgDocRender==='function')   dsgDocRender();
+    // 패널 표시 · 숨김
+    document.querySelectorAll('#viewDesign .dsg-pane').forEach(p=>{
+      p.hidden = (p.dataset.pane !== _dsgCurTab);
+    });
+    // 코페리 iframe 은 실제로 열 때 처음 로드 (부팅 비용 절약)
+    if(_dsgCurTab === 'coferry'){
+      const fr = document.getElementById('dsgCofFrame');
+      if(fr && fr.src === 'about:blank' && fr.dataset.src) fr.src = fr.dataset.src;
+    }
+    if(_dsgCurTab === 'posts' && typeof dsgPostsRender==='function') dsgPostsRender();
+    if(_dsgCurTab === 'board' && typeof dsgDocRender  ==='function') dsgDocRender();
+    try{ localStorage.setItem('dsgCurTab', _dsgCurTab); }catch(e){}
   }
 
   /* ===== 노션 아웃라이너 뷰 — 렌더 + 인라인 편집 ===== */
