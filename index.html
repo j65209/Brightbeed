@@ -895,23 +895,19 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
-  /* 톱바 가운데 — 에이전트 요약 텍스트 + 로그인 뱃지 (회사명 우측 중간).
-     모바일에선 topbar 를 두 줄로 열어 center 를 회사명 아래 큰 라인으로 노출. */
-  .topbar-center{display:flex;align-items:center;gap:10px;flex:1;justify-content:center;min-width:0;overflow:hidden;flex-wrap:wrap}
-  .topbar-agents{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-2);white-space:nowrap;font-family:var(--sans);letter-spacing:-.1px;padding:5px 12px;border-radius:999px;background:transparent;border:1px solid transparent}
+  /* 톱바 가운데 — 에이전트 요약 텍스트 (한 줄 유지) */
+  .topbar-center{display:flex;align-items:center;gap:10px;flex:1;justify-content:center;min-width:0;overflow:hidden}
+  .topbar-agents{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-2);white-space:nowrap;font-family:var(--sans);letter-spacing:-.1px;padding:5px 12px;border-radius:999px;background:transparent;border:1px solid transparent;min-width:0}
   .topbar-agents b{color:var(--text-0);font-weight:800;font-family:var(--mono)}
   .topbar-agents .agents-top-sep{color:var(--text-3);font-weight:500}
   .topbar-agents .agents-top-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.18);flex-shrink:0}
   .topbar-agents.has-stale .agents-top-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
   .topbar-agents.has-stale .agents-top-warn{color:#dc2626;font-weight:800}
   .topbar-agents-text{overflow:hidden;text-overflow:ellipsis;min-width:0}
-  /* 로그인 뱃지가 톱바 안에 놓일 때 압축 */
-  .diary-me-badge-topbar{margin:0 !important;padding:4px 10px 4px 12px !important;font-size:11.5px !important}
-  /* 모바일: 톱바 flex-wrap → center 를 회사명 아래 두 번째 줄에 크게 표시 */
-  @media (max-width:640px){
-    .topbar{flex-wrap:wrap;row-gap:8px}
-    .topbar-center{order:3;flex-basis:100%;justify-content:flex-start;padding:0;gap:10px;overflow:visible;flex-wrap:nowrap}
-  }
+  /* 로그인 뱃지가 톱바 좌측 브랜드 옆에 놓일 때 압축 */
+  .diary-me-badge-topbar{margin:0 !important;padding:3px 10px 3px 12px !important;font-size:11.5px !important;flex-shrink:0}
+  .diary-me-badge-topbar::after{content:'';display:inline-block;width:1px;height:14px;background:var(--line-2);margin-left:4px;opacity:.6}
+  .diary-me-badge-topbar b{margin-right:0}
 
   /* 히어로 — 에이전트 오피스 (다크 슬레이트 + 라이브 에메랄드) */
   .hero-row-agents{grid-template-columns:1fr;margin-bottom:22px;position:relative}
@@ -1544,6 +1540,42 @@
   .lg-memo-list.dragover{
     outline:2px dashed #8b5cf6;outline-offset:4px;
     border-radius:12px;background:rgba(139,92,246,.04)
+  }
+  /* 이미지·파일 끌어넣기 안내 배너 (리스트 상단) */
+  .lg-memo-guide{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 18px;margin-bottom:14px;
+    border:2px dashed var(--line-2);border-radius:12px;
+    background:var(--bg-1);cursor:pointer;
+    transition:all .15s;font-family:var(--sans)
+  }
+  .lg-memo-guide:hover{
+    border-color:#8b5cf6;background:rgba(139,92,246,.04);
+    color:var(--text-1)
+  }
+  .lg-memo-guide.dragover{
+    border-color:#8b5cf6;background:rgba(139,92,246,.10);
+    border-style:solid
+  }
+  .lg-memo-guide-icon{
+    flex:none;width:32px;height:32px;color:#8b5cf6;
+    opacity:.85
+  }
+  .lg-memo-guide:hover .lg-memo-guide-icon{opacity:1}
+  .lg-memo-guide-body{flex:1;min-width:0}
+  .lg-memo-guide-title{
+    font-size:13.5px;font-weight:600;color:var(--text-1);
+    letter-spacing:-.1px
+  }
+  .lg-memo-guide-sub{
+    margin-top:3px;font-size:11.5px;color:var(--text-3);
+    letter-spacing:-.05px;line-height:1.4
+  }
+  @media (max-width:720px){
+    .lg-memo-guide{padding:12px 14px;gap:10px}
+    .lg-memo-guide-icon{width:26px;height:26px}
+    .lg-memo-guide-title{font-size:12.5px}
+    .lg-memo-guide-sub{font-size:11px}
   }
   @media (max-width:720px){
     .lg-memo-wrap{padding:0 10px}
@@ -8477,19 +8509,21 @@
     body{font-size:13px}
     .container{padding:14px}
 
-    /* 톱바 — 압축 */
-    .topbar{padding:10px 14px;gap:8px}
-    .brand{gap:10px}
-    .brand-name{font-size:13px}
+    /* 톱바 — 압축 (한 줄 유지) */
+    .topbar{padding:10px 12px;gap:8px;flex-wrap:nowrap}
+    .brand{gap:8px;min-width:0;flex-shrink:1}
+    .brand-name{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;min-width:0}
+    .brand-name-full{display:none}
     .brand-sep,.brand-mod{display:none}
-    .topbar-right{gap:10px}
-    .topbar-center{gap:8px}
-    .topbar-agents{font-size:11.5px;padding:4px 8px;gap:6px}
-    .diary-me-badge-topbar{font-size:11px !important;padding:3px 8px 3px 10px !important}
+    .topbar-right{gap:8px;flex-shrink:0}
+    .topbar-center{gap:6px;flex:1;min-width:0}
+    .topbar-agents{font-size:11.5px;padding:3px 8px;gap:6px}
+    .diary-me-badge-topbar{font-size:11px !important;padding:2px 6px 2px 8px !important}
+    .diary-me-badge-topbar::after{margin-left:2px;height:12px}
+    .role-badge{display:none}
     .status-pill{font-size:10px;letter-spacing:.01em;gap:6px}
-    /* 동기화 텍스트는 너무 길어 모바일에서 숨김 — 점만 표시 (탭하면 그대로 동기화) */
+    /* 동기화 텍스트는 너무 길어 모바일에서 숨김 — 점만 표시 */
     .status-pill #syncStatus{display:none}
-    .role-badge{padding:3px 7px;font-size:10px;letter-spacing:.02em}
     .icon-btn{width:30px;height:30px}
 
     /* 히어로 — 카드형 (모바일은 1열 stack) */
@@ -8636,8 +8670,10 @@
     .container{padding:12px}
     .topbar{padding:9px 12px;gap:6px}
     .topbar-right{gap:6px}
-    /* 초좁은 화면에선 톱바 살짝 더 압축 */
-    .topbar-agents{padding:3px 8px;font-size:11px}
+    /* 초좁은 화면에선 "자동화 정상" 텍스트 숨겨 근무 인원만 노출 */
+    .topbar-agents{padding:2px 6px;font-size:10.5px;gap:5px}
+    .topbar-agents .agents-top-sep,.topbar-agents #agentsTopStatus{display:none}
+    .diary-me-badge-topbar{font-size:10.5px !important;padding:2px 6px 2px 7px !important}
     .brand{gap:8px}
     .brand-name{font-size:12px}
     .role-badge{padding:2px 6px;font-size:9.5px}
@@ -8685,6 +8721,11 @@
 <div class="app" id="app">
   <header class="topbar">
     <div class="brand">
+      <div id="diaryMeBadge" class="diary-me-badge diary-me-badge-topbar" hidden>
+        <span class="diary-me-badge-dot"></span>
+        <b id="diaryMeBadgeName"></b>
+        <span id="diaryMeBadgeNotif" class="diary-me-badge-notif" hidden></span>
+      </div>
       <div class="brand-name"><span class="brand-name-full">Bead Universe Co., Ltd.</span><span class="brand-name-short">Bead Universe</span></div>
       <span class="role-badge" title="보기 전용 권한 — 수정은 마스터만 가능">VIEWER</span>
     </div>
@@ -8692,11 +8733,6 @@
       <div class="topbar-agents" id="agentsTopStrip">
         <span class="agents-top-dot"></span>
         <span class="topbar-agents-text"><b id="agentsTopRunN">–</b>명 근무중<span class="agents-top-sep"> · </span><span id="agentsTopStatus"><b id="agentsTopTotN">–</b>명 자동화 정상</span></span>
-      </div>
-      <div id="diaryMeBadge" class="diary-me-badge diary-me-badge-topbar" hidden>
-        <span class="diary-me-badge-dot"></span>
-        <b id="diaryMeBadgeName"></b> 로그인
-        <span id="diaryMeBadgeNotif" class="diary-me-badge-notif" hidden></span>
       </div>
     </div>
     <div class="topbar-right">
@@ -9779,6 +9815,14 @@
             새 메모
           </button>
         </div>
+        <label class="lg-memo-guide" id="lgMemoGuide" ondragover="lgMemoListDragOver(event)" ondragleave="lgMemoListDragLeave(event)" ondrop="lgMemoListDrop(event)">
+          <svg class="lg-memo-guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div class="lg-memo-guide-body">
+            <div class="lg-memo-guide-title">이미지·엑셀·파일을 여기로 끌어놓으세요</div>
+            <div class="lg-memo-guide-sub">클릭해서 파일 선택 · Ctrl+V 붙여넣기 · 드래그 앤 드롭 모두 지원 · 새 메모가 자동 생성됩니다</div>
+          </div>
+          <input type="file" multiple accept="image/*,.xlsx,.xls,.csv,.pdf,.doc,.docx,.zip,.txt,.hwp" style="display:none" onchange="lgMemoGuidePick(event)">
+        </label>
         <div class="lg-memo-list" id="lgMemoList" ondragover="lgMemoListDragOver(event)" ondragleave="lgMemoListDragLeave(event)" ondrop="lgMemoListDrop(event)"></div>
       </div>
     </div>
@@ -21630,26 +21674,46 @@
     ev.preventDefault();
     ev.dataTransfer.dropEffect = 'copy';
     const list = document.getElementById('lgMemoList');
+    const guide = document.getElementById('lgMemoGuide');
     if(list) list.classList.add('dragover');
+    if(guide) guide.classList.add('dragover');
   }
   window.lgMemoListDragOver=lgMemoListDragOver;
 
   function lgMemoListDragLeave(ev){
-    // 리스트 밖으로 완전히 나갔을 때만 hide
     const list = document.getElementById('lgMemoList');
-    if(!list) return;
-    if(ev.relatedTarget && list.contains(ev.relatedTarget)) return;
-    list.classList.remove('dragover');
+    const guide = document.getElementById('lgMemoGuide');
+    const cur = ev.currentTarget;
+    // 현재 target 안에 관련 요소가 있으면 여전히 안에 있음 → 유지
+    if(ev.relatedTarget && cur && cur.contains(ev.relatedTarget)) return;
+    if(list) list.classList.remove('dragover');
+    if(guide) guide.classList.remove('dragover');
   }
   window.lgMemoListDragLeave=lgMemoListDragLeave;
 
   function lgMemoListDrop(ev){
     ev.preventDefault();
     const list = document.getElementById('lgMemoList');
+    const guide = document.getElementById('lgMemoGuide');
     if(list) list.classList.remove('dragover');
+    if(guide) guide.classList.remove('dragover');
     const files = ev.dataTransfer && ev.dataTransfer.files;
     if(!files || !files.length) return;
-    // 새 메모 생성 후 방금 만든 아이디로 첨부
+    _lgMemoCreateWithFiles(files);
+  }
+  window.lgMemoListDrop=lgMemoListDrop;
+
+  // 가이드 배너 클릭(파일 선택) 처리
+  function lgMemoGuidePick(ev){
+    const files = ev.target.files;
+    ev.target.value = '';
+    if(!files || !files.length) return;
+    _lgMemoCreateWithFiles(files);
+  }
+  window.lgMemoGuidePick=lgMemoGuidePick;
+
+  // 새 메모 생성 + 파일 첨부 (드롭·가이드 클릭 공용)
+  function _lgMemoCreateWithFiles(files){
     const items = _lgMemoLoad();
     const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
     items.unshift({id, title:'', text:'', done:false, ts:Date.now(), attachments:[]});
@@ -21657,7 +21721,6 @@
     lgMemoRender();
     _lgMemoAttachFiles(id, files);
   }
-  window.lgMemoListDrop=lgMemoListDrop;
 
   function refreshArchivePane(){
     const brand = window._kdBrand || 'brightbeed';
