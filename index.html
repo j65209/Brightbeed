@@ -895,8 +895,9 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
-  /* 톱바 가운데 — 에이전트 요약 텍스트 + 로그인 뱃지 (회사명 우측 중간) */
-  .topbar-center{display:flex;align-items:center;gap:12px;flex:1;justify-content:center;min-width:0;overflow:hidden}
+  /* 톱바 가운데 — 에이전트 요약 텍스트 + 로그인 뱃지 (회사명 우측 중간).
+     모바일에선 topbar 를 두 줄로 열어 center 를 회사명 아래 큰 라인으로 노출. */
+  .topbar-center{display:flex;align-items:center;gap:10px;flex:1;justify-content:center;min-width:0;overflow:hidden;flex-wrap:wrap}
   .topbar-agents{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-2);white-space:nowrap;font-family:var(--sans);letter-spacing:-.1px;padding:5px 12px;border-radius:999px;background:transparent;border:1px solid transparent}
   .topbar-agents b{color:var(--text-0);font-weight:800;font-family:var(--mono)}
   .topbar-agents .agents-top-sep{color:var(--text-3);font-weight:500}
@@ -906,6 +907,11 @@
   .topbar-agents-text{overflow:hidden;text-overflow:ellipsis;min-width:0}
   /* 로그인 뱃지가 톱바 안에 놓일 때 압축 */
   .diary-me-badge-topbar{margin:0 !important;padding:4px 10px 4px 12px !important;font-size:11.5px !important}
+  /* 모바일: 톱바 flex-wrap → center 를 회사명 아래 두 번째 줄에 크게 표시 */
+  @media (max-width:640px){
+    .topbar{flex-wrap:wrap;row-gap:8px}
+    .topbar-center{order:3;flex-basis:100%;justify-content:flex-start;padding:0;gap:10px;overflow:visible;flex-wrap:nowrap}
+  }
 
   /* 히어로 — 에이전트 오피스 (다크 슬레이트 + 라이브 에메랄드) */
   .hero-row-agents{grid-template-columns:1fr;margin-bottom:22px;position:relative}
@@ -8630,10 +8636,8 @@
     .container{padding:12px}
     .topbar{padding:9px 12px;gap:6px}
     .topbar-right{gap:6px}
-    /* 초좁은 화면에선 "명 자동화 정상" 감춰 근무 인원만 노출 */
-    .topbar-agents .agents-top-sep,.topbar-agents #agentsTopStatus{display:none}
-    .topbar-agents{padding:3px 6px;font-size:11px}
-    .diary-me-badge-topbar{display:none !important}
+    /* 초좁은 화면에선 톱바 살짝 더 압축 */
+    .topbar-agents{padding:3px 8px;font-size:11px}
     .brand{gap:8px}
     .brand-name{font-size:12px}
     .role-badge{padding:2px 6px;font-size:9.5px}
