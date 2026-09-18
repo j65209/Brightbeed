@@ -13913,10 +13913,27 @@
     // 진입 시 항상 메모 탭부터 (사장님 요청)
     if(typeof switchLgTab==='function') switchLgTab('memo');
   }
+  /* 기존 저장분(pill 2-way 시절 lgMemo_brightbeed) 을 lgMemo_main 으로 이관.
+     - lgMemo_main 이 이미 있으면 건드리지 않음 (사장님이 main 에 이미 뭔가 저장한 경우)
+     - marker 로 한 번만 실행 */
+  function _lgMemoMigrateOnce(){
+    try{
+      if(localStorage.getItem('lgMemoMigratedToMain') === '1') return;
+      const mainRaw = localStorage.getItem('lgMemo_main');
+      const bbRaw = localStorage.getItem('lgMemo_brightbeed');
+      if(!mainRaw && bbRaw){
+        localStorage.setItem('lgMemo_main', bbRaw);
+        localStorage.removeItem('lgMemo_brightbeed');
+      }
+      localStorage.setItem('lgMemoMigratedToMain', '1');
+    }catch(_){ /* ignore */ }
+  }
+
   /* 뷰 내부 브랜드 스위치 (메인/BB/SB pill 및 프로그래매틱 호출)
      - window._lgBrand : 메모 카테고리 (main/brightbeed/shinebeed)
      - window._kdBrand : 발주 데이터 브랜드 (brightbeed/shinebeed) — 메인은 brightbeed 로 fallback */
   function switchLgBrand(brand){
+    _lgMemoMigrateOnce();
     const allowed = ['main','brightbeed','shinebeed'];
     window._lgBrand = allowed.includes(brand) ? brand : 'main';
     // 발주 데이터는 BB/SB 만 존재 → 메인이면 brightbeed 로 매핑
