@@ -27655,20 +27655,16 @@
   }
 
   function vMarginParse(text){
-    // 시트 파싱 규칙:
-    // - 월 라벨(column A: "2026.08" / "2026.08월" / "2026-08" / "8월")을 만나야 그 월의 섹션이 시작됨.
-    // - 라벨 만나기 전 상단의 잡동사니(예전 월 요약, 참고용 셀들)는 전부 무시.
-    // - 마진/매출 둘 다 비어있는 셀러 placeholder 행은 무시 (셀러명·제품명만 있는 대기 행).
-    // - "총매출금액" 행은 그 월의 정산 완료분 소계이자 마감. 뒤에 유의미한 items가 이어지면
-    //   같은 월 진행 중 확장(pending)으로 합침.
-    // - 마감 없이 items가 계속되다 파일이 끝나면 그 월은 pending.
+    // 시트 파싱 규칙 (2026-09-18 개선):
+    // - 월 라벨(A열: "2026.08" / "8월")이 있으면 그 월 섹션 시작.
+    // - 라벨 없이 "총매출금액" 마감만 오면 이전 마감 월 + 1 로 자동 계산 (사장님 시트가 라벨 생략하는 스타일 지원).
+    // - 마감 완료된 월은 items 없어도(총매출만 있어도) 리스트에 표시.
+    // - 마감 뒤에 이어지는 items 는 자동으로 다음 월(마감월+1) pending 섹션으로 편입 → 9월 데이터 자동 인식.
+    // - 마감 없이 파일 끝나면 마지막 열린 섹션은 pending.
     const rows=_vmCSVParse(text);
     const out=[];
     let cur=null;
-    // 마감 행 판정 — col7 라벨이 "총매출금액"일 때만 진짜 마감으로 취급.
-    // (예전엔 noItem+hasTotal 휴리스틱을 썼는데, "블로그페이 ₩0/₩0" 같은
-    //  대기 정산 placeholder가 오탐되어 그 월의 total이 ₩0으로 덮여 씌워지는
-    //  버그가 있었음. 이제 라벨 명시 행만 인정.)
+    let lastMonthNum=null, lastYear=null; // 라벨 없는 마감/items 의 월 자동 계산용
     const _isClosingRow = (r) => (r[7]||'').trim() === '총매출금액';
     const _parseMonthLbl = (lbl) => {
       if(!lbl) return null;
@@ -27679,15 +27675,32 @@
       return null;
     };
     const _hasVal = (r) => !!((r[6]||'').trim()) || !!((r[8]||'').trim());
+    const _nextMonth = (mn, yr) => mn >= 12 ? {monthNum:1, year:(yr||new Date().getFullYear())+1} : {monthNum:mn+1, year:yr||new Date().getFullYear()};
+    const _monthLblStr = (mn, yr) => yr ? `${yr}.${String(mn).padStart(2,'0')}` : `${mn}월`;
     const _newSection = (parsed, lbl) => ({
       month:lbl, monthNum:parsed.monthNum,
       year:parsed.year!=null?parsed.year:new Date().getFullYear(),
       items:[], totalMargin:'', totalSales:'', pending:false,
       _lastProduct:'', _lastSeller:'',
     });
+    const _pushCur = () => {
+      if(!cur) return;
+      if(cur.items.length || cur.totalMargin || cur.totalSales){
+        out.push(cur);
+        lastMonthNum = cur.monthNum;
+        lastYear = cur.year;
+      }
+      cur = null;
+    };
+    const _openAutoCur = (asPending) => {
+      if(lastMonthNum == null) return false; // 컨텍스트 없이 시작할 수 없음
+      const nx = _nextMonth(lastMonthNum, lastYear);
+      cur = _newSection(nx, _monthLblStr(nx.monthNum, nx.year));
+      if(asPending) cur.pending = true;
+      return true;
+    };
     for(let i=0; i<rows.length; i++){
       const r=rows[i];
-      // 헤더 행 skip
       if(i===0){
         const c0=(r[0]||'').trim(), c1=(r[1]||'').trim();
         if(c0==='월별' || c1==='제품명') continue;
@@ -27696,43 +27709,30 @@
       const parsed=_parseMonthLbl(monthLbl);
 
       if(parsed){
-        // 새 월 라벨 — 이전 cur 마무리 (다음 월 시작으로 확정됐으니 pending 해제)
-        if(cur && cur.items.length){
-          cur.pending=false;
-          out.push(cur);
-        }
+        // 새 라벨 만남 → 이전 cur 마무리 후 새 섹션 열기
+        _pushCur();
         cur=_newSection(parsed, monthLbl);
       }
 
-      if(!cur) continue; // 첫 월 라벨 만나기 전은 전부 무시
-
       if(_isClosingRow(r)){
-        // 마감 뒤 후속 items(값 有 또는 placeholder)가 이어지는지 lookahead.
-        // 이어지면 같은 월 진행 중, 아니면 정상 마감.
-        // placeholder(제품·셀러만 채워지고 값 없음)도 "다음 정산 대기" 신호로 취급.
-        let hasFollowingItems=false;
-        for(let j=i+1;j<rows.length;j++){
-          const nr=rows[j];
-          if(_parseMonthLbl((nr[0]||'').trim())) break;
-          if(_isClosingRow(nr)) break;
-          if(((nr[1]||'').trim() || (nr[2]||'').trim())){hasFollowingItems=true; break;}
+        // 라벨 없이 마감만 온 경우 → 다음 월 자동 개시
+        if(!cur){
+          if(!_openAutoCur(false)) continue;
         }
         cur.totalMargin=(r[6]||'').trim();
         cur.totalSales=(r[8]||'').trim();
-        if(hasFollowingItems){
-          cur.pending=true;
-          continue;
-        }
         cur.pending=false;
-        if(cur.items.length) out.push(cur);
-        cur=null;
+        _pushCur();
         continue;
       }
 
-      // item row — 1~9번 중 값 있는 행 중에서도 마진/매출 있는 유의미한 것만 push.
-      // 라벨 행에 첫 아이템이 함께 들어있는 경우는 마진/매출도 붙어있으므로 자연스레 통과.
+      // item row (제품/셀러 등 값 있음)
       if(r.slice(1,10).some(c=>(c||'').trim())){
         if(!_hasVal(r)) continue; // 마진·매출 둘 다 빈 placeholder 는 skip
+        // 마감 뒤 라벨 없이 이어지는 items → 다음 월 pending 자동 개시
+        if(!cur){
+          if(!_openAutoCur(true)) continue;
+        }
         const prod=(r[1]||'').trim();
         const sel=(r[2]||'').trim();
         if(prod) cur._lastProduct=prod;
@@ -27752,9 +27752,11 @@
       }
     }
     // 마감 없이 파일 끝난 진행 월
-    if(cur && cur.items.length){
-      cur.pending=true;
-      out.push(cur);
+    if(cur){
+      if(cur.items.length || cur.totalMargin || cur.totalSales){
+        cur.pending = !cur.totalMargin && !cur.totalSales ? true : cur.pending;
+        out.push(cur);
+      }
     }
     return out;
   }
