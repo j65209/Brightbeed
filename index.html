@@ -20490,20 +20490,21 @@
     let data=null;
     try{ data=await fetchKDOrders(opts); }catch(e){ data=null; }
     if(!data || !Array.isArray(data.orders)){
-      if(cnt) cnt.textContent='연결 실패';
+      // fetch 실패 시 표 유지 (지우지 않음) — updTag 에만 에러 표시.
+      // 사장님 요청: 새로고침 눌렀을 때 데이터가 갑자기 사라지지 않도록.
       if(updTag){
         updTag.classList.add('kd-error');
-        updTag.textContent='프록시 연결 실패';
-        updTag.title='서버 프록시 또는 Cloudflare 터널 응답 없음';
+        updTag.textContent='갱신 실패 · 이전 데이터 유지';
+        updTag.title='서버 프록시 또는 Cloudflare 터널 응답 없음 (표시된 데이터는 마지막 성공분)';
       }
-      if(empty){
+      // 표가 아직 렌더된 적 없을 때만(=poTable 이 hidden 상태) empty 표시.
+      if(tbl.style.display === 'none' && empty){
         empty.style.display='block';
         const t=empty.querySelector('.po-empty-text');
         const s=empty.querySelector('.po-empty-sub');
         if(t) t.textContent='콰이디에어 서버 연결 실패';
         if(s) s.textContent='서버 프록시 또는 콰이디에어 자격증명을 확인하세요';
       }
-      tbl.style.display='none';
       return;
     }
     // 발주 품목 없는 신청서는 표시 안 함 (콰이디에어에서 취소/빈 신청서 등)
