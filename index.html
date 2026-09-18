@@ -2380,13 +2380,10 @@
     .sales-archive-del{order:4;opacity:.6}
   }
 
-  /* ===== 브랜드별 기획전 탭 (진행중·예정 기획전별 동적) ===== */
+  /* ===== 브랜드별 기획전 탭 (식스에이 · 프로덕트피알 · 아코이) ===== */
   .mdpromo-section .mdpromo-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px;background:var(--bg-1);border:1px dashed var(--line);border-radius:8px}
   .mdpromo-section .lg-tab{display:inline-flex;align-items:center;gap:8px}
   .mdpromo-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
-  /* 동적 기획전 탭 — 다수 기획전 대응: 자동 줄바꿈 */
-  .mdpromo-tabs-dyn{display:flex !important;flex-wrap:wrap !important;gap:6px !important;padding:0 0 12px 12px !important}
-  .mdpromo-tabs-dyn .lg-tab{flex:0 0 auto;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   /* ===== 기획전 일정 · 간트(가로 타임라인) 표 ===== */
   .md-cal-section .md-cal-weekdays{display:none}
@@ -9864,14 +9861,72 @@
         </div>
       </div>
 
-      <!-- 브랜드별 기획전 (진행중·예정 기획전 각각) -->
+      <!-- 브랜드별 기획전 (식스에이 · 프로덕트피알 · 아코이) -->
       <div class="po-section mdpromo-section" style="margin-top:28px">
         <div class="po-section-head">
-          <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전 각각 · 계산기</span></div>
+          <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전</span></div>
         </div>
-        <div class="lg-tabs mdpromo-tabs-dyn" role="tablist" id="mdPromoTabsBar" style="padding:0 0 12px 12px;max-width:none;margin:0"></div>
-        <div id="mdPromoPanelHost">
-          <div class="mdpromo-empty" id="mdPromoEmpty">진행중 · 예정 기획전이 없습니다. 위 캘린더에서 "일정 추가"로 만들어 주세요.</div>
+        <div class="lg-tabs" role="tablist" style="padding:0 0 12px 12px;max-width:none;margin:0">
+          <button class="lg-tab active" data-mdpromo="sixA" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true"><span class="mdpromo-dot" style="background:#22d3ee;box-shadow:0 0 8px rgba(34,211,238,.55)"></span>식스에이</button>
+          <button class="lg-tab" data-mdpromo="pp" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.55)"></span>프로덕트피알</button>
+          <button class="lg-tab" data-mdpromo="akoi" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f472b6;box-shadow:0 0 8px rgba(244,114,182,.55)"></span>아코이</button>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="sixA">
+          <div class="akp-wrap" data-akp-brand="sixA">
+            <div class="akp-actions">
+              <span class="akp-status akp-status-el">불러오는 중…</span>
+              <div class="akp-actions-spacer"></div>
+              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+            </div>
+            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
+            <div class="akp-master-wrap">
+              <table class="akp-table akp-master-table">
+                <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
+                <tbody class="akp-master-body"></tbody>
+              </table>
+            </div>
+            <div class="akp-list akp-platform-list"></div>
+            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+          </div>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="pp" hidden>
+          <div class="akp-wrap" data-akp-brand="pp">
+            <div class="akp-actions">
+              <span class="akp-status akp-status-el">불러오는 중…</span>
+              <div class="akp-actions-spacer"></div>
+              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+            </div>
+            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
+            <div class="akp-master-wrap">
+              <table class="akp-table akp-master-table">
+                <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
+                <tbody class="akp-master-body"></tbody>
+              </table>
+            </div>
+            <div class="akp-list akp-platform-list"></div>
+            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+          </div>
+        </div>
+        <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
+          <div class="akp-wrap" data-akp-brand="akoi">
+            <div class="akp-actions">
+              <span class="akp-status akp-status-el">불러오는 중…</span>
+              <div class="akp-actions-spacer"></div>
+              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+            </div>
+            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
+            <div class="akp-master-wrap">
+              <table class="akp-table akp-master-table">
+                <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
+                <tbody class="akp-master-body"></tbody>
+              </table>
+            </div>
+            <div class="akp-list akp-platform-list"></div>
+            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+          </div>
         </div>
       </div>
 
@@ -12554,125 +12609,17 @@
   window.mdpRefreshActive=mdpRefreshActive;
 
   /* 브랜드별 기획전 탭 스위치 (식스에이 · 프로덕트피알 · 아코이) */
-  /* ===== 브랜드별 기획전 — 진행중·예정 기획전별 동적 탭 =====
-     각 탭 key = 'ev-<eventId>' · akp 상태 저장은 events 저장과 별개.
-     레거시 3 브랜드 (sixA/pp/akoi) 데이터는 remote 에 남아있지만 UI 에는 노출되지 않음. */
-
-  // 진행중·예정 기획전 (오늘~미래에 걸치는 것) 리스트
-  function _mdPromoActiveEvents(){
-    const evs = Array.isArray(_mdCal.events) ? _mdCal.events : [];
-    const todayIso = _mdIso(new Date());
-    return evs
-      .filter(ev => ev && ev.start && (ev.end||ev.start) >= todayIso)
-      .sort((a,b)=>{
-        if(a.start!==b.start) return a.start<b.start?-1:1;
-        return (a.title||'').localeCompare(b.title||'');
-      });
-  }
-  function _mdPromoEventKey(evId){ return 'ev-'+String(evId||''); }
-  function _mdPromoEventFromKey(key){
-    if(typeof key!=='string' || !key.startsWith('ev-')) return null;
-    const id=key.slice(3);
-    return (_mdCal.events||[]).find(e=>e.id===id) || null;
-  }
-
-  function _mdPromoBrandColorForEvent(ev){
-    if(!ev) return '#94a3b8';
-    const brands = (typeof _mdEventBrands==='function') ? _mdEventBrands(ev) : (Array.isArray(ev.brands)?ev.brands:[]);
-    if(brands.length>0){
-      const b=_mdBrandMap[brands[0]];
-      if(b) return b.color;
-    }
-    return _mdEvColor(ev.color).hex;
-  }
-
-  function _mdPromoTabLabel(ev){
-    const brands = (typeof _mdEventBrands==='function') ? _mdEventBrands(ev) : (Array.isArray(ev.brands)?ev.brands:[]);
-    const brandLabels = brands.map(k=>(_mdBrandMap[k]||{}).label).filter(Boolean);
-    const title = ev.title || '(제목 없음)';
-    if(brandLabels.length===0) return title;
-    return title + ' · ' + brandLabels.join('·');
-  }
-
-  function _mdPromoEnsureWrap(key){
-    const host=document.getElementById('mdPromoPanelHost');
-    if(!host) return null;
-    let wrap=host.querySelector('.akp-wrap[data-akp-brand="'+CSS.escape(key)+'"]');
-    if(wrap) return wrap;
-    wrap=document.createElement('div');
-    wrap.className='akp-wrap';
-    wrap.setAttribute('data-akp-brand', key);
-    wrap.hidden=true;
-    wrap.innerHTML = `
-      <div class="akp-actions">
-        <span class="akp-status akp-status-el">불러오는 중…</span>
-        <div class="akp-actions-spacer"></div>
-        <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
-        <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
-      </div>
-      <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
-      <div class="akp-master-wrap">
-        <table class="akp-table akp-master-table">
-          <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
-          <tbody class="akp-master-body"></tbody>
-        </table>
-      </div>
-      <div class="akp-list akp-platform-list"></div>
-      <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
-    `;
-    host.appendChild(wrap);
-    return wrap;
-  }
-
-  function mdPromoTabsEnsure(){
-    const bar=document.getElementById('mdPromoTabsBar');
-    const empty=document.getElementById('mdPromoEmpty');
-    const host=document.getElementById('mdPromoPanelHost');
-    if(!bar || !host) return;
-    const events=_mdPromoActiveEvents();
-    // 사용 안하는 wrap 은 hide (완료된 기획전이었던 것들)
-    host.querySelectorAll('.akp-wrap').forEach(w=>{ w.hidden=true; });
-    if(events.length===0){
-      bar.innerHTML='';
-      if(empty) empty.hidden=false;
-      return;
-    }
-    if(empty) empty.hidden=true;
-    const activeKey = bar.dataset.activeKey && events.some(e=>_mdPromoEventKey(e.id)===bar.dataset.activeKey)
-      ? bar.dataset.activeKey
-      : _mdPromoEventKey(events[0].id);
-    bar.innerHTML = events.map(ev=>{
-      const key=_mdPromoEventKey(ev.id);
-      const color=_mdPromoBrandColorForEvent(ev);
-      const label=_mdPromoTabLabel(ev);
-      const cls=key===activeKey ? 'lg-tab active' : 'lg-tab';
-      return `<button class="${cls}" data-mdpromo="${escapeHTML(key)}" role="tab" aria-selected="${key===activeKey?'true':'false'}" title="${escapeHTML(ev.title||'')}"><span class="mdpromo-dot" style="background:${color};box-shadow:0 0 8px ${color}88"></span>${escapeHTML(label)}</button>`;
-    }).join('');
-    bar.querySelectorAll('.lg-tab[data-mdpromo]').forEach(btn=>{
-      btn.addEventListener('click', ()=>mdPromoSwitch(btn.dataset.mdpromo));
-    });
-    // 활성 탭 진입
-    mdPromoSwitch(activeKey);
-  }
-  window.mdPromoTabsEnsure=mdPromoTabsEnsure;
-
-  function mdPromoSwitch(key){
-    if(!key) return;
-    const bar=document.getElementById('mdPromoTabsBar');
-    if(bar) bar.dataset.activeKey=key;
-    document.querySelectorAll('#mdPromoTabsBar .lg-tab[data-mdpromo]').forEach(btn=>{
-      const on=btn.dataset.mdpromo===key;
+  /* 브랜드별 기획전 탭 스위치 (식스에이 · 프로덕트피알 · 아코이) */
+  function mdPromoSwitch(tab){
+    document.querySelectorAll('.lg-tab[data-mdpromo]').forEach(btn=>{
+      const on=btn.dataset.mdpromo===tab;
       btn.classList.toggle('active', on);
       btn.setAttribute('aria-selected', on?'true':'false');
     });
-    const host=document.getElementById('mdPromoPanelHost');
-    if(host){
-      host.querySelectorAll('.akp-wrap').forEach(w=>{
-        w.hidden = w.getAttribute('data-akp-brand') !== key;
-      });
-    }
-    _mdPromoEnsureWrap(key);
-    if(typeof akpInit==='function') akpInit(key);
+    document.querySelectorAll('.mdpromo-panel[data-mdpromo-panel]').forEach(pn=>{
+      pn.hidden = pn.dataset.mdpromoPanel!==tab;
+    });
+    if((tab==='sixA'||tab==='pp'||tab==='akoi') && typeof akpInit==='function') akpInit(tab);
   }
   window.mdPromoSwitch=mdPromoSwitch;
 
@@ -12688,7 +12635,7 @@
        floorSettled = floor − round(floor × feeRate/100 / 100) × 100
        floorMultiplier = floorSettled / costKrw
   */
-  const AKP_BRANDS=['sixA','pp','akoi']; // 레거시 3 브랜드 (마이그레이션·기본값 결정용). 신규 탭은 'ev-<id>' 형식.
+  const AKP_BRANDS=['sixA','pp','akoi'];
   const AKP_PREFIX='brandPromoV3.';
   const _akpLSKey       = (b)=>AKP_PREFIX+b;
   const _akpHistLSKey   = (b)=>AKP_PREFIX+b+'.history';
@@ -12697,7 +12644,7 @@
   const _akpRemotePath  = (b)=>'data/promo-'+b+'.json';
   const _akpRemoteApi   = (b)=>'https://api.github.com/repos/j65209/Brightbeed/contents/'+_akpRemotePath(b);
   const _akpRemoteRaw   = (b)=>'https://raw.githubusercontent.com/j65209/Brightbeed/main/'+_akpRemotePath(b);
-  // key별 독립 상태 (레거시 3 브랜드 + 신규 event key 모두 여기서 관리)
+  // 브랜드별 독립 상태
   const _akpStates={sixA:null, pp:null, akoi:null};
   const _akpInited={sixA:false, pp:false, akoi:false};
   const _akpRemoteTimers={sixA:null, pp:null, akoi:null};
@@ -12705,14 +12652,6 @@
   const _akpEditingPlats={sixA:new Set(), pp:new Set(), akoi:new Set()};
   const _akpEditingMaster={sixA:false, pp:false, akoi:false};
   let _akpBrand='sixA';   // 활성 탭 (mdPromoSwitch로 변경)
-  function _akpEnsureKeySlot(key){
-    if(!(key in _akpStates)) _akpStates[key]=null;
-    if(!(key in _akpInited)) _akpInited[key]=false;
-    if(!(key in _akpRemoteTimers)) _akpRemoteTimers[key]=null;
-    if(!(key in _akpLastLocalSave)) _akpLastLocalSave[key]=0;
-    if(!(key in _akpEditingPlats)) _akpEditingPlats[key]=new Set();
-    if(!(key in _akpEditingMaster)) _akpEditingMaster[key]=false;
-  }
   // 활성 상태 · getter (state는 현재 브랜드 alias)
   Object.defineProperty(window,'_akpState',{get:()=>_akpStates[_akpBrand], set:(v)=>{_akpStates[_akpBrand]=v}, configurable:true});
   // 활성 wrap DOM
@@ -12781,7 +12720,6 @@
     }catch(e){}
   }
   function _akpLoad(brand){
-    _akpEnsureKeySlot(brand);
     if(brand==='akoi') _akpMigrateLegacyAkoi();
     // 1) 정상 저장값 시도
     try{
@@ -12905,7 +12843,6 @@
 
   function akpInit(brand){
     brand=brand||_akpBrand;
-    _akpEnsureKeySlot(brand);
     _akpBrand=brand;
     if(!_akpInited[brand]){
       _akpStates[brand]=_akpLoad(brand);
@@ -12914,7 +12851,7 @@
     akpRender();
     _akpUpdateStatus(brand);
     if(!window._akpStatusTick){
-      window._akpStatusTick=setInterval(()=>{ Object.keys(_akpStates).forEach(b=>_akpUpdateStatus(b)); }, 30000);
+      window._akpStatusTick=setInterval(()=>{ AKP_BRANDS.forEach(b=>_akpUpdateStatus(b)); }, 30000);
     }
     _akpSyncFromRemote(brand);
   }
@@ -13654,7 +13591,10 @@
     if(id==='viewMd'){
       if(typeof renderMdCal==='function') renderMdCal();
       if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
-      if(typeof mdPromoTabsEnsure==='function') mdPromoTabsEnsure();
+      if(typeof akpInit==='function'){
+        const activeTab=document.querySelector('.lg-tab.active[data-mdpromo]')?.dataset.mdpromo || 'sixA';
+        akpInit(activeTab);
+      }
     }
     if(id==='viewMarketing'){
       if(typeof renderAdSignage==='function') renderAdSignage();
@@ -13772,24 +13712,42 @@
     }
     showView('viewDiary');
   }
+  /* 홈 물류팀 카드 진입 — 최근 사용 브랜드 유지 (없으면 브라이트비드) */
   function triggerLogistics(brand){
+    let target;
+    if(brand === 'shinebeed' || brand === 'brightbeed'){
+      target = brand;
+    }else{
+      try{ target = localStorage.getItem('lgLastBrand') || 'brightbeed'; }catch(_){ target='brightbeed'; }
+      if(target !== 'shinebeed') target = 'brightbeed';
+    }
+    switchLgBrand(target);
+    showView('viewLg');
+    if(document.querySelector('.lg-tab.active[data-tab="memo"]') && typeof lgMemoRender==='function') lgMemoRender();
+  }
+  /* 뷰 내부 브랜드 스위치 (BB/SB pill 및 프로그래매틱 호출) */
+  function switchLgBrand(brand){
     window._kdBrand = (brand === 'shinebeed') ? 'shinebeed' : 'brightbeed';
-    _kdLastHash = ''; // 브랜드 스위치 시 dedup 캐시 초기화 → 강제 재렌더
-    // 뷰 헤더에 브랜드 표시
+    try{ localStorage.setItem('lgLastBrand', window._kdBrand); }catch(_){}
+    _kdLastHash = ''; // dedup 캐시 초기화 → 강제 재렌더
     const titleEl = document.querySelector('#viewLg .view-title');
     if(titleEl){
       const label = window._kdBrand === 'shinebeed' ? '샤인비드' : '브라이트비드';
       titleEl.innerHTML = `물류팀 <span class="view-title-brand">${label}</span><span class="view-title-sub">/ 발주 관리</span>`;
     }
-    // 발주 상품 리스트 탭 라벨/뱃지도 브랜드에 맞춰 갱신 (샤인비드는 KD 실시간 dedupe 소스).
+    document.querySelectorAll('.lg-brand-pill').forEach(btn=>{
+      const active = btn.dataset.brand === window._kdBrand;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active?'true':'false');
+    });
     _refreshArchiveTabLabel();
-    showView('viewLg');
     if(typeof renderKDOrders==='function') renderKDOrders({force:true}).catch(()=>{});
-    // 샤인비드로 진입해서 아카이브 탭이 이미 활성 상태면 즉시 재렌더.
     if(document.querySelector('.lg-tab.active[data-tab="archive"]')) refreshArchivePane();
-    // 우체국 출고 탭이 활성 상태면 브랜드에 맞춰 재렌더
     if(document.querySelector('.lg-tab.active[data-tab="postez"]') && typeof refreshPostEzPane==='function') refreshPostEzPane();
+    if(document.querySelector('.lg-tab.active[data-tab="memo"]') && typeof lgMemoRender==='function') lgMemoRender();
+    if(typeof lgMemoRefreshBadge==='function') lgMemoRefreshBadge();
   }
+  window.switchLgBrand=switchLgBrand;
 
   function _refreshArchiveTabLabel(){
     const badge = document.getElementById('lgTabArchiveBadge');
@@ -24160,7 +24118,6 @@
     localStorage.setItem(MD_EVENTS_KEY, json);
     _mdCal.events=remote.events;
     renderMdCal();
-    if(typeof mdPromoTabsEnsure==='function' && !document.getElementById('viewMd')?.hidden) mdPromoTabsEnsure();
   }
 
   /* ===== 필터 dropdown 렌더 & 리셋 ===== */
@@ -24727,7 +24684,6 @@
     _mdLastPutAt=Date.now();
     mdCalCloseModal();
     renderMdCal();
-    if(typeof mdPromoTabsEnsure==='function') mdPromoTabsEnsure();
     toast('✓ 저장 완료','ok');
   }
 
