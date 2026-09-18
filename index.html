@@ -2426,11 +2426,9 @@
   .md-gantt-group-count{color:var(--text-3);font-size:11px;font-weight:600;font-family:var(--mono);margin-left:8px}
   .md-gantt-td-label-inner{display:flex;align-items:center;gap:0;min-width:0}
   .md-gantt-row-nested .md-gantt-td-label{padding-left:44px !important;font-size:12px !important;position:sticky}
-  /* 정상확인 체크리스트 버튼 (각 기획전 좌측) */
-  .md-gantt-ckl-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;margin-right:8px;border:1.5px solid var(--line-2);background:#fff;color:var(--text-3);border-radius:5px;cursor:pointer;vertical-align:middle;transition:all .12s ease;flex-shrink:0}
-  .md-gantt-ckl-btn:hover{border-color:#059669;color:#059669;background:#f0fdf4}
-  .md-gantt-ckl-btn.is-partial{border-color:#f59e0b;color:#f59e0b;background:#fffbeb}
-  .md-gantt-ckl-btn.is-partial:hover{border-color:#d97706;color:#d97706}
+  /* 정상확인 체크 버튼 (각 기획전 좌측) — 기본 빈칸, 체크하면 초록색 배경으로 */
+  .md-gantt-ckl-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;margin-right:8px;border:1.5px solid var(--line-2);background:#fff;color:transparent;border-radius:5px;cursor:pointer;vertical-align:middle;transition:all .12s ease;flex-shrink:0}
+  .md-gantt-ckl-btn:hover{border-color:#059669;background:#f0fdf4}
   .md-gantt-ckl-btn.is-done{border-color:#059669;color:#fff;background:#059669}
   .md-gantt-ckl-btn.is-done:hover{background:#047857;border-color:#047857}
   .md-gantt-ckl-btn svg{display:block}
@@ -21129,8 +21127,121 @@
     if(name==='archive') refreshArchivePane();
     // 우체국 출고: 진입 시 브랜드에 맞춰 로드
     if(name==='postez') refreshPostEzPane();
+    // 메모: 진입 시 브랜드별 로드
+    if(name==='memo' && typeof lgMemoRender==='function') lgMemoRender();
   }
   window.switchLgTab=switchLgTab;
+
+  /* ===== 물류팀 메모 (브랜드별 · 여러 칸 · 완료 체크 · 완료시 하단 자동 정렬) =====
+     저장: localStorage `lgMemo_{brand}` (사용자 개인 노트, 서버 저장 없음).
+     완료 체크 시에만 재렌더(캐럿 이슈 회피). 편집 중에는 저장만 하고 DOM 유지. */
+  function _lgMemoKey(){ return 'lgMemo_' + (window._kdBrand || 'brightbeed'); }
+  function _lgMemoLoad(){
+    try{
+      const raw = localStorage.getItem(_lgMemoKey());
+      if(!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    }catch(_){ return []; }
+  }
+  function _lgMemoSave(items){
+    try{ localStorage.setItem(_lgMemoKey(), JSON.stringify(items)); }catch(_){}
+  }
+  function _lgMemoEscAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
+  function _lgMemoEscText(s){
+    // textarea 안 텍스트 — </textarea> 만 방어하면 됨 (& 는 &amp; 로만)
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  }
+  function _lgMemoSort(items){
+    // 미완료 먼저 (배열 원래 순서), 완료된 것 하단 (완료 시각 최근순)
+    const pending = items.filter(m=>!m.done);
+    const done = items.filter(m=>m.done).sort((a,b)=>(b.doneTs||0)-(a.doneTs||0));
+    return pending.concat(done);
+  }
+  function lgMemoRender(){
+    const list = document.getElementById('lgMemoList');
+    if(!list) return;
+    const items = _lgMemoLoad();
+    const sorted = _lgMemoSort(items);
+    if(!sorted.length){
+      list.innerHTML = '<div class="lg-memo-empty">메모가 없습니다. 우측 상단 "새 메모" 버튼으로 추가하세요.</div>';
+    }else{
+      list.innerHTML = sorted.map(m => {
+        const id = _lgMemoEscAttr(m.id);
+        return '<div class="lg-memo-item' + (m.done?' done':'') + '" data-id="' + id + '">'
+          + '<input type="checkbox" class="lg-memo-check" ' + (m.done?'checked':'') + ' onchange="lgMemoToggle(\''+id+'\')" aria-label="완료">'
+          + '<textarea class="lg-memo-textarea" placeholder="메모 내용..." rows="2" oninput="lgMemoUpdate(\''+id+'\', this.value)">' + _lgMemoEscText(m.text||'') + '</textarea>'
+          + '<div class="lg-memo-meta">'
+            + '<button class="lg-memo-del" onclick="lgMemoDel(\''+id+'\')" title="삭제" aria-label="삭제">×</button>'
+          + '</div>'
+        + '</div>';
+      }).join('');
+    }
+    lgMemoRefreshBadge();
+  }
+  window.lgMemoRender=lgMemoRender;
+
+  function lgMemoRefreshBadge(){
+    const items = _lgMemoLoad();
+    const pending = items.filter(m=>!m.done).length;
+    const badge = document.getElementById('lgTabMemoBadge');
+    if(badge) badge.textContent = pending ? pending.toLocaleString('ko-KR') : '—';
+    const count = document.getElementById('lgMemoCount');
+    if(count){
+      const total = items.length;
+      count.textContent = total ? (total + '건 · 진행 ' + pending) : '0건';
+    }
+  }
+  window.lgMemoRefreshBadge=lgMemoRefreshBadge;
+
+  function lgMemoAdd(){
+    const items = _lgMemoLoad();
+    const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    items.unshift({id, text:'', done:false, ts:Date.now()}); // 새 메모는 상단
+    _lgMemoSave(items);
+    lgMemoRender();
+    // 방금 추가된 textarea 에 포커스
+    setTimeout(()=>{
+      const el = document.querySelector('.lg-memo-item[data-id="'+id+'"] .lg-memo-textarea');
+      if(el){ el.focus(); }
+    }, 0);
+  }
+  window.lgMemoAdd=lgMemoAdd;
+
+  function lgMemoUpdate(id, text){
+    const items = _lgMemoLoad();
+    const it = items.find(m=>m.id===id);
+    if(!it) return;
+    it.text = text;
+    _lgMemoSave(items);
+    // 재렌더 X — textarea 캐럿 유지
+  }
+  window.lgMemoUpdate=lgMemoUpdate;
+
+  function lgMemoToggle(id){
+    const items = _lgMemoLoad();
+    const it = items.find(m=>m.id===id);
+    if(!it) return;
+    it.done = !it.done;
+    it.doneTs = it.done ? Date.now() : 0;
+    _lgMemoSave(items);
+    lgMemoRender(); // 완료 시 하단으로 자동 정렬
+  }
+  window.lgMemoToggle=lgMemoToggle;
+
+  function lgMemoDel(id){
+    const items = _lgMemoLoad();
+    const it = items.find(m=>m.id===id);
+    if(!it) return;
+    // 내용이 비어있으면 확인 없이 삭제, 아니면 confirm
+    if((it.text||'').trim() && !confirm('이 메모를 삭제할까요?')) return;
+    const idx = items.findIndex(m=>m.id===id);
+    if(idx<0) return;
+    items.splice(idx,1);
+    _lgMemoSave(items);
+    lgMemoRender();
+  }
+  window.lgMemoDel=lgMemoDel;
 
   function refreshArchivePane(){
     const brand = window._kdBrand || 'brightbeed';
