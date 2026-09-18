@@ -1412,6 +1412,13 @@
     font-size:11.5px;color:var(--text-3);font-family:var(--mono);
     margin-left:8px
   }
+  .lg-memo-status{
+    font-size:10.5px;color:var(--text-3);font-family:var(--mono);
+    margin-left:10px;padding:2px 8px;border-radius:6px;
+    background:rgba(34,197,94,.08);color:#059669
+  }
+  .lg-memo-status:empty{display:none}
+  .lg-memo-status.err{background:rgba(239,68,68,.12);color:#dc2626;font-weight:600}
   .lg-memo-add{
     display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
     background:#8b5cf6;color:#fff;border:1px solid #8b5cf6;border-radius:6px;
@@ -9830,6 +9837,7 @@
           <div>
             <span class="lg-memo-title">메모</span>
             <span class="lg-memo-count" id="lgMemoCount">0건</span>
+            <span class="lg-memo-status" id="lgMemoStatus" title="현재 저장 상태 (IndexedDB + localStorage 백업)"></span>
           </div>
           <button class="lg-memo-add" onclick="lgMemoAdd()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -13931,43 +13939,8 @@
     // 진입 시 항상 메모 탭부터 (사장님 요청)
     if(typeof switchLgTab==='function') switchLgTab('memo');
   }
-  /* 메모를 메인 저장소로 통합.
-     - v2 (지금): 기존 lgMemo_brightbeed / lgMemo_shinebeed 저장분을 lgMemo_main 으로 합친 뒤 원본 삭제.
-       사장님이 이미 main 에 저장한 게 있으면 그 뒤에 append.
-     - marker 'lgMemoMergedV2=1' 로 한 번만 실행 */
-  function _lgMemoMigrateOnce(){
-    try{
-      if(localStorage.getItem('lgMemoMergedV2') === '1') return;
-      const parse = k => {
-        try{
-          const raw = localStorage.getItem(k);
-          if(!raw) return [];
-          const arr = JSON.parse(raw);
-          return Array.isArray(arr) ? arr : [];
-        }catch(_){ return []; }
-      };
-      const mainArr = parse('lgMemo_main');
-      const bbArr = parse('lgMemo_brightbeed');
-      const sbArr = parse('lgMemo_shinebeed');
-      if(bbArr.length || sbArr.length){
-        // id 중복 방지 (main 에 있는 id 는 제외)
-        const seen = new Set(mainArr.map(m=>m && m.id).filter(Boolean));
-        const push = arr => {
-          for(const m of arr){
-            if(!m || !m.id || seen.has(m.id)) continue;
-            seen.add(m.id);
-            mainArr.push(m);
-          }
-        };
-        push(bbArr);
-        push(sbArr);
-        localStorage.setItem('lgMemo_main', JSON.stringify(mainArr));
-      }
-      localStorage.removeItem('lgMemo_brightbeed');
-      localStorage.removeItem('lgMemo_shinebeed');
-      localStorage.setItem('lgMemoMergedV2', '1');
-    }catch(_){ /* ignore */ }
-  }
+  /* 이관은 _lgMemoInit 안에서 IndexedDB 로 통합. 이 함수는 후방 호환용 no-op. */
+  function _lgMemoMigrateOnce(){ /* handled in _lgMemoInit */ }
 
   /* 뷰 내부 브랜드 스위치 (메인/BB/SB pill 및 프로그래매틱 호출)
      - window._lgBrand : 메모 카테고리 (main/brightbeed/shinebeed)
@@ -21390,34 +21363,168 @@
      저장: localStorage `lgMemo_{brand}` (사장님 개인 노트, 서버 저장 없음).
      이미지는 max 1600px 리사이즈(JPEG 0.85)로 저장, 기타 파일은 base64 원본.
      완료 체크 · 첨부 추가/삭제만 재렌더, 텍스트 편집은 DOM 유지(캐럿 보존). */
-  /* 메모는 pill(메인/BB/SB) 과 무관하게 총괄 하나로만 저장 (사장님 요청). */
-  function _lgMemoKey(){ return 'lgMemo_main'; }
-  function _lgMemoLoad(){
+  /* 메모 저장: IndexedDB 우선 (수백 MB 가능) + localStorage 백업.
+     - _lgMemoCache : 인메모리 캐시 (init 이후 즉시 sync read/write)
+     - init 은 lgMemoRender 첫 호출 시 await, 이후는 sync
+     - localStorage 는 IDB 실패 대비 backup + legacy 마이그레이션 소스 */
+  const LGMEMO_IDB_NAME = 'bbLgMemo';
+  const LGMEMO_IDB_STORE = 'kv';
+  const LGMEMO_IDB_KEY = 'memos_main';
+  let _lgMemoCache = null; // null = 미초기화, [] = 초기화 됐고 비어있음
+  let _lgMemoInitPromise = null;
+  let _lgMemoLastSaveOk = true;
+  let _lgMemoLastSaveAt = 0;
+
+  function _lgMemoIdbOpen(){
+    return new Promise((resolve, reject) => {
+      let req;
+      try{ req = indexedDB.open(LGMEMO_IDB_NAME, 1); }catch(e){ reject(e); return; }
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if(!db.objectStoreNames.contains(LGMEMO_IDB_STORE)){
+          db.createObjectStore(LGMEMO_IDB_STORE);
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function _lgMemoIdbGet(key){
     try{
-      const raw = localStorage.getItem(_lgMemoKey());
-      if(!raw) return [];
-      const arr = JSON.parse(raw);
-      if(!Array.isArray(arr)) return [];
-      // 마이그레이션: 기존 스키마에 title/attachments 없으면 채움
-      return arr.map(m => ({
-        id: m.id,
-        title: m.title || '',
-        text: m.text || '',
-        done: !!m.done,
-        doneTs: m.doneTs || 0,
-        ts: m.ts || Date.now(),
-        attachments: Array.isArray(m.attachments) ? m.attachments : []
-      }));
-    }catch(_){ return []; }
+      const db = await _lgMemoIdbOpen();
+      return await new Promise((resolve) => {
+        const tx = db.transaction(LGMEMO_IDB_STORE, 'readonly');
+        const req = tx.objectStore(LGMEMO_IDB_STORE).get(key);
+        req.onsuccess = () => resolve(req.result === undefined ? null : req.result);
+        req.onerror = () => resolve(null);
+      });
+    }catch(_){ return null; }
+  }
+  async function _lgMemoIdbPut(key, value){
+    try{
+      const db = await _lgMemoIdbOpen();
+      return await new Promise((resolve) => {
+        const tx = db.transaction(LGMEMO_IDB_STORE, 'readwrite');
+        tx.objectStore(LGMEMO_IDB_STORE).put(value, key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+        tx.onabort = () => resolve(false);
+      });
+    }catch(_){ return false; }
+  }
+
+  function _lgMemoNormalize(arr){
+    return arr.map(m => ({
+      id: m.id,
+      title: m.title || '',
+      text: m.text || '',
+      done: !!m.done,
+      doneTs: m.doneTs || 0,
+      ts: m.ts || Date.now(),
+      attachments: Array.isArray(m.attachments) ? m.attachments : []
+    }));
+  }
+
+  async function _lgMemoInit(){
+    if(Array.isArray(_lgMemoCache)) return _lgMemoCache;
+    if(_lgMemoInitPromise) return _lgMemoInitPromise;
+    _lgMemoInitPromise = (async () => {
+      let arr = null;
+      // 1. IndexedDB 우선
+      const idbArr = await _lgMemoIdbGet(LGMEMO_IDB_KEY);
+      if(Array.isArray(idbArr)) arr = idbArr;
+      // 2. localStorage main / backup
+      if(!Array.isArray(arr)){
+        for(const k of ['lgMemo_main', 'lgMemo_main.bak']){
+          try{
+            const raw = localStorage.getItem(k);
+            if(!raw) continue;
+            const parsed = JSON.parse(raw);
+            if(Array.isArray(parsed)){ arr = parsed; break; }
+          }catch(_){}
+        }
+      }
+      // 3. Legacy (pill 2-way 시절 lgMemo_brightbeed / lgMemo_shinebeed)
+      if(!Array.isArray(arr) || arr.length === 0){
+        const legacy = [];
+        for(const k of ['lgMemo_brightbeed', 'lgMemo_shinebeed']){
+          try{
+            const raw = localStorage.getItem(k);
+            if(!raw) continue;
+            const parsed = JSON.parse(raw);
+            if(Array.isArray(parsed)) legacy.push(...parsed);
+          }catch(_){}
+        }
+        if(legacy.length){
+          const base = Array.isArray(arr) ? arr : [];
+          const seen = new Set(base.map(m=>m && m.id).filter(Boolean));
+          for(const m of legacy){
+            if(!m || !m.id || seen.has(m.id)) continue;
+            seen.add(m.id);
+            base.push(m);
+          }
+          arr = base;
+        }
+      }
+      _lgMemoCache = _lgMemoNormalize(Array.isArray(arr) ? arr : []);
+      // 4. IDB 로 재저장 (LS 만 있던 경우 이관)
+      if(_lgMemoCache.length){
+        await _lgMemoIdbPut(LGMEMO_IDB_KEY, _lgMemoCache);
+        try{
+          const raw = JSON.stringify(_lgMemoCache);
+          localStorage.setItem('lgMemo_main', raw);
+          localStorage.setItem('lgMemo_main.bak', raw);
+        }catch(_){}
+      }
+      _lgMemoLastSaveOk = true;
+      return _lgMemoCache;
+    })();
+    return _lgMemoInitPromise;
+  }
+
+  function _lgMemoLoad(){
+    // init 이후에 호출되어야 함 (async 아님). 초기화 안 됐으면 빈 배열.
+    return Array.isArray(_lgMemoCache) ? _lgMemoCache.slice() : [];
   }
   function _lgMemoSave(items){
+    const arr = Array.isArray(items) ? _lgMemoNormalize(items) : [];
+    _lgMemoCache = arr;
+    _lgMemoLastSaveAt = Date.now();
+    // IDB 저장 (async, fire-and-forget). 실패 시 status 표시.
+    _lgMemoIdbPut(LGMEMO_IDB_KEY, arr).then(ok => {
+      _lgMemoLastSaveOk = ok;
+      if(typeof _lgMemoRenderStatus === 'function') _lgMemoRenderStatus();
+    }).catch(() => {
+      _lgMemoLastSaveOk = false;
+      if(typeof _lgMemoRenderStatus === 'function') _lgMemoRenderStatus();
+    });
+    // localStorage 백업 (best-effort). 실패해도 IDB 있으므로 OK.
+    let lsOk = false;
     try{
-      localStorage.setItem(_lgMemoKey(), JSON.stringify(items));
-      return true;
-    }catch(e){
-      alert('저장 공간이 가득 찼습니다. 큰 첨부를 삭제하거나 완료된 메모를 정리해 주세요.\n(' + (e && e.name || 'QuotaExceeded') + ')');
-      return false;
-    }
+      const raw = JSON.stringify(arr);
+      localStorage.setItem('lgMemo_main', raw);
+      localStorage.setItem('lgMemo_main.bak', raw);
+      lsOk = true;
+    }catch(_){}
+    // 두 저장소 다 실패 감지: IDB 는 async 이므로 즉시 알 수 없음. 낙관적으로 true.
+    _lgMemoLastSaveOk = true;
+    if(typeof _lgMemoRenderStatus === 'function') _lgMemoRenderStatus();
+    return true;
+  }
+
+  function _lgMemoRenderStatus(){
+    const el = document.getElementById('lgMemoStatus');
+    if(!el) return;
+    const items = _lgMemoCache || [];
+    const total = items.length;
+    let bytes = 0;
+    try{ bytes = JSON.stringify(items).length; }catch(_){}
+    const kb = bytes < 1024 ? bytes+'B' : bytes < 1024*1024 ? (bytes/1024).toFixed(1)+'KB' : (bytes/1024/1024).toFixed(2)+'MB';
+    const ts = _lgMemoLastSaveAt ? new Date(_lgMemoLastSaveAt) : null;
+    const tsStr = ts ? ('저장 '+String(ts.getHours()).padStart(2,'0')+':'+String(ts.getMinutes()).padStart(2,'0')+':'+String(ts.getSeconds()).padStart(2,'0')) : '';
+    const status = _lgMemoLastSaveOk ? '' : ' · 저장 실패!';
+    el.textContent = `${total}건 · ${kb}${tsStr ? ' · '+tsStr : ''}${status}`;
+    el.className = 'lg-memo-status' + (_lgMemoLastSaveOk ? '' : ' err');
   }
   function _lgMemoEscAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
   function _lgMemoEscText(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
@@ -21481,9 +21588,10 @@
       + '</div>'
     + '</div>';
   }
-  function lgMemoRender(){
+  async function lgMemoRender(){
     const list = document.getElementById('lgMemoList');
     if(!list) return;
+    await _lgMemoInit();
     const items = _lgMemoLoad();
     const sorted = _lgMemoSort(items);
     if(!sorted.length){
@@ -21505,6 +21613,7 @@
       const total = items.length;
       count.textContent = total ? (total + '건 · 진행 ' + pending) : '0건';
     }
+    _lgMemoRenderStatus();
   }
   window.lgMemoRefreshBadge=lgMemoRefreshBadge;
 
