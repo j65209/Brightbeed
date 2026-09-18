@@ -18060,6 +18060,22 @@
     if(me) return; // 이미 로그인됨
     _diaryOpenSetupPopup();
   }
+  /* 계정 선택 팝업의 select options 를 현재 STAFF 로 재빌드.
+     인사팀에서 신규 입사자가 등록되면 syncStaffAddedFromRemote 가 이 함수를 호출 → 자동 반영. */
+  function _diaryRefreshSetupOptions(){
+    const modal = document.getElementById('diarySetupModal');
+    const sel = document.getElementById('dsmSelect');
+    if(!modal || !sel) return;
+    if(modal.hidden) return;
+    const isM = (typeof isMaster === 'function') && isMaster();
+    const staffOptions = STAFF.filter(s => isM || !s.ceo);
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— 이름 선택 —</option>' +
+      staffOptions.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
+    if(cur && staffOptions.some(s=>s.name===cur)) sel.value=cur;
+  }
+  window._diaryRefreshSetupOptions = _diaryRefreshSetupOptions;
+
   function _diaryOpenSetupPopup(){
     const modal = document.getElementById('diarySetupModal');
     const sel = document.getElementById('dsmSelect');
@@ -18075,6 +18091,25 @@
     const staffOptions = STAFF.filter(s => isM || !s.ceo);
     const buildOptions = ()=> '<option value="">— 이름 선택 —</option>' +
       staffOptions.map(s=>`<option value="${_esc(s.name)}">${_esc(s.name)} · ${_esc(s.dept)}${s.team?' '+_esc(s.team):''}</option>`).join('');
+    /* 팝업 열 때 인사팀에서 방금 추가된 직원까지 반영하기 위해 최신 staff 를 한 번 pull.
+       중복 fetch 방지: 이미 진행 중이면 기존 promise 재사용. */
+    if(typeof syncStaffAddedFromRemote==='function' && !_diaryOpenSetupPopup._pullInFlight){
+      _diaryOpenSetupPopup._pullInFlight = syncStaffAddedFromRemote()
+        .catch(()=>{})
+        .finally(()=>{ _diaryOpenSetupPopup._pullInFlight = null; _diaryRefreshSetupOptions(); });
+    }
+    /* 팝업이 열려 있는 동안 20초 주기로 다시 pull — 인사팀에서 신규 등록이 즉시 반영되도록 */
+    if(!_diaryOpenSetupPopup._pollTimer){
+      _diaryOpenSetupPopup._pollTimer = setInterval(()=>{
+        const m = document.getElementById('diarySetupModal');
+        if(!m || m.hidden){
+          clearInterval(_diaryOpenSetupPopup._pollTimer);
+          _diaryOpenSetupPopup._pollTimer = null;
+          return;
+        }
+        if(typeof syncStaffAddedFromRemote==='function') syncStaffAddedFromRemote().catch(()=>{});
+      }, 20000);
+    }
     if(_diaryOpenSetupPopup._bound){
       sel.innerHTML = buildOptions();
       sel.value = '';
@@ -22226,6 +22261,8 @@
       // 첫 로드에서 changed=false여도 조직도에 이미 append된 상태를 유지하려면 강제 render 한 번
       renderOrgChartExtra();
     }
+    // 계정 선택 팝업이 열려 있으면 신규 입사자 즉시 반영
+    if(typeof _diaryRefreshSetupOptions==='function') _diaryRefreshSetupOptions();
     return changed;
   }
   window.syncStaffAddedFromRemote=syncStaffAddedFromRemote;
