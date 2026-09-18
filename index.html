@@ -1380,7 +1380,7 @@
     .lg-brand-pill{padding:5px 12px;font-size:11.5px}
   }
 
-  /* ===== 물류팀 뷰 — 메모 탭 ===== */
+  /* ===== 물류팀 뷰 — 메모 탭 (카드형: 제목 + 본문 + 첨부) ===== */
   .lg-memo-wrap{max-width:1120px;margin:0 auto;padding:0 4px}
   .lg-memo-head{
     display:flex;align-items:center;justify-content:space-between;
@@ -1395,42 +1395,126 @@
     margin-left:8px
   }
   .lg-memo-add{
-    display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
-    background:var(--text-0);color:#fff;border:1px solid var(--text-0);border-radius:6px;
+    display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
+    background:#8b5cf6;color:#fff;border:1px solid #8b5cf6;border-radius:6px;
     font-size:12px;font-weight:600;cursor:pointer;transition:opacity .12s;
-    font-family:var(--sans)
+    font-family:var(--sans);box-shadow:0 2px 8px rgba(139,92,246,.28)
   }
-  .lg-memo-add:hover{opacity:.85}
-  .lg-memo-list{display:flex;flex-direction:column;gap:10px}
+  .lg-memo-add:hover{opacity:.9}
+  .lg-memo-list{display:flex;flex-direction:column;gap:14px}
   .lg-memo-item{
-    display:flex;align-items:flex-start;gap:10px;
-    padding:12px 14px;border:1px solid var(--line);border-radius:10px;
-    background:var(--bg-1);transition:opacity .15s, background .15s
+    display:flex;flex-direction:column;gap:10px;
+    padding:14px 16px;border:1px solid var(--line);border-radius:12px;
+    background:var(--bg-1);transition:opacity .15s, background .15s, border-color .12s;
+    position:relative
   }
-  .lg-memo-item.done{opacity:.5;background:var(--bg-2)}
+  .lg-memo-item:hover{border-color:var(--line-2)}
+  .lg-memo-item.done{opacity:.55;background:var(--bg-2)}
+  .lg-memo-item.dragover{border-color:#8b5cf6;background:rgba(139,92,246,.06)}
+
+  /* Row 1: 체크박스 + 제목 + 삭제 */
+  .lg-memo-row-head{display:flex;align-items:center;gap:10px}
   .lg-memo-check{
-    flex:none;width:20px;height:20px;margin-top:2px;
+    flex:none;width:20px;height:20px;
     cursor:pointer;accent-color:#8b5cf6
   }
-  .lg-memo-textarea{
-    flex:1;min-height:44px;padding:6px 8px;
-    background:transparent;border:none;outline:none;resize:vertical;
-    font-family:var(--sans);font-size:13.5px;line-height:1.5;color:var(--text-1);
-    letter-spacing:-.1px
+  .lg-memo-title-input{
+    flex:1;padding:6px 8px;
+    background:transparent;border:none;outline:none;
+    font-family:var(--sans);font-size:14.5px;font-weight:600;
+    color:var(--text-1);letter-spacing:-.15px
   }
+  .lg-memo-title-input::placeholder{color:var(--text-3);font-weight:500}
+  .lg-memo-item.done .lg-memo-title-input{text-decoration:line-through;color:var(--text-3)}
+  .lg-memo-del{
+    flex:none;background:none;border:none;cursor:pointer;padding:4px 8px;
+    color:var(--text-3);font-size:18px;line-height:1;
+    opacity:.5;transition:opacity .12s;border-radius:4px
+  }
+  .lg-memo-del:hover{opacity:1;color:#ef4444;background:rgba(239,68,68,.08)}
+
+  /* Row 2: 본문 textarea */
+  .lg-memo-textarea{
+    width:100%;min-height:80px;padding:8px 10px;
+    background:var(--bg-0);border:1px solid var(--line);border-radius:8px;outline:none;
+    resize:vertical;
+    font-family:var(--sans);font-size:13.5px;line-height:1.55;color:var(--text-1);
+    letter-spacing:-.1px;box-sizing:border-box
+  }
+  .lg-memo-textarea:focus{border-color:#8b5cf6}
   .lg-memo-item.done .lg-memo-textarea{text-decoration:line-through;color:var(--text-3)}
   .lg-memo-textarea::placeholder{color:var(--text-3)}
-  .lg-memo-meta{
-    flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;
-    font-size:10.5px;color:var(--text-3);font-family:var(--mono);
-    padding-top:4px;min-width:52px
+
+  /* Row 3: 첨부 갤러리 + 파일 추가 버튼 */
+  .lg-memo-attach{display:flex;flex-direction:column;gap:8px}
+  .lg-memo-attach-grid{
+    display:flex;flex-wrap:wrap;gap:8px
   }
-  .lg-memo-del{
-    background:none;border:none;cursor:pointer;padding:2px 4px;
-    color:var(--text-3);font-size:14px;line-height:1;
-    opacity:.5;transition:opacity .12s
+  .lg-memo-attach-grid:empty{display:none}
+  .lg-memo-attach-item{
+    position:relative;border-radius:8px;overflow:hidden;
+    border:1px solid var(--line);background:var(--bg-2);
+    transition:border-color .12s
   }
-  .lg-memo-del:hover{opacity:1;color:#ef4444}
+  .lg-memo-attach-item:hover{border-color:var(--line-2)}
+  .lg-memo-attach-item.att-image{width:120px;height:120px}
+  .lg-memo-attach-item.att-image img{
+    width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in
+  }
+  .lg-memo-attach-item.att-file{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 12px;min-width:180px;max-width:260px
+  }
+  .lg-memo-attach-file-icon{
+    flex:none;width:36px;height:36px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg-1);color:var(--text-2);
+    font-size:11px;font-weight:700;letter-spacing:.02em;
+    font-family:var(--mono);text-transform:uppercase
+  }
+  .lg-memo-attach-file-icon[data-ext="xlsx"],
+  .lg-memo-attach-file-icon[data-ext="xls"],
+  .lg-memo-attach-file-icon[data-ext="csv"]{background:#22c55e;color:#fff}
+  .lg-memo-attach-file-icon[data-ext="pdf"]{background:#ef4444;color:#fff}
+  .lg-memo-attach-file-icon[data-ext="doc"],
+  .lg-memo-attach-file-icon[data-ext="docx"]{background:#2563eb;color:#fff}
+  .lg-memo-attach-file-icon[data-ext="zip"]{background:#6b7280;color:#fff}
+  .lg-memo-attach-file-body{flex:1;min-width:0}
+  .lg-memo-attach-file-name{
+    font-size:12px;color:var(--text-1);font-weight:500;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-family:var(--sans);letter-spacing:-.1px
+  }
+  .lg-memo-attach-file-name a{color:inherit;text-decoration:none}
+  .lg-memo-attach-file-name a:hover{color:#8b5cf6}
+  .lg-memo-attach-file-size{
+    font-size:10.5px;color:var(--text-3);
+    font-family:var(--mono);margin-top:2px
+  }
+  .lg-memo-attach-del{
+    position:absolute;top:4px;right:4px;
+    width:22px;height:22px;border-radius:50%;
+    background:rgba(0,0,0,.65);color:#fff;
+    border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;line-height:1;
+    opacity:0;transition:opacity .12s
+  }
+  .lg-memo-attach-item:hover .lg-memo-attach-del{opacity:1}
+  .lg-memo-attach-del:hover{background:#ef4444}
+  .lg-memo-attach-actions{
+    display:flex;align-items:center;gap:10px;
+    font-size:11px;color:var(--text-3);font-family:var(--sans)
+  }
+  .lg-memo-attach-btn{
+    display:inline-flex;align-items:center;gap:6px;padding:5px 10px;
+    background:var(--bg-2);border:1px dashed var(--line-2);border-radius:6px;
+    font-size:11.5px;color:var(--text-2);cursor:pointer;
+    transition:all .12s;font-family:var(--sans)
+  }
+  .lg-memo-attach-btn:hover{background:var(--bg-3);border-color:#8b5cf6;color:var(--text-1)}
+  .lg-memo-attach-hint{font-size:10.5px;color:var(--text-3);letter-spacing:-.05px}
+
   .lg-memo-empty{
     text-align:center;padding:40px 20px;color:var(--text-3);
     font-size:13px;font-family:var(--sans)
@@ -1438,9 +1522,11 @@
   @media (max-width:720px){
     .lg-memo-wrap{padding:0 10px}
     .lg-memo-head{padding:0 0 10px}
-    .lg-memo-item{padding:10px 12px;gap:8px}
-    .lg-memo-textarea{font-size:13px}
-    .lg-memo-meta{min-width:44px}
+    .lg-memo-item{padding:12px;gap:8px}
+    .lg-memo-textarea{font-size:13px;min-height:70px}
+    .lg-memo-title-input{font-size:14px}
+    .lg-memo-attach-item.att-image{width:96px;height:96px}
+    .lg-memo-attach-hint{display:none}
   }
 
   /* ===== 우체국 출고 (ez-*) — EZ 국제 송장 입력·모니터링 ===== */
@@ -8643,8 +8729,8 @@
       </a>
     </div>
 
-    <!-- 팀 카드 1행: 인사팀 · 업무일지 -->
-    <div class="hero-row hero-row-1">
+    <!-- 팀 카드: 3열 그리드 통합 (인사·업무일지·물류 / MD·마케팅·디자인·벤더) -->
+    <div class="hero-row hero-row-3">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
         <button class="btn-neon btn-hr" id="hrBtn" onclick="triggerHR()">
@@ -8660,10 +8746,7 @@
           <span id="diaryBtnLabel">업무일지</span>
         </button>
       </section>
-    </div>
 
-    <!-- 팀 카드: 물류팀 (BB/SB 통합, 뷰 안에서 브랜드 스위치) -->
-    <div class="hero-row hero-row-1">
       <section class="hero hero-lg">
         <div class="hero-eyebrow">LOGISTICS</div>
         <button class="btn-neon btn-lg" id="lgBtn" onclick="triggerLogistics()">
@@ -8671,10 +8754,7 @@
           <span>물류팀</span>
         </button>
       </section>
-    </div>
 
-    <!-- 팀 카드 2행: CS / MD / 마케팅 / 벤더 -->
-    <div class="hero-row hero-row-4">
       <!-- CS팀 카드 잠시 숨김 (2026-09-14). 복원하려면 hidden 속성 제거 -->
       <section class="hero hero-cs" hidden>
         <div class="hero-eyebrow">CS</div>
@@ -9468,9 +9548,14 @@
       <button class="lg-brand-pill" data-brand="shinebeed" onclick="switchLgBrand('shinebeed')" role="tab" aria-selected="false">샤인비드</button>
     </div>
 
-    <!-- 탭 버튼: 최근 발주 내역 ↔ 발주서 리스트 ↔ 우체국 출고 ↔ 메모 -->
+    <!-- 탭 버튼: 메모 · 최근 발주 · 발주서 리스트 · 우체국 출고 (진입 시 메모부터) -->
     <div class="lg-tabs" role="tablist">
-      <button class="lg-tab active" data-tab="recent" onclick="switchLgTab('recent')" role="tab" aria-selected="true">
+      <button class="lg-tab active" data-tab="memo" onclick="switchLgTab('memo')" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+        메모
+        <span class="lg-tab-badge" id="lgTabMemoBadge">—</span>
+      </button>
+      <button class="lg-tab" data-tab="recent" onclick="switchLgTab('recent')" role="tab" aria-selected="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="12 6 12 12 16 14"/><circle cx="12" cy="12" r="10"/></svg>
         최근 발주 내역
       </button>
@@ -9484,15 +9569,10 @@
         우체국 출고
         <span class="lg-tab-badge" id="lgTabPostezBadge">—</span>
       </button>
-      <button class="lg-tab" data-tab="memo" onclick="switchLgTab('memo')" role="tab" aria-selected="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-        메모
-        <span class="lg-tab-badge" id="lgTabMemoBadge">—</span>
-      </button>
     </div>
 
     <!-- 최근 발주 내역 — 콰이디에어 실시간 -->
-    <div class="po-wrap lg-pane" data-pane="recent">
+    <div class="po-wrap lg-pane" data-pane="recent" style="display:none">
       <div class="po-section">
         <div class="po-section-head">
           <div class="po-section-title">최근 발주 내역 <span class="kd-section-sub">콰이디에어 실시간</span></div>
@@ -9650,7 +9730,7 @@
     </div>
 
     <!-- ============ 메모 탭 (여러 칸 · 완료 체크 · 자동 하단 정렬) ============ -->
-    <div class="lg-pane" data-pane="memo" style="display:none">
+    <div class="lg-pane" data-pane="memo">
       <div class="lg-memo-wrap">
         <div class="lg-memo-head">
           <div>
@@ -13730,7 +13810,8 @@
     }
     switchLgBrand(target);
     showView('viewLg');
-    if(document.querySelector('.lg-tab.active[data-tab="memo"]') && typeof lgMemoRender==='function') lgMemoRender();
+    // 진입 시 항상 메모 탭부터 (사장님 요청)
+    if(typeof switchLgTab==='function') switchLgTab('memo');
   }
   /* 뷰 내부 브랜드 스위치 (BB/SB pill 및 프로그래매틱 호출) */
   function switchLgBrand(brand){
@@ -21141,31 +21222,99 @@
   }
   window.switchLgTab=switchLgTab;
 
-  /* ===== 물류팀 메모 (브랜드별 · 여러 칸 · 완료 체크 · 완료시 하단 자동 정렬) =====
-     저장: localStorage `lgMemo_{brand}` (사용자 개인 노트, 서버 저장 없음).
-     완료 체크 시에만 재렌더(캐럿 이슈 회피). 편집 중에는 저장만 하고 DOM 유지. */
+  /* ===== 물류팀 메모 (브랜드별 · 카드형: 제목 + 본문 + 첨부(이미지/엑셀)) =====
+     저장: localStorage `lgMemo_{brand}` (사장님 개인 노트, 서버 저장 없음).
+     이미지는 max 1600px 리사이즈(JPEG 0.85)로 저장, 기타 파일은 base64 원본.
+     완료 체크 · 첨부 추가/삭제만 재렌더, 텍스트 편집은 DOM 유지(캐럿 보존). */
   function _lgMemoKey(){ return 'lgMemo_' + (window._kdBrand || 'brightbeed'); }
   function _lgMemoLoad(){
     try{
       const raw = localStorage.getItem(_lgMemoKey());
       if(!raw) return [];
       const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
+      if(!Array.isArray(arr)) return [];
+      // 마이그레이션: 기존 스키마에 title/attachments 없으면 채움
+      return arr.map(m => ({
+        id: m.id,
+        title: m.title || '',
+        text: m.text || '',
+        done: !!m.done,
+        doneTs: m.doneTs || 0,
+        ts: m.ts || Date.now(),
+        attachments: Array.isArray(m.attachments) ? m.attachments : []
+      }));
     }catch(_){ return []; }
   }
   function _lgMemoSave(items){
-    try{ localStorage.setItem(_lgMemoKey(), JSON.stringify(items)); }catch(_){}
+    try{
+      localStorage.setItem(_lgMemoKey(), JSON.stringify(items));
+      return true;
+    }catch(e){
+      alert('저장 공간이 가득 찼습니다. 큰 첨부를 삭제하거나 완료된 메모를 정리해 주세요.\n(' + (e && e.name || 'QuotaExceeded') + ')');
+      return false;
+    }
   }
   function _lgMemoEscAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
-  function _lgMemoEscText(s){
-    // textarea 안 텍스트 — </textarea> 만 방어하면 됨 (& 는 &amp; 로만)
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  function _lgMemoEscText(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function _lgMemoExt(name){
+    const m = String(name||'').match(/\.([a-zA-Z0-9]{1,6})$/);
+    return m ? m[1].toLowerCase() : '';
+  }
+  function _lgMemoFmtSize(n){
+    n = +n || 0;
+    if(n < 1024) return n + ' B';
+    if(n < 1024*1024) return (n/1024).toFixed(1) + ' KB';
+    return (n/1024/1024).toFixed(2) + ' MB';
   }
   function _lgMemoSort(items){
-    // 미완료 먼저 (배열 원래 순서), 완료된 것 하단 (완료 시각 최근순)
     const pending = items.filter(m=>!m.done);
     const done = items.filter(m=>m.done).sort((a,b)=>(b.doneTs||0)-(a.doneTs||0));
     return pending.concat(done);
+  }
+  function _lgMemoAttachHtml(memoId, att){
+    const attId = _lgMemoEscAttr(att.id);
+    const mid = _lgMemoEscAttr(memoId);
+    const isImg = /^image\//.test(att.type || '') || /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(att.name||'');
+    if(isImg){
+      return '<div class="lg-memo-attach-item att-image" data-att-id="'+attId+'">'
+        + '<img src="'+_lgMemoEscAttr(att.dataUrl)+'" alt="'+_lgMemoEscAttr(att.name||'image')+'" onclick="lgMemoOpenImage(\''+mid+'\',\''+attId+'\')">'
+        + '<button class="lg-memo-attach-del" onclick="lgMemoDelAttach(\''+mid+'\',\''+attId+'\')" title="삭제">×</button>'
+      + '</div>';
+    }
+    const ext = _lgMemoExt(att.name);
+    const displayExt = (ext || 'FILE').slice(0,4).toUpperCase();
+    const download = _lgMemoEscAttr(att.name || 'file');
+    return '<div class="lg-memo-attach-item att-file" data-att-id="'+attId+'">'
+      + '<div class="lg-memo-attach-file-icon" data-ext="'+_lgMemoEscAttr(ext)+'">'+_lgMemoEscText(displayExt)+'</div>'
+      + '<div class="lg-memo-attach-file-body">'
+        + '<div class="lg-memo-attach-file-name"><a href="'+_lgMemoEscAttr(att.dataUrl)+'" download="'+download+'">'+_lgMemoEscText(att.name||'file')+'</a></div>'
+        + '<div class="lg-memo-attach-file-size">'+_lgMemoEscText(_lgMemoFmtSize(att.size))+'</div>'
+      + '</div>'
+      + '<button class="lg-memo-attach-del" onclick="lgMemoDelAttach(\''+mid+'\',\''+attId+'\')" title="삭제">×</button>'
+    + '</div>';
+  }
+  function _lgMemoItemHtml(m){
+    const id = _lgMemoEscAttr(m.id);
+    const attHtml = (m.attachments||[]).map(a=>_lgMemoAttachHtml(m.id, a)).join('');
+    return '<div class="lg-memo-item' + (m.done?' done':'') + '" data-id="'+id+'" ondragover="lgMemoDragOver(event, \''+id+'\')" ondragleave="lgMemoDragLeave(event, \''+id+'\')" ondrop="lgMemoDrop(event, \''+id+'\')">'
+      + '<div class="lg-memo-row-head">'
+        + '<input type="checkbox" class="lg-memo-check" ' + (m.done?'checked':'') + ' onchange="lgMemoToggle(\''+id+'\')" aria-label="완료">'
+        + '<input type="text" class="lg-memo-title-input" placeholder="제목 (선택)" value="'+_lgMemoEscAttr(m.title||'')+'" oninput="lgMemoUpdateTitle(\''+id+'\', this.value)">'
+        + '<button class="lg-memo-del" onclick="lgMemoDel(\''+id+'\')" title="삭제" aria-label="삭제">×</button>'
+      + '</div>'
+      + '<textarea class="lg-memo-textarea" placeholder="내용을 입력하세요. 이미지는 붙여넣거나 드래그해서 추가할 수 있습니다." oninput="lgMemoUpdateText(\''+id+'\', this.value)" onpaste="lgMemoPaste(event, \''+id+'\')">'+_lgMemoEscText(m.text||'')+'</textarea>'
+      + '<div class="lg-memo-attach">'
+        + '<div class="lg-memo-attach-grid" data-attach-grid="'+id+'">'+attHtml+'</div>'
+        + '<div class="lg-memo-attach-actions">'
+          + '<label class="lg-memo-attach-btn">'
+            + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
+            + '사진·파일 추가'
+            + '<input type="file" multiple accept="image/*,.xlsx,.xls,.csv,.pdf,.doc,.docx,.zip,.txt,.hwp" style="display:none" onchange="lgMemoAttachInput(event, \''+id+'\')">'
+          + '</label>'
+          + '<span class="lg-memo-attach-hint">붙여넣기(Ctrl+V) · 드래그도 가능</span>'
+        + '</div>'
+      + '</div>'
+    + '</div>';
   }
   function lgMemoRender(){
     const list = document.getElementById('lgMemoList');
@@ -21173,18 +21322,9 @@
     const items = _lgMemoLoad();
     const sorted = _lgMemoSort(items);
     if(!sorted.length){
-      list.innerHTML = '<div class="lg-memo-empty">메모가 없습니다. 우측 상단 "새 메모" 버튼으로 추가하세요.</div>';
+      list.innerHTML = '<div class="lg-memo-empty">메모가 없습니다. 우측 상단 "새 메모" 버튼으로 추가하세요.<br>제목·본문·이미지/엑셀 첨부까지 저장됩니다.</div>';
     }else{
-      list.innerHTML = sorted.map(m => {
-        const id = _lgMemoEscAttr(m.id);
-        return '<div class="lg-memo-item' + (m.done?' done':'') + '" data-id="' + id + '">'
-          + '<input type="checkbox" class="lg-memo-check" ' + (m.done?'checked':'') + ' onchange="lgMemoToggle(\''+id+'\')" aria-label="완료">'
-          + '<textarea class="lg-memo-textarea" placeholder="메모 내용..." rows="2" oninput="lgMemoUpdate(\''+id+'\', this.value)">' + _lgMemoEscText(m.text||'') + '</textarea>'
-          + '<div class="lg-memo-meta">'
-            + '<button class="lg-memo-del" onclick="lgMemoDel(\''+id+'\')" title="삭제" aria-label="삭제">×</button>'
-          + '</div>'
-        + '</div>';
-      }).join('');
+      list.innerHTML = sorted.map(_lgMemoItemHtml).join('');
     }
     lgMemoRefreshBadge();
   }
@@ -21206,26 +21346,35 @@
   function lgMemoAdd(){
     const items = _lgMemoLoad();
     const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-    items.unshift({id, text:'', done:false, ts:Date.now()}); // 새 메모는 상단
-    _lgMemoSave(items);
+    items.unshift({id, title:'', text:'', done:false, ts:Date.now(), attachments:[]});
+    if(!_lgMemoSave(items)) return;
     lgMemoRender();
-    // 방금 추가된 textarea 에 포커스
     setTimeout(()=>{
-      const el = document.querySelector('.lg-memo-item[data-id="'+id+'"] .lg-memo-textarea');
+      const el = document.querySelector('.lg-memo-item[data-id="'+id+'"] .lg-memo-title-input');
       if(el){ el.focus(); }
     }, 0);
   }
   window.lgMemoAdd=lgMemoAdd;
 
-  function lgMemoUpdate(id, text){
+  function lgMemoUpdateTitle(id, val){
     const items = _lgMemoLoad();
     const it = items.find(m=>m.id===id);
     if(!it) return;
-    it.text = text;
+    it.title = val;
     _lgMemoSave(items);
-    // 재렌더 X — textarea 캐럿 유지
   }
-  window.lgMemoUpdate=lgMemoUpdate;
+  window.lgMemoUpdateTitle=lgMemoUpdateTitle;
+
+  function lgMemoUpdateText(id, val){
+    const items = _lgMemoLoad();
+    const it = items.find(m=>m.id===id);
+    if(!it) return;
+    it.text = val;
+    _lgMemoSave(items);
+  }
+  window.lgMemoUpdateText=lgMemoUpdateText;
+  // 하위 호환 (기존 코드에서 호출될 수 있음)
+  window.lgMemoUpdate=lgMemoUpdateText;
 
   function lgMemoToggle(id){
     const items = _lgMemoLoad();
@@ -21234,7 +21383,7 @@
     it.done = !it.done;
     it.doneTs = it.done ? Date.now() : 0;
     _lgMemoSave(items);
-    lgMemoRender(); // 완료 시 하단으로 자동 정렬
+    lgMemoRender();
   }
   window.lgMemoToggle=lgMemoToggle;
 
@@ -21242,8 +21391,8 @@
     const items = _lgMemoLoad();
     const it = items.find(m=>m.id===id);
     if(!it) return;
-    // 내용이 비어있으면 확인 없이 삭제, 아니면 confirm
-    if((it.text||'').trim() && !confirm('이 메모를 삭제할까요?')) return;
+    const hasContent = (it.title||'').trim() || (it.text||'').trim() || (it.attachments||[]).length;
+    if(hasContent && !confirm('이 메모를 삭제할까요? (첨부 포함)')) return;
     const idx = items.findIndex(m=>m.id===id);
     if(idx<0) return;
     items.splice(idx,1);
@@ -21251,6 +21400,172 @@
     lgMemoRender();
   }
   window.lgMemoDel=lgMemoDel;
+
+  /* ===== 메모 첨부 (이미지/엑셀 등) ===== */
+  const LG_MEMO_MAX_IMG = 1600; // px (max side)
+  const LG_MEMO_MAX_FILE_MB = 8; // 개별 파일 8MB 초과 시 경고
+
+  function _lgMemoIsImage(file){
+    return /^image\//.test(file.type || '') || /\.(png|jpe?g|gif|webp|bmp)$/i.test(file.name||'');
+  }
+
+  function _lgMemoReadImage(file){
+    // Canvas 리사이즈 (max side 1600px, JPEG 0.85) — localStorage 부담 감소
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          let {width, height} = img;
+          const max = LG_MEMO_MAX_IMG;
+          if(width > max || height > max){
+            const scale = Math.min(max/width, max/height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          const isPng = /^image\/png$/i.test(file.type||'');
+          resolve(canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.85));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function _lgMemoReadFile(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function _lgMemoAttachFiles(id, files){
+    if(!files || !files.length) return;
+    const items = _lgMemoLoad();
+    const it = items.find(m=>m.id===id);
+    if(!it) return;
+    if(!it.attachments) it.attachments = [];
+    const grid = document.querySelector('[data-attach-grid="'+id+'"]');
+    for(const f of files){
+      if(!f) continue;
+      if(f.size > LG_MEMO_MAX_FILE_MB * 1024 * 1024){
+        if(!confirm(`"${f.name}" 은 ${_lgMemoFmtSize(f.size)} 로 큽니다. 저장 공간이 부족할 수 있어요. 계속할까요?`)) continue;
+      }
+      try{
+        const isImg = _lgMemoIsImage(f);
+        const dataUrl = isImg ? await _lgMemoReadImage(f) : await _lgMemoReadFile(f);
+        const att = {
+          id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+          name: f.name || (isImg ? 'image.png' : 'file'),
+          type: f.type || (isImg ? 'image/*' : 'application/octet-stream'),
+          dataUrl,
+          size: f.size
+        };
+        it.attachments.push(att);
+        if(!_lgMemoSave(items)){
+          it.attachments.pop();
+          break;
+        }
+        // DOM 에 하나만 append (전체 재렌더 X)
+        if(grid){
+          const tmp = document.createElement('div');
+          tmp.innerHTML = _lgMemoAttachHtml(id, att);
+          grid.appendChild(tmp.firstChild);
+        }
+      }catch(e){
+        console.error('memo attach failed', e);
+        alert('첨부 실패: ' + (f.name||'file'));
+      }
+    }
+  }
+
+  function lgMemoAttachInput(ev, id){
+    const files = ev.target.files;
+    _lgMemoAttachFiles(id, files);
+    ev.target.value = ''; // 같은 파일 다시 선택 가능하도록
+  }
+  window.lgMemoAttachInput=lgMemoAttachInput;
+
+  function lgMemoDelAttach(memoId, attId){
+    const items = _lgMemoLoad();
+    const it = items.find(m=>m.id===memoId);
+    if(!it || !it.attachments) return;
+    const idx = it.attachments.findIndex(a=>a.id===attId);
+    if(idx<0) return;
+    if(!confirm('이 첨부를 삭제할까요?')) return;
+    it.attachments.splice(idx,1);
+    _lgMemoSave(items);
+    const el = document.querySelector('.lg-memo-item[data-id="'+memoId+'"] [data-att-id="'+attId+'"]');
+    if(el) el.remove();
+  }
+  window.lgMemoDelAttach=lgMemoDelAttach;
+
+  function lgMemoOpenImage(memoId, attId){
+    const items = _lgMemoLoad();
+    const it = items.find(m=>m.id===memoId);
+    if(!it) return;
+    const a = (it.attachments||[]).find(x=>x.id===attId);
+    if(!a) return;
+    const w = window.open('', '_blank');
+    if(!w) return;
+    w.document.title = a.name || 'image';
+    w.document.body.style.cssText = 'margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh';
+    const img = w.document.createElement('img');
+    img.src = a.dataUrl;
+    img.style.cssText = 'max-width:100%;max-height:100vh;display:block';
+    w.document.body.appendChild(img);
+  }
+  window.lgMemoOpenImage=lgMemoOpenImage;
+
+  /* Paste (Ctrl+V) — 클립보드 이미지 지원 */
+  function lgMemoPaste(ev, id){
+    const items = (ev.clipboardData || window.clipboardData || {}).items || [];
+    const files = [];
+    for(const it of items){
+      if(it.kind === 'file'){
+        const f = it.getAsFile();
+        if(f) files.push(f);
+      }
+    }
+    if(files.length){
+      ev.preventDefault(); // 텍스트로 안 들어가게 (이미지 base64 텍스트 방지)
+      _lgMemoAttachFiles(id, files);
+    }
+  }
+  window.lgMemoPaste=lgMemoPaste;
+
+  /* Drag & drop — 카드에 파일 떨어뜨리기 */
+  function lgMemoDragOver(ev, id){
+    if(!ev.dataTransfer || !ev.dataTransfer.types) return;
+    if(!ev.dataTransfer.types.includes('Files')) return;
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = 'copy';
+    const el = document.querySelector('.lg-memo-item[data-id="'+id+'"]');
+    if(el) el.classList.add('dragover');
+  }
+  window.lgMemoDragOver=lgMemoDragOver;
+
+  function lgMemoDragLeave(ev, id){
+    const el = document.querySelector('.lg-memo-item[data-id="'+id+'"]');
+    if(el) el.classList.remove('dragover');
+  }
+  window.lgMemoDragLeave=lgMemoDragLeave;
+
+  function lgMemoDrop(ev, id){
+    ev.preventDefault();
+    const el = document.querySelector('.lg-memo-item[data-id="'+id+'"]');
+    if(el) el.classList.remove('dragover');
+    const files = ev.dataTransfer && ev.dataTransfer.files;
+    if(files && files.length) _lgMemoAttachFiles(id, files);
+  }
+  window.lgMemoDrop=lgMemoDrop;
 
   function refreshArchivePane(){
     const brand = window._kdBrand || 'brightbeed';
