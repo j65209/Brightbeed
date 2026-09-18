@@ -13913,19 +13913,41 @@
     // 진입 시 항상 메모 탭부터 (사장님 요청)
     if(typeof switchLgTab==='function') switchLgTab('memo');
   }
-  /* 기존 저장분(pill 2-way 시절 lgMemo_brightbeed) 을 lgMemo_main 으로 이관.
-     - lgMemo_main 이 이미 있으면 건드리지 않음 (사장님이 main 에 이미 뭔가 저장한 경우)
-     - marker 로 한 번만 실행 */
+  /* 메모를 메인 저장소로 통합.
+     - v2 (지금): 기존 lgMemo_brightbeed / lgMemo_shinebeed 저장분을 lgMemo_main 으로 합친 뒤 원본 삭제.
+       사장님이 이미 main 에 저장한 게 있으면 그 뒤에 append.
+     - marker 'lgMemoMergedV2=1' 로 한 번만 실행 */
   function _lgMemoMigrateOnce(){
     try{
-      if(localStorage.getItem('lgMemoMigratedToMain') === '1') return;
-      const mainRaw = localStorage.getItem('lgMemo_main');
-      const bbRaw = localStorage.getItem('lgMemo_brightbeed');
-      if(!mainRaw && bbRaw){
-        localStorage.setItem('lgMemo_main', bbRaw);
-        localStorage.removeItem('lgMemo_brightbeed');
+      if(localStorage.getItem('lgMemoMergedV2') === '1') return;
+      const parse = k => {
+        try{
+          const raw = localStorage.getItem(k);
+          if(!raw) return [];
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? arr : [];
+        }catch(_){ return []; }
+      };
+      const mainArr = parse('lgMemo_main');
+      const bbArr = parse('lgMemo_brightbeed');
+      const sbArr = parse('lgMemo_shinebeed');
+      if(bbArr.length || sbArr.length){
+        // id 중복 방지 (main 에 있는 id 는 제외)
+        const seen = new Set(mainArr.map(m=>m && m.id).filter(Boolean));
+        const push = arr => {
+          for(const m of arr){
+            if(!m || !m.id || seen.has(m.id)) continue;
+            seen.add(m.id);
+            mainArr.push(m);
+          }
+        };
+        push(bbArr);
+        push(sbArr);
+        localStorage.setItem('lgMemo_main', JSON.stringify(mainArr));
       }
-      localStorage.setItem('lgMemoMigratedToMain', '1');
+      localStorage.removeItem('lgMemo_brightbeed');
+      localStorage.removeItem('lgMemo_shinebeed');
+      localStorage.setItem('lgMemoMergedV2', '1');
     }catch(_){ /* ignore */ }
   }
 
@@ -21349,7 +21371,8 @@
      저장: localStorage `lgMemo_{brand}` (사장님 개인 노트, 서버 저장 없음).
      이미지는 max 1600px 리사이즈(JPEG 0.85)로 저장, 기타 파일은 base64 원본.
      완료 체크 · 첨부 추가/삭제만 재렌더, 텍스트 편집은 DOM 유지(캐럿 보존). */
-  function _lgMemoKey(){ return 'lgMemo_' + (window._lgBrand || 'main'); }
+  /* 메모는 pill(메인/BB/SB) 과 무관하게 총괄 하나로만 저장 (사장님 요청). */
+  function _lgMemoKey(){ return 'lgMemo_main'; }
   function _lgMemoLoad(){
     try{
       const raw = localStorage.getItem(_lgMemoKey());
