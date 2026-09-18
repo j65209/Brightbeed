@@ -1355,6 +1355,94 @@
     .lg-tab-badge{font-size:9.5px;padding:1px 5px}
   }
 
+  /* ===== 물류팀 뷰 — 브랜드 스위치 pill (브라이트비드 ↔ 샤인비드) ===== */
+  .lg-brand-switch{
+    display:flex;gap:6px;padding:0 4px 10px;max-width:1120px;margin:0 auto;
+  }
+  .lg-brand-pill{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:6px 14px;font-size:12px;font-weight:600;color:var(--text-2);
+    background:var(--bg-1);border:1px solid var(--line);border-radius:999px;
+    cursor:pointer;transition:all .12s;
+    font-family:var(--sans);letter-spacing:-.1px;
+  }
+  .lg-brand-pill:hover{background:var(--bg-2);border-color:var(--line-2);color:var(--text-1)}
+  .lg-brand-pill.active{
+    background:#8b5cf6;color:#fff;border-color:#8b5cf6;
+    box-shadow:0 2px 8px rgba(139,92,246,.28)
+  }
+  .lg-brand-pill.active[data-brand="shinebeed"]{
+    background:#0284c7;border-color:#0284c7;
+    box-shadow:0 2px 8px rgba(2,132,199,.28)
+  }
+  @media (max-width:720px){
+    .lg-brand-switch{padding:0 10px 8px}
+    .lg-brand-pill{padding:5px 12px;font-size:11.5px}
+  }
+
+  /* ===== 물류팀 뷰 — 메모 탭 ===== */
+  .lg-memo-wrap{max-width:1120px;margin:0 auto;padding:0 4px}
+  .lg-memo-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;padding:4px 2px 14px;flex-wrap:wrap
+  }
+  .lg-memo-title{
+    font-size:14px;font-weight:600;color:var(--text-1);
+    font-family:var(--sans);letter-spacing:-.1px
+  }
+  .lg-memo-count{
+    font-size:11.5px;color:var(--text-3);font-family:var(--mono);
+    margin-left:8px
+  }
+  .lg-memo-add{
+    display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+    background:var(--text-0);color:#fff;border:1px solid var(--text-0);border-radius:6px;
+    font-size:12px;font-weight:600;cursor:pointer;transition:opacity .12s;
+    font-family:var(--sans)
+  }
+  .lg-memo-add:hover{opacity:.85}
+  .lg-memo-list{display:flex;flex-direction:column;gap:10px}
+  .lg-memo-item{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+    background:var(--bg-1);transition:opacity .15s, background .15s
+  }
+  .lg-memo-item.done{opacity:.5;background:var(--bg-2)}
+  .lg-memo-check{
+    flex:none;width:20px;height:20px;margin-top:2px;
+    cursor:pointer;accent-color:#8b5cf6
+  }
+  .lg-memo-textarea{
+    flex:1;min-height:44px;padding:6px 8px;
+    background:transparent;border:none;outline:none;resize:vertical;
+    font-family:var(--sans);font-size:13.5px;line-height:1.5;color:var(--text-1);
+    letter-spacing:-.1px
+  }
+  .lg-memo-item.done .lg-memo-textarea{text-decoration:line-through;color:var(--text-3)}
+  .lg-memo-textarea::placeholder{color:var(--text-3)}
+  .lg-memo-meta{
+    flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;
+    font-size:10.5px;color:var(--text-3);font-family:var(--mono);
+    padding-top:4px;min-width:52px
+  }
+  .lg-memo-del{
+    background:none;border:none;cursor:pointer;padding:2px 4px;
+    color:var(--text-3);font-size:14px;line-height:1;
+    opacity:.5;transition:opacity .12s
+  }
+  .lg-memo-del:hover{opacity:1;color:#ef4444}
+  .lg-memo-empty{
+    text-align:center;padding:40px 20px;color:var(--text-3);
+    font-size:13px;font-family:var(--sans)
+  }
+  @media (max-width:720px){
+    .lg-memo-wrap{padding:0 10px}
+    .lg-memo-head{padding:0 0 10px}
+    .lg-memo-item{padding:10px 12px;gap:8px}
+    .lg-memo-textarea{font-size:13px}
+    .lg-memo-meta{min-width:44px}
+  }
+
   /* ===== 우체국 출고 (ez-*) — EZ 국제 송장 입력·모니터링 ===== */
   .ez-input-wrap{
     background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
@@ -2349,35 +2437,6 @@
   .md-gantt-ckl-btn.is-done{border-color:#059669;color:#fff;background:#059669}
   .md-gantt-ckl-btn.is-done:hover{background:#047857;border-color:#047857}
   .md-gantt-ckl-btn svg{display:block}
-  .md-gantt-ckl-count{display:inline-block;font-size:9.5px;font-weight:700;font-family:var(--mono);color:var(--text-3);margin-right:6px;min-width:26px;text-align:right;vertical-align:middle}
-  .md-gantt-ckl-count.is-partial{color:#d97706}
-  .md-gantt-ckl-count.is-done{color:#059669}
-  /* 체크리스트 모달 */
-  .md-ckl-modal{max-width:520px;width:100%}
-  .md-ckl-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
-  .md-ckl-header-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-  .md-ckl-header-title{font-size:16px;font-weight:800;color:var(--text-0);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .md-ckl-header-range{font-size:11px;color:var(--text-3);font-family:var(--mono);font-weight:600;flex-shrink:0}
-  .md-ckl-progress{font-size:12px;color:var(--text-2);font-weight:700;font-family:var(--mono);margin-bottom:10px;display:flex;align-items:center;gap:10px}
-  .md-ckl-progress-bar{flex:1;height:6px;background:var(--bg-2);border-radius:99px;overflow:hidden}
-  .md-ckl-progress-fill{height:100%;background:#059669;border-radius:99px;transition:width .18s ease}
-  .md-ckl-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto}
-  .md-ckl-item{display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;transition:all .12s ease}
-  .md-ckl-item.is-done{background:#f0fdf4;border-color:#a7f3d0}
-  .md-ckl-item.is-done .md-ckl-item-text{color:var(--text-3);text-decoration:line-through}
-  .md-ckl-checkbox{width:20px;height:20px;flex-shrink:0;cursor:pointer;accent-color:#059669}
-  .md-ckl-item-text{flex:1;font-size:13px;color:var(--text-0);border:none;background:transparent;padding:0;outline:none;min-width:0}
-  .md-ckl-item-text:focus{outline:none}
-  .md-ckl-item-del{background:transparent;border:none;color:var(--text-3);cursor:pointer;padding:2px 6px;font-size:14px;line-height:1;border-radius:4px;flex-shrink:0;opacity:.5}
-  .md-ckl-item-del:hover{color:#dc2626;background:#fef2f2;opacity:1}
-  .md-ckl-add{margin-top:10px;display:flex;gap:8px}
-  .md-ckl-add-input{flex:1;height:34px;padding:0 12px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fff}
-  .md-ckl-add-input:focus{outline:none;border-color:#059669;box-shadow:0 0 0 2px rgba(5,150,105,.12)}
-  .md-ckl-add-btn{height:34px;padding:0 14px;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--text-1);border-radius:6px;cursor:pointer}
-  .md-ckl-add-btn:hover{border-color:#059669;color:#059669;background:#f0fdf4}
-  .md-ckl-hint{font-size:11px;color:var(--text-3);margin-top:10px;line-height:1.5}
-  .md-ckl-reset{background:transparent;border:1px solid var(--line);color:var(--text-2);font-size:11px;padding:5px 10px;border-radius:5px;cursor:pointer}
-  .md-ckl-reset:hover{border-color:var(--line-2);color:var(--text-1);background:var(--bg-1)}
 
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
@@ -8599,27 +8658,13 @@
       </section>
     </div>
 
-    <!-- 팀 카드 2행: 물류팀 브라이트비드 / 샤인비드 (가로 나란히) -->
-    <div class="hero-row hero-row-2">
+    <!-- 팀 카드: 물류팀 (BB/SB 통합, 뷰 안에서 브랜드 스위치) -->
+    <div class="hero-row hero-row-1">
       <section class="hero hero-lg">
-        <div class="hero-eyebrow">LOGISTICS · BRIGHTBEED</div>
-        <button class="btn-neon btn-lg btn-lg-stacked" id="lgBtn" onclick="triggerLogistics('brightbeed')">
+        <div class="hero-eyebrow">LOGISTICS</div>
+        <button class="btn-neon btn-lg" id="lgBtn" onclick="triggerLogistics()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          <span class="btn-neon-stack">
-            <span class="btn-neon-main">물류팀</span>
-            <span class="btn-neon-sub">브라이트비드</span>
-          </span>
-        </button>
-      </section>
-
-      <section class="hero hero-lg">
-        <div class="hero-eyebrow">LOGISTICS · SHINEBEED</div>
-        <button class="btn-neon btn-lg btn-lg-stacked" id="lgBtnShine" onclick="triggerLogistics('shinebeed')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          <span class="btn-neon-stack">
-            <span class="btn-neon-main">물류팀</span>
-            <span class="btn-neon-sub">샤인비드</span>
-          </span>
+          <span>물류팀</span>
         </button>
       </section>
     </div>
@@ -9413,7 +9458,13 @@
       <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주 관리</span></h1>
     </div>
 
-    <!-- 탭 버튼: 최근 발주 내역 ↔ 발주서 리스트 -->
+    <!-- 브랜드 스위치: 브라이트비드 ↔ 샤인비드 -->
+    <div class="lg-brand-switch" role="tablist" aria-label="브랜드 선택">
+      <button class="lg-brand-pill active" data-brand="brightbeed" onclick="switchLgBrand('brightbeed')" role="tab" aria-selected="true">브라이트비드</button>
+      <button class="lg-brand-pill" data-brand="shinebeed" onclick="switchLgBrand('shinebeed')" role="tab" aria-selected="false">샤인비드</button>
+    </div>
+
+    <!-- 탭 버튼: 최근 발주 내역 ↔ 발주서 리스트 ↔ 우체국 출고 ↔ 메모 -->
     <div class="lg-tabs" role="tablist">
       <button class="lg-tab active" data-tab="recent" onclick="switchLgTab('recent')" role="tab" aria-selected="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="12 6 12 12 16 14"/><circle cx="12" cy="12" r="10"/></svg>
@@ -9428,6 +9479,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/><rect x="4" y="4" width="7" height="7" rx="1"/></svg>
         우체국 출고
         <span class="lg-tab-badge" id="lgTabPostezBadge">—</span>
+      </button>
+      <button class="lg-tab" data-tab="memo" onclick="switchLgTab('memo')" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+        메모
+        <span class="lg-tab-badge" id="lgTabMemoBadge">—</span>
       </button>
     </div>
 
@@ -9586,6 +9642,23 @@
           </thead>
           <tbody id="ezBody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ============ 메모 탭 (여러 칸 · 완료 체크 · 자동 하단 정렬) ============ -->
+    <div class="lg-pane" data-pane="memo" style="display:none">
+      <div class="lg-memo-wrap">
+        <div class="lg-memo-head">
+          <div>
+            <span class="lg-memo-title">메모</span>
+            <span class="lg-memo-count" id="lgMemoCount">0건</span>
+          </div>
+          <button class="lg-memo-add" onclick="lgMemoAdd()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            새 메모
+          </button>
+        </div>
+        <div class="lg-memo-list" id="lgMemoList"></div>
       </div>
     </div>
   </div><!-- /viewLg -->
@@ -11247,32 +11320,6 @@
 </div>
 
 
-
-<!-- 기획전 정상확인 체크리스트 모달 -->
-<div class="modal-bg" id="mdCklModal">
-  <div class="modal md-ckl-modal">
-    <div class="md-ckl-header">
-      <span class="md-ckl-header-dot" id="mdCklHeaderDot"></span>
-      <span class="md-ckl-header-title" id="mdCklHeaderTitle">기획전</span>
-      <span class="md-ckl-header-range" id="mdCklHeaderRange"></span>
-    </div>
-    <div class="md-ckl-progress">
-      <span id="mdCklProgressText">정상확인 · 0 / 0</span>
-      <span class="md-ckl-progress-bar"><span class="md-ckl-progress-fill" id="mdCklProgressFill" style="width:0%"></span></span>
-    </div>
-    <div class="md-ckl-list" id="mdCklList"></div>
-    <div class="md-ckl-add">
-      <input class="md-ckl-add-input" id="mdCklAddInput" type="text" maxlength="60" placeholder="체크리스트 항목 추가 (예: 배너 이미지 확인)">
-      <button class="md-ckl-add-btn" id="mdCklAddBtn" type="button">+ 추가</button>
-    </div>
-    <div class="md-ckl-hint">체크리스트는 기획전 시작 시 더블체크용입니다. 항목은 자유롭게 추가/삭제할 수 있어요. 변경사항은 자동 저장됩니다.</div>
-    <div class="modal-actions" style="margin-top:14px">
-      <button class="md-ckl-reset" id="mdCklResetBtn" type="button">기본값으로 초기화</button>
-      <span style="flex:1"></span>
-      <button class="modal-btn modal-btn-primary" id="mdCklDoneBtn" type="button">닫기</button>
-    </div>
-  </div>
-</div>
 
 <!-- 기획전 호버 툴팁 -->
 <div class="md-cal-tooltip" id="mdCalTooltip" hidden></div>
@@ -24357,17 +24404,13 @@
       const range = ev.end && ev.end!==ev.start
         ? `${ev.start.slice(5).replace('-','/')} ~ ${ev.end.slice(5).replace('-','/')}`
         : ev.start.slice(5).replace('-','/');
-      const ckl = _mdCklOf(ev);
-      const cklDone = ckl.filter(c=>c && c.done).length;
-      const cklTotal = ckl.length;
-      const cklComplete = cklTotal>0 && cklDone===cklTotal;
-      const cklClass = cklComplete ? ' is-done' : (cklDone>0 ? ' is-partial' : '');
-      const cklCntClass = cklComplete ? ' is-done' : (cklDone>0 ? ' is-partial' : '');
-      const cklTitle = `정상확인 체크리스트 · ${cklDone}/${cklTotal}`;
-      const cklBtnHtml = `<button type="button" class="md-gantt-ckl-btn${cklClass}" data-md-ckl-open="${escapeHTML(ev.id||'')}" title="${escapeHTML(cklTitle)}" aria-label="정상확인 체크리스트"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg></button><span class="md-gantt-ckl-count${cklCntClass}">${cklDone}/${cklTotal}</span>`;
+      const checked = !!ev.checked;
+      const chkClass = checked ? ' is-done' : '';
+      const chkTitle = checked ? '정상확인 완료 (클릭하면 해제)' : '정상확인 체크';
+      const chkBtnHtml = `<button type="button" class="md-gantt-ckl-btn${chkClass}" data-md-chk-toggle="${escapeHTML(ev.id||'')}" title="${escapeHTML(chkTitle)}" aria-label="정상확인" aria-pressed="${checked?'true':'false'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg></button>`;
       return `<tr class="md-gantt-row-nested" data-ev-id="${escapeHTML(ev.id||'')}">
         <td class="md-gantt-td-label" title="${escapeHTML(ev.title||'')}">
-          ${cklBtnHtml}<span class="md-gantt-rowlabel-dot" style="background:${barColor}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
+          ${chkBtnHtml}<span class="md-gantt-rowlabel-dot" style="background:${barColor}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
         </td>
         ${cellsHtml}
       </tr>`;
@@ -24424,11 +24467,11 @@
 
     grid.querySelectorAll('tr[data-ev-id]').forEach(tr=>{
       tr.addEventListener('click', (e)=>{
-        const cklBtn = e.target.closest('[data-md-ckl-open]');
-        if(cklBtn){
+        const chkBtn = e.target.closest('[data-md-chk-toggle]');
+        if(chkBtn){
           e.stopPropagation();
-          const cklId = cklBtn.dataset.mdCklOpen;
-          if(cklId) mdCklOpen(cklId);
+          const chkId = chkBtn.dataset.mdChkToggle;
+          if(chkId) mdCalToggleCheck(chkId);
           return;
         }
         const id=tr.dataset.evId; if(!id) return;
@@ -24688,154 +24731,29 @@
     toast('✓ 저장 완료','ok');
   }
 
-  /* ===== 기획전 정상확인 체크리스트 =====
-     각 기획전에 checklist 배열([{text, done}]) 부여. 기본 항목은 최초 진입시 자동 세팅.
-     저장은 _mdPersist(events) 를 재사용 → GitHub remote + local. 편집 중엔 debounce 저장. */
-  const MD_CKL_DEFAULT_ITEMS = [
-    '상품 등록·노출 확인',
-    '판매 가격·할인율 확인',
-    '옵션·재고 확인',
-    '상세페이지 확인',
-    '배송 조건·기간 확인',
-    '쿠폰·프로모션 적용 확인',
-    '상단 배너·썸네일 노출 확인',
-  ];
-  function _mdDefaultChecklist(){
-    return MD_CKL_DEFAULT_ITEMS.map(t=>({text:t, done:false}));
-  }
-  function _mdCklOf(ev){
-    if(!ev) return _mdDefaultChecklist();
-    if(!Array.isArray(ev.checklist)) return _mdDefaultChecklist();
-    return ev.checklist.filter(c=>c && typeof c.text==='string');
-  }
-
-  let _mdCkl_editingId=null;
-  let _mdCkl_saveTimer=null;
-
-  function mdCklOpen(id){
-    const ev=(_mdCal.events||[]).find(e=>e.id===id);
+  /* ===== 기획전 정상확인 체크 (단일 토글) =====
+     ev.checked (boolean) — 좌측 버튼 클릭 시 토글, remote 자동 저장. */
+  let _mdChk_saveTimer=null;
+  async function mdCalToggleCheck(id){
+    const events=_mdCal.events||[];
+    const ev=events.find(e=>e.id===id);
     if(!ev) return;
-    _mdCkl_editingId=id;
-    if(!Array.isArray(ev.checklist)) ev.checklist=_mdDefaultChecklist();
-    _mdCklRenderModal(ev);
-    document.getElementById('mdCklModal').classList.add('show');
-  }
-  function _mdCklGetEditing(){
-    if(!_mdCkl_editingId) return null;
-    return (_mdCal.events||[]).find(e=>e.id===_mdCkl_editingId) || null;
-  }
-  function _mdCklRenderModal(ev){
-    const c=_mdEvColor(ev.color);
-    const dot=document.getElementById('mdCklHeaderDot');
-    if(dot) dot.style.background=c.hex;
-    const title=document.getElementById('mdCklHeaderTitle');
-    if(title) title.textContent=ev.title||'(제목 없음)';
-    const rng=document.getElementById('mdCklHeaderRange');
-    if(rng){
-      const range = ev.end && ev.end!==ev.start
-        ? `${ev.start.slice(5).replace('-','/')} ~ ${ev.end.slice(5).replace('-','/')}`
-        : (ev.start||'').slice(5).replace('-','/');
-      rng.textContent=range;
-    }
-    _mdCklRenderList(ev);
-  }
-  function _mdCklRenderList(ev){
-    const list=document.getElementById('mdCklList');
-    if(!list) return;
-    const ckl=Array.isArray(ev.checklist)?ev.checklist:[];
-    const done=ckl.filter(c=>c && c.done).length;
-    const total=ckl.length;
-    const pct=total>0 ? Math.round(done/total*100) : 0;
-    const pt=document.getElementById('mdCklProgressText');
-    if(pt) pt.textContent=`정상확인 · ${done} / ${total}`;
-    const pf=document.getElementById('mdCklProgressFill');
-    if(pf) pf.style.width=pct+'%';
-    if(total===0){
-      list.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-3);font-size:12px">항목이 없습니다. 아래에서 추가해주세요.</div>';
-      return;
-    }
-    list.innerHTML=ckl.map((c,i)=>{
-      const doneCls=c.done?' is-done':'';
-      return `<div class="md-ckl-item${doneCls}" data-idx="${i}">
-        <input class="md-ckl-checkbox" type="checkbox" data-md-ckl-check="${i}" ${c.done?'checked':''}>
-        <input class="md-ckl-item-text" type="text" data-md-ckl-text="${i}" value="${escapeHTML(c.text||'')}" maxlength="80">
-        <button class="md-ckl-item-del" type="button" data-md-ckl-del="${i}" title="삭제">×</button>
-      </div>`;
-    }).join('');
-    list.querySelectorAll('[data-md-ckl-check]').forEach(cb=>{
-      cb.addEventListener('change',()=>{
-        const i=Number(cb.dataset.mdCklCheck);
-        const e=_mdCklGetEditing(); if(!e || !Array.isArray(e.checklist)) return;
-        if(!e.checklist[i]) return;
-        e.checklist[i].done=cb.checked;
-        _mdCklRenderList(e);
-        _mdCklQueueSave();
-      });
-    });
-    list.querySelectorAll('[data-md-ckl-text]').forEach(inp=>{
-      inp.addEventListener('input',()=>{
-        const i=Number(inp.dataset.mdCklText);
-        const e=_mdCklGetEditing(); if(!e || !Array.isArray(e.checklist)) return;
-        if(!e.checklist[i]) return;
-        e.checklist[i].text=inp.value;
-        _mdCklQueueSave();
-      });
-    });
-    list.querySelectorAll('[data-md-ckl-del]').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const i=Number(btn.dataset.mdCklDel);
-        const e=_mdCklGetEditing(); if(!e || !Array.isArray(e.checklist)) return;
-        e.checklist.splice(i,1);
-        _mdCklRenderList(e);
-        _mdCklQueueSave();
-      });
-    });
-  }
-  function _mdCklAddItem(){
-    const inp=document.getElementById('mdCklAddInput');
-    if(!inp) return;
-    const txt=inp.value.trim();
-    if(!txt){ inp.focus(); return; }
-    const e=_mdCklGetEditing(); if(!e) return;
-    if(!Array.isArray(e.checklist)) e.checklist=[];
-    e.checklist.push({text:txt, done:false});
-    inp.value='';
-    _mdCklRenderList(e);
-    _mdCklQueueSave();
-    inp.focus();
-  }
-  function _mdCklReset(){
-    const e=_mdCklGetEditing(); if(!e) return;
-    if(!confirm('체크리스트를 기본값으로 초기화할까요? (현재 항목·체크 상태가 지워집니다)')) return;
-    e.checklist=_mdDefaultChecklist();
-    _mdCklRenderList(e);
-    _mdCklQueueSave();
-  }
-  function _mdCklQueueSave(){
-    if(_mdCkl_saveTimer) clearTimeout(_mdCkl_saveTimer);
-    _mdCkl_saveTimer=setTimeout(_mdCklFlushSave, 900);
-  }
-  async function _mdCklFlushSave(){
-    if(_mdCkl_saveTimer){ clearTimeout(_mdCkl_saveTimer); _mdCkl_saveTimer=null; }
-    if(!(await ensureGhToken())){ return; }
-    const events=(_mdCal.events||[]).slice();
-    saveMdEventsLocal(events);
-    // renderMdCal 을 debounce 후 재렌더 — 진행률 표시 갱신
-    if(_mdCkl_editingId===null){ renderMdCal(); }
-    const meta={events, updatedAt:Date.now()};
-    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
-    try{
-      const r=await ghPut(MD_EVENTS_API, b64, 'chore: MD 기획전 체크리스트 업데이트');
-      if(r && r.ok){ _mdLastPutAt=Date.now(); }
-    }catch(e){}
-  }
-  function mdCklClose(){
-    // 진행 중 debounce 저장을 즉시 flush
-    if(_mdCkl_saveTimer){ _mdCklFlushSave(); }
-    document.getElementById('mdCklModal').classList.remove('show');
-    _mdCkl_editingId=null;
+    ev.checked = !ev.checked;
+    saveMdEventsLocal(events.slice());
     renderMdCal();
+    if(_mdChk_saveTimer) clearTimeout(_mdChk_saveTimer);
+    _mdChk_saveTimer=setTimeout(async ()=>{
+      _mdChk_saveTimer=null;
+      if(!(await ensureGhToken())) return;
+      const meta={events, updatedAt:Date.now()};
+      const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
+      try{
+        const r=await ghPut(MD_EVENTS_API, b64, 'chore: MD 기획전 정상확인 토글');
+        if(r && r.ok){ _mdLastPutAt=Date.now(); }
+      }catch(e){}
+    }, 800);
   }
+  window.mdCalToggleCheck=mdCalToggleCheck;
 
   document.getElementById('mdEventCancelBtn')?.addEventListener('click', mdCalCloseModal);
   document.getElementById('mdEventSaveBtn')?.addEventListener('click', mdCalSaveEvent);
@@ -24844,23 +24762,11 @@
     if(e.target.id==='mdEventModal') mdCalCloseModal();
   });
 
-  document.getElementById('mdCklAddBtn')?.addEventListener('click', _mdCklAddItem);
-  document.getElementById('mdCklAddInput')?.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter'){ e.preventDefault(); _mdCklAddItem(); }
-  });
-  document.getElementById('mdCklResetBtn')?.addEventListener('click', _mdCklReset);
-  document.getElementById('mdCklDoneBtn')?.addEventListener('click', mdCklClose);
-  document.getElementById('mdCklModal')?.addEventListener('click', (e)=>{
-    if(e.target.id==='mdCklModal') mdCklClose();
-  });
-
   window.mdCalNavPrev=mdCalNavPrev;
   window.mdCalNavNext=mdCalNavNext;
   window.mdCalNavToday=mdCalNavToday;
   window.mdCalOpenAdd=mdCalOpenAdd;
   window.mdCalOpenEdit=mdCalOpenEdit;
-  window.mdCklOpen=mdCklOpen;
-  window.mdCklClose=mdCklClose;
   window.renderMdCal=renderMdCal;
   window.syncMdEventsFromRemote=syncMdEventsFromRemote;
 
