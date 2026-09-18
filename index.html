@@ -895,6 +895,14 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
+  /* 홈 최상단 · 에이전트 오피스 실시간 요약 스트립 (텍스트 한 줄) */
+  .agents-top-strip{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-2);padding:8px 14px;margin:0 0 12px;background:var(--bg-1);border:1px solid var(--line);border-radius:999px;width:fit-content;font-family:var(--sans);letter-spacing:-.1px}
+  .agents-top-strip b{color:var(--text-0);font-weight:800;font-family:var(--mono)}
+  .agents-top-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.18);flex-shrink:0}
+  .agents-top-strip.has-stale .agents-top-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
+  .agents-top-sep{color:var(--text-3);font-weight:500}
+  .agents-top-strip.has-stale .agents-top-warn{color:#dc2626;font-weight:800}
+
   /* 히어로 — 에이전트 오피스 (다크 슬레이트 + 라이브 에메랄드) */
   .hero-row-agents{grid-template-columns:1fr;margin-bottom:22px;position:relative}
   .hero.hero-agents{padding:22px 22px 22px;background:linear-gradient(135deg,var(--neon-agents) 0%,var(--neon-agents-2) 100%);border:1px solid rgba(148,163,184,.28);align-items:stretch;text-align:left;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;box-shadow:0 12px 32px -18px rgba(15,23,42,.5),0 4px 12px -6px rgba(15,23,42,.25)}
@@ -8688,6 +8696,14 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
+    <!-- 최상단 · 에이전트 오피스 실시간 요약 -->
+    <div class="agents-top-strip" id="agentsTopStrip">
+      <span class="agents-top-dot"></span>
+      <span><b id="agentsTopRunN">–</b>명 근무중</span>
+      <span class="agents-top-sep">·</span>
+      <span id="agentsTopStatus"><b id="agentsTopTotN">–</b>명 자동화 정상</span>
+    </div>
+
     <!-- 로그인 뱃지 (로그인된 경우만 노출) -->
     <div id="diaryMeBadge" class="diary-me-badge" hidden>
       <span class="diary-me-badge-dot"></span>
@@ -11578,6 +11594,21 @@
       const sub = document.querySelector('.hero-agents-sub');
       if(sub && stale > 0){
         sub.innerHTML = `<b>${running}</b>명 근무 중 · <b style="color:#fca5a5">멈춤 ${stale}건</b> 확인 필요`;
+      }
+      // 홈 최상단 스트립 갱신
+      const strip = document.getElementById('agentsTopStrip');
+      const stripRun = document.getElementById('agentsTopRunN');
+      const stripTot = document.getElementById('agentsTopTotN');
+      const stripStatus = document.getElementById('agentsTopStatus');
+      if(stripRun) stripRun.textContent = running;
+      if(stripTot) stripTot.textContent = total;
+      if(strip) strip.classList.toggle('has-stale', stale > 0);
+      if(stripStatus){
+        if(stale > 0){
+          stripStatus.innerHTML = `<b class="agents-top-warn">멈춤 ${stale}건</b> 확인 필요`;
+        }else{
+          stripStatus.innerHTML = `<b id="agentsTopTotN">${total}</b>명 자동화 정상`;
+        }
       }
     }catch(e){/* 조용히 skip */}
   }
