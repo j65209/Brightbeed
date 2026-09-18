@@ -1422,13 +1422,15 @@
   .lg-memo-list{display:flex;flex-direction:column;gap:14px}
   .lg-memo-item{
     display:flex;flex-direction:column;gap:10px;
-    padding:14px 16px;border:1px solid var(--line);border-radius:12px;
-    background:var(--bg-1);transition:opacity .15s, background .15s, border-color .12s;
+    padding:14px 16px;border:2px solid var(--line-2);border-radius:12px;
+    background:var(--bg-1);
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+    transition:opacity .15s, background .15s, border-color .12s, box-shadow .12s;
     position:relative
   }
-  .lg-memo-item:hover{border-color:var(--line-2)}
-  .lg-memo-item.done{opacity:.55;background:var(--bg-2)}
-  .lg-memo-item.dragover{border-color:#8b5cf6;background:rgba(139,92,246,.06)}
+  .lg-memo-item:hover{border-color:var(--text-3);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+  .lg-memo-item.done{opacity:.55;background:var(--bg-2);border-color:var(--line)}
+  .lg-memo-item.dragover{border-color:#8b5cf6;background:rgba(139,92,246,.06);box-shadow:0 2px 12px rgba(139,92,246,.2)}
 
   /* Row 1: 체크박스 + 제목 + 삭제 */
   .lg-memo-row-head{display:flex;align-items:center;gap:10px}
@@ -1477,7 +1479,23 @@
   .lg-memo-attach-item:hover{border-color:var(--line-2)}
   .lg-memo-attach-item.att-image{width:120px;height:120px}
   .lg-memo-attach-item.att-image img{
-    width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in
+    width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;
+    transition:transform .12s
+  }
+  .lg-memo-attach-item.att-image:hover img{transform:scale(1.04)}
+  /* 마우스오버 큰 미리보기 (뷰포트 중앙 고정) */
+  .lg-memo-img-preview{
+    position:fixed;inset:0;z-index:9999;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.55);
+    pointer-events:none;
+    opacity:0;transition:opacity .12s
+  }
+  .lg-memo-img-preview.show{opacity:1}
+  .lg-memo-img-preview img{
+    max-width:90vw;max-height:90vh;display:block;
+    border-radius:8px;box-shadow:0 12px 48px rgba(0,0,0,.6);
+    background:#111
   }
   .lg-memo-attach-item.att-file{
     display:flex;align-items:center;gap:8px;
@@ -21423,7 +21441,7 @@
     const isImg = /^image\//.test(att.type || '') || /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(att.name||'');
     if(isImg){
       return '<div class="lg-memo-attach-item att-image" data-att-id="'+attId+'">'
-        + '<img src="'+_lgMemoEscAttr(att.dataUrl)+'" alt="'+_lgMemoEscAttr(att.name||'image')+'" onclick="lgMemoOpenImage(\''+mid+'\',\''+attId+'\')">'
+        + '<img src="'+_lgMemoEscAttr(att.dataUrl)+'" alt="'+_lgMemoEscAttr(att.name||'image')+'" onmouseenter="lgMemoImgHover(this)" onmouseleave="lgMemoImgHoverHide()" onclick="lgMemoOpenImage(\''+mid+'\',\''+attId+'\')">'
         + '<button class="lg-memo-attach-del" onclick="lgMemoDelAttach(\''+mid+'\',\''+attId+'\')" title="삭제">×</button>'
       + '</div>';
     }
@@ -21649,6 +21667,26 @@
     if(el) el.remove();
   }
   window.lgMemoDelAttach=lgMemoDelAttach;
+
+  /* 마우스오버 시 큰 미리보기 (클릭 없이). 뷰포트 중앙 고정, 뒤에 살짝 딤. */
+  function lgMemoImgHover(el){
+    let prev = document.getElementById('lgMemoImgPreview');
+    if(!prev){
+      prev = document.createElement('div');
+      prev.id = 'lgMemoImgPreview';
+      prev.className = 'lg-memo-img-preview';
+      prev.innerHTML = '<img alt="">';
+      document.body.appendChild(prev);
+    }
+    prev.querySelector('img').src = el && el.src || '';
+    prev.classList.add('show');
+  }
+  window.lgMemoImgHover=lgMemoImgHover;
+  function lgMemoImgHoverHide(){
+    const prev = document.getElementById('lgMemoImgPreview');
+    if(prev) prev.classList.remove('show');
+  }
+  window.lgMemoImgHoverHide=lgMemoImgHoverHide;
 
   function lgMemoOpenImage(memoId, attId){
     const items = _lgMemoLoad();
