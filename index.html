@@ -2292,10 +2292,13 @@
     .sales-archive-del{order:4;opacity:.6}
   }
 
-  /* ===== 브랜드별 기획전 탭 (식스에이 · 프로덕트피알 · 아코이) ===== */
+  /* ===== 브랜드별 기획전 탭 (진행중·예정 기획전별 동적) ===== */
   .mdpromo-section .mdpromo-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px;background:var(--bg-1);border:1px dashed var(--line);border-radius:8px}
   .mdpromo-section .lg-tab{display:inline-flex;align-items:center;gap:8px}
   .mdpromo-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  /* 동적 기획전 탭 — 다수 기획전 대응: 자동 줄바꿈 */
+  .mdpromo-tabs-dyn{display:flex !important;flex-wrap:wrap !important;gap:6px !important;padding:0 0 12px 12px !important}
+  .mdpromo-tabs-dyn .lg-tab{flex:0 0 auto;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   /* ===== 기획전 일정 · 간트(가로 타임라인) 표 ===== */
   .md-cal-section .md-cal-weekdays{display:none}
@@ -2337,7 +2340,44 @@
   .md-gantt-subhead .md-gantt-rowlabel-dot{width:8px;height:8px;margin-right:6px}
   .md-gantt-group-count{color:var(--text-3);font-size:11px;font-weight:600;font-family:var(--mono);margin-left:8px}
   .md-gantt-td-label-inner{display:flex;align-items:center;gap:0;min-width:0}
-  .md-gantt-row-nested .md-gantt-td-label{padding-left:44px !important;font-size:12px !important}
+  .md-gantt-row-nested .md-gantt-td-label{padding-left:44px !important;font-size:12px !important;position:sticky}
+  /* 정상확인 체크리스트 버튼 (각 기획전 좌측) */
+  .md-gantt-ckl-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;margin-right:8px;border:1.5px solid var(--line-2);background:#fff;color:var(--text-3);border-radius:5px;cursor:pointer;vertical-align:middle;transition:all .12s ease;flex-shrink:0}
+  .md-gantt-ckl-btn:hover{border-color:#059669;color:#059669;background:#f0fdf4}
+  .md-gantt-ckl-btn.is-partial{border-color:#f59e0b;color:#f59e0b;background:#fffbeb}
+  .md-gantt-ckl-btn.is-partial:hover{border-color:#d97706;color:#d97706}
+  .md-gantt-ckl-btn.is-done{border-color:#059669;color:#fff;background:#059669}
+  .md-gantt-ckl-btn.is-done:hover{background:#047857;border-color:#047857}
+  .md-gantt-ckl-btn svg{display:block}
+  .md-gantt-ckl-count{display:inline-block;font-size:9.5px;font-weight:700;font-family:var(--mono);color:var(--text-3);margin-right:6px;min-width:26px;text-align:right;vertical-align:middle}
+  .md-gantt-ckl-count.is-partial{color:#d97706}
+  .md-gantt-ckl-count.is-done{color:#059669}
+  /* 체크리스트 모달 */
+  .md-ckl-modal{max-width:520px;width:100%}
+  .md-ckl-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .md-ckl-header-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .md-ckl-header-title{font-size:16px;font-weight:800;color:var(--text-0);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .md-ckl-header-range{font-size:11px;color:var(--text-3);font-family:var(--mono);font-weight:600;flex-shrink:0}
+  .md-ckl-progress{font-size:12px;color:var(--text-2);font-weight:700;font-family:var(--mono);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .md-ckl-progress-bar{flex:1;height:6px;background:var(--bg-2);border-radius:99px;overflow:hidden}
+  .md-ckl-progress-fill{height:100%;background:#059669;border-radius:99px;transition:width .18s ease}
+  .md-ckl-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto}
+  .md-ckl-item{display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;transition:all .12s ease}
+  .md-ckl-item.is-done{background:#f0fdf4;border-color:#a7f3d0}
+  .md-ckl-item.is-done .md-ckl-item-text{color:var(--text-3);text-decoration:line-through}
+  .md-ckl-checkbox{width:20px;height:20px;flex-shrink:0;cursor:pointer;accent-color:#059669}
+  .md-ckl-item-text{flex:1;font-size:13px;color:var(--text-0);border:none;background:transparent;padding:0;outline:none;min-width:0}
+  .md-ckl-item-text:focus{outline:none}
+  .md-ckl-item-del{background:transparent;border:none;color:var(--text-3);cursor:pointer;padding:2px 6px;font-size:14px;line-height:1;border-radius:4px;flex-shrink:0;opacity:.5}
+  .md-ckl-item-del:hover{color:#dc2626;background:#fef2f2;opacity:1}
+  .md-ckl-add{margin-top:10px;display:flex;gap:8px}
+  .md-ckl-add-input{flex:1;height:34px;padding:0 12px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .md-ckl-add-input:focus{outline:none;border-color:#059669;box-shadow:0 0 0 2px rgba(5,150,105,.12)}
+  .md-ckl-add-btn{height:34px;padding:0 14px;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--text-1);border-radius:6px;cursor:pointer}
+  .md-ckl-add-btn:hover{border-color:#059669;color:#059669;background:#f0fdf4}
+  .md-ckl-hint{font-size:11px;color:var(--text-3);margin-top:10px;line-height:1.5}
+  .md-ckl-reset{background:transparent;border:1px solid var(--line);color:var(--text-2);font-size:11px;padding:5px 10px;border-radius:5px;cursor:pointer}
+  .md-ckl-reset:hover{border-color:var(--line-2);color:var(--text-1);background:var(--bg-1)}
 
   /* ===== 아코이 기획전 계산기 ===== */
   .akp-wrap{display:flex;flex-direction:column;gap:14px}
@@ -9592,10 +9632,35 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">마케팅팀<span class="view-title-sub">/ 광고 전광판 · 판매 순위</span></h1>
+      <h1 class="view-title">마케팅팀<span class="view-title-sub">/ 브랜드별 실시간 매출 · 광고 전광판 · 판매 순위</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
 
-    <!-- 광고 전광판 패널 (최상단) -->
+    <!-- 브랜드별 실시간 매출 — 공홈(식스샵+프로) / 플랫폼(에이블리 등) 탭 -->
+    <div class="po-wrap" style="padding-bottom:0">
+      <div class="po-section" style="padding:0;background:transparent;border:none;margin-bottom:16px">
+        <div class="po-section-head" style="padding:0 0 6px">
+          <div class="po-section-title">브랜드별 실시간 매출 <span class="po-section-meta-inline">최근 30일 매출 많은 순</span></div>
+          <div class="po-section-meta">
+            <button class="btn po-import akoi-refresh-btn" type="button" onclick="mdpRefreshActive()" title="현재 탭 새로고침">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              새로고침
+            </button>
+          </div>
+        </div>
+        <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
+          <button class="lg-tab active" data-mdp="home" onclick="mdpSwitch('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="mdpCountHome">8</span></button>
+          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">8</span></button>
+        </div>
+        <div class="mdp-panel" data-mdp-panel="home">
+          <div id="salesReportsWrap"></div>
+        </div>
+        <div class="mdp-panel" data-mdp-panel="platform" hidden>
+          <div id="platformReportsWrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 광고 전광판 패널 -->
     <section class="ad-signage-panel" id="adSignagePanel">
       <div class="signage-head">
         <div class="signage-head-left">
@@ -9666,42 +9731,19 @@
 
   </div>
 
-  <!-- ============ MD팀 (기획전 일정 + 시딩 재고 통합) ============ -->
+  <!-- ============ MD팀 (기획전 전문 탭) ============ -->
   <div class="view" id="viewMd" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전 · 브랜드별 실시간 매출</span><span id="salesUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전</span></h1>
     </div>
     <div class="po-wrap">
 
-      <!-- 브랜드별 실시간 매출 — 공홈(식스샵+프로) / 플랫폼(에이블리 등) 탭 -->
-      <div class="po-section" style="padding:0;background:transparent;border:none">
-        <div class="po-section-head" style="padding:0 0 6px">
-          <div class="po-section-title">브랜드별 실시간 매출 <span class="po-section-meta-inline">최근 30일 매출 많은 순</span></div>
-          <div class="po-section-meta">
-            <button class="btn po-import akoi-refresh-btn" type="button" onclick="mdpRefreshActive()" title="현재 탭 새로고침">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              새로고침
-            </button>
-          </div>
-        </div>
-        <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
-          <button class="lg-tab active" data-mdp="home" onclick="mdpSwitch('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="mdpCountHome">8</span></button>
-          <button class="lg-tab" data-mdp="platform" onclick="mdpSwitch('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="mdpCountPlatform">8</span></button>
-        </div>
-        <div class="mdp-panel" data-mdp-panel="home">
-          <div id="salesReportsWrap"></div>
-        </div>
-        <div class="mdp-panel" data-mdp-panel="platform" hidden>
-          <div id="platformReportsWrap"></div>
-        </div>
-      </div>
-
       <!-- 기획전 일정 캘린더 -->
-      <div class="po-section md-cal-section" style="margin-top:28px">
+      <div class="po-section md-cal-section">
         <div class="po-section-head md-cal-head">
           <div class="po-section-title">기획전 일정</div>
           <div class="po-section-meta md-cal-meta">
@@ -9749,72 +9791,14 @@
         </div>
       </div>
 
-      <!-- 브랜드별 기획전 (식스에이 · 프로덕트피알 · 아코이) -->
+      <!-- 브랜드별 기획전 (진행중·예정 기획전 각각) -->
       <div class="po-section mdpromo-section" style="margin-top:28px">
         <div class="po-section-head">
-          <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전</span></div>
+          <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전 각각 · 계산기</span></div>
         </div>
-        <div class="lg-tabs" role="tablist" style="padding:0 0 12px 12px;max-width:none;margin:0">
-          <button class="lg-tab active" data-mdpromo="sixA" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true"><span class="mdpromo-dot" style="background:#22d3ee;box-shadow:0 0 8px rgba(34,211,238,.55)"></span>식스에이</button>
-          <button class="lg-tab" data-mdpromo="pp" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.55)"></span>프로덕트피알</button>
-          <button class="lg-tab" data-mdpromo="akoi" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f472b6;box-shadow:0 0 8px rgba(244,114,182,.55)"></span>아코이</button>
-        </div>
-        <div class="mdpromo-panel" data-mdpromo-panel="sixA">
-          <div class="akp-wrap" data-akp-brand="sixA">
-            <div class="akp-actions">
-              <span class="akp-status akp-status-el">불러오는 중…</span>
-              <div class="akp-actions-spacer"></div>
-              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
-              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
-            </div>
-            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
-            <div class="akp-master-wrap">
-              <table class="akp-table akp-master-table">
-                <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
-                <tbody class="akp-master-body"></tbody>
-              </table>
-            </div>
-            <div class="akp-list akp-platform-list"></div>
-            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
-          </div>
-        </div>
-        <div class="mdpromo-panel" data-mdpromo-panel="pp" hidden>
-          <div class="akp-wrap" data-akp-brand="pp">
-            <div class="akp-actions">
-              <span class="akp-status akp-status-el">불러오는 중…</span>
-              <div class="akp-actions-spacer"></div>
-              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
-              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
-            </div>
-            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
-            <div class="akp-master-wrap">
-              <table class="akp-table akp-master-table">
-                <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
-                <tbody class="akp-master-body"></tbody>
-              </table>
-            </div>
-            <div class="akp-list akp-platform-list"></div>
-            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
-          </div>
-        </div>
-        <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
-          <div class="akp-wrap" data-akp-brand="akoi">
-            <div class="akp-actions">
-              <span class="akp-status akp-status-el">불러오는 중…</span>
-              <div class="akp-actions-spacer"></div>
-              <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
-              <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
-            </div>
-            <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
-            <div class="akp-master-wrap">
-              <table class="akp-table akp-master-table">
-                <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
-                <tbody class="akp-master-body"></tbody>
-              </table>
-            </div>
-            <div class="akp-list akp-platform-list"></div>
-            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
-          </div>
+        <div class="lg-tabs mdpromo-tabs-dyn" role="tablist" id="mdPromoTabsBar" style="padding:0 0 12px 12px;max-width:none;margin:0"></div>
+        <div id="mdPromoPanelHost">
+          <div class="mdpromo-empty" id="mdPromoEmpty">진행중 · 예정 기획전이 없습니다. 위 캘린더에서 "일정 추가"로 만들어 주세요.</div>
         </div>
       </div>
 
@@ -11264,6 +11248,32 @@
 
 
 
+<!-- 기획전 정상확인 체크리스트 모달 -->
+<div class="modal-bg" id="mdCklModal">
+  <div class="modal md-ckl-modal">
+    <div class="md-ckl-header">
+      <span class="md-ckl-header-dot" id="mdCklHeaderDot"></span>
+      <span class="md-ckl-header-title" id="mdCklHeaderTitle">기획전</span>
+      <span class="md-ckl-header-range" id="mdCklHeaderRange"></span>
+    </div>
+    <div class="md-ckl-progress">
+      <span id="mdCklProgressText">정상확인 · 0 / 0</span>
+      <span class="md-ckl-progress-bar"><span class="md-ckl-progress-fill" id="mdCklProgressFill" style="width:0%"></span></span>
+    </div>
+    <div class="md-ckl-list" id="mdCklList"></div>
+    <div class="md-ckl-add">
+      <input class="md-ckl-add-input" id="mdCklAddInput" type="text" maxlength="60" placeholder="체크리스트 항목 추가 (예: 배너 이미지 확인)">
+      <button class="md-ckl-add-btn" id="mdCklAddBtn" type="button">+ 추가</button>
+    </div>
+    <div class="md-ckl-hint">체크리스트는 기획전 시작 시 더블체크용입니다. 항목은 자유롭게 추가/삭제할 수 있어요. 변경사항은 자동 저장됩니다.</div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="md-ckl-reset" id="mdCklResetBtn" type="button">기본값으로 초기화</button>
+      <span style="flex:1"></span>
+      <button class="modal-btn modal-btn-primary" id="mdCklDoneBtn" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
 <!-- 기획전 호버 툴팁 -->
 <div class="md-cal-tooltip" id="mdCalTooltip" hidden></div>
 
@@ -12497,16 +12507,125 @@
   window.mdpRefreshActive=mdpRefreshActive;
 
   /* 브랜드별 기획전 탭 스위치 (식스에이 · 프로덕트피알 · 아코이) */
-  function mdPromoSwitch(tab){
-    document.querySelectorAll('.lg-tab[data-mdpromo]').forEach(btn=>{
-      const on=btn.dataset.mdpromo===tab;
+  /* ===== 브랜드별 기획전 — 진행중·예정 기획전별 동적 탭 =====
+     각 탭 key = 'ev-<eventId>' · akp 상태 저장은 events 저장과 별개.
+     레거시 3 브랜드 (sixA/pp/akoi) 데이터는 remote 에 남아있지만 UI 에는 노출되지 않음. */
+
+  // 진행중·예정 기획전 (오늘~미래에 걸치는 것) 리스트
+  function _mdPromoActiveEvents(){
+    const evs = Array.isArray(_mdCal.events) ? _mdCal.events : [];
+    const todayIso = _mdIso(new Date());
+    return evs
+      .filter(ev => ev && ev.start && (ev.end||ev.start) >= todayIso)
+      .sort((a,b)=>{
+        if(a.start!==b.start) return a.start<b.start?-1:1;
+        return (a.title||'').localeCompare(b.title||'');
+      });
+  }
+  function _mdPromoEventKey(evId){ return 'ev-'+String(evId||''); }
+  function _mdPromoEventFromKey(key){
+    if(typeof key!=='string' || !key.startsWith('ev-')) return null;
+    const id=key.slice(3);
+    return (_mdCal.events||[]).find(e=>e.id===id) || null;
+  }
+
+  function _mdPromoBrandColorForEvent(ev){
+    if(!ev) return '#94a3b8';
+    const brands = (typeof _mdEventBrands==='function') ? _mdEventBrands(ev) : (Array.isArray(ev.brands)?ev.brands:[]);
+    if(brands.length>0){
+      const b=_mdBrandMap[brands[0]];
+      if(b) return b.color;
+    }
+    return _mdEvColor(ev.color).hex;
+  }
+
+  function _mdPromoTabLabel(ev){
+    const brands = (typeof _mdEventBrands==='function') ? _mdEventBrands(ev) : (Array.isArray(ev.brands)?ev.brands:[]);
+    const brandLabels = brands.map(k=>(_mdBrandMap[k]||{}).label).filter(Boolean);
+    const title = ev.title || '(제목 없음)';
+    if(brandLabels.length===0) return title;
+    return title + ' · ' + brandLabels.join('·');
+  }
+
+  function _mdPromoEnsureWrap(key){
+    const host=document.getElementById('mdPromoPanelHost');
+    if(!host) return null;
+    let wrap=host.querySelector('.akp-wrap[data-akp-brand="'+CSS.escape(key)+'"]');
+    if(wrap) return wrap;
+    wrap=document.createElement('div');
+    wrap.className='akp-wrap';
+    wrap.setAttribute('data-akp-brand', key);
+    wrap.hidden=true;
+    wrap.innerHTML = `
+      <div class="akp-actions">
+        <span class="akp-status akp-status-el">불러오는 중…</span>
+        <div class="akp-actions-spacer"></div>
+        <button class="btn po-import" onclick="akpAddItem()">+ 상품 추가</button>
+        <button class="btn po-import" onclick="akpAddPlatform()">+ 플랫폼 추가</button>
+      </div>
+      <div class="akp-section-title akp-section-title-flex akp-master-header"></div>
+      <div class="akp-master-wrap">
+        <table class="akp-table akp-master-table">
+          <thead><tr><th>제품명</th><th style="width:150px">원가 (원)</th><th style="width:60px"></th></tr></thead>
+          <tbody class="akp-master-body"></tbody>
+        </table>
+      </div>
+      <div class="akp-list akp-platform-list"></div>
+      <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+    `;
+    host.appendChild(wrap);
+    return wrap;
+  }
+
+  function mdPromoTabsEnsure(){
+    const bar=document.getElementById('mdPromoTabsBar');
+    const empty=document.getElementById('mdPromoEmpty');
+    const host=document.getElementById('mdPromoPanelHost');
+    if(!bar || !host) return;
+    const events=_mdPromoActiveEvents();
+    // 사용 안하는 wrap 은 hide (완료된 기획전이었던 것들)
+    host.querySelectorAll('.akp-wrap').forEach(w=>{ w.hidden=true; });
+    if(events.length===0){
+      bar.innerHTML='';
+      if(empty) empty.hidden=false;
+      return;
+    }
+    if(empty) empty.hidden=true;
+    const activeKey = bar.dataset.activeKey && events.some(e=>_mdPromoEventKey(e.id)===bar.dataset.activeKey)
+      ? bar.dataset.activeKey
+      : _mdPromoEventKey(events[0].id);
+    bar.innerHTML = events.map(ev=>{
+      const key=_mdPromoEventKey(ev.id);
+      const color=_mdPromoBrandColorForEvent(ev);
+      const label=_mdPromoTabLabel(ev);
+      const cls=key===activeKey ? 'lg-tab active' : 'lg-tab';
+      return `<button class="${cls}" data-mdpromo="${escapeHTML(key)}" role="tab" aria-selected="${key===activeKey?'true':'false'}" title="${escapeHTML(ev.title||'')}"><span class="mdpromo-dot" style="background:${color};box-shadow:0 0 8px ${color}88"></span>${escapeHTML(label)}</button>`;
+    }).join('');
+    bar.querySelectorAll('.lg-tab[data-mdpromo]').forEach(btn=>{
+      btn.addEventListener('click', ()=>mdPromoSwitch(btn.dataset.mdpromo));
+    });
+    // 활성 탭 진입
+    mdPromoSwitch(activeKey);
+  }
+  window.mdPromoTabsEnsure=mdPromoTabsEnsure;
+
+  function mdPromoSwitch(key){
+    if(!key) return;
+    const bar=document.getElementById('mdPromoTabsBar');
+    if(bar) bar.dataset.activeKey=key;
+    document.querySelectorAll('#mdPromoTabsBar .lg-tab[data-mdpromo]').forEach(btn=>{
+      const on=btn.dataset.mdpromo===key;
       btn.classList.toggle('active', on);
       btn.setAttribute('aria-selected', on?'true':'false');
     });
-    document.querySelectorAll('.mdpromo-panel[data-mdpromo-panel]').forEach(pn=>{
-      pn.hidden = pn.dataset.mdpromoPanel!==tab;
-    });
-    if((tab==='sixA'||tab==='pp'||tab==='akoi') && typeof akpInit==='function') akpInit(tab);
+    const host=document.getElementById('mdPromoPanelHost');
+    if(host){
+      host.querySelectorAll('.akp-wrap').forEach(w=>{
+        w.hidden = w.getAttribute('data-akp-brand') !== key;
+      });
+    }
+    _mdPromoEnsureWrap(key);
+    if(typeof akpInit==='function') akpInit(key);
   }
   window.mdPromoSwitch=mdPromoSwitch;
 
@@ -12522,7 +12641,7 @@
        floorSettled = floor − round(floor × feeRate/100 / 100) × 100
        floorMultiplier = floorSettled / costKrw
   */
-  const AKP_BRANDS=['sixA','pp','akoi'];
+  const AKP_BRANDS=['sixA','pp','akoi']; // 레거시 3 브랜드 (마이그레이션·기본값 결정용). 신규 탭은 'ev-<id>' 형식.
   const AKP_PREFIX='brandPromoV3.';
   const _akpLSKey       = (b)=>AKP_PREFIX+b;
   const _akpHistLSKey   = (b)=>AKP_PREFIX+b+'.history';
@@ -12531,7 +12650,7 @@
   const _akpRemotePath  = (b)=>'data/promo-'+b+'.json';
   const _akpRemoteApi   = (b)=>'https://api.github.com/repos/j65209/Brightbeed/contents/'+_akpRemotePath(b);
   const _akpRemoteRaw   = (b)=>'https://raw.githubusercontent.com/j65209/Brightbeed/main/'+_akpRemotePath(b);
-  // 브랜드별 독립 상태
+  // key별 독립 상태 (레거시 3 브랜드 + 신규 event key 모두 여기서 관리)
   const _akpStates={sixA:null, pp:null, akoi:null};
   const _akpInited={sixA:false, pp:false, akoi:false};
   const _akpRemoteTimers={sixA:null, pp:null, akoi:null};
@@ -12539,6 +12658,14 @@
   const _akpEditingPlats={sixA:new Set(), pp:new Set(), akoi:new Set()};
   const _akpEditingMaster={sixA:false, pp:false, akoi:false};
   let _akpBrand='sixA';   // 활성 탭 (mdPromoSwitch로 변경)
+  function _akpEnsureKeySlot(key){
+    if(!(key in _akpStates)) _akpStates[key]=null;
+    if(!(key in _akpInited)) _akpInited[key]=false;
+    if(!(key in _akpRemoteTimers)) _akpRemoteTimers[key]=null;
+    if(!(key in _akpLastLocalSave)) _akpLastLocalSave[key]=0;
+    if(!(key in _akpEditingPlats)) _akpEditingPlats[key]=new Set();
+    if(!(key in _akpEditingMaster)) _akpEditingMaster[key]=false;
+  }
   // 활성 상태 · getter (state는 현재 브랜드 alias)
   Object.defineProperty(window,'_akpState',{get:()=>_akpStates[_akpBrand], set:(v)=>{_akpStates[_akpBrand]=v}, configurable:true});
   // 활성 wrap DOM
@@ -12607,6 +12734,7 @@
     }catch(e){}
   }
   function _akpLoad(brand){
+    _akpEnsureKeySlot(brand);
     if(brand==='akoi') _akpMigrateLegacyAkoi();
     // 1) 정상 저장값 시도
     try{
@@ -12730,6 +12858,7 @@
 
   function akpInit(brand){
     brand=brand||_akpBrand;
+    _akpEnsureKeySlot(brand);
     _akpBrand=brand;
     if(!_akpInited[brand]){
       _akpStates[brand]=_akpLoad(brand);
@@ -12738,7 +12867,7 @@
     akpRender();
     _akpUpdateStatus(brand);
     if(!window._akpStatusTick){
-      window._akpStatusTick=setInterval(()=>{ AKP_BRANDS.forEach(b=>_akpUpdateStatus(b)); }, 30000);
+      window._akpStatusTick=setInterval(()=>{ Object.keys(_akpStates).forEach(b=>_akpUpdateStatus(b)); }, 30000);
     }
     _akpSyncFromRemote(brand);
   }
@@ -13478,16 +13607,17 @@
     if(id==='viewMd'){
       if(typeof renderMdCal==='function') renderMdCal();
       if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
+      if(typeof mdPromoTabsEnsure==='function') mdPromoTabsEnsure();
+    }
+    if(id==='viewMarketing'){
+      if(typeof renderAdSignage==='function') renderAdSignage();
+      if(typeof _bestScheduleLoad==='function') _bestScheduleLoad();
       if(typeof renderSalesPptView==='function') renderSalesPptView();
       if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
       if(typeof renderSalesArchive==='function') renderSalesArchive();
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
       if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
       if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
-      if(typeof akpInit==='function'){
-        const activeTab=document.querySelector('.lg-tab.active[data-mdpromo]')?.dataset.mdpromo || 'sixA';
-        akpInit(activeTab);
-      }
     }
     if(id==='viewNotice'){
       if(typeof renderNotice==='function') renderNotice();
@@ -13643,6 +13773,12 @@
     showView('viewMarketing');
     renderAdSignage();
     _bestScheduleLoad();
+    if(typeof renderSalesPptView==='function') renderSalesPptView();
+    if(typeof renderSalesUpdatedTag==='function') renderSalesUpdatedTag();
+    if(typeof renderSalesArchive==='function') renderSalesArchive();
+    if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
+    if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
+    if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
   }
   function triggerDesign(){ showView('viewDesign'); if(typeof dsgInit==='function') dsgInit(); }
   function triggerStock(){ showView('viewStock'); }
@@ -23940,6 +24076,7 @@
     localStorage.setItem(MD_EVENTS_KEY, json);
     _mdCal.events=remote.events;
     renderMdCal();
+    if(typeof mdPromoTabsEnsure==='function' && !document.getElementById('viewMd')?.hidden) mdPromoTabsEnsure();
   }
 
   /* ===== 필터 dropdown 렌더 & 리셋 ===== */
@@ -24183,9 +24320,17 @@
       const range = ev.end && ev.end!==ev.start
         ? `${ev.start.slice(5).replace('-','/')} ~ ${ev.end.slice(5).replace('-','/')}`
         : ev.start.slice(5).replace('-','/');
+      const ckl = _mdCklOf(ev);
+      const cklDone = ckl.filter(c=>c && c.done).length;
+      const cklTotal = ckl.length;
+      const cklComplete = cklTotal>0 && cklDone===cklTotal;
+      const cklClass = cklComplete ? ' is-done' : (cklDone>0 ? ' is-partial' : '');
+      const cklCntClass = cklComplete ? ' is-done' : (cklDone>0 ? ' is-partial' : '');
+      const cklTitle = `정상확인 체크리스트 · ${cklDone}/${cklTotal}`;
+      const cklBtnHtml = `<button type="button" class="md-gantt-ckl-btn${cklClass}" data-md-ckl-open="${escapeHTML(ev.id||'')}" title="${escapeHTML(cklTitle)}" aria-label="정상확인 체크리스트"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg></button><span class="md-gantt-ckl-count${cklCntClass}">${cklDone}/${cklTotal}</span>`;
       return `<tr class="md-gantt-row-nested" data-ev-id="${escapeHTML(ev.id||'')}">
         <td class="md-gantt-td-label" title="${escapeHTML(ev.title||'')}">
-          <span class="md-gantt-rowlabel-dot" style="background:${barColor}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
+          ${cklBtnHtml}<span class="md-gantt-rowlabel-dot" style="background:${barColor}"></span><span class="md-gantt-rowlabel-title">${escapeHTML(ev.title||'')}</span><span class="md-gantt-rowlabel-range">${escapeHTML(range)}</span>
         </td>
         ${cellsHtml}
       </tr>`;
@@ -24242,6 +24387,13 @@
 
     grid.querySelectorAll('tr[data-ev-id]').forEach(tr=>{
       tr.addEventListener('click', (e)=>{
+        const cklBtn = e.target.closest('[data-md-ckl-open]');
+        if(cklBtn){
+          e.stopPropagation();
+          const cklId = cklBtn.dataset.mdCklOpen;
+          if(cklId) mdCklOpen(cklId);
+          return;
+        }
         const id=tr.dataset.evId; if(!id) return;
         mdCalOpenEdit(id);
       });
@@ -24495,7 +24647,157 @@
     _mdLastPutAt=Date.now();
     mdCalCloseModal();
     renderMdCal();
+    if(typeof mdPromoTabsEnsure==='function') mdPromoTabsEnsure();
     toast('✓ 저장 완료','ok');
+  }
+
+  /* ===== 기획전 정상확인 체크리스트 =====
+     각 기획전에 checklist 배열([{text, done}]) 부여. 기본 항목은 최초 진입시 자동 세팅.
+     저장은 _mdPersist(events) 를 재사용 → GitHub remote + local. 편집 중엔 debounce 저장. */
+  const MD_CKL_DEFAULT_ITEMS = [
+    '상품 등록·노출 확인',
+    '판매 가격·할인율 확인',
+    '옵션·재고 확인',
+    '상세페이지 확인',
+    '배송 조건·기간 확인',
+    '쿠폰·프로모션 적용 확인',
+    '상단 배너·썸네일 노출 확인',
+  ];
+  function _mdDefaultChecklist(){
+    return MD_CKL_DEFAULT_ITEMS.map(t=>({text:t, done:false}));
+  }
+  function _mdCklOf(ev){
+    if(!ev) return _mdDefaultChecklist();
+    if(!Array.isArray(ev.checklist)) return _mdDefaultChecklist();
+    return ev.checklist.filter(c=>c && typeof c.text==='string');
+  }
+
+  let _mdCkl_editingId=null;
+  let _mdCkl_saveTimer=null;
+
+  function mdCklOpen(id){
+    const ev=(_mdCal.events||[]).find(e=>e.id===id);
+    if(!ev) return;
+    _mdCkl_editingId=id;
+    if(!Array.isArray(ev.checklist)) ev.checklist=_mdDefaultChecklist();
+    _mdCklRenderModal(ev);
+    document.getElementById('mdCklModal').classList.add('show');
+  }
+  function _mdCklGetEditing(){
+    if(!_mdCkl_editingId) return null;
+    return (_mdCal.events||[]).find(e=>e.id===_mdCkl_editingId) || null;
+  }
+  function _mdCklRenderModal(ev){
+    const c=_mdEvColor(ev.color);
+    const dot=document.getElementById('mdCklHeaderDot');
+    if(dot) dot.style.background=c.hex;
+    const title=document.getElementById('mdCklHeaderTitle');
+    if(title) title.textContent=ev.title||'(제목 없음)';
+    const rng=document.getElementById('mdCklHeaderRange');
+    if(rng){
+      const range = ev.end && ev.end!==ev.start
+        ? `${ev.start.slice(5).replace('-','/')} ~ ${ev.end.slice(5).replace('-','/')}`
+        : (ev.start||'').slice(5).replace('-','/');
+      rng.textContent=range;
+    }
+    _mdCklRenderList(ev);
+  }
+  function _mdCklRenderList(ev){
+    const list=document.getElementById('mdCklList');
+    if(!list) return;
+    const ckl=Array.isArray(ev.checklist)?ev.checklist:[];
+    const done=ckl.filter(c=>c && c.done).length;
+    const total=ckl.length;
+    const pct=total>0 ? Math.round(done/total*100) : 0;
+    const pt=document.getElementById('mdCklProgressText');
+    if(pt) pt.textContent=`정상확인 · ${done} / ${total}`;
+    const pf=document.getElementById('mdCklProgressFill');
+    if(pf) pf.style.width=pct+'%';
+    if(total===0){
+      list.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-3);font-size:12px">항목이 없습니다. 아래에서 추가해주세요.</div>';
+      return;
+    }
+    list.innerHTML=ckl.map((c,i)=>{
+      const doneCls=c.done?' is-done':'';
+      return `<div class="md-ckl-item${doneCls}" data-idx="${i}">
+        <input class="md-ckl-checkbox" type="checkbox" data-md-ckl-check="${i}" ${c.done?'checked':''}>
+        <input class="md-ckl-item-text" type="text" data-md-ckl-text="${i}" value="${escapeHTML(c.text||'')}" maxlength="80">
+        <button class="md-ckl-item-del" type="button" data-md-ckl-del="${i}" title="삭제">×</button>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-md-ckl-check]').forEach(cb=>{
+      cb.addEventListener('change',()=>{
+        const i=Number(cb.dataset.mdCklCheck);
+        const e=_mdCklGetEditing(); if(!e || !Array.isArray(e.checklist)) return;
+        if(!e.checklist[i]) return;
+        e.checklist[i].done=cb.checked;
+        _mdCklRenderList(e);
+        _mdCklQueueSave();
+      });
+    });
+    list.querySelectorAll('[data-md-ckl-text]').forEach(inp=>{
+      inp.addEventListener('input',()=>{
+        const i=Number(inp.dataset.mdCklText);
+        const e=_mdCklGetEditing(); if(!e || !Array.isArray(e.checklist)) return;
+        if(!e.checklist[i]) return;
+        e.checklist[i].text=inp.value;
+        _mdCklQueueSave();
+      });
+    });
+    list.querySelectorAll('[data-md-ckl-del]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const i=Number(btn.dataset.mdCklDel);
+        const e=_mdCklGetEditing(); if(!e || !Array.isArray(e.checklist)) return;
+        e.checklist.splice(i,1);
+        _mdCklRenderList(e);
+        _mdCklQueueSave();
+      });
+    });
+  }
+  function _mdCklAddItem(){
+    const inp=document.getElementById('mdCklAddInput');
+    if(!inp) return;
+    const txt=inp.value.trim();
+    if(!txt){ inp.focus(); return; }
+    const e=_mdCklGetEditing(); if(!e) return;
+    if(!Array.isArray(e.checklist)) e.checklist=[];
+    e.checklist.push({text:txt, done:false});
+    inp.value='';
+    _mdCklRenderList(e);
+    _mdCklQueueSave();
+    inp.focus();
+  }
+  function _mdCklReset(){
+    const e=_mdCklGetEditing(); if(!e) return;
+    if(!confirm('체크리스트를 기본값으로 초기화할까요? (현재 항목·체크 상태가 지워집니다)')) return;
+    e.checklist=_mdDefaultChecklist();
+    _mdCklRenderList(e);
+    _mdCklQueueSave();
+  }
+  function _mdCklQueueSave(){
+    if(_mdCkl_saveTimer) clearTimeout(_mdCkl_saveTimer);
+    _mdCkl_saveTimer=setTimeout(_mdCklFlushSave, 900);
+  }
+  async function _mdCklFlushSave(){
+    if(_mdCkl_saveTimer){ clearTimeout(_mdCkl_saveTimer); _mdCkl_saveTimer=null; }
+    if(!(await ensureGhToken())){ return; }
+    const events=(_mdCal.events||[]).slice();
+    saveMdEventsLocal(events);
+    // renderMdCal 을 debounce 후 재렌더 — 진행률 표시 갱신
+    if(_mdCkl_editingId===null){ renderMdCal(); }
+    const meta={events, updatedAt:Date.now()};
+    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
+    try{
+      const r=await ghPut(MD_EVENTS_API, b64, 'chore: MD 기획전 체크리스트 업데이트');
+      if(r && r.ok){ _mdLastPutAt=Date.now(); }
+    }catch(e){}
+  }
+  function mdCklClose(){
+    // 진행 중 debounce 저장을 즉시 flush
+    if(_mdCkl_saveTimer){ _mdCklFlushSave(); }
+    document.getElementById('mdCklModal').classList.remove('show');
+    _mdCkl_editingId=null;
+    renderMdCal();
   }
 
   document.getElementById('mdEventCancelBtn')?.addEventListener('click', mdCalCloseModal);
@@ -24505,11 +24807,23 @@
     if(e.target.id==='mdEventModal') mdCalCloseModal();
   });
 
+  document.getElementById('mdCklAddBtn')?.addEventListener('click', _mdCklAddItem);
+  document.getElementById('mdCklAddInput')?.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); _mdCklAddItem(); }
+  });
+  document.getElementById('mdCklResetBtn')?.addEventListener('click', _mdCklReset);
+  document.getElementById('mdCklDoneBtn')?.addEventListener('click', mdCklClose);
+  document.getElementById('mdCklModal')?.addEventListener('click', (e)=>{
+    if(e.target.id==='mdCklModal') mdCklClose();
+  });
+
   window.mdCalNavPrev=mdCalNavPrev;
   window.mdCalNavNext=mdCalNavNext;
   window.mdCalNavToday=mdCalNavToday;
   window.mdCalOpenAdd=mdCalOpenAdd;
   window.mdCalOpenEdit=mdCalOpenEdit;
+  window.mdCklOpen=mdCklOpen;
+  window.mdCklClose=mdCklClose;
   window.renderMdCal=renderMdCal;
   window.syncMdEventsFromRemote=syncMdEventsFromRemote;
 
