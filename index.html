@@ -895,13 +895,17 @@
       inset 0 1px 0 rgba(255,255,255,.45);
   }
 
-  /* 홈 최상단 · 에이전트 오피스 실시간 요약 스트립 (텍스트 한 줄) */
-  .agents-top-strip{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-2);padding:8px 14px;margin:0 0 12px;background:var(--bg-1);border:1px solid var(--line);border-radius:999px;width:fit-content;font-family:var(--sans);letter-spacing:-.1px}
-  .agents-top-strip b{color:var(--text-0);font-weight:800;font-family:var(--mono)}
-  .agents-top-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.18);flex-shrink:0}
-  .agents-top-strip.has-stale .agents-top-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
-  .agents-top-sep{color:var(--text-3);font-weight:500}
-  .agents-top-strip.has-stale .agents-top-warn{color:#dc2626;font-weight:800}
+  /* 톱바 가운데 — 에이전트 요약 텍스트 + 로그인 뱃지 (회사명 우측 중간) */
+  .topbar-center{display:flex;align-items:center;gap:12px;flex:1;justify-content:center;min-width:0;overflow:hidden}
+  .topbar-agents{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-2);white-space:nowrap;font-family:var(--sans);letter-spacing:-.1px;padding:5px 12px;border-radius:999px;background:transparent;border:1px solid transparent}
+  .topbar-agents b{color:var(--text-0);font-weight:800;font-family:var(--mono)}
+  .topbar-agents .agents-top-sep{color:var(--text-3);font-weight:500}
+  .topbar-agents .agents-top-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.18);flex-shrink:0}
+  .topbar-agents.has-stale .agents-top-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
+  .topbar-agents.has-stale .agents-top-warn{color:#dc2626;font-weight:800}
+  .topbar-agents-text{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  /* 로그인 뱃지가 톱바 안에 놓일 때 압축 */
+  .diary-me-badge-topbar{margin:0 !important;padding:4px 10px 4px 12px !important;font-size:11.5px !important}
 
   /* 히어로 — 에이전트 오피스 (다크 슬레이트 + 라이브 에메랄드) */
   .hero-row-agents{grid-template-columns:1fr;margin-bottom:22px;position:relative}
@@ -1376,11 +1380,15 @@
   }
   .lg-brand-pill:hover{background:var(--bg-2);border-color:var(--line-2);color:var(--text-1)}
   .lg-brand-pill.active{
+    background:var(--text-0);color:#fff;border-color:var(--text-0);
+    box-shadow:0 2px 8px rgba(0,0,0,.15)
+  }
+  .lg-brand-pill.active[data-brand="brightbeed"]{
     background:#8b5cf6;color:#fff;border-color:#8b5cf6;
     box-shadow:0 2px 8px rgba(139,92,246,.28)
   }
   .lg-brand-pill.active[data-brand="shinebeed"]{
-    background:#0284c7;border-color:#0284c7;
+    background:#0284c7;color:#fff;border-color:#0284c7;
     box-shadow:0 2px 8px rgba(2,132,199,.28)
   }
   @media (max-width:720px){
@@ -1526,6 +1534,10 @@
   .lg-memo-empty{
     text-align:center;padding:40px 20px;color:var(--text-3);
     font-size:13px;font-family:var(--sans)
+  }
+  .lg-memo-list.dragover{
+    outline:2px dashed #8b5cf6;outline-offset:4px;
+    border-radius:12px;background:rgba(139,92,246,.04)
   }
   @media (max-width:720px){
     .lg-memo-wrap{padding:0 10px}
@@ -8465,6 +8477,9 @@
     .brand-name{font-size:13px}
     .brand-sep,.brand-mod{display:none}
     .topbar-right{gap:10px}
+    .topbar-center{gap:8px}
+    .topbar-agents{font-size:11.5px;padding:4px 8px;gap:6px}
+    .diary-me-badge-topbar{font-size:11px !important;padding:3px 8px 3px 10px !important}
     .status-pill{font-size:10px;letter-spacing:.01em;gap:6px}
     /* 동기화 텍스트는 너무 길어 모바일에서 숨김 — 점만 표시 (탭하면 그대로 동기화) */
     .status-pill #syncStatus{display:none}
@@ -8615,6 +8630,10 @@
     .container{padding:12px}
     .topbar{padding:9px 12px;gap:6px}
     .topbar-right{gap:6px}
+    /* 초좁은 화면에선 "명 자동화 정상" 감춰 근무 인원만 노출 */
+    .topbar-agents .agents-top-sep,.topbar-agents #agentsTopStatus{display:none}
+    .topbar-agents{padding:3px 6px;font-size:11px}
+    .diary-me-badge-topbar{display:none !important}
     .brand{gap:8px}
     .brand-name{font-size:12px}
     .role-badge{padding:2px 6px;font-size:9.5px}
@@ -8665,6 +8684,17 @@
       <div class="brand-name"><span class="brand-name-full">Bead Universe Co., Ltd.</span><span class="brand-name-short">Bead Universe</span></div>
       <span class="role-badge" title="보기 전용 권한 — 수정은 마스터만 가능">VIEWER</span>
     </div>
+    <div class="topbar-center">
+      <div class="topbar-agents" id="agentsTopStrip">
+        <span class="agents-top-dot"></span>
+        <span class="topbar-agents-text"><b id="agentsTopRunN">–</b>명 근무중<span class="agents-top-sep"> · </span><span id="agentsTopStatus"><b id="agentsTopTotN">–</b>명 자동화 정상</span></span>
+      </div>
+      <div id="diaryMeBadge" class="diary-me-badge diary-me-badge-topbar" hidden>
+        <span class="diary-me-badge-dot"></span>
+        <b id="diaryMeBadgeName"></b> 로그인
+        <span id="diaryMeBadgeNotif" class="diary-me-badge-notif" hidden></span>
+      </div>
+    </div>
     <div class="topbar-right">
       <div class="status-pill"><span class="status-dot"></span><span id="syncStatus">동기화 완료 · 방금 전</span></div>
       <button type="button" class="sys-health-pill" id="sysHealthPill" onclick="toggleSysHealth()" title="시스템 상태 상세 보기">
@@ -8696,20 +8726,6 @@
   <main class="container">
   <!-- ============ 홈 뷰 ============ -->
   <div class="view" id="viewHome">
-    <!-- 최상단 · 에이전트 오피스 실시간 요약 -->
-    <div class="agents-top-strip" id="agentsTopStrip">
-      <span class="agents-top-dot"></span>
-      <span><b id="agentsTopRunN">–</b>명 근무중</span>
-      <span class="agents-top-sep">·</span>
-      <span id="agentsTopStatus"><b id="agentsTopTotN">–</b>명 자동화 정상</span>
-    </div>
-
-    <!-- 로그인 뱃지 (로그인된 경우만 노출) -->
-    <div id="diaryMeBadge" class="diary-me-badge" hidden>
-      <span class="diary-me-badge-dot"></span>
-      <b id="diaryMeBadgeName"></b> 로그인
-      <span id="diaryMeBadgeNotif" class="diary-me-badge-notif" hidden></span>
-    </div>
 
     <!-- 대표 캘린더 홈 위젯 (대표 두 분 로그인 PC 에만 노출, 마스터 전용) -->
     <div id="homeCeoCalCard" class="home-ceocal-card" hidden>
@@ -9558,9 +9574,10 @@
       <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주 관리</span></h1>
     </div>
 
-    <!-- 브랜드 스위치: 브라이트비드 ↔ 샤인비드 -->
+    <!-- 브랜드 스위치: 메인(총괄) · 브라이트비드 · 샤인비드 (메모는 각각 별개 저장) -->
     <div class="lg-brand-switch" role="tablist" aria-label="브랜드 선택">
-      <button class="lg-brand-pill active" data-brand="brightbeed" onclick="switchLgBrand('brightbeed')" role="tab" aria-selected="true">브라이트비드</button>
+      <button class="lg-brand-pill active" data-brand="main" onclick="switchLgBrand('main')" role="tab" aria-selected="true">메인</button>
+      <button class="lg-brand-pill" data-brand="brightbeed" onclick="switchLgBrand('brightbeed')" role="tab" aria-selected="false">브라이트비드</button>
       <button class="lg-brand-pill" data-brand="shinebeed" onclick="switchLgBrand('shinebeed')" role="tab" aria-selected="false">샤인비드</button>
     </div>
 
@@ -9758,7 +9775,7 @@
             새 메모
           </button>
         </div>
-        <div class="lg-memo-list" id="lgMemoList"></div>
+        <div class="lg-memo-list" id="lgMemoList" ondragover="lgMemoListDragOver(event)" ondragleave="lgMemoListDragLeave(event)" ondrop="lgMemoListDrop(event)"></div>
       </div>
     </div>
   </div><!-- /viewLg -->
@@ -13830,32 +13847,39 @@
     }
     showView('viewDiary');
   }
-  /* 홈 물류팀 카드 진입 — 최근 사용 브랜드 유지 (없으면 브라이트비드) */
+  /* 홈 물류팀 카드 진입 — 최근 사용 브랜드 유지 (없으면 메인) */
   function triggerLogistics(brand){
+    const allowed = ['main','brightbeed','shinebeed'];
     let target;
-    if(brand === 'shinebeed' || brand === 'brightbeed'){
+    if(allowed.includes(brand)){
       target = brand;
     }else{
-      try{ target = localStorage.getItem('lgLastBrand') || 'brightbeed'; }catch(_){ target='brightbeed'; }
-      if(target !== 'shinebeed') target = 'brightbeed';
+      try{ target = localStorage.getItem('lgLastBrand') || 'main'; }catch(_){ target='main'; }
+      if(!allowed.includes(target)) target = 'main';
     }
     switchLgBrand(target);
     showView('viewLg');
     // 진입 시 항상 메모 탭부터 (사장님 요청)
     if(typeof switchLgTab==='function') switchLgTab('memo');
   }
-  /* 뷰 내부 브랜드 스위치 (BB/SB pill 및 프로그래매틱 호출) */
+  /* 뷰 내부 브랜드 스위치 (메인/BB/SB pill 및 프로그래매틱 호출)
+     - window._lgBrand : 메모 카테고리 (main/brightbeed/shinebeed)
+     - window._kdBrand : 발주 데이터 브랜드 (brightbeed/shinebeed) — 메인은 brightbeed 로 fallback */
   function switchLgBrand(brand){
-    window._kdBrand = (brand === 'shinebeed') ? 'shinebeed' : 'brightbeed';
-    try{ localStorage.setItem('lgLastBrand', window._kdBrand); }catch(_){}
+    const allowed = ['main','brightbeed','shinebeed'];
+    window._lgBrand = allowed.includes(brand) ? brand : 'main';
+    // 발주 데이터는 BB/SB 만 존재 → 메인이면 brightbeed 로 매핑
+    window._kdBrand = (window._lgBrand === 'shinebeed') ? 'shinebeed' : 'brightbeed';
+    try{ localStorage.setItem('lgLastBrand', window._lgBrand); }catch(_){}
     _kdLastHash = ''; // dedup 캐시 초기화 → 강제 재렌더
+
+    const labels = { main:'메인', brightbeed:'브라이트비드', shinebeed:'샤인비드' };
     const titleEl = document.querySelector('#viewLg .view-title');
     if(titleEl){
-      const label = window._kdBrand === 'shinebeed' ? '샤인비드' : '브라이트비드';
-      titleEl.innerHTML = `물류팀 <span class="view-title-brand">${label}</span><span class="view-title-sub">/ 발주 관리</span>`;
+      titleEl.innerHTML = `물류팀 <span class="view-title-brand">${labels[window._lgBrand]}</span><span class="view-title-sub">/ 발주 관리</span>`;
     }
     document.querySelectorAll('.lg-brand-pill').forEach(btn=>{
-      const active = btn.dataset.brand === window._kdBrand;
+      const active = btn.dataset.brand === window._lgBrand;
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-selected', active?'true':'false');
     });
@@ -21257,7 +21281,7 @@
      저장: localStorage `lgMemo_{brand}` (사장님 개인 노트, 서버 저장 없음).
      이미지는 max 1600px 리사이즈(JPEG 0.85)로 저장, 기타 파일은 base64 원본.
      완료 체크 · 첨부 추가/삭제만 재렌더, 텍스트 편집은 DOM 유지(캐럿 보존). */
-  function _lgMemoKey(){ return 'lgMemo_' + (window._kdBrand || 'brightbeed'); }
+  function _lgMemoKey(){ return 'lgMemo_' + (window._lgBrand || 'main'); }
   function _lgMemoLoad(){
     try{
       const raw = localStorage.getItem(_lgMemoKey());
@@ -21432,9 +21456,9 @@
   }
   window.lgMemoDel=lgMemoDel;
 
-  /* ===== 메모 첨부 (이미지/엑셀 등) ===== */
-  const LG_MEMO_MAX_IMG = 1600; // px (max side)
-  const LG_MEMO_MAX_FILE_MB = 8; // 개별 파일 8MB 초과 시 경고
+  /* ===== 메모 첨부 (이미지/엑셀 등) — 사용자 요청으로 개별 파일 크기 제한 없음 =====
+     이미지는 max 2400px 만 리사이즈 (localStorage quota 절약). 그 외 파일은 원본 base64. */
+  const LG_MEMO_MAX_IMG = 2400;
 
   function _lgMemoIsImage(file){
     return /^image\//.test(file.type || '') || /\.(png|jpe?g|gif|webp|bmp)$/i.test(file.name||'');
@@ -21458,7 +21482,7 @@
           canvas.width = width; canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
           const isPng = /^image\/png$/i.test(file.type||'');
-          resolve(canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.85));
+          resolve(canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.9));
         };
         img.onerror = reject;
         img.src = e.target.result;
@@ -21486,9 +21510,6 @@
     const grid = document.querySelector('[data-attach-grid="'+id+'"]');
     for(const f of files){
       if(!f) continue;
-      if(f.size > LG_MEMO_MAX_FILE_MB * 1024 * 1024){
-        if(!confirm(`"${f.name}" 은 ${_lgMemoFmtSize(f.size)} 로 큽니다. 저장 공간이 부족할 수 있어요. 계속할까요?`)) continue;
-      }
       try{
         const isImg = _lgMemoIsImage(f);
         const dataUrl = isImg ? await _lgMemoReadImage(f) : await _lgMemoReadFile(f);
@@ -21591,12 +21612,48 @@
 
   function lgMemoDrop(ev, id){
     ev.preventDefault();
+    ev.stopPropagation(); // 리스트 컨테이너로 버블 안 됨
     const el = document.querySelector('.lg-memo-item[data-id="'+id+'"]');
     if(el) el.classList.remove('dragover');
     const files = ev.dataTransfer && ev.dataTransfer.files;
     if(files && files.length) _lgMemoAttachFiles(id, files);
   }
   window.lgMemoDrop=lgMemoDrop;
+
+  /* 빈 영역/카드 사이 드롭 — 새 메모 자동 생성 후 첨부 */
+  function lgMemoListDragOver(ev){
+    if(!ev.dataTransfer || !ev.dataTransfer.types || !ev.dataTransfer.types.includes('Files')) return;
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = 'copy';
+    const list = document.getElementById('lgMemoList');
+    if(list) list.classList.add('dragover');
+  }
+  window.lgMemoListDragOver=lgMemoListDragOver;
+
+  function lgMemoListDragLeave(ev){
+    // 리스트 밖으로 완전히 나갔을 때만 hide
+    const list = document.getElementById('lgMemoList');
+    if(!list) return;
+    if(ev.relatedTarget && list.contains(ev.relatedTarget)) return;
+    list.classList.remove('dragover');
+  }
+  window.lgMemoListDragLeave=lgMemoListDragLeave;
+
+  function lgMemoListDrop(ev){
+    ev.preventDefault();
+    const list = document.getElementById('lgMemoList');
+    if(list) list.classList.remove('dragover');
+    const files = ev.dataTransfer && ev.dataTransfer.files;
+    if(!files || !files.length) return;
+    // 새 메모 생성 후 방금 만든 아이디로 첨부
+    const items = _lgMemoLoad();
+    const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    items.unshift({id, title:'', text:'', done:false, ts:Date.now(), attachments:[]});
+    if(!_lgMemoSave(items)) return;
+    lgMemoRender();
+    _lgMemoAttachFiles(id, files);
+  }
+  window.lgMemoListDrop=lgMemoListDrop;
 
   function refreshArchivePane(){
     const brand = window._kdBrand || 'brightbeed';
