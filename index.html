@@ -2382,8 +2382,17 @@
 
   /* ===== 브랜드별 기획전 탭 (식스에이 · 프로덕트피알 · 아코이) ===== */
   .mdpromo-section .mdpromo-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px;background:var(--bg-1);border:1px dashed var(--line);border-radius:8px}
-  .mdpromo-section .lg-tab{display:inline-flex;align-items:center;gap:8px}
-  .mdpromo-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  /* 알약 탭 컨테이너 */
+  .mdpromo-tabs{display:flex;gap:6px;padding:0 0 14px;margin:0;max-width:none;flex-wrap:wrap}
+  /* 탭 자체 — lg-tab 기본값을 오버라이드해 더 얇고 단정하게 */
+  .mdpromo-tab{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--text-2);background:#fff;border:1px solid var(--line);border-radius:999px;cursor:pointer;transition:all .12s ease;white-space:nowrap;letter-spacing:-.1px}
+  .mdpromo-tab:hover{background:var(--bg-1);border-color:var(--line-2);color:var(--text-1)}
+  /* 활성 상태 — 브랜드 컬러로 얇은 fill */
+  .mdpromo-tab.active{background:var(--mdpc,#111);border-color:var(--mdpc,#111);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .mdpromo-tab.active:hover{background:var(--mdpc,#111);filter:brightness(.94)}
+  /* 좌측 dot — 활성 시 흰색으로 자연스럽게 */
+  .mdpromo-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mdpc,var(--text-3));flex-shrink:0}
+  .mdpromo-tab.active .mdpromo-dot{background:#fff}
 
   /* ===== 기획전 일정 · 간트(가로 타임라인) 표 ===== */
   .md-cal-section .md-cal-weekdays{display:none}
@@ -9864,10 +9873,10 @@
         <div class="po-section-head">
           <div class="po-section-title">브랜드별 기획전 <span class="po-section-meta-inline">진행중 · 예정 기획전</span></div>
         </div>
-        <div class="lg-tabs" role="tablist" style="padding:0 0 12px 12px;max-width:none;margin:0">
-          <button class="lg-tab active" data-mdpromo="sixA" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true"><span class="mdpromo-dot" style="background:#22d3ee;box-shadow:0 0 8px rgba(34,211,238,.55)"></span>식스에이</button>
-          <button class="lg-tab" data-mdpromo="pp" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.55)"></span>프로덕트피알</button>
-          <button class="lg-tab" data-mdpromo="akoi" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false"><span class="mdpromo-dot" style="background:#f472b6;box-shadow:0 0 8px rgba(244,114,182,.55)"></span>아코이</button>
+        <div class="lg-tabs mdpromo-tabs" role="tablist">
+          <button class="lg-tab mdpromo-tab active" data-mdpromo="sixA" style="--mdpc:#22d3ee" onclick="mdPromoSwitch('sixA')" role="tab" aria-selected="true"><span class="mdpromo-dot"></span>식스에이</button>
+          <button class="lg-tab mdpromo-tab" data-mdpromo="pp" style="--mdpc:#f59e0b" onclick="mdPromoSwitch('pp')" role="tab" aria-selected="false"><span class="mdpromo-dot"></span>프로덕트피알</button>
+          <button class="lg-tab mdpromo-tab" data-mdpromo="akoi" style="--mdpc:#f472b6" onclick="mdPromoSwitch('akoi')" role="tab" aria-selected="false"><span class="mdpromo-dot"></span>아코이</button>
         </div>
         <div class="mdpromo-panel" data-mdpromo-panel="sixA">
           <div class="akp-wrap" data-akp-brand="sixA">
