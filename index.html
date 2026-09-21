@@ -1401,18 +1401,29 @@
   /* ===== 물류팀 뷰 — 메모 탭: 디자인팀 작업 보드(dsg-doc) 재활용 =====
      기존 카드형 lg-memo-* 스타일은 제거. dsg-doc 시스템이 완전 대체.
      브랜드(메인/BB/SB)별 격리 저장은 _dsgActiveBoard = 'lg_' + brand 로 처리. */
-  /* 물류팀 뷰에서는 ＋ / 삭제 / ▲▼ 버튼을 hover 없이 항상 노출 (사장님 요청). */
+  /* 물류팀·MD팀 뷰에서는 ＋ / 삭제 / ▲▼ 버튼을 hover 없이 항상 노출 (사장님 요청). */
   #viewLg .dsg-blk > .dsg-blk-plus,
   #viewLg .dsg-blk > .dsg-blk-del,
   #viewLg .dsg-blk > .dsg-blk-move,
   #viewLg .dsg-sec-plus,
   #viewLg .dsg-sec-head .dsg-blk-move,
-  #viewLg .dsg-sec-head .dsg-blk-del{ opacity:.7 }
+  #viewLg .dsg-sec-head .dsg-blk-del,
+  #viewMd .dsg-blk > .dsg-blk-plus,
+  #viewMd .dsg-blk > .dsg-blk-del,
+  #viewMd .dsg-blk > .dsg-blk-move,
+  #viewMd .dsg-sec-plus,
+  #viewMd .dsg-sec-head .dsg-blk-move,
+  #viewMd .dsg-sec-head .dsg-blk-del{ opacity:.7 }
   #viewLg .dsg-blk > .dsg-blk-plus:hover,
   #viewLg .dsg-blk > .dsg-blk-del:hover,
   #viewLg .dsg-sec-plus:hover,
   #viewLg .dsg-sec-head .dsg-blk-del:hover,
-  #viewLg .dsg-blk-move .dsg-blk-move-btn:hover{ opacity:1 }
+  #viewLg .dsg-blk-move .dsg-blk-move-btn:hover,
+  #viewMd .dsg-blk > .dsg-blk-plus:hover,
+  #viewMd .dsg-blk > .dsg-blk-del:hover,
+  #viewMd .dsg-sec-plus:hover,
+  #viewMd .dsg-sec-head .dsg-blk-del:hover,
+  #viewMd .dsg-blk-move .dsg-blk-move-btn:hover{ opacity:1 }
 
   /* ===== 우체국 출고 (ez-*) — EZ 국제 송장 입력·모니터링 ===== */
   .ez-input-wrap{
@@ -9906,7 +9917,58 @@
         홈
       </button>
       <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전</span></h1>
+      <div class="dsg-head-actions" style="margin-left:auto">
+        <span class="dsg-save-tag" id="mdSaveTag" data-state="saved" title="작업보드 저장 상태 (GitHub 동기화)">✓ 저장됨</span>
+      </div>
     </div>
+
+    <!-- ============ MD팀 작업 보드 — 최상단 노션 스타일 아웃라이너 ============ -->
+    <div class="dsg-pane md-doc-pane" style="padding:0 24px 6px;max-width:1400px;margin:0 auto 20px">
+      <div class="dsg-doc-toolbar">
+        <input id="mdDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
+        <label class="dsg-hide-done">
+          <input type="checkbox" id="mdDocHideDone" onchange="dsgDocRender()">
+          <span>완료 숨김</span>
+        </label>
+        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="mdFsPicker" title="글꼴 크기 (8~28px)">
+          <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
+          <input class="dsg-fs-num" id="mdFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
+          <span class="dsg-fs-suffix">px</span>
+          <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
+        </div>
+        <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+          펼치기
+        </button>
+        <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+          접기
+        </button>
+      </div>
+      <div id="mdBoardWrap" class="dsg-doc-wrap">
+        <div class="dsg-empty" id="mdEmpty" hidden>
+          <div class="dsg-empty-icon">📝</div>
+          <div class="dsg-empty-title">아직 작업이 없어요</div>
+          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작하세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
+        </div>
+        <div id="mdDoc" class="dsg-doc"></div>
+        <div class="dsg-doc-add" id="mdDocAdd">
+          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
+            <span class="dsg-doc-add-plus">＋</span>
+            <span>여기에 입력하세요</span>
+          </button>
+          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
+            새 섹션
+          </button>
+        </div>
+        <div class="dsg-doc-hint">
+          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
+          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
+        </div>
+      </div>
+    </div>
+
     <div class="po-wrap">
 
       <!-- 기획전 일정 캘린더 -->
@@ -13899,6 +13961,8 @@
       if(typeof dsgInit==='function') dsgInit();
     }
     if(id==='viewMd'){
+      _dsgActiveBoard = 'md';
+      if(typeof dsgInit==='function') dsgInit();
       if(typeof renderMdCal==='function') renderMdCal();
       if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
       if(typeof akpInit==='function'){
@@ -14761,7 +14825,8 @@
     cs:           'brightbeed_cs_doc_v1',
     lg_main:      'brightbeed_lg_memo_main_v1',
     lg_brightbeed:'brightbeed_lg_memo_brightbeed_v1',
-    lg_shinebeed: 'brightbeed_lg_memo_shinebeed_v1'
+    lg_shinebeed: 'brightbeed_lg_memo_shinebeed_v1',
+    md:           'brightbeed_md_doc_v1'
   };
   const DSG_DOC_KEY   = DSG_DOC_KEYS.design;           // legacy alias (기존 참조 유지)
   function _dsgDocKey(){ return DSG_DOC_KEYS[_dsgActiveBoard] || DSG_DOC_KEYS.design; }
@@ -14791,14 +14856,16 @@
     cs:           'data/cs_doc.json',
     lg_main:      'data/lg_memo_main.json',
     lg_brightbeed:'data/lg_memo_brightbeed.json',
-    lg_shinebeed: 'data/lg_memo_shinebeed.json'
+    lg_shinebeed: 'data/lg_memo_shinebeed.json',
+    md:           'data/md_doc.json'
   };
   const DSG_DOC_LABELS = {
     design:       '디자인 문서',
     cs:           'CS 작업보드',
     lg_main:      '물류 메모 (메인)',
     lg_brightbeed:'물류 메모 (브라이트비드)',
-    lg_shinebeed: '물류 메모 (샤인비드)'
+    lg_shinebeed: '물류 메모 (샤인비드)',
+    md:           'MD 작업보드'
   };
   const DSG_DOC_PATH  = DSG_DOC_PATHS.design;          // legacy alias
   const DSG_REFS_PATH ='data/design_refs.json';
@@ -14820,7 +14887,8 @@
     cs:           {version:1, blocks:[]},
     lg_main:      {version:1, blocks:[]},
     lg_brightbeed:{version:1, blocks:[]},
-    lg_shinebeed: {version:1, blocks:[]}
+    lg_shinebeed: {version:1, blocks:[]},
+    md:           {version:1, blocks:[]}
   };  // 노션 아웃라이너 트리 (board별)
   function _dsgCurDoc(){
     if(!_dsgDocs[_dsgActiveBoard]) _dsgDocs[_dsgActiveBoard] = {version:1, blocks:[]};
@@ -14841,7 +14909,9 @@
     /* 물류팀 메모: 브랜드 3개(메인/BB/SB)가 같은 DOM 을 공유, 데이터만 board 로 분리 */
     lg_main:       { doc:'lgDoc', empty:'lgEmpty', search:'lgDocSearch', hideDone:'lgDocHideDone', fsPicker:'lgFsPicker', fsNum:'lgFsNum', badge:'lgTabMemoBadge' },
     lg_brightbeed: { doc:'lgDoc', empty:'lgEmpty', search:'lgDocSearch', hideDone:'lgDocHideDone', fsPicker:'lgFsPicker', fsNum:'lgFsNum', badge:'lgTabMemoBadge' },
-    lg_shinebeed:  { doc:'lgDoc', empty:'lgEmpty', search:'lgDocSearch', hideDone:'lgDocHideDone', fsPicker:'lgFsPicker', fsNum:'lgFsNum', badge:'lgTabMemoBadge' }
+    lg_shinebeed:  { doc:'lgDoc', empty:'lgEmpty', search:'lgDocSearch', hideDone:'lgDocHideDone', fsPicker:'lgFsPicker', fsNum:'lgFsNum', badge:'lgTabMemoBadge' },
+    /* MD팀 작업보드 (단일 board) */
+    md:            { doc:'mdDoc', empty:'mdEmpty', search:'mdDocSearch', hideDone:'mdDocHideDone', fsPicker:'mdFsPicker', fsNum:'mdFsNum', badge:null }
   };
   function _dsgDocIds(){ return DSG_DOC_DOM[_dsgActiveBoard] || DSG_DOC_DOM.design; }
   let _dsgSaveTimer = null;
@@ -14890,7 +14960,8 @@
     const tags = [
       document.getElementById('dsgSaveTag'),
       document.getElementById('csSaveTag'),
-      document.getElementById('lgSaveTag')
+      document.getElementById('lgSaveTag'),
+      document.getElementById('mdSaveTag')
     ].filter(Boolean);
     if(!tags.length) return;
     let text;
@@ -14951,7 +15022,7 @@
     if(!el || el===document.body) return false;
     const editable = el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'||el.isContentEditable;
     if(!editable) return false;
-    return !!el.closest('#viewDesign, #viewCs, #viewLg, .dsg-modal');
+    return !!el.closest('#viewDesign, #viewCs, #viewLg, #viewMd, .dsg-modal');
   }
 
   /* remote pull — doc 은 dirty 아니면 통째로 remote 로 갱신, dirty 면 로컬 유지 */
@@ -15059,6 +15130,8 @@
     } else if(!document.getElementById('viewLg')?.hidden){
       const memoActive = document.querySelector('#viewLg .lg-tab.active[data-tab="memo"]');
       if(memoActive) dsgDocRender();
+    } else if(!document.getElementById('viewMd')?.hidden){
+      dsgDocRender();
     }
   }
 
@@ -15194,6 +15267,8 @@
           dsgDocRender();
         } else if(!document.getElementById('viewLg')?.hidden){
           if(document.querySelector('#viewLg .lg-tab.active[data-tab="memo"]')) dsgDocRender();
+        } else if(!document.getElementById('viewMd')?.hidden){
+          dsgDocRender();
         }
       }
     } else {
@@ -15449,14 +15524,14 @@
   }
   function _dsgApplyFs(){
     /* 세 보드(디자인·CS·물류 메모) doc 모두 반영 — 폰트 크기 pref 는 board 공유 */
-    ['dsgDoc','csDoc','lgDoc'].forEach(docId=>{
+    ['dsgDoc','csDoc','lgDoc','mdDoc'].forEach(docId=>{
       const doc = document.getElementById(docId);
       if(doc){
         doc.style.setProperty('--dsg-fs', _dsgFs+'px');
         doc.style.setProperty('--dsg-sec-fs', Math.max(14, _dsgFs+5)+'px');
       }
     });
-    ['dsgFsNum','csFsNum','lgFsNum'].forEach(inputId=>{
+    ['dsgFsNum','csFsNum','lgFsNum','mdFsNum'].forEach(inputId=>{
       const inp = document.getElementById(inputId);
       if(inp && document.activeElement!==inp) inp.value = _dsgFs;
     });
@@ -15481,7 +15556,7 @@
     _dsgFs = v;
     _dsgSaveFs();
     /* 입력 중이면 value 덮어쓰지 않고 모든 board doc CSS만 반영 (사장님 타이핑 방해 X) */
-    ['dsgDoc','csDoc','lgDoc'].forEach(docId=>{
+    ['dsgDoc','csDoc','lgDoc','mdDoc'].forEach(docId=>{
       const doc = document.getElementById(docId);
       if(doc){
         doc.style.setProperty('--dsg-fs', _dsgFs+'px');
