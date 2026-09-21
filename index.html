@@ -6034,11 +6034,11 @@
   .cs-memo{flex:1;min-height:220px;background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--text-1);font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;outline:none;overflow-y:auto;transition:border-color .12s}
   .cs-memo[contenteditable="true"]{border-color:var(--neon-cs);box-shadow:inset 0 0 0 1px rgba(34,211,238,.15)}
   .cs-memo:empty::before{content:attr(data-placeholder);color:var(--text-3);font-style:italic}
-  .cs-memo-controls{display:flex;gap:6px}
-  .cs-memo-controls button{background:transparent;border:1px solid var(--line);color:var(--text-2);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 11px;border-radius:3px;cursor:pointer;transition:all .12s}
-  .cs-memo-controls .cs-memo-edit:hover{border-color:var(--neon-cs);color:var(--neon-cs)}
-  .cs-memo-controls .cs-memo-save{border-color:var(--neon-cs);color:var(--neon-cs)}
-  .cs-memo-controls .cs-memo-save:hover{background:rgba(34,211,238,.10)}
+  .cs-memo-live{cursor:text}
+  .cs-memo-live:focus{border-color:var(--neon-cs);box-shadow:inset 0 0 0 1px rgba(34,211,238,.28),0 0 0 3px rgba(34,211,238,.10);outline:none}
+  .cs-memo-status{font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:3px 9px;border-radius:999px;color:var(--text-3);background:transparent;border:1px solid var(--line);transition:all .12s;white-space:nowrap;flex-shrink:0}
+  .cs-memo-status[data-state="saving"]{color:var(--neon-cs);border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.06)}
+  .cs-memo-status[data-state="error"]{color:var(--danger);border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.08)}
 
   /* ===== 권한 (Viewer / Master) ===== */
   body.role-viewer .master-only{display:none !important}
@@ -9930,17 +9930,16 @@
         <div id="csFaqList" class="cs-list"></div>
       </section>
 
-      <!-- CS팀 메모장 — 뷰어도 편집 가능 -->
+      <!-- CS팀 메모장 — 항상 편집 가능 (편집 버튼 없이 바로 타이핑, 자동 저장) -->
       <section class="cs-section cs-section-memo" id="csMemoSection">
         <div class="cs-section-head">
-          <div class="cs-section-title">CS팀 메모장 <span class="cs-section-sub">누구나 편집 가능</span></div>
-          <div class="cs-memo-controls">
-            <button class="cs-memo-edit" id="csMemoEditBtn" onclick="enterCsMemoEdit()">편집</button>
-            <button class="cs-memo-save" id="csMemoSaveBtn" onclick="saveCsMemoEdit()" style="display:none">저장</button>
-            <button class="cs-memo-cancel" id="csMemoCancelBtn" onclick="cancelCsMemoEdit()" style="display:none">취소</button>
-          </div>
+          <div class="cs-section-title">CS팀 메모장 <span class="cs-section-sub">누구나 편집 가능 · 자동 저장</span></div>
+          <span class="cs-memo-status" id="csMemoStatus" data-state="saved" aria-live="polite">✓ 저장됨</span>
         </div>
-        <div id="csMemo" class="cs-memo" contenteditable="false"></div>
+        <div id="csMemo" class="cs-memo cs-memo-live" contenteditable="true" spellcheck="false"
+             oninput="csMemoOnInput()"
+             onfocus="csMemoOnFocus()"
+             onblur="csMemoOnBlur()"></div>
       </section>
     </div>
   </div>
@@ -24740,12 +24739,21 @@
   }
 
   function renderCsMemo(){
-    if(_cs_memoEditing) return;
+    if(_cs_memoEditing) return;   // 입력 중이면 캐럿 유실 방지
     const el=document.getElementById('csMemo');
     if(!el) return;
     const d=loadCs();
-    el.textContent=d.memo||'';
-    el.setAttribute('data-placeholder','내부 공유용 메모를 작성하세요');
+    const val=d.memo||'';
+    if(el.textContent!==val) el.textContent=val;   // 값 다를 때만 세팅
+    el.setAttribute('data-placeholder','여기를 클릭해서 바로 입력하세요 · 자동 저장');
+  }
+  function _csMemoSetStatus(state){
+    const s=document.getElementById('csMemoStatus');
+    if(!s) return;
+    s.dataset.state=state;
+    if(state==='saving')     s.textContent='● 저장 중…';
+    else if(state==='error') s.textContent='⚠ 저장 실패 · 재시도';
+    else                     s.textContent='✓ 저장됨';
   }
 
   function addCsItem(){
@@ -24818,39 +24826,41 @@
     }
   }
 
-  function enterCsMemoEdit(){
+  /* CS 메모 인라인 편집 (편집 버튼 없음, 항상 편집 가능 + 자동 저장)
+       - 입력 중엔 renderCsMemo() / syncCsFromRemote() 가 덮어쓰지 않도록 _cs_memoEditing 유지
+       - 타이핑 후 800ms 정지 시 원격 push, blur 시 즉시 push
+       - 저장표시는 서버 응답 이후에만 '저장됨' 으로 전환 */
+  let _cs_memoDebounce=null;
+  function _csMemoCurrent(){
+    const el=document.getElementById('csMemo');
+    if(!el) return '';
+    return el.innerText.replace(/\u00a0/g,' ').replace(/\s+$/,'');
+  }
+  async function _csMemoPushCurrent(){
     const el=document.getElementById('csMemo');
     if(!el) return;
+    const newMemo=_csMemoCurrent();
+    const d=loadCs();
+    if((d.memo||'')===newMemo){ _csMemoSetStatus('saved'); return; }
+    d.memo=newMemo;
+    _csMemoSetStatus('saving');
+    try{ await persistCs(d); _csMemoSetStatus('saved'); }
+    catch(e){ _csMemoSetStatus('error'); }
+  }
+  function csMemoOnFocus(){
     _cs_memoEditing=true;
     _cs_memoOrig=loadCs().memo||'';
-    el.textContent=_cs_memoOrig;
-    el.setAttribute('contenteditable','true');
-    document.getElementById('csMemoEditBtn').style.display='none';
-    document.getElementById('csMemoSaveBtn').style.display='';
-    document.getElementById('csMemoCancelBtn').style.display='';
-    setTimeout(()=>{el.focus();try{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const s=window.getSelection();s.removeAllRanges();s.addRange(r)}catch(e){}},30);
   }
-  async function saveCsMemoEdit(){
-    const el=document.getElementById('csMemo');
-    if(!el) return;
-    const newMemo=el.innerText.replace(/ /g,' ').replace(/\s+$/,'');
-    _cs_memoEditing=false;
-    el.setAttribute('contenteditable','false');
-    document.getElementById('csMemoEditBtn').style.display='';
-    document.getElementById('csMemoSaveBtn').style.display='none';
-    document.getElementById('csMemoCancelBtn').style.display='none';
-    const d=loadCs();
-    d.memo=newMemo;
-    await persistCs(d);
-    renderCsMemo();
+  function csMemoOnInput(){
+    _cs_memoEditing=true;
+    _csMemoSetStatus('saving');
+    clearTimeout(_cs_memoDebounce);
+    _cs_memoDebounce=setTimeout(()=>{ _cs_memoDebounce=null; _csMemoPushCurrent(); }, 800);
   }
-  function cancelCsMemoEdit(){
+  async function csMemoOnBlur(){
+    if(_cs_memoDebounce){ clearTimeout(_cs_memoDebounce); _cs_memoDebounce=null; }
+    await _csMemoPushCurrent();
     _cs_memoEditing=false;
-    const el=document.getElementById('csMemo');
-    if(el){el.setAttribute('contenteditable','false');el.textContent=_cs_memoOrig}
-    document.getElementById('csMemoEditBtn').style.display='';
-    document.getElementById('csMemoSaveBtn').style.display='none';
-    document.getElementById('csMemoCancelBtn').style.display='none';
   }
 
   window.addCsItem=addCsItem;
@@ -24859,9 +24869,9 @@
   window.cancelCsItemEdit=cancelCsItemEdit;
   window.deleteCsItem=deleteCsItem;
   window.copyCsItem=copyCsItem;
-  window.enterCsMemoEdit=enterCsMemoEdit;
-  window.saveCsMemoEdit=saveCsMemoEdit;
-  window.cancelCsMemoEdit=cancelCsMemoEdit;
+  window.csMemoOnFocus=csMemoOnFocus;
+  window.csMemoOnInput=csMemoOnInput;
+  window.csMemoOnBlur=csMemoOnBlur;
   window.renderCs=renderCs;
 
   renderCs();
