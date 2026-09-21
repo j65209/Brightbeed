@@ -21833,25 +21833,34 @@
     _lgMemoSchedPush();
   }
 
-  /* Supabase 에서 pull → 로컬 캐시 교체 → 재렌더 */
+  /* Supabase 에서 pull → 로컬 캐시 교체 → 재렌더
+     안전 규칙:
+       · 첫 pull(_lgMemoRemoteReady=false): 원격에 없는 로컬 항목은 무조건 보존 + dirty 마킹 → 자동 이관
+       · 이후 pull: 로컬-only 항목은 dirty 인 것만 보존 (dirty 아니면 원격에서 삭제된 것으로 간주)  */
   async function _lgMemoPullRemote(){
     const remote = await _lgMemoFetchAll();
     if(!Array.isArray(remote)) return false;
+    const firstPull = !_lgMemoRemoteReady;
     _lgMemoLastRemoteSyncAt = Date.now();
-    // dirty 중인 애들 (upsert 대기) 은 로컬 유지, 나머지는 remote 로 교체
     const localById = new Map((_lgMemoCache||[]).map(m=>[m.id, m]));
     const remoteIds = new Set(remote.map(m=>m.id));
     const merged = [];
     for(const r of remote){
+      // dirty 중인 애들 (upsert 대기) 은 로컬 유지, 나머지는 remote 로 교체
       if(_lgMemoDirtyIds.has(r.id) && localById.has(r.id)) merged.push(localById.get(r.id));
       else merged.push(r);
     }
-    // 아직 push 안 된 로컬 신규 (dirty & not in remote) 는 유지
+    // 로컬-only 항목: 첫 pull 이면 무조건 보존(이관 대상), 아니면 dirty 만 보존
     for(const m of (_lgMemoCache||[])){
-      if(!remoteIds.has(m.id) && _lgMemoDirtyIds.has(m.id)) merged.unshift(m);
+      if(remoteIds.has(m.id)) continue;
+      if(firstPull){
+        merged.unshift(m);
+        _lgMemoMarkDirty(m.id);     // 원격에 없는 로컬 신규 → 자동 push
+      } else if(_lgMemoDirtyIds.has(m.id)){
+        merged.unshift(m);
+      }
     }
     _lgMemoCache = _lgMemoNormalize(merged);
-    // IDB 도 갱신 (오프라인 진입 시 최신)
     _lgMemoIdbPut(LGMEMO_IDB_KEY, _lgMemoCache).catch(()=>{});
     _lgMemoRemoteReady = true;
     if(typeof lgMemoRender === 'function') lgMemoRender();
@@ -21950,17 +21959,8 @@
         }catch(_){}
       }
       _lgMemoLastSaveOk = true;
-      // 5. Supabase 원격 pull (비동기 — 로컬 캐시로 먼저 렌더한 뒤 원격 응답 오면 재렌더)
-      _lgMemoPullRemote().then(ok=>{
-        if(ok){
-          // 로컬만 있고 원격에 없던 로컬 신규 항목을 원격으로 밀어올림 (초기 이관)
-          const remote = new Set(_lgMemoCache.map(m=>m.id));
-          for(const m of (_lgMemoCache||[])){
-            if(remote.has(m.id) && !_lgMemoDirtyIds.has(m.id)) continue;
-            _lgMemoMarkDirty(m.id);
-          }
-        }
-      }).catch(()=>{});
+      // 5. Supabase 원격 pull — 첫 pull 이면 로컬-only 항목 보존 + 자동 이관 (_lgMemoPullRemote 안에서 처리)
+      _lgMemoPullRemote().catch(()=>{});
       // 6. Realtime 구독 — 다른 기기에서 편집하면 즉시 반영
       _lgMemoInitRealtime().catch(()=>{});
       // 7. 화면 재활성 시(모바일 백그라운드 복귀) — 항상 재렌더, 오래되면 원격 pull
