@@ -8834,8 +8834,7 @@
         </button>
       </section>
 
-      <!-- CS팀 카드 잠시 숨김 (2026-09-14). 복원하려면 hidden 속성 제거 -->
-      <section class="hero hero-cs" hidden>
+      <section class="hero hero-cs">
         <div class="hero-eyebrow">CS</div>
         <button class="btn-neon btn-cs" id="csBtn" onclick="triggerCs()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
@@ -9857,14 +9856,49 @@
     </div>
   </div><!-- /viewLg -->
 
-  <!-- ============ CS팀 — FAQ / 템플릿 / 메모장 ============ -->
+  <!-- ============ CS팀 — 업무 스케줄 보드 + FAQ / 템플릿 / 메모장 ============ -->
   <div class="view" id="viewCs" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">CS팀<span class="view-title-sub">/ 고객 응대</span></h1>
+      <h1 class="view-title">CS팀<span class="view-title-sub">/ 업무 스케줄 · 고객 응대</span></h1>
+      <div class="dsg-head-actions" style="margin-left:auto">
+        <span class="dsg-save-tag" id="csSaveTag" data-state="saved" title="현재 저장 상태">✓ 저장됨</span>
+      </div>
+    </div>
+
+    <!-- ============ CS 업무 스케줄 보드 — 아코디언 게시글 리스트 (디자인팀 보드와 동일) ============ -->
+    <div class="dsg-pane" data-pane="posts" style="padding:0 24px;max-width:1400px;margin:0 auto 26px">
+      <div class="dsg-section-label">📮 CS 업무 스케줄</div>
+      <div class="dsg-post-toolbar">
+        <label class="dsg-hide-done">
+          <input type="checkbox" id="csPostHideDone" onchange="dsgPostsRender()">
+          <span>완료 숨김</span>
+        </label>
+        <div class="dsg-post-toolbar-spacer"></div>
+        <button class="dsg-new-btn" onclick="dsgPostAdd()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          새 게시
+        </button>
+      </div>
+
+      <div class="dsg-empty" id="csPostEmpty" hidden>
+        <div class="dsg-empty-icon">📮</div>
+        <div class="dsg-empty-title">아직 스케줄이 없어요</div>
+        <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0921 반품 응대 정리</b> · 내용에 상황·처리방법 · 사진 드래그&드롭.</div>
+      </div>
+
+      <div class="dsg-post-list" id="csPostList"></div>
+
+      <div class="dsg-file-preview" id="csFilePreview" hidden aria-hidden="true"></div>
+
+      <div class="dsg-post-snackbar" id="csPostSnackbar" hidden>
+        <span class="dsg-post-snackbar-msg" id="csPostSnackbarMsg">게시글이 삭제됐어요</span>
+        <button class="dsg-post-snackbar-undo" onclick="dsgPostUndoDelete()">되돌리기</button>
+        <span class="dsg-post-snackbar-timer" id="csPostSnackbarTimer">5</span>
+      </div>
     </div>
 
     <div class="cs-grid">
@@ -13824,8 +13858,10 @@
       if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
     }
     if(id==='viewCs'){
+      _dsgActiveBoard = 'cs';
       if(typeof renderCs==='function') renderCs();
       if(typeof syncCsFromRemote==='function') syncCsFromRemote().catch(()=>{});
+      if(typeof dsgInit==='function') dsgInit();
     }
     if(id==='viewVendor'){
       if(typeof bpsEnsureLoaded==='function') bpsEnsureLoaded();
@@ -13857,6 +13893,7 @@
       if(typeof initDiaryView==='function') initDiaryView();
     }
     if(id==='viewDesign'){
+      _dsgActiveBoard = 'design';
       if(typeof dsgInit==='function') dsgInit();
     }
     if(id==='viewFixedCosts'){
@@ -13984,7 +14021,11 @@
     // 브라이트비드는 기존 arState 값을 arSearch/loadArchive 흐름이 이미 세팅.
   }
   function triggerNotice(){ showView('viewNotice'); }
-  function triggerCs(){ showView('viewCs'); }
+  function triggerCs(){
+    _dsgActiveBoard = 'cs';
+    showView('viewCs');
+    if(typeof dsgInit==='function') dsgInit();
+  }
   function triggerMd(){ showView('viewMd'); }
   function triggerVendor(){ showView('viewVendor'); }
   /* 마케팅팀 진입 — 광고 전광판 우선 렌더, 판매순위는 지연 로드.
@@ -14009,7 +14050,7 @@
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
   }
-  function triggerDesign(){ showView('viewDesign'); if(typeof dsgInit==='function') dsgInit(); }
+  function triggerDesign(){ _dsgActiveBoard = 'design'; showView('viewDesign'); if(typeof dsgInit==='function') dsgInit(); }
   function triggerStock(){ showView('viewStock'); }
   function triggerSixStock(){ showView('viewSixStock'); sixStockOpen(); }
 
@@ -14687,11 +14728,28 @@
   const DSG_PRIO_TITLE = {'':'우선순위 없음', high:'높음', medium:'중간', low:'낮음'};
   let _dsgDoc   = {version:1, blocks:[]};   // 노션 아웃라이너 트리
   let _dsgRefs  = [];
-  let _dsgPosts = [];                       // 디자인 보드 게시글 배열
+  let _dsgPosts = [];                       // 디자인 보드 게시글 배열 (board:'design'|'cs')
   let _dsgCurTab = 'posts';
   let _dsgCurBoard = 'moodboard';
   let _dsgCurPostId = null;
   let _dsgModalRefId  = null;
+  /* 활성 게시글 보드 (design=디자인팀, cs=CS팀). 뷰 진입 시 세팅.
+     같은 _dsgPosts 배열/원격 저장소를 공유하되, 각 게시글의 board 필드로 뷰별 필터링. */
+  let _dsgActiveBoard = 'design';
+  const DSG_BOARD_IDS = {
+    design: {
+      list:'dsgPostList', empty:'dsgPostEmpty', hideDone:'dsgPostHideDone',
+      snackbar:'dsgPostSnackbar', snackbarMsg:'dsgPostSnackbarMsg', snackbarTimer:'dsgPostSnackbarTimer',
+      filePreview:'dsgFilePreview'
+    },
+    cs: {
+      list:'csPostList', empty:'csPostEmpty', hideDone:'csPostHideDone',
+      snackbar:'csPostSnackbar', snackbarMsg:'csPostSnackbarMsg', snackbarTimer:'csPostSnackbarTimer',
+      filePreview:'csFilePreview'
+    }
+  };
+  function _dsgIds(){ return DSG_BOARD_IDS[_dsgActiveBoard] || DSG_BOARD_IDS.design; }
+  function _dsgBoardOf(p){ return (p && p.board) || 'design'; }
   let _dsgSaveTimer = null;
   let _dsgPostSaveTimer = null;
   let _dsg_docDirty = false;                 // doc 전체를 하나의 dirty flag 로
@@ -14733,20 +14791,24 @@
   function _dsgHasPending(){ return _dsg_docDirty || _dsgRefsDirty.size>0 || _dsgPostsDirty.size>0; }
 
   function _dsgSetSaveState(state){
-    const tag = document.getElementById('dsgSaveTag');
-    if(!tag) return;
-    clearTimeout(tag._t);
-    tag.dataset.state = state;
-    tag.hidden = false;    // 상시 표시 (업무일지 스타일)
-    if(state==='saving')      tag.textContent = '● 저장 중…';
-    else if(state==='pending')tag.textContent = '⚠ 저장 대기 · 창을 닫지 마세요';
-    else if(state==='error')  tag.textContent = '⚠ 저장 실패 · 재시도 중';
+    const tags = [document.getElementById('dsgSaveTag'), document.getElementById('csSaveTag')].filter(Boolean);
+    if(!tags.length) return;
+    let text;
+    if(state==='saving')      text = '● 저장 중…';
+    else if(state==='pending')text = '⚠ 저장 대기 · 창을 닫지 마세요';
+    else if(state==='error')  text = '⚠ 저장 실패 · 재시도 중';
     else {
       const t=new Date();
       const hh=String(t.getHours()).padStart(2,'0');
       const mm=String(t.getMinutes()).padStart(2,'0');
-      tag.textContent = `✓ 저장됨 · ${hh}:${mm}`;
+      text = `✓ 저장됨 · ${hh}:${mm}`;
     }
+    tags.forEach(tag=>{
+      clearTimeout(tag._t);
+      tag.dataset.state = state;
+      tag.hidden = false;    // 상시 표시 (업무일지 스타일)
+      tag.textContent = text;
+    });
   }
 
   /* remote fetch — 없으면 초기 doc / 빈 배열 */
@@ -14786,7 +14848,12 @@
     if(!el || el===document.body) return false;
     const editable = el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'||el.isContentEditable;
     if(!editable) return false;
-    return !!el.closest('#viewDesign, .dsg-modal');
+    return !!el.closest('#viewDesign, #viewCs, .dsg-modal');
+  }
+  /* 게시글 보드가 화면에 하나라도 켜져있으면 pull 후 재렌더 */
+  function _dsgAnyBoardOpen(){
+    return !document.getElementById('viewDesign')?.hidden
+        || !document.getElementById('viewCs')?.hidden;
   }
 
   /* remote pull — doc 은 dirty 아니면 통째로 remote 로 갱신, dirty 면 로컬 유지 */
@@ -14871,6 +14938,8 @@
     if(!document.getElementById('viewDesign')?.hidden){
       dsgDocRender();
       dsgRefsRender();
+      dsgPostsRender();
+    } else if(!document.getElementById('viewCs')?.hidden){
       dsgPostsRender();
     }
   }
@@ -14991,9 +15060,13 @@
       _dsg_failStreak = 0;
       if(_dsgHasPending()) _dsgSchedPush();
       else                 _dsgSetSaveState('saved');
-      if(!_dsgIsEditing() && !document.getElementById('viewDesign')?.hidden){
-        dsgRefsRender();
-        dsgPostsRender();
+      if(!_dsgIsEditing()){
+        if(!document.getElementById('viewDesign')?.hidden){
+          dsgRefsRender();
+          dsgPostsRender();
+        } else if(!document.getElementById('viewCs')?.hidden){
+          dsgPostsRender();
+        }
       }
     } else {
       const reason = (docResult&&docResult.reason) || (refsResult&&refsResult.reason) || (postsResult&&postsResult.reason);
@@ -15790,8 +15863,12 @@
   function _dsgPostById(id){ return _dsgPosts.find(p=>p.id===id) || null; }
   function _dsgPostSortKey(p){ return -(new Date(p.created_at||0).getTime()); }
   function _dsgVisiblePosts(){
-    const hideDone = (document.getElementById('dsgPostHideDone')||{}).checked;
-    return _dsgPosts.filter(p=>!(hideDone && p.done)).sort((a,b)=>_dsgPostSortKey(a)-_dsgPostSortKey(b));
+    const ids = _dsgIds();
+    const hideDone = (document.getElementById(ids.hideDone)||{}).checked;
+    return _dsgPosts
+      .filter(p=>_dsgBoardOf(p)===_dsgActiveBoard)
+      .filter(p=>!(hideDone && p.done))
+      .sort((a,b)=>_dsgPostSortKey(a)-_dsgPostSortKey(b));
   }
   function _dsgPostMetaText(p){
     const imgs  = (p.images||[]).length;
@@ -15865,11 +15942,12 @@
   }
 
   function dsgPostsRender(){
+    const ids = _dsgIds();
     const list = _dsgVisiblePosts();
     const badge = document.getElementById('dsgTabPostsBadge');
-    if(badge) badge.textContent = _dsgPosts.length;
-    const wrap  = document.getElementById('dsgPostList');
-    const empty = document.getElementById('dsgPostEmpty');
+    if(badge) badge.textContent = _dsgPosts.filter(p=>_dsgBoardOf(p)===_dsgActiveBoard).length;
+    const wrap  = document.getElementById(ids.list);
+    const empty = document.getElementById(ids.empty);
     if(!wrap) return;
     // 열림 상태 유효성 — 필터/삭제로 사라졌으면 첫번째 열림
     if(_dsgCurPostId && !list.find(p=>p.id===_dsgCurPostId)){
@@ -15975,6 +16053,7 @@
     const dd = String(d.getDate()).padStart(2,'0');
     const p = {
       id: _dsgUid(),
+      board: _dsgActiveBoard,
       title: `${mm}${dd} `,
       body: '',
       images: [],
@@ -16015,7 +16094,7 @@
     _dsgShowSnackbar(`"${p.title||'무제'}" 게시글이 삭제됐어요`);
     _dsgPendingDelete.tickTimer = setInterval(()=>{
       const left = Math.max(0, Math.ceil((_dsgPendingDelete.deadline - Date.now())/1000));
-      const t = document.getElementById('dsgPostSnackbarTimer');
+      const t = document.getElementById(_dsgIds().snackbarTimer);
       if(t) t.textContent = String(left);
       if(left<=0){
         clearInterval(_dsgPendingDelete.tickTimer);
@@ -16055,16 +16134,17 @@
     dsgPostsRender();
   }
   function _dsgShowSnackbar(msg){
-    const bar = document.getElementById('dsgPostSnackbar');
-    const m   = document.getElementById('dsgPostSnackbarMsg');
-    const t   = document.getElementById('dsgPostSnackbarTimer');
+    const ids = _dsgIds();
+    const bar = document.getElementById(ids.snackbar);
+    const m   = document.getElementById(ids.snackbarMsg);
+    const t   = document.getElementById(ids.snackbarTimer);
     if(!bar) return;
     if(m) m.textContent = msg;
     if(t) t.textContent = '5';
     bar.hidden = false;
   }
   function _dsgHideSnackbar(){
-    const bar = document.getElementById('dsgPostSnackbar');
+    const bar = document.getElementById(_dsgIds().snackbar);
     if(bar) bar.hidden = true;
   }
 
@@ -16077,7 +16157,7 @@
     _dsgMarkPostDirty(p.id);
     _dsgUpdateItemHeader(p);
     // 완료 숨김 필터가 켜져있으면 리스트 재렌더
-    if((document.getElementById('dsgPostHideDone')||{}).checked) dsgPostsRender();
+    if((document.getElementById(_dsgIds().hideDone)||{}).checked) dsgPostsRender();
   }
 
   /* 매 입력마다 즉시 로컬 저장. 원격은 _dsgSchedPush 사이클 안에서 debounce */
@@ -16314,7 +16394,7 @@
       <div class="dsg-fp-sub">${_dsgEsc(meta)}</div>`;
   }
   function _dsgFilePreviewPosition(evt){
-    const pv = document.getElementById('dsgFilePreview');
+    const pv = document.getElementById(_dsgIds().filePreview);
     if(!pv || pv.hidden) return;
     const pad = 16;
     const w = pv.offsetWidth || 300;
@@ -16335,7 +16415,7 @@
     _dsgFpLastEvent = { clientX:evt.clientX, clientY:evt.clientY };
     clearTimeout(_dsgFpTimer);
     _dsgFpTimer = setTimeout(()=>{
-      const pv = document.getElementById('dsgFilePreview');
+      const pv = document.getElementById(_dsgIds().filePreview);
       if(!pv) return;
       pv.innerHTML = _dsgFilePreviewContent(kind, url, name, mime, size);
       pv.hidden = false;
@@ -16344,14 +16424,14 @@
   }
   function dsgFilePreviewMove(evt){
     _dsgFpLastEvent = { clientX:evt.clientX, clientY:evt.clientY };
-    const pv = document.getElementById('dsgFilePreview');
+    const pv = document.getElementById(_dsgIds().filePreview);
     if(!pv || pv.hidden) return;
     _dsgFilePreviewPosition(_dsgFpLastEvent);
   }
   function dsgFilePreviewHide(){
     clearTimeout(_dsgFpTimer);
     _dsgFpTimer = null;
-    const pv = document.getElementById('dsgFilePreview');
+    const pv = document.getElementById(_dsgIds().filePreview);
     if(pv){ pv.hidden = true; pv.innerHTML=''; }
   }
   /* data-post/data-file/data-img 로 id 만 가져와서 실제 데이터에서 프리뷰 렌더
@@ -16460,9 +16540,9 @@
     }).join('');
   }
 
-  /* 이미지 붙여넣기 — 디자인 보드 게시글로 라우팅 */
+  /* 이미지 붙여넣기 — 디자인/CS 보드 게시글로 라우팅 */
   function dsgHandlePaste(e){
-    if(document.getElementById('viewDesign')?.hidden) return;
+    if(!_dsgAnyBoardOpen()) return;
     // 활성 요소가 편집 가능한 텍스트라면(제목/본문/캡션 입력 중) 텍스트 붙여넣기 우선
     const ae = document.activeElement;
     const isTextEdit = ae && (
