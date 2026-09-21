@@ -1460,11 +1460,11 @@
   }
   .lg-memo-del:hover{opacity:1;color:#ef4444;background:rgba(239,68,68,.08)}
 
-  /* Row 2: 본문 textarea */
+  /* Row 2: 본문 textarea — 내용 길이만큼 자동으로 늘어남 (내부 스크롤 없음) */
   .lg-memo-textarea{
     width:100%;min-height:80px;padding:8px 10px;
     background:var(--bg-0);border:1px solid var(--line);border-radius:8px;outline:none;
-    resize:vertical;
+    resize:none;overflow:hidden;
     font-family:var(--sans);font-size:13.5px;line-height:1.55;color:var(--text-1);
     letter-spacing:-.1px;box-sizing:border-box
   }
@@ -21692,7 +21692,7 @@
         + '<input type="text" class="lg-memo-title-input" placeholder="제목 (선택)" value="'+_lgMemoEscAttr(m.title||'')+'" oninput="lgMemoUpdateTitle(\''+id+'\', this.value)">'
         + '<button class="lg-memo-del" onclick="lgMemoDel(\''+id+'\')" title="삭제" aria-label="삭제">×</button>'
       + '</div>'
-      + '<textarea class="lg-memo-textarea" placeholder="내용을 입력하세요. 이미지는 붙여넣거나 드래그해서 추가할 수 있습니다." oninput="lgMemoUpdateText(\''+id+'\', this.value)" onpaste="lgMemoPaste(event, \''+id+'\')">'+_lgMemoEscText(m.text||'')+'</textarea>'
+      + '<textarea class="lg-memo-textarea" placeholder="내용을 입력하세요. 이미지는 붙여넣거나 드래그해서 추가할 수 있습니다." oninput="lgMemoUpdateText(\''+id+'\', this.value); _lgMemoAutoGrow(this)" onpaste="lgMemoPaste(event, \''+id+'\')">'+_lgMemoEscText(m.text||'')+'</textarea>'
       + '<div class="lg-memo-attach">'
         + '<div class="lg-memo-attach-grid" data-attach-grid="'+id+'">'+attHtml+'</div>'
         + '<div class="lg-memo-attach-actions">'
@@ -21706,6 +21706,16 @@
       + '</div>'
     + '</div>';
   }
+  /* 본문 textarea 를 내용 길이만큼 자동으로 늘려 스크롤 없이 전체가 보이게 한다 */
+  function _lgMemoAutoGrow(el){
+    if(!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+  function _lgMemoAutoGrowAll(){
+    document.querySelectorAll('.lg-memo-textarea').forEach(_lgMemoAutoGrow);
+  }
+  window._lgMemoAutoGrow=_lgMemoAutoGrow;
   async function lgMemoRender(){
     const list = document.getElementById('lgMemoList');
     if(!list) return;
@@ -21716,6 +21726,9 @@
       list.innerHTML = '<div class="lg-memo-empty">메모가 없습니다. 우측 상단 "새 메모" 버튼으로 추가하세요.<br>제목·본문·이미지/엑셀 첨부까지 저장됩니다.</div>';
     }else{
       list.innerHTML = sorted.map(_lgMemoItemHtml).join('');
+      // 렌더 직후 각 textarea 를 내용 높이로 조정 (레이아웃 확정 후 한 번 더 — 폰트 로딩 반영)
+      _lgMemoAutoGrowAll();
+      requestAnimationFrame(_lgMemoAutoGrowAll);
     }
     lgMemoRefreshBadge();
   }
