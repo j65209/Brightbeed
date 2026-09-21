@@ -17040,11 +17040,13 @@
       monthlyArchive: Object.assign({}, theirs.monthlyArchive || {}, mine.monthlyArchive || {}),
     };
     const dates = new Set(Object.keys(mine.daily||{}).concat(Object.keys(theirs.daily||{})));
+    const _today = _diaryTodayStr();
     dates.forEach(d=>{
       const m = (mine.daily   && mine.daily[d]   && mine.daily[d].tasks)   || null;
       const t = (theirs.daily && theirs.daily[d] && theirs.daily[d].tasks) || null;
       const b = (base && base.daily && base.daily[d] && base.daily[d].tasks) || null;
-      if(!m && b) return;                       // 내가 그 날짜를 통째로 비웠다 → 되살리지 않음
+      // 내가 그 날짜를 통째로 비웠다 → 되살리지 않음 · 단 오늘 date 는 편집 진행 중이니 예외 (stale base 로 인한 사고 방지)
+      if(!m && b && d !== _today) return;
       const tasks = _diaryMergeLists(m, t, b, tombIds);
       if(tasks.length) out.daily[d] = {tasks};
     });
@@ -17798,15 +17800,20 @@
     const remote = _diaryMigrate(parsed);
     _diary_lastSha = file.sha || null;
     const local=loadDiaryAll();
-    const merged = {...remote};
-    const dirtyNames = Array.from(_diaryDirty);
-    for(const name of dirtyNames){
-      if(local[name]) merged[name]=local[name];
-      else delete merged[name];
-    }
-    // Tombstone에 등록된 id는 remote에 남아있어도 최종적으로 제거 (부활 원천 차단)
     const tombs = _diaryPurgeTombstones();
     const tombIds = new Set(Object.keys(tombs));
+    const merged = {...remote};
+    const dirtyNames = Array.from(_diaryDirty);
+    // ★ 사고 재발 방지: dirty 이름도 통째 덮어쓰지 않고, 로컬-원격-base 3-way merge 로 합침.
+    // 기존 로직은 stale 로컬이 원격을 통째로 덮어써 다른 사람이 방금 쓴 오늘 tasks 를 대량 삭제하는 사고가 있었음 (2026-09-21).
+    const baseSnap = _diaryLoadBaseSnap();
+    for(const name of dirtyNames){
+      if(!local[name]){ delete merged[name]; continue; }
+      let baseRec = null;
+      if(baseSnap[name]){ try{ baseRec = JSON.parse(baseSnap[name]) }catch(e){} }
+      merged[name] = _diaryMergeRecords(local[name], remote[name] || null, baseRec, tombIds);
+    }
+    // Tombstone에 등록된 id는 remote에 남아있어도 최종적으로 제거 (부활 원천 차단)
     if(tombIds.size > 0){
       for(const name of Object.keys(merged)){
         const s = merged[name];
@@ -17823,6 +17830,21 @@
           }
         }
       }
+    }
+    // ★ 최후의 방벽: 오늘 tasks 총합이 remote 대비 절반 이하로 줄면 대량 삭제 사고로 보고 push 취소
+    const _today = _diaryTodayStr();
+    const _countToday = (obj)=>{
+      let n = 0;
+      for(const nm of Object.keys(obj||{})){
+        const t = obj[nm] && obj[nm].daily && obj[nm].daily[_today] && obj[nm].daily[_today].tasks;
+        if(Array.isArray(t)) n += t.filter(x=>x && (x.text||'').trim()).length;
+      }
+      return n;
+    };
+    const rCnt = _countToday(remote), mCnt = _countToday(merged);
+    if(rCnt >= 8 && mCnt < rCnt * 0.5){
+      console.error('[diary] push aborted — 오늘 tasks 대량 삭제 감지 (remote', rCnt, '→ merged', mCnt, ')');
+      return null;   // pushRetry 로 백오프 재시도 (다음 시도에서는 로컬이 새 remote 를 반영해 정상 병합)
     }
     return {merged, dirtyNames, sha: file.sha || null};
   }
