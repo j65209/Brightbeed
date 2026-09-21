@@ -2665,6 +2665,19 @@
   .akp-cell-auto.is-bad{color:#dc2626}
   .akp-floor{color:#dc2626 !important;font-weight:700 !important}
   .akp-row-lbl{background:var(--bg-1)}
+  /* 사장님이 자동 계산 결과를 override 한 셀 — 노랑 배경으로 구분 */
+  .akp-cell-ov{background:#fef3c7 !important;color:#92400e !important;font-weight:700 !important}
+  .akp-cell-custom{background:#fff;color:var(--text-1);font-weight:500}
+  .akp-ov-input{background:#fef3c7 !important;color:#92400e !important;font-weight:700}
+  .akp-custom-input{background:#fff}
+  /* 커스텀 컬럼 헤더 편집 UI */
+  .akp-th-custom{background:#fef3c7 !important;padding:4px 6px !important}
+  .akp-th-custom-wrap{display:flex;align-items:center;gap:4px}
+  .akp-th-custom-input{flex:1;min-width:70px;height:24px;padding:0 6px;font-size:11.5px;font-weight:700;font-family:var(--sans);text-align:left;border:1px solid #f59e0b;border-radius:4px;background:#fff;color:#92400e;text-transform:none;letter-spacing:0}
+  .akp-th-del{padding:2px 6px;font-size:12px;background:#fff;border:1px solid #f59e0b;border-radius:4px;color:#92400e;cursor:pointer;font-weight:700;line-height:1}
+  .akp-th-del:hover{background:#fecaca;color:#dc2626;border-color:#dc2626}
+  .akp-btn-addcol{border-color:#f59e0b !important;color:#92400e !important;background:#fef3c7 !important;font-weight:700 !important}
+  .akp-btn-addcol:hover{background:#fde68a !important;color:#78350f !important;border-color:#d97706 !important}
   .akp-section-title{padding:8px 12px;font-size:11px;font-weight:800;color:var(--text-2);background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);letter-spacing:.03em;text-transform:uppercase}
   .akp-section-title-flex{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--line);border-bottom:0}
   .akp-section-title-flex .akp-btn-edit,.akp-section-title-flex .akp-btn-save{text-transform:none;letter-spacing:0;font-size:11px;padding:4px 10px}
@@ -10136,7 +10149,7 @@
               </table>
             </div>
             <div class="akp-list akp-platform-list"></div>
-            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+            <div class="akp-hint">모든 값은 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산 · 노랑 배경 = 내가 덮어쓴 값. 수정 모드에서 자동 계산 셀도 직접 입력하면 덮어쓰고, 값을 지우면 다시 자동으로 돌아옵니다. 오른쪽 위 <b>+ 컬럼</b> 버튼으로 원하는 컬럼(예: 절대 상한 %)을 자유롭게 추가/삭제하세요.</div>
           </div>
         </div>
         <div class="mdpromo-panel" data-mdpromo-panel="pp" hidden>
@@ -10155,7 +10168,7 @@
               </table>
             </div>
             <div class="akp-list akp-platform-list"></div>
-            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+            <div class="akp-hint">모든 값은 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산 · 노랑 배경 = 내가 덮어쓴 값. 수정 모드에서 자동 계산 셀도 직접 입력하면 덮어쓰고, 값을 지우면 다시 자동으로 돌아옵니다. 오른쪽 위 <b>+ 컬럼</b> 버튼으로 원하는 컬럼(예: 절대 상한 %)을 자유롭게 추가/삭제하세요.</div>
           </div>
         </div>
         <div class="mdpromo-panel" data-mdpromo-panel="akoi" hidden>
@@ -10174,7 +10187,7 @@
               </table>
             </div>
             <div class="akp-list akp-platform-list"></div>
-            <div class="akp-hint">모든 값은 브라우저에 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산.</div>
+            <div class="akp-hint">모든 값은 자동 저장됩니다. 흰 배경 = 입력값 · 회색 배경 = 자동 계산 · 노랑 배경 = 내가 덮어쓴 값. 수정 모드에서 자동 계산 셀도 직접 입력하면 덮어쓰고, 값을 지우면 다시 자동으로 돌아옵니다. 오른쪽 위 <b>+ 컬럼</b> 버튼으로 원하는 컬럼(예: 절대 상한 %)을 자유롭게 추가/삭제하세요.</div>
           </div>
         </div>
       </div>
@@ -12959,6 +12972,7 @@
     const def=_akpDefault(brand);
     for(const pl of s.platforms){
       if(!pl.rows) pl.rows={};
+      if(!Array.isArray(pl.customCols)) pl.customCols=[];
       const defPl=def.platforms.find(dp => _akpNum(dp.feeRate)===_akpNum(pl.feeRate));
       if(!defPl || !defPl.rows) continue;
       for(const it of s.items){
@@ -13234,6 +13248,8 @@
   function _platformHtml(pl, pIdx){
     const rate=_akpNum(pl.feeRate);
     const editing=_akpEditingPlats[_akpBrand].has(pIdx);
+    if(!Array.isArray(pl.customCols)) pl.customCols=[];
+    const cols=pl.customCols;
     const rows=[];
     for(const it of _akpState.items){
       const c=_akpNum(it.costKrw);
@@ -13245,10 +13261,26 @@
         rows.push({key:pairKey, label:pairKey, name:it.name+' · 1+1', costKrw:c*2});
       }
     }
+    const escAttr=(s)=>String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    // 자동 계산 셀 렌더 — override 있으면 그 문자열, 없으면 자동 계산 formatted
+    // 편집 모드: input으로 표시 (value = override or 자동값). 저장 시 자동값과 다르면 override 저장.
+    const ovCell=(row, colKey, autoText, extraCls)=>{
+      const ov=row.__ovVals[colKey];
+      const showText=(ov!=null && ov!=='') ? ov : autoText;
+      const isOv=(ov!=null && ov!=='');
+      const cls='akp-cell-auto '+(extraCls||'')+(isOv?' akp-cell-ov':'');
+      if(editing){
+        return `<td><input class="akp-ov-input" type="text" data-field="row-ov" data-row-key="${row.key}" data-col="${colKey}" data-auto="${escAttr(autoText)}" value="${escAttr(showText)}"></td>`;
+      }
+      return `<td class="${cls}">${escAttr(showText)}</td>`;
+    };
     const bodyHtml=rows.map(r=>{
       const cell = pl.rows?.[r.key] || {price:0, floor:0};
       const price = _akpNum(cell.price);
       const floor = _akpNum(cell.floor);
+      const ov = cell.ov || {};
+      const cust = cell.cust || {};
+      r.__ovVals=ov; // ovCell 헬퍼가 참조
       // 판매가: 100단위 반올림 수수료 기반 (시트 관행) / 하한 배수: raw 기반
       const fee = _akpFee(price, rate);
       const settled = price - fee;
@@ -13257,38 +13289,67 @@
       const mult = r.costKrw>0 ? settled/r.costKrw : NaN;
       const floorSettled = floor - floor*rate/100;
       const floorMult = r.costKrw>0 ? floorSettled/r.costKrw : NaN;
-      const goodCls = profit>0 ? 'is-good' : (profit<0 ? 'is-bad' : '');
+      const goodCls = (ov.profit==null||ov.profit==='') ? (profit>0 ? 'is-good' : (profit<0 ? 'is-bad' : '')) : '';
       const priceCell = editing
-        ? `<input type="text" inputmode="numeric" data-field="row-price" data-row-key="${r.key}" value="${_akpFmt(price)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)">`
-        : `<span class="akp-cell-auto" style="display:block">${_akpFmt(price)}</span>`;
+        ? `<td><input type="text" inputmode="numeric" data-field="row-price" data-row-key="${r.key}" value="${_akpFmt(price)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)"></td>`
+        : `<td class="akp-cell-auto">${_akpFmt(price)}</td>`;
       const floorCell = editing
-        ? `<input class="akp-floor" type="text" inputmode="numeric" data-field="row-floor" data-row-key="${r.key}" value="${_akpFmt(floor)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)">`
-        : `<span class="akp-cell-auto akp-floor" style="display:block">${_akpFmt(floor)}</span>`;
+        ? `<td><input class="akp-floor" type="text" inputmode="numeric" data-field="row-floor" data-row-key="${r.key}" value="${_akpFmt(floor)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)"></td>`
+        : `<td class="akp-cell-auto akp-floor">${_akpFmt(floor)}</td>`;
+      const rateCell = ovCell(r, 'rate', rate+'%');
+      const feeCell = ovCell(r, 'fee', _akpFmt(fee));
+      const settledCell = ovCell(r, 'settled', _akpFmt(settled));
+      const profitCell = ovCell(r, 'profit', _akpFmt(profit), goodCls);
+      const marginCell = ovCell(r, 'margin', _akpPct(margin));
+      const multCell = ovCell(r, 'mult', _akpMul(mult));
+      const floorMultCell = ovCell(r, 'floorMult', _akpMul(floorMult));
+      const customCells = cols.map(col=>{
+        const v = cust[col.id] || '';
+        if(editing){
+          return `<td><input class="akp-custom-input" type="text" data-field="row-cust" data-row-key="${r.key}" data-col-id="${escAttr(col.id)}" value="${escAttr(v)}"></td>`;
+        }
+        return `<td class="akp-cell-auto akp-cell-custom">${escAttr(v)}</td>`;
+      }).join('');
       return `<tr>
-        <td class="akp-row-lbl" title="${r.name}">${r.label}</td>
+        <td class="akp-row-lbl" title="${escAttr(r.name)}">${escAttr(r.label)}</td>
         <td class="akp-cell-auto">${_akpFmt(r.costKrw)}</td>
-        <td>${priceCell}</td>
-        <td class="akp-cell-auto">${rate}%</td>
-        <td class="akp-cell-auto">${_akpFmt(fee)}</td>
-        <td class="akp-cell-auto">${_akpFmt(settled)}</td>
-        <td class="akp-cell-auto ${goodCls}">${_akpFmt(profit)}</td>
-        <td class="akp-cell-auto">${_akpPct(margin)}</td>
-        <td class="akp-cell-auto">${_akpMul(mult)}</td>
-        <td>${floorCell}</td>
-        <td class="akp-cell-auto">${_akpMul(floorMult)}</td>
+        ${priceCell}
+        ${rateCell}
+        ${feeCell}
+        ${settledCell}
+        ${profitCell}
+        ${marginCell}
+        ${multCell}
+        ${floorCell}
+        ${floorMultCell}
+        ${customCells}
       </tr>`;
     }).join('');
 
+    const customHeaderCells = cols.map(col=>{
+      if(editing){
+        return `<th class="akp-th-custom"><div class="akp-th-custom-wrap">`
+          + `<input class="akp-th-custom-input" type="text" data-field="col-name" data-col-id="${escAttr(col.id)}" value="${escAttr(col.name||'')}" placeholder="컬럼 이름">`
+          + `<button class="akp-th-del" onclick="akpDelCustomCol(${pIdx}, '${escAttr(col.id)}')" title="컬럼 삭제">×</button>`
+          + `</div></th>`;
+      }
+      return `<th>${escAttr(col.name||'(이름 없음)')}</th>`;
+    }).join('');
+    const addColBtn = editing
+      ? `<button class="akp-btn-edit akp-btn-addcol" onclick="akpAddCustomCol(${pIdx})" title="이 표에 새 컬럼을 추가합니다">+ 컬럼</button>`
+      : '';
+
     const titleBlock = editing
       ? `<div class="akp-plat-title-wrap">
-          <input class="akp-plat-title-input" data-akp-platname="${pIdx}" data-field="platform-name" type="text" value="${(pl.name||'').replace(/"/g,'&quot;')}" placeholder="예: 지그재그" onkeydown="if(event.key==='Enter')akpEndEditPlat(${pIdx},false); if(event.key==='Escape')akpEndEditPlat(${pIdx},true)">
+          <input class="akp-plat-title-input" data-akp-platname="${pIdx}" data-field="platform-name" type="text" value="${escAttr(pl.name||'')}" placeholder="예: 지그재그" onkeydown="if(event.key==='Enter')akpEndEditPlat(${pIdx},false); if(event.key==='Escape')akpEndEditPlat(${pIdx},true)">
           <span class="akp-fee-input-wrap">
             <input class="akp-fee-input" data-field="platform-fee" type="number" step="0.5" min="0" max="100" value="${rate}">
           </span>
+          ${addColBtn}
           <button class="akp-btn-save" onclick="akpEndEditPlat(${pIdx}, false)">저장</button>
         </div>`
       : `<div class="akp-plat-title-wrap">
-          <h3 class="akp-plat-title">${(pl.name||'(이름 없음)').replace(/</g,'&lt;')}</h3>
+          <h3 class="akp-plat-title">${escAttr(pl.name||'(이름 없음)')}</h3>
           <span class="akp-plat-sub-sep">·</span>
           <span class="akp-plat-sub">수수료 ${rate}%</span>
           <button class="akp-btn-edit" onclick="akpStartEditPlat(${pIdx})">✏️ 수정</button>
@@ -13315,6 +13376,7 @@
                 <th>배수</th>
                 <th>기획전 절대 하한</th>
                 <th>기획전 절대 하한 배수</th>
+                ${customHeaderCells}
               </tr>
             </thead>
             <tbody>${bodyHtml}</tbody>
@@ -13355,7 +13417,7 @@
   }
   function akpAddPlatform(){
     const n=_akpState.platforms.length+1;
-    _akpState.platforms.push({name:'플랫폼 '+n, feeRate:20, rows:{}});
+    _akpState.platforms.push({name:'플랫폼 '+n, feeRate:20, rows:{}, customCols:[]});
     akpRender();
   }
   function akpDelPlat(pIdx){
@@ -13383,6 +13445,13 @@
         const feeInp=card.querySelector('[data-field="platform-fee"]');
         if(feeInp) pl.feeRate = _akpNum(feeInp.value);
         if(!pl.rows) pl.rows={};
+        if(!Array.isArray(pl.customCols)) pl.customCols=[];
+        // 커스텀 컬럼 이름 갱신 먼저 (row 값 저장 전에)
+        card.querySelectorAll('[data-field="col-name"]').forEach(inp=>{
+          const cid=inp.dataset.colId; if(!cid) return;
+          const col=pl.customCols.find(c=>c.id===cid);
+          if(col) col.name=inp.value;
+        });
         card.querySelectorAll('[data-field="row-price"]').forEach(inp=>{
           const key=inp.dataset.rowKey; if(!key) return;
           if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
@@ -13393,11 +13462,78 @@
           if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
           pl.rows[key].floor=_akpNum(inp.value);
         });
+        // 자동 계산 셀 override — 입력값이 자동값과 정확히 같으면 override 지움 (자동 계산 복귀)
+        card.querySelectorAll('[data-field="row-ov"]').forEach(inp=>{
+          const key=inp.dataset.rowKey, col=inp.dataset.col;
+          const auto=inp.dataset.auto||'';
+          if(!key||!col) return;
+          if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
+          if(!pl.rows[key].ov) pl.rows[key].ov={};
+          const v=inp.value.trim();
+          if(v==='' || v===auto){
+            delete pl.rows[key].ov[col];
+          }else{
+            pl.rows[key].ov[col]=v;
+          }
+          if(Object.keys(pl.rows[key].ov).length===0) delete pl.rows[key].ov;
+        });
+        // 커스텀 컬럼 셀 값
+        card.querySelectorAll('[data-field="row-cust"]').forEach(inp=>{
+          const key=inp.dataset.rowKey, cid=inp.dataset.colId;
+          if(!key||!cid) return;
+          if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
+          if(!pl.rows[key].cust) pl.rows[key].cust={};
+          const v=inp.value;
+          if(v===''){
+            delete pl.rows[key].cust[cid];
+          }else{
+            pl.rows[key].cust[cid]=v;
+          }
+          if(Object.keys(pl.rows[key].cust).length===0) delete pl.rows[key].cust;
+        });
       }
     }
     _akpEditingPlats[_akpBrand].delete(pIdx);
     akpRender();
   }
+
+  function akpAddCustomCol(pIdx){
+    const pl=_akpState.platforms[pIdx]; if(!pl) return;
+    if(!Array.isArray(pl.customCols)) pl.customCols=[];
+    // 편집 중이면 화면 값 먼저 save (미커밋 이름/값 유지)
+    if(_akpEditingPlats[_akpBrand].has(pIdx)){
+      akpEndEditPlat(pIdx, false);
+    }
+    const id='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    pl.customCols.push({id, name:''});
+    _akpEditingPlats[_akpBrand].add(pIdx);
+    akpRender();
+    setTimeout(()=>{
+      const wrap=_akpActiveWrap(); if(!wrap) return;
+      const card=wrap.querySelector('.akp-plat[data-plat="'+pIdx+'"]');
+      const inp=card?.querySelector('[data-field="col-name"][data-col-id="'+id+'"]');
+      if(inp){ inp.focus(); inp.select(); }
+    }, 0);
+  }
+  function akpDelCustomCol(pIdx, colId){
+    const pl=_akpState.platforms[pIdx]; if(!pl) return;
+    if(!Array.isArray(pl.customCols)) return;
+    const col=pl.customCols.find(c=>c.id===colId);
+    const label = col?.name || '(이름 없음)';
+    if(!confirm('컬럼 "'+label+'"을(를) 삭제할까요? 이 컬럼에 입력한 값도 함께 사라집니다.')) return;
+    pl.customCols = pl.customCols.filter(c=>c.id!==colId);
+    if(pl.rows){
+      Object.values(pl.rows).forEach(row=>{
+        if(row && row.cust){
+          delete row.cust[colId];
+          if(Object.keys(row.cust).length===0) delete row.cust;
+        }
+      });
+    }
+    akpRender();
+  }
+  window.akpAddCustomCol=akpAddCustomCol;
+  window.akpDelCustomCol=akpDelCustomCol;
 
   function akpAutoFloor(pIdx){
     const pl=_akpState.platforms[pIdx]; if(!pl) return;
