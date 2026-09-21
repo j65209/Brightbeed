@@ -13875,9 +13875,14 @@
       if(typeof syncDeptOverridesFromRemote==='function') syncDeptOverridesFromRemote().catch(()=>{});
     }
     if(id==='viewLg'){
-      /* 현재 브랜드에 맞는 dsg board 로 세팅 (메모 탭용). renderKDOrders 는 발주 탭 진입 시에만 실질 사용 */
-      const brand = window._lgBrand || 'main';
-      _dsgActiveBoard = 'lg_' + brand;
+      /* hash 로 직접 진입 (새로고침) 시에도 마지막 브랜드 복원. window._lgBrand 없으면 switchLgBrand 로 재구축. */
+      if(!window._lgBrand){
+        let last = 'main';
+        try{ last = localStorage.getItem('lgLastBrand') || 'main'; }catch(_){}
+        if(!['main','brightbeed','shinebeed'].includes(last)) last = 'main';
+        if(typeof switchLgBrand==='function') switchLgBrand(last);
+      }
+      _dsgActiveBoard = 'lg_' + (window._lgBrand || 'main');
       if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{});
       if(typeof dsgInit==='function') dsgInit();
     }
@@ -14899,7 +14904,9 @@
     const url = DSG_DOC_RAWS[board||_dsgActiveBoard] || DSG_DOC_RAW;
     try{
       const r=await fetch(`${url}?cb=${Date.now()}`,{cache:'no-cache'});
-      if(r.status===404) return {version:1, blocks:[]};
+      /* 404 = 아직 remote 에 push 된 적 없음. sentinel 로 표시해서
+         로컬 doc 을 절대 덮어쓰지 않는다 (이전엔 빈 doc 으로 로컬을 지우는 사고 있었음). */
+      if(r.status===404) return { __missing:true };
       if(!r.ok) return null;
       const obj=JSON.parse(await r.text());
       if(obj && Array.isArray(obj.blocks)) return obj;
@@ -14949,6 +14956,15 @@
     const pushGrace = _dsg_lastPushTs && Date.now() - _dsg_lastPushTs < 60000;
     const applyRemoteDoc = (board, rd)=>{
       if(!rd) return;
+      if(rd.__missing){
+        /* remote 파일 없음 — 로컬에 blocks 있으면 push 마킹만 하고 로컬 유지 */
+        if((_dsgDocs[board]?.blocks||[]).length > 0){
+          _dsg_docDirty[board] = true;
+          _dsg_lastEditTs = Date.now();
+          _dsgSchedPush();
+        }
+        return;
+      }
       if(_dsg_docDirty[board] || pushGrace) return;
       const prevBoard = _dsgActiveBoard;
       _dsgActiveBoard = board;
