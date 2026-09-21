@@ -1401,6 +1401,18 @@
   /* ===== 물류팀 뷰 — 메모 탭: 디자인팀 작업 보드(dsg-doc) 재활용 =====
      기존 카드형 lg-memo-* 스타일은 제거. dsg-doc 시스템이 완전 대체.
      브랜드(메인/BB/SB)별 격리 저장은 _dsgActiveBoard = 'lg_' + brand 로 처리. */
+  /* 물류팀 뷰에서는 ＋ / 삭제 / ▲▼ 버튼을 hover 없이 항상 노출 (사장님 요청). */
+  #viewLg .dsg-blk > .dsg-blk-plus,
+  #viewLg .dsg-blk > .dsg-blk-del,
+  #viewLg .dsg-blk > .dsg-blk-move,
+  #viewLg .dsg-sec-plus,
+  #viewLg .dsg-sec-head .dsg-blk-move,
+  #viewLg .dsg-sec-head .dsg-blk-del{ opacity:.7 }
+  #viewLg .dsg-blk > .dsg-blk-plus:hover,
+  #viewLg .dsg-blk > .dsg-blk-del:hover,
+  #viewLg .dsg-sec-plus:hover,
+  #viewLg .dsg-sec-head .dsg-blk-del:hover,
+  #viewLg .dsg-blk-move .dsg-blk-move-btn:hover{ opacity:1 }
 
   /* ===== 우체국 출고 (ez-*) — EZ 국제 송장 입력·모니터링 ===== */
   .ez-input-wrap{
