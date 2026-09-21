@@ -9921,15 +9921,6 @@
     </div>
 
     <div class="cs-grid">
-      <!-- FAQ — CS팀 전체가 뷰어 권한이어도 편집 가능 -->
-      <section class="cs-section" id="csFaqSection">
-        <div class="cs-section-head">
-          <div class="cs-section-title">자주 묻는 질문</div>
-          <button class="cs-add-btn" onclick="addCsItem()">＋ 추가</button>
-        </div>
-        <div id="csFaqList" class="cs-list"></div>
-      </section>
-
       <!-- CS팀 메모장 — 항상 편집 가능 (편집 버튼 없이 바로 타이핑, 자동 저장) -->
       <section class="cs-section cs-section-memo" id="csMemoSection">
         <div class="cs-section-head">
@@ -9940,6 +9931,15 @@
              oninput="csMemoOnInput()"
              onfocus="csMemoOnFocus()"
              onblur="csMemoOnBlur()"></div>
+      </section>
+
+      <!-- FAQ — CS팀 전체가 뷰어 권한이어도 편집 가능 (최하단) -->
+      <section class="cs-section cs-section-memo" id="csFaqSection">
+        <div class="cs-section-head">
+          <div class="cs-section-title">자주 묻는 질문</div>
+          <button class="cs-add-btn" onclick="addCsItem()">＋ 추가</button>
+        </div>
+        <div id="csFaqList" class="cs-list"></div>
       </section>
     </div>
   </div>
