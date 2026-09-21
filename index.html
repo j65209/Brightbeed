@@ -21912,17 +21912,17 @@
     if(_lgMemoInitPromise) return _lgMemoInitPromise;
     _lgMemoInitPromise = (async () => {
       let arr = null;
-      // 1. IndexedDB 우선
+      // 1. IndexedDB 우선 (빈 배열이면 무시하고 LS 폴백 — 실수로 IDB 가 empty overwrite 됐어도 복구)
       const idbArr = await _lgMemoIdbGet(LGMEMO_IDB_KEY);
-      if(Array.isArray(idbArr)) arr = idbArr;
-      // 2. localStorage main / backup
-      if(!Array.isArray(arr)){
+      if(Array.isArray(idbArr) && idbArr.length) arr = idbArr;
+      // 2. localStorage main / backup — IDB 가 비어있거나 없으면 여기서 살림
+      if(!Array.isArray(arr) || arr.length === 0){
         for(const k of ['lgMemo_main', 'lgMemo_main.bak']){
           try{
             const raw = localStorage.getItem(k);
             if(!raw) continue;
             const parsed = JSON.parse(raw);
-            if(Array.isArray(parsed)){ arr = parsed; break; }
+            if(Array.isArray(parsed) && parsed.length){ arr = parsed; break; }
           }catch(_){}
         }
       }
