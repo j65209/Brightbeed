@@ -12970,6 +12970,29 @@
   function _akpMigrate(s, brand){
     // 사라진 1+1 rows를 default에서 복원 (사장님이 저장한 판매가/하한은 유지)
     const def=_akpDefault(brand);
+    // ── 코드 리네임 후 rows 고아 복원 ─────────────────────────
+    // 예: items[i].code 를 '001' → 'Butter Cloud' 로 바꿨는데 pl.rows 는 아직 '001' 로 남아있는 경우.
+    // items 순서를 신뢰해서 legacy 3자리 코드(001/002/…) 를 현재 코드로 이관.
+    for(const pl of s.platforms){
+      if(!pl.rows) continue;
+      s.items.forEach((it, i)=>{
+        const curr = String(it.code||'').trim();
+        if(!curr) return;
+        const legacy = String(i+1).padStart(3,'0');
+        // 단독 SKU
+        if(curr !== legacy && pl.rows[legacy] && !pl.rows[curr]){
+          pl.rows[curr] = pl.rows[legacy];
+          delete pl.rows[legacy];
+        }
+        // 1+1 SKU
+        const legPair = legacy+' 1+1';
+        const currPair = curr+' 1+1';
+        if(currPair !== legPair && pl.rows[legPair] && !pl.rows[currPair]){
+          pl.rows[currPair] = pl.rows[legPair];
+          delete pl.rows[legPair];
+        }
+      });
+    }
     for(const pl of s.platforms){
       if(!pl.rows) pl.rows={};
       if(!Array.isArray(pl.customCols)) pl.customCols=[];
@@ -13570,11 +13593,28 @@
       if(tb){
         tb.querySelectorAll('[data-field="item-code"]').forEach(inp=>{
           const idx=+inp.dataset.idx;
-          if(_akpState.items[idx]){
-            const newCode=inp.value.trim();
-            _akpState.items[idx].code=newCode;
-            _akpState.items[idx].name=newCode; // 표시 = 편집값 통일
+          const it=_akpState.items[idx];
+          if(!it) return;
+          const oldCode=String(it.code||'').trim();
+          const newCode=inp.value.trim();
+          if(oldCode!==newCode && newCode){
+            // 코드 리네임 시 모든 플랫폼의 rows/cust/ov 를 새 코드로 이관 (데이터 유지)
+            for(const pl of (_akpState.platforms||[])){
+              if(!pl || !pl.rows) continue;
+              if(pl.rows[oldCode] && !pl.rows[newCode]){
+                pl.rows[newCode] = pl.rows[oldCode];
+                delete pl.rows[oldCode];
+              }
+              const oldPair=oldCode+' 1+1';
+              const newPair=newCode+' 1+1';
+              if(pl.rows[oldPair] && !pl.rows[newPair]){
+                pl.rows[newPair] = pl.rows[oldPair];
+                delete pl.rows[oldPair];
+              }
+            }
           }
+          it.code=newCode;
+          it.name=newCode; // 표시 = 편집값 통일
         });
         tb.querySelectorAll('[data-field="item-cost"]').forEach(inp=>{
           const idx=+inp.dataset.idx; if(_akpState.items[idx]) _akpState.items[idx].costKrw=_akpNum(inp.value);
