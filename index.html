@@ -17445,11 +17445,17 @@
     }
   }
 
-  /* 입력이 끝나면(blur) 미뤄뒀던 재렌더를 실행 */
+  /* 입력이 끝나면(blur) 미뤄뒀던 서버 반영 + 재렌더를 실행.
+     _diaryApplyRows 도 편집 중이면 미뤘으니 여기서 다시 호출해 localStorage 를 서버 상태로 정렬. */
   function _diaryFlushDeferredSync(){
     if(!_diarySyncDeferred) return;
     if(_diaryIsEditing()) return;
     _diarySyncDeferred = false;
+    // 미뤘던 apply — localStorage 반영 + 렌더까지 이 안에서 처리됨
+    if(typeof _diaryApplyRows === 'function'){
+      _diaryApplyRows();
+      return;
+    }
     if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard==='function'){
       _diaryRenderBoard();
     }
@@ -18090,13 +18096,21 @@
   }
 
   /* 화면에 반영 — 서버 행 + 대기열을 합쳐 localStorage 를 다시 만든다.
-     입력 중이면 재렌더만 미룬다 (커서가 날아가면 그 뒤 글자가 유실되므로). */
+     ★ 입력 중이면 localStorage 도, 재렌더도 건드리지 않고 blur 때까지 통째로 미룬다.
+        (기존엔 localStorage 는 매번 덮어썼는데, 그 사이 사용자 입력이 in-memory entry 참조로만 남아
+         blur 직후 다음 render 에서 통째로 유실되는 경로가 있었음 — 박시호 2026-09-21 사고) */
   function _diaryApplyRows(render){
+    const editing = _diaryIsEditing();
     const prev = loadDiaryAll();
     const next = _diaryRowsToLocal(_diaryMergedRows());
+    // 새 요청 알림은 편집 중이라도 놓치지 않게 우선 감지
+    try{ _diaryDetectIncomingReqs(prev, next) }catch(e){}
+    if(editing){
+      _diarySyncDeferred = true;
+      return;
+    }
     saveDiaryAll(next);
     _diarySaveRows();
-    try{ _diaryDetectIncomingReqs(prev, next) }catch(e){}
     if(render === false) return;
     clearTimeout(_diaryRenderTimer);
     _diaryRenderTimer = setTimeout(()=>{
