@@ -15400,7 +15400,12 @@
 
   /* 진입 — 최초 로드 + 렌더 */
   function dsgInit(){
-    if(dsgInit._done) { dsgDocRender(); dsgRefsRender(); dsgPostsRender(); _dsgApplyFs(); return; }
+    if(dsgInit._done) {
+      dsgDocRender(); dsgRefsRender(); dsgPostsRender(); _dsgApplyFs();
+      /* 옛 물류 메모 이관은 재진입마다 다시 시도(비동기 · 이미 이관됐으면 즉시 return) */
+      _lgLegacyMigrateOnce().catch(()=>{});
+      return;
+    }
     dsgInit._done = true;
     _dsgLoadUI();
     _dsgLoadFs();
@@ -15421,6 +15426,127 @@
       window.addEventListener('paste', dsgHandlePaste);
     }
     _dsgStartSync();
+    /* 옛 물류 메모 (IndexedDB bbLgMemo + Supabase lg_memos) → 새 dsg 아웃라이너 자동 이관 */
+    _lgLegacyMigrateOnce().catch(()=>{});
+  }
+
+  /* ===== 옛 물류 메모 → 새 dsg 아웃라이너 일회성 이관 =====
+     · IndexedDB `bbLgMemo.kv.memos_main` : 로컬 저장
+     · Supabase `lg_memos` : 다른 기기와 sync 되던 원본
+     각 옛 메모 하나 = 새 section 하나 (제목은 옛 title, 본문은 todo child).
+     완료 상태 · 타임스탬프 유지. 첨부(이미지/파일)는 별도 안내로 남김. */
+  const LG_LEGACY_MIGRATION_KEY = 'brightbeed_lg_memo_migrated_v1';
+  async function _lgLegacyMigrateOnce(){
+    try{ if(localStorage.getItem(LG_LEGACY_MIGRATION_KEY)==='1') return; }catch(_){}
+
+    const legacyItems = [];
+    // 1) IndexedDB bbLgMemo → memos_main
+    try{
+      const db = await new Promise((res, rej)=>{
+        const req = indexedDB.open('bbLgMemo', 1);
+        req.onsuccess = ()=>res(req.result);
+        req.onerror = ()=>rej(req.error);
+        req.onupgradeneeded = ()=>{ try{ req.result.createObjectStore('kv'); }catch(_){} };
+      });
+      if(db.objectStoreNames.contains('kv')){
+        const arr = await new Promise(res=>{
+          const tx = db.transaction('kv','readonly');
+          const r = tx.objectStore('kv').get('memos_main');
+          r.onsuccess = ()=>res(r.result);
+          r.onerror = ()=>res(null);
+        });
+        if(Array.isArray(arr)) for(const it of arr) legacyItems.push(it);
+      }
+    }catch(_){}
+    // 2) Supabase lg_memos (다른 기기와 sync 됐던 원본)
+    try{
+      if(typeof SUPABASE_URL==='string' && typeof SUPABASE_KEY==='string'){
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/lg_memos?select=*&deleted_at=is.null&order=ts.desc&limit=2000`,
+          { headers:{ apikey:SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY }});
+        if(r.ok){
+          const rows = await r.json();
+          if(Array.isArray(rows)){
+            const seen = new Set(legacyItems.map(it=>it.id));
+            for(const row of rows){
+              if(!row || !row.id || seen.has(row.id)) continue;
+              legacyItems.push({
+                id: row.id,
+                title: row.title || '',
+                text: row.text || '',
+                done: !!row.done,
+                doneTs: row.done_ts || 0,
+                ts: row.ts ? Date.parse(row.ts) : Date.now(),
+                attachments: Array.isArray(row.attachments) ? row.attachments : []
+              });
+              seen.add(row.id);
+            }
+          }
+        }
+      }
+    }catch(_){}
+
+    if(!legacyItems.length){
+      try{ localStorage.setItem(LG_LEGACY_MIGRATION_KEY, '1'); }catch(_){}
+      return;
+    }
+
+    /* 옛 메모 → 새 아웃라이너 트리로 변환. 모두 lg_main 에 몰아넣기 (사장님이 직접 브랜드 분류 용이). */
+    const sortedItems = legacyItems.slice().sort((a,b)=>{
+      const at = a.ts || 0, bt = b.ts || 0;
+      return bt - at;
+    });
+    const migratedBlocks = [];
+    let attachNote = 0;
+    for(const it of sortedItems){
+      const secId = 'mig_'+(it.id || _dsgUid());
+      const title = (it.title||'').trim() || (it.text||'').split('\n')[0].slice(0,40) || '(제목 없음)';
+      const bodyText = (it.text||'').trim();
+      const children = [];
+      if(bodyText){
+        children.push({
+          id: 'mig_t_'+(it.id||_dsgUid()),
+          type:'todo',
+          text: bodyText,
+          checked: !!it.done,
+          children:[]
+        });
+      }
+      if(Array.isArray(it.attachments) && it.attachments.length){
+        const names = it.attachments.map(a=>a && (a.name||'첨부')).filter(Boolean).join(', ');
+        children.push({
+          id:'mig_att_'+(it.id||_dsgUid()),
+          type:'text',
+          text:`(옛 첨부 ${it.attachments.length}개: ${names} — 새 시스템에서 다시 붙여넣어 주세요)`,
+          children:[]
+        });
+        attachNote++;
+      }
+      migratedBlocks.push({
+        id: secId,
+        type: 'section',
+        text: (it.done ? '✓ ' : '') + title,
+        collapsed: !!it.done,
+        children
+      });
+    }
+
+    /* 기존 lg_main 트리 뒤에 추가 (사장님이 이미 새 시스템에서 뭘 적었을 수도 있으니 덮어쓰지 않고 병합) */
+    if(!_dsgDocs.lg_main) _dsgDocs.lg_main = {version:1, blocks:[]};
+    _dsgDocs.lg_main.blocks = migratedBlocks.concat(_dsgDocs.lg_main.blocks || []);
+    _dsg_docDirty.lg_main = true;
+    _dsg_lastEditTs = Date.now();
+    try{ localStorage.setItem(DSG_DOC_KEYS.lg_main, JSON.stringify(_dsgDocs.lg_main)); }catch(_){}
+    _dsgSchedPush();
+
+    /* 활성 board 가 lg_* 면 즉시 렌더 */
+    if((_dsgActiveBoard||'').startsWith('lg_')) dsgDocRender();
+
+    try{ localStorage.setItem(LG_LEGACY_MIGRATION_KEY, '1'); }catch(_){}
+    try{
+      if(typeof toast==='function'){
+        toast(`옛 물류 메모 ${legacyItems.length}건을 새 아웃라이너로 이관했습니다${attachNote?` (첨부 ${attachNote}건은 안내로 표시)`:''}`, 'ok');
+      }
+    }catch(_){}
   }
 
   /* 폰트 크기 (px) — 툴바 −/+ 또는 숫자 직접 입력, localStorage 저장 */
