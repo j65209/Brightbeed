@@ -21719,6 +21719,185 @@
     }));
   }
 
+  /* ===== 물류 메모 Supabase 실시간 sync (업무일지와 동일 패턴) =====
+     서버 = single source of truth. IDB/localStorage 는 오프라인 캐시.
+     저장: upsert. 삭제: soft-delete(deleted_at). Realtime: 모든 기기 즉시 sync. */
+  const LGMEMO_SB_TABLE = 'lg_memos';
+  let _lgMemoRealtimeChan = null;
+  let _lgMemoLastRemoteSyncAt = 0;
+  let _lgMemoRemoteReady = false;      // 첫 원격 pull 이 성공했는지
+  const _lgMemoDirtyIds = new Set();   // upsert 대기 중인 id
+  const _lgMemoDelDirty = new Set();   // soft-delete 대기 중인 id
+  let _lgMemoPushTimer = null;
+  let _lgMemoPushing = false;
+
+  function _lgMemoSbUrl(qs){ return `${SUPABASE_URL}/rest/v1/${LGMEMO_SB_TABLE}${qs ? '?'+qs : ''}`; }
+
+  function _lgMemoToRow(m){
+    return {
+      id: m.id,
+      title: m.title || '',
+      body: m.text || '',                  // JS 는 'text' 로 부르지만 DB 컬럼은 'body' (SQL 예약어 회피)
+      done: !!m.done,
+      done_ts: Number(m.doneTs || 0),
+      ts: Number(m.ts || Date.now()),
+      attachments: Array.isArray(m.attachments) ? m.attachments : []
+    };
+  }
+  function _lgMemoFromRow(r){
+    if(!r || !r.id) return null;
+    return {
+      id: r.id,
+      title: r.title || '',
+      text: r.body || '',
+      done: !!r.done,
+      doneTs: Number(r.done_ts || 0),
+      ts: Number(r.ts || 0),
+      attachments: Array.isArray(r.attachments) ? r.attachments : []
+    };
+  }
+
+  async function _lgMemoFetchAll(){
+    try{
+      const r = await fetch(_lgMemoSbUrl('select=*&deleted_at=is.null&order=ts.desc&limit=2000'),
+        { headers: _sbHeaders(), cache: 'no-cache' });
+      if(!r.ok) return null;
+      const rows = await r.json();
+      return Array.isArray(rows) ? rows.map(_lgMemoFromRow).filter(Boolean) : [];
+    }catch(e){ return null; }
+  }
+
+  function _lgMemoSchedPush(){
+    if(_lgMemoPushTimer) return;
+    _lgMemoPushTimer = setTimeout(()=>{
+      _lgMemoPushTimer = null;
+      _lgMemoPushRemote();
+    }, 600);
+  }
+  async function _lgMemoPushRemote(){
+    if(_lgMemoPushing){ _lgMemoSchedPush(); return; }
+    if(!_lgMemoDirtyIds.size && !_lgMemoDelDirty.size) return;
+    _lgMemoPushing = true;
+    try{
+      // upsert
+      if(_lgMemoDirtyIds.size){
+        const ids = [..._lgMemoDirtyIds];
+        _lgMemoDirtyIds.clear();
+        const byId = new Map((_lgMemoCache||[]).map(m=>[m.id, m]));
+        const rows = ids.map(id => byId.get(id)).filter(Boolean).map(_lgMemoToRow);
+        if(rows.length){
+          const r = await fetch(_lgMemoSbUrl('on_conflict=id'), {
+            method: 'POST',
+            headers: _sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+            body: JSON.stringify(rows)
+          });
+          if(!r.ok){
+            // 실패한 애들 다시 dirty 로 (재시도)
+            ids.forEach(id=>_lgMemoDirtyIds.add(id));
+            _lgMemoLastSaveOk = false;
+          } else {
+            _lgMemoLastSaveOk = true;
+          }
+        }
+      }
+      // soft-delete
+      if(_lgMemoDelDirty.size){
+        const ids = [..._lgMemoDelDirty];
+        _lgMemoDelDirty.clear();
+        const idFilter = ids.map(id=>`"${id}"`).join(',');
+        const r = await fetch(_lgMemoSbUrl(`id=in.(${idFilter})`), {
+          method: 'PATCH',
+          headers: _sbHeaders({'Prefer':'return=minimal'}),
+          body: JSON.stringify({deleted_at: new Date().toISOString()})
+        });
+        if(!r.ok){ ids.forEach(id=>_lgMemoDelDirty.add(id)); }
+      }
+    }catch(e){
+      _lgMemoLastSaveOk = false;
+    }finally{
+      _lgMemoPushing = false;
+      if(_lgMemoDirtyIds.size || _lgMemoDelDirty.size) _lgMemoSchedPush();
+      if(typeof _lgMemoRenderStatus === 'function') _lgMemoRenderStatus();
+    }
+  }
+
+  function _lgMemoMarkDirty(id){
+    if(!id) return;
+    _lgMemoDirtyIds.add(id);
+    _lgMemoSchedPush();
+  }
+  function _lgMemoMarkDeleted(id){
+    if(!id) return;
+    _lgMemoDirtyIds.delete(id);   // 편집 중이었더라도 삭제가 우선
+    _lgMemoDelDirty.add(id);
+    _lgMemoSchedPush();
+  }
+
+  /* Supabase 에서 pull → 로컬 캐시 교체 → 재렌더 */
+  async function _lgMemoPullRemote(){
+    const remote = await _lgMemoFetchAll();
+    if(!Array.isArray(remote)) return false;
+    _lgMemoLastRemoteSyncAt = Date.now();
+    // dirty 중인 애들 (upsert 대기) 은 로컬 유지, 나머지는 remote 로 교체
+    const localById = new Map((_lgMemoCache||[]).map(m=>[m.id, m]));
+    const remoteIds = new Set(remote.map(m=>m.id));
+    const merged = [];
+    for(const r of remote){
+      if(_lgMemoDirtyIds.has(r.id) && localById.has(r.id)) merged.push(localById.get(r.id));
+      else merged.push(r);
+    }
+    // 아직 push 안 된 로컬 신규 (dirty & not in remote) 는 유지
+    for(const m of (_lgMemoCache||[])){
+      if(!remoteIds.has(m.id) && _lgMemoDirtyIds.has(m.id)) merged.unshift(m);
+    }
+    _lgMemoCache = _lgMemoNormalize(merged);
+    // IDB 도 갱신 (오프라인 진입 시 최신)
+    _lgMemoIdbPut(LGMEMO_IDB_KEY, _lgMemoCache).catch(()=>{});
+    _lgMemoRemoteReady = true;
+    if(typeof lgMemoRender === 'function') lgMemoRender();
+    return true;
+  }
+
+  /* Realtime 구독 — 다른 기기에서 편집하면 즉시 이 기기 캐시/화면 반영 */
+  async function _lgMemoInitRealtime(){
+    if(_lgMemoRealtimeChan) return;
+    if(typeof _diaryLoadSupabaseClient === 'function') await _diaryLoadSupabaseClient();
+    if(typeof supabase === 'undefined' || !supabase || !supabase.channel) return;
+    _lgMemoRealtimeChan = supabase.channel('lg_memos_all')
+      .on('postgres_changes', {event:'*', schema:'public', table:LGMEMO_SB_TABLE}, (payload)=>{
+        try{ _lgMemoOnRealtime(payload); }catch(e){ console.warn('[lgMemo] realtime handler err', e); }
+      })
+      .subscribe();
+  }
+  function _lgMemoOnRealtime(payload){
+    const row = payload && (payload.new || payload.old);
+    if(!row || !row.id) return;
+    const id = row.id;
+    if(_lgMemoDirtyIds.has(id)) return;   // 내가 방금 편집한 건 realtime echo 무시 (덮어쓰기 방지)
+    const cache = _lgMemoCache || [];
+    const idx = cache.findIndex(m=>m.id===id);
+    const isDeleted = payload.eventType === 'DELETE' || (row.deleted_at != null);
+    if(isDeleted){
+      if(idx>=0){ cache.splice(idx,1); _lgMemoCache = cache; }
+    } else {
+      const norm = _lgMemoFromRow(row);
+      if(!norm) return;
+      if(idx>=0) cache[idx] = norm; else cache.unshift(norm);
+      _lgMemoCache = _lgMemoNormalize(cache);
+    }
+    _lgMemoIdbPut(LGMEMO_IDB_KEY, _lgMemoCache).catch(()=>{});
+    if(typeof lgMemoRender === 'function' && !document.hidden){
+      // 편집 중인 input/textarea 안 건드리게 살짝 지연 후 재렌더
+      clearTimeout(_lgMemoOnRealtime._t);
+      _lgMemoOnRealtime._t = setTimeout(()=>{
+        const focused = document.activeElement;
+        const inMemoInput = focused && focused.closest && focused.closest('.lg-memo-item');
+        if(inMemoInput) return;    // 사장님 타이핑 중이면 스킵 (다음 이벤트 때 반영)
+        lgMemoRender();
+      }, 250);
+    }
+  }
+
   async function _lgMemoInit(){
     if(Array.isArray(_lgMemoCache)) return _lgMemoCache;
     if(_lgMemoInitPromise) return _lgMemoInitPromise;
@@ -21771,6 +21950,29 @@
         }catch(_){}
       }
       _lgMemoLastSaveOk = true;
+      // 5. Supabase 원격 pull (비동기 — 로컬 캐시로 먼저 렌더한 뒤 원격 응답 오면 재렌더)
+      _lgMemoPullRemote().then(ok=>{
+        if(ok){
+          // 로컬만 있고 원격에 없던 로컬 신규 항목을 원격으로 밀어올림 (초기 이관)
+          const remote = new Set(_lgMemoCache.map(m=>m.id));
+          for(const m of (_lgMemoCache||[])){
+            if(remote.has(m.id) && !_lgMemoDirtyIds.has(m.id)) continue;
+            _lgMemoMarkDirty(m.id);
+          }
+        }
+      }).catch(()=>{});
+      // 6. Realtime 구독 — 다른 기기에서 편집하면 즉시 반영
+      _lgMemoInitRealtime().catch(()=>{});
+      // 7. 화면 재활성 시(모바일 백그라운드 복귀) — 항상 재렌더, 오래되면 원격 pull
+      if(!_lgMemoInit._visListener){
+        _lgMemoInit._visListener = true;
+        document.addEventListener('visibilitychange', ()=>{
+          if(document.hidden) return;
+          if(typeof lgMemoRender === 'function') lgMemoRender();
+          const age = Date.now() - _lgMemoLastRemoteSyncAt;
+          if(age > 30000) _lgMemoPullRemote().catch(()=>{});
+        });
+      }
       return _lgMemoCache;
     })();
     return _lgMemoInitPromise;
@@ -21780,8 +21982,10 @@
     // init 이후에 호출되어야 함 (async 아님). 초기화 안 됐으면 빈 배열.
     return Array.isArray(_lgMemoCache) ? _lgMemoCache.slice() : [];
   }
-  function _lgMemoSave(items){
+  function _lgMemoSave(items, opts){
+    // opts.dirtyIds: 이번 저장에서 변경된 id 배열 (원격 upsert 대상). 없으면 전체 upsert (초기 이관용).
     const arr = Array.isArray(items) ? _lgMemoNormalize(items) : [];
+    const prevById = new Map((_lgMemoCache||[]).map(m=>[m.id, JSON.stringify(_lgMemoToRow(m))]));
     _lgMemoCache = arr;
     _lgMemoLastSaveAt = Date.now();
     // IDB 저장 (async, fire-and-forget). 실패 시 status 표시.
@@ -21793,14 +21997,21 @@
       if(typeof _lgMemoRenderStatus === 'function') _lgMemoRenderStatus();
     });
     // localStorage 백업 (best-effort). 실패해도 IDB 있으므로 OK.
-    let lsOk = false;
     try{
       const raw = JSON.stringify(arr);
       localStorage.setItem('lgMemo_main', raw);
       localStorage.setItem('lgMemo_main.bak', raw);
-      lsOk = true;
     }catch(_){}
-    // 두 저장소 다 실패 감지: IDB 는 async 이므로 즉시 알 수 없음. 낙관적으로 true.
+    // Supabase 원격 upsert 예약 — 변경 있는 id 만 (diff 로 자동 감지)
+    if(Array.isArray(opts && opts.dirtyIds)){
+      opts.dirtyIds.forEach(id=>id && _lgMemoMarkDirty(id));
+    } else {
+      // dirtyIds 미지정 → 실제로 바뀐 것만 dirty (초기 이관·batch save 케이스)
+      for(const m of arr){
+        const now = JSON.stringify(_lgMemoToRow(m));
+        if(prevById.get(m.id) !== now) _lgMemoMarkDirty(m.id);
+      }
+    }
     _lgMemoLastSaveOk = true;
     if(typeof _lgMemoRenderStatus === 'function') _lgMemoRenderStatus();
     return true;
@@ -21928,7 +22139,7 @@
     const items = _lgMemoLoad();
     const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
     items.unshift({id, title:'', text:'', done:false, ts:Date.now(), attachments:[]});
-    if(!_lgMemoSave(items)) return;
+    if(!_lgMemoSave(items, {dirtyIds:[id]})) return;
     lgMemoRender();
     setTimeout(()=>{
       const el = document.querySelector('.lg-memo-item[data-id="'+id+'"] .lg-memo-title-input');
@@ -21942,7 +22153,7 @@
     const it = items.find(m=>m.id===id);
     if(!it) return;
     it.title = val;
-    _lgMemoSave(items);
+    _lgMemoSave(items, {dirtyIds:[id]});
   }
   window.lgMemoUpdateTitle=lgMemoUpdateTitle;
 
@@ -21951,7 +22162,7 @@
     const it = items.find(m=>m.id===id);
     if(!it) return;
     it.text = val;
-    _lgMemoSave(items);
+    _lgMemoSave(items, {dirtyIds:[id]});
   }
   window.lgMemoUpdateText=lgMemoUpdateText;
   // 하위 호환 (기존 코드에서 호출될 수 있음)
@@ -21963,7 +22174,7 @@
     if(!it) return;
     it.done = !it.done;
     it.doneTs = it.done ? Date.now() : 0;
-    _lgMemoSave(items);
+    _lgMemoSave(items, {dirtyIds:[id]});
     lgMemoRender();
   }
   window.lgMemoToggle=lgMemoToggle;
@@ -21977,7 +22188,8 @@
     const idx = items.findIndex(m=>m.id===id);
     if(idx<0) return;
     items.splice(idx,1);
-    _lgMemoSave(items);
+    _lgMemoSave(items, {dirtyIds:[]});     // 저장 대상 없음 (남은 애들은 변경 안 됨)
+    _lgMemoMarkDeleted(id);                // 원격 soft-delete
     lgMemoRender();
   }
   window.lgMemoDel=lgMemoDel;
@@ -22047,7 +22259,7 @@
           size: f.size
         };
         it.attachments.push(att);
-        if(!_lgMemoSave(items)){
+        if(!_lgMemoSave(items, {dirtyIds:[id]})){
           it.attachments.pop();
           break;
         }
@@ -22079,7 +22291,7 @@
     if(idx<0) return;
     if(!confirm('이 첨부를 삭제할까요?')) return;
     it.attachments.splice(idx,1);
-    _lgMemoSave(items);
+    _lgMemoSave(items, {dirtyIds:[memoId]});
     const el = document.querySelector('.lg-memo-item[data-id="'+memoId+'"] [data-att-id="'+attId+'"]');
     if(el) el.remove();
   }
@@ -22215,7 +22427,7 @@
     const items = _lgMemoLoad();
     const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
     items.unshift({id, title:'', text:'', done:false, ts:Date.now(), attachments:[]});
-    if(!_lgMemoSave(items)) return;
+    if(!_lgMemoSave(items, {dirtyIds:[id]})) return;
     lgMemoRender();
     _lgMemoAttachFiles(id, files);
   }
