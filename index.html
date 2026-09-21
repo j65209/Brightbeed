@@ -9869,35 +9869,54 @@
       </div>
     </div>
 
-    <!-- ============ CS 업무 스케줄 보드 — 아코디언 게시글 리스트 (디자인팀 보드와 동일) ============ -->
-    <div class="dsg-pane" data-pane="posts" style="padding:0 24px;max-width:1400px;margin:0 auto 26px">
-      <div class="dsg-section-label">📮 CS 업무 스케줄</div>
-      <div class="dsg-post-toolbar">
+    <!-- ============ CS 작업 보드 — 노션 스타일 아웃라이너 (디자인팀 작업 보드와 동일) ============ -->
+    <div class="dsg-pane" data-pane="board" style="padding:0 24px;max-width:1400px;margin:0 auto 26px">
+      <div class="dsg-section-label">🗂 CS 작업 보드</div>
+      <div class="dsg-doc-toolbar">
+        <input id="csDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
         <label class="dsg-hide-done">
-          <input type="checkbox" id="csPostHideDone" onchange="dsgPostsRender()">
+          <input type="checkbox" id="csDocHideDone" onchange="dsgDocRender()">
           <span>완료 숨김</span>
         </label>
-        <div class="dsg-post-toolbar-spacer"></div>
-        <button class="dsg-new-btn" onclick="dsgPostAdd()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          새 게시
+        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="csFsPicker" title="글꼴 크기 (8~28px)">
+          <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
+          <input class="dsg-fs-num" id="csFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
+          <span class="dsg-fs-suffix">px</span>
+          <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
+        </div>
+        <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+          펼치기
+        </button>
+        <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+          접기
         </button>
       </div>
 
-      <div class="dsg-empty" id="csPostEmpty" hidden>
-        <div class="dsg-empty-icon">📮</div>
-        <div class="dsg-empty-title">아직 스케줄이 없어요</div>
-        <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0921 반품 응대 정리</b> · 내용에 상황·처리방법 · 사진 드래그&드롭.</div>
-      </div>
+      <div class="dsg-doc-wrap">
+        <div class="dsg-empty" id="csEmpty" hidden>
+          <div class="dsg-empty-icon">📝</div>
+          <div class="dsg-empty-title">아직 작업이 없어요</div>
+          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작해 보세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
+        </div>
+        <div id="csDoc" class="dsg-doc"></div>
 
-      <div class="dsg-post-list" id="csPostList"></div>
+        <div class="dsg-doc-add">
+          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
+            <span class="dsg-doc-add-plus">＋</span>
+            <span>여기에 입력하세요</span>
+          </button>
+          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
+            새 섹션
+          </button>
+        </div>
 
-      <div class="dsg-file-preview" id="csFilePreview" hidden aria-hidden="true"></div>
-
-      <div class="dsg-post-snackbar" id="csPostSnackbar" hidden>
-        <span class="dsg-post-snackbar-msg" id="csPostSnackbarMsg">게시글이 삭제됐어요</span>
-        <button class="dsg-post-snackbar-undo" onclick="dsgPostUndoDelete()">되돌리기</button>
-        <span class="dsg-post-snackbar-timer" id="csPostSnackbarTimer">5</span>
+        <div class="dsg-doc-hint">
+          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
+          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
+        </div>
       </div>
     </div>
 
@@ -14691,7 +14710,9 @@
        · 갤러리/칸반/리스트 3-view · 상태·우선순위·태그·마감일 필터
        · 인라인 편집 (모달) · 커버 이미지 · 완료 체크 · 우선순위 이모지
        · 레퍼런스: 붙여넣기(Cmd+V) · 드래그&드롭 · 카테고리(board) · 핀 고정 · 태그 · 원본 링크 */
-  const DSG_DOC_KEY   = 'brightbeed_design_doc_v1';   // 노션 스타일 아웃라이너 트리
+  const DSG_DOC_KEYS  = { design:'brightbeed_design_doc_v1', cs:'brightbeed_cs_doc_v1' };
+  const DSG_DOC_KEY   = DSG_DOC_KEYS.design;           // legacy alias (기존 참조 유지)
+  function _dsgDocKey(){ return DSG_DOC_KEYS[_dsgActiveBoard] || DSG_DOC_KEYS.design; }
   const DSG_REFS_KEY  = 'brightbeed_design_refs_v1';
   const DSG_POSTS_KEY = 'brightbeed_design_posts_v1'; // 디자인 보드 게시글
   /* ── 방어 장치 (업무일지와 동일 급) ───────────────────────────────────
@@ -14713,11 +14734,14 @@
   const DSG_FS_DEFAULT= 14;
   let _dsgFs = DSG_FS_DEFAULT;
   /* 원격 진실 저장소 — GitHub 리포 (업무일지와 동일 패턴) */
-  const DSG_DOC_PATH  ='data/design_doc.json';
+  const DSG_DOC_PATHS = { design:'data/design_doc.json', cs:'data/cs_doc.json' };
+  const DSG_DOC_PATH  = DSG_DOC_PATHS.design;          // legacy alias
   const DSG_REFS_PATH ='data/design_refs.json';
   const DSG_POSTS_PATH='data/design_posts.json';
-  const DSG_DOC_RAW   =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_DOC_PATH}`;
-  const DSG_DOC_API   =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_DOC_PATH}`;
+  const DSG_DOC_RAWS  = Object.fromEntries(Object.entries(DSG_DOC_PATHS).map(([k,v])=>[k, `https://raw.githubusercontent.com/j65209/Brightbeed/main/${v}`]));
+  const DSG_DOC_APIS  = Object.fromEntries(Object.entries(DSG_DOC_PATHS).map(([k,v])=>[k, `https://api.github.com/repos/j65209/Brightbeed/contents/${v}`]));
+  const DSG_DOC_RAW   = DSG_DOC_RAWS.design;           // legacy alias
+  const DSG_DOC_API   = DSG_DOC_APIS.design;           // legacy alias
   const DSG_REFS_RAW  =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_REFS_PATH}`;
   const DSG_REFS_API  =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_REFS_PATH}`;
   const DSG_POSTS_RAW =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_POSTS_PATH}`;
@@ -14726,36 +14750,31 @@
   const DSG_PRIO_CYCLE = ['','high','medium','low'];
   const DSG_PRIO_DOT   = {high:'🔴', medium:'🟡', low:'🟢'};
   const DSG_PRIO_TITLE = {'':'우선순위 없음', high:'높음', medium:'중간', low:'낮음'};
-  let _dsgDoc   = {version:1, blocks:[]};   // 노션 아웃라이너 트리
+  let _dsgDocs  = { design:{version:1, blocks:[]}, cs:{version:1, blocks:[]} };  // 노션 아웃라이너 트리 (board별)
+  function _dsgCurDoc(){
+    if(!_dsgDocs[_dsgActiveBoard]) _dsgDocs[_dsgActiveBoard] = {version:1, blocks:[]};
+    return _dsgDocs[_dsgActiveBoard];
+  }
   let _dsgRefs  = [];
-  let _dsgPosts = [];                       // 디자인 보드 게시글 배열 (board:'design'|'cs')
+  let _dsgPosts = [];                       // 디자인 보드 게시글 배열 (디자인 뷰 전용)
   let _dsgCurTab = 'posts';
   let _dsgCurBoard = 'moodboard';
   let _dsgCurPostId = null;
   let _dsgModalRefId  = null;
-  /* 활성 게시글 보드 (design=디자인팀, cs=CS팀). 뷰 진입 시 세팅.
-     같은 _dsgPosts 배열/원격 저장소를 공유하되, 각 게시글의 board 필드로 뷰별 필터링. */
+  /* 활성 작업 보드 (design=디자인팀, cs=CS팀). 뷰 진입 시 세팅.
+     작업 보드(_dsgDocs)만 board 별 트리 분리, 게시글/레퍼런스는 디자인 뷰 전용. */
   let _dsgActiveBoard = 'design';
-  const DSG_BOARD_IDS = {
-    design: {
-      list:'dsgPostList', empty:'dsgPostEmpty', hideDone:'dsgPostHideDone',
-      snackbar:'dsgPostSnackbar', snackbarMsg:'dsgPostSnackbarMsg', snackbarTimer:'dsgPostSnackbarTimer',
-      filePreview:'dsgFilePreview'
-    },
-    cs: {
-      list:'csPostList', empty:'csPostEmpty', hideDone:'csPostHideDone',
-      snackbar:'csPostSnackbar', snackbarMsg:'csPostSnackbarMsg', snackbarTimer:'csPostSnackbarTimer',
-      filePreview:'csFilePreview'
-    }
+  const DSG_DOC_DOM = {
+    design: { doc:'dsgDoc', empty:'dsgEmpty', search:'dsgDocSearch', hideDone:'dsgDocHideDone', fsPicker:'dsgFsPicker', fsNum:'dsgFsNum', badge:'dsgTabBoardBadge' },
+    cs:     { doc:'csDoc',  empty:'csEmpty',  search:'csDocSearch',  hideDone:'csDocHideDone',  fsPicker:'csFsPicker',  fsNum:'csFsNum',  badge:null                }
   };
-  function _dsgIds(){ return DSG_BOARD_IDS[_dsgActiveBoard] || DSG_BOARD_IDS.design; }
-  function _dsgBoardOf(p){ return (p && p.board) || 'design'; }
+  function _dsgDocIds(){ return DSG_DOC_DOM[_dsgActiveBoard] || DSG_DOC_DOM.design; }
   let _dsgSaveTimer = null;
   let _dsgPostSaveTimer = null;
-  let _dsg_docDirty = false;                 // doc 전체를 하나의 dirty flag 로
+  let _dsg_docDirty = { design:false, cs:false }; // doc 트리 board별 dirty flag
 
   /* ===== 원격 동기화 상태 (업무일지 동일 패턴) =====
-     doc 은 트리 하나라 _dsg_docDirty 플래그 하나로 관리. refs / posts 는 id 기반 세트. */
+     doc 은 board별 트리 → { design, cs } dirty flag. refs / posts 는 id 기반 세트. */
   const _dsgRefsDirty  = new Set();
   const _dsgPostsDirty = new Set();
   const _dsgPostEditSeq = {};
@@ -14769,10 +14788,11 @@
   let _dsg_failStreak  = 0;
 
   function _dsgMarkDocDirty(){
-    _dsg_docDirty = true;
+    _dsg_docDirty[_dsgActiveBoard] = true;
     _dsg_lastEditTs = Date.now();
     _dsgSchedPush();
   }
+  function _dsgAnyDocDirty(){ return !!(_dsg_docDirty.design || _dsg_docDirty.cs); }
   function _dsgMarkRefDirty(id){
     if(!id) return;
     _dsgRefsDirty.add(id);
@@ -14788,7 +14808,7 @@
     _dsg_lastEditTs = Date.now();
     _dsgSchedPush();
   }
-  function _dsgHasPending(){ return _dsg_docDirty || _dsgRefsDirty.size>0 || _dsgPostsDirty.size>0; }
+  function _dsgHasPending(){ return _dsgAnyDocDirty() || _dsgRefsDirty.size>0 || _dsgPostsDirty.size>0; }
 
   function _dsgSetSaveState(state){
     const tags = [document.getElementById('dsgSaveTag'), document.getElementById('csSaveTag')].filter(Boolean);
@@ -14811,10 +14831,11 @@
     });
   }
 
-  /* remote fetch — 없으면 초기 doc / 빈 배열 */
-  async function _dsgFetchRemoteDoc(){
+  /* remote fetch — 없으면 초기 doc / 빈 배열 (board 지정) */
+  async function _dsgFetchRemoteDoc(board){
+    const url = DSG_DOC_RAWS[board||_dsgActiveBoard] || DSG_DOC_RAW;
     try{
-      const r=await fetch(`${DSG_DOC_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      const r=await fetch(`${url}?cb=${Date.now()}`,{cache:'no-cache'});
       if(r.status===404) return {version:1, blocks:[]};
       if(!r.ok) return null;
       const obj=JSON.parse(await r.text());
@@ -14850,26 +14871,30 @@
     if(!editable) return false;
     return !!el.closest('#viewDesign, #viewCs, .dsg-modal');
   }
-  /* 게시글 보드가 화면에 하나라도 켜져있으면 pull 후 재렌더 */
-  function _dsgAnyBoardOpen(){
-    return !document.getElementById('viewDesign')?.hidden
-        || !document.getElementById('viewCs')?.hidden;
-  }
 
   /* remote pull — doc 은 dirty 아니면 통째로 remote 로 갱신, dirty 면 로컬 유지 */
   async function _dsgSyncFromRemote(force){
     if(!force && Date.now() - _dsg_lastEditTs < 3000) return;
-    const [rd, rr, rp] = await Promise.all([_dsgFetchRemoteDoc(), _dsgFetchRemoteRefs(), _dsgFetchRemotePosts()]);
+    const [rdDesign, rdCs, rr, rp] = await Promise.all([
+      _dsgFetchRemoteDoc('design'),
+      _dsgFetchRemoteDoc('cs'),
+      _dsgFetchRemoteRefs(),
+      _dsgFetchRemotePosts()
+    ]);
 
-    if(rd){
-      // 방금 push 한 뒤엔 raw CDN 캐시가 오래된 remote 를 반환할 수 있어
-      // 로컬을 예전 상태로 되돌린다. push 후 60초는 로컬만 신뢰.
-      const pushGrace = _dsg_lastPushTs && Date.now() - _dsg_lastPushTs < 60000;
-      if(!_dsg_docDirty && !pushGrace){
-        _dsgDoc = rd;
-        _dsgSaveDoc();
-      }
-    }
+    // board별 doc 반영 — dirty 이거나 방금 push한 60초 grace 내에는 로컬 유지
+    const pushGrace = _dsg_lastPushTs && Date.now() - _dsg_lastPushTs < 60000;
+    const applyRemoteDoc = (board, rd)=>{
+      if(!rd) return;
+      if(_dsg_docDirty[board] || pushGrace) return;
+      const prevBoard = _dsgActiveBoard;
+      _dsgActiveBoard = board;
+      _dsgDocs[board] = rd;
+      _dsgSaveDoc();
+      _dsgActiveBoard = prevBoard;
+    };
+    applyRemoteDoc('design', rdDesign);
+    applyRemoteDoc('cs', rdCs);
 
     if(rr){
       const remote = rr;
@@ -14940,7 +14965,7 @@
       dsgRefsRender();
       dsgPostsRender();
     } else if(!document.getElementById('viewCs')?.hidden){
-      dsgPostsRender();
+      dsgDocRender();
     }
   }
 
@@ -14991,22 +15016,29 @@
     for(const id of _dsgRefsDirty)  seqBefore[id]  = _dsgEditSeq[id]||0;
     const postSeqBefore = {};
     for(const id of _dsgPostsDirty) postSeqBefore[id] = _dsgPostEditSeq[id]||0;
-    const docWasDirty = _dsg_docDirty;
-    _dsg_docDirty = false;         // 여기서 flip. 편집이 push 도중 들어오면 다시 true 됨.
+    // board별 dirty 스냅샷 후 flip. push 도중 편집 오면 다시 true.
+    const docWasDirty = { design:_dsg_docDirty.design, cs:_dsg_docDirty.cs };
+    _dsg_docDirty = { design:false, cs:false };
 
     let docOK = true, refsOK = true, postsOK = true;
-    let docResult=null, refsResult=null, refsPayload=null;
+    const docFailedBoards = [];
+    let refsResult=null, refsPayload=null;
     let postsResult=null, postsPayload=null;
 
-    // doc 저장 — 통째로 덮어쓰기 (트리 하나)
-    if(docWasDirty){
-      const json = JSON.stringify(_dsgDoc, null, 2);
+    // doc 저장 — board별로 통째로 덮어쓰기 (각각 트리 하나)
+    for(const board of Object.keys(DSG_DOC_PATHS)){
+      if(!docWasDirty[board]) continue;
+      const tree = _dsgDocs[board] || {version:1, blocks:[]};
+      const json = JSON.stringify(tree, null, 2);
       const b64  = btoa(unescape(encodeURIComponent(json)));
+      const api  = DSG_DOC_APIS[board];
+      const label = board==='cs' ? 'CS 작업보드' : '디자인 문서';
+      let res = null;
       for(let attempt=0; attempt<3; attempt++){
-        docResult = await ghPut(DSG_DOC_API, b64, 'chore: 디자인 문서 갱신', {forceMaster:true, noConflictRetry:true});
-        if(docResult.ok || docResult.reason!=='conflict') break;
+        res = await ghPut(api, b64, `chore: ${label} 갱신`, {forceMaster:true, noConflictRetry:true});
+        if(res.ok || res.reason!=='conflict') break;
       }
-      if(!docResult || !docResult.ok) docOK = false;
+      if(!res || !res.ok){ docOK = false; docFailedBoards.push(board); }
     }
 
     // Refs 저장
@@ -15054,7 +15086,7 @@
       // 방금 올린 배열을 pushed-snap 으로 저장 → CDN 지연 방어 (pull 결과와 비교하려 indent 없이)
       try{ _dsgSavePostsPushedSnap(JSON.stringify(postsPayload.merged)); }catch(e){}
     }
-    if(!docOK) _dsg_docDirty = true;   // 실패 시 다시 dirty 로 마킹
+    if(!docOK) docFailedBoards.forEach(b=>{ _dsg_docDirty[b] = true; });   // 실패한 board만 다시 dirty
 
     if(docOK && refsOK && postsOK){
       _dsg_failStreak = 0;
@@ -15064,12 +15096,13 @@
         if(!document.getElementById('viewDesign')?.hidden){
           dsgRefsRender();
           dsgPostsRender();
+          dsgDocRender();
         } else if(!document.getElementById('viewCs')?.hidden){
-          dsgPostsRender();
+          dsgDocRender();
         }
       }
     } else {
-      const reason = (docResult&&docResult.reason) || (refsResult&&refsResult.reason) || (postsResult&&postsResult.reason);
+      const reason = (refsResult&&refsResult.reason) || (postsResult&&postsResult.reason) || 'unknown';
       _dsgPushRetry(reason);
     }
   }
@@ -15146,14 +15179,15 @@
     try{ localStorage.setItem(DSG_UI_KEY, JSON.stringify({viewMode:_dsgViewMode, curBoard:_dsgCurBoard})); }catch(e){}
   }
   function _dsgLoadDoc(){
-    try{
-      const j = JSON.parse(localStorage.getItem(DSG_DOC_KEY)||'null');
-      if(j && Array.isArray(j.blocks)) _dsgDoc = j;
-      else _dsgDoc = {version:1, blocks:[]};
-    } catch(e){ _dsgDoc = {version:1, blocks:[]}; }
+    for(const board of Object.keys(DSG_DOC_KEYS)){
+      try{
+        const j = JSON.parse(localStorage.getItem(DSG_DOC_KEYS[board])||'null');
+        _dsgDocs[board] = (j && Array.isArray(j.blocks)) ? j : {version:1, blocks:[]};
+      } catch(e){ _dsgDocs[board] = {version:1, blocks:[]}; }
+    }
   }
   function _dsgSaveDoc(){
-    try{ localStorage.setItem(DSG_DOC_KEY, JSON.stringify(_dsgDoc)); }catch(e){}
+    try{ localStorage.setItem(_dsgDocKey(), JSON.stringify(_dsgCurDoc())); }catch(e){}
   }
   function _dsgLoadRefs(){
     try{ _dsgRefs = JSON.parse(localStorage.getItem(DSG_REFS_KEY)||'[]'); }
@@ -15319,14 +15353,18 @@
     }catch(e){}
   }
   function _dsgApplyFs(){
-    const doc = document.getElementById('dsgDoc');
-    if(doc){
-      doc.style.setProperty('--dsg-fs', _dsgFs+'px');
-      /* 섹션 제목은 본문보다 5px 크게 (단, 하한 14px) */
-      doc.style.setProperty('--dsg-sec-fs', Math.max(14, _dsgFs+5)+'px');
-    }
-    const inp = document.getElementById('dsgFsNum');
-    if(inp && document.activeElement!==inp) inp.value = _dsgFs;
+    /* 두 보드(디자인·CS) doc 모두 반영 — 폰트 크기 pref 는 board 공유 */
+    ['dsgDoc','csDoc'].forEach(docId=>{
+      const doc = document.getElementById(docId);
+      if(doc){
+        doc.style.setProperty('--dsg-fs', _dsgFs+'px');
+        doc.style.setProperty('--dsg-sec-fs', Math.max(14, _dsgFs+5)+'px');
+      }
+    });
+    ['dsgFsNum','csFsNum'].forEach(inputId=>{
+      const inp = document.getElementById(inputId);
+      if(inp && document.activeElement!==inp) inp.value = _dsgFs;
+    });
   }
   function _dsgSaveFs(){
     try{ localStorage.setItem(DSG_FS_KEY, String(_dsgFs)); }catch(e){}
@@ -15339,7 +15377,7 @@
     _dsgApplyFs();
   }
   function dsgDocFsSetFromInput(){
-    const inp = document.getElementById('dsgFsNum');
+    const inp = document.getElementById(_dsgDocIds().fsNum);
     if(!inp) return;
     /* 빈칸 상태 (사장님이 지우고 새로 타이핑 중) 는 무시 */
     if(inp.value==='' || inp.value==null) return;
@@ -15347,16 +15385,18 @@
     if(v===_dsgFs) return;
     _dsgFs = v;
     _dsgSaveFs();
-    /* 입력 중이면 value 덮어쓰지 않고 doc CSS만 반영 (사장님 타이핑 방해 X) */
-    const doc = document.getElementById('dsgDoc');
-    if(doc){
-      doc.style.setProperty('--dsg-fs', _dsgFs+'px');
-      doc.style.setProperty('--dsg-sec-fs', Math.max(14, _dsgFs+5)+'px');
-    }
+    /* 입력 중이면 value 덮어쓰지 않고 두 board doc CSS만 반영 (사장님 타이핑 방해 X) */
+    ['dsgDoc','csDoc'].forEach(docId=>{
+      const doc = document.getElementById(docId);
+      if(doc){
+        doc.style.setProperty('--dsg-fs', _dsgFs+'px');
+        doc.style.setProperty('--dsg-sec-fs', Math.max(14, _dsgFs+5)+'px');
+      }
+    });
   }
   /* 포커스 해제 시 실제 적용된 값으로 스냅 (범위 밖 입력 정리) */
   function dsgDocFsSnap(){
-    const inp = document.getElementById('dsgFsNum');
+    const inp = document.getElementById(_dsgDocIds().fsNum);
     if(!inp) return;
     if(inp.value==='') { inp.value = _dsgFs; return; }
     const v = _dsgClampFs(inp.value);
@@ -15418,7 +15458,7 @@
       }
       return false;
     }
-    dfs(_dsgDoc.blocks, null, []);
+    dfs(_dsgCurDoc().blocks, null, []);
     return hit;
   }
 
@@ -15427,7 +15467,7 @@
   }
   function _dsgAllBlocks(){
     const arr = [];
-    _dsgWalk(_dsgDoc.blocks, b=>arr.push(b));
+    _dsgWalk(_dsgCurDoc().blocks, b=>arr.push(b));
     return arr;
   }
   function _dsgCountVisible(){
@@ -15435,19 +15475,22 @@
   }
 
   function dsgDocRender(){
-    const badge = document.getElementById('dsgTabBoardBadge');
-    if(badge) badge.textContent = _dsgCountVisible();
-    const empty = document.getElementById('dsgEmpty');
-    const wrap  = document.getElementById('dsgDoc');
+    const ids = _dsgDocIds();
+    if(ids.badge){
+      const badge = document.getElementById(ids.badge);
+      if(badge) badge.textContent = _dsgCountVisible();
+    }
+    const empty = document.getElementById(ids.empty);
+    const wrap  = document.getElementById(ids.doc);
     if(!wrap) return;
-    if(!_dsgDoc.blocks.length){
+    if(!_dsgCurDoc().blocks.length){
       if(empty) empty.hidden = false;
       wrap.innerHTML = '';
       return;
     }
     if(empty) empty.hidden = true;
-    const q  = ((document.getElementById('dsgDocSearch')||{}).value||'').trim().toLowerCase();
-    const hideDone = (document.getElementById('dsgDocHideDone')||{}).checked;
+    const q  = ((document.getElementById(ids.search)||{}).value||'').trim().toLowerCase();
+    const hideDone = (document.getElementById(ids.hideDone)||{}).checked;
 
     // 검색: 매치되는 블록 & 그 조상 세트 계산
     const matched = new Set();
@@ -15462,7 +15505,7 @@
           if(Array.isArray(b.children)) dfs(b.children, [...ancestors, b]);
         }
       }
-      dfs(_dsgDoc.blocks, []);
+      dfs(_dsgCurDoc().blocks, []);
     }
 
     function renderBlock(b){
@@ -15529,13 +15572,15 @@
       </div>`;
     }
 
-    wrap.innerHTML = _dsgDoc.blocks.map(renderBlock).join('');
+    wrap.innerHTML = _dsgCurDoc().blocks.map(renderBlock).join('');
     _dsgWireEditors();
   }
 
   /* contenteditable 편집기 wiring (한 번에 한 element 씩 blur/keydown) */
   function _dsgWireEditors(){
-    document.querySelectorAll('#dsgDoc .dsg-editable').forEach(el=>{
+    const wrap = document.getElementById(_dsgDocIds().doc);
+    if(!wrap) return;
+    wrap.querySelectorAll('.dsg-editable').forEach(el=>{
       if(el._wired) return;
       el._wired = true;
       el.addEventListener('input', _dsgOnEditInput);
@@ -15706,7 +15751,8 @@
   }
   function _dsgFocusBlockEnd(id){
     setTimeout(()=>{
-      const el = document.querySelector(`#dsgDoc .dsg-editable[data-id="${id}"]`);
+      const wrap = document.getElementById(_dsgDocIds().doc);
+      const el = wrap ? wrap.querySelector(`.dsg-editable[data-id="${id}"]`) : null;
       if(!el) return;
       el.focus();
       const range = document.createRange();
@@ -15755,7 +15801,7 @@
   }
   function dsgDocAddSection(){
     const b = {id:_dsgUidLocal(), type:'section', text:'', children:[]};
-    _dsgDoc.blocks.push(b);
+    _dsgCurDoc().blocks.push(b);
     _dsgSaveDoc(); _dsgMarkDocDirty();
     dsgDocRender();
     _dsgFocusBlockEnd(b.id);
@@ -15772,18 +15818,18 @@
   }
   /* 문서 하단 "+ 여기에 입력하세요" — 마지막 섹션 안 최하단에 추가, 섹션 없으면 새 섹션 안 첫 항목 */
   function dsgDocAppendItem(){
-    if(!_dsgDoc.blocks.length){
+    if(!_dsgCurDoc().blocks.length){
       // 완전 빈 문서: 이름 없는 섹션 하나 + todo 하나
       const sec = {id:_dsgUidLocal(), type:'section', text:'', children:[]};
       const nb  = {id:_dsgUidLocal(), type:'todo', text:'', checked:false, children:[]};
       sec.children.push(nb);
-      _dsgDoc.blocks.push(sec);
+      _dsgCurDoc().blocks.push(sec);
       _dsgSaveDoc(); _dsgMarkDocDirty();
       dsgDocRender();
       _dsgFocusBlockEnd(nb.id);
       return;
     }
-    const last = _dsgDoc.blocks[_dsgDoc.blocks.length-1];
+    const last = _dsgCurDoc().blocks[_dsgCurDoc().blocks.length-1];
     if(last.type==='section'){
       const nb = {id:_dsgUidLocal(), type:'todo', text:'', checked:false, children:[]};
       last.children = last.children||[];
@@ -15807,12 +15853,12 @@
     _dsgFocusBlockEnd(nb.id);
   }
   function dsgDocExpandAll(){
-    _dsgWalk(_dsgDoc.blocks, b=>{ if(b.collapsed) b.collapsed = false; });
+    _dsgWalk(_dsgCurDoc().blocks, b=>{ if(b.collapsed) b.collapsed = false; });
     _dsgSaveDoc(); _dsgMarkDocDirty();
     dsgDocRender();
   }
   function dsgDocCollapseAll(){
-    _dsgWalk(_dsgDoc.blocks, b=>{ if(b.type==='section'||b.type==='toggle') b.collapsed = true; });
+    _dsgWalk(_dsgCurDoc().blocks, b=>{ if(b.type==='section'||b.type==='toggle') b.collapsed = true; });
     _dsgSaveDoc(); _dsgMarkDocDirty();
     dsgDocRender();
   }
@@ -15863,12 +15909,8 @@
   function _dsgPostById(id){ return _dsgPosts.find(p=>p.id===id) || null; }
   function _dsgPostSortKey(p){ return -(new Date(p.created_at||0).getTime()); }
   function _dsgVisiblePosts(){
-    const ids = _dsgIds();
-    const hideDone = (document.getElementById(ids.hideDone)||{}).checked;
-    return _dsgPosts
-      .filter(p=>_dsgBoardOf(p)===_dsgActiveBoard)
-      .filter(p=>!(hideDone && p.done))
-      .sort((a,b)=>_dsgPostSortKey(a)-_dsgPostSortKey(b));
+    const hideDone = (document.getElementById('dsgPostHideDone')||{}).checked;
+    return _dsgPosts.filter(p=>!(hideDone && p.done)).sort((a,b)=>_dsgPostSortKey(a)-_dsgPostSortKey(b));
   }
   function _dsgPostMetaText(p){
     const imgs  = (p.images||[]).length;
@@ -15942,12 +15984,11 @@
   }
 
   function dsgPostsRender(){
-    const ids = _dsgIds();
     const list = _dsgVisiblePosts();
     const badge = document.getElementById('dsgTabPostsBadge');
-    if(badge) badge.textContent = _dsgPosts.filter(p=>_dsgBoardOf(p)===_dsgActiveBoard).length;
-    const wrap  = document.getElementById(ids.list);
-    const empty = document.getElementById(ids.empty);
+    if(badge) badge.textContent = _dsgPosts.length;
+    const wrap  = document.getElementById('dsgPostList');
+    const empty = document.getElementById('dsgPostEmpty');
     if(!wrap) return;
     // 열림 상태 유효성 — 필터/삭제로 사라졌으면 첫번째 열림
     if(_dsgCurPostId && !list.find(p=>p.id===_dsgCurPostId)){
@@ -16053,7 +16094,6 @@
     const dd = String(d.getDate()).padStart(2,'0');
     const p = {
       id: _dsgUid(),
-      board: _dsgActiveBoard,
       title: `${mm}${dd} `,
       body: '',
       images: [],
@@ -16094,7 +16134,7 @@
     _dsgShowSnackbar(`"${p.title||'무제'}" 게시글이 삭제됐어요`);
     _dsgPendingDelete.tickTimer = setInterval(()=>{
       const left = Math.max(0, Math.ceil((_dsgPendingDelete.deadline - Date.now())/1000));
-      const t = document.getElementById(_dsgIds().snackbarTimer);
+      const t = document.getElementById('dsgPostSnackbarTimer');
       if(t) t.textContent = String(left);
       if(left<=0){
         clearInterval(_dsgPendingDelete.tickTimer);
@@ -16134,17 +16174,16 @@
     dsgPostsRender();
   }
   function _dsgShowSnackbar(msg){
-    const ids = _dsgIds();
-    const bar = document.getElementById(ids.snackbar);
-    const m   = document.getElementById(ids.snackbarMsg);
-    const t   = document.getElementById(ids.snackbarTimer);
+    const bar = document.getElementById('dsgPostSnackbar');
+    const m   = document.getElementById('dsgPostSnackbarMsg');
+    const t   = document.getElementById('dsgPostSnackbarTimer');
     if(!bar) return;
     if(m) m.textContent = msg;
     if(t) t.textContent = '5';
     bar.hidden = false;
   }
   function _dsgHideSnackbar(){
-    const bar = document.getElementById(_dsgIds().snackbar);
+    const bar = document.getElementById('dsgPostSnackbar');
     if(bar) bar.hidden = true;
   }
 
@@ -16157,7 +16196,7 @@
     _dsgMarkPostDirty(p.id);
     _dsgUpdateItemHeader(p);
     // 완료 숨김 필터가 켜져있으면 리스트 재렌더
-    if((document.getElementById(_dsgIds().hideDone)||{}).checked) dsgPostsRender();
+    if((document.getElementById('dsgPostHideDone')||{}).checked) dsgPostsRender();
   }
 
   /* 매 입력마다 즉시 로컬 저장. 원격은 _dsgSchedPush 사이클 안에서 debounce */
@@ -16394,7 +16433,7 @@
       <div class="dsg-fp-sub">${_dsgEsc(meta)}</div>`;
   }
   function _dsgFilePreviewPosition(evt){
-    const pv = document.getElementById(_dsgIds().filePreview);
+    const pv = document.getElementById('dsgFilePreview');
     if(!pv || pv.hidden) return;
     const pad = 16;
     const w = pv.offsetWidth || 300;
@@ -16415,7 +16454,7 @@
     _dsgFpLastEvent = { clientX:evt.clientX, clientY:evt.clientY };
     clearTimeout(_dsgFpTimer);
     _dsgFpTimer = setTimeout(()=>{
-      const pv = document.getElementById(_dsgIds().filePreview);
+      const pv = document.getElementById('dsgFilePreview');
       if(!pv) return;
       pv.innerHTML = _dsgFilePreviewContent(kind, url, name, mime, size);
       pv.hidden = false;
@@ -16424,14 +16463,14 @@
   }
   function dsgFilePreviewMove(evt){
     _dsgFpLastEvent = { clientX:evt.clientX, clientY:evt.clientY };
-    const pv = document.getElementById(_dsgIds().filePreview);
+    const pv = document.getElementById('dsgFilePreview');
     if(!pv || pv.hidden) return;
     _dsgFilePreviewPosition(_dsgFpLastEvent);
   }
   function dsgFilePreviewHide(){
     clearTimeout(_dsgFpTimer);
     _dsgFpTimer = null;
-    const pv = document.getElementById(_dsgIds().filePreview);
+    const pv = document.getElementById('dsgFilePreview');
     if(pv){ pv.hidden = true; pv.innerHTML=''; }
   }
   /* data-post/data-file/data-img 로 id 만 가져와서 실제 데이터에서 프리뷰 렌더
@@ -16540,9 +16579,9 @@
     }).join('');
   }
 
-  /* 이미지 붙여넣기 — 디자인/CS 보드 게시글로 라우팅 */
+  /* 이미지 붙여넣기 — 디자인 보드 게시글로 라우팅 */
   function dsgHandlePaste(e){
-    if(!_dsgAnyBoardOpen()) return;
+    if(document.getElementById('viewDesign')?.hidden) return;
     // 활성 요소가 편집 가능한 텍스트라면(제목/본문/캡션 입력 중) 텍스트 붙여넣기 우선
     const ae = document.activeElement;
     const isTextEdit = ae && (
