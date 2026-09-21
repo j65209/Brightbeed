@@ -13151,13 +13151,17 @@
       const profitCell = ovCell(r, 'profit', _akpFmt(profit), goodCls);
       const marginCell = ovCell(r, 'margin', _akpPct(margin));
       const multCell = ovCell(r, 'mult', _akpMul(mult));
-      const floorMultCell = ovCell(r, 'floorMult', _akpMul(floorMult));
+      // 절대 하한 배수도 빨간색으로 (사장님이 하한 영역 시각 통일 원함)
+      const floorMultCell = ovCell(r, 'floorMult', _akpMul(floorMult), 'akp-floor');
       const customCells = cols.map(col=>{
         const v = cust[col.id] || '';
+        // 컬럼 이름에 '하한' 또는 '상한' 포함 → 빨간색 (기획전 상·하한 영역 일관 표시)
+        const isLimit = /하한|상한/.test(col.name||'');
+        const limitCls = isLimit ? ' akp-floor' : '';
         if(editing){
-          return `<td><input class="akp-custom-input" type="text" data-field="row-cust" data-row-key="${r.key}" data-col-id="${escAttr(col.id)}" value="${escAttr(v)}"></td>`;
+          return `<td><input class="akp-custom-input${limitCls}" type="text" data-field="row-cust" data-row-key="${r.key}" data-col-id="${escAttr(col.id)}" value="${escAttr(v)}"></td>`;
         }
-        return `<td class="akp-cell-auto akp-cell-custom">${escAttr(v)}</td>`;
+        return `<td class="akp-cell-auto akp-cell-custom${limitCls}">${escAttr(v)}</td>`;
       }).join('');
       return `<tr>
         <td class="akp-row-lbl" title="${escAttr(r.name)}">${escAttr(r.label)}</td>
@@ -13319,6 +13323,13 @@
           if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
           pl.rows[key].floor=_akpNum(inp.value);
         });
+        // 숫자만 입력했을 때 자동으로 '%' 붙여주는 헬퍼 — % 컬럼용
+        const _autoPct=(raw)=>{
+          const s=String(raw||'').trim();
+          if(!s || s.includes('%')) return s;
+          const n=parseFloat(s.replace(/[,\s]/g,''));
+          return Number.isFinite(n) && /^-?[\d.,\s]+$/.test(s) ? (n+'%') : s;
+        };
         // 자동 계산 셀 override — 입력값이 자동값과 정확히 같으면 override 지움 (자동 계산 복귀)
         card.querySelectorAll('[data-field="row-ov"]').forEach(inp=>{
           const key=inp.dataset.rowKey, col=inp.dataset.col;
@@ -13326,7 +13337,9 @@
           if(!key||!col) return;
           if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
           if(!pl.rows[key].ov) pl.rows[key].ov={};
-          const v=inp.value.trim();
+          let v=inp.value.trim();
+          // rate·margin 은 % 컬럼 — 숫자만 넣어도 자동으로 % 붙임
+          if(v && (col==='rate' || col==='margin')) v=_autoPct(v);
           if(v==='' || v===auto){
             delete pl.rows[key].ov[col];
           }else{
@@ -13334,13 +13347,15 @@
           }
           if(Object.keys(pl.rows[key].ov).length===0) delete pl.rows[key].ov;
         });
-        // 커스텀 컬럼 셀 값
+        // 커스텀 컬럼 셀 값 — 컬럼 이름에 '%' 포함되면 숫자만 넣어도 자동으로 %
         card.querySelectorAll('[data-field="row-cust"]').forEach(inp=>{
           const key=inp.dataset.rowKey, cid=inp.dataset.colId;
           if(!key||!cid) return;
           if(!pl.rows[key]) pl.rows[key]={price:0,floor:0};
           if(!pl.rows[key].cust) pl.rows[key].cust={};
-          const v=inp.value;
+          let v=inp.value;
+          const col=pl.customCols.find(c=>c.id===cid);
+          if(v && col && /%/.test(col.name||'')) v=_autoPct(v);
           if(v===''){
             delete pl.rows[key].cust[cid];
           }else{
