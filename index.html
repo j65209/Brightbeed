@@ -6250,6 +6250,51 @@
     transition:background .12s ease;
   }
   .dcs-hide-diary:hover{background:#fee2e2}
+  .dcs-restore-btn{
+    display:inline-flex;align-items:center;gap:3px;
+    font-size:10.5px;color:#374151;background:#f9fafb;border:1px solid #e5e7eb;
+    padding:3px 8px;border-radius:999px;font-weight:600;cursor:pointer;letter-spacing:-.01em;
+    transition:background .12s ease;
+  }
+  .dcs-restore-btn:hover{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
+  .diary-restore-panel{
+    position:fixed;z-index:200;background:#fff;border:1px solid #e5e7eb;
+    border-radius:12px;box-shadow:0 12px 36px rgba(15,15,15,.14);
+    max-height:70vh;overflow:hidden;display:flex;flex-direction:column;
+  }
+  .diary-restore-panel .drp-head{
+    padding:10px 14px;font-size:13px;font-weight:700;color:#111827;
+    border-bottom:1px solid #f1f5f9;letter-spacing:-.02em;flex:0 0 auto;
+  }
+  .diary-restore-panel .drp-body{
+    padding:8px;overflow:auto;display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;
+  }
+  .diary-restore-panel .drp-empty{color:#9ca3af;font-size:12.5px;padding:20px 12px;text-align:center}
+  .diary-restore-panel .drp-row{
+    display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:8px;row-gap:2px;
+    padding:8px 10px;border:1px solid #f1f5f9;border-radius:10px;background:#fafafa;
+    transition:.12s ease;
+  }
+  .diary-restore-panel .drp-row:hover{background:#f5f5f4;border-color:#e5e7eb}
+  .diary-restore-panel .drp-row.restored{background:#ecfdf5;border-color:#a7f3d0;opacity:.75}
+  .diary-restore-panel .drp-meta{
+    grid-column:1/2;grid-row:1;display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+    font-size:10.5px;color:#78716c;
+  }
+  .diary-restore-panel .drp-kind{background:#eef2ff;color:#4338ca;font-weight:700;padding:1px 6px;border-radius:6px}
+  .diary-restore-panel .drp-day{background:#f0f9ff;color:#075985;padding:1px 5px;border-radius:5px;font-weight:600}
+  .diary-restore-panel .drp-when{color:#9ca3af}
+  .diary-restore-panel .drp-text{
+    grid-column:1/2;grid-row:2;font-size:12.5px;color:#1c1917;letter-spacing:-.01em;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .diary-restore-panel .drp-restore{
+    grid-column:2/3;grid-row:1/3;align-self:center;
+    border:none;background:#4338ca;color:#fff;font-size:11.5px;font-weight:700;
+    padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;letter-spacing:-.01em;
+  }
+  .diary-restore-panel .drp-restore:hover{background:#3730a3}
+  .diary-restore-panel .drp-restore:disabled{background:#10b981;cursor:default}
   /* 업무일지 숨김 명단 패널 (마스터 전용, 있을 때만 표시) — 보드 아래 배치 */
   .diary-hidden-panel{
     display:flex;flex-wrap:wrap;align-items:center;gap:8px;
@@ -19012,6 +19057,7 @@
           <div class="dcs-team">${_esc(teamLabel)}</div>
         </div>
         <div class="dcs-head-right">
+          <button class="dcs-restore-btn" type="button" title="최근 지운 항목 되살리기 (실수·race 로 사라진 줄 복구)" data-restore-btn>🕐 지운 항목</button>
           <button class="dcs-hide-diary master-only" type="button" title="이 직원의 업무일지를 숨깁니다 (마스터 전용)" data-hide-diary>일지 숨김</button>
           <div class="dcs-stat"><span class="dcs-stat-dot"></span><span data-stat></span></div>
         </div>
@@ -19081,6 +19127,8 @@
     // 이벤트 바인딩
     const hideBtn = card.querySelector('[data-hide-diary]');
     if(hideBtn) hideBtn.onclick = ()=> hideStaffDiary(name);
+    const restoreBtn = card.querySelector('[data-restore-btn]');
+    if(restoreBtn) restoreBtn.onclick = ()=> _diaryOpenRestorePanel(name, restoreBtn);
     card.querySelector('[data-add="weekly"]').onclick = ()=>{
       entry.weekly.push({id:_diaryUid(), text:'', createdAt:_diaryTodayStr()});
       _diaryCardRenderPlan(card, st, 'weekly', true);
@@ -22390,6 +22438,109 @@
   }
   window.hideStaffDiary=hideStaffDiary;
   window.restoreStaffDiary=restoreStaffDiary;
+
+  /* 최근 지운 항목 되살리기 — 카드 헤더 🕐 버튼 클릭 시 열림.
+     · diary_items 서버에서 이 스태프의 deleted_at 있는 행 최근 30일치를 pull.
+     · "되살리기" 클릭 → deleted_at=null · client_ts 를 24h 미래로 세팅 (다른 세션 잔존 tombstone 재삭제 24h 차단).
+     · 24h TTL 로 tombstone 자연 만료 → 정상 편집 재개. */
+  let _diaryRestorePanel = null;
+  function _diaryClosePanel(){
+    if(_diaryRestorePanel){ _diaryRestorePanel.remove(); _diaryRestorePanel = null; }
+    document.removeEventListener('mousedown', _diaryPanelOff, true);
+    document.removeEventListener('keydown', _diaryPanelEsc, true);
+  }
+  function _diaryPanelOff(e){
+    if(!_diaryRestorePanel) return;
+    if(_diaryRestorePanel.contains(e.target)) return;
+    if(e.target.closest && e.target.closest('[data-restore-btn]')) return;
+    _diaryClosePanel();
+  }
+  function _diaryPanelEsc(e){ if(e.key === 'Escape') _diaryClosePanel(); }
+  async function _diaryOpenRestorePanel(name, anchor){
+    if(_diaryRestorePanel){ _diaryClosePanel(); return; }
+    const panel = document.createElement('div');
+    panel.className = 'diary-restore-panel';
+    panel.innerHTML = `<div class="drp-head">🕐 ${_esc(name)} · 지운 항목</div><div class="drp-body">불러오는 중…</div>`;
+    document.body.appendChild(panel);
+    _diaryRestorePanel = panel;
+    const r = anchor.getBoundingClientRect();
+    const w = 380;
+    let x = Math.max(12, Math.min(innerWidth - w - 12, r.right - w));
+    let y = r.bottom + 6;
+    panel.style.left = x + 'px'; panel.style.top = y + 'px'; panel.style.width = w + 'px';
+    setTimeout(() => {
+      document.addEventListener('mousedown', _diaryPanelOff, true);
+      document.addEventListener('keydown', _diaryPanelEsc, true);
+    }, 0);
+
+    // 최근 30일 · 최대 30건
+    let rows = null;
+    try{
+      const since = new Date(Date.now() - 30*86400000).toISOString();
+      const url = `${SUPABASE_URL}/rest/v1/diary_items?staff_name=eq.${encodeURIComponent(name)}&deleted_at=gte.${encodeURIComponent(since)}&select=id,kind,day,text,from_name,deleted_at,updated_by&order=deleted_at.desc&limit=30`;
+      const resp = await fetch(url, { headers: _sbHeaders(), cache: 'no-cache' });
+      if(resp.ok){ rows = await resp.json(); }
+    }catch(e){}
+    if(!Array.isArray(rows)){
+      panel.querySelector('.drp-body').innerHTML = '<div class="drp-empty">서버에서 목록을 못 받았어요.</div>';
+      return;
+    }
+    if(!rows.length){
+      panel.querySelector('.drp-body').innerHTML = '<div class="drp-empty">최근 30일 안에 지운 항목이 없습니다.</div>';
+      return;
+    }
+    const body = panel.querySelector('.drp-body');
+    body.innerHTML = '';
+    rows.forEach(r=>{
+      const row = document.createElement('div'); row.className = 'drp-row';
+      const kindLabel = r.kind === 'task' ? '한 일' : r.kind === 'req' ? '요청' : r.kind === 'weekly' ? '주간' : r.kind === 'monthly' ? '월목표' : r.kind;
+      const when = new Date(r.deleted_at);
+      const whenStr = `${when.getMonth()+1}/${when.getDate()} ${String(when.getHours()).padStart(2,'0')}:${String(when.getMinutes()).padStart(2,'0')}`;
+      const text = (r.text || '').trim() || '(빈 줄)';
+      row.innerHTML = `
+        <div class="drp-meta">
+          <span class="drp-kind">${_esc(kindLabel)}</span>
+          ${r.day ? `<span class="drp-day">${_esc(r.day)}</span>` : ''}
+          <span class="drp-when">${_esc(whenStr)} · 지운이 ${_esc(r.updated_by || '?')}</span>
+        </div>
+        <div class="drp-text">${_esc(text)}</div>
+        <button class="drp-restore" type="button">되살리기</button>
+      `;
+      row.querySelector('.drp-restore').onclick = async () => {
+        const btn = row.querySelector('.drp-restore');
+        btn.disabled = true; btn.textContent = '되살리는 중…';
+        const ok = await _diaryRestoreRow(r.id);
+        if(ok){ row.classList.add('restored'); btn.textContent = '✓ 되살아났어요'; }
+        else { btn.disabled = false; btn.textContent = '되살리기'; toast('되살리기 실패 — 다시 시도해 주세요','err'); }
+      };
+      body.appendChild(row);
+    });
+  }
+  async function _diaryRestoreRow(id){
+    if(!id) return false;
+    const guardTs = Date.now() + 24*3600*1000;   // 24h 뒤 → 잔존 tombstone 재삭제 차단, TTL 후 정상 복귀
+    const me = (typeof _diaryGetMe === 'function' ? _diaryGetMe() : '') || '';
+    try{
+      const url = `${SUPABASE_URL}/rest/v1/diary_items?id=eq.${encodeURIComponent(id)}`;
+      const resp = await fetch(url, {
+        method: 'PATCH',
+        headers: _sbHeaders({'Prefer':'return=representation'}),
+        body: JSON.stringify({ deleted_at: null, client_ts: guardTs, updated_by: me }),
+      });
+      if(!resp.ok) return false;
+      // 로컬 캐시에도 즉시 반영 (realtime 도착 전에 UI 부드럽게)
+      const arr = await resp.json();
+      const restored = Array.isArray(arr) && arr[0];
+      if(restored && restored.id){
+        _diaryRows[restored.id] = restored;
+        _diarySaveRows();
+        if(typeof _diaryApplyRows === 'function') _diaryApplyRows(true);
+      }
+      return true;
+    }catch(e){ return false; }
+  }
+  window._diaryOpenRestorePanel = _diaryOpenRestorePanel;
+  window._diaryRestoreRow = _diaryRestoreRow;
 
   /* 홈의 "업무일지" 버튼과 알림 배지 — 현재 PC 주인이 숨김 명단에 있으면 숨긴다.
      마스터 계정은 항상 보이게 (관리 목적). */
