@@ -18764,6 +18764,15 @@
       // 최종 확인 — 잘못 누르면 되돌릴 수 없음
       if(!confirm(`${name} 계정으로 로그인합니다.\n한 번 로그인하면 이 PC에서는 변경할 수 없습니다.\n계속하시겠습니까?`)) return;
       _diarySetMe(name);
+      // 코페리 iframe 이 이미 로드돼있으면 me= 반영 위해 재로드 (2026-09-22 세션 격리 사고 후속)
+      try{
+        const cofFr = document.getElementById('dsgCofFrame');
+        if(cofFr && cofFr.src && cofFr.src !== 'about:blank' && cofFr.dataset.src){
+          const url = new URL(cofFr.dataset.src, location.origin);
+          url.searchParams.set('me', name);
+          cofFr.src = url.toString();
+        }
+      }catch(e){}
       // 알림 권한 요청 (사용자가 체크했고 아직 결정 안 된 경우)
       const notifSupported = 'Notification' in window;
       if(notifSupported && notifChk.checked && Notification.permission === 'default'){
