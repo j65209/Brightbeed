@@ -14574,13 +14574,19 @@
   const DSG_POSTS_PUSH_CONFIRM_MS = 3*60*1000;
   const DSG_POSTS_TOMB_TTL_MS     = 24*3600*1000;
   const DSG_POSTS_HISTORY_MAX     = 20;
-  /* doc 트리도 posts와 동일 방어 (물류·CS·MD·디자인 메모)
-       · dirty persist: 미푸시 편집이 새로고침 후에도 남아 자동 재전송
-       · pushed snap:  방금 올린 트리 JSON을 3분 보관 → CDN 지연으로 옛 remote가 로컬 덮는 사고 방지
-     삭제 후 새로고침 시 항목이 되살아나는 이슈, 창 닫기 직후 편집 유실 이슈의 근본 해결. */
+  /* doc 트리 5중 방어 (업무일지 diary 와 동일 급, 2026-09-22 통일)
+       · dirty persist  : 미푸시 편집이 새로고침 후에도 남아 자동 재전송
+       · pushed snap    : 방금 올린 트리 JSON 을 3분 보관 → CDN 지연으로 옛 remote 가 로컬 덮는 사고 방지
+       · base snap      : 마지막 확인된 원격 트리 → 3-way merge 기준본
+       · tombstone      : 삭제한 블록 id 24h 보관 → push 실패해도 remote 부활 X
+       · sha 기반 push  : conflict 시 remote 다시 읽어 재병합 (남의 편집 안 지움)
+     참조 스킬: ~/.claude/skills/robust-storage-sync/SKILL.md */
   const DSG_DOC_DIRTY_KEY         = 'brightbeed_dsg_doc_dirty_v1';
   const DSG_DOC_PUSHED_KEY_PREFIX = 'brightbeed_dsg_doc_pushed_';  // + board
+  const DSG_DOC_BASE_KEY_PREFIX   = 'brightbeed_dsg_doc_base_';    // + board
+  const DSG_DOC_TOMB_KEY          = 'brightbeed_dsg_doc_tombs_v1'; // {id: {board, ts}}
   const DSG_DOC_PUSH_CONFIRM_MS   = 3*60*1000;
+  const DSG_DOC_TOMB_TTL_MS       = 24*3600*1000;
   const DSG_UI_KEY    = 'brightbeed_design_ui_v1';
   const DSG_FS_KEY    = 'brightbeed_design_fs_v1';    // 문서 폰트 크기 (px, 숫자)
   const DSG_FS_MIN    = 8;
@@ -14758,8 +14764,10 @@
       _dsgFetchRemotePosts()
     ]);
 
-    // board별 doc 반영 — dirty 이거나 방금 push한 60초 grace 내에는 로컬 유지
+    // board별 doc 반영 — dirty 면 3-way merge, 아니면 remote 그대로 (base 갱신).
+    // 방금 push 한 60초 grace 내엔 pushed-snap 으로 CDN 지연 방어.
     const pushGrace = _dsg_lastPushTs && Date.now() - _dsg_lastPushTs < 60000;
+    _dsgPurgeDocTombs();
     const applyRemoteDoc = (board, rd)=>{
       if(!rd) return;
       if(rd.__missing){
@@ -14772,9 +14780,8 @@
         }
         return;
       }
-      if(_dsg_docDirty[board] || pushGrace) return;
       /* pushed-snap: 방금 올린 board의 remote 반영을 확인 전까진 로컬 우선.
-         (posts 와 동일 패턴) 삭제한 항목이 CDN 지연으로 부활하는 사고를 근본 차단. */
+         삭제한 항목이 CDN 지연으로 부활하는 사고 근본 차단. */
       const pushed = _dsgLoadDocPushedSnap(board);
       if(pushed){
         let remoteJson;
@@ -14785,10 +14792,38 @@
           return;                          // 아직 CDN에 옛 데이터 → pull 스킵
         }
       }
+      const tombIds = _dsgDocTombIdsFor(board);
       const prevBoard = _dsgActiveBoard;
       _dsgActiveBoard = board;
-      _dsgDocs[board] = rd;
-      _dsgSaveDoc();
+      if(_dsg_docDirty[board]){
+        // dirty 면 3-way merge (내 편집 지키면서 남이 추가한 것만 살림, tombstone 제외).
+        // grace 안에도 남의 신규 항목 반영 위해 merge (덮어쓰기가 아님).
+        const mineTree = _dsgDocs[board] || {version:1, blocks:[]};
+        const baseTree = _dsgLoadDocBase(board) || {version:1, blocks:[]};
+        const merged = _dsgMergeTree(mineTree, rd, baseTree, tombIds);
+        _dsgDocs[board] = merged;
+        _dsgSaveDoc();
+        // base 는 아직 우리가 push 를 안 했으니 유지 (push 성공 시 갱신)
+      } else if(!pushGrace) {
+        // dirty 아니고 grace 밖 → remote 전체 수용 (tombstone id 만 제외)
+        const clean = tombIds.size ? {
+          version: rd.version || 1,
+          blocks: (function filter(bs){
+            if(!Array.isArray(bs)) return [];
+            const out = [];
+            bs.forEach(b=>{
+              if(!b || tombIds.has(b.id)) return;
+              const cp = {...b};
+              if(Array.isArray(b.children)) cp.children = filter(b.children);
+              out.push(cp);
+            });
+            return out;
+          })(rd.blocks)
+        } : rd;
+        _dsgDocs[board] = clean;
+        _dsgSaveDoc();
+        _dsgSaveDocBase(board, clean);   // 새 base = 방금 확인된 remote
+      }
       _dsgActiveBoard = prevBoard;
     };
     boards.forEach((b,i)=>applyRemoteDoc(b, rds[i]));
@@ -14925,29 +14960,55 @@
     let refsResult=null, refsPayload=null;
     let postsResult=null, postsPayload=null;
 
-    // doc 저장 — board별로 통째로 덮어쓰기 (각각 트리 하나)
-    // ghPut / ghFetch 가 네트워크 오류로 throw 하면 아래 dirty 복구 코드로 반드시 도달해야 하므로 try/catch 필수.
+    // doc 저장 — board 별로 sha 기반 3-way merge (업무일지와 동일 급).
+    // 흐름: (1) contents API 로 remote + sha 읽기 (2) local + remote + base 3-way merge
+    //       (3) merged 를 그 sha 로 PUT → 409 conflict 면 remote 다시 읽어 재병합
+    // ghPut / ghFetch 가 네트워크 오류로 throw 해도 dirty 복구가 반드시 실행되도록 try/catch.
+    const docPushedTrees = {};   // board -> merged tree (성공 후 base/pushed-snap 갱신용)
     for(const board of Object.keys(DSG_DOC_PATHS)){
       if(!docWasDirty[board]) continue;
-      const tree = _dsgDocs[board] || {version:1, blocks:[]};
-      const json = JSON.stringify(tree, null, 2);
-      const b64  = btoa(unescape(encodeURIComponent(json)));
-      const api  = DSG_DOC_APIS[board];
-      const label = DSG_DOC_LABELS[board] || '문서';
-      let res = null;
+      const mineTree = _dsgDocs[board] || {version:1, blocks:[]};
+      const api      = DSG_DOC_APIS[board];
+      const label    = DSG_DOC_LABELS[board] || '문서';
+      const tombIds  = _dsgDocTombIdsFor(board);
+      let res = null, mergedTree = null;
       for(let attempt=0; attempt<3; attempt++){
         try {
-          res = await ghPut(api, b64, `chore: ${label} 갱신`, {forceMaster:true, noConflictRetry:true});
-          if(res.ok || res.reason!=='conflict') break;
+          const file = await ghGetFile(api);
+          if(file.error){ res = null; break; }
+          let theirsTree = {version:1, blocks:[]};
+          if(file.text){
+            try {
+              const parsed = JSON.parse(file.text);
+              if(parsed && Array.isArray(parsed.blocks)) theirsTree = parsed;
+            } catch(e){ res = null; break; }   // 깨진 remote 로 덮지 않는다
+          }
+          const baseTree = _dsgLoadDocBase(board) || {version:1, blocks:[]};
+          mergedTree = _dsgMergeTree(mineTree, theirsTree, baseTree, tombIds);
+          const json = JSON.stringify(mergedTree, null, 2);
+          const b64  = btoa(unescape(encodeURIComponent(json)));
+          res = await ghPut(api, b64, `chore: ${label} 갱신`, {forceMaster:true, noConflictRetry:true, sha:file.sha||null});
+          if(res.ok) break;
+          if(res.reason!=='conflict') break;   // conflict 아니면 재시도 무의미
+          // conflict → 루프 재진입해 remote 다시 읽고 재병합
         } catch(e){
           res = null;
-          break;   // 네트워크 실패는 재시도 무의미 → dirty 유지되어 다음 스케줄에서 재시도
+          break;
         }
       }
       if(!res || !res.ok){ docOK = false; docFailedBoards.push(board); }
       else {
-        // CDN 지연 방어 — 방금 올린 트리 JSON을 pushed-snap 으로 저장 (pull 결과와 비교하려 indent 없이)
-        try { _dsgSaveDocPushedSnap(board, JSON.stringify(tree)); } catch(e){}
+        docPushedTrees[board] = mergedTree;
+        // CDN 지연 방어 — 방금 올린 tree JSON 을 pushed-snap 으로 저장
+        try { _dsgSaveDocPushedSnap(board, JSON.stringify(mergedTree)); } catch(e){}
+        // 병합 성공 → mergedTree 가 새 base
+        try { _dsgSaveDocBase(board, mergedTree); } catch(e){}
+        // 로컬도 병합 결과로 갱신 (남이 추가한 항목 반영)
+        _dsgDocs[board] = mergedTree;
+        const prevBoard = _dsgActiveBoard;
+        _dsgActiveBoard = board;
+        _dsgSaveDoc();
+        _dsgActiveBoard = prevBoard;
       }
     }
 
@@ -15145,6 +15206,135 @@
   }
   function _dsgClearDocPushedSnap(board){
     try{ localStorage.removeItem(DSG_DOC_PUSHED_KEY_PREFIX+board); }catch(e){}
+  }
+  /* doc base snapshot (per board) — 마지막 확인된 원격 트리, 3-way merge 기준본 */
+  function _dsgLoadDocBase(board){
+    try{
+      const raw = localStorage.getItem(DSG_DOC_BASE_KEY_PREFIX+board);
+      if(!raw) return null;
+      const j = JSON.parse(raw);
+      return (j && Array.isArray(j.blocks)) ? j : null;
+    }catch(e){ return null; }
+  }
+  function _dsgSaveDocBase(board, tree){
+    try{ localStorage.setItem(DSG_DOC_BASE_KEY_PREFIX+board, JSON.stringify(tree||{version:1,blocks:[]})); }catch(e){}
+  }
+  /* doc tombstone — 삭제한 블록 id 24h 보관. push 실패 후 CDN 지연으로 remote 가
+     옛 파일을 주더라도 tombstone id 는 자동 제외 → 사용자가 지운 항목이 되살아나지 않음. */
+  function _dsgLoadDocTombs(){
+    try{ return JSON.parse(localStorage.getItem(DSG_DOC_TOMB_KEY)||'{}') || {}; }catch(e){ return {}; }
+  }
+  function _dsgSaveDocTombs(t){
+    try{ localStorage.setItem(DSG_DOC_TOMB_KEY, JSON.stringify(t)); }catch(e){}
+  }
+  function _dsgAddDocTombs(board, ids){
+    if(!ids || !ids.length) return;
+    const t = _dsgLoadDocTombs();
+    const now = Date.now();
+    ids.forEach(id=>{ if(id) t[id] = {board, ts:now}; });
+    _dsgSaveDocTombs(t);
+  }
+  function _dsgPurgeDocTombs(){
+    const t = _dsgLoadDocTombs();
+    const cut = Date.now() - DSG_DOC_TOMB_TTL_MS;
+    let ch = false;
+    for(const id of Object.keys(t)){
+      const e = t[id];
+      if(!e || typeof e.ts !== 'number' || e.ts < cut){ delete t[id]; ch = true; }
+    }
+    if(ch) _dsgSaveDocTombs(t);
+    return t;
+  }
+  /* board별 tombstone id set — 3-way merge 에서 부활 방지용 */
+  function _dsgDocTombIdsFor(board){
+    const t = _dsgPurgeDocTombs();
+    const s = new Set();
+    for(const id of Object.keys(t)){
+      const e = t[id];
+      if(e && (!board || e.board === board)) s.add(id);
+    }
+    return s;
+  }
+  /* 트리 flatten — 재귀적으로 모든 블록을 id map + 부모/순서 정보로 편다 */
+  function _dsgFlattenTree(blocks){
+    const map = new Map();   // id -> {block, parentId, order}
+    const walk = (arr, parentId)=>{
+      if(!Array.isArray(arr)) return;
+      arr.forEach((b, i)=>{
+        if(!b || !b.id) return;
+        map.set(b.id, { block: b, parentId, order: i });
+        if(Array.isArray(b.children)) walk(b.children, b.id);
+      });
+    };
+    walk(blocks || [], null);
+    return map;
+  }
+  /* 트리 rebuild — flat map (id -> {block, parentId, order}) 에서 원 트리로 복원.
+     block.children 은 이 함수가 새로 채운다. 원 order 를 지키고, 고아 블록 (parent 소실)
+     은 최상위로 승격한다. */
+  function _dsgRebuildTree(flat){
+    // 자식 리스트를 임시로 초기화
+    for(const {block} of flat.values()){ block.children = []; }
+    const roots = [];
+    // parent 존재 여부로 root/자식 분리
+    for(const [id, {block, parentId}] of flat.entries()){
+      if(parentId && flat.has(parentId)){
+        flat.get(parentId).block.children.push({__id:id, __order: flat.get(id).order, block});
+      } else {
+        roots.push({__id:id, __order: flat.get(id).order, block});
+      }
+    }
+    // 각 노드의 children 을 order 로 정렬 후 실제 블록 배열로 정리
+    const sortAndUnwrap = (nodes)=>{
+      nodes.sort((a,b)=> a.__order - b.__order);
+      return nodes.map(n=>{
+        const b = n.block;
+        if(Array.isArray(b.children) && b.children.length && b.children[0].__id){
+          b.children = sortAndUnwrap(b.children);
+        }
+        return b;
+      });
+    };
+    return sortAndUnwrap(roots);
+  }
+  /* 트리 3-way merge — 업무일지의 목록 merge 를 트리에 확장.
+       · base 에 있고 mine 에 없다 → 내가 지운 것, 되살리지 않음
+       · base 에 있고 theirs 에 없다 → 남이 지운 것, 그래도 내 것 유지 (편집 우선)
+       · base 에 없고 theirs 에만 있다 → 남이 추가한 것, 살림 (mine 트리 뒤에 append)
+       · 양쪽에 있음 → mine 우선 (내 편집 유지, 남의 옛 내용에 안 밀림)
+       · tombstone 에 있는 id 는 어떤 경우에도 제외 */
+  function _dsgMergeTree(mine, theirs, base, tombIds){
+    const M = _dsgFlattenTree(mine && mine.blocks || []);
+    const T = _dsgFlattenTree(theirs && theirs.blocks || []);
+    const B = _dsgFlattenTree(base && base.blocks || []);
+    const tomb = tombIds || new Set();
+    const out = new Map();
+    // 1) mine 전체 유지 (tombstone 제외)
+    for(const [id, entry] of M.entries()){
+      if(tomb.has(id)) continue;
+      out.set(id, entry);
+    }
+    // 2) theirs 에만 있고 base 에도 있으면 → 내가 지운 것 → skip
+    //    theirs 에만 있고 base 에 없으면 → 남이 새로 추가 → 살림 (append)
+    let appendOrder = 1e9;   // 새로 온 남의 항목은 트리 끝에 붙임
+    for(const [id, entry] of T.entries()){
+      if(tomb.has(id)) continue;
+      if(out.has(id)) continue;                 // 이미 내가 갖고 있음 (mine 우선)
+      if(B.has(id)) continue;                   // base 에 있었는데 mine 에 없음 = 내가 삭제
+      // 남이 새로 추가한 블록. mine 에 없는 parent 를 참조하면 최상위로 승격.
+      const parentId = (entry.parentId && out.has(entry.parentId)) ? entry.parentId : null;
+      out.set(id, { block: entry.block, parentId, order: appendOrder++ });
+    }
+    // 3) 재구성
+    return { version:1, blocks: _dsgRebuildTree(out) };
+  }
+  /* 두 트리(전/후)를 비교해 사라진 블록 id 리스트 반환 (삭제 감지). */
+  function _dsgDiffRemovedIds(before, after){
+    const B = _dsgFlattenTree(before && before.blocks || []);
+    const A = _dsgFlattenTree(after && after.blocks || []);
+    const removed = [];
+    for(const id of B.keys()){ if(!A.has(id)) removed.push(id); }
+    return removed;
   }
   function _dsgLoadRefs(){
     try{ _dsgRefs = JSON.parse(localStorage.getItem(DSG_REFS_KEY)||'[]'); }
@@ -15695,6 +15885,14 @@
   function _dsgRemoveBlock(id){
     const info = _dsgFindPath(id);
     if(!info) return;
+    // 삭제된 블록 + 모든 자손 id 를 tombstone 에 마킹 → push 실패해도 remote 부활 X
+    const ids = [];
+    (function collect(b){
+      if(!b || !b.id) return;
+      ids.push(b.id);
+      if(Array.isArray(b.children)) b.children.forEach(collect);
+    })(info.list[info.index]);
+    _dsgAddDocTombs(_dsgActiveBoard, ids);
     info.list.splice(info.index, 1);
   }
   function _dsgPrevSibIdOrParent(id){
@@ -23665,19 +23863,94 @@
   }
   window.deleteCredLegacy=deleteCredLegacy;
 
-  async function pushNoticeToRemote(n){
-    toast('저장 중...','ok');
-    const payload={entries:n.entries, legacyHtml:n.legacyHtml||'', updatedAt:n.updatedAt||Date.now()};
-    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2))));
-    const r=await ghPut(NOTICE_API, b64, `chore: 자격증명 갱신`, {forceMaster:true});
-    if(!r.ok){
-      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return false}
-      if(r.reason==='too_large'){toast('데이터가 너무 큽니다','err');return false}
-      toast(`저장 실패: ${r.reason}`,'err');
-      return false;
-    }
-    return true;
+  /* notice push — 업무일지-급 실용 방어 (마스터 편집 · 다중 편집자 가능성 낮음)
+       · dirty persist : 미저장 payload 를 localStorage 에 보관, 새로고침 후 자동 재시도
+       · sha 기반 PUT : 409 conflict 시 remote 다시 읽어 재전송 (남의 저장 안 지움)
+       · 지수 백오프 재시도 : 네트워크/서버 오류 시 최대 30초 간격 자동 재시도
+       · pending 표시 : toast 로 저장 상태 명확화
+     참조 스킬: ~/.claude/skills/robust-storage-sync/SKILL.md */
+  const NOTICE_DIRTY_KEY = 'brightbeed_notice_dirty_v1';
+  let _noticePendingPayload = null;      // 재시도용 (mem)
+  let _noticePushing = false;
+  let _noticePushAgain = false;
+  let _noticePushTimer = null;
+  let _noticePushFailStreak = 0;
+
+  function _noticePersistDirty(){
+    try{
+      if(_noticePendingPayload) localStorage.setItem(NOTICE_DIRTY_KEY, JSON.stringify(_noticePendingPayload));
+      else localStorage.removeItem(NOTICE_DIRTY_KEY);
+    }catch(e){}
   }
+  function _noticeRestoreDirty(){
+    try{
+      const raw = localStorage.getItem(NOTICE_DIRTY_KEY);
+      if(raw){ _noticePendingPayload = JSON.parse(raw); _noticeSchedulePush(); }
+    }catch(e){}
+  }
+  function _noticeSchedulePush(){
+    if(!_noticePendingPayload) return;
+    if(_noticePushing){ _noticePushAgain = true; return; }
+    clearTimeout(_noticePushTimer);
+    _noticePushTimer = setTimeout(()=>{ pushNoticeToRemoteInner(); }, 300);
+  }
+  async function pushNoticeToRemoteInner(){
+    if(!_noticePendingPayload) return true;
+    if(_noticePushing){ _noticePushAgain = true; return true; }
+    _noticePushing = true;
+    try{
+      const payload = _noticePendingPayload;
+      let ok = false, lastReason = null;
+      for(let attempt=0; attempt<3; attempt++){
+        try {
+          const file = await ghGetFile(NOTICE_API);
+          if(file.error){ lastReason = file.error; break; }
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+          const r = await ghPut(NOTICE_API, b64, 'chore: 자격증명 갱신', {forceMaster:true, noConflictRetry:true, sha:file.sha||null});
+          if(r.ok){ ok = true; break; }
+          lastReason = r.reason;
+          if(r.reason !== 'conflict') break;
+          // conflict → 루프 재진입해 remote 다시 읽고 재전송
+        } catch(e){
+          lastReason = 'throw';
+          break;
+        }
+      }
+      if(ok){
+        _noticePendingPayload = null;
+        _noticePersistDirty();
+        _noticePushFailStreak = 0;
+        try{ toast('✓ 저장됨','ok'); }catch(e){}
+        return true;
+      }
+      // 실패 — pending 유지, 재시도 스케줄
+      if(lastReason==='auth'){ try{ toast('⚠ GitHub 토큰 인증 실패 · 재시도 중','err'); }catch(e){} }
+      else if(lastReason==='too_large'){ try{ toast('⚠ 데이터가 너무 큽니다','err'); }catch(e){} _noticePendingPayload=null; _noticePersistDirty(); return false; }
+      else { try{ toast(`⚠ 저장 대기 · 재시도 중 (${lastReason||'network'})`,'warn'); }catch(e){} }
+      _noticePushFailStreak = Math.min(_noticePushFailStreak+1, 6);
+      clearTimeout(_noticePushTimer);
+      _noticePushTimer = setTimeout(pushNoticeToRemoteInner, Math.min(1000 * 2**(_noticePushFailStreak-1), 30000));
+      return false;
+    } finally {
+      _noticePushing = false;
+      if(_noticePushAgain){ _noticePushAgain = false; _noticeSchedulePush(); }
+    }
+  }
+  async function pushNoticeToRemote(n){
+    _noticePendingPayload = {entries:n.entries, legacyHtml:n.legacyHtml||'', updatedAt:n.updatedAt||Date.now()};
+    _noticePersistDirty();
+    try{ toast('저장 중…','ok'); }catch(e){}
+    return await pushNoticeToRemoteInner();
+  }
+  _noticeRestoreDirty();
+  window.addEventListener('beforeunload', (e)=>{
+    if(!_noticePendingPayload) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+  window.addEventListener('pagehide', ()=>{
+    if(_noticePendingPayload){ clearTimeout(_noticePushTimer); pushNoticeToRemoteInner(); }
+  });
 
   /* ============ 툴바 이벤트 (검색, 필터, 탭) ============ */
   const _credSearchInput=document.getElementById('credSearch');
@@ -24714,22 +24987,92 @@
     await _mdPersist(events, 'chore: MD 기획전 삭제');
   }
 
-  async function _mdPersist(events, msg){
-    toast('일정 저장 중...','ok');
-    const meta={events, updatedAt:Date.now()};
-    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
-    const r=await ghPut(MD_EVENTS_API, b64, msg);
-    if(!r.ok){
-      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
-      if(r.reason==='too_large'){toast('일정 데이터가 너무 큽니다','err');return}
-      toast(`저장 실패: ${r.reason}`,'err');return;
-    }
-    saveMdEventsLocal(events);
-    _mdLastPutAt=Date.now();
-    mdCalCloseModal();
-    renderMdCal();
-    toast('✓ 저장 완료','ok');
+  /* md-events push — 업무일지-급 실용 방어
+       · dirty persist  : 미푸시 events 를 localStorage 에 보관 → 새로고침 후 자동 재전송
+       · sha 기반 PUT   : 409 conflict 시 remote 다시 읽어 재전송 (남의 저장 안 지움)
+       · 지수 백오프    : 네트워크/서버 오류 시 최대 30초 간격 자동 재시도
+     참조 스킬: ~/.claude/skills/robust-storage-sync/SKILL.md */
+  const MD_EVENTS_DIRTY_KEY = 'brightbeed_md_events_dirty_v1';
+  let _mdePending = null;             // {events, msg} 재시도용
+  let _mdePushing = false;
+  let _mdePushAgain = false;
+  let _mdePushTimer = null;
+  let _mdePushFailStreak = 0;
+  function _mdePersistDirty(){
+    try{
+      if(_mdePending) localStorage.setItem(MD_EVENTS_DIRTY_KEY, JSON.stringify(_mdePending));
+      else localStorage.removeItem(MD_EVENTS_DIRTY_KEY);
+    }catch(e){}
   }
+  function _mdeRestoreDirty(){
+    try{
+      const raw = localStorage.getItem(MD_EVENTS_DIRTY_KEY);
+      if(raw){ _mdePending = JSON.parse(raw); _mdeSchedulePush(); }
+    }catch(e){}
+  }
+  function _mdeSchedulePush(){
+    if(!_mdePending) return;
+    if(_mdePushing){ _mdePushAgain = true; return; }
+    clearTimeout(_mdePushTimer);
+    _mdePushTimer = setTimeout(_mdePushInner, 300);
+  }
+  async function _mdePushInner(){
+    if(!_mdePending) return true;
+    if(_mdePushing){ _mdePushAgain = true; return true; }
+    _mdePushing = true;
+    try{
+      const { events, msg } = _mdePending;
+      let ok = false, lastReason = null;
+      for(let attempt=0; attempt<3; attempt++){
+        try{
+          const file = await ghGetFile(MD_EVENTS_API);
+          if(file.error){ lastReason = file.error; break; }
+          const meta = {events, updatedAt:Date.now()};
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
+          const r = await ghPut(MD_EVENTS_API, b64, msg, {noConflictRetry:true, sha:file.sha||null});
+          if(r.ok){ ok = true; break; }
+          lastReason = r.reason;
+          if(r.reason !== 'conflict') break;
+        } catch(e){ lastReason = 'throw'; break; }
+      }
+      if(ok){
+        _mdePending = null; _mdePersistDirty();
+        _mdePushFailStreak = 0;
+        saveMdEventsLocal(events);
+        _mdLastPutAt = Date.now();
+        try{ mdCalCloseModal(); renderMdCal(); toast('✓ 저장 완료','ok'); }catch(e){}
+        return true;
+      }
+      if(lastReason==='auth'){ try{ toast('⚠ GitHub 토큰 인증 실패 · 재시도 중','err'); }catch(e){} }
+      else if(lastReason==='too_large'){ try{ toast('⚠ 일정 데이터가 너무 큽니다','err'); }catch(e){} _mdePending=null; _mdePersistDirty(); return false; }
+      else { try{ toast(`⚠ 저장 대기 · 재시도 중 (${lastReason||'network'})`,'warn'); }catch(e){} }
+      _mdePushFailStreak = Math.min(_mdePushFailStreak+1, 6);
+      clearTimeout(_mdePushTimer);
+      _mdePushTimer = setTimeout(_mdePushInner, Math.min(1000 * 2**(_mdePushFailStreak-1), 30000));
+      return false;
+    } finally {
+      _mdePushing = false;
+      if(_mdePushAgain){ _mdePushAgain = false; _mdeSchedulePush(); }
+    }
+  }
+  async function _mdPersist(events, msg){
+    _mdePending = { events, msg: msg || 'chore: MD 기획전 갱신' };
+    _mdePersistDirty();
+    try{ toast('일정 저장 중…','ok'); }catch(e){}
+    // 로컬은 즉시 반영 (뷰 반응성)
+    saveMdEventsLocal(events);
+    renderMdCal();
+    await _mdePushInner();
+  }
+  _mdeRestoreDirty();
+  window.addEventListener('beforeunload', (e)=>{
+    if(!_mdePending) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+  window.addEventListener('pagehide', ()=>{
+    if(_mdePending){ clearTimeout(_mdePushTimer); _mdePushInner(); }
+  });
 
   /* ===== 기획전 정상확인 체크 (단일 토글) =====
      ev.checked (boolean) — 좌측 버튼 클릭 시 토글, remote 자동 저장. */
@@ -25124,22 +25467,95 @@
     seedingCloseStock();
   }
 
-  async function _seedingPersist(data, msg){
-    toast('시딩 저장 중...','ok');
-    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-    const r=await ghPut(SEEDING_API, b64, msg);
-    if(!r.ok){
-      if(r.reason==='auth'){toast('GitHub 토큰 인증 실패','err');return}
-      if(r.reason==='too_large'){toast('데이터가 너무 큽니다','err');return}
-      toast(`저장 실패: ${r.reason||'unknown'}`,'err');
-      return;
+  /* seeding push — 업무일지-급 실용 방어
+       · dirty persist  : 미푸시 data 를 localStorage 에 보관 → 새로고침 후 자동 재전송
+       · sha 기반 PUT   : 409 conflict 시 remote 다시 읽어 재전송
+       · 지수 백오프    : 네트워크/서버 오류 시 최대 30초 간격 자동 재시도
+     참조 스킬: ~/.claude/skills/robust-storage-sync/SKILL.md */
+  const SEEDING_DIRTY_KEY = 'brightbeed_seeding_dirty_v1';
+  let _seedingPending = null;         // {data, msg} 재시도용
+  let _seedingPushing = false;
+  let _seedingPushAgain = false;
+  let _seedingPushTimer = null;
+  let _seedingPushFailStreak = 0;
+  function _seedingPersistDirty(){
+    try{
+      if(_seedingPending) localStorage.setItem(SEEDING_DIRTY_KEY, JSON.stringify(_seedingPending));
+      else localStorage.removeItem(SEEDING_DIRTY_KEY);
+    }catch(e){}
+  }
+  function _seedingRestoreDirty(){
+    try{
+      const raw = localStorage.getItem(SEEDING_DIRTY_KEY);
+      if(raw){ _seedingPending = JSON.parse(raw); _seedingSchedulePush(); }
+    }catch(e){}
+  }
+  function _seedingSchedulePush(){
+    if(!_seedingPending) return;
+    if(_seedingPushing){ _seedingPushAgain = true; return; }
+    clearTimeout(_seedingPushTimer);
+    _seedingPushTimer = setTimeout(_seedingPushInner, 300);
+  }
+  async function _seedingPushInner(){
+    if(!_seedingPending) return true;
+    if(_seedingPushing){ _seedingPushAgain = true; return true; }
+    _seedingPushing = true;
+    try{
+      const { data, msg } = _seedingPending;
+      let ok = false, lastReason = null;
+      for(let attempt=0; attempt<3; attempt++){
+        try{
+          const file = await ghGetFile(SEEDING_API);
+          if(file.error){ lastReason = file.error; break; }
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+          const r = await ghPut(SEEDING_API, b64, msg, {noConflictRetry:true, sha:file.sha||null});
+          if(r.ok){ ok = true; break; }
+          lastReason = r.reason;
+          if(r.reason !== 'conflict') break;
+        } catch(e){ lastReason = 'throw'; break; }
+      }
+      if(ok){
+        _seedingPending = null; _seedingPersistDirty();
+        _seedingPushFailStreak = 0;
+        try{
+          saveSeedingLocal(data);
+          _seedingSafeRender();
+          renderSeedingUpdatedTag();
+          if(typeof renderSeedingCal==='function') renderSeedingCal();
+          toast('✓ 저장 완료','ok');
+        }catch(e){}
+        return true;
+      }
+      if(lastReason==='auth'){ try{ toast('⚠ GitHub 토큰 인증 실패 · 재시도 중','err'); }catch(e){} }
+      else if(lastReason==='too_large'){ try{ toast('⚠ 데이터가 너무 큽니다','err'); }catch(e){} _seedingPending=null; _seedingPersistDirty(); return false; }
+      else { try{ toast(`⚠ 저장 대기 · 재시도 중 (${lastReason||'network'})`,'warn'); }catch(e){} }
+      _seedingPushFailStreak = Math.min(_seedingPushFailStreak+1, 6);
+      clearTimeout(_seedingPushTimer);
+      _seedingPushTimer = setTimeout(_seedingPushInner, Math.min(1000 * 2**(_seedingPushFailStreak-1), 30000));
+      return false;
+    } finally {
+      _seedingPushing = false;
+      if(_seedingPushAgain){ _seedingPushAgain = false; _seedingSchedulePush(); }
     }
+  }
+  async function _seedingPersist(data, msg){
+    _seedingPending = { data, msg: msg || 'chore: 시딩재고 갱신' };
+    _seedingPersistDirty();
+    try{ toast('시딩 저장 중…','ok'); }catch(e){}
+    // 로컬은 즉시 반영 (뷰 반응성)
     saveSeedingLocal(data);
     _seedingSafeRender();
-    renderSeedingUpdatedTag();
-    if(typeof renderSeedingCal==='function') renderSeedingCal();
-    toast('✓ 저장 완료','ok');
+    await _seedingPushInner();
   }
+  _seedingRestoreDirty();
+  window.addEventListener('beforeunload', (e)=>{
+    if(!_seedingPending) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+  window.addEventListener('pagehide', ()=>{
+    if(_seedingPending){ clearTimeout(_seedingPushTimer); _seedingPushInner(); }
+  });
 
   document.getElementById('seedingCancelBtn')?.addEventListener('click', seedingCloseSend);
   document.getElementById('seedingSendBtn')?.addEventListener('click', seedingSubmitSend);
