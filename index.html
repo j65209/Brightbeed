@@ -15012,16 +15012,20 @@
       }
     }
 
-    // Refs 저장
+    // Refs 저장 — sha 기반 conflict 재시도 (남의 저장 안 지움)
     if(_dsgRefsDirty.size > 0){
       for(let attempt=0; attempt<3; attempt++){
         try {
+          const file = await ghGetFile(DSG_REFS_API);
+          if(file.error){ refsResult = null; break; }
           refsPayload = await _dsgBuildRefsPayload();
           if(!refsPayload){ refsOK=false; break; }
           const json = JSON.stringify(refsPayload.merged, null, 2);
           const b64  = btoa(unescape(encodeURIComponent(json)));
-          refsResult = await ghPut(DSG_REFS_API, b64, 'chore: 디자인 레퍼런스 갱신', {forceMaster:true, noConflictRetry:true});
-          if(refsResult.ok || refsResult.reason!=='conflict') break;
+          refsResult = await ghPut(DSG_REFS_API, b64, 'chore: 디자인 레퍼런스 갱신', {forceMaster:true, noConflictRetry:true, sha:file.sha||null});
+          if(refsResult.ok) break;
+          if(refsResult.reason!=='conflict') break;
+          // conflict → 루프 재진입해 remote 다시 읽고 재병합
         } catch(e){
           refsResult = null;
           break;
@@ -15030,16 +15034,19 @@
       if(!refsResult || !refsResult.ok) refsOK = false;
     }
 
-    // Posts (디자인 보드) 저장
+    // Posts (디자인 보드) 저장 — sha 기반 conflict 재시도
     if(_dsgPostsDirty.size > 0){
       for(let attempt=0; attempt<3; attempt++){
         try {
+          const file = await ghGetFile(DSG_POSTS_API);
+          if(file.error){ postsResult = null; break; }
           postsPayload = await _dsgBuildPostsPayload();
           if(!postsPayload){ postsOK=false; break; }
           const json = JSON.stringify(postsPayload.merged, null, 2);
           const b64  = btoa(unescape(encodeURIComponent(json)));
-          postsResult = await ghPut(DSG_POSTS_API, b64, 'chore: 디자인 디자인 보드 갱신', {forceMaster:true, noConflictRetry:true});
-          if(postsResult.ok || postsResult.reason!=='conflict') break;
+          postsResult = await ghPut(DSG_POSTS_API, b64, 'chore: 디자인 보드 갱신', {forceMaster:true, noConflictRetry:true, sha:file.sha||null});
+          if(postsResult.ok) break;
+          if(postsResult.reason!=='conflict') break;
         } catch(e){
           postsResult = null;
           break;
@@ -21218,26 +21225,110 @@
     }
   }
 
+  /* product-name-overrides push — 업무일지-급 실용 방어 (브랜드별 파일 2개, 뷰어 편집 가능)
+       · dirty persist  : 미푸시 payload 를 localStorage 에 브랜드별로 보관 → 자동 재전송
+       · sha 기반 PUT   : 409 conflict 시 remote 다시 읽어 재전송
+       · 지수 백오프    : 최대 30초 간격 재시도
+       · throw catch    : 예외 흡수 후 dirty 유지 (기존엔 throw → 상위 UI toast 는 뜨지만 미저장은 유실)
+     참조 스킬: ~/.claude/skills/robust-storage-sync/SKILL.md */
+  const AR_OV_DIRTY_KEY_PREFIX = 'brightbeed_ar_overrides_dirty_';   // + brand
+  const _arOvPending = {};             // brand -> {payload, msg}
+  const _arOvPushing = {};             // brand -> bool
+  const _arOvPushAgain = {};
+  const _arOvPushTimer = {};
+  const _arOvPushFailStreak = {};
+  function _arOvPersistDirty(brand){
+    try{
+      if(_arOvPending[brand]) localStorage.setItem(AR_OV_DIRTY_KEY_PREFIX+brand, JSON.stringify(_arOvPending[brand]));
+      else localStorage.removeItem(AR_OV_DIRTY_KEY_PREFIX+brand);
+    }catch(e){}
+  }
+  function _arOvRestoreDirty(){
+    ['brightbeed','shinebeed'].forEach(brand=>{
+      try{
+        const raw = localStorage.getItem(AR_OV_DIRTY_KEY_PREFIX+brand);
+        if(raw){ _arOvPending[brand] = JSON.parse(raw); _arOvSchedulePush(brand); }
+      }catch(e){}
+    });
+  }
+  function _arOvSchedulePush(brand){
+    if(!_arOvPending[brand]) return;
+    if(_arOvPushing[brand]){ _arOvPushAgain[brand] = true; return; }
+    clearTimeout(_arOvPushTimer[brand]);
+    _arOvPushTimer[brand] = setTimeout(()=>_arOvPushInner(brand), 300);
+  }
+  const _AR_OV_APIS = {
+    brightbeed: 'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json',
+    shinebeed:  'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides-shinebeed.json',
+  };
+  async function _arOvPushInner(brand){
+    if(!_arOvPending[brand]) return true;
+    if(_arOvPushing[brand]){ _arOvPushAgain[brand] = true; return true; }
+    _arOvPushing[brand] = true;
+    try{
+      const { payload, msg } = _arOvPending[brand];
+      const api = _AR_OV_APIS[brand];
+      let ok = false, lastReason = null, newSha = null;
+      for(let attempt=0; attempt<3; attempt++){
+        try{
+          const file = await ghGetFile(api);
+          if(file.error){ lastReason = file.error; break; }
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+          const r = await ghPut(api, b64, msg, {noConflictRetry:true, sha:file.sha||null});
+          if(r.ok){ ok = true; newSha = r.sha || null; break; }
+          lastReason = r.reason;
+          if(r.reason !== 'conflict') break;
+        } catch(e){ lastReason = 'throw'; break; }
+      }
+      if(ok){
+        _arOvPending[brand] = null; _arOvPersistDirty(brand);
+        _arOvPushFailStreak[brand] = 0;
+        if(newSha){ _arOvOverridesShaMap[brand] = newSha; if(brand===_arCurBrand()) _arOverridesSha = newSha; }
+        return true;
+      }
+      if(lastReason==='auth'){ try{ toast('⚠ 상품명 저장 인증 실패 · 재시도 중','err'); }catch(e){} }
+      else { try{ toast(`⚠ 상품명 저장 대기 · 재시도 중 (${lastReason||'network'})`,'warn'); }catch(e){} }
+      _arOvPushFailStreak[brand] = Math.min((_arOvPushFailStreak[brand]||0)+1, 6);
+      clearTimeout(_arOvPushTimer[brand]);
+      _arOvPushTimer[brand] = setTimeout(()=>_arOvPushInner(brand), Math.min(1000 * 2**(_arOvPushFailStreak[brand]-1), 30000));
+      return false;
+    } finally {
+      _arOvPushing[brand] = false;
+      if(_arOvPushAgain[brand]){ _arOvPushAgain[brand] = false; _arOvSchedulePush(brand); }
+    }
+  }
+  // 하위 호환용 sha map alias
+  const _arOvOverridesShaMap = _arOverridesShaMap;
   async function _saveOverridesPayload(nextOverrides, nextAuto, msg, nextImg, nextDeleted){
     if(nextImg===undefined) nextImg=arState.imgOverrides||{};
     if(nextDeleted===undefined) nextDeleted=arState.deletedIds||{};
     const brand=_arCurBrand();
-    const api=_arCurOverridesApi();
     const desc = brand==='shinebeed'
       ? '샤인비드 발주 상품 카탈로그 수동 오버라이드. product.id (콰이디에어 offer URL 기준) 를 key 로 사용.'
       : '대시보드에서 사장님이 직접 수정한 상품명·이미지·숨김. product.id 를 key 로 사용.';
     const payload={version:1, description:desc, overrides:nextOverrides, auto_overrides:nextAuto, img_overrides:nextImg, deleted_ids:nextDeleted};
-    const body={message:msg, content: btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))), branch:'main'};
-    if(_arOverridesShaMap[brand]) body.sha=_arOverridesShaMap[brand];
-    const r=await ghFetch(api,{method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const j=await r.json();
-    if(j.content?.sha){ _arOverridesShaMap[brand]=j.content.sha; _arOverridesSha=j.content.sha; }
+    // 로컬 상태는 즉시 반영 (UI 반응성)
     arState.overrides=nextOverrides;
     arState.autoOverrides=nextAuto;
     arState.imgOverrides=nextImg;
     arState.deletedIds=nextDeleted;
+    // 미푸시 payload 를 localStorage 에 저장 → 새로고침 후 자동 재전송
+    _arOvPending[brand] = { payload, msg };
+    _arOvPersistDirty(brand);
+    const ok = await _arOvPushInner(brand);
+    if(!ok) throw new Error('저장 대기 — 재시도 중');   // 호출부 catch 유지 (기존 UI toast 호환)
   }
+  _arOvRestoreDirty();
+  window.addEventListener('beforeunload', (e)=>{
+    if(!Object.values(_arOvPending).some(Boolean)) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+  window.addEventListener('pagehide', ()=>{
+    Object.keys(_arOvPending).forEach(brand=>{
+      if(_arOvPending[brand]){ clearTimeout(_arOvPushTimer[brand]); _arOvPushInner(brand); }
+    });
+  });
 
   async function resetAutoOverrides(){
     if(!confirm('자동 매칭된 상품명을 모두 원래 이름으로 되돌립니다.\n(수동으로 수정한 이름은 그대로 유지됩니다)\n\n계속할까요?')) return;
@@ -24040,7 +24131,7 @@
 
   async function syncCsFromRemote(){
     if(_cs_editingItem || _cs_memoEditing) return; // 편집 중이면 덮어쓰기 방지
-    if(_cs_savingCount>0) return; // 푸시 진행 중이면 폴링도 보류 (race condition 방지)
+    if(_csDataPushing || _csDataPending) return; // 푸시 진행/대기 중이면 폴링 보류 (race condition 방지)
     const remote=await fetchCsFromRemote();
     if(remote===null) return;
     const json=JSON.stringify(remote);
@@ -24051,65 +24142,94 @@
   }
   window.syncCsFromRemote=syncCsFromRemote;
 
-  async function pushCsToRemote(d){
-    async function getSha(){
-      try{
-        const r=await ghFetch(`${CS_API}?ref=${PO_BRANCH}&_=${Date.now()}`,{
-          headers:{'Accept':'application/vnd.github+json'},cache:'no-cache'
-        });
-        if(r.status===401||r.status===403) return {error:'auth'};
-        if(r.status===404) return {sha:null};
-        if(!r.ok) return {error:`http_${r.status}`};
-        const j=await r.json();
-        return {sha:j.sha};
-      }catch(e){return {error:'fetch'}}
-    }
-    async function doPut(sha){
-      const content=btoa(unescape(encodeURIComponent(JSON.stringify(d,null,2))));
-      const body={message:`chore(cs): CS 데이터 갱신`,content,branch:PO_BRANCH};
-      if(sha) body.sha=sha;
-      return ghFetch(CS_API,{
-        method:'PUT',
-        headers:{'Accept':'application/vnd.github+json','Content-Type':'application/json'},
-        body:JSON.stringify(body)
-      });
-    }
-    let shaResult=await getSha();
-    if(shaResult.error==='auth') return {ok:false,reason:'auth'};
-    let r=await doPut(shaResult.sha);
-    let retries=0;
-    while(r.status===409 && retries<4){
-      retries++;
-      await new Promise(res=>setTimeout(res,150*retries)); // 백오프: 150·300·450·600ms
-      shaResult=await getSha();
-      if(shaResult.error==='auth') return {ok:false,reason:'auth'};
-      r=await doPut(shaResult.sha);
-    }
-    if(r.ok) return {ok:true};
-    if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
-    return {ok:false,reason:`http_${r.status}`};
+  /* cs-data push — 업무일지-급 실용 방어
+       · dirty persist  : 미푸시 데이터를 localStorage 에 보관 → 새로고침 후 자동 재전송
+       · sha 기반 PUT   : 409 conflict 시 remote 다시 읽어 재전송
+       · 지수 백오프    : 네트워크/서버 오류 시 최대 30초 간격 자동 재시도
+       · throw catch    : 예외 흡수 후 dirty 유지
+     참조 스킬: ~/.claude/skills/robust-storage-sync/SKILL.md */
+  const CS_DATA_DIRTY_KEY = 'brightbeed_cs_data_dirty_v1';
+  let _csDataPending = null;
+  let _csDataPushing = false;
+  let _csDataPushAgain = false;
+  let _csDataPushTimer = null;
+  let _csDataPushFailStreak = 0;
+  function _csDataPersistDirty(){
+    try{
+      if(_csDataPending) localStorage.setItem(CS_DATA_DIRTY_KEY, JSON.stringify(_csDataPending));
+      else localStorage.removeItem(CS_DATA_DIRTY_KEY);
+    }catch(e){}
   }
-
-  async function persistCs(d){
-    d.updatedAt=new Date().toISOString();
-    saveCsLocal(d);
-    // 빠른 연속 변경 → 큐에 합쳐서 한 번만 푸시 (마지막 상태 기준)
-    _cs_pushPending=d;
-    _cs_savingCount++;
-    _cs_pushChain = _cs_pushChain.then(async ()=>{
-      if(_cs_pushPending===null) return; // 다른 작업이 이미 처리함
-      const target=_cs_pushPending;
-      _cs_pushPending=null;
-      const r=await pushCsToRemote(target);
-      if(!r.ok){
-        if(r.reason==='auth') toast('CS 동기화 — 인증 실패','err');
-        else toast(`CS 동기화 실패 (${r.reason})`,'err');
+  function _csDataRestoreDirty(){
+    try{
+      const raw = localStorage.getItem(CS_DATA_DIRTY_KEY);
+      if(raw){ _csDataPending = JSON.parse(raw); _csDataSchedulePush(); }
+    }catch(e){}
+  }
+  function _csDataSchedulePush(){
+    if(!_csDataPending) return;
+    if(_csDataPushing){ _csDataPushAgain = true; return; }
+    clearTimeout(_csDataPushTimer);
+    _csDataPushTimer = setTimeout(_csDataPushInner, 300);
+  }
+  async function _csDataPushInner(){
+    if(!_csDataPending) return true;
+    if(_csDataPushing){ _csDataPushAgain = true; return true; }
+    _csDataPushing = true;
+    try{
+      const data = _csDataPending;
+      let ok = false, lastReason = null;
+      for(let attempt=0; attempt<3; attempt++){
+        try{
+          const file = await ghGetFile(CS_API);
+          if(file.error){ lastReason = file.error; break; }
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+          const r = await ghPut(CS_API, b64, 'chore(cs): CS 데이터 갱신', {noConflictRetry:true, sha:file.sha||null});
+          if(r.ok){ ok = true; break; }
+          lastReason = r.reason;
+          if(r.reason !== 'conflict') break;
+        } catch(e){ lastReason = 'throw'; break; }
       }
-    }).catch(e=>console.warn('cs push chain error:',e)).finally(()=>{
-      _cs_savingCount--;
-    });
-    return _cs_pushChain;
+      if(ok){
+        _csDataPending = null; _csDataPersistDirty();
+        _csDataPushFailStreak = 0;
+        return true;
+      }
+      if(lastReason==='auth'){ try{ toast('⚠ CS 동기화 인증 실패 · 재시도 중','err'); }catch(e){} }
+      else { try{ toast(`⚠ CS 저장 대기 · 재시도 중 (${lastReason||'network'})`,'warn'); }catch(e){} }
+      _csDataPushFailStreak = Math.min(_csDataPushFailStreak+1, 6);
+      clearTimeout(_csDataPushTimer);
+      _csDataPushTimer = setTimeout(_csDataPushInner, Math.min(1000 * 2**(_csDataPushFailStreak-1), 30000));
+      return false;
+    } finally {
+      _csDataPushing = false;
+      if(_csDataPushAgain){ _csDataPushAgain = false; _csDataSchedulePush(); }
+    }
   }
+  async function persistCs(d){
+    d.updatedAt = new Date().toISOString();
+    saveCsLocal(d);
+    _csDataPending = d;
+    _csDataPersistDirty();
+    _csDataSchedulePush();
+    // 하위 호환용 chain (기존 호출부에서 await 함)
+    return Promise.resolve();
+  }
+  // 하위 호환 — 외부에서 직접 호출하는 경우 pending 큐로 흘림
+  async function pushCsToRemote(d){
+    _csDataPending = d;
+    _csDataPersistDirty();
+    return await _csDataPushInner().then(ok => ({ok, reason: ok ? null : 'network'}));
+  }
+  _csDataRestoreDirty();
+  window.addEventListener('beforeunload', (e)=>{
+    if(!_csDataPending) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+  window.addEventListener('pagehide', ()=>{
+    if(_csDataPending){ clearTimeout(_csDataPushTimer); _csDataPushInner(); }
+  });
 
   function renderCs(){renderCsFaqs();renderCsMemo()}
 
@@ -25082,18 +25202,12 @@
     const ev=events.find(e=>e.id===id);
     if(!ev) return;
     ev.checked = !ev.checked;
-    saveMdEventsLocal(events.slice());
-    renderMdCal();
     if(_mdChk_saveTimer) clearTimeout(_mdChk_saveTimer);
     _mdChk_saveTimer=setTimeout(async ()=>{
       _mdChk_saveTimer=null;
+      // 별도 경로 없이 _mdPersist 재사용 → dirty persist + sha + 재시도 + throw catch 통일
       if(!(await ensureGhToken())) return;
-      const meta={events, updatedAt:Date.now()};
-      const b64=btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
-      try{
-        const r=await ghPut(MD_EVENTS_API, b64, 'chore: MD 기획전 정상확인 토글');
-        if(r && r.ok){ _mdLastPutAt=Date.now(); }
-      }catch(e){}
+      await _mdPersist(events, 'chore: MD 기획전 정상확인 토글');
     }, 800);
   }
   window.mdCalToggleCheck=mdCalToggleCheck;
