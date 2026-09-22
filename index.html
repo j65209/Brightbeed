@@ -2344,7 +2344,7 @@
   .akp-cell-auto{background:var(--bg-1);color:var(--text-1);font-weight:600}
   .akp-cell-auto.is-good{color:#059669}
   .akp-cell-auto.is-bad{color:#dc2626}
-  .akp-floor{color:#dc2626 !important;font-weight:700 !important}
+  td.akp-floor,input.akp-floor{background:transparent !important;color:#dc2626 !important;font-weight:700 !important}
   .akp-row-lbl{background:var(--bg-1)}
   /* 사장님이 자동 계산 결과를 override 한 셀 — 노랑 배경으로 구분 */
   .akp-cell-ov{background:#fef3c7 !important;color:#92400e !important;font-weight:700 !important}
@@ -12952,9 +12952,7 @@
       const priceCell = editing
         ? `<td><input type="text" inputmode="numeric" data-field="row-price" data-row-key="${r.key}" value="${_akpFmt(price)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)"></td>`
         : `<td class="akp-cell-auto">${_akpFmt(price)}</td>`;
-      const floorCell = editing
-        ? `<td><input class="akp-floor" type="text" inputmode="numeric" data-field="row-floor" data-row-key="${r.key}" value="${_akpFmt(floor)}" onfocus="akpNumFocus(this)" onblur="akpNumBlur(this)"></td>`
-        : `<td class="akp-cell-auto akp-floor">${_akpFmt(floor)}</td>`;
+      const floorCell = ovCell(r, 'floor', _akpFmt(floor), 'akp-floor');
       const rateCell = ovCell(r, 'rate', rate+'%');
       const feeCell = ovCell(r, 'fee', _akpFmt(fee));
       const settledCell = ovCell(r, 'settled', _akpFmt(settled));
