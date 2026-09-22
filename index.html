@@ -22245,6 +22245,13 @@
     if(changed){
       renderOrgChartExtra();
       if(document.getElementById('leaveGrid')) renderLeaveStatus();
+      // 업무일지 뷰가 열려 있으면 즉시 재렌더 — 신규 입사자 카드가 안 나오던 이슈 해결.
+      // (startDiarySync 가 이 fetch 완료 전에 이미 첫 render 를 끝냈으면 STAFF 에 신규가
+      //  없어서 카드가 빠진다. 이후 15초 폴링에서 데이터 변화가 없으면 재렌더가 안 돌아
+      //  신규 입사자 카드가 계속 안 보인다 — 2026-09-22 박시호 사례.)
+      if(typeof _diaryRenderBoard === 'function'
+        && document.getElementById('viewDiary')
+        && !document.getElementById('viewDiary').hidden) _diaryRenderBoard();
     }else{
       // 첫 로드에서 changed=false여도 조직도에 이미 append된 상태를 유지하려면 강제 render 한 번
       renderOrgChartExtra();
