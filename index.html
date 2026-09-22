@@ -18288,7 +18288,8 @@
   function _diaryIngestRows(rows, replace){
     if(!Array.isArray(rows)) return 0;
     if(replace) _diaryRows = {};
-    let n = 0;
+    let n = 0, tombsChanged = false;
+    const tombs = _diaryLoadTombstones();
     rows.forEach(row=>{
       if(!row || !row.id) return;
       const q = _diaryQueue[row.id];
@@ -18297,10 +18298,18 @@
         delete _diaryQueue[row.id];                             // 더 최신 편집이 이미 반영됨
         _diarySaveQueue();
       }
+      // 서버가 이 행을 되살렸으면 (deleted_at=null) 이쪽에 남은 tombstone 정리.
+      //  · 안 지우면 다음 enqueue 가 tombstone 으로 재삭제 시도 → 불필요 요청·flap 원인.
+      //  · client_ts 가드가 결국 거절해도 24h 내내 시도하니 대역폭·history 오염.
+      if(!row.deleted_at && tombs[row.id]){
+        delete tombs[row.id];
+        tombsChanged = true;
+      }
       _diaryRows[row.id] = row;
       if(row.updated_at && row.updated_at > _diarySbSince) _diarySbSince = row.updated_at;
       n++;
     });
+    if(tombsChanged) _diarySaveTombstones(tombs);
     return n;
   }
   async function _diarySbGet(query){
@@ -22527,7 +22536,10 @@
   }
   async function _diaryRestoreRow(id){
     if(!id) return false;
-    const guardTs = Date.now() + 24*3600*1000;   // 24h 뒤 → 잔존 tombstone 재삭제 차단, TTL 후 정상 복귀
+    // guardTs 는 실시간 propagation 이 도착해 다른 세션의 tombstone 을 정리할 짧은 여유(60s)만.
+    //  · _diaryIngestRows 가 restored 행(deleted_at=null) 을 받으면 tombstone 을 즉시 지운다.
+    //  · 60s 지나면 이 행 편집은 정상 client_ts (Date.now()) 로도 통과 (guard 트리거는 <, 즉 같거나 크면 OK).
+    const guardTs = Date.now() + 60 * 1000;
     const me = (typeof _diaryGetMe === 'function' ? _diaryGetMe() : '') || '';
     try{
       const url = `${SUPABASE_URL}/rest/v1/diary_items?id=eq.${encodeURIComponent(id)}`;
