@@ -6039,6 +6039,15 @@
   .diary-save-tag[data-state="pending"]{color:#7f1d1d;background:#fee2e2;border-color:#fca5a5}
   .diary-save-tag[data-state="pending"]::before{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.18);animation:diarySaveBlink .9s ease-in-out infinite}
   @keyframes diarySaveBlink{0%,100%{opacity:1}50%{opacity:.25}}
+  /* 남이 방금 고친 줄 flash — 편집 방해 없이 노란 하이라이트 페이드아웃 (2s) */
+  .dcs-row-flash{
+    animation: diaryRowFlash 2s ease-out;
+    border-radius:6px;
+  }
+  @keyframes diaryRowFlash{
+    0%{background:rgba(250,204,21,.55); box-shadow:inset 0 0 0 2px rgba(202,138,4,.6)}
+    100%{background:transparent; box-shadow:inset 0 0 0 2px transparent}
+  }
   .diary-date-nav{display:inline-flex;align-items:center;gap:4px;padding:3px;border:1px solid #d5cfb8;border-radius:9px;background:#fff}
   .diary-nav-btn{
     width:26px;height:26px;border-radius:6px;border:none;
@@ -18159,7 +18168,10 @@
     clearTimeout(_diaryRenderTimer);
     _diaryRenderTimer = setTimeout(()=>{
       if(_diaryIsEditing()){ _diarySyncDeferred = true; return; }
-      if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard === 'function') _diaryRenderBoard();
+      if(!document.getElementById('viewDiary')?.hidden && typeof _diaryRenderBoard === 'function'){
+        _diaryRenderBoard();
+        _diaryApplyFlashes();
+      }
     }, 150);
   }
 
@@ -18232,7 +18244,8 @@
   function _diaryScheduleFlush(delay){
     clearTimeout(_diaryFlushTimer);
     if(Object.keys(_diaryQueue).length) _diarySetSaveState('saving');
-    _diaryFlushTimer = setTimeout(_diaryFlushQueue, delay === undefined ? 400 : delay);
+    // 200ms 는 빠른 타이핑도 배칭할 만큼 짧고, "저장됨" 뱃지가 눈에 띄게 뜨는 감각적 지점.
+    _diaryFlushTimer = setTimeout(_diaryFlushQueue, delay === undefined ? 200 : delay);
   }
   async function _diaryFlushQueue(){
     if(_diaryFlushing) return;
@@ -18285,11 +18298,13 @@
   }
 
   /* ── 읽기: 최초 전체 + 이후 변경분만 ──────────────────────────────────── */
+  const _diaryFlashPending = new Set();  // 남이 방금 고친 row id → 다음 render 후 flash
   function _diaryIngestRows(rows, replace){
     if(!Array.isArray(rows)) return 0;
     if(replace) _diaryRows = {};
     let n = 0, tombsChanged = false;
     const tombs = _diaryLoadTombstones();
+    const me = (typeof _diaryGetMe === 'function' ? _diaryGetMe() : '') || '';
     rows.forEach(row=>{
       if(!row || !row.id) return;
       const q = _diaryQueue[row.id];
@@ -18305,12 +18320,34 @@
         delete tombs[row.id];
         tombsChanged = true;
       }
+      // 남이 바꾼 행(=현재 사용자와 다른 사람의 편집)만 flash 예약 (replace=initial load 는 제외)
+      if(!replace && row.updated_by && row.updated_by !== me){
+        const prev = _diaryRows[row.id];
+        const changed = !prev
+          || prev.text !== row.text
+          || !!prev.done !== !!row.done
+          || !!prev.deleted_at !== !!row.deleted_at;
+        if(changed) _diaryFlashPending.add(row.id);
+      }
       _diaryRows[row.id] = row;
       if(row.updated_at && row.updated_at > _diarySbSince) _diarySbSince = row.updated_at;
       n++;
     });
     if(tombsChanged) _diarySaveTombstones(tombs);
     return n;
+  }
+  /* 방금 남이 고친 행을 잠깐 노란색으로 반짝여 알아채게. 편집 방해 X. */
+  function _diaryApplyFlashes(){
+    if(!_diaryFlashPending.size) return;
+    _diaryFlashPending.forEach(id=>{
+      const el = document.querySelector(`[data-row-id="${CSS.escape(id)}"]`);
+      if(!el) return;
+      el.classList.remove('dcs-row-flash');
+      // force reflow so 재적용 시 애니메이션 재시작
+      void el.offsetWidth;
+      el.classList.add('dcs-row-flash');
+    });
+    _diaryFlashPending.clear();
   }
   async function _diarySbGet(query){
     try{
@@ -19221,6 +19258,7 @@
     items.forEach((it, idx)=>{
       const row = document.createElement('div');
       row.className = 'dcs-plan';
+      if(it.id) row.dataset.rowId = it.id;
       const dateBadge = it.createdAt ? `<div class="dcs-plan-date" title="작성일 ${it.createdAt}">${_esc(_diaryFmtCreated(it.createdAt))}</div>` : `<div class="dcs-plan-date" style="visibility:hidden">-</div>`;
       row.innerHTML = `
         <span class="dcs-num">${idx+1}.</span>
@@ -19331,6 +19369,7 @@
     entry.reqs.forEach((r, idx)=>{
       const row = document.createElement('div');
       row.className = 'dcs-req' + (r.done ? ' done' : '');
+      if(r.id) row.dataset.rowId = r.id;
       // 초기 status: 텍스트 있으면 저장 완료(saved), 없으면 hidden
       const initialStatus = (r.text && String(r.text).trim()) ? (r._pushed ? 'saved' : 'saved') : '';
       row.innerHTML = `
@@ -19441,6 +19480,7 @@
     entry.tasks.forEach((t, idx)=>{
       const row = document.createElement('div');
       row.className = 'dcs-task' + (t.done ? ' done' : '');
+      if(t.id) row.dataset.rowId = t.id;
       row.innerHTML = `
         <span class="dcs-num">${idx+1}.</span>
         <button class="dcs-task-check" title="완료">
