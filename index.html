@@ -18128,7 +18128,15 @@
     let n = 0;
     Object.keys(fresh).forEach(id=>{
       const cur = merged[id];
-      if(cur && !cur.deleted_at && _diaryRowSame(cur, fresh[id])) return;   // 바뀐 게 없으면 보내지 않는다
+      // 서버가 이미 지운 행은 부활시키지 않는다.
+      //  fresh 는 loadDiaryAll() 스냅샷이라 deleted_at=null 로 항상 나온다.
+      //  다른 탭·다른 PC 가 방금 지운 행이 realtime 으로 merged 엔 반영됐지만
+      //  이쪽 편집 중이라 saveDiaryAll 이 blur 까지 미뤄져 localStorage 에 아직 살아있는 경우,
+      //  이 loop 가 '살아있는 fresh'로 서버를 덮으면 지웠던 게 되살아난다.
+      //  → 저쪽은 tombstone 때문에 다음 사이클에 또 지우고, 이쪽은 또 되살리고 (flip-flop).
+      //  2026-09-22 시호님 10개 사라진 사고 재현. 서버 삭제가 정답.
+      if(cur && cur.deleted_at) return;
+      if(cur && _diaryRowSame(cur, fresh[id])) return;   // 바뀐 게 없으면 보내지 않는다
       _diaryQueue[id] = Object.assign({}, fresh[id], {client_ts: ts, updated_by: me});
       n++;
     });
