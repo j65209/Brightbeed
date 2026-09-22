@@ -1398,27 +1398,13 @@
     .lg-brand-pill{padding:5px 12px;font-size:11.5px}
   }
 
-  /* ===== 물류팀 뷰 — 메모 탭: 디자인팀 작업 보드(dsg-doc) 재활용 =====
-     기존 카드형 lg-memo-* 스타일은 제거. dsg-doc 시스템이 완전 대체.
-     브랜드(메인/BB/SB)별 격리 저장은 _dsgActiveBoard = 'lg_' + brand 로 처리. */
-  /* 물류팀·MD팀 뷰에서는 ＋ / 삭제 / ▲▼ 버튼을 hover 없이 항상 노출 (사장님 요청). */
-  #viewLg .dsg-blk > .dsg-blk-plus,
-  #viewLg .dsg-blk > .dsg-blk-del,
-  #viewLg .dsg-blk > .dsg-blk-move,
-  #viewLg .dsg-sec-plus,
-  #viewLg .dsg-sec-head .dsg-blk-move,
-  #viewLg .dsg-sec-head .dsg-blk-del,
+  /* MD팀 뷰에서는 ＋ / 삭제 / ▲▼ 버튼을 hover 없이 항상 노출 (사장님 요청). */
   #viewMd .dsg-blk > .dsg-blk-plus,
   #viewMd .dsg-blk > .dsg-blk-del,
   #viewMd .dsg-blk > .dsg-blk-move,
   #viewMd .dsg-sec-plus,
   #viewMd .dsg-sec-head .dsg-blk-move,
   #viewMd .dsg-sec-head .dsg-blk-del{ opacity:.7 }
-  #viewLg .dsg-blk > .dsg-blk-plus:hover,
-  #viewLg .dsg-blk > .dsg-blk-del:hover,
-  #viewLg .dsg-sec-plus:hover,
-  #viewLg .dsg-sec-head .dsg-blk-del:hover,
-  #viewLg .dsg-blk-move .dsg-blk-move-btn:hover,
   #viewMd .dsg-blk > .dsg-blk-plus:hover,
   #viewMd .dsg-blk > .dsg-blk-del:hover,
   #viewMd .dsg-sec-plus:hover,
@@ -9469,26 +9455,18 @@
         홈
       </button>
       <h1 class="view-title">물류팀<span class="view-title-sub">/ 발주 관리</span></h1>
-      <div class="dsg-head-actions" style="margin-left:auto">
-        <span class="dsg-save-tag" id="lgSaveTag" data-state="saved" title="메모 저장 상태 (브랜드별로 격리 저장 · GitHub 동기화)">✓ 저장됨</span>
-      </div>
     </div>
 
-    <!-- 브랜드 스위치: 메인(총괄) · 브라이트비드 · 샤인비드 (메모는 각각 별개 저장) -->
+    <!-- 브랜드 스위치: 메인(총괄) · 브라이트비드 · 샤인비드 -->
     <div class="lg-brand-switch" role="tablist" aria-label="브랜드 선택">
       <button class="lg-brand-pill active" data-brand="main" onclick="switchLgBrand('main')" role="tab" aria-selected="true">메인</button>
       <button class="lg-brand-pill" data-brand="brightbeed" onclick="switchLgBrand('brightbeed')" role="tab" aria-selected="false">브라이트비드</button>
       <button class="lg-brand-pill" data-brand="shinebeed" onclick="switchLgBrand('shinebeed')" role="tab" aria-selected="false">샤인비드</button>
     </div>
 
-    <!-- 탭 버튼: 메모 · 최근 발주 · 발주서 리스트 · 우체국 출고 (진입 시 메모부터) -->
+    <!-- 탭 버튼: 최근 발주 · 발주서 리스트 · 우체국 출고 -->
     <div class="lg-tabs" role="tablist">
-      <button class="lg-tab active" data-tab="memo" onclick="switchLgTab('memo')" role="tab" aria-selected="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-        메모
-        <span class="lg-tab-badge" id="lgTabMemoBadge">—</span>
-      </button>
-      <button class="lg-tab" data-tab="recent" onclick="switchLgTab('recent')" role="tab" aria-selected="false">
+      <button class="lg-tab active" data-tab="recent" onclick="switchLgTab('recent')" role="tab" aria-selected="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="12 6 12 12 16 14"/><circle cx="12" cy="12" r="10"/></svg>
         최근 발주 내역
       </button>
@@ -9662,57 +9640,6 @@
       </div>
     </div>
 
-    <!-- ============ 메모 탭 — 디자인팀 작업 보드와 동일한 노션 스타일 아웃라이너 ============ -->
-    <!-- 브랜드(메인/BB/SB)별로 완전 격리 저장. 원격 진실 = GitHub data/lg_memo_{brand}.json.
-         편집 시 dirty 마킹 → 즉시 push (재시도·conflict 회피). 데이터 유실 방지 방어장치 dsg 시스템과 공유. -->
-    <div class="dsg-pane lg-pane" data-pane="memo" style="padding:0 24px;max-width:1400px;margin:0 auto 26px">
-      <div class="dsg-doc-toolbar">
-        <input id="lgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
-        <label class="dsg-hide-done">
-          <input type="checkbox" id="lgDocHideDone" onchange="dsgDocRender()">
-          <span>완료 숨김</span>
-        </label>
-        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="lgFsPicker" title="글꼴 크기 (8~28px)">
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
-          <input class="dsg-fs-num" id="lgFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
-          <span class="dsg-fs-suffix">px</span>
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
-        </div>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
-          펼치기
-        </button>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
-          접기
-        </button>
-      </div>
-
-      <div id="lgBoardWrap" class="dsg-doc-wrap">
-        <div class="dsg-empty" id="lgEmpty" hidden>
-          <div class="dsg-empty-icon">📝</div>
-          <div class="dsg-empty-title">아직 메모가 없어요</div>
-          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작하세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
-        </div>
-        <div id="lgDoc" class="dsg-doc"></div>
-
-        <div class="dsg-doc-add" id="lgDocAdd">
-          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
-            <span class="dsg-doc-add-plus">＋</span>
-            <span>여기에 입력하세요</span>
-          </button>
-          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
-            새 섹션
-          </button>
-        </div>
-
-        <div class="dsg-doc-hint">
-          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
-          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
-        </div>
-      </div>
-    </div>
   </div><!-- /viewLg -->
 
   <!-- ============ CS팀 — 업무 스케줄 보드 + FAQ / 템플릿 / 메모장 ============ -->
@@ -13949,16 +13876,14 @@
       if(typeof syncDeptOverridesFromRemote==='function') syncDeptOverridesFromRemote().catch(()=>{});
     }
     if(id==='viewLg'){
-      /* hash 로 직접 진입 (새로고침) 시에도 마지막 브랜드 복원. window._lgBrand 없으면 switchLgBrand 로 재구축. */
+      /* hash 로 직접 진입 (새로고침) 시에도 마지막 브랜드 복원 */
       if(!window._lgBrand){
         let last = 'main';
         try{ last = localStorage.getItem('lgLastBrand') || 'main'; }catch(_){}
         if(!['main','brightbeed','shinebeed'].includes(last)) last = 'main';
         if(typeof switchLgBrand==='function') switchLgBrand(last);
       }
-      _dsgActiveBoard = 'lg_' + (window._lgBrand || 'main');
       if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{});
-      if(typeof dsgInit==='function') dsgInit();
     }
     if(id==='viewMd'){
       _dsgActiveBoard = 'md';
@@ -14101,11 +14026,11 @@
     }
     switchLgBrand(target);
     showView('viewLg');
-    // 진입 시 항상 메모 탭부터 (사장님 요청)
-    if(typeof switchLgTab==='function') switchLgTab('memo');
+    // 진입 시 최근 발주 내역 탭부터
+    if(typeof switchLgTab==='function') switchLgTab('recent');
   }
   /* 뷰 내부 브랜드 스위치 (메인/BB/SB pill 및 프로그래매틱 호출)
-     - window._lgBrand : 메모 카테고리 (main/brightbeed/shinebeed)
+     - window._lgBrand : 브랜드 (main/brightbeed/shinebeed)
      - window._kdBrand : 발주 데이터 브랜드 (brightbeed/shinebeed) — 메인은 brightbeed 로 fallback */
   function switchLgBrand(brand){
     const allowed = ['main','brightbeed','shinebeed'];
@@ -14114,9 +14039,6 @@
     window._kdBrand = (window._lgBrand === 'shinebeed') ? 'shinebeed' : 'brightbeed';
     try{ localStorage.setItem('lgLastBrand', window._lgBrand); }catch(_){}
     _kdLastHash = ''; // dedup 캐시 초기화 → 강제 재렌더
-
-    /* 메모 데이터 board 스위치 — dsg 시스템 재활용 (브랜드별로 완전 격리 저장) */
-    _dsgActiveBoard = 'lg_' + window._lgBrand;
 
     const labels = { main:'메인', brightbeed:'브라이트비드', shinebeed:'샤인비드' };
     const titleEl = document.querySelector('#viewLg .view-title');
@@ -14132,10 +14054,6 @@
     if(typeof renderKDOrders==='function') renderKDOrders({force:true}).catch(()=>{});
     if(document.querySelector('.lg-tab.active[data-tab="archive"]')) refreshArchivePane();
     if(document.querySelector('.lg-tab.active[data-tab="postez"]') && typeof refreshPostEzPane==='function') refreshPostEzPane();
-    if(document.querySelector('.lg-tab.active[data-tab="memo"]') && typeof dsgDocRender==='function'){
-      dsgDocRender();
-      if(typeof _dsgApplyFs==='function') _dsgApplyFs();
-    }
   }
   window.switchLgBrand=switchLgBrand;
 
@@ -14823,9 +14741,6 @@
   const DSG_DOC_KEYS  = {
     design:       'brightbeed_design_doc_v1',
     cs:           'brightbeed_cs_doc_v1',
-    lg_main:      'brightbeed_lg_memo_main_v1',
-    lg_brightbeed:'brightbeed_lg_memo_brightbeed_v1',
-    lg_shinebeed: 'brightbeed_lg_memo_shinebeed_v1',
     md:           'brightbeed_md_doc_v1'
   };
   const DSG_DOC_KEY   = DSG_DOC_KEYS.design;           // legacy alias (기존 참조 유지)
@@ -14854,17 +14769,11 @@
   const DSG_DOC_PATHS = {
     design:       'data/design_doc.json',
     cs:           'data/cs_doc.json',
-    lg_main:      'data/lg_memo_main.json',
-    lg_brightbeed:'data/lg_memo_brightbeed.json',
-    lg_shinebeed: 'data/lg_memo_shinebeed.json',
     md:           'data/md_doc.json'
   };
   const DSG_DOC_LABELS = {
     design:       '디자인 문서',
     cs:           'CS 작업보드',
-    lg_main:      '물류 메모 (메인)',
-    lg_brightbeed:'물류 메모 (브라이트비드)',
-    lg_shinebeed: '물류 메모 (샤인비드)',
     md:           'MD 작업보드'
   };
   const DSG_DOC_PATH  = DSG_DOC_PATHS.design;          // legacy alias
@@ -14885,9 +14794,6 @@
   let _dsgDocs  = {
     design:       {version:1, blocks:[]},
     cs:           {version:1, blocks:[]},
-    lg_main:      {version:1, blocks:[]},
-    lg_brightbeed:{version:1, blocks:[]},
-    lg_shinebeed: {version:1, blocks:[]},
     md:           {version:1, blocks:[]}
   };  // 노션 아웃라이너 트리 (board별)
   function _dsgCurDoc(){
@@ -14906,12 +14812,7 @@
   const DSG_DOC_DOM = {
     design: { doc:'dsgDoc', empty:'dsgEmpty', search:'dsgDocSearch', hideDone:'dsgDocHideDone', fsPicker:'dsgFsPicker', fsNum:'dsgFsNum', badge:'dsgTabBoardBadge' },
     cs:     { doc:'csDoc',  empty:'csEmpty',  search:'csDocSearch',  hideDone:'csDocHideDone',  fsPicker:'csFsPicker',  fsNum:'csFsNum',  badge:null                },
-    /* 물류팀 메모: 브랜드 3개(메인/BB/SB)가 같은 DOM 을 공유, 데이터만 board 로 분리 */
-    lg_main:       { doc:'lgDoc', empty:'lgEmpty', search:'lgDocSearch', hideDone:'lgDocHideDone', fsPicker:'lgFsPicker', fsNum:'lgFsNum', badge:'lgTabMemoBadge' },
-    lg_brightbeed: { doc:'lgDoc', empty:'lgEmpty', search:'lgDocSearch', hideDone:'lgDocHideDone', fsPicker:'lgFsPicker', fsNum:'lgFsNum', badge:'lgTabMemoBadge' },
-    lg_shinebeed:  { doc:'lgDoc', empty:'lgEmpty', search:'lgDocSearch', hideDone:'lgDocHideDone', fsPicker:'lgFsPicker', fsNum:'lgFsNum', badge:'lgTabMemoBadge' },
-    /* MD팀 작업보드 (단일 board) */
-    md:            { doc:'mdDoc', empty:'mdEmpty', search:'mdDocSearch', hideDone:'mdDocHideDone', fsPicker:'mdFsPicker', fsNum:'mdFsNum', badge:null }
+    md:     { doc:'mdDoc',  empty:'mdEmpty',  search:'mdDocSearch',  hideDone:'mdDocHideDone',  fsPicker:'mdFsPicker',  fsNum:'mdFsNum',  badge:null                }
   };
   function _dsgDocIds(){ return DSG_DOC_DOM[_dsgActiveBoard] || DSG_DOC_DOM.design; }
   let _dsgSaveTimer = null;
@@ -14960,7 +14861,6 @@
     const tags = [
       document.getElementById('dsgSaveTag'),
       document.getElementById('csSaveTag'),
-      document.getElementById('lgSaveTag'),
       document.getElementById('mdSaveTag')
     ].filter(Boolean);
     if(!tags.length) return;
@@ -15022,7 +14922,7 @@
     if(!el || el===document.body) return false;
     const editable = el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'||el.isContentEditable;
     if(!editable) return false;
-    return !!el.closest('#viewDesign, #viewCs, #viewLg, #viewMd, .dsg-modal');
+    return !!el.closest('#viewDesign, #viewCs, #viewMd, .dsg-modal');
   }
 
   /* remote pull — doc 은 dirty 아니면 통째로 remote 로 갱신, dirty 면 로컬 유지 */
@@ -15127,9 +15027,6 @@
       dsgPostsRender();
     } else if(!document.getElementById('viewCs')?.hidden){
       dsgDocRender();
-    } else if(!document.getElementById('viewLg')?.hidden){
-      const memoActive = document.querySelector('#viewLg .lg-tab.active[data-tab="memo"]');
-      if(memoActive) dsgDocRender();
     } else if(!document.getElementById('viewMd')?.hidden){
       dsgDocRender();
     }
@@ -15265,8 +15162,6 @@
           dsgDocRender();
         } else if(!document.getElementById('viewCs')?.hidden){
           dsgDocRender();
-        } else if(!document.getElementById('viewLg')?.hidden){
-          if(document.querySelector('#viewLg .lg-tab.active[data-tab="memo"]')) dsgDocRender();
         } else if(!document.getElementById('viewMd')?.hidden){
           dsgDocRender();
         }
@@ -15523,15 +15418,15 @@
     }catch(e){}
   }
   function _dsgApplyFs(){
-    /* 세 보드(디자인·CS·물류 메모) doc 모두 반영 — 폰트 크기 pref 는 board 공유 */
-    ['dsgDoc','csDoc','lgDoc','mdDoc'].forEach(docId=>{
+    /* 세 보드(디자인·CS·MD) doc 모두 반영 — 폰트 크기 pref 는 board 공유 */
+    ['dsgDoc','csDoc','mdDoc'].forEach(docId=>{
       const doc = document.getElementById(docId);
       if(doc){
         doc.style.setProperty('--dsg-fs', _dsgFs+'px');
         doc.style.setProperty('--dsg-sec-fs', Math.max(14, _dsgFs+5)+'px');
       }
     });
-    ['dsgFsNum','csFsNum','lgFsNum','mdFsNum'].forEach(inputId=>{
+    ['dsgFsNum','csFsNum','mdFsNum'].forEach(inputId=>{
       const inp = document.getElementById(inputId);
       if(inp && document.activeElement!==inp) inp.value = _dsgFs;
     });
@@ -15556,7 +15451,7 @@
     _dsgFs = v;
     _dsgSaveFs();
     /* 입력 중이면 value 덮어쓰지 않고 모든 board doc CSS만 반영 (사장님 타이핑 방해 X) */
-    ['dsgDoc','csDoc','lgDoc','mdDoc'].forEach(docId=>{
+    ['dsgDoc','csDoc','mdDoc'].forEach(docId=>{
       const doc = document.getElementById(docId);
       if(doc){
         doc.style.setProperty('--dsg-fs', _dsgFs+'px');
@@ -18133,12 +18028,36 @@
       _diaryQueue[id] = Object.assign({}, fresh[id], {client_ts: ts, updated_by: me});
       n++;
     });
-    // 삭제: 서버엔 있는데 화면에서 사라진 줄. 서버 내용을 한 번도 못 받아왔으면 절대 지우지 않는다.
+    // 삭제 감지 — 두 갈래로 나눈다. 서버 내용을 한 번도 못 받아왔으면 절대 지우지 않는다.
+    //  ① 사용자가 명시적으로 지운 것(tombstone) — 편집 중이든 아니든 항상 삭제 전송.
+    //  ② "화면(fresh)에 없는 것" — 편집 중이 아닐 때만 삭제 전송.
+    //     · 편집 중엔 _diaryApplyRows 가 재렌더/saveDiaryAll 을 blur 까지 미룬다.
+    //       그 사이 realtime 으로 남이 이 스태프 카드에 넣은 새 항목(요청·주간·태스크)은
+    //       localStorage 에 반영되지 않은 채 서버 rows 에만 있다. 이걸 "지워졌다"로
+    //       판단하면 남의 편집이 조용히 삭제 전송된다. (2026-09-22 재현 성공,
+    //       "저장한 줄 알았는데 사라졌다"의 근본 원인)
     if(_diaryRowsLoaded){
-      const gone = Object.keys(merged).filter(id=>{
+      const editing = (typeof _diaryIsEditing === 'function') && _diaryIsEditing();
+      const tombIds = new Set(Object.keys(_diaryLoadTombstones()));
+      const goneSet = new Set();
+      // ① 명시적 tombstone — 이 스태프 것이고 아직 살아있는 것만
+      tombIds.forEach(id=>{
         const r = merged[id];
-        return r && r.staff_name === name && !r.deleted_at && !fresh[id] && _diaryRowInScope(r);
+        if(!r || r.staff_name !== name || r.deleted_at) return;
+        goneSet.add(id);
       });
+      // ② 편집 중이 아닐 때만 "화면에서 사라진 것" 추가 감지
+      if(!editing){
+        Object.keys(merged).forEach(id=>{
+          if(goneSet.has(id)) return;
+          const r = merged[id];
+          if(!r || r.staff_name !== name || r.deleted_at) return;
+          if(fresh[id]) return;
+          if(!_diaryRowInScope(r)) return;
+          goneSet.add(id);
+        });
+      }
+      const gone = Array.from(goneSet);
       if(gone.length > DIARY_MAX_DELETE){
         console.warn('[업무일지] 한 번에', gone.length, '줄이 사라져 삭제 전송을 보류했습니다');
         if(typeof toast === 'function') toast('업무일지가 비정상적으로 많이 지워져 저장을 보류했습니다. 새로고침 해주세요.', 'err');
@@ -21679,13 +21598,6 @@
     if(name==='archive') refreshArchivePane();
     // 우체국 출고: 진입 시 브랜드에 맞춰 로드
     if(name==='postez') refreshPostEzPane();
-    // 메모: 진입 시 브랜드별 dsg 아웃라이너 렌더
-    if(name==='memo'){
-      _dsgActiveBoard = 'lg_' + (window._lgBrand || 'main');
-      if(typeof dsgInit==='function') dsgInit();
-      if(typeof dsgDocRender==='function') dsgDocRender();
-      if(typeof _dsgApplyFs==='function') _dsgApplyFs();
-    }
   }
   window.switchLgTab=switchLgTab;
 
