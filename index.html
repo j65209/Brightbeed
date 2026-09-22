@@ -14926,6 +14926,7 @@
     let postsResult=null, postsPayload=null;
 
     // doc 저장 — board별로 통째로 덮어쓰기 (각각 트리 하나)
+    // ghPut / ghFetch 가 네트워크 오류로 throw 하면 아래 dirty 복구 코드로 반드시 도달해야 하므로 try/catch 필수.
     for(const board of Object.keys(DSG_DOC_PATHS)){
       if(!docWasDirty[board]) continue;
       const tree = _dsgDocs[board] || {version:1, blocks:[]};
@@ -14935,8 +14936,13 @@
       const label = DSG_DOC_LABELS[board] || '문서';
       let res = null;
       for(let attempt=0; attempt<3; attempt++){
-        res = await ghPut(api, b64, `chore: ${label} 갱신`, {forceMaster:true, noConflictRetry:true});
-        if(res.ok || res.reason!=='conflict') break;
+        try {
+          res = await ghPut(api, b64, `chore: ${label} 갱신`, {forceMaster:true, noConflictRetry:true});
+          if(res.ok || res.reason!=='conflict') break;
+        } catch(e){
+          res = null;
+          break;   // 네트워크 실패는 재시도 무의미 → dirty 유지되어 다음 스케줄에서 재시도
+        }
       }
       if(!res || !res.ok){ docOK = false; docFailedBoards.push(board); }
       else {
@@ -14948,12 +14954,17 @@
     // Refs 저장
     if(_dsgRefsDirty.size > 0){
       for(let attempt=0; attempt<3; attempt++){
-        refsPayload = await _dsgBuildRefsPayload();
-        if(!refsPayload){ refsOK=false; break; }
-        const json = JSON.stringify(refsPayload.merged, null, 2);
-        const b64  = btoa(unescape(encodeURIComponent(json)));
-        refsResult = await ghPut(DSG_REFS_API, b64, 'chore: 디자인 레퍼런스 갱신', {forceMaster:true, noConflictRetry:true});
-        if(refsResult.ok || refsResult.reason!=='conflict') break;
+        try {
+          refsPayload = await _dsgBuildRefsPayload();
+          if(!refsPayload){ refsOK=false; break; }
+          const json = JSON.stringify(refsPayload.merged, null, 2);
+          const b64  = btoa(unescape(encodeURIComponent(json)));
+          refsResult = await ghPut(DSG_REFS_API, b64, 'chore: 디자인 레퍼런스 갱신', {forceMaster:true, noConflictRetry:true});
+          if(refsResult.ok || refsResult.reason!=='conflict') break;
+        } catch(e){
+          refsResult = null;
+          break;
+        }
       }
       if(!refsResult || !refsResult.ok) refsOK = false;
     }
@@ -14961,12 +14972,17 @@
     // Posts (디자인 보드) 저장
     if(_dsgPostsDirty.size > 0){
       for(let attempt=0; attempt<3; attempt++){
-        postsPayload = await _dsgBuildPostsPayload();
-        if(!postsPayload){ postsOK=false; break; }
-        const json = JSON.stringify(postsPayload.merged, null, 2);
-        const b64  = btoa(unescape(encodeURIComponent(json)));
-        postsResult = await ghPut(DSG_POSTS_API, b64, 'chore: 디자인 디자인 보드 갱신', {forceMaster:true, noConflictRetry:true});
-        if(postsResult.ok || postsResult.reason!=='conflict') break;
+        try {
+          postsPayload = await _dsgBuildPostsPayload();
+          if(!postsPayload){ postsOK=false; break; }
+          const json = JSON.stringify(postsPayload.merged, null, 2);
+          const b64  = btoa(unescape(encodeURIComponent(json)));
+          postsResult = await ghPut(DSG_POSTS_API, b64, 'chore: 디자인 디자인 보드 갱신', {forceMaster:true, noConflictRetry:true});
+          if(postsResult.ok || postsResult.reason!=='conflict') break;
+        } catch(e){
+          postsResult = null;
+          break;
+        }
       }
       if(!postsResult || !postsResult.ok) postsOK = false;
     }
