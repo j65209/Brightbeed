@@ -15580,9 +15580,16 @@
       else                     p.hidden = !showDesign;
     });
     // 코페리 iframe 은 실제로 열 때 처음 로드 (부팅 비용 절약)
+    // me= 를 이 PC 의 diary_me 로 전달 — 두 대표(전승훈·전수빈)가 같은 '대표' 로 접속하면
+    // 코페리 안에서 self-echo 필터에 걸려 서로의 편집이 안 보이는 회귀 방지 (2026-09-22)
     if(_dsgCurTab === 'coferry'){
       const fr = document.getElementById('dsgCofFrame');
-      if(fr && fr.src === 'about:blank' && fr.dataset.src) fr.src = fr.dataset.src;
+      if(fr && fr.src === 'about:blank' && fr.dataset.src){
+        const me = (function(){ try{return (localStorage.getItem('brightbeed_diary_me')||'').trim();}catch(e){return '';} })();
+        const url = new URL(fr.dataset.src, location.origin);
+        if(me) url.searchParams.set('me', me);
+        fr.src = url.toString();
+      }
     }
     if(showDesign){
       if(typeof dsgPostsRender==='function') dsgPostsRender();
