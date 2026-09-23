@@ -24729,6 +24729,70 @@
     return matched;
   }
 
+  /* ===== 3-way merge · tombstone · base snap (업무일지-급 방어) =====
+     · tombstone(24h): 삭제한 이벤트 id 를 로컬에 남겨, CDN lag 로 옛 remote 가 되살리는 걸 차단
+     · base snap: 마지막으로 확인한 remote — mine 이 지웠는지 vs 없던 건지 구분
+     · per-event 3-way merge: 같은 id 는 updatedAt 큰 쪽, mine 이 지운 id 는 부활 X */
+  const MD_EVENTS_TOMB_KEY = 'brightbeed_md_events_tombstones_v1';
+  const MD_EVENTS_BASE_KEY = 'brightbeed_md_events_base_v1';
+  const MD_EVENTS_TOMB_TTL = 24*60*60*1000;
+  function _mdeLoadTombs(){
+    try{ return JSON.parse(localStorage.getItem(MD_EVENTS_TOMB_KEY)||'{}') || {} }catch(e){ return {} }
+  }
+  function _mdeSaveTombs(t){
+    try{ localStorage.setItem(MD_EVENTS_TOMB_KEY, JSON.stringify(t||{})) }catch(e){}
+  }
+  function _mdeAddTomb(id){
+    if(!id) return;
+    const t = _mdeLoadTombs();
+    t[id] = Date.now();
+    _mdeSaveTombs(t);
+  }
+  function _mdePurgeTombs(){
+    const t = _mdeLoadTombs();
+    const now = Date.now();
+    let changed = false;
+    for(const id of Object.keys(t)){
+      if(now - (t[id]||0) > MD_EVENTS_TOMB_TTL){ delete t[id]; changed = true; }
+    }
+    if(changed) _mdeSaveTombs(t);
+    return t;
+  }
+  function _mdeLoadBase(){
+    try{
+      const j = JSON.parse(localStorage.getItem(MD_EVENTS_BASE_KEY)||'null');
+      return (j && Array.isArray(j.events)) ? j.events : [];
+    }catch(e){ return []; }
+  }
+  function _mdeSaveBase(events){
+    try{ localStorage.setItem(MD_EVENTS_BASE_KEY, JSON.stringify({events:events||[], ts:Date.now()})); }catch(e){}
+  }
+  function _mdMergeEvents(mine, theirs, base, tombIds){
+    const out = new Map();
+    const baseIds = new Set((Array.isArray(base)?base:[]).map(e=>e && e.id).filter(Boolean));
+    (Array.isArray(mine)?mine:[]).forEach(e=>{
+      if(!e || !e.id) return;
+      if(tombIds && tombIds.has(e.id)) return;
+      out.set(e.id, e);
+    });
+    (Array.isArray(theirs)?theirs:[]).forEach(e=>{
+      if(!e || !e.id) return;
+      if(tombIds && tombIds.has(e.id)) return;
+      const existing = out.get(e.id);
+      if(existing){
+        // 같은 id 양쪽에 → updatedAt 큰 쪽 (없으면 mine 유지)
+        const mt = Number(existing.updatedAt||0), tt = Number(e.updatedAt||0);
+        if(tt > mt) out.set(e.id, e);
+        return;
+      }
+      // base 에 있었는데 mine 에 없음 → mine 이 지운 것 → 부활 X
+      if(baseIds.has(e.id)) return;
+      // base 에도 없고 mine 에도 없음 → 다른 사람 신규 → 살림
+      out.set(e.id, e);
+    });
+    return Array.from(out.values());
+  }
+
   function loadMdEvents(){
     try{
       const j=JSON.parse(localStorage.getItem(MD_EVENTS_KEY)||'null');
@@ -24760,7 +24824,6 @@
     if(_mdLastPutAt && (Date.now()-_mdLastPutAt) < 5*60*1000) return;
     const remote=await fetchMdEventsFromRemote();
     if(remote===null) return;
-    // 로컬 메타 (updatedAt 비교용)
     let localMeta=null;
     try{ localMeta=JSON.parse(localStorage.getItem(MD_EVENTS_KEY)||'null'); }catch(e){}
     const localUpdatedAt = localMeta && Number.isFinite(localMeta.updatedAt) ? localMeta.updatedAt : 0;
@@ -24772,13 +24835,26 @@
       return;
     }
     const remoteUpdatedAt = Number.isFinite(remote.updatedAt) ? remote.updatedAt : 0;
-    // 로컬이 더 최신이면 덮어쓰지 않음 (CDN 옛 데이터 보호)
-    if(localUpdatedAt > remoteUpdatedAt) return;
-    const json=JSON.stringify(remote);
-    if(json===_mdCal_lastHash) return;
-    _mdCal_lastHash=json;
-    localStorage.setItem(MD_EVENTS_KEY, json);
-    _mdCal.events=remote.events;
+    const tombs = _mdePurgeTombs();
+    const tombIds = new Set(Object.keys(tombs));
+    const hasDirty = !!localStorage.getItem('brightbeed_md_events_dirty_v1');
+    const base = _mdeLoadBase();
+    let mergedEvents;
+    if(hasDirty || localUpdatedAt > remoteUpdatedAt){
+      // 미푸시 로컬 편집이 있거나 로컬이 더 최신 → 3-way merge (통째 덮어쓰기 X)
+      mergedEvents = _mdMergeEvents(localEvents, remote.events, base, tombIds);
+    } else {
+      // 로컬은 안 밀렸음 → remote 수용 (단 tombstone 은 필터 — CDN lag 로 되살아난 것 차단)
+      mergedEvents = (remote.events||[]).filter(e=>!e || !e.id || !tombIds.has(e.id));
+    }
+    // dirty 없으면 base 갱신 (dirty 상태면 옛 base 를 유지해 다음 push 병합의 기준으로 사용)
+    if(!hasDirty) _mdeSaveBase(remote.events||[]);
+    const nextMeta = {events:mergedEvents, updatedAt:Math.max(remoteUpdatedAt, localUpdatedAt)};
+    const j=JSON.stringify(nextMeta);
+    if(j===_mdCal_lastHash) return;
+    _mdCal_lastHash=j;
+    localStorage.setItem(MD_EVENTS_KEY, j);
+    _mdCal.events=mergedEvents;
     renderMdCal();
   }
 
@@ -25328,13 +25404,16 @@
     if(!_mdCal_editingId) return;
     if(!confirm('이 기획전 일정을 삭제할까요?')) return;
     if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
+    _mdeAddTomb(_mdCal_editingId);  // CDN lag/동시편집 상황에서도 부활 안 되도록 24h tombstone
     const events=(_mdCal.events||[]).filter(e=>e.id!==_mdCal_editingId);
     await _mdPersist(events, 'chore: MD 기획전 삭제');
   }
 
-  /* md-events push — 업무일지-급 실용 방어
+  /* md-events push — 업무일지-급 5중 방어
        · dirty persist  : 미푸시 events 를 localStorage 에 보관 → 새로고침 후 자동 재전송
        · sha 기반 PUT   : 409 conflict 시 remote 다시 읽어 재전송 (남의 저장 안 지움)
+       · 3-way merge    : 병합 기준 = 최신 remote + base snap. 통째 덮어쓰지 않음
+       · tombstone      : 삭제한 id 는 24h 동안 부활 X (CDN lag/동시편집 대비)
        · 지수 백오프    : 네트워크/서버 오류 시 최대 30초 간격 자동 재시도
      참조 스킬: ~/.claude/skills/robust-storage-sync/SKILL.md */
   const MD_EVENTS_DIRTY_KEY = 'brightbeed_md_events_dirty_v1';
@@ -25366,13 +25445,27 @@
     if(_mdePushing){ _mdePushAgain = true; return true; }
     _mdePushing = true;
     try{
-      const { events, msg } = _mdePending;
-      let ok = false, lastReason = null;
+      const { msg } = _mdePending;
+      const mine = Array.isArray(_mdePending.events) ? _mdePending.events : [];
+      let ok = false, lastReason = null, finalEvents = mine;
       for(let attempt=0; attempt<3; attempt++){
         try{
           const file = await ghGetFile(MD_EVENTS_API);
           if(file.error){ lastReason = file.error; break; }
-          const meta = {events, updatedAt:Date.now()};
+          // remote 파싱 (contents API 의 base64 디코드 결과가 file.text)
+          let remoteEvents = [];
+          if(file.text){
+            try{
+              const parsed = JSON.parse(file.text);
+              if(parsed && Array.isArray(parsed.events)) remoteEvents = parsed.events;
+            }catch(e){ /* 깨진 응답 → 빈 remote 로 취급 (남 데이터 통째 덮지 않도록 아래 merge 에 맡김) */ }
+          }
+          const tombs = _mdePurgeTombs();
+          const tombIds = new Set(Object.keys(tombs));
+          const base = _mdeLoadBase();
+          // 3-way merge: 내 편집 + 남의 새 이벤트 살리고, 내가 지운 id 는 부활 X
+          finalEvents = _mdMergeEvents(mine, remoteEvents, base, tombIds);
+          const meta = {events:finalEvents, updatedAt:Date.now()};
           const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
           const r = await ghPut(MD_EVENTS_API, b64, msg, {noConflictRetry:true, sha:file.sha||null});
           if(r.ok){ ok = true; break; }
@@ -25383,7 +25476,8 @@
       if(ok){
         _mdePending = null; _mdePersistDirty();
         _mdePushFailStreak = 0;
-        saveMdEventsLocal(events);
+        saveMdEventsLocal(finalEvents);
+        _mdeSaveBase(finalEvents);   // 방금 올린 상태 = 다음 병합의 base
         _mdLastPutAt = Date.now();
         try{ mdCalCloseModal(); renderMdCal(); toast('✓ 저장 완료','ok'); }catch(e){}
         return true;
