@@ -9448,6 +9448,32 @@
         </div>
       </div>
 
+      <div class="dc-notion-card">
+        <div class="dc-notion-head">
+          <span class="dc-notion-title">🗓 박시호 노션 캘린더</span>
+          <span class="dc-notion-url" id="dcCalUrlShow"></span>
+          <div class="dc-notion-actions">
+            <button class="dc-btn-ghost" id="dcCalOpenBtn" onclick="dcCalOpenNew()" hidden title="새 탭에서 열기">↗ 새 탭</button>
+            <button class="dc-btn-ghost" id="dcCalEditBtn" onclick="dcCalEdit()" hidden title="캘린더 링크 편집(마스터)">⚙ 링크</button>
+          </div>
+        </div>
+        <div class="dc-notion-frame">
+          <iframe id="dcCalFrame"
+                  src="about:blank"
+                  title="박시호 노션 캘린더"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div class="dc-notion-empty" id="dcCalEmpty">
+            <div class="dc-notion-empty-icon">🗓</div>
+            <div class="dc-notion-empty-title">캘린더 링크가 아직 등록되지 않았어요</div>
+            <div class="dc-notion-empty-sub">
+              마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
+              박시호 노션 캘린더 URL <code>xxx.notion.site/…</code> 을 넣어주세요.
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="dc-cmt-card">
         <div class="dc-cmt-head">
           <span class="dc-cmt-title">💬 페이지 댓글</span>
@@ -15749,6 +15775,7 @@
      ============================================================ */
   const DC_K = {
     url:'brightbeed_dc_notion_url_v1',
+    calUrl:'brightbeed_dc_cal_url_v1',
     cmts:'brightbeed_dc_cmts_v1',
     tomb:'brightbeed_dc_cmt_tomb_v1',
     pend:'brightbeed_dc_cmt_pending_v1',
@@ -15758,6 +15785,7 @@
   const _dcState = {
     booted:false,
     notionUrl:'',
+    calUrl:'',
     cmts:[],                 // 서버 스냅샷 (deleted_at IS NULL, created_at ASC)
     pending:[],              // {id, author, body, created_at, client_id}
     tombs:{},                // {id: expiresAt}
@@ -15796,6 +15824,7 @@
   function _dcLoadLocal(){
     try{
       _dcState.notionUrl = (localStorage.getItem(DC_K.url)||'').trim();
+      _dcState.calUrl = (localStorage.getItem(DC_K.calUrl)||'').trim();
       _dcState.cmts = JSON.parse(localStorage.getItem(DC_K.cmts)||'[]') || [];
       _dcState.pending = JSON.parse(localStorage.getItem(DC_K.pend)||'[]') || [];
       const rawT = JSON.parse(localStorage.getItem(DC_K.tomb)||'{}') || {};
@@ -15819,19 +15848,36 @@
     el.textContent = msg || '';
   }
 
-  /* ----- 노션 링크 UI ----- */
-  function dcApplyNotionUrl(url){
-    _dcState.notionUrl = (url||'').trim();
-    try{ if(_dcState.notionUrl) localStorage.setItem(DC_K.url, _dcState.notionUrl); else localStorage.removeItem(DC_K.url); }catch(e){}
-    const frame = document.getElementById('dcNotionFrame');
-    const empty = document.getElementById('dcNotionEmpty');
-    const urlShow = document.getElementById('dcNotionUrlShow');
-    const openBtn = document.getElementById('dcNotionOpenBtn');
+  /* ----- 노션·캘린더 링크 UI (공통 로직) ----- */
+  const DC_LINKS = {
+    notion:{
+      stateKey:'notionUrl',   lsKey:DC_K.url,      sbKey:'notion_url',
+      frameId:'dcNotionFrame',emptyId:'dcNotionEmpty',
+      urlShowId:'dcNotionUrlShow', openBtnId:'dcNotionOpenBtn', editBtnId:'dcNotionEditBtn',
+      promptTitle:'박시호 노션 페이지 URL',
+      toastLabel:'노션 링크'
+    },
+    calendar:{
+      stateKey:'calUrl',      lsKey:DC_K.calUrl,   sbKey:'notion_calendar_url',
+      frameId:'dcCalFrame',   emptyId:'dcCalEmpty',
+      urlShowId:'dcCalUrlShow', openBtnId:'dcCalOpenBtn', editBtnId:'dcCalEditBtn',
+      promptTitle:'박시호 노션 캘린더 URL',
+      toastLabel:'캘린더 링크'
+    }
+  };
+  function _dcApplyLink(cfg, url){
+    const clean = (url||'').trim();
+    _dcState[cfg.stateKey] = clean;
+    try{ if(clean) localStorage.setItem(cfg.lsKey, clean); else localStorage.removeItem(cfg.lsKey); }catch(e){}
+    const frame = document.getElementById(cfg.frameId);
+    const empty = document.getElementById(cfg.emptyId);
+    const urlShow = document.getElementById(cfg.urlShowId);
+    const openBtn = document.getElementById(cfg.openBtnId);
     if(!frame) return;
-    if(_dcState.notionUrl){
-      if(frame.src !== _dcState.notionUrl) frame.src = _dcState.notionUrl;
+    if(clean){
+      if(frame.src !== clean) frame.src = clean;
       if(empty) empty.hidden = true;
-      if(urlShow) urlShow.textContent = _dcState.notionUrl;
+      if(urlShow) urlShow.textContent = clean;
       if(openBtn) openBtn.hidden = false;
     }else{
       frame.src = 'about:blank';
@@ -15840,43 +15886,48 @@
       if(openBtn) openBtn.hidden = true;
     }
   }
-  function dcNotionOpenNew(){
-    if(_dcState.notionUrl) window.open(_dcState.notionUrl, '_blank', 'noopener,noreferrer');
-  }
-  async function dcNotionEdit(){
+  async function _dcEditLink(cfg){
     if(typeof isMaster==='function' && !isMaster()){
       toast('마스터 권한이 필요합니다', 'err'); return;
     }
-    const cur = _dcState.notionUrl || '';
-    const raw = window.prompt('박시호 노션 페이지 URL 을 입력하세요.\n예) https://xxx.notion.site/…\n\n비우고 확인하면 링크가 해제됩니다.', cur);
+    const cur = _dcState[cfg.stateKey] || '';
+    const raw = window.prompt(`${cfg.promptTitle} 을 입력하세요.\n예) https://xxx.notion.site/…\n\n비우고 확인하면 링크가 해제됩니다.`, cur);
     if(raw === null) return;
     const next = raw.trim();
     if(next === cur){ toast('변경 사항 없음', 'ok'); return; }
     if(next && !/^https?:\/\//i.test(next)){
       alert('http:// 또는 https:// 로 시작하는 URL 이어야 합니다.'); return;
     }
-    dcApplyNotionUrl(next);
+    _dcApplyLink(cfg, next);
     try{
       const r = await fetch(`${_dcSbBase()}/design_center_settings?on_conflict=key`, {
         method:'POST',
         headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
-        body: JSON.stringify([{key:'notion_url', value: next, updated_at: new Date().toISOString()}])
+        body: JSON.stringify([{key:cfg.sbKey, value: next, updated_at: new Date().toISOString()}])
       });
       if(!r.ok) throw new Error('http_'+r.status);
-      toast('노션 링크 저장 완료', 'ok');
+      toast(`${cfg.toastLabel} 저장 완료`, 'ok');
     }catch(e){
-      toast('노션 링크 저장 실패 (로컬만 반영): '+(e.message||e), 'err');
+      toast(`${cfg.toastLabel} 저장 실패 (로컬만 반영): `+(e.message||e), 'err');
     }
   }
+  function dcApplyNotionUrl(url){ _dcApplyLink(DC_LINKS.notion, url); }
+  function dcApplyCalendarUrl(url){ _dcApplyLink(DC_LINKS.calendar, url); }
+  function dcNotionEdit(){ return _dcEditLink(DC_LINKS.notion); }
+  function dcCalEdit(){ return _dcEditLink(DC_LINKS.calendar); }
+  function dcNotionOpenNew(){ if(_dcState.notionUrl) window.open(_dcState.notionUrl, '_blank', 'noopener,noreferrer'); }
+  function dcCalOpenNew(){ if(_dcState.calUrl) window.open(_dcState.calUrl, '_blank', 'noopener,noreferrer'); }
   async function _dcLoadSettings(){
     try{
-      const r = await fetch(`${_dcSbBase()}/design_center_settings?select=key,value&key=eq.notion_url`, {headers:_sbHeaders(), cache:'no-cache'});
+      const r = await fetch(`${_dcSbBase()}/design_center_settings?select=key,value&key=in.(notion_url,notion_calendar_url)`, {headers:_sbHeaders(), cache:'no-cache'});
       if(!r.ok) return;
       const rows = await r.json();
-      const remote = (rows && rows[0] && rows[0].value || '').trim();
-      if(remote !== _dcState.notionUrl){
-        dcApplyNotionUrl(remote);
-      }
+      const map = {};
+      for(const row of (rows||[])) map[row.key] = (row.value||'').trim();
+      const rNotion = map['notion_url'] || '';
+      const rCal = map['notion_calendar_url'] || '';
+      if(rNotion !== _dcState.notionUrl) dcApplyNotionUrl(rNotion);
+      if(rCal !== _dcState.calUrl) dcApplyCalendarUrl(rCal);
     }catch(e){}
   }
 
@@ -16112,10 +16163,12 @@
   function dcInit(){
     _dcLoadLocal();
     // 마스터에게만 편집 버튼 노출
-    const editBtn = document.getElementById('dcNotionEditBtn');
-    if(editBtn) editBtn.hidden = !(typeof isMaster==='function' && isMaster());
+    const master = (typeof isMaster==='function' && isMaster());
+    const nEdit = document.getElementById('dcNotionEditBtn'); if(nEdit) nEdit.hidden = !master;
+    const cEdit = document.getElementById('dcCalEditBtn');    if(cEdit) cEdit.hidden = !master;
     // 로컬 캐시로 즉시 iframe & 리스트 표시
     dcApplyNotionUrl(_dcState.notionUrl);
+    dcApplyCalendarUrl(_dcState.calUrl);
     dcCmtRender();
     // 서버 pull
     _dcLoadSettings();
