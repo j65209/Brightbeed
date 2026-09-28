@@ -6964,13 +6964,86 @@
   .dc-btn-ghost{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;font-size:11.5px;font-weight:600;color:#57534e;background:#fff;border:1px solid #e7e5e4;border-radius:6px;cursor:pointer;font-family:inherit;transition:all .12s}
   .dc-btn-ghost:hover{color:#292524;border-color:#d6d3d1;background:#fafaf9}
   .dc-notion-frame{position:relative;background:#fff}
-  .dc-notion-frame iframe{display:block;width:100%;height:calc(100vh - 300px);min-height:560px;border:0;background:#fff}
+  .dc-notion-body{display:block;width:100%;height:calc(100vh - 300px);min-height:560px;overflow:auto;background:#fff;padding:26px 30px 60px}
   .dc-notion-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#fff;text-align:center;padding:40px 20px}
   .dc-notion-empty[hidden]{display:none}
   .dc-notion-empty-icon{font-size:44px;opacity:.4}
   .dc-notion-empty-title{font-size:15px;font-weight:700;color:#57534e}
   .dc-notion-empty-sub{font-size:12.5px;color:#a8a29e;line-height:1.6}
   .dc-notion-empty-sub code{background:#f5f5f4;padding:1px 6px;border-radius:4px;font-size:11.5px;color:#78716c}
+
+  /* 노션 미러 렌더 — 노션이 iframe 을 막아서 내용만 읽어와 직접 그린다 */
+  .nt-doc{max-width:900px;margin:0 auto;color:#37352f;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    font-size:15px;line-height:1.6}
+  .nt-doc-title{display:flex;align-items:center;gap:10px;font-size:30px;font-weight:800;letter-spacing:-.02em;margin:0 0 20px;color:#37352f}
+  .nt-h1{font-size:24px;font-weight:700;margin:26px 0 4px;letter-spacing:-.015em}
+  .nt-h2{font-size:20px;font-weight:700;margin:22px 0 3px;letter-spacing:-.01em}
+  .nt-h3{font-size:16.5px;font-weight:700;margin:18px 0 2px}
+  .nt-p{margin:2px 0;min-height:1.6em;white-space:pre-wrap}
+  .nt-p:empty{min-height:.7em}
+  .nt-list{margin:1px 0;padding-left:2px;list-style:none}
+  .nt-li{position:relative;padding-left:22px;margin:2px 0;white-space:pre-wrap}
+  .nt-li::before{content:'•';position:absolute;left:6px;color:#37352f}
+  ol.nt-list{counter-reset:ntnum}
+  ol.nt-list>.nt-li{counter-increment:ntnum}
+  ol.nt-list>.nt-li::before{content:counter(ntnum) '.';left:2px;font-size:14px;color:#57534e}
+  .nt-li .nt-list{margin-top:2px}
+  .nt-todo{display:flex;gap:8px;align-items:flex-start;margin:3px 0;white-space:pre-wrap}
+  .nt-todo>input{margin:4px 0 0;pointer-events:none;accent-color:#2383e2}
+  .nt-todo.done>span{color:#a8a29e;text-decoration:line-through}
+  .nt-toggle{margin:2px 0}
+  .nt-toggle>summary{cursor:pointer;list-style:none;display:flex;gap:6px;align-items:flex-start;padding-left:2px;border-radius:4px}
+  .nt-toggle>summary::-webkit-details-marker{display:none}
+  .nt-toggle>summary::before{content:'▸';color:#78716c;font-size:12px;line-height:1.65;transition:transform .12s;flex:none;width:14px;text-align:center}
+  .nt-toggle[open]>summary::before{transform:rotate(90deg)}
+  .nt-toggle>summary:hover{background:#f5f5f4}
+  .nt-toggle-body{padding-left:22px;margin-top:2px}
+  .nt-quote{border-left:3px solid #37352f;padding:1px 0 1px 14px;margin:6px 0;white-space:pre-wrap}
+  .nt-callout{display:flex;gap:10px;background:#f7f6f3;border-radius:6px;padding:14px 16px;margin:8px 0}
+  .nt-callout-body{flex:1;min-width:0;white-space:pre-wrap}
+  .nt-divider{border:0;border-top:1px solid #e9e9e7;margin:16px 0}
+  .nt-code{background:#f7f6f3;border-radius:6px;padding:14px 16px;margin:8px 0;overflow:auto;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;white-space:pre}
+  .nt-cols{display:flex;gap:26px;margin:8px 0;align-items:flex-start}
+  .nt-col{min-width:0;flex:1 1 0}
+  .nt-img{margin:10px 0}
+  .nt-img img{max-width:100%;border-radius:4px;display:block}
+  .nt-cap{font-size:12px;color:#a8a29e;margin-top:5px}
+  .nt-link{color:#2383e2;text-decoration:none;border-bottom:1px solid rgba(35,131,226,.3)}
+  .nt-link:hover{background:rgba(35,131,226,.08)}
+  .nt-bookmark,.nt-subpage,.nt-file{display:inline-flex;gap:7px;align-items:center;margin:4px 0;padding:6px 10px;
+    border:1px solid #e9e9e7;border-radius:6px;text-decoration:none;color:#37352f;font-size:14px;max-width:100%}
+  .nt-bookmark:hover,.nt-subpage:hover,.nt-file:hover{background:#f7f6f3}
+  .nt-subpage{font-weight:600}
+  .nt-code-inline{background:rgba(135,131,120,.15);color:#eb5757;border-radius:3px;padding:1px 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86em}
+  .nt-table-wrap{margin:12px 0;border:1px solid #e9e9e7;border-radius:8px;overflow:auto}
+  .nt-table-name{font-size:13px;font-weight:700;padding:9px 12px;background:#f7f6f3;border-bottom:1px solid #e9e9e7;
+    display:flex;align-items:center;gap:8px}
+  .nt-table-name .nt-badge{font-size:10.5px;font-weight:600;color:#78716c;background:#fff;border:1px solid #e9e9e7;border-radius:4px;padding:1px 6px}
+  table.nt-table{border-collapse:collapse;width:100%;font-size:13.5px}
+  table.nt-table th{text-align:left;font-weight:600;color:#78716c;background:#fbfbfa;padding:8px 12px;
+    border-bottom:1px solid #e9e9e7;white-space:nowrap}
+  table.nt-table td{padding:8px 12px;border-bottom:1px solid #f1f1ef;vertical-align:top;white-space:pre-wrap}
+  table.nt-table tr:last-child td{border-bottom:0}
+  table.nt-table td:first-child{font-weight:600}
+  .nt-tag{display:inline-block;font-size:11.5px;background:#f1f0ee;border-radius:4px;padding:1px 7px;margin:0 3px 3px 0;color:#57534e}
+  .nt-empty-rows{padding:14px 12px;font-size:12.5px;color:#a8a29e}
+  .nt-c-gray{color:#787774}.nt-c-brown{color:#9f6b53}.nt-c-orange{color:#d9730d}.nt-c-yellow{color:#cb912f}
+  .nt-c-green,.nt-c-teal{color:#448361}.nt-c-blue{color:#337ea9}.nt-c-purple{color:#9065b0}
+  .nt-c-pink{color:#c14c8a}.nt-c-red{color:#d44c47}
+  .nt-bg-gray{background:#f1f1ef}.nt-bg-brown{background:#f4eeee}.nt-bg-orange{background:#fbecdd}
+  .nt-bg-yellow{background:#fbf3db}.nt-bg-green,.nt-bg-teal{background:#edf3ec}.nt-bg-blue{background:#e7f3f8}
+  .nt-bg-purple{background:#f6f3f9}.nt-bg-pink{background:#faf1f5}.nt-bg-red{background:#fdebec}
+  .nt-skel{max-width:900px;margin:0 auto}
+  .nt-skel i{display:block;height:13px;border-radius:4px;background:linear-gradient(90deg,#f1f1ef 25%,#e9e9e7 37%,#f1f1ef 63%);
+    background-size:400% 100%;animation:ntsk 1.3s ease infinite;margin-bottom:11px}
+  @keyframes ntsk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+  .dc-notion-err{max-width:900px;margin:0 auto;font-size:13px;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;
+    border-radius:8px;padding:12px 14px;line-height:1.6}
+  .dc-notion-err b{display:block;margin-bottom:3px}
+  .dc-notion-stamp{font-size:11px;color:#a8a29e;font-variant-numeric:tabular-nums}
 
   /* 댓글 패널 */
   .dc-cmt-card{background:#fff;border:1px solid #e7e5e4;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03)}
@@ -7011,7 +7084,10 @@
   .dc-cmt-snack-timer{margin-left:auto;color:#a8a29e;font-variant-numeric:tabular-nums}
   @media (max-width:640px){
     .dc-notion-url{max-width:180px}
-    .dc-notion-frame iframe{height:calc(100vh - 260px);min-height:420px}
+    .dc-notion-body{height:calc(100vh - 260px);min-height:420px;padding:18px 14px 50px}
+    .nt-doc{font-size:14.5px}
+    .nt-doc-title{font-size:24px}
+    .nt-cols{flex-direction:column;gap:6px}
   }
 
   /* 툴바 */
@@ -9599,24 +9675,23 @@
       <div class="dc-notion-card">
         <div class="dc-notion-head">
           <span class="dc-notion-title">📓 박시호 노션</span>
+          <span class="dc-notion-stamp" id="dcNotionStamp"></span>
           <span class="dc-notion-url" id="dcNotionUrlShow"></span>
           <div class="dc-notion-actions">
-            <button class="dc-btn-ghost" id="dcNotionOpenBtn" onclick="dcNotionOpenNew()" hidden title="새 탭에서 열기">↗ 새 탭</button>
+            <button class="dc-btn-ghost" id="dcNotionReloadBtn" onclick="dcNotionReload()" hidden title="노션에서 다시 가져오기">🔄 새로고침</button>
+            <button class="dc-btn-ghost" id="dcNotionOpenBtn" onclick="dcNotionOpenNew()" hidden title="노션에서 열기">↗ 노션</button>
             <button class="dc-btn-ghost" id="dcNotionEditBtn" onclick="dcNotionEdit()" hidden title="노션 링크 편집(마스터)">⚙ 링크</button>
           </div>
         </div>
         <div class="dc-notion-frame">
-          <iframe id="dcNotionFrame"
-                  src="about:blank"
-                  title="박시호 노션"
-                  loading="lazy"
-                  referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div class="dc-notion-body" id="dcNotionBody"></div>
           <div class="dc-notion-empty" id="dcNotionEmpty">
             <div class="dc-notion-empty-icon">📓</div>
             <div class="dc-notion-empty-title">노션 링크가 아직 등록되지 않았어요</div>
             <div class="dc-notion-empty-sub">
               마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
-              박시호 디자이너의 노션 페이지 URL <code>xxx.notion.site/…</code> 을 넣어주세요.
+              박시호 디자이너의 노션 페이지 URL 을 넣어주세요.<br/>
+              노션에서 <b>공유 → 링크가 있는 모든 사용자</b> 로 열어두어야 내용이 보입니다.
             </div>
           </div>
         </div>
@@ -9625,24 +9700,22 @@
       <div class="dc-notion-card">
         <div class="dc-notion-head">
           <span class="dc-notion-title">🗓 박시호 노션 캘린더</span>
+          <span class="dc-notion-stamp" id="dcCalStamp"></span>
           <span class="dc-notion-url" id="dcCalUrlShow"></span>
           <div class="dc-notion-actions">
-            <button class="dc-btn-ghost" id="dcCalOpenBtn" onclick="dcCalOpenNew()" hidden title="새 탭에서 열기">↗ 새 탭</button>
+            <button class="dc-btn-ghost" id="dcCalReloadBtn" onclick="dcCalReload()" hidden title="노션에서 다시 가져오기">🔄 새로고침</button>
+            <button class="dc-btn-ghost" id="dcCalOpenBtn" onclick="dcCalOpenNew()" hidden title="노션에서 열기">↗ 노션</button>
             <button class="dc-btn-ghost" id="dcCalEditBtn" onclick="dcCalEdit()" hidden title="캘린더 링크 편집(마스터)">⚙ 링크</button>
           </div>
         </div>
         <div class="dc-notion-frame">
-          <iframe id="dcCalFrame"
-                  src="about:blank"
-                  title="박시호 노션 캘린더"
-                  loading="lazy"
-                  referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div class="dc-notion-body" id="dcCalBody"></div>
           <div class="dc-notion-empty" id="dcCalEmpty">
             <div class="dc-notion-empty-icon">🗓</div>
             <div class="dc-notion-empty-title">캘린더 링크가 아직 등록되지 않았어요</div>
             <div class="dc-notion-empty-sub">
               마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
-              박시호 노션 캘린더 URL <code>xxx.notion.site/…</code> 을 넣어주세요.
+              박시호 노션 캘린더 URL 을 넣어주세요.
             </div>
           </div>
         </div>
@@ -16016,39 +16089,262 @@
   const DC_LINKS = {
     notion:{
       stateKey:'notionUrl',   lsKey:DC_K.url,      sbKey:'notion_url',
-      frameId:'dcNotionFrame',emptyId:'dcNotionEmpty',
+      bodyId:'dcNotionBody',  emptyId:'dcNotionEmpty',
       urlShowId:'dcNotionUrlShow', openBtnId:'dcNotionOpenBtn', editBtnId:'dcNotionEditBtn',
+      reloadBtnId:'dcNotionReloadBtn', stampId:'dcNotionStamp',
       promptTitle:'박시호 노션 페이지 URL',
       toastLabel:'노션 링크'
     },
     calendar:{
       stateKey:'calUrl',      lsKey:DC_K.calUrl,   sbKey:'notion_calendar_url',
-      frameId:'dcCalFrame',   emptyId:'dcCalEmpty',
+      bodyId:'dcCalBody',     emptyId:'dcCalEmpty',
       urlShowId:'dcCalUrlShow', openBtnId:'dcCalOpenBtn', editBtnId:'dcCalEditBtn',
+      reloadBtnId:'dcCalReloadBtn', stampId:'dcCalStamp',
       promptTitle:'박시호 노션 캘린더 URL',
       toastLabel:'캘린더 링크'
     }
   };
   function _dcApplyLink(cfg, url){
     const clean = (url||'').trim();
+    const changed = _dcState[cfg.stateKey] !== clean;
     _dcState[cfg.stateKey] = clean;
     try{ if(clean) localStorage.setItem(cfg.lsKey, clean); else localStorage.removeItem(cfg.lsKey); }catch(e){}
-    const frame = document.getElementById(cfg.frameId);
+    const body = document.getElementById(cfg.bodyId);
     const empty = document.getElementById(cfg.emptyId);
     const urlShow = document.getElementById(cfg.urlShowId);
     const openBtn = document.getElementById(cfg.openBtnId);
-    if(!frame) return;
-    if(clean){
-      if(frame.src !== clean) frame.src = clean;
-      if(empty) empty.hidden = true;
-      if(urlShow) urlShow.textContent = clean;
-      if(openBtn) openBtn.hidden = false;
-    }else{
-      frame.src = 'about:blank';
-      if(empty) empty.hidden = false;
-      if(urlShow) urlShow.textContent = '';
-      if(openBtn) openBtn.hidden = true;
+    const reload = document.getElementById(cfg.reloadBtnId);
+    if(!body) return;
+    if(empty) empty.hidden = !!clean;
+    if(urlShow) urlShow.textContent = clean;
+    if(openBtn) openBtn.hidden = !clean;
+    if(reload) reload.hidden = !clean;
+    if(!clean){
+      body.innerHTML = '';
+      _dcMirrorState(cfg).doc = null;
+      _dcStamp(cfg, '');
+      return;
     }
+    if(changed){
+      _dcMirrorState(cfg).doc = null;
+      _dcMirrorState(cfg).at = 0;
+    }
+    _dcLoadMirror(cfg, changed);
+  }
+
+  /* ----- 노션 미러: 프록시 /nt/page 로 내용을 받아 직접 렌더 -----
+     노션이 X-Frame-Options / frame-ancestors 로 iframe 임베드를 원천 차단하므로
+     (공개 *.notion.site 도 동일) 페이지 내용만 읽어와 노션과 비슷한 모양으로 그린다.
+     읽기 전용 — 편집은 노션에서. */
+  const DC_MIRROR_GATE = 60000;    // 같은 링크 재요청 최소 간격
+  const DC_MIRROR_POLL = 180000;   // 탭에 머무는 동안 자동 갱신 주기
+  const _dcMirrors = {};
+  function _dcMirrorState(cfg){
+    return _dcMirrors[cfg.stateKey] || (_dcMirrors[cfg.stateKey] = {loading:false, at:0, doc:null, err:null});
+  }
+  function _dcStamp(cfg, text, isErr){
+    const el = document.getElementById(cfg.stampId);
+    if(!el) return;
+    el.textContent = text || '';
+    el.style.color = isErr ? '#b91c1c' : '';
+  }
+  function _dcHm(ts){
+    const d = new Date(ts||Date.now());
+    return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  async function _dcLoadMirror(cfg, force){
+    const url = _dcState[cfg.stateKey];
+    const body = document.getElementById(cfg.bodyId);
+    if(!body || !url) return;
+    const st = _dcMirrorState(cfg);
+    if(st.loading) return;
+    if(!force && st.doc && (Date.now()-st.at) < DC_MIRROR_GATE) return;
+    st.loading = true;
+    if(!st.doc) body.innerHTML = _ntSkeleton();
+    _dcStamp(cfg, '불러오는 중…');
+    try{
+      const base = await loadProxyBase();
+      if(!base) throw new Error('프록시(서버 PC)에 연결할 수 없습니다');
+      const q = `${base}/nt/page?url=${encodeURIComponent(url)}${force?'&refresh=1':''}&cb=${Date.now()}`;
+      const r = await fetch(q, {headers:{'X-Brightbeed-PIN':ghPin()}, cache:'no-cache'});
+      const j = await r.json().catch(()=>null);
+      if(!r.ok || !j || j.ok!==true) throw new Error((j && (j.detail||j.error)) || ('HTTP '+r.status));
+      st.doc = j; st.err = null; st.at = Date.now();
+      body.innerHTML = _ntRenderDoc(j);
+      _dcStamp(cfg, _dcHm(st.at)+' 갱신');
+    }catch(e){
+      st.err = String(e && e.message || e); st.at = Date.now();
+      if(!st.doc) body.innerHTML = _ntErrorHtml(st.err);
+      _dcStamp(cfg, '갱신 실패', true);
+    }finally{
+      st.loading = false;
+    }
+  }
+  function _dcReload(cfg){
+    _dcStamp(cfg, '불러오는 중…');
+    return _dcLoadMirror(cfg, true);
+  }
+  function dcNotionReload(){ return _dcReload(DC_LINKS.notion); }
+  function dcCalReload(){ return _dcReload(DC_LINKS.calendar); }
+  function _dcRefreshMirrors(force){
+    for(const k of ['notion','calendar']){
+      const cfg = DC_LINKS[k];
+      if(!_dcState[cfg.stateKey]) continue;
+      const st = _dcMirrorState(cfg);
+      if(force || !st.doc || (Date.now()-st.at) > DC_MIRROR_POLL) _dcLoadMirror(cfg, false);
+    }
+  }
+
+  /* ----- 노션 블록 → HTML ----- */
+  function _ntEsc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function _ntHref(u){
+    const s = String(u||'').trim();
+    return /^https?:\/\//i.test(s) ? s : '';
+  }
+  function _ntColor(c){
+    const m = String(c||'').match(/^([a-z]+)(_background)?$/);
+    if(!m) return '';
+    return m[2] ? 'nt-bg-'+m[1] : 'nt-c-'+m[1];
+  }
+  function _ntRich(rich){
+    let out = '';
+    for(const n of (rich||[])){
+      let t = _ntEsc(n.t);
+      if(!t) continue;
+      if(n.c) t = `<code class="nt-code-inline">${t}</code>`;
+      if(n.b) t = `<b>${t}</b>`;
+      if(n.i) t = `<i>${t}</i>`;
+      if(n.s) t = `<s>${t}</s>`;
+      if(n.u) t = `<u>${t}</u>`;
+      const cls = _ntColor(n.h);
+      if(cls) t = `<span class="${cls}">${t}</span>`;
+      const href = _ntHref(n.a);
+      if(href) t = `<a class="nt-link" href="${_ntEsc(href)}" target="_blank" rel="noopener noreferrer">${t}</a>`;
+      out += t;
+    }
+    return out;
+  }
+  function _ntBlocks(blocks){
+    const arr = Array.isArray(blocks) ? blocks : [];
+    const out = [];
+    let i = 0;
+    while(i < arr.length){
+      const kind = arr[i] && arr[i].type;
+      if(kind==='bullet' || kind==='number'){
+        const tag = kind==='number' ? 'ol' : 'ul';
+        const items = [];
+        while(i < arr.length && arr[i].type===kind){
+          const b = arr[i];
+          const cls = _ntColor(b.color);
+          items.push(`<li class="nt-li${cls?' '+cls:''}">${_ntRich(b.rich)}${_ntBlocks(b.children)}</li>`);
+          i++;
+        }
+        out.push(`<${tag} class="nt-list">${items.join('')}</${tag}>`);
+        continue;
+      }
+      out.push(_ntBlock(arr[i]));
+      i++;
+    }
+    return out.join('');
+  }
+  function _ntBlock(b){
+    if(!b || !b.type) return '';
+    const kids = _ntBlocks(b.children);
+    const cls = _ntColor(b.color);
+    const c = cls ? ' '+cls : '';
+    const rich = _ntRich(b.rich);
+    switch(b.type){
+      case 'h1': return `<div class="nt-h1${c}">${rich}</div>${kids}`;
+      case 'h2': return `<div class="nt-h2${c}">${rich}</div>${kids}`;
+      case 'h3': return `<div class="nt-h3${c}">${rich}</div>${kids}`;
+      case 'p':  return `<div class="nt-p${c}">${rich}</div>${kids}`;
+      case 'quote': return `<div class="nt-quote${c}">${rich}</div>${kids}`;
+      case 'todo':
+        return `<div class="nt-todo${b.checked?' done':''}${c}">`
+             + `<input type="checkbox" tabindex="-1" ${b.checked?'checked':''} disabled/>`
+             + `<span>${rich}</span></div>${kids}`;
+      case 'toggle':
+        return `<details class="nt-toggle" open><summary><span class="${cls||''}">${rich}</span></summary>`
+             + `<div class="nt-toggle-body">${kids}</div></details>`;
+      case 'callout':
+        return `<div class="nt-callout${c}"><span>${_ntEsc(b.icon||'💡')}</span>`
+             + `<div class="nt-callout-body">${rich}${kids}</div></div>`;
+      case 'divider': return '<hr class="nt-divider"/>';
+      case 'code':
+        return `<pre class="nt-code">${_ntEsc(b.text)}</pre>`;
+      case 'columns':
+        return `<div class="nt-cols">${kids}</div>`;
+      case 'column': {
+        const r = Number(b.ratio)||0;
+        const style = r>0 ? ` style="flex:${r.toFixed(4)} 1 0%"` : '';
+        return `<div class="nt-col"${style}>${kids}</div>`;
+      }
+      case 'image': {
+        const src = _ntHref(b.src);
+        if(!src) return '';
+        return `<div class="nt-img"><img src="${_ntEsc(src)}" alt="${_ntEsc(b.caption||'')}" loading="lazy"/>`
+             + (b.caption?`<div class="nt-cap">${_ntEsc(b.caption)}</div>`:'') + '</div>';
+      }
+      case 'bookmark': case 'file': {
+        const href = _ntHref(b.href);
+        const label = rich || _ntEsc(b.href||'');
+        if(!href) return label ? `<div class="nt-p">${label}</div>` : '';
+        return `<a class="nt-bookmark" href="${_ntEsc(href)}" target="_blank" rel="noopener noreferrer">🔗 ${label}</a>`;
+      }
+      case 'subpage': {
+        const href = _ntHref(b.href);
+        const label = `${_ntEsc(b.icon||'📄')} ${rich||'하위 페이지'}`;
+        return href ? `<a class="nt-subpage" href="${_ntEsc(href)}" target="_blank" rel="noopener noreferrer">${label}</a>`
+                    : `<div class="nt-subpage">${label}</div>`;
+      }
+      case 'table': return _ntTable(b);
+      default: return rich ? `<div class="nt-p${c}">${rich}</div>${kids}` : kids;
+    }
+  }
+  function _ntTable(b){
+    const cols = Array.isArray(b.columns) ? b.columns : [];
+    const rows = Array.isArray(b.rows) ? b.rows : [];
+    const href = _ntHref(b.href);
+    const head = `<div class="nt-table-name">📊 ${_ntEsc(b.name||'데이터베이스')}`
+      + `<span class="nt-badge">${rows.length}건</span>`
+      + (href?` <a class="nt-link" href="${_ntEsc(href)}" target="_blank" rel="noopener noreferrer">노션에서 열기</a>`:'')
+      + '</div>';
+    if(!cols.length) return `<div class="nt-table-wrap">${head}<div class="nt-empty-rows">항목이 없습니다</div></div>`;
+    const th = cols.map(c=>`<th>${_ntEsc(c.name)}</th>`).join('');
+    const tr = rows.map(r=>{
+      const cells = Array.isArray(r.cells) ? r.cells : [];
+      return '<tr>' + cols.map((c,i)=>`<td>${_ntCell(cells[i])}</td>`).join('') + '</tr>';
+    }).join('');
+    const bodyHtml = rows.length ? `<tbody>${tr}</tbody>`
+      : '<tbody><tr><td class="nt-empty-rows" colspan="'+cols.length+'">항목이 없습니다</td></tr></tbody>';
+    return `<div class="nt-table-wrap">${head}<table class="nt-table"><thead><tr>${th}</tr></thead>${bodyHtml}</table></div>`;
+  }
+  function _ntCell(cell){
+    if(!cell) return '';
+    if(Array.isArray(cell.tags) && cell.tags.length){
+      return cell.tags.map(t=>`<span class="nt-tag">${_ntEsc(t)}</span>`).join('');
+    }
+    if('checked' in cell) return cell.checked ? '☑' : '☐';
+    return _ntEsc(cell.text||'');
+  }
+  function _ntRenderDoc(doc){
+    const icon = doc.icon && doc.icon.length<=8 ? `<span>${_ntEsc(doc.icon)}</span>` : '';
+    return `<div class="nt-doc"><div class="nt-doc-title">${icon}<span>${_ntEsc(doc.title||'')}</span></div>`
+         + _ntBlocks(doc.blocks) + '</div>';
+  }
+  function _ntSkeleton(){
+    const bars = ['60%','92%','84%','40%','96%','78%','88%','52%'];
+    return '<div class="nt-skel">' + bars.map(w=>`<i style="width:${w}"></i>`).join('') + '</div>';
+  }
+  function _ntErrorHtml(msg){
+    return '<div class="dc-notion-err"><b>노션 내용을 가져오지 못했습니다</b>'
+      + _ntEsc(msg)
+      + '<br/><br/>노션에서 해당 페이지 <b>공유 → 웹에서 검색 허용 없이 “링크가 있는 모든 사용자에게 표시”</b> 로 열려 있는지,'
+      + ' 그리고 서버 PC 프록시가 켜져 있는지 확인해주세요.</div>';
   }
   async function _dcEditLink(cfg){
     if(typeof isMaster==='function' && !isMaster()){
@@ -16308,6 +16604,7 @@
       if(_dcCurTabIsCoferry() && !document.getElementById('viewDesign')?.hidden){
         _dcPollCmts();
         _dcFlushPending();
+        _dcRefreshMirrors(false);
       }
     }, 12000);
   }
@@ -16318,10 +16615,11 @@
       if(document.visibilityState==='visible' && _dcCurTabIsCoferry()){
         _dcPollCmts();
         _dcFlushPending();
+        _dcRefreshMirrors(false);
       }
     });
     window.addEventListener('online', ()=>{
-      if(_dcCurTabIsCoferry()){ _dcPollCmts(); _dcFlushPending(); }
+      if(_dcCurTabIsCoferry()){ _dcPollCmts(); _dcFlushPending(); _dcRefreshMirrors(false); }
     });
   }
   function dcInit(){
@@ -16330,7 +16628,7 @@
     const master = (typeof isMaster==='function' && isMaster());
     const nEdit = document.getElementById('dcNotionEditBtn'); if(nEdit) nEdit.hidden = !master;
     const cEdit = document.getElementById('dcCalEditBtn');    if(cEdit) cEdit.hidden = !master;
-    // 로컬 캐시로 즉시 iframe & 리스트 표시
+    // 로컬 캐시로 즉시 미러 로드 & 리스트 표시
     dcApplyNotionUrl(_dcState.notionUrl);
     dcApplyCalendarUrl(_dcState.calUrl);
     dcCmtRender();
