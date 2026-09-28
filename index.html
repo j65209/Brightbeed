@@ -4264,6 +4264,8 @@
     color:var(--text-3);font-weight:500;
   }
   .sub-modules-eyebrow .folder-meta b{color:var(--text-1);font-weight:600}
+  .sub-modules-eyebrow .folder-meta-upd{color:var(--text-2);font-weight:600;cursor:help}
+  .sub-modules-eyebrow .folder-meta-upd.is-stale{color:#b45309}
   @media(max-width:600px){
     .sub-modules-section{padding:14px 14px 16px;margin:20px auto 32px}
     .sub-modules-eyebrow{
@@ -8353,10 +8355,11 @@
     .diary-me-badge-topbar{font-size:11.5px !important;padding:0 !important;gap:5px !important;background:transparent !important;border:none !important}
     .diary-me-badge-topbar::after{margin-left:4px;margin-right:2px;height:14px}
     .role-badge{display:none}
-    /* 동기화 pill·재시작 버튼은 브랜드·에이전트 자리 확보 위해 모바일 숨김 */
+    /* 동기화 pill 만 모바일 숨김 — 새로고침 버튼은 남긴다 (모바일에서 캐시 때문에 제일 자주 쓰임) */
     .status-pill{display:none}
-    #hardReloadBtn{display:none}
     .icon-btn{width:28px;height:28px}
+    #hardReloadBtn{width:28px;height:28px;background:var(--bg-2);border-color:var(--line)}
+    #hardReloadBtn svg{width:15px;height:15px}
 
     /* 히어로 — 카드형 (모바일은 1열 stack) */
     .hero-row{gap:10px;margin-bottom:22px}
@@ -8684,7 +8687,7 @@
       <div class="sub-modules-eyebrow">
         <span class="folder-icon">📱</span>
         <span class="folder-label">메타 광고 분석 리포트</span>
-        <span class="folder-meta">Facebook Marketing API · 성과 + 자동 피드백</span>
+        <span class="folder-meta">Facebook Marketing API · 성과 + 자동 피드백<span class="folder-meta-upd" id="metaadsUpdated"></span></span>
       </div>
       <div class="sub-modules">
         <div class="sub-module m-metaads m-metaads-6a" onclick="openMetaAdsReport('6a')">
@@ -24091,7 +24094,7 @@
           // 오늘 집행 중이면 기본색, 미집행이면 흐리게
           subEl.style.color = (spend === 0) ? 'var(--text-3)' : '';
         }
-        _metaadsMeta[brand] = { ready:true, dateStr, roasText };
+        _metaadsMeta[brand] = { ready:true, dateStr, roasText, genAt:genDate };
         const adsFetchStatus = data.ads_fetch_status || 'ok';
         if(adsFetchStatus === 'failed'){
           tagEl.textContent = 'READY⚠';
@@ -24123,8 +24126,25 @@
     }
   }
 
-  function checkMetaAdsStatus(){
-    METAADS_BRANDS.forEach(b => _metaadsCheckOne(b.id));
+  /* 폴더 헤더 최신화 시각 — 브랜드별 generated_at 중 가장 최근.
+     배치가 멈춰도 카드 ROAS 는 옛 값 그대로라 티가 안 나므로 90분 넘으면 주황색으로 경고. */
+  function _metaadsRenderUpdated(){
+    const el = document.getElementById('metaadsUpdated');
+    if(!el) return;
+    const rows = METAADS_BRANDS
+      .map(b => ({ name:b.name, at:(_metaadsMeta[b.id]||{}).genAt }))
+      .filter(r => r.at instanceof Date && !isNaN(r.at))
+      .sort((a,b) => b.at - a.at);
+    if(!rows.length){ el.textContent=''; el.title=''; el.classList.remove('is-stale'); return; }
+    const newest = rows[0].at;
+    el.textContent = ` · 최신화 ${_metaadsFmtDate(newest)}`;
+    el.title = rows.map(r => `${r.name}  ${_metaadsFmtDate(r.at)}`).join('\n');
+    el.classList.toggle('is-stale', (Date.now() - newest.getTime()) > 90*60*1000);
+  }
+
+  async function checkMetaAdsStatus(){
+    await Promise.all(METAADS_BRANDS.map(b => _metaadsCheckOne(b.id)));
+    _metaadsRenderUpdated();
   }
   window.checkMetaAdsStatus = checkMetaAdsStatus;
 
