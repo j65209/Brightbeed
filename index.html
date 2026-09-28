@@ -3037,6 +3037,8 @@
   .mdw-save[data-state="pending"]{background:#fee2e2;color:#991b1b}
 
   .mdw-grid{display:grid;grid-template-columns:1fr 2.2fr .95fr;gap:14px;align-items:stretch}
+  /* 출근 도장은 김예은·대표만 본다 — 숨겨지면 빈 칸이 남지 않게 2열로 */
+  .mdw-grid.no-stamp{grid-template-columns:1fr 2.4fr}
   .mdw-card{
     background:var(--bg-1);border:1px solid var(--line);border-radius:12px;
     display:flex;flex-direction:column;min-height:250px;overflow:hidden;
@@ -10014,7 +10016,7 @@
         <span class="mdw-save" id="mdwSaveTag" data-state="saved" hidden></span>
       </div>
 
-      <div class="mdw-grid">
+      <div class="mdw-grid" id="mdwGrid">
         <section class="mdw-card">
           <div class="mdw-head">
             <span class="mdw-title">금일 업무 예정</span>
@@ -10033,7 +10035,7 @@
           <div class="mdw-body" id="mdwWeek"></div>
         </section>
 
-        <section class="mdw-card">
+        <section class="mdw-card" id="mdwStampCard" hidden>
           <div class="mdw-head">
             <span class="mdw-title">출근 도장</span>
             <span class="mdw-sub">김예은</span>
@@ -32791,8 +32793,11 @@
     document.getElementById('mdwWeekCnt').textContent = `${weekDone}/${weekTotal}`;
     document.getElementById('mdwWeekRange').textContent = `${monday.slice(5)} ~ ${days[4].slice(5)}`;
 
-    // ③ 출근 도장
-    document.getElementById('mdwStampBody').innerHTML = _mdwStampHtml(today);
+    // ③ 출근 도장 — 김예은·대표만 열람
+    const seeStamp = _mdwCanSeeStamp();
+    document.getElementById('mdwStampCard').hidden = !seeStamp;
+    document.getElementById('mdwGrid').classList.toggle('no-stamp', !seeStamp);
+    document.getElementById('mdwStampBody').innerHTML = seeStamp ? _mdwStampHtml(today) : '';
 
     // ④ 퇴근 업무 마무리
     const wrapList = _mdwListFor('wrap', today);
@@ -32814,6 +32819,13 @@
   }
 
   function _mdwAttId(staff, day){ return `${staff}|${day}` }
+  /* 출퇴근 기록은 본인(김예은)과 대표만 열람 — 나머지 팀원에게는 카드 자체를 감춘다 */
+  function _mdwCanSeeStamp(){
+    const me = _mdwMe();
+    if(!me) return false;
+    if(me === MDW_OWNER) return true;
+    try { return STAFF.some(s => s && s.ceo && s.name === me) } catch(e){ return false }
+  }
   function _mdwStampHtml(today){
     const owner = MDW_OWNER;
     const canStamp = !_mdwReadOnly;
