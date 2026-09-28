@@ -2923,7 +2923,11 @@
   }
 
   /* ===== 출금 요청서 (벤더팀 최하단, 전 벤더팀 + 대표) ===== */
-  .wr-section{margin-top:18px}
+  .wr-sep{
+    margin:40px 0 0;height:1px;
+    background:linear-gradient(90deg,transparent,#d5cfb8 16%,#d5cfb8 84%,transparent);
+  }
+  .wr-section{margin-top:26px}
   .wr-body{padding:14px 18px 18px}
   .wr-head-row{
     display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
@@ -2972,12 +2976,22 @@
   .wr-hint{font-size:11.5px;color:#78716c;margin-right:auto;letter-spacing:-.01em}
   .wr-batch{
     margin-top:14px;padding:14px 16px;border:1px solid #e7e2ce;border-radius:12px;background:#fefbf3;
-    display:flex;flex-direction:column;gap:10px;
   }
   .wr-batch-head{
     display:flex;flex-wrap:wrap;align-items:center;gap:8px;
     font-size:12.5px;color:#44403c;font-weight:600;letter-spacing:-.01em;
+    cursor:pointer;list-style:none;
   }
+  .wr-batch-head::-webkit-details-marker{display:none}
+  .wr-batch-caret{
+    color:#a8a29e;font-size:10px;line-height:1;flex-shrink:0;
+    transition:transform .14s ease;
+  }
+  .wr-batch[open] > .wr-batch-head .wr-batch-caret{transform:rotate(90deg)}
+  .wr-batch-body{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  /* 송금완료건은 접힌 채로 조용히 — 진행 중 요청에 눈이 먼저 가도록 */
+  .wr-batch.is-done{background:#fafaf9;border-color:#ebe8e0}
+  .wr-batch.is-done:not([open]) > .wr-batch-head{opacity:.72}
   .wr-batch-status{
     display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
     font-size:11px;font-weight:700;letter-spacing:-.01em;
@@ -10231,6 +10245,8 @@
         </div>
       </div>
     </div>
+
+    <div class="wr-sep" aria-hidden="true"></div>
 
     <!-- 출금 요청서 (벤더팀 · 대표에게 알림) -->
     <div class="po-section wr-section" id="wrSection">
@@ -28927,25 +28943,30 @@
           <div></div>
         `;
       }).join('');
+      const rowCount = rows.length;
       return `
-        <div class="wr-batch">
-          <div class="wr-batch-head">
+        <details class="wr-batch${isDone?' is-done':''}"${isDone?'':' open'}>
+          <summary class="wr-batch-head">
+            <span class="wr-batch-caret">▶</span>
             <span class="wr-batch-status ${badgeCls}"><span class="wr-batch-dot"></span>${badgeText}</span>
             <span>요청자 <b>${_esc(b.requested_by||'-')}</b></span>
             <span style="color:#78716c">· ${tsLabel}</span>
+            <span style="color:#a8a29e">· ${rowCount}건</span>
             <span class="wr-batch-total">${_wrFmtWon(total)}</span>
+          </summary>
+          <div class="wr-batch-body">
+            <div class="wr-batch-list-inline">
+              <div class="wr-cell-th">은행</div>
+              <div class="wr-cell-th">계좌번호</div>
+              <div class="wr-cell-th" style="text-align:right">금액</div>
+              <div class="wr-cell-th">예금주</div>
+              <div class="wr-cell-th">비고</div>
+              <div></div>
+              ${rowsHtml}
+            </div>
+            ${actionsHtml}
           </div>
-          <div class="wr-batch-list-inline">
-            <div class="wr-cell-th">은행</div>
-            <div class="wr-cell-th">계좌번호</div>
-            <div class="wr-cell-th" style="text-align:right">금액</div>
-            <div class="wr-cell-th">예금주</div>
-            <div class="wr-cell-th">비고</div>
-            <div></div>
-            ${rowsHtml}
-          </div>
-          ${actionsHtml}
-        </div>
+        </details>
       `;
     }).join('');
   }
