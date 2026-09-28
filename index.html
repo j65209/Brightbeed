@@ -3127,14 +3127,11 @@
     font-variant-numeric:tabular-nums;
   }
   .mdw-time:focus{outline:none;border-color:var(--neon-md)}
-  .mdw-team{border-top:1px dashed var(--line);margin-top:3px;padding-top:9px;display:flex;flex-direction:column;gap:4px}
-  .mdw-team-cap{font-size:10.5px;font-weight:800;color:#b8b2a3;letter-spacing:.04em;margin-bottom:2px}
-  .mdw-team-row{display:flex;align-items:center;gap:7px;font-size:12px;padding:1px 2px;border-radius:5px}
-  .mdw-team-row.is-me{background:var(--accent-soft)}
-  .mdw-team-name{font-weight:700;color:var(--text-2);width:48px;flex:0 0 auto}
-  .mdw-team-t{font-variant-numeric:tabular-nums;color:var(--text-3);font-weight:600}
-  .mdw-team-t.is-none{color:#cbc5b8;font-weight:500}
-  .mdw-team-sep{color:#d8d2c3}
+  .mdw-time:disabled{background:var(--bg-2);color:var(--text-3);border-style:dashed;cursor:default}
+  .mdw-note{
+    font-size:11.5px;line-height:1.55;color:var(--text-3);
+    background:var(--bg-2);border:1px dashed var(--line-2);border-radius:8px;padding:7px 9px;
+  }
   .mdw-log{margin-top:9px}
   .mdw-log > summary{
     font-size:11.5px;font-weight:800;color:var(--text-3);cursor:pointer;
@@ -10013,6 +10010,7 @@
         <section class="mdw-card">
           <div class="mdw-head">
             <span class="mdw-title">출근 도장</span>
+            <span class="mdw-sub">김예은</span>
           </div>
           <div class="mdw-body" id="mdwStampBody"></div>
         </section>
@@ -32557,6 +32555,7 @@
   const MDW_ROWS_KEY  = 'brightbeed_mdw_rows_v1';
   const MDW_SCOPE_DAYS = 60;          // 이 기간의 행을 불러온다 (지난 주 주간 리스트 포함)
   const MDW_TABLES = {item:'md_items', att:'md_attendance'};
+  const MDW_STAMP_OWNER = '김예은';    // 출퇴근 도장은 이 사람만 · 나머지는 열람만
   let _mdwRows  = {item:{}, att:{}};  // 서버에서 받은 행
   let _mdwQueue = {item:{}, att:{}};  // 아직 못 보낸 행
   let _mdwLoaded = false;
@@ -32775,7 +32774,8 @@
 
     if(!me){
       const ask = `<div class="mdw-empty">위에서 <b>내 이름</b>을 먼저 선택해 주세요.</div>`;
-      ['mdwToday','mdwWeek','mdwStampBody','mdwWrapBody'].forEach(id=>{ document.getElementById(id).innerHTML = ask });
+      ['mdwToday','mdwWeek','mdwWrapBody'].forEach(id=>{ document.getElementById(id).innerHTML = ask });
+      document.getElementById('mdwStampBody').innerHTML = _mdwStampHtml('', today);
       ['mdwTodayCnt','mdwWeekCnt','mdwWrapCnt'].forEach(id=>{ document.getElementById(id).textContent = '0' });
       return;
     }
@@ -32807,7 +32807,7 @@
     document.getElementById('mdwWeekRange').textContent = `${monday.slice(5)} ~ ${days[4].slice(5)}`;
 
     // ③ 출근 도장
-    document.getElementById('mdwStampBody').innerHTML = _mdwStampHtml(me, today, staff);
+    document.getElementById('mdwStampBody').innerHTML = _mdwStampHtml(me, today);
 
     // ④ 퇴근 업무 마무리
     const wrapList = _mdwListFor('wrap', today, me);
@@ -32827,49 +32827,39 @@
   }
 
   function _mdwAttId(staff, day){ return `${staff}|${day}` }
-  function _mdwStampHtml(me, today, staff){
-    const att = _mdwGet('att', _mdwAttId(me, today));
+  function _mdwStampHtml(me, today){
+    const owner = MDW_STAMP_OWNER;
+    const canStamp = me === owner;
+    const att = _mdwGet('att', _mdwAttId(owner, today));
     const cin = (att && att.check_in) || '', cout = (att && att.check_out) || '';
-    const teamRows = staff.map(n=>{
-      const a = _mdwGet('att', _mdwAttId(n, today));
-      const i = (a && a.check_in) || '', o = (a && a.check_out) || '';
-      return `<div class="mdw-team-row${n===me?' is-me':''}">
-        <span class="mdw-team-name">${_esc(n)}</span>
-        <span class="mdw-team-t${i?'':' is-none'}">${_esc(i || '–')}</span>
-        <span class="mdw-team-sep">›</span>
-        <span class="mdw-team-t${o?'':' is-none'}">${_esc(o || '–')}</span>
-      </div>`;
-    }).join('');
+    const off = canStamp ? '' : ' disabled';
     return `<div class="mdw-stamp">
-      <button type="button" class="mdw-stamp-btn" onclick="mdwStamp('in')"${cin?' disabled':''}>
+      <button type="button" class="mdw-stamp-btn" onclick="mdwStamp('in')"${cin||!canStamp?' disabled':''}>
         ${cin ? `출근 ${_esc(cin)} 찍음` : '🖐 출근 도장 찍기'}
       </button>
       <div class="mdw-stamp-row">
         <span class="mdw-stamp-lab">출근</span>
-        <input type="time" class="mdw-time" value="${_esc(cin)}" onchange="mdwSetTime('in', this.value)">
+        <input type="time" class="mdw-time" value="${_esc(cin)}" onchange="mdwSetTime('in', this.value)"${off}>
       </div>
-      <button type="button" class="mdw-stamp-btn is-out" onclick="mdwStamp('out')"${cout?' disabled':''}>
+      <button type="button" class="mdw-stamp-btn is-out" onclick="mdwStamp('out')"${cout||!canStamp?' disabled':''}>
         ${cout ? `퇴근 ${_esc(cout)} 찍음` : '🌙 퇴근 도장 찍기'}
       </button>
       <div class="mdw-stamp-row">
         <span class="mdw-stamp-lab">퇴근</span>
-        <input type="time" class="mdw-time" value="${_esc(cout)}" onchange="mdwSetTime('out', this.value)">
+        <input type="time" class="mdw-time" value="${_esc(cout)}" onchange="mdwSetTime('out', this.value)"${off}>
       </div>
-      <div class="mdw-team">
-        <div class="mdw-team-cap">오늘 MD팀 현황</div>
-        ${teamRows}
-      </div>
+      ${canStamp ? '' : `<div class="mdw-note">출퇴근 도장은 <b>${_esc(owner)}</b> 님만 찍을 수 있습니다. 기록은 열람만 가능합니다.</div>`}
       <details class="mdw-log">
-        <summary>📅 이번 달 내 기록 보기</summary>
-        ${_mdwMonthLogHtml(me, today)}
+        <summary>📅 ${_esc(owner)} 이번 달 기록 보기</summary>
+        ${_mdwMonthLogHtml(owner, today)}
       </details>
     </div>`;
   }
-  function _mdwMonthLogHtml(me, today){
+  function _mdwMonthLogHtml(who, today){
     const month = today.slice(0,7);
     const m = _mdwMerged('att');
     const rows = Object.keys(m).map(id=>m[id])
-      .filter(r => r && !r.deleted_at && r.staff_name === me && String(r.day||'').startsWith(month) && (r.check_in || r.check_out))
+      .filter(r => r && !r.deleted_at && r.staff_name === who && String(r.day||'').startsWith(month) && (r.check_in || r.check_out))
       .sort((a,b)=> a.day < b.day ? 1 : -1);
     if(!rows.length) return `<div class="mdw-empty">이번 달 기록이 없습니다.</div>`;
     return `<table class="mdw-log-tb">
@@ -32927,14 +32917,22 @@
     }
   }
   function mdwStamp(which){
-    const me = _mdwMe();
-    if(!me){ if(typeof toast==='function') toast('먼저 내 이름을 선택해 주세요.', 'err'); return; }
+    if(!_mdwCanStamp()) return;
     mdwSetTime(which, _mdwNowHM());
     if(typeof toast === 'function') toast(which === 'in' ? '출근 도장을 찍었습니다.' : '퇴근 도장을 찍었습니다.');
   }
-  function mdwSetTime(which, value){
+  function _mdwCanStamp(){
     const me = _mdwMe();
-    if(!me) return;
+    if(!me){ if(typeof toast==='function') toast('먼저 내 이름을 선택해 주세요.', 'err'); return false; }
+    if(me !== MDW_STAMP_OWNER){
+      if(typeof toast==='function') toast(`출퇴근 도장은 ${MDW_STAMP_OWNER} 님만 찍을 수 있습니다.`, 'err');
+      return false;
+    }
+    return true;
+  }
+  function mdwSetTime(which, value){
+    if(!_mdwCanStamp()){ mdwRender(true); return; }
+    const me = MDW_STAMP_OWNER;
     const day = _mdwToday(), id = _mdwAttId(me, day);
     const cur = _mdwGet('att', id) || {id, staff_name:me, day, check_in:'', check_out:'', note:'', deleted_at:null};
     const next = Object.assign({}, cur);
