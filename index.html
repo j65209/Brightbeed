@@ -9688,7 +9688,7 @@
     <div class="dsg-pane" data-pane="coferry" hidden>
       <div class="dc-notion-card">
         <div class="dc-notion-head">
-          <span class="dc-notion-title">📓 박시호 노션</span>
+          <span class="dc-notion-title">🤝 코페리 x 에이로봇</span>
           <span class="dc-notion-stamp" id="dcNotionStamp"></span>
           <span class="dc-notion-url" id="dcNotionUrlShow"></span>
           <div class="dc-notion-actions">
@@ -9700,11 +9700,11 @@
         <div class="dc-notion-frame">
           <div class="dc-notion-body" id="dcNotionBody"></div>
           <div class="dc-notion-empty" id="dcNotionEmpty">
-            <div class="dc-notion-empty-icon">📓</div>
+            <div class="dc-notion-empty-icon">🤝</div>
             <div class="dc-notion-empty-title">노션 링크가 아직 등록되지 않았어요</div>
             <div class="dc-notion-empty-sub">
               마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
-              박시호 디자이너의 노션 페이지 URL 을 넣어주세요.<br/>
+              코페리 x 에이로봇 노션 페이지 URL 을 넣어주세요.<br/>
               노션에서 <b>공유 → 링크가 있는 모든 사용자</b> 로 열어두어야 내용이 보입니다.
             </div>
           </div>
@@ -9713,23 +9713,23 @@
 
       <div class="dc-notion-card">
         <div class="dc-notion-head">
-          <span class="dc-notion-title">🗓 박시호 노션 캘린더</span>
+          <span class="dc-notion-title">📓 업무일지</span>
           <span class="dc-notion-stamp" id="dcCalStamp"></span>
           <span class="dc-notion-url" id="dcCalUrlShow"></span>
           <div class="dc-notion-actions">
             <button class="dc-btn-ghost" id="dcCalReloadBtn" onclick="dcCalReload()" hidden title="노션에서 다시 가져오기">🔄 새로고침</button>
             <button class="dc-btn-ghost" id="dcCalOpenBtn" onclick="dcCalOpenNew()" hidden title="노션에서 열기">↗ 노션</button>
-            <button class="dc-btn-ghost" id="dcCalEditBtn" onclick="dcCalEdit()" hidden title="캘린더 링크 편집(마스터)">⚙ 링크</button>
+            <button class="dc-btn-ghost" id="dcCalEditBtn" onclick="dcCalEdit()" hidden title="업무일지 링크 편집(마스터)">⚙ 링크</button>
           </div>
         </div>
         <div class="dc-notion-frame">
           <div class="dc-notion-body" id="dcCalBody"></div>
           <div class="dc-notion-empty" id="dcCalEmpty">
-            <div class="dc-notion-empty-icon">🗓</div>
-            <div class="dc-notion-empty-title">캘린더 링크가 아직 등록되지 않았어요</div>
+            <div class="dc-notion-empty-icon">📓</div>
+            <div class="dc-notion-empty-title">업무일지 링크가 아직 등록되지 않았어요</div>
             <div class="dc-notion-empty-sub">
               마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
-              박시호 노션 캘린더 URL 을 넣어주세요.
+              업무일지 노션 URL 을 넣어주세요.
             </div>
           </div>
         </div>
@@ -16106,8 +16106,9 @@
       bodyId:'dcNotionBody',  emptyId:'dcNotionEmpty',
       urlShowId:'dcNotionUrlShow', openBtnId:'dcNotionOpenBtn', editBtnId:'dcNotionEditBtn',
       reloadBtnId:'dcNotionReloadBtn', stampId:'dcNotionStamp',
-      promptTitle:'박시호 노션 페이지 URL',
-      toastLabel:'노션 링크'
+      expand:true,   // DB 각 행의 본문까지 통째로 받아온다
+      promptTitle:'코페리 x 에이로봇 노션 URL',
+      toastLabel:'코페리 x 에이로봇 링크'
     },
     calendar:{
       stateKey:'calUrl',      lsKey:DC_K.calUrl,   sbKey:'notion_calendar_url',
@@ -16115,8 +16116,8 @@
       urlShowId:'dcCalUrlShow', openBtnId:'dcCalOpenBtn', editBtnId:'dcCalEditBtn',
       reloadBtnId:'dcCalReloadBtn', stampId:'dcCalStamp',
       expand:true,   // DB 각 행(= 날짜별 업무일지) 본문까지 통째로 받아온다
-      promptTitle:'박시호 노션 캘린더 URL',
-      toastLabel:'캘린더 링크'
+      promptTitle:'업무일지 노션 URL',
+      toastLabel:'업무일지 링크'
     }
   };
   function _dcApplyLink(cfg, url){
@@ -16169,9 +16170,10 @@
     const body = document.getElementById(cfg.bodyId);
     if(!body || !url) return;
     const st = _dcMirrorState(cfg);
-    if(st.loading) return;
+    // 로드 중에 링크가 바뀌거나 강제 새로고침이 들어오면 삼키지 말고 끝난 뒤 한 번 더 돈다
+    if(st.loading){ if(force || st.url !== url) st.requeue = true; return; }
     if(!force && st.doc && (Date.now()-st.at) < DC_MIRROR_GATE) return;
-    st.loading = true;
+    st.loading = true; st.url = url; st.requeue = false;
     if(!st.doc) body.innerHTML = _ntSkeleton();
     _dcStamp(cfg, '불러오는 중…');
     try{
@@ -16181,6 +16183,7 @@
       const r = await fetch(q, {headers:{'X-Brightbeed-PIN':ghPin()}, cache:'no-cache'});
       const j = await r.json().catch(()=>null);
       if(!r.ok || !j || j.ok!==true) throw new Error((j && (j.detail||j.error)) || ('HTTP '+r.status));
+      if(_dcState[cfg.stateKey] !== url){ st.requeue = true; return; }   // 응답 도착 전에 링크가 바뀜
       st.doc = j; st.err = null; st.at = Date.now();
       // 내용이 그대로면 innerHTML 을 건드리지 않는다 — 스크롤·펼침 상태 보존
       const sig = (j.title||'') + '|' + JSON.stringify(j.blocks||[]);
@@ -16192,6 +16195,7 @@
       _dcStamp(cfg, '갱신 실패', true);
     }finally{
       st.loading = false;
+      if(st.requeue){ st.requeue = false; _dcLoadMirror(cfg, true); }
     }
   }
   function _dcReload(cfg){
