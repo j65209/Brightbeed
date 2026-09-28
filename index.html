@@ -3036,7 +3036,7 @@
   .mdw-save[data-state="saving"]{background:#fef3c7;color:#78350f}
   .mdw-save[data-state="pending"]{background:#fee2e2;color:#991b1b}
 
-  .mdw-grid{display:grid;grid-template-columns:1fr 1.75fr 1fr;gap:14px;align-items:stretch}
+  .mdw-grid{display:grid;grid-template-columns:1fr 2.2fr .95fr;gap:14px;align-items:stretch}
   .mdw-card{
     background:var(--bg-1);border:1px solid var(--line);border-radius:12px;
     display:flex;flex-direction:column;min-height:250px;overflow:hidden;
@@ -3055,20 +3055,20 @@
   }
   .mdw-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
 
-  .mdw-item{display:flex;align-items:center;gap:7px;border-radius:7px;padding:1px 3px}
+  .mdw-item{display:flex;align-items:flex-start;gap:7px;border-radius:7px;padding:1px 3px}
   .mdw-item:hover{background:var(--bg-2)}
-  .mdw-chk{width:15px;height:15px;flex:0 0 auto;cursor:pointer;accent-color:var(--neon-md)}
+  .mdw-chk{width:15px;height:15px;flex:0 0 auto;cursor:pointer;accent-color:var(--neon-md);margin-top:8px}
   .mdw-text{
     flex:1;min-width:0;border:none;background:transparent;font:inherit;font-size:13px;
     color:var(--text-1);padding:5px 2px;outline:none;border-bottom:1px solid transparent;
-    letter-spacing:-.01em;
+    letter-spacing:-.01em;resize:none;overflow:hidden;line-height:1.5;display:block;
   }
   .mdw-text::placeholder{color:#cbc5b8}
   .mdw-text:focus{border-bottom-color:var(--neon-md);background:#fff6f9}
   .mdw-item.is-done .mdw-text{text-decoration:line-through;color:#a8a29e}
   .mdw-del{
     border:none;background:transparent;color:#cbc5b8;cursor:pointer;
-    width:22px;height:22px;border-radius:999px;font-size:13px;flex:0 0 auto;opacity:0;
+    width:22px;height:22px;border-radius:999px;font-size:13px;flex:0 0 auto;opacity:0;margin-top:3px;
   }
   .mdw-item:hover .mdw-del,.mdw-item:focus-within .mdw-del{opacity:1}
   .mdw-del:hover{background:#fee2e2;color:#b91c1c}
@@ -3091,9 +3091,11 @@
   .mdw-day-head{display:flex;gap:4px;align-items:baseline;padding:0 3px 2px;font-size:11px;font-weight:800;color:var(--text-3)}
   .mdw-day.is-today .mdw-day-head{color:var(--neon-md)}
   .mdw-day-num{font-weight:600;color:#b8b2a3;font-variant-numeric:tabular-nums}
-  .mdw-day .mdw-text{font-size:12px;padding:4px 2px}
+  /* 요일 칸은 좁다 — 평소엔 3줄까지만 보이고 편집할 때 전체가 펼쳐진다 */
+  .mdw-day .mdw-text{font-size:12px;padding:4px 2px;max-height:4.6em}
+  .mdw-day .mdw-text:focus{max-height:none}
   .mdw-day .mdw-add{font-size:11px;padding:4px 8px;margin-top:2px}
-  .mdw-day .mdw-chk{width:13px;height:13px}
+  .mdw-day .mdw-chk{width:13px;height:13px;margin-top:7px}
 
   /* 출근 도장 */
   .mdw-stamp{display:flex;flex-direction:column;gap:8px}
@@ -3138,15 +3140,51 @@
   /* 퇴근 마무리 — 전체폭이라 항목을 여러 열로 흘린다 */
   .mdw-wrapgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1px 20px}
 
+  .mdw-day-empty{padding:2px 4px;color:#d8d2c3}
+
+  /* 터치 기기는 hover 가 없다 — 삭제 버튼을 숨기면 아예 지울 수 없다 */
+  @media (hover:none){
+    .mdw-del{opacity:.55;width:30px;height:30px;font-size:14px}
+    .mdw-item:hover{background:transparent}
+  }
   @media (max-width:1100px){
     .mdw-grid{grid-template-columns:1fr}
     .mdw-card{min-height:0}
     .mdw-week{grid-template-columns:repeat(3,1fr)}
+    /* 아침에 제일 먼저 누르는 출근 도장을 맨 위로 */
+    .mdw-grid > .mdw-card:nth-child(3){order:-1}
+  }
+  @media (max-width:760px){
+    .mdw-week{grid-template-columns:repeat(2,1fr);gap:8px}
   }
   @media (max-width:640px){
-    .mdw-wrap{padding:0 10px}
-    .mdw-week{grid-template-columns:1fr}
+    .mdw-wrap{padding:0 12px;margin-bottom:16px}
+    .mdw-bar{gap:7px;margin-bottom:10px}
     .mdw-save{margin-left:0}
+    .mdw-ro{width:100%;text-align:center;padding:5px 10px}
+    .mdw-head{padding:10px 12px;gap:6px;flex-wrap:wrap}
+    .mdw-body{padding:9px 10px 12px}
+    /* iOS 는 16px 미만 입력칸에 포커스하면 화면을 확대한다 — 전부 16px 로 고정 */
+    .mdw-text,.mdw-day .mdw-text{font-size:16px;padding:8px 2px}
+    .mdw-time,.mdw-me{font-size:16px;padding:9px 10px}
+    .mdw-chk,.mdw-day .mdw-chk{width:19px;height:19px;margin-top:9px}
+    .mdw-item{gap:9px;padding:2px}
+    .mdw-del{opacity:.55;width:32px;height:32px;font-size:15px}
+    .mdw-add,.mdw-day .mdw-add{font-size:13px;padding:9px 13px;width:100%;text-align:center;align-self:stretch}
+    .mdw-stamp-btn{padding:15px 10px;font-size:15px}
+    .mdw-stamp-lab{width:34px;font-size:12.5px}
+    .mdw-log > summary{padding:8px 0;font-size:12.5px}
+    .mdw-log-tb{font-size:13px}
+    .mdw-log-tb th,.mdw-log-tb td{padding:7px 4px}
+    .mdw-wrapgrid{grid-template-columns:1fr;gap:0}
+  }
+  @media (max-width:1100px){
+    /* 1열로 펼쳐지면 요일 칸도 넓어진다 — 굳이 줄일 이유가 없다 */
+    .mdw-day .mdw-text{max-height:none;font-size:13px}
+  }
+  @media (max-width:430px){
+    .mdw-week{grid-template-columns:1fr}
+    .mdw-day{padding:8px 7px}
   }
 
   /* ===== 원천세 신고 · 정산 (벤더팀 최하단, 조혜인+대표 전용) ===== */
@@ -9989,6 +10027,7 @@
           <div class="mdw-head">
             <span class="mdw-title">주간 업무 리스트</span>
             <span class="mdw-sub" id="mdwWeekRange"></span>
+            <span class="mdw-sub">· 금일 예정이 자동 정리됩니다</span>
             <span class="mdw-head-right"><span class="mdw-cnt" id="mdwWeekCnt">0</span></span>
           </div>
           <div class="mdw-body" id="mdwWeek"></div>
@@ -32667,20 +32706,31 @@
       .filter(r => r && !r.deleted_at && r.kind === kind && r.day === day && r.staff_name === MDW_OWNER)
       .sort((a,b)=> (Number(a.pos||0) - Number(b.pos||0)) || (String(a.id) < String(b.id) ? -1 : 1));
   }
+  /* 내용은 textarea — 좁은 화면에서 긴 업무명이 잘리지 않고 줄바꿈된다 */
   function _mdwItemHtml(r){
     if(_mdwReadOnly){
       return `<div class="mdw-item is-ro${r.done ? ' is-done' : ''}">
         <input type="checkbox" class="mdw-chk"${r.done ? ' checked' : ''} disabled>
-        <input class="mdw-text" value="${_esc(r.text||'')}" readonly tabindex="-1">
+        <textarea class="mdw-text" rows="1" readonly tabindex="-1">${_esc(r.text||'')}</textarea>
       </div>`;
     }
     return `<div class="mdw-item${r.done ? ' is-done' : ''}" data-id="${_esc(r.id)}">
       <input type="checkbox" class="mdw-chk"${r.done ? ' checked' : ''} onchange="mdwToggle('${_esc(r.id)}')" title="완료">
-      <input class="mdw-text" value="${_esc(r.text||'')}" placeholder="내용을 입력하세요"
-             oninput="mdwEdit('${_esc(r.id)}', this.value)"
-             onkeydown="mdwKey(event, '${_esc(r.id)}')">
+      <textarea class="mdw-text" rows="1" placeholder="내용을 입력하세요"
+             oninput="mdwEdit('${_esc(r.id)}', this.value); _mdwAutosize(this)"
+             onkeydown="mdwKey(event, '${_esc(r.id)}')">${_esc(r.text||'')}</textarea>
       <button type="button" class="mdw-del" onclick="mdwDel('${_esc(r.id)}')" title="삭제">✕</button>
     </div>`;
+  }
+  function _mdwAutosize(el){
+    if(!el) return;
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight + 1) + 'px';
+  }
+  function _mdwAutosizeAll(){
+    const wrap = document.getElementById('mdwWrap');
+    if(!wrap || !wrap.offsetParent) return;   // 숨겨진 뷰는 scrollHeight 가 0 이라 높이를 망친다
+    wrap.querySelectorAll('.mdw-text').forEach(_mdwAutosize);
   }
   function _mdwAddHtml(kind, day, label){
     if(_mdwReadOnly) return '';
@@ -32724,18 +32774,18 @@
       + `<div class="mdw-spacer"></div>`
       + _mdwAddHtml('today', today, '＋ 항목 추가');
 
-    // ② 주간 업무 리스트 (월~금)
+    // ② 주간 업무 리스트 (월~금) — 같은 'today' 행을 날짜별로 펼친 것이라 금일 예정이 그대로 정리된다
     const monday = _diaryWeekStart(today);
     const days = [0,1,2,3,4].map(i=>_mdwShift(monday, i));
     let weekTotal = 0, weekDone = 0;
     document.getElementById('mdwWeek').innerHTML = `<div class="mdw-week">` + days.map((day,i)=>{
-      const list = _mdwListFor('weekly', day);
+      const list = _mdwListFor('today', day);
       weekTotal += list.length; weekDone += list.filter(r=>r.done).length;
       const dd = day.slice(8);
       return `<div class="mdw-day${day===today?' is-today':''}">
         <div class="mdw-day-head"><span>${['월','화','수','목','금'][i]}</span><span class="mdw-day-num">${_esc(dd)}</span></div>
-        ${list.map(_mdwItemHtml).join('')}
-        ${_mdwAddHtml('weekly', day, '＋')}
+        ${list.length ? list.map(_mdwItemHtml).join('') : `<div class="mdw-empty mdw-day-empty">–</div>`}
+        ${_mdwAddHtml('today', day, '＋')}
       </div>`;
     }).join('') + `</div>`;
     document.getElementById('mdwWeekCnt').textContent = `${weekDone}/${weekTotal}`;
@@ -32753,6 +32803,8 @@
         ? `<div class="mdw-wrapgrid">${wrapList.map(_mdwItemHtml).join('')}</div>`
         : `<div class="mdw-empty">오늘 마무리한 일을 정리해 보세요.</div>`)
       + _mdwAddHtml('wrap', today, '＋ 항목 추가');
+
+    _mdwAutosizeAll();
 
     if(_mdwFocusId){
       const el = document.querySelector(`.mdw-item[data-id="${CSS.escape(_mdwFocusId)}"] .mdw-text`);
