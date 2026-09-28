@@ -1398,19 +1398,6 @@
     .lg-brand-pill{padding:5px 12px;font-size:11.5px}
   }
 
-  /* MD팀 뷰에서는 ＋ / 삭제 / ▲▼ 버튼을 hover 없이 항상 노출 (사장님 요청). */
-  #viewMd .dsg-blk > .dsg-blk-plus,
-  #viewMd .dsg-blk > .dsg-blk-del,
-  #viewMd .dsg-blk > .dsg-blk-move,
-  #viewMd .dsg-sec-plus,
-  #viewMd .dsg-sec-head .dsg-blk-move,
-  #viewMd .dsg-sec-head .dsg-blk-del{ opacity:.7 }
-  #viewMd .dsg-blk > .dsg-blk-plus:hover,
-  #viewMd .dsg-blk > .dsg-blk-del:hover,
-  #viewMd .dsg-sec-plus:hover,
-  #viewMd .dsg-sec-head .dsg-blk-del:hover,
-  #viewMd .dsg-blk-move .dsg-blk-move-btn:hover{ opacity:1 }
-
   /* ===== 발주 상품 카탈로그 (ar-*) — 3열 상품 카드 그리드 ===== */
   .ar-grid{
     display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
@@ -3128,10 +3115,12 @@
   }
   .mdw-time:focus{outline:none;border-color:var(--neon-md)}
   .mdw-time:disabled{background:var(--bg-2);color:var(--text-3);border-style:dashed;cursor:default}
-  .mdw-note{
-    font-size:11.5px;line-height:1.55;color:var(--text-3);
-    background:var(--bg-2);border:1px dashed var(--line-2);border-radius:8px;padding:7px 9px;
+  .mdw-ro{
+    font-size:11.5px;font-weight:700;color:var(--text-3);
+    background:var(--bg-2);border:1px dashed var(--line-2);border-radius:999px;padding:3px 10px;
   }
+  .mdw-item.is-ro .mdw-text{background:transparent;border-color:transparent;cursor:default}
+  .mdw-item.is-ro .mdw-chk{cursor:default}
   .mdw-log{margin-top:9px}
   .mdw-log > summary{
     font-size:11.5px;font-weight:800;color:var(--text-3);cursor:pointer;
@@ -9975,9 +9964,6 @@
         홈
       </button>
       <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전</span></h1>
-      <div class="dsg-head-actions" style="margin-left:auto">
-        <span class="dsg-save-tag" id="mdSaveTag" data-state="saved" title="작업보드 저장 상태 (GitHub 동기화)">✓ 저장됨</span>
-      </div>
     </div>
 
     <!-- ============ MD팀 업무 패널 — 금일 예정 / 주간 / 출근 도장 / 퇴근 마무리 ============ -->
@@ -9986,6 +9972,7 @@
         <span class="mdw-bar-lab">나는</span>
         <select class="mdw-me" id="mdwMe" onchange="mdwSetMe(this.value)"></select>
         <span class="mdw-date" id="mdwDate"></span>
+        <span class="mdw-ro" id="mdwRoNote" hidden>🔒 김예은 전용 — 열람만 가능</span>
         <span class="mdw-save" id="mdwSaveTag" data-state="saved" hidden></span>
       </div>
 
@@ -10024,53 +10011,6 @@
         </div>
         <div class="mdw-body" id="mdwWrapBody"></div>
       </section>
-    </div>
-
-    <!-- ============ MD팀 작업 보드 — 노션 스타일 아웃라이너 ============ -->
-    <div class="dsg-pane md-doc-pane" style="padding:0 24px 6px;max-width:1400px;margin:0 auto 20px">
-      <div class="dsg-doc-toolbar">
-        <input id="mdDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
-        <label class="dsg-hide-done">
-          <input type="checkbox" id="mdDocHideDone" onchange="dsgDocRender()">
-          <span>완료 숨김</span>
-        </label>
-        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="mdFsPicker" title="글꼴 크기 (8~28px)">
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
-          <input class="dsg-fs-num" id="mdFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
-          <span class="dsg-fs-suffix">px</span>
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
-        </div>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
-          펼치기
-        </button>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
-          접기
-        </button>
-      </div>
-      <div id="mdBoardWrap" class="dsg-doc-wrap">
-        <div class="dsg-empty" id="mdEmpty" hidden>
-          <div class="dsg-empty-icon">📝</div>
-          <div class="dsg-empty-title">아직 작업이 없어요</div>
-          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작하세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
-        </div>
-        <div id="mdDoc" class="dsg-doc"></div>
-        <div class="dsg-doc-add" id="mdDocAdd">
-          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
-            <span class="dsg-doc-add-plus">＋</span>
-            <span>여기에 입력하세요</span>
-          </button>
-          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
-            새 섹션
-          </button>
-        </div>
-        <div class="dsg-doc-hint">
-          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
-          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
-        </div>
-      </div>
     </div>
 
     <div class="po-wrap">
@@ -14070,9 +14010,7 @@
       if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{});
     }
     if(id==='viewMd'){
-      _dsgActiveBoard = 'md';
       if(typeof mdwInit==='function') mdwInit();
-      if(typeof dsgInit==='function') dsgInit();
       if(typeof renderMdCal==='function') renderMdCal();
       if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
       if(typeof akpInit==='function'){
@@ -14924,8 +14862,7 @@
        · 레퍼런스: 붙여넣기(Cmd+V) · 드래그&드롭 · 카테고리(board) · 핀 고정 · 태그 · 원본 링크 */
   const DSG_DOC_KEYS  = {
     design:       'brightbeed_design_doc_v1',
-    cs:           'brightbeed_cs_doc_v1',
-    md:           'brightbeed_md_doc_v1'
+    cs:           'brightbeed_cs_doc_v1'
   };
   const DSG_DOC_KEY   = DSG_DOC_KEYS.design;           // legacy alias (기존 참조 유지)
   function _dsgDocKey(){ return DSG_DOC_KEYS[_dsgActiveBoard] || DSG_DOC_KEYS.design; }
@@ -14965,13 +14902,11 @@
   /* 원격 진실 저장소 — GitHub 리포 (업무일지와 동일 패턴) */
   const DSG_DOC_PATHS = {
     design:       'data/design_doc.json',
-    cs:           'data/cs_doc.json',
-    md:           'data/md_doc.json'
+    cs:           'data/cs_doc.json'
   };
   const DSG_DOC_LABELS = {
     design:       '디자인 문서',
-    cs:           'CS 작업보드',
-    md:           'MD 작업보드'
+    cs:           'CS 작업보드'
   };
   const DSG_DOC_PATH  = DSG_DOC_PATHS.design;          // legacy alias
   const DSG_REFS_PATH ='data/design_refs.json';
@@ -15008,8 +14943,7 @@
   let _dsgActiveBoard = 'design';
   const DSG_DOC_DOM = {
     design: { doc:'dsgDoc', empty:'dsgEmpty', search:'dsgDocSearch', hideDone:'dsgDocHideDone', fsPicker:'dsgFsPicker', fsNum:'dsgFsNum', badge:'dsgTabBoardBadge' },
-    cs:     { doc:'csDoc',  empty:'csEmpty',  search:'csDocSearch',  hideDone:'csDocHideDone',  fsPicker:'csFsPicker',  fsNum:'csFsNum',  badge:null                },
-    md:     { doc:'mdDoc',  empty:'mdEmpty',  search:'mdDocSearch',  hideDone:'mdDocHideDone',  fsPicker:'mdFsPicker',  fsNum:'mdFsNum',  badge:null                }
+    cs:     { doc:'csDoc',  empty:'csEmpty',  search:'csDocSearch',  hideDone:'csDocHideDone',  fsPicker:'csFsPicker',  fsNum:'csFsNum',  badge:null                }
   };
   function _dsgDocIds(){ return DSG_DOC_DOM[_dsgActiveBoard] || DSG_DOC_DOM.design; }
   let _dsgSaveTimer = null;
@@ -15058,8 +14992,7 @@
   function _dsgSetSaveState(state){
     const tags = [
       document.getElementById('dsgSaveTag'),
-      document.getElementById('csSaveTag'),
-      document.getElementById('mdSaveTag')
+      document.getElementById('csSaveTag')
     ].filter(Boolean);
     if(!tags.length) return;
     let text;
@@ -15120,7 +15053,7 @@
     if(!el || el===document.body) return false;
     const editable = el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'||el.isContentEditable;
     if(!editable) return false;
-    return !!el.closest('#viewDesign, #viewCs, #viewMd, .dsg-modal');
+    return !!el.closest('#viewDesign, #viewCs, .dsg-modal');
   }
 
   /* remote pull — doc 은 dirty 아니면 통째로 remote 로 갱신, dirty 면 로컬 유지 */
@@ -15266,8 +15199,6 @@
       dsgRefsRender();
       dsgPostsRender();
     } else if(!document.getElementById('viewCs')?.hidden){
-      dsgDocRender();
-    } else if(!document.getElementById('viewMd')?.hidden){
       dsgDocRender();
     }
   }
@@ -15458,8 +15389,6 @@
           dsgPostsRender();
           dsgDocRender();
         } else if(!document.getElementById('viewCs')?.hidden){
-          dsgDocRender();
-        } else if(!document.getElementById('viewMd')?.hidden){
           dsgDocRender();
         }
       }
@@ -15879,14 +15808,14 @@
   }
   function _dsgApplyFs(){
     /* 세 보드(디자인·CS·MD) doc 모두 반영 — 폰트 크기 pref 는 board 공유 */
-    ['dsgDoc','csDoc','mdDoc'].forEach(docId=>{
+    ['dsgDoc','csDoc'].forEach(docId=>{
       const doc = document.getElementById(docId);
       if(doc){
         doc.style.setProperty('--dsg-fs', _dsgFs+'px');
         doc.style.setProperty('--dsg-sec-fs', Math.max(14, _dsgFs+5)+'px');
       }
     });
-    ['dsgFsNum','csFsNum','mdFsNum'].forEach(inputId=>{
+    ['dsgFsNum','csFsNum'].forEach(inputId=>{
       const inp = document.getElementById(inputId);
       if(inp && document.activeElement!==inp) inp.value = _dsgFs;
     });
@@ -15911,7 +15840,7 @@
     _dsgFs = v;
     _dsgSaveFs();
     /* 입력 중이면 value 덮어쓰지 않고 모든 board doc CSS만 반영 (사장님 타이핑 방해 X) */
-    ['dsgDoc','csDoc','mdDoc'].forEach(docId=>{
+    ['dsgDoc','csDoc'].forEach(docId=>{
       const doc = document.getElementById(docId);
       if(doc){
         doc.style.setProperty('--dsg-fs', _dsgFs+'px');
@@ -32555,13 +32484,14 @@
   const MDW_ROWS_KEY  = 'brightbeed_mdw_rows_v1';
   const MDW_SCOPE_DAYS = 60;          // 이 기간의 행을 불러온다 (지난 주 주간 리스트 포함)
   const MDW_TABLES = {item:'md_items', att:'md_attendance'};
-  const MDW_STAMP_OWNER = '김예은';    // 출퇴근 도장은 이 사람만 · 나머지는 열람만
+  const MDW_OWNER = '김예은';         // 이 게시판의 주인 — 작성·도장 모두 이 사람만, 나머지는 열람만
   let _mdwRows  = {item:{}, att:{}};  // 서버에서 받은 행
   let _mdwQueue = {item:{}, att:{}};  // 아직 못 보낸 행
   let _mdwLoaded = false;
   let _mdwFlushTimer = null, _mdwFlushing = false, _mdwFlushFail = 0, _mdwFlushWarned = false;
   let _mdwPollTimer = null, _mdwChans = [], _mdwStarted = false;
   let _mdwRenderDeferred = false, _mdwFocusId = '';
+  let _mdwReadOnly = true;            // 주인이 아니면 열람 전용 (렌더마다 갱신)
 
   function _mdwUid(){ return 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6) }
   function _mdwToday(){ return _diaryTodayStr() }
@@ -32731,13 +32661,19 @@
   }
 
   /* ── 렌더 ────────────────────────────────────────────────────────────── */
-  function _mdwListFor(kind, day, staff){
+  function _mdwListFor(kind, day){
     const m = _mdwMerged('item');
     return Object.keys(m).map(id=>m[id])
-      .filter(r => r && !r.deleted_at && r.kind === kind && r.day === day && r.staff_name === staff)
+      .filter(r => r && !r.deleted_at && r.kind === kind && r.day === day && r.staff_name === MDW_OWNER)
       .sort((a,b)=> (Number(a.pos||0) - Number(b.pos||0)) || (String(a.id) < String(b.id) ? -1 : 1));
   }
   function _mdwItemHtml(r){
+    if(_mdwReadOnly){
+      return `<div class="mdw-item is-ro${r.done ? ' is-done' : ''}">
+        <input type="checkbox" class="mdw-chk"${r.done ? ' checked' : ''} disabled>
+        <input class="mdw-text" value="${_esc(r.text||'')}" readonly tabindex="-1">
+      </div>`;
+    }
     return `<div class="mdw-item${r.done ? ' is-done' : ''}" data-id="${_esc(r.id)}">
       <input type="checkbox" class="mdw-chk"${r.done ? ' checked' : ''} onchange="mdwToggle('${_esc(r.id)}')" title="완료">
       <input class="mdw-text" value="${_esc(r.text||'')}" placeholder="내용을 입력하세요"
@@ -32746,8 +32682,12 @@
       <button type="button" class="mdw-del" onclick="mdwDel('${_esc(r.id)}')" title="삭제">✕</button>
     </div>`;
   }
-  function _mdwListHtml(kind, day, staff, emptyMsg){
-    const list = _mdwListFor(kind, day, staff);
+  function _mdwAddHtml(kind, day, label){
+    if(_mdwReadOnly) return '';
+    return `<button type="button" class="mdw-add" onclick="mdwAdd('${kind}','${day}')">${label}</button>`;
+  }
+  function _mdwListHtml(kind, day, emptyMsg){
+    const list = _mdwListFor(kind, day);
     if(!list.length) return `<div class="mdw-empty">${_esc(emptyMsg)}</div>`;
     return list.map(_mdwItemHtml).join('');
   }
@@ -32761,6 +32701,7 @@
 
     const me = _mdwMe(), today = _mdwToday();
     const staff = _mdwStaff();
+    _mdwReadOnly = me !== MDW_OWNER;
 
     // 계정 선택
     const sel = document.getElementById('mdwMe');
@@ -32771,53 +32712,47 @@
     const d = new Date();
     const dow = ['일','월','화','수','목','금','토'][d.getDay()];
     document.getElementById('mdwDate').textContent = `${today} (${dow})`;
-
-    if(!me){
-      const ask = `<div class="mdw-empty">위에서 <b>내 이름</b>을 먼저 선택해 주세요.</div>`;
-      ['mdwToday','mdwWeek','mdwWrapBody'].forEach(id=>{ document.getElementById(id).innerHTML = ask });
-      document.getElementById('mdwStampBody').innerHTML = _mdwStampHtml('', today);
-      ['mdwTodayCnt','mdwWeekCnt','mdwWrapCnt'].forEach(id=>{ document.getElementById(id).textContent = '0' });
-      return;
-    }
+    const ro = document.getElementById('mdwRoNote');
+    ro.hidden = !_mdwReadOnly;
 
     // ① 금일 업무 예정
-    const todayList = _mdwListFor('today', today, me);
+    const todayList = _mdwListFor('today', today);
     document.getElementById('mdwTodayCnt').textContent =
       `${todayList.filter(r=>r.done).length}/${todayList.length}`;
     document.getElementById('mdwToday').innerHTML =
-      _mdwListHtml('today', today, me, '오늘 할 일을 적어보세요.')
+      _mdwListHtml('today', today, '오늘 할 일을 적어보세요.')
       + `<div class="mdw-spacer"></div>`
-      + `<button type="button" class="mdw-add" onclick="mdwAdd('today','${today}')">＋ 항목 추가</button>`;
+      + _mdwAddHtml('today', today, '＋ 항목 추가');
 
     // ② 주간 업무 리스트 (월~금)
     const monday = _diaryWeekStart(today);
     const days = [0,1,2,3,4].map(i=>_mdwShift(monday, i));
     let weekTotal = 0, weekDone = 0;
     document.getElementById('mdwWeek').innerHTML = `<div class="mdw-week">` + days.map((day,i)=>{
-      const list = _mdwListFor('weekly', day, me);
+      const list = _mdwListFor('weekly', day);
       weekTotal += list.length; weekDone += list.filter(r=>r.done).length;
       const dd = day.slice(8);
       return `<div class="mdw-day${day===today?' is-today':''}">
         <div class="mdw-day-head"><span>${['월','화','수','목','금'][i]}</span><span class="mdw-day-num">${_esc(dd)}</span></div>
         ${list.map(_mdwItemHtml).join('')}
-        <button type="button" class="mdw-add" onclick="mdwAdd('weekly','${day}')">＋</button>
+        ${_mdwAddHtml('weekly', day, '＋')}
       </div>`;
     }).join('') + `</div>`;
     document.getElementById('mdwWeekCnt').textContent = `${weekDone}/${weekTotal}`;
     document.getElementById('mdwWeekRange').textContent = `${monday.slice(5)} ~ ${days[4].slice(5)}`;
 
     // ③ 출근 도장
-    document.getElementById('mdwStampBody').innerHTML = _mdwStampHtml(me, today);
+    document.getElementById('mdwStampBody').innerHTML = _mdwStampHtml(today);
 
     // ④ 퇴근 업무 마무리
-    const wrapList = _mdwListFor('wrap', today, me);
+    const wrapList = _mdwListFor('wrap', today);
     document.getElementById('mdwWrapCnt').textContent =
       `${wrapList.filter(r=>r.done).length}/${wrapList.length}`;
     document.getElementById('mdwWrapBody').innerHTML =
       (wrapList.length
         ? `<div class="mdw-wrapgrid">${wrapList.map(_mdwItemHtml).join('')}</div>`
         : `<div class="mdw-empty">오늘 마무리한 일을 정리해 보세요.</div>`)
-      + `<button type="button" class="mdw-add" onclick="mdwAdd('wrap','${today}')">＋ 항목 추가</button>`;
+      + _mdwAddHtml('wrap', today, '＋ 항목 추가');
 
     if(_mdwFocusId){
       const el = document.querySelector(`.mdw-item[data-id="${CSS.escape(_mdwFocusId)}"] .mdw-text`);
@@ -32827,9 +32762,9 @@
   }
 
   function _mdwAttId(staff, day){ return `${staff}|${day}` }
-  function _mdwStampHtml(me, today){
-    const owner = MDW_STAMP_OWNER;
-    const canStamp = me === owner;
+  function _mdwStampHtml(today){
+    const owner = MDW_OWNER;
+    const canStamp = !_mdwReadOnly;
     const att = _mdwGet('att', _mdwAttId(owner, today));
     const cin = (att && att.check_in) || '', cout = (att && att.check_out) || '';
     const off = canStamp ? '' : ' disabled';
@@ -32848,7 +32783,6 @@
         <span class="mdw-stamp-lab">퇴근</span>
         <input type="time" class="mdw-time" value="${_esc(cout)}" onchange="mdwSetTime('out', this.value)"${off}>
       </div>
-      ${canStamp ? '' : `<div class="mdw-note">출퇴근 도장은 <b>${_esc(owner)}</b> 님만 찍을 수 있습니다. 기록은 열람만 가능합니다.</div>`}
       <details class="mdw-log">
         <summary>📅 ${_esc(owner)} 이번 달 기록 보기</summary>
         ${_mdwMonthLogHtml(owner, today)}
@@ -32874,27 +32808,29 @@
     mdwRender();
   }
   function mdwAdd(kind, day){
-    const me = _mdwMe();
-    if(!me){ if(typeof toast==='function') toast('먼저 내 이름을 선택해 주세요.', 'err'); return; }
-    const list = _mdwListFor(kind, day, me);
+    if(!_mdwCanWrite()) return;
+    const list = _mdwListFor(kind, day);
     const pos = list.length ? Math.max(...list.map(r=>Number(r.pos||0))) + 1 : 0;
     const id = _mdwUid();
-    _mdwPut('item', {id, staff_name:me, kind, day, text:'', done:false, pos, deleted_at:null});
+    _mdwPut('item', {id, staff_name:MDW_OWNER, kind, day, text:'', done:false, pos, deleted_at:null});
     _mdwFocusId = id;
     mdwRender();
   }
   function mdwEdit(id, text){
+    if(_mdwReadOnly) return;
     const cur = _mdwGet('item', id);
     if(!cur) return;
     _mdwPut('item', Object.assign({}, cur, {text:String(text||'')}));
   }
   function mdwToggle(id){
+    if(!_mdwCanWrite()){ mdwRender(true); return; }
     const cur = _mdwGet('item', id);
     if(!cur) return;
     _mdwPut('item', Object.assign({}, cur, {done: !cur.done}));
     mdwRender();
   }
   function mdwDel(id){
+    if(!_mdwCanWrite()) return;
     const cur = _mdwGet('item', id);
     if(!cur) return;
     if(String(cur.text||'').trim() && !confirm('이 항목을 지울까요?')) return;
@@ -32903,6 +32839,7 @@
   }
   /* Enter = 같은 칸에 새 항목 / 빈 줄에서 Backspace = 그 줄 삭제 */
   function mdwKey(e, id){
+    if(_mdwReadOnly) return;
     const cur = _mdwGet('item', id);
     if(!cur) return;
     if(e.key === 'Enter'){
@@ -32917,24 +32854,23 @@
     }
   }
   function mdwStamp(which){
-    if(!_mdwCanStamp()) return;
+    if(!_mdwCanWrite()) return;
     mdwSetTime(which, _mdwNowHM());
     if(typeof toast === 'function') toast(which === 'in' ? '출근 도장을 찍었습니다.' : '퇴근 도장을 찍었습니다.');
   }
-  function _mdwCanStamp(){
+  function _mdwCanWrite(){
     const me = _mdwMe();
-    if(!me){ if(typeof toast==='function') toast('먼저 내 이름을 선택해 주세요.', 'err'); return false; }
-    if(me !== MDW_STAMP_OWNER){
-      if(typeof toast==='function') toast(`출퇴근 도장은 ${MDW_STAMP_OWNER} 님만 찍을 수 있습니다.`, 'err');
-      return false;
+    if(me === MDW_OWNER) return true;
+    if(typeof toast==='function'){
+      toast(me ? `MD팀 업무 패널은 ${MDW_OWNER} 님만 작성할 수 있습니다.`
+               : `먼저 위에서 이름을 선택해 주세요. (작성은 ${MDW_OWNER} 님만 가능)`, 'err');
     }
-    return true;
+    return false;
   }
   function mdwSetTime(which, value){
-    if(!_mdwCanStamp()){ mdwRender(true); return; }
-    const me = MDW_STAMP_OWNER;
-    const day = _mdwToday(), id = _mdwAttId(me, day);
-    const cur = _mdwGet('att', id) || {id, staff_name:me, day, check_in:'', check_out:'', note:'', deleted_at:null};
+    if(!_mdwCanWrite()){ mdwRender(true); return; }
+    const day = _mdwToday(), id = _mdwAttId(MDW_OWNER, day);
+    const cur = _mdwGet('att', id) || {id, staff_name:MDW_OWNER, day, check_in:'', check_out:'', note:'', deleted_at:null};
     const next = Object.assign({}, cur);
     if(which === 'in') next.check_in = String(value||''); else next.check_out = String(value||'');
     _mdwPut('att', next);
