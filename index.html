@@ -7030,6 +7030,20 @@
   table.nt-table td:first-child{font-weight:600}
   .nt-tag{display:inline-block;font-size:11.5px;background:#f1f0ee;border-radius:4px;padding:1px 7px;margin:0 3px 3px 0;color:#57534e}
   .nt-empty-rows{padding:14px 12px;font-size:12.5px;color:#a8a29e}
+  .nt-entries{margin:14px 0 20px}
+  .nt-entry{border:1px solid #ece9e4;border-radius:10px;margin:0 0 8px;background:#fff;overflow:hidden}
+  .nt-entry[open]{border-color:#dcd7cf;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .nt-entry-sum{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13.5px;background:#fbfaf8}
+  .nt-entry-sum::-webkit-details-marker{display:none}
+  .nt-entry-sum::before{content:'▸';color:#a8a29e;font-size:11px;flex:none;transition:transform .12s}
+  .nt-entry[open] > .nt-entry-sum::before{transform:rotate(90deg)}
+  .nt-entry[open] > .nt-entry-sum{background:#f5f3ef;border-bottom:1px solid #ece9e4}
+  .nt-entry-date{flex:none;font-variant-numeric:tabular-nums;font-size:12px;font-weight:700;color:#57534e;background:#efece6;border-radius:6px;padding:2px 7px}
+  .nt-entry-title{flex:1;min-width:0;font-weight:600;color:#292524;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nt-entry-meta{flex:none;font-size:11.5px;color:#a8a29e}
+  @media (max-width:760px){ .nt-entry-meta{display:none} .nt-entry-body{padding:4px 12px 14px} }
+  .nt-entry-body{padding:6px 18px 16px}
+  .nt-entry-open{display:inline-block;margin-top:10px;font-size:12px}
   .nt-c-gray{color:#787774}.nt-c-brown{color:#9f6b53}.nt-c-orange{color:#d9730d}.nt-c-yellow{color:#cb912f}
   .nt-c-green,.nt-c-teal{color:#448361}.nt-c-blue{color:#337ea9}.nt-c-purple{color:#9065b0}
   .nt-c-pink{color:#c14c8a}.nt-c-red{color:#d44c47}
@@ -16100,6 +16114,7 @@
       bodyId:'dcCalBody',     emptyId:'dcCalEmpty',
       urlShowId:'dcCalUrlShow', openBtnId:'dcCalOpenBtn', editBtnId:'dcCalEditBtn',
       reloadBtnId:'dcCalReloadBtn', stampId:'dcCalStamp',
+      expand:true,   // DB 각 행(= 날짜별 업무일지) 본문까지 통째로 받아온다
       promptTitle:'박시호 노션 캘린더 URL',
       toastLabel:'캘린더 링크'
     }
@@ -16121,14 +16136,11 @@
     if(reload) reload.hidden = !clean;
     if(!clean){
       body.innerHTML = '';
-      _dcMirrorState(cfg).doc = null;
+      Object.assign(_dcMirrorState(cfg), {doc:null, sig:null});
       _dcStamp(cfg, '');
       return;
     }
-    if(changed){
-      _dcMirrorState(cfg).doc = null;
-      _dcMirrorState(cfg).at = 0;
-    }
+    if(changed) Object.assign(_dcMirrorState(cfg), {doc:null, sig:null, at:0});
     _dcLoadMirror(cfg, changed);
   }
 
@@ -16165,16 +16177,18 @@
     try{
       const base = await loadProxyBase();
       if(!base) throw new Error('프록시(서버 PC)에 연결할 수 없습니다');
-      const q = `${base}/nt/page?url=${encodeURIComponent(url)}${force?'&refresh=1':''}&cb=${Date.now()}`;
+      const q = `${base}/nt/page?url=${encodeURIComponent(url)}${cfg.expand?'&expand=1':''}${force?'&refresh=1':''}&cb=${Date.now()}`;
       const r = await fetch(q, {headers:{'X-Brightbeed-PIN':ghPin()}, cache:'no-cache'});
       const j = await r.json().catch(()=>null);
       if(!r.ok || !j || j.ok!==true) throw new Error((j && (j.detail||j.error)) || ('HTTP '+r.status));
       st.doc = j; st.err = null; st.at = Date.now();
-      body.innerHTML = _ntRenderDoc(j);
+      // 내용이 그대로면 innerHTML 을 건드리지 않는다 — 스크롤·펼침 상태 보존
+      const sig = (j.title||'') + '|' + JSON.stringify(j.blocks||[]);
+      if(st.sig !== sig){ body.innerHTML = _ntRenderDoc(j); st.sig = sig; _ntHookEntries(body); }
       _dcStamp(cfg, _dcHm(st.at)+' 갱신');
     }catch(e){
       st.err = String(e && e.message || e); st.at = Date.now();
-      if(!st.doc) body.innerHTML = _ntErrorHtml(st.err);
+      if(!st.doc){ body.innerHTML = _ntErrorHtml(st.err); st.sig = null; }
       _dcStamp(cfg, '갱신 실패', true);
     }finally{
       st.loading = false;
@@ -16305,7 +16319,45 @@
       default: return rich ? `<div class="nt-p${c}">${rich}</div>${kids}` : kids;
     }
   }
+  /* DB 행을 표가 아니라 노션처럼 "날짜별 문서" 로 펼쳐 보여준다 (최신순). */
+  const _ntOpen = {};   // entryId -> true/false (사용자가 직접 접거나 편 것만 기록)
+  function _ntHookEntries(body){
+    if(!body || body._ntEntryHook) return;
+    body._ntEntryHook = true;
+    body.addEventListener('toggle', (ev)=>{
+      const d = ev.target;
+      const id = d && d.getAttribute && d.getAttribute('data-nt-entry');
+      if(id) _ntOpen[id] = !!d.open;
+    }, true);
+  }
+  function _ntEntries(b){
+    const entries = b.entries;
+    const href = _ntHref(b.href);
+    const head = `<div class="nt-table-name">🗂 ${_ntEsc(b.name||'데이터베이스')}`
+      + `<span class="nt-badge">${entries.length}건</span>`
+      + (href?` <a class="nt-link" href="${_ntEsc(href)}" target="_blank" rel="noopener noreferrer">노션에서 열기</a>`:'')
+      + '</div>';
+    const items = entries.map((e,i)=>{
+      const id = String(e.id||('i'+i));
+      const explicit = _ntOpen[id];
+      const open = (explicit===undefined ? i===0 : explicit) ? ' open' : '';
+      const eh = _ntHref(e.href);
+      const inner = e.error ? '<div class="nt-empty-rows">내용을 불러오지 못했습니다</div>'
+        : (Array.isArray(e.blocks) && e.blocks.length ? _ntBlocks(e.blocks)
+                                                      : '<div class="nt-empty-rows">내용이 없습니다</div>');
+      return `<details class="nt-entry" data-nt-entry="${_ntEsc(id)}"${open}>`
+        + '<summary class="nt-entry-sum">'
+        + `<span class="nt-entry-date">${_ntEsc(e.date||'')}</span>`
+        + `<span class="nt-entry-title">${_ntEsc(e.title||'')}</span>`
+        + `<span class="nt-entry-meta">${e.edited?_ntEsc(e.edited)+' 수정':''}</span>`
+        + '</summary><div class="nt-entry-body">' + inner
+        + (eh?`<a class="nt-link nt-entry-open" href="${_ntEsc(eh)}" target="_blank" rel="noopener noreferrer">↗ 노션에서 열기</a>`:'')
+        + '</div></details>';
+    }).join('');
+    return `<div class="nt-entries">${head}${items || '<div class="nt-empty-rows">항목이 없습니다</div>'}</div>`;
+  }
   function _ntTable(b){
+    if(Array.isArray(b.entries)) return _ntEntries(b);
     const cols = Array.isArray(b.columns) ? b.columns : [];
     const rows = Array.isArray(b.rows) ? b.rows : [];
     const href = _ntHref(b.href);
