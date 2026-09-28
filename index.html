@@ -16149,7 +16149,7 @@
      (공개 *.notion.site 도 동일) 페이지 내용만 읽어와 노션과 비슷한 모양으로 그린다.
      읽기 전용 — 편집은 노션에서. */
   const DC_MIRROR_GATE = 60000;    // 같은 링크 재요청 최소 간격
-  const DC_MIRROR_POLL = 180000;   // 탭에 머무는 동안 자동 갱신 주기
+  const DC_MIRROR_POLL = 600000;   // 10분 — 자동 최신화 주기
   const _dcMirrors = {};
   function _dcMirrorState(cfg){
     return _dcMirrors[cfg.stateKey] || (_dcMirrors[cfg.stateKey] = {loading:false, at:0, doc:null, err:null});
@@ -16205,7 +16205,8 @@
       const cfg = DC_LINKS[k];
       if(!_dcState[cfg.stateKey]) continue;
       const st = _dcMirrorState(cfg);
-      if(force || !st.doc || (Date.now()-st.at) > DC_MIRROR_POLL) _dcLoadMirror(cfg, false);
+      if(force) _dcLoadMirror(cfg, true);                                   // 프록시 캐시까지 무시하고 새로
+      else if(!st.doc || (Date.now()-st.at) > DC_MIRROR_POLL) _dcLoadMirror(cfg, false);
     }
   }
 
@@ -16659,6 +16660,14 @@
         _dcRefreshMirrors(false);
       }
     }, 12000);
+    // 10분마다 강제 최신화 (프록시 2분 캐시까지 무시). 안 보는 동안은 건너뛰고 복귀 훅이 따라잡는다.
+    if(!_dcState.mirrorTimer){
+      _dcState.mirrorTimer = setInterval(()=>{
+        if(document.visibilityState !== 'visible') return;
+        if(!_dcCurTabIsCoferry() || document.getElementById('viewDesign')?.hidden) return;
+        _dcRefreshMirrors(true);
+      }, DC_MIRROR_POLL);
+    }
   }
   function _dcAttachHooks(){
     if(_dcState._hooksAttached) return;
