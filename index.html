@@ -3019,7 +3019,7 @@
     .wr-title-big{font-size:17px}
   }
 
-  /* ===== MD팀 상단 업무 패널 — 금일 예정 / 주간 리스트 / 출근 도장 / 퇴근 마무리 ===== */
+  /* ===== MD팀 상단 업무 패널 — 금일 예정 / 월간 리스트 / 출퇴근 도장 / 퇴근 마무리 ===== */
   .mdw-wrap{max-width:1400px;margin:0 auto 22px;padding:0 24px}
   .mdw-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:12px}
   .mdw-bar-lab{font-size:12px;color:var(--text-3);font-weight:700}
@@ -3036,9 +3036,7 @@
   .mdw-save[data-state="saving"]{background:#fef3c7;color:#78350f}
   .mdw-save[data-state="pending"]{background:#fee2e2;color:#991b1b}
 
-  .mdw-grid{display:grid;grid-template-columns:1fr 2.2fr .95fr;gap:14px;align-items:stretch}
-  /* 출근 도장은 김예은·대표만 본다 — 숨겨지면 빈 칸이 남지 않게 2열로 */
-  .mdw-grid.no-stamp{grid-template-columns:1fr 2.4fr}
+  .mdw-grid{display:grid;grid-template-columns:1fr 3.2fr;gap:14px;align-items:stretch}
   .mdw-card{
     background:var(--bg-1);border:1px solid var(--line);border-radius:12px;
     display:flex;flex-direction:column;min-height:250px;overflow:hidden;
@@ -3083,24 +3081,52 @@
   .mdw-spacer{flex:1;min-height:4px}
   .mdw-empty{font-size:12px;color:#bdb7a8;padding:5px 4px;letter-spacing:-.01em}
 
-  /* 주간 — 월~금 5칸 */
-  .mdw-week{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;flex:1}
-  .mdw-day{
-    display:flex;flex-direction:column;gap:2px;min-width:0;
-    border-radius:9px;padding:7px 5px;background:var(--bg-0);border:1px solid transparent;
+  /* 월간 — 이번 달 달력 7칸 */
+  .mdw-month-wd{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 0 5px}
+  .mdw-month-wdc{
+    text-align:center;font-size:10.5px;font-weight:800;color:var(--text-3);
+    letter-spacing:.02em;padding:2px 0;
   }
+  .mdw-month-wdc.is-sun{color:#e11d48}
+  .mdw-month-wdc.is-sat{color:#0284c7}
+  .mdw-month{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;flex:1}
+  .mdw-day{
+    display:flex;flex-direction:column;gap:2px;min-width:0;min-height:64px;
+    border-radius:9px;padding:6px 4px;background:var(--bg-0);border:1px solid transparent;
+  }
+  .mdw-day.is-blank{background:transparent;min-height:0}
+  .mdw-day.is-sun,.mdw-day.is-sat{background:var(--bg-2)}
   .mdw-day.is-today{background:#fff1f5;border-color:#fbcfe8}
   .mdw-day-head{display:flex;gap:4px;align-items:baseline;padding:0 3px 2px;font-size:11px;font-weight:800;color:var(--text-3)}
   .mdw-day.is-today .mdw-day-head{color:var(--neon-md)}
-  .mdw-day-num{font-weight:600;color:#b8b2a3;font-variant-numeric:tabular-nums}
-  /* 요일 칸은 좁다 — 평소엔 3줄까지만 보이고 편집할 때 전체가 펼쳐진다 */
+  .mdw-day-num{font-weight:700;color:#b8b2a3;font-variant-numeric:tabular-nums}
+  .mdw-day.is-today .mdw-day-num{color:var(--neon-md)}
+  /* 날짜 칸은 좁다 — 평소엔 3줄까지만 보이고 편집할 때 전체가 펼쳐진다 */
   .mdw-day .mdw-text{font-size:12px;padding:4px 2px;max-height:4.6em}
   .mdw-day .mdw-text:focus{max-height:none}
-  .mdw-day .mdw-add{font-size:11px;padding:4px 8px;margin-top:2px}
+  /* 한 달치 ＋ 가 30개 깔리면 산만하다 — 오늘 칸과 마우스 올린 칸에서만 보인다 */
+  .mdw-day .mdw-add{font-size:11px;padding:4px 8px;margin-top:2px;opacity:0;transition:opacity .12s}
+  .mdw-day:hover .mdw-add,.mdw-day:focus-within .mdw-add,.mdw-day.is-today .mdw-add{opacity:1}
   .mdw-day .mdw-chk{width:13px;height:13px;margin-top:7px}
 
-  /* 출근 도장 */
-  .mdw-stamp{display:flex;flex-direction:column;gap:8px}
+  /* 출퇴근 도장 — 상단 바에 가로 한 줄 */
+  .mdw-stampbar{
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    padding:4px 6px 4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg-1);
+  }
+  .mdw-stamp-who{font-size:11px;font-weight:800;color:var(--text-3);letter-spacing:-.01em}
+  .mdw-stampbar .mdw-stamp-btn{padding:5px 12px;font-size:12px;border-radius:999px}
+  .mdw-stampbar .mdw-time{width:96px;flex:0 0 auto;font-size:12.5px;padding:4px 6px;border-radius:7px}
+  .mdw-stampbar .mdw-log{margin-top:0;position:relative}
+  .mdw-stampbar .mdw-log > summary{
+    font-size:11px;padding:4px 9px;border-radius:999px;
+    border:1px solid var(--line-2);background:var(--bg-2);
+  }
+  .mdw-log-pop{
+    position:absolute;top:calc(100% + 6px);right:0;z-index:40;min-width:210px;
+    background:var(--bg-1);border:1px solid var(--line-2);border-radius:10px;padding:8px 10px;
+    box-shadow:0 10px 26px rgba(0,0,0,.14);max-height:340px;overflow:auto;
+  }
   .mdw-stamp-btn{
     border:1px solid var(--line-2);border-radius:10px;background:var(--bg-1);
     font:inherit;font-size:13.5px;font-weight:800;color:var(--text-1);
@@ -3110,8 +3136,6 @@
   .mdw-stamp-btn.is-out:hover{border-color:#0284c7;color:#0284c7;background:rgba(2,132,199,.07)}
   .mdw-stamp-btn:disabled{opacity:.45;cursor:default;border-style:dashed}
   .mdw-stamp-btn:disabled:hover{border-color:var(--line-2);color:var(--text-1);background:var(--bg-1)}
-  .mdw-stamp-row{display:flex;align-items:center;gap:7px}
-  .mdw-stamp-lab{font-size:11.5px;font-weight:800;color:var(--text-3);width:30px;flex:0 0 auto}
   .mdw-time{
     flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--bg-1);
     font:inherit;font-size:14px;font-weight:700;color:var(--text-1);padding:6px 8px;
@@ -3142,22 +3166,19 @@
   /* 퇴근 마무리 — 전체폭이라 항목을 여러 열로 흘린다 */
   .mdw-wrapgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1px 20px}
 
-  .mdw-day-empty{padding:2px 4px;color:#d8d2c3}
-
   /* 터치 기기는 hover 가 없다 — 삭제 버튼을 숨기면 아예 지울 수 없다 */
   @media (hover:none){
     .mdw-del{opacity:.55;width:30px;height:30px;font-size:14px}
     .mdw-item:hover{background:transparent}
+    .mdw-day .mdw-add{opacity:.6}
   }
   @media (max-width:1100px){
     .mdw-grid{grid-template-columns:1fr}
     .mdw-card{min-height:0}
-    .mdw-week{grid-template-columns:repeat(3,1fr)}
-    /* 아침에 제일 먼저 누르는 출근 도장을 맨 위로 */
-    .mdw-grid > .mdw-card:nth-child(3){order:-1}
   }
   @media (max-width:760px){
-    .mdw-week{grid-template-columns:repeat(2,1fr);gap:8px}
+    .mdw-month,.mdw-month-wd{gap:4px}
+    .mdw-day{padding:5px 3px;min-height:56px}
   }
   @media (max-width:640px){
     .mdw-wrap{padding:0 12px;margin-bottom:16px}
@@ -3173,20 +3194,24 @@
     .mdw-item{gap:9px;padding:2px}
     .mdw-del{opacity:.55;width:32px;height:32px;font-size:15px}
     .mdw-add,.mdw-day .mdw-add{font-size:13px;padding:9px 13px;width:100%;text-align:center;align-self:stretch}
-    .mdw-stamp-btn{padding:15px 10px;font-size:15px}
-    .mdw-stamp-lab{width:34px;font-size:12.5px}
     .mdw-log > summary{padding:8px 0;font-size:12.5px}
     .mdw-log-tb{font-size:13px}
     .mdw-log-tb th,.mdw-log-tb td{padding:7px 4px}
     .mdw-wrapgrid{grid-template-columns:1fr;gap:0}
+    /* 도장 바는 한 줄 폭을 다 쓰고, 달력 칸은 최소한으로 줄인다 */
+    .mdw-stampbar{width:100%;border-radius:12px;padding:6px 8px;justify-content:space-between}
+    .mdw-stampbar .mdw-stamp-btn{padding:8px 12px;font-size:13px}
+    .mdw-stampbar .mdw-time{width:84px;font-size:16px;padding:5px 6px}
+    .mdw-stampbar .mdw-log > summary{padding:6px 9px;font-size:12px}
+    .mdw-month,.mdw-month-wd{gap:3px}
+    .mdw-day{padding:4px 2px;min-height:48px}
+    .mdw-day .mdw-text{font-size:13px;padding:4px 1px}
+    .mdw-day .mdw-chk{width:14px;height:14px;margin-top:6px}
+    .mdw-day .mdw-add{font-size:11px;padding:3px 0}
   }
   @media (max-width:1100px){
-    /* 1열로 펼쳐지면 요일 칸도 넓어진다 — 굳이 줄일 이유가 없다 */
+    /* 1열로 펼쳐지면 날짜 칸도 넓어진다 — 굳이 줄일 이유가 없다 */
     .mdw-day .mdw-text{max-height:none;font-size:13px}
-  }
-  @media (max-width:430px){
-    .mdw-week{grid-template-columns:1fr}
-    .mdw-day{padding:8px 7px}
   }
 
   /* ===== 원천세 신고 · 정산 (벤더팀 최하단, 조혜인+대표 전용) ===== */
@@ -10102,12 +10127,13 @@
       <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전</span></h1>
     </div>
 
-    <!-- ============ MD팀 업무 패널 — 금일 예정 / 주간 / 출근 도장 / 퇴근 마무리 ============ -->
+    <!-- ============ MD팀 업무 패널 — 금일 예정 / 월간 / 출퇴근 도장 / 퇴근 마무리 ============ -->
     <div class="mdw-wrap" id="mdwWrap">
       <div class="mdw-bar">
         <span class="mdw-bar-lab">나는</span>
         <select class="mdw-me" id="mdwMe" onchange="mdwSetMe(this.value)"></select>
         <span class="mdw-date" id="mdwDate"></span>
+        <span class="mdw-stampbar" id="mdwStampBar" hidden></span>
         <span class="mdw-ro" id="mdwRoNote" hidden>🔒 김예은 전용 — 열람만 가능</span>
         <span class="mdw-save" id="mdwSaveTag" data-state="saved" hidden></span>
       </div>
@@ -10123,20 +10149,12 @@
 
         <section class="mdw-card">
           <div class="mdw-head">
-            <span class="mdw-title">주간 업무 리스트</span>
-            <span class="mdw-sub" id="mdwWeekRange"></span>
+            <span class="mdw-title">월간 업무 리스트</span>
+            <span class="mdw-sub" id="mdwMonthLabel"></span>
             <span class="mdw-sub">· 금일 예정이 자동 정리됩니다</span>
-            <span class="mdw-head-right"><span class="mdw-cnt" id="mdwWeekCnt">0</span></span>
+            <span class="mdw-head-right"><span class="mdw-cnt" id="mdwMonthCnt">0</span></span>
           </div>
-          <div class="mdw-body" id="mdwWeek"></div>
-        </section>
-
-        <section class="mdw-card" id="mdwStampCard" hidden>
-          <div class="mdw-head">
-            <span class="mdw-title">출근 도장</span>
-            <span class="mdw-sub">김예은</span>
-          </div>
-          <div class="mdw-body" id="mdwStampBody"></div>
+          <div class="mdw-body" id="mdwMonth"></div>
         </section>
       </div>
 
@@ -32912,7 +32930,7 @@
   window.pcResetColors=pcResetColors;
 
   /* ══════════════════════════════════════════════════════════════════════════
-     MD팀 상단 업무 패널 — 금일 예정 / 주간 리스트 / 출근 도장 / 퇴근 마무리
+     MD팀 상단 업무 패널 — 금일 예정 / 월간 리스트 / 출퇴근 도장 / 퇴근 마무리
      ──────────────────────────────────────────────────────────────────────────
      저장은 업무일지와 같은 방식이다. 한 줄 = 한 행(md_items), 도장 = 한 행(md_attendance).
      내가 고친 줄만 서버로 가고 남의 줄은 건드리지 않는다. 덮어쓸 구조 자체가 없다.
@@ -32925,7 +32943,7 @@
      ══════════════════════════════════════════════════════════════════════════ */
   const MDW_QUEUE_KEY = 'brightbeed_mdw_queue_v1';
   const MDW_ROWS_KEY  = 'brightbeed_mdw_rows_v1';
-  const MDW_SCOPE_DAYS = 60;          // 이 기간의 행을 불러온다 (지난 주 주간 리스트 포함)
+  const MDW_SCOPE_DAYS = 60;          // 이 기간의 행을 불러온다 (이번 달 전체 + 지난달 일부)
   const MDW_TABLES = {item:'md_items', att:'md_attendance'};
   const MDW_OWNER = '김예은';         // 이 게시판의 주인 — 작성·도장 모두 이 사람만, 나머지는 열람만
   let _mdwRows  = {item:{}, att:{}};  // 서버에서 받은 행
@@ -32940,12 +32958,6 @@
   function _mdwToday(){ return _diaryTodayStr() }
   function _mdwScopeStart(){
     const d = new Date(); d.setDate(d.getDate() - MDW_SCOPE_DAYS);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  }
-  function _mdwShift(dateStr, n){
-    const m = String(dateStr||'').match(/(\d{4})-(\d{2})-(\d{2})/);
-    if(!m) return '';
-    const d = new Date(+m[1], +m[2]-1, +m[3]); d.setDate(d.getDate()+n);
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
   function _mdwNowHM(){
@@ -33178,28 +33190,37 @@
       + `<div class="mdw-spacer"></div>`
       + _mdwAddHtml('today', today, '＋ 항목 추가');
 
-    // ② 주간 업무 리스트 (월~금) — 같은 'today' 행을 날짜별로 펼친 것이라 금일 예정이 그대로 정리된다
-    const monday = _diaryWeekStart(today);
-    const days = [0,1,2,3,4].map(i=>_mdwShift(monday, i));
-    let weekTotal = 0, weekDone = 0;
-    document.getElementById('mdwWeek').innerHTML = `<div class="mdw-week">` + days.map((day,i)=>{
+    // ② 월간 업무 리스트 — 이번 달 달력. 같은 'today' 행을 날짜별로 펼친 것이라 금일 예정이 그대로 정리된다
+    const [my, mm] = today.split('-').map(Number);
+    const lastDate = new Date(my, mm, 0).getDate();
+    const lead = new Date(my, mm - 1, 1).getDay();
+    const wdNames = ['일','월','화','수','목','금','토'];
+    let monTotal = 0, monDone = 0;
+    const cells = [];
+    for(let i = 0; i < lead; i++) cells.push(`<div class="mdw-day is-blank"></div>`);
+    for(let dnum = 1; dnum <= lastDate; dnum++){
+      const day = `${my}-${String(mm).padStart(2,'0')}-${String(dnum).padStart(2,'0')}`;
       const list = _mdwListFor('today', day);
-      weekTotal += list.length; weekDone += list.filter(r=>r.done).length;
-      const dd = day.slice(8);
-      return `<div class="mdw-day${day===today?' is-today':''}">
-        <div class="mdw-day-head"><span>${['월','화','수','목','금'][i]}</span><span class="mdw-day-num">${_esc(dd)}</span></div>
-        ${list.length ? list.map(_mdwItemHtml).join('') : `<div class="mdw-empty mdw-day-empty">–</div>`}
+      monTotal += list.length; monDone += list.filter(r=>r.done).length;
+      const dow = new Date(my, mm - 1, dnum).getDay();
+      const cls = (day === today ? ' is-today' : '') + (dow === 0 ? ' is-sun' : dow === 6 ? ' is-sat' : '');
+      cells.push(`<div class="mdw-day${cls}">
+        <div class="mdw-day-head"><span class="mdw-day-num">${dnum}</span></div>
+        ${list.map(_mdwItemHtml).join('')}
         ${_mdwAddHtml('today', day, '＋')}
-      </div>`;
-    }).join('') + `</div>`;
-    document.getElementById('mdwWeekCnt').textContent = `${weekDone}/${weekTotal}`;
-    document.getElementById('mdwWeekRange').textContent = `${monday.slice(5)} ~ ${days[4].slice(5)}`;
+      </div>`);
+    }
+    document.getElementById('mdwMonth').innerHTML =
+      `<div class="mdw-month-wd">${wdNames.map((w,i)=>`<div class="mdw-month-wdc${i===0?' is-sun':i===6?' is-sat':''}">${w}</div>`).join('')}</div>`
+      + `<div class="mdw-month">${cells.join('')}</div>`;
+    document.getElementById('mdwMonthCnt').textContent = `${monDone}/${monTotal}`;
+    document.getElementById('mdwMonthLabel').textContent = `${my}.${String(mm).padStart(2,'0')}`;
 
-    // ③ 출근 도장 — 김예은·대표만 열람
+    // ③ 출퇴근 도장 — 상단 바에 가로로. 김예은·대표만 열람
     const seeStamp = _mdwCanSeeStamp();
-    document.getElementById('mdwStampCard').hidden = !seeStamp;
-    document.getElementById('mdwGrid').classList.toggle('no-stamp', !seeStamp);
-    document.getElementById('mdwStampBody').innerHTML = seeStamp ? _mdwStampHtml(today) : '';
+    const stampBar = document.getElementById('mdwStampBar');
+    stampBar.hidden = !seeStamp;
+    stampBar.innerHTML = seeStamp ? _mdwStampHtml(today) : '';
 
     // ④ 퇴근 업무 마무리
     const wrapList = _mdwListFor('wrap', today);
@@ -33234,26 +33255,15 @@
     const att = _mdwGet('att', _mdwAttId(owner, today));
     const cin = (att && att.check_in) || '', cout = (att && att.check_out) || '';
     const off = canStamp ? '' : ' disabled';
-    return `<div class="mdw-stamp">
-      <button type="button" class="mdw-stamp-btn" onclick="mdwStamp('in')"${cin||!canStamp?' disabled':''}>
-        ${cin ? `출근 ${_esc(cin)} 찍음` : '🖐 출근 도장 찍기'}
-      </button>
-      <div class="mdw-stamp-row">
-        <span class="mdw-stamp-lab">출근</span>
-        <input type="time" class="mdw-time" value="${_esc(cin)}" onchange="mdwSetTime('in', this.value)"${off}>
-      </div>
-      <button type="button" class="mdw-stamp-btn is-out" onclick="mdwStamp('out')"${cout||!canStamp?' disabled':''}>
-        ${cout ? `퇴근 ${_esc(cout)} 찍음` : '🌙 퇴근 도장 찍기'}
-      </button>
-      <div class="mdw-stamp-row">
-        <span class="mdw-stamp-lab">퇴근</span>
-        <input type="time" class="mdw-time" value="${_esc(cout)}" onchange="mdwSetTime('out', this.value)"${off}>
-      </div>
+    return `<span class="mdw-stamp-who">${_esc(owner)}</span>
+      <button type="button" class="mdw-stamp-btn" onclick="mdwStamp('in')"${cin||!canStamp?' disabled':''}>${cin ? `출근 ${_esc(cin)}` : '🖐 출근'}</button>
+      <input type="time" class="mdw-time" value="${_esc(cin)}" onchange="mdwSetTime('in', this.value)"${off} title="출근 시각 직접 수정">
+      <button type="button" class="mdw-stamp-btn is-out" onclick="mdwStamp('out')"${cout||!canStamp?' disabled':''}>${cout ? `퇴근 ${_esc(cout)}` : '🌙 퇴근'}</button>
+      <input type="time" class="mdw-time" value="${_esc(cout)}" onchange="mdwSetTime('out', this.value)"${off} title="퇴근 시각 직접 수정">
       <details class="mdw-log">
-        <summary>📅 ${_esc(owner)} 이번 달 기록 보기</summary>
-        ${_mdwMonthLogHtml(owner, today)}
-      </details>
-    </div>`;
+        <summary title="${_esc(owner)} 이번 달 출퇴근 기록">📅 기록</summary>
+        <div class="mdw-log-pop">${_mdwMonthLogHtml(owner, today)}</div>
+      </details>`;
   }
   function _mdwMonthLogHtml(who, today){
     const month = today.slice(0,7);
