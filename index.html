@@ -3049,6 +3049,16 @@
   .mdw-title{font-size:13.5px;font-weight:800;letter-spacing:-.02em;color:var(--text-1)}
   .mdw-sub{font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:-.01em}
   .mdw-head-right{margin-left:auto;display:flex;align-items:center;gap:7px}
+  .mdw-monthnav{display:inline-flex;align-items:center;gap:3px}
+  .mdw-monthnav .mdw-sub{min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
+  .mdw-mo-btn{
+    display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;
+    border:1px solid var(--line-2);border-radius:6px;background:var(--bg-1);
+    color:var(--text-2);font-size:12px;font-weight:800;line-height:1;cursor:pointer;
+  }
+  .mdw-mo-btn:hover{background:var(--bg-2);color:var(--text-1)}
+  .mdw-mo-btn[hidden]{display:none}   /* display 지정이 hidden 속성을 덮어버린다 */
+  .mdw-mo-btn.is-back{font-size:10.5px;padding:0 7px;margin-left:2px}
   .mdw-cnt{
     font-size:11px;font-weight:800;color:var(--text-3);background:var(--bg-1);
     border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-variant-numeric:tabular-nums;
@@ -10150,7 +10160,12 @@
         <section class="mdw-card">
           <div class="mdw-head">
             <span class="mdw-title">월간 업무 리스트</span>
-            <span class="mdw-sub" id="mdwMonthLabel"></span>
+            <span class="mdw-monthnav">
+              <button type="button" class="mdw-mo-btn" onclick="mdwMonthShift(-1)" aria-label="이전 달">‹</button>
+              <span class="mdw-sub" id="mdwMonthLabel"></span>
+              <button type="button" class="mdw-mo-btn" onclick="mdwMonthShift(1)" aria-label="다음 달">›</button>
+              <button type="button" class="mdw-mo-btn is-back" id="mdwMonthToday" onclick="mdwMonthToday()" hidden>이번 달</button>
+            </span>
             <span class="mdw-sub">· 금일 예정이 자동 정리됩니다</span>
             <span class="mdw-head-right"><span class="mdw-cnt" id="mdwMonthCnt">0</span></span>
           </div>
@@ -32943,7 +32958,7 @@
      ══════════════════════════════════════════════════════════════════════════ */
   const MDW_QUEUE_KEY = 'brightbeed_mdw_queue_v1';
   const MDW_ROWS_KEY  = 'brightbeed_mdw_rows_v1';
-  const MDW_SCOPE_DAYS = 60;          // 이 기간의 행을 불러온다 (이번 달 전체 + 지난달 일부)
+  const MDW_SCOPE_DAYS = 400;         // 이 기간의 행을 불러온다 (달력을 1년 뒤로 넘겨도 데이터가 있다)
   const MDW_TABLES = {item:'md_items', att:'md_attendance'};
   const MDW_OWNER = '김예은';         // 이 게시판의 주인 — 작성·도장 모두 이 사람만, 나머지는 열람만
   let _mdwRows  = {item:{}, att:{}};  // 서버에서 받은 행
@@ -32953,6 +32968,7 @@
   let _mdwPollTimer = null, _mdwChans = [], _mdwStarted = false;
   let _mdwRenderDeferred = false, _mdwFocusId = '';
   let _mdwReadOnly = true;            // 주인이 아니면 열람 전용 (렌더마다 갱신)
+  let _mdwMonth = '';                 // 달력이 보고 있는 달 YYYY-MM (빈 값이면 이번 달)
 
   function _mdwUid(){ return 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6) }
   function _mdwToday(){ return _diaryTodayStr() }
@@ -33190,8 +33206,9 @@
       + `<div class="mdw-spacer"></div>`
       + _mdwAddHtml('today', today, '＋ 항목 추가');
 
-    // ② 월간 업무 리스트 — 이번 달 달력. 같은 'today' 행을 날짜별로 펼친 것이라 금일 예정이 그대로 정리된다
-    const [my, mm] = today.split('-').map(Number);
+    // ② 월간 업무 리스트 — 달력. 같은 'today' 행을 날짜별로 펼친 것이라 금일 예정이 그대로 정리된다
+    if(!_mdwMonth) _mdwMonth = today.slice(0,7);
+    const [my, mm] = _mdwMonth.split('-').map(Number);
     const lastDate = new Date(my, mm, 0).getDate();
     const lead = new Date(my, mm - 1, 1).getDay();
     const wdNames = ['일','월','화','수','목','금','토'];
@@ -33215,6 +33232,7 @@
       + `<div class="mdw-month">${cells.join('')}</div>`;
     document.getElementById('mdwMonthCnt').textContent = `${monDone}/${monTotal}`;
     document.getElementById('mdwMonthLabel').textContent = `${my}.${String(mm).padStart(2,'0')}`;
+    document.getElementById('mdwMonthToday').hidden = (_mdwMonth === today.slice(0,7));
 
     // ③ 출퇴근 도장 — 상단 바에 가로로. 김예은·대표만 열람
     const seeStamp = _mdwCanSeeStamp();
@@ -33282,6 +33300,16 @@
   function mdwSetMe(v){
     if(typeof _diarySetMe === 'function') _diarySetMe(v||'');
     mdwRender();
+  }
+  function mdwMonthShift(delta){
+    const [y, m] = (_mdwMonth || _mdwToday().slice(0,7)).split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    _mdwMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    mdwRender(true);
+  }
+  function mdwMonthToday(){
+    _mdwMonth = _mdwToday().slice(0,7);
+    mdwRender(true);
   }
   function mdwAdd(kind, day){
     if(!_mdwCanWrite()) return;
@@ -33400,6 +33428,8 @@
   window.mdwRender=mdwRender;
   window.mdwSetMe=mdwSetMe;
   window.mdwAdd=mdwAdd;
+  window.mdwMonthShift=mdwMonthShift;
+  window.mdwMonthToday=mdwMonthToday;
   window.mdwEdit=mdwEdit;
   window.mdwToggle=mdwToggle;
   window.mdwDel=mdwDel;
