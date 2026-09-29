@@ -3247,7 +3247,11 @@
   .wht-col-ssn{width:150px}
   .wht-col-bizno{width:140px}
   .wht-col-btype{width:150px}
-  .wht-col-act{width:44px}
+  /* 세금계산서 표는 min-width 1240px — 삭제 열이 가로 스크롤에 묻히므로 오른쪽 끝 고정 */
+  .wht-col-act{width:48px;text-align:center;position:sticky;right:0;z-index:3}
+  .wht-table thead th.wht-col-act{background:var(--bg-2);text-align:center;box-shadow:-7px 0 8px -7px rgba(0,0,0,.20)}
+  .wht-table tbody td.wht-col-act{background:var(--bg-0);box-shadow:-7px 0 8px -7px rgba(0,0,0,.14)}
+  .wht-table tbody tr:hover td.wht-col-act{background:var(--bg-1)}
   .wht-input{
     width:100%;box-sizing:border-box;
     padding:6px 8px;font-family:var(--sans);font-size:12.5px;
@@ -3268,7 +3272,8 @@
     background:transparent;border:1px solid transparent;border-radius:6px;
     color:var(--text-3);cursor:pointer;transition:all .12s;font-size:17px;font-weight:600;
   }
-  .wht-row-del:hover{color:#dc2626;background:rgba(220,38,38,.10);border-color:rgba(220,38,38,.30)}
+  .wht-row-del{color:#b91c1c;border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.05)}
+  .wht-row-del:hover{color:#fff;background:#dc2626;border-color:#dc2626}
   .wht-actions{
     display:flex;justify-content:space-between;align-items:center;
     gap:10px;margin-top:12px;flex-wrap:wrap;
@@ -3286,6 +3291,10 @@
     color:#4338ca;border-color:rgba(79,70,229,.35);background:rgba(79,70,229,.06);
   }
   .wht-btn.wht-btn-add:hover{background:rgba(79,70,229,.14);border-color:rgba(79,70,229,.55)}
+  .wht-btn.wht-btn-delmonth{
+    color:#b91c1c;border-color:rgba(220,38,38,.30);background:rgba(220,38,38,.06);
+  }
+  .wht-btn.wht-btn-delmonth:hover{color:#fff;background:#dc2626;border-color:#dc2626}
   .wht-btn.wht-btn-copy{
     color:#fff;background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
     border-color:rgba(79,70,229,.5);font-weight:700;
@@ -10367,6 +10376,7 @@
               <button type="button" class="wht-btn wht-btn-vendors" onclick="whtOpenVendors()" title="지금까지 저장된 업체·개인 정보를 보고 수정합니다">📇 업체 정보</button>
               <button type="button" class="wht-btn wht-btn-sellers" onclick="whtOpenSellers()" title="구글시트 셀러정보 시트를 실시간으로 불러옵니다">🧑‍💼 셀러 정보</button>
               <button type="button" class="wht-btn wht-btn-copy" onclick="whtExportExcel()" title="이 달 저장된 3개 표를 엑셀 파일로 내보냅니다">📥 엑셀 내보내기</button>
+              <button type="button" class="wht-btn wht-btn-delmonth" onclick="whtDeleteMonth()" title="지금 보고 있는 달의 3개 표를 통째로 삭제합니다">🗑 이 달 삭제</button>
             </div>
           </div>
           <datalist id="whtBankList"></datalist>
@@ -10387,7 +10397,7 @@
                     <th class="wht-col-per">기간</th>
                     <th>예금주명</th>
                     <th>비고</th>
-                    <th class="wht-col-act"></th>
+                    <th class="wht-col-act">삭제</th>
                   </tr>
                 </thead>
                 <tbody id="whtWithdrawalBody"></tbody>
@@ -10423,7 +10433,7 @@
                     <th>계좌번호</th>
                     <th class="wht-col-amt">3.3% 제외 금액</th>
                     <th>비고</th>
-                    <th class="wht-col-act"></th>
+                    <th class="wht-col-act">삭제</th>
                   </tr>
                 </thead>
                 <tbody id="whtFreelancerBody"></tbody>
@@ -10462,7 +10472,7 @@
                     <th class="wht-col-amt">공급가액</th>
                     <th class="wht-col-amt">부가세</th>
                     <th>이메일</th>
-                    <th class="wht-col-act"></th>
+                    <th class="wht-col-act">삭제</th>
                   </tr>
                 </thead>
                 <tbody id="whtInvoiceBody"></tbody>
@@ -30523,6 +30533,35 @@
       _whtSetStatus('⚠ 저장 실패','err');
     }finally{
       _whtState.saving=false;
+    }
+  }
+  async function whtDeleteMonth(){
+    if(!_whtHasAccess()){
+      if(typeof toast==='function') toast('접근 권한이 없습니다','err');
+      return;
+    }
+    const ym=_whtState.ym||_whtToday();
+    const cnt=_whtCountEntries(_whtState.data);
+    if(!confirm(`${_whtYmLabel(ym)} 원천세 데이터를 통째로 삭제할까요?\n\n· 3개 표 합계 ${cnt}건이 사라집니다.\n· 업체 정보(📇)·셀러 정보는 그대로 남습니다.`)) return;
+    // 예약된 자동저장이 삭제 직후 같은 달을 되살리지 않도록 취소하고, 진행 중인 저장은 끝날 때까지 대기
+    if(_whtState.saveTimer){clearTimeout(_whtState.saveTimer); _whtState.saveTimer=null;}
+    let guard=0;
+    while(_whtState.saving && guard<30){await new Promise(r=>setTimeout(r,100)); guard++;}
+    _whtSetStatus('삭제 중…');
+    try{
+      const url=`${SUPABASE_URL}/rest/v1/wht_forms?period_ym=eq.${encodeURIComponent(ym)}`;
+      const r=await fetch(url,{method:'DELETE', headers:_sbHeaders({'Prefer':'return=minimal'})});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      _whtState.data={withdrawal:[],freelancer:[],invoice:[]};
+      _whtState.archive=(_whtState.archive||[]).filter(a=>a.ym!==ym);
+      _whtRenderAll();
+      _whtRenderArchive();
+      _whtSetStatus(`${_whtYmLabel(ym)} · 삭제됨`);
+      if(typeof toast==='function') toast('✓ 삭제 완료','ok');
+    }catch(e){
+      console.error('wht month delete failed',e);
+      _whtSetStatus('⚠ 삭제 실패',true);
+      if(typeof toast==='function') toast('삭제 실패','err');
     }
   }
   function whtMonthPrev(){_whtShiftMonth(-1)}
