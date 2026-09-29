@@ -3699,6 +3699,29 @@
     .akoi-summary-unit{font-size:13px}
     .akoi-summary-card.is-secondary .akoi-summary-num{font-size:17px}
   }
+  /* 브랜드 카드 2열 — 8개 브랜드를 한 화면에서 비교할 수 있게 */
+  #salesReportsWrap,#platformReportsWrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;align-items:start}
+  #salesReportsWrap > .akoi-section{margin-bottom:0 !important}
+  #platformReportsWrap > .plat-brand-group{margin-bottom:0}
+  /* 칸 폭이 절반이라 오늘/어제 숫자를 줄이지 않으면 넘친다 */
+  #salesReportsWrap .akoi-summary-num{font-size:30px}
+  #salesReportsWrap .akoi-summary-unit{font-size:14px}
+  #platformReportsWrap .akoi-summary-num{font-size:25px}
+  #platformReportsWrap .akoi-summary-unit{font-size:13px}
+  /* is-secondary(최근 30일)는 보조 정보 — 위 ID 규칙이 덮지 않도록 다시 눌러준다 */
+  #salesReportsWrap .akoi-summary-card.is-secondary .akoi-summary-num,
+  #platformReportsWrap .akoi-summary-card.is-secondary .akoi-summary-num{font-size:18px}
+  #salesReportsWrap .akoi-summary-card.is-secondary .akoi-summary-unit,
+  #platformReportsWrap .akoi-summary-card.is-secondary .akoi-summary-unit{font-size:11px}
+  @media (max-width:1180px){
+    #salesReportsWrap,#platformReportsWrap{grid-template-columns:1fr}
+    #salesReportsWrap .akoi-summary-num,#platformReportsWrap .akoi-summary-num{font-size:38px}
+    #salesReportsWrap .akoi-summary-unit,#platformReportsWrap .akoi-summary-unit{font-size:16px}
+  }
+  @media (max-width:720px){
+    #salesReportsWrap .akoi-summary-num,#platformReportsWrap .akoi-summary-num{font-size:28px}
+    #salesReportsWrap .akoi-summary-unit,#platformReportsWrap .akoi-summary-unit{font-size:13px}
+  }
   .akoi-body{display:flex;flex-direction:column;gap:8px;margin-top:6px}
   .akoi-body.akoi-body-collapsed{display:none}
   .akoi-empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
