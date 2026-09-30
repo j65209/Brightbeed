@@ -13072,6 +13072,9 @@
   const _akpInited={sixA:false, pp:false, akoi:false};
   const _akpRemoteTimers={sixA:null, pp:null, akoi:null};
   const _akpLastLocalSave={sixA:0, pp:0, akoi:0};
+  const _akpDirty={sixA:false, pp:false, akoi:false};   // 원격에 아직 못 올린 내 수정
+  const _akpPulledAt={sixA:0, pp:0, akoi:0};            // 남의 수정을 마지막으로 받아온 시각
+  const _akpRetry={sixA:0, pp:0, akoi:0};
   const _akpEditingPlats={sixA:new Set(), pp:new Set(), akoi:new Set()};
   const _akpEditingMaster={sixA:false, pp:false, akoi:false};
   // 플랫폼 표 기본 컬럼 순서와 기본 이름 — pl.colLabels[key] 로 사장님이 이름 변경 가능
@@ -13224,23 +13227,46 @@
 
   function _akpQueueRemoteSave(brand){
     brand=brand||_akpBrand;
+    _akpDirty[brand]=true;
     if(_akpRemoteTimers[brand]) clearTimeout(_akpRemoteTimers[brand]);
-    _akpRemoteTimers[brand]=setTimeout(()=>_akpRemoteSaveNow(brand), 8000);
+    _akpRemoteTimers[brand]=setTimeout(()=>_akpRemoteSaveNow(brand), 2500);
   }
-  async function _akpRemoteSaveNow(brand){
+  async function _akpRemoteSaveNow(brand, opts){
     brand=brand||_akpBrand;
     const state=_akpStates[brand];
     if(!_akpIsValid(state)) return;
     if(typeof ghPut!=='function') return;
+    if(_akpRemoteTimers[brand]){ clearTimeout(_akpRemoteTimers[brand]); _akpRemoteTimers[brand]=null; }
     try{
       const payload={data:state, updatedAt:Date.now()};
       const jsonTxt=JSON.stringify(payload,null,2);
       const b64=btoa(unescape(encodeURIComponent(jsonTxt)));
-      const r=await ghPut(_akpRemoteApi(brand), b64, 'chore: '+brand+' 기획전 자동 백업', {forceMaster:true, noConflictRetry:true});
-      if(r && r.ok){ localStorage.setItem(_akpRemoteTsKey(brand), String(payload.updatedAt)); }
+      const r=await ghPut(_akpRemoteApi(brand), b64, 'chore: '+brand+' 기획전 자동 백업',
+        {forceMaster:true, noConflictRetry:true, keepalive:!!(opts && opts.keepalive)});
+      if(r && r.ok){
+        localStorage.setItem(_akpRemoteTsKey(brand), String(payload.updatedAt));
+        _akpDirty[brand]=false;
+        _akpRetry[brand]=0;
+      }else{
+        _akpScheduleRetry(brand);
+      }
       _akpUpdateStatus(brand);
-    }catch(e){ console.warn('[akp] remote save failed', brand, e); _akpUpdateStatus(brand); }
+    }catch(e){
+      console.warn('[akp] remote save failed', brand, e);
+      _akpScheduleRetry(brand);
+      _akpUpdateStatus(brand);
+    }
   }
+  /* dirty 상태가 영구히 남으면 그 브라우저는 남의 수정도 못 받는다 — 올라갈 때까지 재시도 */
+  function _akpScheduleRetry(brand){
+    if(!_akpDirty[brand]) return;
+    const n=Math.min((_akpRetry[brand]||0)+1, 5);
+    _akpRetry[brand]=n;
+    if(_akpRemoteTimers[brand]) clearTimeout(_akpRemoteTimers[brand]);
+    _akpRemoteTimers[brand]=setTimeout(()=>_akpRemoteSaveNow(brand), n*15000);
+  }
+  /* 다른 사람이 고친 값을 가져온다. 내가 방금 고친 게 아직 원격에 안 올라갔거나
+     편집 모드를 열어둔 동안에는 덮어쓰지 않고, 그 상태가 풀리면 다음 폴링에서 따라잡는다. */
   async function _akpSyncFromRemote(brand){
     brand=brand||_akpBrand;
     if(typeof fetch!=='function') return;
@@ -13251,19 +13277,52 @@
       if(!remote || !_akpIsValid(remote.data)) return;
       const localRemoteTs = Number(localStorage.getItem(_akpRemoteTsKey(brand))||0);
       const remoteTs = Number(remote.updatedAt)||0;
-      // 로컬이 default(빈 상품 1개, 판매가/원가 없음)면 즉시 원격 반영
-      const s=_akpStates[brand];
-      const isEmptyDefault = !!(s && s.items && s.items.length<=1
-        && (!s.items[0] || !_akpNum(s.items[0].costKrw))
-        && s.platforms && s.platforms.every(p=>!p.rows || Object.keys(p.rows).length===0));
-      if(remoteTs > localRemoteTs && (isEmptyDefault || (Date.now()-_akpLastLocalSave[brand]) > 60*1000)){
-        _akpStates[brand]=_akpMigrate(remote.data, brand);
-        localStorage.setItem(_akpLSKey(brand), JSON.stringify(_akpStates[brand]));
-        localStorage.setItem(_akpBackupLSKey(brand), JSON.stringify(_akpStates[brand]));
-        localStorage.setItem(_akpRemoteTsKey(brand), String(remoteTs));
-        if(brand===_akpBrand) akpRender();
-      }
+      if(remoteTs <= localRemoteTs) return;
+      if(_akpIsBusy(brand)){ _akpUpdateStatus(brand); return; }
+      _akpStates[brand]=_akpMigrate(remote.data, brand);
+      localStorage.setItem(_akpLSKey(brand), JSON.stringify(_akpStates[brand]));
+      localStorage.setItem(_akpBackupLSKey(brand), JSON.stringify(_akpStates[brand]));
+      localStorage.setItem(_akpRemoteTsKey(brand), String(remoteTs));
+      _akpPulledAt[brand]=remoteTs;
+      if(brand===_akpBrand) akpRender({noSave:true});
+      _akpUpdateStatus(brand);
     }catch(e){}
+  }
+  /* 아직 원격에 못 올린 내 수정이 있거나, 편집 모드를 열어둔 상태 */
+  function _akpIsBusy(brand){
+    if(_akpDirty[brand]) return true;
+    if(_akpEditingMaster[brand]) return true;
+    const eds=_akpEditingPlats[brand];
+    if(eds && eds.size) return true;
+    return (Date.now()-_akpLastLocalSave[brand]) < 15*1000;
+  }
+  function _akpAttachSyncHooks(){
+    if(window._akpSyncHooked) return;
+    window._akpSyncHooked=true;
+    // 열어둔 화면도 남의 수정을 따라잡게 한다 — MD 뷰가 보일 때만 돈다
+    setInterval(()=>{
+      if(document.visibilityState!=='visible') return;
+      if(document.getElementById('viewMd')?.hidden) return;
+      _akpSyncFromRemote(_akpBrand);
+    }, 45000);
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState==='visible' && !document.getElementById('viewMd')?.hidden){
+        _akpSyncFromRemote(_akpBrand);
+      }
+    });
+    window.addEventListener('online', ()=>{
+      AKP_BRANDS.forEach(b=>{ if(_akpDirty[b]) _akpRemoteSaveNow(b); });
+      if(!document.getElementById('viewMd')?.hidden) _akpSyncFromRemote(_akpBrand);
+    });
+    // 디바운스 대기 중에 창을 닫으면 내 수정이 사라진다 — 나가기 전에 밀어넣는다
+    window.addEventListener('beforeunload', (e)=>{
+      if(!AKP_BRANDS.some(b=>_akpDirty[b])) return;
+      e.preventDefault();
+      e.returnValue='';
+    });
+    window.addEventListener('pagehide', ()=>{
+      AKP_BRANDS.forEach(b=>{ if(_akpDirty[b]) _akpRemoteSaveNow(b, {keepalive:true}); });
+    });
   }
 
   function _akpTimeAgo(ts){
@@ -13283,7 +13342,13 @@
     const remoteTs=Number(localStorage.getItem(_akpRemoteTsKey(brand))||0);
     const localAgo=_akpTimeAgo(_akpLastLocalSave[brand]);
     const remoteAgo=remoteTs ? _akpTimeAgo(remoteTs) : '대기';
-    el.innerHTML='<span class="akp-status-ok">💾 저장됨</span> · 로컬 '+localAgo+' · 원격 '+remoteAgo;
+    const head=_akpDirty[brand]
+      ? '<span class="akp-status-warn">↑ 저장 중…</span>'
+      : '<span class="akp-status-ok">💾 저장됨</span>';
+    const pulled=_akpPulledAt[brand]
+      ? ' · <span class="akp-status-ok">↓ 팀 최신본 '+_akpTimeAgo(_akpPulledAt[brand])+'</span>'
+      : '';
+    el.innerHTML=head+' · 로컬 '+localAgo+' · 원격 '+remoteAgo+pulled;
   }
   function _akpNum(n){ if(typeof n==='string') n=n.replace(/[,\s]/g,''); n=Number(n); return Number.isFinite(n)?n:0; }
   function _akpFmt(n){ n=Math.round(_akpNum(n)); return n.toLocaleString('ko-KR'); }
@@ -13291,18 +13356,31 @@
   function _akpMul(x){ if(!Number.isFinite(x)||x<=0) return '—'; return x.toFixed(2); }
   function _akpFee(price, rate){ return Math.round(_akpNum(price)*_akpNum(rate)/100/100)*100; }
 
+  /* 이전 버전은 표를 화면에 그리는 것만으로도 내 로컬본을 원격에 덮어썼다 —
+     브라우저마다 값이 갈려 있으므로 배포 후 한 번은 모두 원격 최신본으로 모은다.
+     로컬 백업·이력은 그대로 남아 있어 필요하면 '이력'에서 되돌릴 수 있다. */
+  const AKP_SYNC_RESET='brandPromoV3.syncReset.v2';
+  function _akpForceResyncOnce(){
+    try{
+      if(localStorage.getItem(AKP_SYNC_RESET)==='1') return;
+      AKP_BRANDS.forEach(b=>localStorage.removeItem(_akpRemoteTsKey(b)));
+      localStorage.setItem(AKP_SYNC_RESET,'1');
+    }catch(e){}
+  }
   function akpInit(brand){
     brand=brand||_akpBrand;
     _akpBrand=brand;
+    _akpForceResyncOnce();
     if(!_akpInited[brand]){
       _akpStates[brand]=_akpLoad(brand);
       _akpInited[brand]=true;
     }
-    akpRender();
+    akpRender({noSave:true});
     _akpUpdateStatus(brand);
     if(!window._akpStatusTick){
       window._akpStatusTick=setInterval(()=>{ AKP_BRANDS.forEach(b=>_akpUpdateStatus(b)); }, 30000);
     }
+    _akpAttachSyncHooks();
     _akpSyncFromRemote(brand);
   }
   window.akpInit=akpInit;
@@ -13361,12 +13439,14 @@
   window.akpImportJson=akpImportJson;
   window.akpShowHistory=akpShowHistory;
 
-  function akpRender(){
+  /* opts.noSave — 단순 재렌더(탭 열기·원격 반영 직후)는 저장하지 않는다.
+     저장하면 화면만 그린 것이 내 로컬본을 원격에 덮어써서, 남이 방금 고친 값을 되돌린다. */
+  function akpRender(opts){
     if(!_akpState) return;
     _renderMasterHeader();
     _renderMaster();
     _renderPlatforms();
-    _akpSave();
+    if(!(opts && opts.noSave === true)) _akpSave();
   }
   window.akpRender=akpRender;
 
