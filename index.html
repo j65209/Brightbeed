@@ -3124,9 +3124,12 @@
     display:flex;align-items:center;gap:6px;flex-wrap:wrap;
     padding:4px 6px 4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg-1);
   }
+  .mdw-stampbar[hidden]{display:none}
   .mdw-stamp-who{font-size:11px;font-weight:800;color:var(--text-3);letter-spacing:-.01em}
-  .mdw-stampbar .mdw-stamp-btn{padding:5px 12px;font-size:12px;border-radius:999px}
-  .mdw-stampbar .mdw-time{width:96px;flex:0 0 auto;font-size:12.5px;padding:4px 6px;border-radius:7px}
+  .mdw-stamp-pair{display:inline-flex;align-items:center;gap:6px;min-width:0}
+  .mdw-stampbar .mdw-stamp-btn{padding:5px 12px;font-size:12px;border-radius:999px;white-space:nowrap}
+  /* 한국어 로케일은 "오전 09:20" + 시계 아이콘이라 고정 폭을 주면 뒷자리가 잘린다 */
+  .mdw-stampbar .mdw-time{width:auto;min-width:112px;flex:0 0 auto;font-size:12.5px;padding:4px 6px;border-radius:7px}
   .mdw-stampbar .mdw-log{margin-top:0;position:relative}
   .mdw-stampbar .mdw-log > summary{
     font-size:11px;padding:4px 9px;border-radius:999px;
@@ -3208,10 +3211,16 @@
     .mdw-log-tb{font-size:13px}
     .mdw-log-tb th,.mdw-log-tb td{padding:7px 4px}
     .mdw-wrapgrid{grid-template-columns:1fr;gap:0}
-    /* 도장 바는 한 줄 폭을 다 쓰고, 달력 칸은 최소한으로 줄인다 */
-    .mdw-stampbar{width:100%;border-radius:12px;padding:6px 8px;justify-content:space-between}
-    .mdw-stampbar .mdw-stamp-btn{padding:8px 12px;font-size:13px}
-    .mdw-stampbar .mdw-time{width:84px;font-size:16px;padding:5px 6px}
+    /* 도장 바 — 좁은 화면에선 출근/퇴근을 한 줄씩 내려서 시각이 잘리지 않게 한다 */
+    .mdw-stampbar{
+      display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px;
+      width:100%;border-radius:12px;padding:9px 11px;
+    }
+    .mdw-stamp-who{grid-area:1/1;font-size:12.5px}
+    .mdw-stampbar .mdw-log{grid-area:1/2;justify-self:end}
+    .mdw-stamp-pair{display:grid;grid-column:1/-1;grid-template-columns:auto 1fr;gap:8px}
+    .mdw-stampbar .mdw-stamp-btn{padding:10px 12px;font-size:13.5px}
+    .mdw-stampbar .mdw-time{width:100%;min-width:0;font-size:16px;padding:8px 10px}
     .mdw-stampbar .mdw-log > summary{padding:6px 9px;font-size:12px}
     .mdw-month,.mdw-month-wd{gap:3px}
     .mdw-day{padding:4px 2px;min-height:48px}
@@ -14265,6 +14274,8 @@
     if(id==='viewDesign'){
       _dsgActiveBoard = 'design';
       if(typeof dsgInit==='function') dsgInit();
+      // 디자인보드를 보는 동안 코페리 노션을 미리 받아둔다 — 탭을 눌렀을 때 기다리지 않게
+      if(typeof dcInit==='function') dcInit();
     }
     if(id==='viewFixedCosts'){
       // 뷰어 접근 방어 (해시 직입력·구 링크로 진입 시)
@@ -16096,7 +16107,8 @@
     cmts:'brightbeed_dc_cmts_v1',
     tomb:'brightbeed_dc_cmt_tomb_v1',
     pend:'brightbeed_dc_cmt_pending_v1',
-    cid:'brightbeed_dc_cid_v1'
+    cid:'brightbeed_dc_cid_v1',
+    mdoc:'brightbeed_dc_mirror_doc_v1'
   };
   const DC_TOMB_TTL = 24*60*60*1000;  // 24h
   const _dcState = {
@@ -16203,11 +16215,12 @@
     if(reload) reload.hidden = !clean;
     if(!clean){
       body.innerHTML = '';
-      Object.assign(_dcMirrorState(cfg), {doc:null, sig:null});
+      Object.assign(_dcMirrorState(cfg), {doc:null, sig:null, hydrated:false});
       _dcStamp(cfg, '');
       return;
     }
-    if(changed) Object.assign(_dcMirrorState(cfg), {doc:null, sig:null, at:0});
+    if(changed) Object.assign(_dcMirrorState(cfg), {doc:null, sig:null, at:0, hydrated:false});
+    _dcHydrateMirror(cfg, clean);
     _dcLoadMirror(cfg, changed);
   }
 
@@ -16231,6 +16244,39 @@
     const d = new Date(ts||Date.now());
     return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
   }
+
+  /* 마지막으로 받아온 문서를 localStorage 에 남긴다 — 새로고침 후 스켈레톤 없이 바로 뜬다 */
+  const DC_MIRROR_CACHE_TTL = 7*24*60*60*1000;
+  const DC_MIRROR_CACHE_MAX = 1500000;   // localStorage 쿼터 보호
+  function _dcMirrorCacheRead(){
+    try{ return JSON.parse(localStorage.getItem(DC_K.mdoc)||'{}') || {}; }catch(e){ return {}; }
+  }
+  function _dcMirrorCacheWrite(cfg, url, doc, at){
+    try{
+      const all = _dcMirrorCacheRead();
+      all[cfg.stateKey] = {url, at, doc};
+      let s = JSON.stringify(all);
+      if(s.length > DC_MIRROR_CACHE_MAX){ delete all[cfg.stateKey]; s = JSON.stringify(all); }
+      localStorage.setItem(DC_K.mdoc, s);
+    }catch(e){}
+  }
+  /* 서버 응답을 기다리지 않고 캐시본을 먼저 그린다. at 을 0 으로 두어 최신화는 곧바로 이어진다 */
+  function _dcHydrateMirror(cfg, url){
+    const st = _dcMirrorState(cfg);
+    if(st.doc || st.hydrated) return false;
+    st.hydrated = true;
+    const c = _dcMirrorCacheRead()[cfg.stateKey];
+    if(!c || c.url !== url || !c.doc) return false;
+    if(Date.now() - (c.at||0) > DC_MIRROR_CACHE_TTL) return false;
+    const body = document.getElementById(cfg.bodyId);
+    if(!body) return false;
+    st.doc = c.doc; st.at = 0;
+    st.sig = (c.doc.title||'') + '|' + JSON.stringify(c.doc.blocks||[]);
+    body.innerHTML = _ntRenderDoc(c.doc);
+    _ntHookEntries(body);
+    _dcStamp(cfg, _dcHm(c.at)+' 캐시');
+    return true;
+  }
   async function _dcLoadMirror(cfg, force){
     const url = _dcState[cfg.stateKey];
     const body = document.getElementById(cfg.bodyId);
@@ -16251,6 +16297,7 @@
       if(!r.ok || !j || j.ok!==true) throw new Error((j && (j.detail||j.error)) || ('HTTP '+r.status));
       if(_dcState[cfg.stateKey] !== url){ st.requeue = true; return; }   // 응답 도착 전에 링크가 바뀜
       st.doc = j; st.err = null; st.at = Date.now();
+      _dcMirrorCacheWrite(cfg, url, j, st.at);
       // 내용이 그대로면 innerHTML 을 건드리지 않는다 — 스크롤·펼침 상태 보존
       const sig = (j.title||'') + '|' + JSON.stringify(j.blocks||[]);
       if(st.sig !== sig){ body.innerHTML = _ntRenderDoc(j); st.sig = sig; _ntHookEntries(body); }
@@ -33297,10 +33344,14 @@
     const cin = (att && att.check_in) || '', cout = (att && att.check_out) || '';
     const off = canStamp ? '' : ' disabled';
     return `<span class="mdw-stamp-who">${_esc(owner)}</span>
-      <button type="button" class="mdw-stamp-btn" onclick="mdwStamp('in')"${cin||!canStamp?' disabled':''}>${cin ? `출근 ${_esc(cin)}` : '🖐 출근'}</button>
-      <input type="time" class="mdw-time" value="${_esc(cin)}" onchange="mdwSetTime('in', this.value)"${off} title="출근 시각 직접 수정">
-      <button type="button" class="mdw-stamp-btn is-out" onclick="mdwStamp('out')"${cout||!canStamp?' disabled':''}>${cout ? `퇴근 ${_esc(cout)}` : '🌙 퇴근'}</button>
-      <input type="time" class="mdw-time" value="${_esc(cout)}" onchange="mdwSetTime('out', this.value)"${off} title="퇴근 시각 직접 수정">
+      <span class="mdw-stamp-pair">
+        <button type="button" class="mdw-stamp-btn" onclick="mdwStamp('in')"${cin||!canStamp?' disabled':''}>${cin ? `출근 ${_esc(cin)}` : '🖐 출근'}</button>
+        <input type="time" class="mdw-time" value="${_esc(cin)}" onchange="mdwSetTime('in', this.value)"${off} title="출근 시각 직접 수정">
+      </span>
+      <span class="mdw-stamp-pair">
+        <button type="button" class="mdw-stamp-btn is-out" onclick="mdwStamp('out')"${cout||!canStamp?' disabled':''}>${cout ? `퇴근 ${_esc(cout)}` : '🌙 퇴근'}</button>
+        <input type="time" class="mdw-time" value="${_esc(cout)}" onchange="mdwSetTime('out', this.value)"${off} title="퇴근 시각 직접 수정">
+      </span>
       <details class="mdw-log">
         <summary title="${_esc(owner)} 이번 달 출퇴근 기록">📅 기록</summary>
         <div class="mdw-log-pop">${_mdwMonthLogHtml(owner, today)}</div>
