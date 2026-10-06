@@ -9781,6 +9781,30 @@
     <div class="dsg-pane" data-pane="coferry" hidden>
       <div class="dc-notion-card">
         <div class="dc-notion-head">
+          <span class="dc-notion-title">📓 업무일지</span>
+          <span class="dc-notion-stamp" id="dcCalStamp"></span>
+          <span class="dc-notion-url" id="dcCalUrlShow"></span>
+          <div class="dc-notion-actions">
+            <button class="dc-btn-ghost" id="dcCalReloadBtn" onclick="dcCalReload()" hidden title="노션에서 다시 가져오기">🔄 새로고침</button>
+            <button class="dc-btn-ghost" id="dcCalOpenBtn" onclick="dcCalOpenNew()" hidden title="노션에서 열기">↗ 노션</button>
+            <button class="dc-btn-ghost" id="dcCalEditBtn" onclick="dcCalEdit()" hidden title="업무일지 링크 편집(마스터)">⚙ 링크</button>
+          </div>
+        </div>
+        <div class="dc-notion-frame">
+          <div class="dc-notion-body" id="dcCalBody"></div>
+          <div class="dc-notion-empty" id="dcCalEmpty">
+            <div class="dc-notion-empty-icon">📓</div>
+            <div class="dc-notion-empty-title">업무일지 링크가 아직 등록되지 않았어요</div>
+            <div class="dc-notion-empty-sub">
+              마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
+              업무일지 노션 URL 을 넣어주세요.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dc-notion-card">
+        <div class="dc-notion-head">
           <span class="dc-notion-title">🤝 코페리 x 에이로봇</span>
           <span class="dc-notion-stamp" id="dcNotionStamp"></span>
           <span class="dc-notion-url" id="dcNotionUrlShow"></span>
@@ -9799,30 +9823,6 @@
               마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
               코페리 x 에이로봇 노션 페이지 URL 을 넣어주세요.<br/>
               노션에서 <b>공유 → 링크가 있는 모든 사용자</b> 로 열어두어야 내용이 보입니다.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dc-notion-card">
-        <div class="dc-notion-head">
-          <span class="dc-notion-title">📓 업무일지</span>
-          <span class="dc-notion-stamp" id="dcCalStamp"></span>
-          <span class="dc-notion-url" id="dcCalUrlShow"></span>
-          <div class="dc-notion-actions">
-            <button class="dc-btn-ghost" id="dcCalReloadBtn" onclick="dcCalReload()" hidden title="노션에서 다시 가져오기">🔄 새로고침</button>
-            <button class="dc-btn-ghost" id="dcCalOpenBtn" onclick="dcCalOpenNew()" hidden title="노션에서 열기">↗ 노션</button>
-            <button class="dc-btn-ghost" id="dcCalEditBtn" onclick="dcCalEdit()" hidden title="업무일지 링크 편집(마스터)">⚙ 링크</button>
-          </div>
-        </div>
-        <div class="dc-notion-frame">
-          <div class="dc-notion-body" id="dcCalBody"></div>
-          <div class="dc-notion-empty" id="dcCalEmpty">
-            <div class="dc-notion-empty-icon">📓</div>
-            <div class="dc-notion-empty-title">업무일지 링크가 아직 등록되지 않았어요</div>
-            <div class="dc-notion-empty-sub">
-              마스터로 로그인 후 우측 상단 <b>⚙ 링크</b> 버튼을 눌러<br/>
-              업무일지 노션 URL 을 넣어주세요.
             </div>
           </div>
         </div>
@@ -16291,6 +16291,7 @@
       urlShowId:'dcCalUrlShow', openBtnId:'dcCalOpenBtn', editBtnId:'dcCalEditBtn',
       reloadBtnId:'dcCalReloadBtn', stampId:'dcCalStamp',
       expand:true,   // DB 각 행(= 날짜별 업무일지) 본문까지 통째로 받아온다
+      expandDays:4,  // 최근 4일치는 접지 않고 펼친 채로 — 디자인팀이 매일 훑는 범위
       promptTitle:'업무일지 노션 URL',
       toastLabel:'업무일지 링크'
     }
@@ -16369,6 +16370,7 @@
     if(!body) return false;
     st.doc = c.doc; st.at = 0;
     st.sig = (c.doc.title||'') + '|' + JSON.stringify(c.doc.blocks||[]);
+    _ntExpandDays = cfg.expandDays || 0;
     body.innerHTML = _ntRenderDoc(c.doc);
     _ntHookEntries(body);
     _dcStamp(cfg, _dcHm(c.at)+' 캐시');
@@ -16397,7 +16399,10 @@
       _dcMirrorCacheWrite(cfg, url, j, st.at);
       // 내용이 그대로면 innerHTML 을 건드리지 않는다 — 스크롤·펼침 상태 보존
       const sig = (j.title||'') + '|' + JSON.stringify(j.blocks||[]);
-      if(st.sig !== sig){ body.innerHTML = _ntRenderDoc(j); st.sig = sig; _ntHookEntries(body); }
+      if(st.sig !== sig){
+        _ntExpandDays = cfg.expandDays || 0;
+        body.innerHTML = _ntRenderDoc(j); st.sig = sig; _ntHookEntries(body);
+      }
       _dcStamp(cfg, _dcHm(st.at)+' 갱신');
     }catch(e){
       st.err = String(e && e.message || e); st.at = Date.now();
@@ -16536,6 +16541,13 @@
   }
   /* DB 행을 표가 아니라 노션처럼 "날짜별 문서" 로 펼쳐 보여준다 (최신순). */
   const _ntOpen = {};   // entryId -> true/false (사용자가 직접 접거나 편 것만 기록)
+  /* 렌더 직전에 카드별 cfg.expandDays 가 꽂힌다. 0 이면 최신 1건만 펼침. */
+  let _ntExpandDays = 0;
+  function _ntCutDate(days){
+    const d = new Date();
+    d.setDate(d.getDate() - days);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
   function _ntHookEntries(body){
     if(!body || body._ntEntryHook) return;
     body._ntEntryHook = true;
@@ -16552,10 +16564,13 @@
       + `<span class="nt-badge">${entries.length}건</span>`
       + (href?` <a class="nt-link" href="${_ntEsc(href)}" target="_blank" rel="noopener noreferrer">노션에서 열기</a>`:'')
       + '</div>';
+    const cut = _ntExpandDays > 0 ? _ntCutDate(_ntExpandDays) : '';
     const items = entries.map((e,i)=>{
       const id = String(e.id||('i'+i));
       const explicit = _ntOpen[id];
-      const open = (explicit===undefined ? i===0 : explicit) ? ' open' : '';
+      // date 는 YYYY-MM-DD 라 문자열 비교로 충분 (프록시가 KST 기준으로 내려준다)
+      const recent = !!cut && /^\d{4}-\d{2}-\d{2}$/.test(e.date||'') && e.date >= cut;
+      const open = (explicit===undefined ? (i===0 || recent) : explicit) ? ' open' : '';
       const eh = _ntHref(e.href);
       const inner = e.error ? '<div class="nt-empty-rows">내용을 불러오지 못했습니다</div>'
         : (Array.isArray(e.blocks) && e.blocks.length ? _ntBlocks(e.blocks)
