@@ -2992,6 +2992,23 @@
   }
   .wr-batch-list-inline .wr-cell-th{color:#57534e;font-weight:700;font-size:11px}
   .wr-batch-list-inline .wr-cell-amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  /* 행별 송금완료 — 4건 중 2건만 보냈을 때 각각 체크 */
+  .wr-row-done-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:2px 9px;border-radius:999px;border:1px solid #e7e2ce;background:#fff;
+    color:#78716c;font-family:inherit;font-size:11px;font-weight:700;line-height:1.7;
+    cursor:pointer;white-space:nowrap;transition:all .12s;
+  }
+  .wr-row-done-btn:hover{background:#dcfce7;border-color:#86efac;color:#14532d}
+  .wr-row-done-btn:active{transform:scale(.96)}
+  .wr-row-done-btn.is-done{background:#dcfce7;border-color:#86efac;color:#14532d}
+  .wr-row-flag{font-size:11px;font-weight:700;color:#14532d;white-space:nowrap}
+  .wr-batch-list-inline .wr-row-paid{opacity:.45}
+  .wr-batch-list-inline .wr-row-paid .wr-cell-val{text-decoration:line-through}
+  .wr-batch-progress{
+    background:#fff;border:1px solid #fcd34d;border-radius:999px;padding:2px 9px;
+    font-size:11px;font-weight:700;color:#7c2d12;font-variant-numeric:tabular-nums;
+  }
   /* 셀 안 값 + 복사 버튼 (은행앱 붙여넣기 편의) */
   .wr-cell-copy{display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:100%}
   .wr-cell-copy > .wr-cell-val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -29506,27 +29523,74 @@
   }
   window.wrSendNotify = wrSendNotify;
 
-  async function wrMarkDone(id){
-    if(!id) return;
-    const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
-    // 전승훈 대표 본인만 완료 처리 가능 (마스터 PIN 도 예외 없음)
-    if(me !== WR_OWNER_NAME){
+  const _wrPendingRows = (rows)=> (Array.isArray(rows)?rows:[]).filter(x=> x && !x.done);
+
+  function _wrCanDone(){
+    if(_wrCurrentMe() !== WR_OWNER_NAME){
       toast('송금완료는 대표(전승훈)만 처리할 수 있습니다', 'err');
-      return;
+      return false;
     }
-    if(!confirm('송금 완료로 표시할까요?')) return;
+    return true;
+  }
+  /* PATCH 직전에 서버 rows 를 다시 읽는다 — 다른 창/기기에서 먼저 체크한 행을 덮어쓰지 않도록. */
+  async function _wrFetchOne(id){
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?id=eq.${encodeURIComponent(id)}&select=rows,status`, {headers:_sbHeaders(), cache:'no-cache'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    return Array.isArray(j) ? j[0] : null;
+  }
+  async function _wrPatch(id, patch){
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?id=eq.${encodeURIComponent(id)}`, {
+      method:'PATCH',
+      headers:_sbHeaders({'Prefer':'return=minimal'}),
+      body: JSON.stringify(patch),
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+  }
+
+  async function wrMarkDone(id){
+    if(!id || !_wrCanDone()) return;
+    const me = _wrCurrentMe();
+    if(!confirm('남은 건까지 전부 송금 완료로 표시할까요?')) return;
     try{
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/withdrawal_requests?id=eq.${encodeURIComponent(id)}`, {
-        method:'PATCH',
-        headers:_sbHeaders({'Prefer':'return=minimal'}),
-        body: JSON.stringify({status:'done', done_at:new Date().toISOString(), done_by: me || WR_OWNER_NAME}),
-      });
-      if(!r.ok){ toast(`실패 (HTTP ${r.status})`, 'err'); return; }
+      const cur = await _wrFetchOne(id);
+      const now = new Date().toISOString();
+      const rows = (Array.isArray(cur && cur.rows)?cur.rows:[]).map(x=> x && x.done ? x : {...x, done:true, done_at:now});
+      await _wrPatch(id, {rows, status:'done', done_at:now, done_by: me});
       toast('✅ 송금완료 처리되었습니다', 'ok');
       _wrFetchBatches();
-    }catch(e){ toast('처리 실패', 'err'); }
+    }catch(e){ toast(`처리 실패 (${e.message||'네트워크'})`, 'err'); }
   }
   window.wrMarkDone = wrMarkDone;
+
+  /* 행 하나만 송금완료 토글 — 4건 중 2건만 보낸 경우용.
+     마지막 한 건이 체크되면 배치 전체가 자동으로 status=done 으로 넘어간다. */
+  async function wrRowDone(id, idx){
+    if(!id || !_wrCanDone()) return;
+    const me = _wrCurrentMe();
+    let cur;
+    try{ cur = await _wrFetchOne(id); }
+    catch(e){ toast(`처리 실패 (${e.message||'네트워크'})`, 'err'); return; }
+    const rows = (Array.isArray(cur && cur.rows)?cur.rows:[]).map(x=>({...x}));
+    const target = rows[idx];
+    if(!target){ toast('이미 변경된 요청입니다 — 새로고침합니다', 'err'); _wrFetchBatches(); return; }
+    const undo = !!target.done;
+    const label = [target.holder||target.bank||`${idx+1}번`, _wrFmtWon(target.amount)].filter(Boolean).join(' ');
+    if(!confirm(undo ? `[${label}] 송금완료를 취소할까요?` : `[${label}] 이 건만 송금완료로 표시할까요?`)) return;
+    const now = new Date().toISOString();
+    if(undo){ delete target.done; delete target.done_at; }
+    else { target.done = true; target.done_at = now; }
+    const remain = _wrPendingRows(rows).length;
+    const patch = {rows};
+    if(remain === 0){ patch.status='done'; patch.done_at=now; patch.done_by=me; }
+    else if((cur && cur.status) === 'done'){ patch.status='notified'; patch.done_at=null; patch.done_by=null; }
+    try{
+      await _wrPatch(id, patch);
+      toast(undo ? '송금완료를 취소했습니다' : (remain===0 ? '✅ 전부 송금완료 처리되었습니다' : `✅ 1건 송금완료 · ${remain}건 남음`), 'ok');
+      _wrFetchBatches();
+    }catch(e){ toast(`처리 실패 (${e.message||'네트워크'})`, 'err'); }
+  }
+  window.wrRowDone = wrRowDone;
 
   async function wrCancelBatch(id, requestedBy, isDone){
     if(!id) return;
@@ -29597,7 +29661,8 @@
       const pending = await pR.json();
       const done = await dR.json();
       _wrBatches = [...(Array.isArray(pending)?pending:[]), ...(Array.isArray(done)?done:[])];
-      const h = JSON.stringify(_wrBatches.map(b=>[b.id,b.status,b.done_at,b.notified_at]));
+      const h = JSON.stringify(_wrBatches.map(b=>[b.id,b.status,b.done_at,b.notified_at,
+        (Array.isArray(b.rows)?b.rows:[]).map(x=> x&&x.done ?'1':'0').join('')]));
       if(h === _wrBatchesLastHash) return;
       _wrBatchesLastHash = h;
       _wrRenderBatches();
@@ -29614,12 +29679,18 @@
       const rows = Array.isArray(b.rows)?b.rows:[];
       const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
       const isDone = b.status === 'done';
+      const rowCount = rows.length;
+      const paidCount = rows.filter(x=> x && x.done).length;
+      const remainAmt = _wrPendingRows(rows).reduce((s,x)=>s+(Number(x.amount)||0), 0);
+      const progressHtml = (!isDone && paidCount>0)
+        ? `<span class="wr-batch-progress">${paidCount}/${rowCount} 송금 · 남은 ${_wrFmtWon(remainAmt)||'₩0'}</span>`
+        : '';
       const badgeCls = isDone ? 'st-done' : 'st-notified';
       const badgeText = isDone ? '송금완료' : '알림 전송됨';
       const ts = isDone ? (b.done_at||b.requested_at) : (b.notified_at||b.requested_at);
       const tsLabel = _wrFmtTs(ts);
       const doneBtn = (!isDone && canDone)
-        ? `<button type="button" class="wr-btn wr-btn-done" onclick="wrMarkDone('${_esc(b.id)}')">✅ 송금완료</button>`
+        ? `<button type="button" class="wr-btn wr-btn-done" onclick="wrMarkDone('${_esc(b.id)}')">✅ ${paidCount>0?'나머지 전부 완료':'전부 송금완료'}</button>`
         : '';
       // 취소(삭제) — 마스터는 완료된 이력까지 삭제 가능, 요청 본인은 미완료만
       const canCancel = isMaster() || (!isDone && me === b.requested_by);
@@ -29630,21 +29701,25 @@
       const actionsHtml = (doneBtn || cancelBtn)
         ? `<div class="wr-batch-actions">${cancelBtn}${doneBtn}</div>`
         : '';
-      const rowsHtml = rows.map(r=>{
+      const rowsHtml = rows.map((r, ri)=>{
         const bank=String(r.bank||''), account=String(r.account||''), holder=String(r.holder||''), memo=String(r.memo||'');
         const amountRaw = Number(r.amount)||0;
         const accountDigits = account.replace(/[^0-9]/g,''); // 은행앱은 숫자만 받는 경우 많음
         const mkBtn=(val,label)=> val ? `<button type="button" class="wr-copy-btn" data-copy="${_esc(val)}" data-label="${_esc(label)}" title="${_esc(label)} 복사">${_wrCopyIcon}</button>` : '';
+        const paid = !!r.done;
+        const pc = paid ? ' wr-row-paid' : '';
+        const doneCell = canDone
+          ? `<button type="button" class="wr-row-done-btn${paid?' is-done':''}" onclick="wrRowDone('${_esc(b.id)}',${ri})" title="${paid?'송금완료 취소':'이 건만 송금완료'}">${paid?'✅ 완료':'송금완료'}</button>`
+          : (paid ? '<span class="wr-row-flag">✅ 완료</span>' : '');
         return `
-          <div class="wr-cell-th"><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(bank)}</span>${mkBtn(bank,'은행')}</span></div>
-          <div><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(account)}</span>${mkBtn(accountDigits||account,'계좌번호')}</span></div>
-          <div class="wr-cell-amt"><span class="wr-cell-copy"><span class="wr-cell-val">${_wrFmtWon(r.amount)}</span>${mkBtn(String(amountRaw),'금액')}</span></div>
-          <div><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(holder)}</span>${mkBtn(holder,'예금주')}</span></div>
-          <div><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(memo)}</span>${mkBtn(memo,'비고')}</span></div>
-          <div></div>
+          <div class="wr-cell-th${pc}"><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(bank)}</span>${mkBtn(bank,'은행')}</span></div>
+          <div class="${pc.trim()}"><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(account)}</span>${mkBtn(accountDigits||account,'계좌번호')}</span></div>
+          <div class="wr-cell-amt${pc}"><span class="wr-cell-copy"><span class="wr-cell-val">${_wrFmtWon(r.amount)}</span>${mkBtn(String(amountRaw),'금액')}</span></div>
+          <div class="${pc.trim()}"><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(holder)}</span>${mkBtn(holder,'예금주')}</span></div>
+          <div class="${pc.trim()}"><span class="wr-cell-copy"><span class="wr-cell-val">${_esc(memo)}</span>${mkBtn(memo,'비고')}</span></div>
+          <div style="text-align:right">${doneCell}</div>
         `;
       }).join('');
-      const rowCount = rows.length;
       return `
         <details class="wr-batch${isDone?' is-done':''}"${isDone?'':' open'}>
           <summary class="wr-batch-head">
@@ -29653,6 +29728,7 @@
             <span>요청자 <b>${_esc(b.requested_by||'-')}</b></span>
             <span style="color:#78716c">· ${tsLabel}</span>
             <span style="color:#a8a29e">· ${rowCount}건</span>
+            ${progressHtml}
             <span class="wr-batch-total">${_wrFmtWon(total)}</span>
           </summary>
           <div class="wr-batch-body">
@@ -29662,7 +29738,7 @@
               <div class="wr-cell-th" style="text-align:right">금액</div>
               <div class="wr-cell-th">예금주</div>
               <div class="wr-cell-th">비고</div>
-              <div></div>
+              <div class="wr-cell-th" style="text-align:right">${canDone||paidCount?'송금':''}</div>
               ${rowsHtml}
             </div>
             ${actionsHtml}
@@ -29762,9 +29838,10 @@
       list.forEach(row=>{
         if(!row || !row.id) return;
         _wrNotifiedIds.add(row.id);            // 마킹 (INSERT 중복 방지)
-        const rows = Array.isArray(row.rows) ? row.rows : [];
-        const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
-        _wrFireNotif(`🔔 출금 요청 대기 (${rows.length}건)`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)} — 송금완료 눌러주세요`, row.id);
+        const pend = _wrPendingRows(row.rows); // 이미 보낸 행은 빼고 남은 것만 재촉
+        if(!pend.length) return;
+        const total = pend.reduce((s,x)=>s+(Number(x.amount)||0), 0);
+        _wrFireNotif(`🔔 출금 요청 대기 (${pend.length}건)`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)} — 송금완료 눌러주세요`, row.id);
       });
     }catch(e){}
   }
@@ -29783,9 +29860,10 @@
         if(_wrNotifiedIds.has(row.id)) return;
         _wrNotifiedIds.add(row.id);
         if(silent) return;                                   // 첫 로드는 조용히 mark 만
-        const rows = Array.isArray(row.rows) ? row.rows : [];
-        const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
-        _wrFireNotif(`🔔 출금 요청 (${rows.length}건) · 놓친 알림`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`, row.id);
+        const pend = _wrPendingRows(row.rows);
+        if(!pend.length) return;
+        const total = pend.reduce((s,x)=>s+(Number(x.amount)||0), 0);
+        _wrFireNotif(`🔔 출금 요청 (${pend.length}건) · 놓친 알림`, `${row.requested_by||'벤더팀'} · ${_wrFmtWon(total)}`, row.id);
       });
     }catch(e){}
   }
