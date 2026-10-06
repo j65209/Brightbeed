@@ -2,7 +2,7 @@
   "brand": "akoi",
   "brand_name": "아코이하우스",
   "target_roas": 2.0,
-  "generated_at": "2026-10-06T14:03:21",
+  "generated_at": "2026-10-06T14:54:59",
   "ads_fetch_status": "ok",
   "ads_fetch_issues": [],
   "account": {
@@ -10,8 +10,8 @@
     "name": "AkoiHaus",
     "currency": "USD",
     "timezone": "Asia/Seoul",
-    "status_code": 3,
-    "status_label": "미결제"
+    "status_code": 1,
+    "status_label": "정상"
   },
   "period": {
     "label": "last_7d",
@@ -92,12 +92,12 @@
     "cpa": 0
   },
   "budget_summary": {
-    "daily_budget_total": 450.0,
+    "daily_budget_total": 400.0,
     "today_spend": 0.0,
-    "remaining": 450.0,
+    "remaining": 400.0,
     "used_pct": 0.0,
-    "active_campaign_count": 4,
-    "with_daily_budget": 4,
+    "active_campaign_count": 3,
+    "with_daily_budget": 3,
     "lifetime_only_count": 0,
     "campaigns": [
       {
@@ -111,19 +111,15 @@
       {
         "name": "9.2-SALE",
         "budget": 100.0
-      },
-      {
-        "name": "9.15-BEST SALE",
-        "budget": 50.0
       }
     ]
   },
   "md_sales": {
     "today": {
-      "krw": 0.0,
-      "usd": 0,
-      "orders": 0,
-      "gross_krw": 0.0,
+      "krw": 40000.0,
+      "usd": 28.57,
+      "orders": 1,
+      "gross_krw": 40000.0,
       "cancel_krw": 0.0
     },
     "yesterday": {
@@ -139,16 +135,16 @@
       "orders": 28
     },
     "thirty_days": {
-      "krw": 9769000.0,
-      "usd": 6977.86,
-      "orders": 235,
-      "gross_krw": 10366000.0,
+      "krw": 9809000.0,
+      "usd": 7006.43,
+      "orders": 236,
+      "gross_krw": 10406000.0,
       "cancel_krw": 597000.0
     },
     "usd_krw_rate": 1400,
     "source_file": "pro_akoi_sales.json",
     "store_name": "akoihaus1",
-    "fetched_at_ms": 1791262848839,
+    "fetched_at_ms": 1791264722991,
     "daily": [
       {
         "date": "2026-09-06",
@@ -302,8 +298,8 @@
       },
       {
         "date": "2026-10-06",
-        "krw": 0,
-        "orders": 0
+        "krw": 40000,
+        "orders": 1
       }
     ]
   },
@@ -2493,138 +2489,14 @@
       "initiate_checkout": 2,
       "aov": 0,
       "click_to_purchase_pct": 0.0,
-      "effective_status": "ACTIVE",
-      "is_active": true,
-      "active_ads": [
-        {
-          "id": "120247584400830571",
-          "name": "9.16-1",
-          "status": "ACTIVE",
-          "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-          "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-          "image_url": null,
-          "video_id": "1617980160125532",
-          "object_type": "VIDEO",
-          "title": "Mallow EVA Room Shoes",
-          "body": "최대 32% 할인 시크릿 링크\n1+1 추가할인",
-          "is_video": true,
-          "landing_url": "",
-          "landing_hint": "카탈로그 광고",
-          "insights": {
-            "spend": 39.4,
-            "impressions": 674,
-            "reach": 642,
-            "frequency": 1.05,
-            "clicks": 19,
-            "purchases": 0,
-            "purchase_value": 0.0,
-            "add_to_cart": 1,
-            "roas": 0.0,
-            "cpa": 0,
-            "ctr": 2.82,
-            "cpm": 58.46,
-            "cpc": 2.07,
-            "aov": 0,
-            "click_to_purchase_pct": 0.0
-          },
-          "verdict": {
-            "verdict": "즉시OFF",
-            "verdict_badge": "🔴",
-            "verdict_color": "err",
-            "verdict_reason": "ROAS 0.00 (손실 $39.40). 지출 $39.40 대비 매출 $0.00로 적자 진행 중.",
-            "action_today": "즉시 일시중지 — 현재 손실 $39.40, 이 예산 우수 소재에 재배분",
-            "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-            "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-          }
-        },
-        {
-          "id": "120247570770820571",
-          "name": "9.15-1",
-          "status": "ACTIVE",
-          "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-          "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-          "image_url": null,
-          "video_id": null,
-          "object_type": "SHARE",
-          "title": null,
-          "body": null,
-          "is_video": false,
-          "landing_url": "",
-          "landing_hint": "카탈로그 광고",
-          "insights": {
-            "spend": 24.45,
-            "impressions": 603,
-            "reach": 559,
-            "frequency": 1.08,
-            "clicks": 19,
-            "purchases": 0,
-            "purchase_value": 0.0,
-            "add_to_cart": 0,
-            "roas": 0.0,
-            "cpa": 0,
-            "ctr": 3.15,
-            "cpm": 40.55,
-            "cpc": 1.29,
-            "aov": 0,
-            "click_to_purchase_pct": 0.0
-          },
-          "verdict": {
-            "verdict": "즉시OFF",
-            "verdict_badge": "🔴",
-            "verdict_color": "err",
-            "verdict_reason": "ROAS 0.00 (손실 $24.45). 지출 $24.45 대비 매출 $0.00로 적자 진행 중.",
-            "action_today": "즉시 일시중지 — 현재 손실 $24.45, 이 예산 우수 소재에 재배분",
-            "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-            "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-          }
-        },
-        {
-          "id": "120247570852380571",
-          "name": "9.15-3",
-          "status": "ACTIVE",
-          "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-          "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-          "image_url": null,
-          "video_id": null,
-          "object_type": "SHARE",
-          "title": null,
-          "body": null,
-          "is_video": false,
-          "landing_url": "",
-          "landing_hint": "카탈로그 광고",
-          "insights": {
-            "spend": 3.84,
-            "impressions": 147,
-            "reach": 145,
-            "frequency": 1.01,
-            "clicks": 1,
-            "purchases": 0,
-            "purchase_value": 0.0,
-            "add_to_cart": 0,
-            "roas": 0.0,
-            "cpa": 0,
-            "ctr": 0.68,
-            "cpm": 26.12,
-            "cpc": 3.84,
-            "aov": 0,
-            "click_to_purchase_pct": 0.0
-          },
-          "verdict": {
-            "verdict": "학습중",
-            "verdict_badge": "📘",
-            "verdict_color": "muted",
-            "verdict_reason": "데이터 부족 (노출 147회, 지출 $3.84). 최소 500 노출 후 판단.",
-            "action_today": "현행 유지 — 데이터 축적 대기",
-            "action_tomorrow": "내일 노출 500 넘으면 CTR·ROAS 재점검",
-            "action_7d": "1주 후 성과 데이터 충분하면 위/아래 verdict 재평가"
-          }
-        }
-      ],
+      "effective_status": "PAUSED",
+      "is_active": false,
+      "active_ads": [],
       "all_ads": [
         {
           "id": "120247584400830571",
           "name": "9.16-1",
-          "status": "ACTIVE",
+          "status": "CAMPAIGN_PAUSED",
           "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
           "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
           "image_url": null,
@@ -2695,7 +2567,7 @@
         {
           "id": "120247570770820571",
           "name": "9.15-1",
-          "status": "ACTIVE",
+          "status": "CAMPAIGN_PAUSED",
           "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
           "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
           "image_url": null,
@@ -2736,7 +2608,7 @@
         {
           "id": "120247570852380571",
           "name": "9.15-3",
-          "status": "ACTIVE",
+          "status": "CAMPAIGN_PAUSED",
           "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
           "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
           "image_url": null,
@@ -2775,15 +2647,15 @@
           }
         }
       ],
-      "active_ad_count": 3,
+      "active_ad_count": 0,
       "all_ad_count": 5,
       "campaign_objective": "OUTCOME_SALES",
-      "creative_thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
+      "creative_thumbnail_url": "",
       "adsets": [
         {
           "id": "120247570770830571",
           "name": "9.15",
-          "status": "ACTIVE",
+          "status": "CAMPAIGN_PAUSED",
           "targeting": {
             "age": "18–65",
             "gender": "전체",
@@ -5810,138 +5682,14 @@
         "initiate_checkout": 2,
         "aov": 0,
         "click_to_purchase_pct": 0.0,
-        "effective_status": "ACTIVE",
-        "is_active": true,
-        "active_ads": [
-          {
-            "id": "120247584400830571",
-            "name": "9.16-1",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-            "image_url": null,
-            "video_id": "1617980160125532",
-            "object_type": "VIDEO",
-            "title": "Mallow EVA Room Shoes",
-            "body": "최대 32% 할인 시크릿 링크\n1+1 추가할인",
-            "is_video": true,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 39.4,
-              "impressions": 674,
-              "reach": 642,
-              "frequency": 1.05,
-              "clicks": 19,
-              "purchases": 0,
-              "purchase_value": 0.0,
-              "add_to_cart": 1,
-              "roas": 0.0,
-              "cpa": 0,
-              "ctr": 2.82,
-              "cpm": 58.46,
-              "cpc": 2.07,
-              "aov": 0,
-              "click_to_purchase_pct": 0.0
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.00 (손실 $39.40). 지출 $39.40 대비 매출 $0.00로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $39.40, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          },
-          {
-            "id": "120247570770820571",
-            "name": "9.15-1",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-            "image_url": null,
-            "video_id": null,
-            "object_type": "SHARE",
-            "title": null,
-            "body": null,
-            "is_video": false,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 24.45,
-              "impressions": 603,
-              "reach": 559,
-              "frequency": 1.08,
-              "clicks": 19,
-              "purchases": 0,
-              "purchase_value": 0.0,
-              "add_to_cart": 0,
-              "roas": 0.0,
-              "cpa": 0,
-              "ctr": 3.15,
-              "cpm": 40.55,
-              "cpc": 1.29,
-              "aov": 0,
-              "click_to_purchase_pct": 0.0
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.00 (손실 $24.45). 지출 $24.45 대비 매출 $0.00로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $24.45, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          },
-          {
-            "id": "120247570852380571",
-            "name": "9.15-3",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-            "image_url": null,
-            "video_id": null,
-            "object_type": "SHARE",
-            "title": null,
-            "body": null,
-            "is_video": false,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 3.84,
-              "impressions": 147,
-              "reach": 145,
-              "frequency": 1.01,
-              "clicks": 1,
-              "purchases": 0,
-              "purchase_value": 0.0,
-              "add_to_cart": 0,
-              "roas": 0.0,
-              "cpa": 0,
-              "ctr": 0.68,
-              "cpm": 26.12,
-              "cpc": 3.84,
-              "aov": 0,
-              "click_to_purchase_pct": 0.0
-            },
-            "verdict": {
-              "verdict": "학습중",
-              "verdict_badge": "📘",
-              "verdict_color": "muted",
-              "verdict_reason": "데이터 부족 (노출 147회, 지출 $3.84). 최소 500 노출 후 판단.",
-              "action_today": "현행 유지 — 데이터 축적 대기",
-              "action_tomorrow": "내일 노출 500 넘으면 CTR·ROAS 재점검",
-              "action_7d": "1주 후 성과 데이터 충분하면 위/아래 verdict 재평가"
-            }
-          }
-        ],
+        "effective_status": "PAUSED",
+        "is_active": false,
+        "active_ads": [],
         "all_ads": [
           {
             "id": "120247584400830571",
             "name": "9.16-1",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
             "image_url": null,
@@ -6012,7 +5760,7 @@
           {
             "id": "120247570770820571",
             "name": "9.15-1",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
             "image_url": null,
@@ -6053,7 +5801,7 @@
           {
             "id": "120247570852380571",
             "name": "9.15-3",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
             "image_url": null,
@@ -6092,15 +5840,15 @@
             }
           }
         ],
-        "active_ad_count": 3,
+        "active_ad_count": 0,
         "all_ad_count": 5,
         "campaign_objective": "OUTCOME_SALES",
-        "creative_thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
+        "creative_thumbnail_url": "",
         "adsets": [
           {
             "id": "120247570770830571",
             "name": "9.15",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "targeting": {
               "age": "18–65",
               "gender": "전체",
@@ -8677,138 +8425,14 @@
         "initiate_checkout": 13,
         "aov": 31.64,
         "click_to_purchase_pct": 1.51,
-        "effective_status": "ACTIVE",
-        "is_active": true,
-        "active_ads": [
-          {
-            "id": "120247584400830571",
-            "name": "9.16-1",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-            "image_url": null,
-            "video_id": "1617980160125532",
-            "object_type": "VIDEO",
-            "title": "Mallow EVA Room Shoes",
-            "body": "최대 32% 할인 시크릿 링크\n1+1 추가할인",
-            "is_video": true,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 89.16,
-              "impressions": 2307,
-              "reach": 1920,
-              "frequency": 1.2,
-              "clicks": 52,
-              "purchases": 0,
-              "purchase_value": 0.0,
-              "add_to_cart": 1,
-              "roas": 0.0,
-              "cpa": 0,
-              "ctr": 2.25,
-              "cpm": 38.65,
-              "cpc": 1.71,
-              "aov": 0,
-              "click_to_purchase_pct": 0.0
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.00 (손실 $89.16). 지출 $89.16 대비 매출 $0.00로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $89.16, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          },
-          {
-            "id": "120247570770820571",
-            "name": "9.15-1",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-            "image_url": null,
-            "video_id": null,
-            "object_type": "SHARE",
-            "title": null,
-            "body": null,
-            "is_video": false,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 29.41,
-              "impressions": 759,
-              "reach": 674,
-              "frequency": 1.13,
-              "clicks": 21,
-              "purchases": 0,
-              "purchase_value": 0.0,
-              "add_to_cart": 0,
-              "roas": 0.0,
-              "cpa": 0,
-              "ctr": 2.77,
-              "cpm": 38.75,
-              "cpc": 1.4,
-              "aov": 0,
-              "click_to_purchase_pct": 0.0
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.00 (손실 $29.41). 지출 $29.41 대비 매출 $0.00로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $29.41, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          },
-          {
-            "id": "120247570852380571",
-            "name": "9.15-3",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-            "image_url": null,
-            "video_id": null,
-            "object_type": "SHARE",
-            "title": null,
-            "body": null,
-            "is_video": false,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 267.65,
-              "impressions": 13966,
-              "reach": 10136,
-              "frequency": 1.38,
-              "clicks": 285,
-              "purchases": 6,
-              "purchase_value": 189.87,
-              "add_to_cart": 2,
-              "roas": 0.71,
-              "cpa": 44.61,
-              "ctr": 2.04,
-              "cpm": 19.16,
-              "cpc": 0.94,
-              "aov": 31.64,
-              "click_to_purchase_pct": 2.11
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.71 (손실 $77.78). 지출 $267.65 대비 매출 $189.87로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $77.78, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          }
-        ],
+        "effective_status": "PAUSED",
+        "is_active": false,
+        "active_ads": [],
         "all_ads": [
           {
             "id": "120247584400830571",
             "name": "9.16-1",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
             "image_url": null,
@@ -8931,7 +8555,7 @@
           {
             "id": "120247570770820571",
             "name": "9.15-1",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
             "image_url": null,
@@ -8972,7 +8596,7 @@
           {
             "id": "120247570852380571",
             "name": "9.15-3",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
             "image_url": null,
@@ -9011,15 +8635,15 @@
             }
           }
         ],
-        "active_ad_count": 3,
+        "active_ad_count": 0,
         "all_ad_count": 5,
         "campaign_objective": "OUTCOME_SALES",
-        "creative_thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
+        "creative_thumbnail_url": "",
         "adsets": [
           {
             "id": "120247570770830571",
             "name": "9.15",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "targeting": {
               "age": "18–65",
               "gender": "전체",
@@ -9182,7 +8806,7 @@
             "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247459619480571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247459619480571.jpg",
-            "image_url": "https://scontent-icn2-1.xx.fbcdn.net/v/t45.1600-4/793519093_122184996362846064_4621591052042200391_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=ff4730&_nc_ohc=WC-v7_SvydUQ7kNvwGACnUz&_nc_oc=AdrOutfE7yrM4nw6phu17e1o6a3IxqC6kaeDb1uuu_INZpmF3_RseZ8OUKq7m_JsvhE&_nc_zt=1&_nc_ht=scontent-icn2-1.xx&edm=AOgd6ZUEAAAA&_nc_gid=_sezpowW0oNXzyJB3GT1gg&_nc_tpa=Q5bMBQIKY34aWDkZPtqwkgAd8Itjc32Zb19DqF3QVtq1QMwZjIjWiK8OkBILScWZVNPZkS2MMaVkv3ZrOg&oh=00_AQO6_BrT6-rT8dGuAXCniYgXA2Jl7Y3uxRE4kQSyK77_FA&oe=6ACA56E0",
+            "image_url": "https://scontent-icn2-1.xx.fbcdn.net/v/t45.1600-4/793519093_122184996362846064_4621591052042200391_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=ff4730&_nc_ohc=WC-v7_SvydUQ7kNvwGACnUz&_nc_oc=AdrOutfE7yrM4nw6phu17e1o6a3IxqC6kaeDb1uuu_INZpmF3_RseZ8OUKq7m_JsvhE&_nc_zt=1&_nc_ht=scontent-icn2-1.xx&edm=AOgd6ZUEAAAA&_nc_gid=_DbdH3sTzlheoiiOy464uA&_nc_tpa=Q5bMBQK1nuJTKzJ9qz8qmP7Csj2UNzNV0wHZzrtCfj3CqL661BEPmPyZ_BSLTA_h-MQkMfT4O8Qw2uKOlA&oh=00_AQNHJRXwmw3ntPd7BFg-a7NaAnl1B5s1l7jjFLpR2KHDsg&oe=6ACA56E0",
             "video_id": null,
             "object_type": "SHARE",
             "title": "1+1 구매시 에코백 증정",
@@ -14869,138 +14493,14 @@
         "initiate_checkout": 13,
         "aov": 31.64,
         "click_to_purchase_pct": 1.51,
-        "effective_status": "ACTIVE",
-        "is_active": true,
-        "active_ads": [
-          {
-            "id": "120247584400830571",
-            "name": "9.16-1",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
-            "image_url": null,
-            "video_id": "1617980160125532",
-            "object_type": "VIDEO",
-            "title": "Mallow EVA Room Shoes",
-            "body": "최대 32% 할인 시크릿 링크\n1+1 추가할인",
-            "is_video": true,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 89.16,
-              "impressions": 2307,
-              "reach": 1920,
-              "frequency": 1.2,
-              "clicks": 52,
-              "purchases": 0,
-              "purchase_value": 0.0,
-              "add_to_cart": 1,
-              "roas": 0.0,
-              "cpa": 0,
-              "ctr": 2.25,
-              "cpm": 38.65,
-              "cpc": 1.71,
-              "aov": 0,
-              "click_to_purchase_pct": 0.0
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.00 (손실 $89.16). 지출 $89.16 대비 매출 $0.00로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $89.16, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          },
-          {
-            "id": "120247570770820571",
-            "name": "9.15-1",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
-            "image_url": null,
-            "video_id": null,
-            "object_type": "SHARE",
-            "title": null,
-            "body": null,
-            "is_video": false,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 29.41,
-              "impressions": 759,
-              "reach": 674,
-              "frequency": 1.13,
-              "clicks": 21,
-              "purchases": 0,
-              "purchase_value": 0.0,
-              "add_to_cart": 0,
-              "roas": 0.0,
-              "cpa": 0,
-              "ctr": 2.77,
-              "cpm": 38.75,
-              "cpc": 1.4,
-              "aov": 0,
-              "click_to_purchase_pct": 0.0
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.00 (손실 $29.41). 지출 $29.41 대비 매출 $0.00로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $29.41, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          },
-          {
-            "id": "120247570852380571",
-            "name": "9.15-3",
-            "status": "ACTIVE",
-            "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-            "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
-            "image_url": null,
-            "video_id": null,
-            "object_type": "SHARE",
-            "title": null,
-            "body": null,
-            "is_video": false,
-            "landing_url": "",
-            "landing_hint": "카탈로그 광고",
-            "insights": {
-              "spend": 267.65,
-              "impressions": 13966,
-              "reach": 10136,
-              "frequency": 1.38,
-              "clicks": 285,
-              "purchases": 6,
-              "purchase_value": 189.87,
-              "add_to_cart": 2,
-              "roas": 0.71,
-              "cpa": 44.61,
-              "ctr": 2.04,
-              "cpm": 19.16,
-              "cpc": 0.94,
-              "aov": 31.64,
-              "click_to_purchase_pct": 2.11
-            },
-            "verdict": {
-              "verdict": "즉시OFF",
-              "verdict_badge": "🔴",
-              "verdict_color": "err",
-              "verdict_reason": "ROAS 0.71 (손실 $77.78). 지출 $267.65 대비 매출 $189.87로 적자 진행 중.",
-              "action_today": "즉시 일시중지 — 현재 손실 $77.78, 이 예산 우수 소재에 재배분",
-              "action_tomorrow": "크리에이티브 3안 이상 새로 제작 (hook·비주얼·카피 전면 교체) 후 소규모 A/B 테스트",
-              "action_7d": "7일 신규 소재 테스트 후 ROAS 2.0+ 달성 시에만 재확대. 기존 OFF 소재 보관(참고용)"
-            }
-          }
-        ],
+        "effective_status": "PAUSED",
+        "is_active": false,
+        "active_ads": [],
         "all_ads": [
           {
             "id": "120247584400830571",
             "name": "9.16-1",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247584400830571.jpg",
             "image_url": null,
@@ -15123,7 +14623,7 @@
           {
             "id": "120247570770820571",
             "name": "9.15-1",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247570770820571.jpg",
             "image_url": null,
@@ -15164,7 +14664,7 @@
           {
             "id": "120247570852380571",
             "name": "9.15-3",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
             "image_url": null,
@@ -15203,15 +14703,15 @@
             }
           }
         ],
-        "active_ad_count": 3,
+        "active_ad_count": 0,
         "all_ad_count": 5,
         "campaign_objective": "OUTCOME_SALES",
-        "creative_thumbnail_url": "data/meta-ads/creatives/akoi/120247570852380571.jpg",
+        "creative_thumbnail_url": "",
         "adsets": [
           {
             "id": "120247570770830571",
             "name": "9.15",
-            "status": "ACTIVE",
+            "status": "CAMPAIGN_PAUSED",
             "targeting": {
               "age": "18–65",
               "gender": "전체",
@@ -15374,7 +14874,7 @@
             "status": "CAMPAIGN_PAUSED",
             "thumbnail_url": "data/meta-ads/creatives/akoi/120247459619480571.jpg",
             "thumbnail_local": "data/meta-ads/creatives/akoi/120247459619480571.jpg",
-            "image_url": "https://scontent-icn2-1.xx.fbcdn.net/v/t45.1600-4/793519093_122184996362846064_4621591052042200391_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=ff4730&_nc_ohc=WC-v7_SvydUQ7kNvwGACnUz&_nc_oc=AdrOutfE7yrM4nw6phu17e1o6a3IxqC6kaeDb1uuu_INZpmF3_RseZ8OUKq7m_JsvhE&_nc_zt=1&_nc_ht=scontent-icn2-1.xx&edm=AOgd6ZUEAAAA&_nc_gid=R6Mmm20dFrCe6YN7kU2WWg&_nc_tpa=Q5bMBQK_ebYPTiRfllDv97jnoLAx1B92IH6mLp0cVlvUm9_rEbPZZRXFZfanwl5wQOdqKm_rPqWIqx7ORw&oh=00_AQP3idmxgEqqUe6AqnkzzLJa-u1dO3EU9GskKZU3B6FFVg&oe=6ACA56E0",
+            "image_url": "https://scontent-icn2-1.xx.fbcdn.net/v/t45.1600-4/793519093_122184996362846064_4621591052042200391_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=ff4730&_nc_ohc=WC-v7_SvydUQ7kNvwGACnUz&_nc_oc=AdrOutfE7yrM4nw6phu17e1o6a3IxqC6kaeDb1uuu_INZpmF3_RseZ8OUKq7m_JsvhE&_nc_zt=1&_nc_ht=scontent-icn2-1.xx&edm=AOgd6ZUEAAAA&_nc_gid=bBky_n0ooPwpU6HEMtSOkA&_nc_tpa=Q5bMBQKbmzXvBdiuWRTaXGcgLewxPpf_Hve8sFztcJuDcAEeXk8cdpxpcsD8QeYzcxmwyfYTTPpNfaMSjg&oh=00_AQOCdzbXO0Geyup0PgAAFHIsymJtsqsXx7tbw3e39o5fBA&oe=6ACA56E0",
             "video_id": null,
             "object_type": "SHARE",
             "title": "1+1 구매시 에코백 증정",
@@ -19920,12 +19420,12 @@
       "aov": 0,
       "click_to_purchase_pct": 0,
       "atc_to_purchase_pct": 0,
-      "sixshop_revenue": 0.0,
-      "sixshop_revenue_krw": 0.0,
-      "sixshop_orders": 0,
+      "sixshop_revenue": 28.57,
+      "sixshop_revenue_krw": 40000.0,
+      "sixshop_orders": 1,
       "sixshop_roas": 0,
       "sixshop_cpa": 0,
-      "sixshop_available": false
+      "sixshop_available": true
     },
     "yesterday": {
       "spend": 0.0,
@@ -19995,11 +19495,11 @@
       "aov": 29.04,
       "click_to_purchase_pct": 2.52,
       "atc_to_purchase_pct": 83.13,
-      "sixshop_revenue": 6977.86,
-      "sixshop_revenue_krw": 9769000.0,
-      "sixshop_orders": 235,
-      "sixshop_roas": 1.13,
-      "sixshop_cpa": 26.24,
+      "sixshop_revenue": 7006.43,
+      "sixshop_revenue_krw": 9809000.0,
+      "sixshop_orders": 236,
+      "sixshop_roas": 1.14,
+      "sixshop_cpa": 26.13,
       "sixshop_available": true
     },
     "maximum": {
@@ -20047,25 +19547,25 @@
       "label": "지난 7일",
       "since": "2026-09-29",
       "until": "2026-10-05",
-      "active_count": 4,
+      "active_count": 3,
       "total_count": 4
     },
     "last_30d": {
       "label": "지난 30일",
       "since": "2026-09-06",
       "until": "2026-10-05",
-      "active_count": 4,
+      "active_count": 3,
       "total_count": 11
     },
     "maximum": {
       "label": "전체 기간",
       "since": "2026-07-16",
       "until": "2026-10-06",
-      "active_count": 4,
+      "active_count": 3,
       "total_count": 28
     }
   },
-  "active_campaign_count": 4,
+  "active_campaign_count": 3,
   "feedback": {
     "target_roas": 2.0,
     "scale_up": [
@@ -20085,19 +19585,6 @@
     ],
     "improve": [],
     "reduce_or_kill": [
-      {
-        "name": "9.15-BEST SALE",
-        "grade": "critical",
-        "grade_label": "심각",
-        "grade_icon": "🔴",
-        "reason": "🔴 심각 · ROAS 0.0 (목표 2.0의 0%) · 손실 $68",
-        "roas": 0.0,
-        "waste": 68.0,
-        "advice": [
-          "🚨 <b>즉시 일시중지 강력 권장</b> — 현 페이스 유지 시 손실 계속 누적. 남은 예산 우수 캠페인에 재분배",
-          "⏸ <b>구매 0건</b>: 지출 $68 상태 — 픽셀 이벤트 트래킹부터 점검 (구매 이벤트 실제 발화 여부)"
-        ]
-      },
       {
         "name": "9.15-Mallow",
         "grade": "critical",
@@ -20130,14 +19617,12 @@
       "📢 CPM $33.10 — 높음. 오디언스 경쟁 심함, 프리미엄 슬롯. 브로드 오디언스·틈새 시간대 확장 검토.",
       "🛒 클릭→구매 전환율 4.05% — 우수. 트래픽 확보에 예산 집중해도 안전.",
       "💵 평균 구매금액 (AOV) $30.24 — CPA $23.98 대비 마진 확보 여부는 상품 원가 반영 후 판단. 세트·업셀 크로스셀로 AOV 15-20% 인상 여지 검토.",
-      "⚠ 상위 3개 캠페인이 전체 지출의 <b>88%</b> 점유 — 리스크 집중. 이 캠페인 소진 시 매출 급락 위험. 신규 룩얼라이크·관심사 캠페인 병행 필요.",
-      "🚨 구매 0건인데 지출 있는 집행중 캠페인 <b>1개</b> (총 지출 $68) — 즉시 크리에이티브 or 오디언스 점검."
+      "⚠ 상위 3개 캠페인이 전체 지출의 <b>88%</b> 점유 — 리스크 집중. 이 캠페인 소진 시 매출 급락 위험. 신규 룩얼라이크·관심사 캠페인 병행 필요."
     ],
     "actions": [
       "🟢 <b>9.4 - Mallow EVA Room Shoes</b> 예산 +30% ($249 → $324, 하루 +$75) — 현 ROAS 2.1 유지 시 매출 +$157. 단, 오디언스 소진 방지 위해 3일 단위로 CPA 모니터링.",
-      "🔴 <b>9.15-BEST SALE</b> 즉시 중지 — 손실 $68. 이 예산을 상위 캠페인에 재분배 시 ROAS 개선 즉효. 대안: 크리에이티브 3안 이상 새로 테스트.",
-      "🔴 <b>9.15-Mallow</b> 크리에이티브 교체 or 오디언스 재정의 — 손실 $41. CTR 0% 감안 시 hook·비주얼 문제 우선 의심.",
-      "⏸ 구매 0건 캠페인 <b>즉시 일시중지</b>: 9.15-BEST SALE (지출 $68). 48시간 재검토 후 크리에이티브·오디언스·랜딩 3중 점검 없이 재개 금지."
+      "🔴 <b>9.15-Mallow</b> 즉시 중지 — 손실 $41. 이 예산을 상위 캠페인에 재분배 시 ROAS 개선 즉효. 대안: 크리에이티브 3안 이상 새로 테스트.",
+      "🔴 <b>9.2-SALE</b> 크리에이티브 교체 or 오디언스 재정의 — 손실 $14. CTR 0% 감안 시 hook·비주얼 문제 우선 의심."
     ],
     "targeting_insights": []
   }
