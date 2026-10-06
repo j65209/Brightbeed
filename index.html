@@ -29509,8 +29509,8 @@
   async function wrMarkDone(id){
     if(!id) return;
     const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
-    // 마스터 또는 전승훈 대표 본인만 완료 처리 가능
-    if(!isMaster() && me !== WR_OWNER_NAME){
+    // 전승훈 대표 본인만 완료 처리 가능 (마스터 PIN 도 예외 없음)
+    if(me !== WR_OWNER_NAME){
       toast('송금완료는 대표(전승훈)만 처리할 수 있습니다', 'err');
       return;
     }
@@ -29609,7 +29609,7 @@
     if(!wrap) return;
     if(!_wrBatches.length){ wrap.innerHTML=''; return; }
     const me = (typeof _diaryGetMe==='function' ? _diaryGetMe() : '') || '';
-    const canDone = isMaster() || me === WR_OWNER_NAME;
+    const canDone = me === WR_OWNER_NAME;
     wrap.innerHTML = _wrBatches.map(b=>{
       const rows = Array.isArray(b.rows)?b.rows:[];
       const total = rows.reduce((s,x)=>s+(Number(x.amount)||0), 0);
