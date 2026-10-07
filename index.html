@@ -1969,8 +1969,6 @@
   .cred-filter-chip{padding:6px 10px;font-size:11px;font-family:var(--sans);color:var(--text-2);background:var(--bg-1);border:1px solid var(--line);border-radius:4px;cursor:pointer;transition:all .12s}
   .cred-filter-chip.active{color:#fff;background:linear-gradient(90deg,#ff2e93,#ff6b35);border-color:transparent}
   .cred-filter-chip:hover:not(.active){color:var(--text-0);background:var(--bg-3)}
-  .cred-chip-exec{color:#b8860b;border-color:rgba(212,175,55,.45);background:rgba(212,175,55,.08)}
-  .cred-chip-exec.active{color:#1a1a1a;background:linear-gradient(90deg,#d4af37,#f0d060);border-color:transparent}
   .cred-toolbar-actions{display:flex;gap:6px}
   /* 대표 전용 금고 */
   .cred-exec-lock{max-width:420px;margin:48px auto;padding:28px 24px;text-align:center;background:var(--bg-1);border:1px solid rgba(212,175,55,.3);border-radius:8px}
@@ -1985,9 +1983,7 @@
   .cred-exec-msg{margin-top:12px;font-size:11.5px;line-height:1.5;min-height:16px;color:var(--text-2)}
   .cred-exec-msg.is-err{color:#ef4444}
   .cred-exec-msg.is-ok{color:#22c55e}
-  .cred-exec-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:8px 12px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.25);border-radius:6px}
   .cred-exec-badge{font-size:11.5px;font-weight:600;color:#b8860b}
-  .cred-exec-updated{font-size:11px;color:var(--text-2);margin-right:auto}
   .cred-exec-lockbtn{padding:5px 10px;font-size:11px;font-family:var(--sans);color:var(--text-1);background:var(--bg-1);border:1px solid var(--line);border-radius:4px;cursor:pointer}
   .cred-exec-lockbtn:hover{color:var(--text-0);background:var(--bg-3)}
   .cred-btn-add{padding:7px 12px;font-size:12px;font-weight:500;font-family:var(--sans);cursor:pointer;border-radius:4px;transition:all .12s;display:inline-flex;align-items:center;gap:4px}
@@ -4612,6 +4608,9 @@
   /* 각 모듈별 accent 색 (호버 시 옅게 발광) */
   .sub-module.m-notice  {--m-color:#ec4899;--m-border:rgba(236,72,153,.4)}
   .sub-module.m-notice  .sub-module-icon{color:#ec4899}
+  .sub-module.m-execvault {--m-color:#d4af37;--m-border:rgba(212,175,55,.45)}
+  .sub-module.m-execvault .sub-module-icon{color:#b8860b}
+  .sub-module.m-execvault .sub-module-tag{color:#b8860b;border-color:rgba(212,175,55,.5);border-style:solid}
   .sub-module.m-namegen {--m-color:#6366f1;--m-border:rgba(99,102,241,.4)}
   .sub-module.m-namegen .sub-module-icon{color:#6366f1}
   .sub-module.m-namegen .sub-module-tag{color:#6366f1;border-color:rgba(99,102,241,.45);border-style:solid}
@@ -9207,6 +9206,12 @@
           <div class="sub-module-title">사내 공지사항</div>
           <div class="sub-module-sub">아이디 · 비밀번호 · 토큰 관리</div>
         </div>
+        <div class="sub-module m-execvault" id="execVaultCard" onclick="triggerExecVault()" hidden>
+          <div class="sub-module-icon">🔒</div>
+          <div class="sub-module-title">대표 전용 금고</div>
+          <div class="sub-module-sub">암호화 저장 · 전수빈 · 전승훈만</div>
+          <div class="sub-module-tag">LOCK</div>
+        </div>
         <div class="sub-module m-namegen" onclick="triggerNamegen()">
           <div class="sub-module-icon">🌍</div>
           <div class="sub-module-title">제품명 생성기</div>
@@ -10781,7 +10786,6 @@
           <button class="cred-filter-chip active" data-filter="all">전체</button>
           <button class="cred-filter-chip" data-filter="login">로그인</button>
           <button class="cred-filter-chip" data-filter="custom">사용자지정</button>
-          <button class="cred-filter-chip cred-chip-exec" id="credFilterExec" data-filter="exec" hidden>🔒 대표 전용</button>
         </div>
         <div class="cred-toolbar-actions">
           <button class="cred-btn-add cred-btn-add-login" onclick="openCredEditor('login')">＋ 로그인</button>
@@ -10797,34 +10801,6 @@
         <div class="cred-empty-sub">우측 상단 <b>＋ 로그인</b> 또는 <b>＋ 사용자지정</b>으로 추가하세요</div>
       </div>
 
-      <!-- 대표 전용 금고 (AES-GCM 암호화) — diary_me ∈ {전승훈, 전수빈} -->
-      <div class="cred-exec" id="credExec" hidden>
-        <div class="cred-exec-lock" id="credExecLock" hidden>
-          <div class="cred-exec-icon">🔒</div>
-          <div class="cred-exec-title" id="credExecLockTitle">대표 전용 금고</div>
-          <div class="cred-exec-sub" id="credExecLockSub">금고 암호를 입력하세요. 암호는 어디에도 저장되지 않고, 이 브라우저 메모리에서만 복호화에 쓰입니다.</div>
-          <form class="cred-exec-form" id="credExecForm" autocomplete="off">
-            <input type="password" id="credExecPass" placeholder="금고 암호" autocomplete="new-password" spellcheck="false">
-            <input type="password" id="credExecPass2" placeholder="금고 암호 확인" autocomplete="new-password" spellcheck="false" hidden>
-            <button type="submit" id="credExecUnlockBtn">열기</button>
-          </form>
-          <div class="cred-exec-msg" id="credExecMsg"></div>
-        </div>
-        <div class="cred-exec-open" id="credExecOpen" hidden>
-          <div class="cred-exec-bar">
-            <span class="cred-exec-badge">🔓 금고 열림</span>
-            <span class="cred-exec-updated" id="credExecUpdated"></span>
-            <button class="cred-exec-lockbtn" onclick="execLock()">잠그기</button>
-          </div>
-          <div class="cred-list" id="credExecList"></div>
-          <div class="cred-empty" id="credExecEmpty" hidden>
-            <div class="cred-empty-icon">🗄</div>
-            <div class="cred-empty-text">금고가 비어 있습니다</div>
-            <div class="cred-empty-sub">우측 상단 <b>＋ 로그인</b> 또는 <b>＋ 사용자지정</b>으로 추가하세요</div>
-          </div>
-        </div>
-      </div>
-
       <details class="cred-legacy" id="credLegacy" hidden>
         <summary>레거시 자유양식 원본 보기 (자동 변환 이전 원본)</summary>
         <div class="cred-legacy-content" id="credLegacyContent"></div>
@@ -10832,6 +10808,51 @@
           <button onclick="deleteCredLegacy()">레거시 원본 영구 삭제</button>
         </div>
       </details>
+    </div>
+  </div>
+
+  <!-- ============ 대표 전용 금고 (AES-GCM 암호화) — diary_me ∈ {전승훈, 전수빈} ============ -->
+  <div class="view" id="viewExecVault" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">대표 전용 금고<span class="view-title-sub">/ 전수빈 · 전승훈</span><span id="credExecUpdated" class="sales-updated-tag"></span></h1>
+    </div>
+    <div class="cred-wrap">
+      <div class="cred-exec-lock" id="credExecLock" hidden>
+        <div class="cred-exec-icon">🔒</div>
+        <div class="cred-exec-title" id="credExecLockTitle">대표 전용 금고</div>
+        <div class="cred-exec-sub">금고 암호는 어디에도 저장되지 않습니다. 이 브라우저 메모리에서 복호화에만 쓰이고, 서버에는 암호문만 올라갑니다.</div>
+        <form class="cred-exec-form" id="credExecForm" autocomplete="off">
+          <input type="password" id="credExecPass" placeholder="금고 암호" autocomplete="new-password" spellcheck="false">
+          <input type="password" id="credExecPass2" placeholder="금고 암호 확인" autocomplete="new-password" spellcheck="false" hidden>
+          <button type="submit" id="credExecUnlockBtn">열기</button>
+        </form>
+        <div class="cred-exec-msg" id="credExecMsg"></div>
+      </div>
+      <div class="cred-exec-open" id="credExecOpen" hidden>
+        <div class="cred-toolbar">
+          <div class="cred-search-box">
+            <input type="search" id="credExecSearch" placeholder="서비스명, 아이디, 값 검색..." autocomplete="off" spellcheck="false">
+          </div>
+          <div class="cred-toolbar-filter">
+            <span class="cred-exec-badge">🔓 금고 열림</span>
+            <button class="cred-exec-lockbtn" onclick="execLock()">잠그기</button>
+          </div>
+          <div class="cred-toolbar-actions">
+            <button class="cred-btn-add cred-btn-add-login" onclick="openCredEditor('login','exec')">＋ 로그인</button>
+            <button class="cred-btn-add cred-btn-add-custom" onclick="openCredEditor('custom','exec')">＋ 사용자지정</button>
+          </div>
+        </div>
+        <div class="cred-list" id="credExecList"></div>
+        <div class="cred-empty" id="credExecEmpty" hidden>
+          <div class="cred-empty-icon">🗄</div>
+          <div class="cred-empty-text">금고가 비어 있습니다</div>
+          <div class="cred-empty-sub">우측 상단 <b>＋ 로그인</b> 또는 <b>＋ 사용자지정</b>으로 추가하세요</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -14280,8 +14301,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts','viewCeoCal'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx',viewCeoCal:'ceocal'};
+  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewExecVault','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts','viewCeoCal'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewExecVault:'vault',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx',viewCeoCal:'ceocal'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -14326,8 +14347,11 @@
       if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
       if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
     }
-    if(id==='viewNotice'){
+    if(id==='viewExecVault'){
       if(typeof execRefreshAccess==='function') execRefreshAccess();
+      if(typeof renderExecVault==='function') renderExecVault();
+    }
+    if(id==='viewNotice'){
       if(typeof renderNotice==='function') renderNotice();
       if(typeof renderNoticeUpdatedTag==='function') renderNoticeUpdatedTag();
       if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
@@ -24939,18 +24963,6 @@
     const legacyContent=document.getElementById('credLegacyContent');
     if(!list) return;
 
-    const execWrap=document.getElementById('credExec');
-    if(_cred_filter==='exec'){
-      list.innerHTML='';
-      list.style.display='none';
-      if(empty) empty.hidden=true;
-      if(legacy) legacy.hidden=true;
-      if(execWrap) execWrap.hidden=false;
-      renderExecVault();
-      return;
-    }
-    if(execWrap) execWrap.hidden=true;
-
     const n=loadNotice();
 
     // 레거시 원본
@@ -25078,9 +25090,9 @@
   }
 
   /* ============ 편집 모달 ============ */
-  function openCredEditor(type){
+  function openCredEditor(type, scope){
     _cred_modalOpen=true;
-    const scope = (_cred_filter==='exec') ? 'exec' : 'main';
+    scope = (scope==='exec') ? 'exec' : 'main';
     if(scope==='exec' && !_execKey){ _cred_modalOpen=false; toast('금고를 먼저 열어주세요','err'); return }
     _cred_editorState={mode:'add', type, id:null, fields:[], scope};
     document.getElementById('credModalTitle').textContent = scope==='exec' ? '🔒 대표 전용 항목 추가' : '항목 추가';
@@ -25388,7 +25400,6 @@
   }
   document.querySelectorAll('.cred-filter-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
-      if(chip.dataset.filter==='exec' && !execHasAccess()) return;
       document.querySelectorAll('.cred-filter-chip').forEach(c=>c.classList.remove('active'));
       chip.classList.add('active');
       _cred_filter=chip.dataset.filter;
@@ -25435,6 +25446,7 @@
   let _execIdleTimer=null;
   let _execLockPrepared=false;
   let _execBusy=false;
+  let _exec_search='';
 
   const _execEnc=new TextEncoder();
   const _execTd=new TextDecoder();
@@ -25443,14 +25455,15 @@
 
   function execGetMe(){try{return (localStorage.getItem('brightbeed_diary_me')||'').trim()}catch(e){return ''}}
   function execHasAccess(){return EXEC_ALLOWED.has(execGetMe())}
+  function _execViewOpen(){const v=document.getElementById('viewExecVault'); return !!(v && !v.hidden)}
   function execRefreshAccess(){
-    const chip=document.getElementById('credFilterExec');
-    if(chip) chip.hidden=!execHasAccess();
-    if(!execHasAccess() && _cred_filter==='exec'){
+    const ok=execHasAccess();
+    const card=document.getElementById('execVaultCard');
+    if(card) card.hidden=!ok;
+    if(typeof _refreshModuleCounts==='function') _refreshModuleCounts();
+    if(!ok){
       execLock();
-      _cred_filter='all';
-      document.querySelectorAll('.cred-filter-chip').forEach(c=>c.classList.toggle('active', c.dataset.filter==='all'));
-      renderCredentials();
+      if(_execViewOpen()) goHome();
     }
   }
   window.execRefreshAccess=execRefreshAccess;
@@ -25470,9 +25483,15 @@
     clearTimeout(_execIdleTimer); _execIdleTimer=null;
     const p=document.getElementById('credExecPass'); if(p) p.value='';
     const p2=document.getElementById('credExecPass2'); if(p2) p2.value='';
-    if(_cred_filter==='exec') renderExecVault();
+    if(_execViewOpen()) renderExecVault();
   }
   window.execLock=execLock;
+
+  function triggerExecVault(){
+    if(!execHasAccess()){try{toast('대표 전용 금고입니다','err')}catch(e){} return}
+    showView('viewExecVault');
+  }
+  window.triggerExecVault=triggerExecVault;
 
   async function _execDeriveKey(pass, salt, iter){
     const base=await crypto.subtle.importKey('raw', _execEnc.encode(pass), 'PBKDF2', false, ['deriveKey']);
@@ -25543,7 +25562,7 @@
     lock.hidden=true; open.hidden=false;
     const list=document.getElementById('credExecList');
     const empty=document.getElementById('credExecEmpty');
-    const q=_cred_search.trim().toLowerCase();
+    const q=_exec_search.trim().toLowerCase();
     const rows=_execEntries.filter(e=>{
       if(!q) return true;
       const hay=[e.name,e.memo,...(e.fields||[]).map(f=>f.label+' '+f.value)].join(' ').toLowerCase();
@@ -25667,6 +25686,8 @@
 
   const _execFormEl=document.getElementById('credExecForm');
   if(_execFormEl) _execFormEl.addEventListener('submit', e=>{e.preventDefault(); execUnlock()});
+  const _execSearchEl=document.getElementById('credExecSearch');
+  if(_execSearchEl) _execSearchEl.addEventListener('input', e=>{ _exec_search=e.target.value; renderExecVault(); });
   execRefreshAccess();
 
   renderCredentials();
@@ -27850,16 +27871,21 @@
     window.ngFillBuilder = ngFillBuilder;
   })();
 
-  /* 업무용 툴 폴더 — 카드 개수 자동 카운트 (자기 섹션 내부만) */
-  (function(){
+  /* 업무용 툴 폴더 — 카드 개수 자동 카운트 (자기 섹션 내부만).
+     권한에 따라 숨는 카드가 있어 재호출 가능해야 한다 (execRefreshAccess 등). */
+  function _refreshModuleCounts(){
     ['subModulesCount','adminModulesCount'].forEach(id=>{
       const el = document.getElementById(id);
       if(!el) return;
       const section = el.closest('.sub-modules-section');
       if(!section) return;
-      el.textContent = section.querySelectorAll('.sub-modules > .sub-module').length;
+      const n = Array.from(section.querySelectorAll('.sub-modules > .sub-module'))
+        .filter(c=>!c.hidden).length;
+      el.textContent = n;
     });
-  })();
+  }
+  window._refreshModuleCounts=_refreshModuleCounts;
+  _refreshModuleCounts();
 
   /* ===== 관리자 전용 · 고정비용 캘린더 (localStorage 저장) ===== */
   const FX_KEY = 'brightbeed_fixed_costs_v1';
