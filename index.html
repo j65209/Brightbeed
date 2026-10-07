@@ -24620,6 +24620,28 @@
   let _cred_editorState=null; // {mode:'add'|'edit', type:'login'|'custom', id?, fields:[]}
   let _cred_modalOpen=false;
 
+  /* pushed-snap — raw.githubusercontent 는 커밋 후 수십초간 옛 파일을 반환한다.
+     그 사이 pull 이 돌면 방금 저장한 항목이 로컬에서 지워진다. */
+  const NOTICE_PUSHED_KEY='brightbeed_notice_pushed_v1';
+  const NOTICE_CONFIRM_MS=3*60*1000;
+  let _noticePushedSnap=null; // {json, ts}
+  function _noticeLoadPushedSnap(){
+    try{
+      const s=JSON.parse(localStorage.getItem(NOTICE_PUSHED_KEY)||'null');
+      _noticePushedSnap=(s && typeof s.ts==='number' && Date.now()-s.ts<=NOTICE_CONFIRM_MS)?s:null;
+    }catch(e){_noticePushedSnap=null}
+    if(!_noticePushedSnap){try{localStorage.removeItem(NOTICE_PUSHED_KEY)}catch(e){}}
+    return _noticePushedSnap;
+  }
+  function _noticeSetPushedSnap(json){
+    _noticePushedSnap={json, ts:Date.now()};
+    try{localStorage.setItem(NOTICE_PUSHED_KEY, JSON.stringify(_noticePushedSnap))}catch(e){}
+  }
+  function _noticeClearPushedSnap(){
+    _noticePushedSnap=null;
+    try{localStorage.removeItem(NOTICE_PUSHED_KEY)}catch(e){}
+  }
+
   function credUid(){return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 
   function credEmptyState(){return {entries:[], legacyHtml:'', updatedAt:0}}
@@ -24826,9 +24848,12 @@
 
   async function syncNoticeFromRemote(){
     if(_cred_modalOpen) return; // 편집 중이면 덮어쓰기 방지
+    if(_noticePendingPayload) return; // 미전송 편집 보유 — 옛 remote 로 덮지 않음
     const remote=await fetchNoticeFromRemote();
     if(remote===null) return;
+    const snap=_noticeLoadPushedSnap();
     if(remote.empty){
+      if(snap) return; // CDN 지연 — 방금 올린 내용 유지
       const cur=loadNotice();
       if(cur.entries.length>0 || cur.legacyHtml){
         saveNoticeLocal(credEmptyState());
@@ -24841,6 +24866,10 @@
     }
     const normalized=normalizeNotice(remote);
     const json=JSON.stringify(normalized);
+    if(snap){
+      if(json!==snap.json) return;   // 아직 옛 파일 — pull skip
+      _noticeClearPushedSnap();      // 원격 반영 확인
+    }
     if(json===_notice_lastHash) return;
     _notice_lastHash=json;
     localStorage.setItem(NOTICE_KEY,json);
@@ -25126,13 +25155,13 @@
     }
     n.updatedAt=Date.now();
 
-    const ok=await pushNoticeToRemote(n);
-    if(!ok) return;
+    // local-first — push 1차 실패로 여기서 탈출하면 _cred_modalOpen 이 true 로 남아
+    // renderCredentials/syncNoticeFromRemote 가 그 탭에서 영구히 early-return 한다.
     saveNoticeLocal(n);
     closeCredEditor();
     renderCredentials();
     renderNoticeUpdatedTag();
-    toast('✓ 저장 완료','ok');
+    await pushNoticeToRemote(n);
   }
   window.saveCredEntry=saveCredEntry;
 
@@ -25144,12 +25173,10 @@
     if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err');return}
     n.entries=n.entries.filter(e=>e.id!==id);
     n.updatedAt=Date.now();
-    const ok=await pushNoticeToRemote(n);
-    if(!ok) return;
     saveNoticeLocal(n);
     renderCredentials();
     renderNoticeUpdatedTag();
-    toast('✓ 삭제 완료','ok');
+    await pushNoticeToRemote(n);
   }
   window.deleteCredEntry=deleteCredEntry;
 
@@ -25159,12 +25186,10 @@
     const n=loadNotice();
     n.legacyHtml='';
     n.updatedAt=Date.now();
-    const ok=await pushNoticeToRemote(n);
-    if(!ok) return;
     saveNoticeLocal(n);
     renderCredentials();
     renderNoticeUpdatedTag();
-    toast('✓ 레거시 원본 삭제 완료','ok');
+    await pushNoticeToRemote(n);
   }
   window.deleteCredLegacy=deleteCredLegacy;
 
@@ -25222,6 +25247,7 @@
         }
       }
       if(ok){
+        _noticeSetPushedSnap(JSON.stringify(normalizeNotice(payload)));
         _noticePendingPayload = null;
         _noticePersistDirty();
         _noticePushFailStreak = 0;
