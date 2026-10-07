@@ -1969,7 +1969,27 @@
   .cred-filter-chip{padding:6px 10px;font-size:11px;font-family:var(--sans);color:var(--text-2);background:var(--bg-1);border:1px solid var(--line);border-radius:4px;cursor:pointer;transition:all .12s}
   .cred-filter-chip.active{color:#fff;background:linear-gradient(90deg,#ff2e93,#ff6b35);border-color:transparent}
   .cred-filter-chip:hover:not(.active){color:var(--text-0);background:var(--bg-3)}
+  .cred-chip-exec{color:#b8860b;border-color:rgba(212,175,55,.45);background:rgba(212,175,55,.08)}
+  .cred-chip-exec.active{color:#1a1a1a;background:linear-gradient(90deg,#d4af37,#f0d060);border-color:transparent}
   .cred-toolbar-actions{display:flex;gap:6px}
+  /* 대표 전용 금고 */
+  .cred-exec-lock{max-width:420px;margin:48px auto;padding:28px 24px;text-align:center;background:var(--bg-1);border:1px solid rgba(212,175,55,.3);border-radius:8px}
+  .cred-exec-icon{font-size:30px;margin-bottom:10px}
+  .cred-exec-title{font-size:15px;font-weight:600;color:var(--text-0);margin-bottom:6px}
+  .cred-exec-sub{font-size:11.5px;line-height:1.6;color:var(--text-2);margin-bottom:18px}
+  .cred-exec-form{display:flex;flex-direction:column;gap:8px}
+  .cred-exec-form input{padding:9px 11px;font-size:13px;font-family:var(--mono,monospace);color:var(--text-0);background:var(--bg-0);border:1px solid var(--line);border-radius:4px;outline:none}
+  .cred-exec-form input:focus{border-color:#d4af37}
+  .cred-exec-form button{padding:9px 12px;font-size:13px;font-weight:600;font-family:var(--sans);color:#1a1a1a;background:linear-gradient(90deg,#d4af37,#f0d060);border:none;border-radius:4px;cursor:pointer}
+  .cred-exec-form button:disabled{opacity:.5;cursor:default}
+  .cred-exec-msg{margin-top:12px;font-size:11.5px;line-height:1.5;min-height:16px;color:var(--text-2)}
+  .cred-exec-msg.is-err{color:#ef4444}
+  .cred-exec-msg.is-ok{color:#22c55e}
+  .cred-exec-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:8px 12px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.25);border-radius:6px}
+  .cred-exec-badge{font-size:11.5px;font-weight:600;color:#b8860b}
+  .cred-exec-updated{font-size:11px;color:var(--text-2);margin-right:auto}
+  .cred-exec-lockbtn{padding:5px 10px;font-size:11px;font-family:var(--sans);color:var(--text-1);background:var(--bg-1);border:1px solid var(--line);border-radius:4px;cursor:pointer}
+  .cred-exec-lockbtn:hover{color:var(--text-0);background:var(--bg-3)}
   .cred-btn-add{padding:7px 12px;font-size:12px;font-weight:500;font-family:var(--sans);cursor:pointer;border-radius:4px;transition:all .12s;display:inline-flex;align-items:center;gap:4px}
   .cred-btn-add-login{color:#0369a1;background:rgba(3,105,161,.08);border:1px solid rgba(3,105,161,.35)}
   .cred-btn-add-login:hover{background:rgba(3,105,161,.14);border-color:rgba(3,105,161,.55)}
@@ -10761,6 +10781,7 @@
           <button class="cred-filter-chip active" data-filter="all">전체</button>
           <button class="cred-filter-chip" data-filter="login">로그인</button>
           <button class="cred-filter-chip" data-filter="custom">사용자지정</button>
+          <button class="cred-filter-chip cred-chip-exec" id="credFilterExec" data-filter="exec" hidden>🔒 대표 전용</button>
         </div>
         <div class="cred-toolbar-actions">
           <button class="cred-btn-add cred-btn-add-login" onclick="openCredEditor('login')">＋ 로그인</button>
@@ -10774,6 +10795,34 @@
         <div class="cred-empty-icon">🔐</div>
         <div class="cred-empty-text">저장된 항목이 없습니다</div>
         <div class="cred-empty-sub">우측 상단 <b>＋ 로그인</b> 또는 <b>＋ 사용자지정</b>으로 추가하세요</div>
+      </div>
+
+      <!-- 대표 전용 금고 (AES-GCM 암호화) — diary_me ∈ {전승훈, 전수빈} -->
+      <div class="cred-exec" id="credExec" hidden>
+        <div class="cred-exec-lock" id="credExecLock" hidden>
+          <div class="cred-exec-icon">🔒</div>
+          <div class="cred-exec-title" id="credExecLockTitle">대표 전용 금고</div>
+          <div class="cred-exec-sub" id="credExecLockSub">금고 암호를 입력하세요. 암호는 어디에도 저장되지 않고, 이 브라우저 메모리에서만 복호화에 쓰입니다.</div>
+          <form class="cred-exec-form" id="credExecForm" autocomplete="off">
+            <input type="password" id="credExecPass" placeholder="금고 암호" autocomplete="new-password" spellcheck="false">
+            <input type="password" id="credExecPass2" placeholder="금고 암호 확인" autocomplete="new-password" spellcheck="false" hidden>
+            <button type="submit" id="credExecUnlockBtn">열기</button>
+          </form>
+          <div class="cred-exec-msg" id="credExecMsg"></div>
+        </div>
+        <div class="cred-exec-open" id="credExecOpen" hidden>
+          <div class="cred-exec-bar">
+            <span class="cred-exec-badge">🔓 금고 열림</span>
+            <span class="cred-exec-updated" id="credExecUpdated"></span>
+            <button class="cred-exec-lockbtn" onclick="execLock()">잠그기</button>
+          </div>
+          <div class="cred-list" id="credExecList"></div>
+          <div class="cred-empty" id="credExecEmpty" hidden>
+            <div class="cred-empty-icon">🗄</div>
+            <div class="cred-empty-text">금고가 비어 있습니다</div>
+            <div class="cred-empty-sub">우측 상단 <b>＋ 로그인</b> 또는 <b>＋ 사용자지정</b>으로 추가하세요</div>
+          </div>
+        </div>
       </div>
 
       <details class="cred-legacy" id="credLegacy" hidden>
@@ -14278,6 +14327,7 @@
       if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
     }
     if(id==='viewNotice'){
+      if(typeof execRefreshAccess==='function') execRefreshAccess();
       if(typeof renderNotice==='function') renderNotice();
       if(typeof renderNoticeUpdatedTag==='function') renderNoticeUpdatedTag();
       if(typeof syncNoticeFromRemote==='function') syncNoticeFromRemote().catch(()=>{});
@@ -19804,6 +19854,7 @@
       const nameEl = document.getElementById('diaryMeName');
       if(nameEl){ nameEl.textContent = name; }
       if(typeof whtRefreshAccess==='function') whtRefreshAccess();
+      if(typeof execRefreshAccess==='function') execRefreshAccess();
       if(typeof _diaryApplyHomeVisibility==='function') _diaryApplyHomeVisibility();
       toast(`${name}님으로 로그인되었습니다`, 'ok');
     };
@@ -24888,6 +24939,18 @@
     const legacyContent=document.getElementById('credLegacyContent');
     if(!list) return;
 
+    const execWrap=document.getElementById('credExec');
+    if(_cred_filter==='exec'){
+      list.innerHTML='';
+      list.style.display='none';
+      if(empty) empty.hidden=true;
+      if(legacy) legacy.hidden=true;
+      if(execWrap) execWrap.hidden=false;
+      renderExecVault();
+      return;
+    }
+    if(execWrap) execWrap.hidden=true;
+
     const n=loadNotice();
 
     // 레거시 원본
@@ -24931,7 +24994,9 @@
     list.innerHTML=filtered.map(e=>renderCredCard(e)).join('');
   }
 
-  function renderCredCard(e){
+  function renderCredCard(e, scope){
+    const editFn = scope==='exec' ? 'editExecEntry' : 'editCredEntry';
+    const delFn  = scope==='exec' ? 'deleteExecEntry' : 'deleteCredEntry';
     const typeCls = e.type==='custom' ? 'cred-card-type-custom' : 'cred-card-type-login';
     const typeLabel = e.type==='custom' ? '사용자지정' : '로그인';
     const fieldsHtml=(e.fields||[]).map((f,i)=>renderCredField(e.id, i, f)).join('');
@@ -24943,8 +25008,8 @@
           <span class="cred-card-type ${typeCls}">${typeLabel}</span>
         </div>
         <div class="cred-card-actions">
-          <button class="cred-card-edit" onclick="editCredEntry('${credEscape(e.id)}')" title="편집" aria-label="편집">✎</button>
-          <button class="cred-card-del" onclick="deleteCredEntry('${credEscape(e.id)}')" title="삭제" aria-label="삭제">🗑</button>
+          <button class="cred-card-edit" onclick="${editFn}('${credEscape(e.id)}')" title="편집" aria-label="편집">✎</button>
+          <button class="cred-card-del" onclick="${delFn}('${credEscape(e.id)}')" title="삭제" aria-label="삭제">🗑</button>
         </div>
       </div>
       <div class="cred-card-body">${fieldsHtml || '<div class="cred-field"><span class="cred-field-label">—</span><span class="cred-field-value">필드 없음</span></div>'}</div>
@@ -25015,8 +25080,10 @@
   /* ============ 편집 모달 ============ */
   function openCredEditor(type){
     _cred_modalOpen=true;
-    _cred_editorState={mode:'add', type, id:null, fields:[]};
-    document.getElementById('credModalTitle').textContent='항목 추가';
+    const scope = (_cred_filter==='exec') ? 'exec' : 'main';
+    if(scope==='exec' && !_execKey){ _cred_modalOpen=false; toast('금고를 먼저 열어주세요','err'); return }
+    _cred_editorState={mode:'add', type, id:null, fields:[], scope};
+    document.getElementById('credModalTitle').textContent = scope==='exec' ? '🔒 대표 전용 항목 추가' : '항목 추가';
     document.getElementById('credEditName').value='';
     document.getElementById('credEditUsername').value='';
     document.getElementById('credEditPassword').value='';
@@ -25031,13 +25098,10 @@
   }
   window.openCredEditor=openCredEditor;
 
-  function editCredEntry(id){
-    const n=loadNotice();
-    const entry=n.entries.find(e=>e.id===id);
-    if(!entry){toast('항목을 찾을 수 없습니다','err');return}
+  function _credFillEditor(entry, id, scope){
     _cred_modalOpen=true;
-    _cred_editorState={mode:'edit', type:entry.type, id, fields:JSON.parse(JSON.stringify(entry.fields||[]))};
-    document.getElementById('credModalTitle').textContent='항목 편집';
+    _cred_editorState={mode:'edit', type:entry.type, id, fields:JSON.parse(JSON.stringify(entry.fields||[])), scope};
+    document.getElementById('credModalTitle').textContent = scope==='exec' ? '🔒 대표 전용 항목 편집' : '항목 편집';
     document.getElementById('credEditName').value=entry.name||'';
     document.getElementById('credEditMemo').value=entry.memo||'';
     if(entry.type==='login'){
@@ -25052,7 +25116,21 @@
     document.getElementById('credModal').hidden=false;
     setTimeout(()=>document.getElementById('credEditName').focus(),50);
   }
+
+  function editCredEntry(id){
+    const entry=loadNotice().entries.find(e=>e.id===id);
+    if(!entry){toast('항목을 찾을 수 없습니다','err');return}
+    _credFillEditor(entry, id, 'main');
+  }
   window.editCredEntry=editCredEntry;
+
+  function editExecEntry(id){
+    if(!_execKey){toast('금고를 먼저 열어주세요','err');return}
+    const entry=(_execEntries||[]).find(e=>e.id===id);
+    if(!entry){toast('항목을 찾을 수 없습니다','err');return}
+    _credFillEditor(entry, id, 'exec');
+  }
+  window.editExecEntry=editExecEntry;
 
   function closeCredEditor(){
     _cred_modalOpen=false;
@@ -25141,6 +25219,23 @@
         .filter(f=>f.label.trim() || f.value.trim())
         .map(f=>({label:f.label.trim()||'값', value:f.value, secret:!!f.secret}));
       if(fields.length===0){toast('최소 1개 필드를 입력하세요','err');return}
+    }
+
+    if((_cred_editorState.scope||'main')==='exec'){
+      if(!_execKey){toast('금고가 잠겨 있습니다','err');return}
+      const list=(_execEntries||[]).slice();
+      if(_cred_editorState.mode==='edit'){
+        const idx=list.findIndex(e=>e.id===_cred_editorState.id);
+        const updated={id:_cred_editorState.id||credUid(), type, name, fields, memo};
+        if(idx>=0) list[idx]=updated; else list.push(updated);
+      } else {
+        list.push({id:credUid(), type, name, fields, memo});
+      }
+      _execEntries=list;
+      closeCredEditor();
+      renderExecVault();
+      await execSave();
+      return;
     }
 
     const n=loadNotice();
@@ -25293,6 +25388,7 @@
   }
   document.querySelectorAll('.cred-filter-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
+      if(chip.dataset.filter==='exec' && !execHasAccess()) return;
       document.querySelectorAll('.cred-filter-chip').forEach(c=>c.classList.remove('active'));
       chip.classList.add('active');
       _cred_filter=chip.dataset.filter;
@@ -25316,6 +25412,262 @@
   window.renderNoticeUpdatedTag=renderNoticeUpdatedTag;
   window.toggleCredSecret=toggleCredSecret;
   window.copyCredValue=copyCredValue;
+
+  /* ===================================================== */
+  /* ===== 대표 전용 금고 — AES-256-GCM 클라이언트 암호화 ===== */
+  /* ===================================================== */
+  /* 이 레포는 PUBLIC 이다. data/notice-exec.json 은 누구나 내려받을 수 있으므로
+     평문을 올리지 않는다 — 금고 암호에서 PBKDF2(SHA-256) 로 키를 파생해
+     AES-GCM 으로 암호화한 ciphertext 만 커밋한다.
+     암호·파생키·평문은 메모리에만 두고 localStorage 에는 ciphertext 만 캐시한다.
+     diary_me 탭 게이트는 화면 가리기일 뿐이고 실제 기밀성은 암호에서 나온다. */
+  const EXEC_ALLOWED=new Set(['전승훈','전수빈']);
+  const EXEC_PATH='data/notice-exec.json';
+  const EXEC_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/${EXEC_PATH}`;
+  const EXEC_API=`https://api.github.com/repos/${PO_REPO}/contents/${EXEC_PATH}`;
+  const EXEC_CT_KEY='brightbeed_notice_exec_ct_v1';  // 암호문 캐시 (평문 아님)
+  const EXEC_KDF_ITER=600000;
+  const EXEC_IDLE_MS=10*60*1000;
+
+  let _execBlob=null;      // {v,kdf,iter,salt,iv,ct,updatedAt} — 암호문
+  let _execKey=null;       // CryptoKey — 메모리 전용
+  let _execEntries=null;   // 복호화된 entries — 메모리 전용
+  let _execIdleTimer=null;
+  let _execLockPrepared=false;
+  let _execBusy=false;
+
+  const _execEnc=new TextEncoder();
+  const _execTd=new TextDecoder();
+  function _execB64e(buf){const b=new Uint8Array(buf);let s='';for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s)}
+  function _execB64d(str){const s=atob(String(str||''));const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
+
+  function execGetMe(){try{return (localStorage.getItem('brightbeed_diary_me')||'').trim()}catch(e){return ''}}
+  function execHasAccess(){return EXEC_ALLOWED.has(execGetMe())}
+  function execRefreshAccess(){
+    const chip=document.getElementById('credFilterExec');
+    if(chip) chip.hidden=!execHasAccess();
+    if(!execHasAccess() && _cred_filter==='exec'){
+      execLock();
+      _cred_filter='all';
+      document.querySelectorAll('.cred-filter-chip').forEach(c=>c.classList.toggle('active', c.dataset.filter==='all'));
+      renderCredentials();
+    }
+  }
+  window.execRefreshAccess=execRefreshAccess;
+
+  function _execSetMsg(t,isErr){
+    const el=document.getElementById('credExecMsg');
+    if(!el) return;
+    el.textContent=t||'';
+    el.classList.toggle('is-err',!!isErr);
+  }
+  function _execTouchIdle(){
+    clearTimeout(_execIdleTimer);
+    _execIdleTimer=setTimeout(()=>{execLock();try{toast('금고가 자동 잠금되었습니다','warn')}catch(e){}}, EXEC_IDLE_MS);
+  }
+  function execLock(){
+    _execKey=null; _execEntries=null; _execLockPrepared=false;
+    clearTimeout(_execIdleTimer); _execIdleTimer=null;
+    const p=document.getElementById('credExecPass'); if(p) p.value='';
+    const p2=document.getElementById('credExecPass2'); if(p2) p2.value='';
+    if(_cred_filter==='exec') renderExecVault();
+  }
+  window.execLock=execLock;
+
+  async function _execDeriveKey(pass, salt, iter){
+    const base=await crypto.subtle.importKey('raw', _execEnc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+    return await crypto.subtle.deriveKey(
+      {name:'PBKDF2', salt, iterations:iter, hash:'SHA-256'},
+      base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+  }
+
+  function _execCacheGet(){try{const d=JSON.parse(localStorage.getItem(EXEC_CT_KEY)||'null');return (d&&d.ct&&d.salt&&d.iv)?d:null}catch(e){return null}}
+  function _execCacheSet(b){try{localStorage.setItem(EXEC_CT_KEY, JSON.stringify(b))}catch(e){}}
+
+  async function _execFetchRemote(){
+    try{
+      const r=await fetch(`${EXEC_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(r.status===404) return {missing:true};
+      if(!r.ok) return null;
+      const d=await r.json();
+      if(!d||typeof d!=='object'||!d.ct||!d.salt||!d.iv) return {missing:true};
+      return d;
+    }catch(e){return null}
+  }
+
+  /* remote 우선 · 네트워크 실패나 CDN 지연으로 404 가 와도 캐시 암호문이 있으면 그걸 쓴다
+     (없는 금고로 오판해 새로 만들면 기존 금고를 덮어쓴다) */
+  async function _execLoadBlob(){
+    const remote=await _execFetchRemote();
+    if(remote && !remote.missing){_execBlob=remote; _execCacheSet(remote); return 'ok'}
+    const cached=_execCacheGet();
+    if(cached){_execBlob=cached; return 'ok'}
+    if(remote && remote.missing){_execBlob=null; return 'missing'}
+    return 'error';
+  }
+
+  async function _execPrepareLock(){
+    if(_execLockPrepared) return;
+    _execLockPrepared=true;
+    _execSetMsg('금고 상태 확인 중…');
+    const st=await _execLoadBlob();
+    const p2=document.getElementById('credExecPass2');
+    const title=document.getElementById('credExecLockTitle');
+    const btn=document.getElementById('credExecUnlockBtn');
+    if(st==='missing'){
+      if(title) title.textContent='대표 전용 금고 만들기';
+      if(p2) p2.hidden=false;
+      if(btn) btn.textContent='금고 만들기';
+      _execSetMsg('아직 금고가 없습니다. 새 암호를 정하세요. 암호문 파일은 공개되므로 짧은 암호는 깨질 수 있습니다 — 12자 이상, 뜻 있는 문장 형태(예: 브라이트비드-금고-2026-가을!)를 권합니다. 이 암호는 복구할 수 없으니 두 분이 안전하게 공유해 두세요.');
+    } else if(st==='error'){
+      _execLockPrepared=false;
+      _execSetMsg('금고 파일을 읽을 수 없습니다. 네트워크를 확인해주세요.',true);
+    } else {
+      if(title) title.textContent='대표 전용 금고';
+      if(p2) p2.hidden=true;
+      if(btn) btn.textContent='열기';
+      _execSetMsg('');
+    }
+  }
+
+  function renderExecVault(){
+    const lock=document.getElementById('credExecLock');
+    const open=document.getElementById('credExecOpen');
+    if(!lock||!open) return;
+    if(!execHasAccess()){lock.hidden=true; open.hidden=true; return}
+    if(!_execKey||!_execEntries){
+      lock.hidden=false; open.hidden=true;
+      _execPrepareLock();
+      return;
+    }
+    lock.hidden=true; open.hidden=false;
+    const list=document.getElementById('credExecList');
+    const empty=document.getElementById('credExecEmpty');
+    const q=_cred_search.trim().toLowerCase();
+    const rows=_execEntries.filter(e=>{
+      if(!q) return true;
+      const hay=[e.name,e.memo,...(e.fields||[]).map(f=>f.label+' '+f.value)].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+    if(rows.length===0){
+      if(list){list.innerHTML=''; list.style.display='none'}
+      if(empty){
+        empty.hidden=false;
+        empty.querySelector('.cred-empty-text').textContent=(_execEntries.length===0)?'금고가 비어 있습니다':'검색 결과가 없습니다';
+      }
+    } else {
+      if(empty) empty.hidden=true;
+      if(list){list.style.display='grid'; list.innerHTML=rows.map(e=>renderCredCard(e,'exec')).join('')}
+    }
+    const tag=document.getElementById('credExecUpdated');
+    if(tag){
+      const ts=_execBlob&&_execBlob.updatedAt;
+      if(ts){const d=new Date(ts); tag.textContent=`${d.getMonth()+1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 저장`}
+      else tag.textContent='';
+    }
+  }
+
+  async function execUnlock(){
+    if(_execBusy||!execHasAccess()) return;
+    const passEl=document.getElementById('credExecPass');
+    const pass2El=document.getElementById('credExecPass2');
+    const btn=document.getElementById('credExecUnlockBtn');
+    const pass=passEl?passEl.value:'';
+    if(!pass){_execSetMsg('암호를 입력하세요',true); return}
+    if(!(window.crypto&&crypto.subtle)){_execSetMsg('이 브라우저에서는 암호화를 쓸 수 없습니다 (https 로 접속해주세요)',true); return}
+    _execBusy=true;
+    if(btn) btn.disabled=true;
+    try{
+      if(!_execBlob){
+        if(pass.length<12){_execSetMsg('암호는 12자 이상으로 정하세요 (암호문 파일이 공개되므로 짧으면 깨집니다)',true); return}
+        if(!pass2El||pass2El.value!==pass){_execSetMsg('확인 암호가 일치하지 않습니다',true); return}
+        if(!(await ensureGhToken())){_execSetMsg('서버 프록시 연결 실패',true); return}
+        _execSetMsg('금고 생성 중… 키 파생에 몇 초 걸립니다');
+        try{
+          const salt=crypto.getRandomValues(new Uint8Array(16));
+          _execBlob={v:1, kdf:'PBKDF2-SHA256', iter:EXEC_KDF_ITER, salt:_execB64e(salt), iv:'', ct:'', updatedAt:0};
+          _execKey=await _execDeriveKey(pass, salt, EXEC_KDF_ITER);
+          _execEntries=[];
+        }catch(e){
+          _execKey=null; _execEntries=null; _execBlob=null; _execLockPrepared=false;
+          _execSetMsg('암호화 초기화 실패 — 다시 시도해주세요',true);
+          return;
+        }
+        if(!(await execSave())){
+          _execKey=null; _execEntries=null; _execBlob=null; _execLockPrepared=false;
+          _execSetMsg('금고 생성 실패 — 다시 시도해주세요',true);
+          return;
+        }
+      } else {
+        _execSetMsg('복호화 중… 키 파생에 몇 초 걸립니다');
+        let key, plain;
+        try{
+          key=await _execDeriveKey(pass, _execB64d(_execBlob.salt), _execBlob.iter||EXEC_KDF_ITER);
+          plain=await crypto.subtle.decrypt({name:'AES-GCM', iv:_execB64d(_execBlob.iv)}, key, _execB64d(_execBlob.ct));
+        }catch(e){_execSetMsg('암호가 맞지 않습니다',true); return}
+        let obj;
+        try{obj=JSON.parse(_execTd.decode(plain))}catch(e){_execSetMsg('금고 데이터가 손상되었습니다',true); return}
+        _execKey=key;
+        _execEntries=Array.isArray(obj.entries)?obj.entries.map(normalizeEntry).filter(Boolean):[];
+      }
+      _execSetMsg('');
+      if(passEl) passEl.value='';
+      if(pass2El) pass2El.value='';
+      _execTouchIdle();
+      renderExecVault();
+    } finally {
+      _execBusy=false;
+      if(btn) btn.disabled=false;
+    }
+  }
+  window.execUnlock=execUnlock;
+
+  async function execSave(){
+    if(!_execKey||!_execBlob) return false;
+    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err'); return false}
+    let blob;
+    try{
+      const iv=crypto.getRandomValues(new Uint8Array(12));
+      const now=Date.now();
+      const plain=_execEnc.encode(JSON.stringify({entries:_execEntries||[], updatedAt:now}));
+      const ct=await crypto.subtle.encrypt({name:'AES-GCM', iv}, _execKey, plain);
+      blob={v:1, kdf:'PBKDF2-SHA256', iter:_execBlob.iter||EXEC_KDF_ITER,
+            salt:_execBlob.salt, iv:_execB64e(iv), ct:_execB64e(ct), updatedAt:now};
+    }catch(e){toast('암호화 실패','err'); return false}
+    try{toast('금고 저장 중…','ok')}catch(e){}
+    for(let attempt=0; attempt<3; attempt++){
+      const file=await ghGetFile(EXEC_API);
+      if(file.error){try{toast(`⚠ 금고 저장 실패 (${file.error})`,'err')}catch(e){} return false}
+      const b64=btoa(unescape(encodeURIComponent(JSON.stringify(blob,null,2))));
+      const r=await ghPut(EXEC_API, b64, 'chore: 대표 전용 금고 갱신', {forceMaster:true, noConflictRetry:true, sha:file.sha||null});
+      if(r.ok){
+        _execBlob=blob;
+        _execCacheSet(blob);
+        renderExecVault();
+        try{toast('✓ 금고 저장됨','ok')}catch(e){}
+        return true;
+      }
+      if(r.reason!=='conflict'){try{toast(`⚠ 금고 저장 실패 (${r.reason||'network'})`,'err')}catch(e){} return false}
+    }
+    try{toast('⚠ 금고 저장 충돌 — 다시 시도해주세요','err')}catch(e){}
+    return false;
+  }
+
+  async function deleteExecEntry(id){
+    if(!_execKey){toast('금고를 먼저 열어주세요','err'); return}
+    const entry=(_execEntries||[]).find(e=>e.id===id);
+    if(!entry) return;
+    if(!confirm(`"${entry.name}" 항목을 금고에서 삭제하시겠습니까?`)) return;
+    _execEntries=_execEntries.filter(e=>e.id!==id);
+    _execTouchIdle();
+    renderExecVault();
+    await execSave();
+  }
+  window.deleteExecEntry=deleteExecEntry;
+
+  const _execFormEl=document.getElementById('credExecForm');
+  if(_execFormEl) _execFormEl.addEventListener('submit', e=>{e.preventDefault(); execUnlock()});
+  execRefreshAccess();
 
   renderCredentials();
   renderNoticeUpdatedTag();
