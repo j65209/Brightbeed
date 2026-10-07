@@ -10826,8 +10826,8 @@
         <div class="cred-exec-title" id="credExecLockTitle">대표 전용 금고</div>
         <div class="cred-exec-sub">금고 암호는 어디에도 저장되지 않습니다. 이 브라우저 메모리에서 복호화에만 쓰이고, 서버에는 암호문만 올라갑니다.</div>
         <form class="cred-exec-form" id="credExecForm" autocomplete="off">
-          <input type="password" id="credExecPass" placeholder="금고 암호" autocomplete="new-password" spellcheck="false">
-          <input type="password" id="credExecPass2" placeholder="금고 암호 확인" autocomplete="new-password" spellcheck="false" hidden>
+          <input type="password" id="credExecPass" placeholder="금고 암호 (4~18자)" maxlength="18" autocomplete="new-password" spellcheck="false">
+          <input type="password" id="credExecPass2" placeholder="금고 암호 확인" maxlength="18" autocomplete="new-password" spellcheck="false" hidden>
           <button type="submit" id="credExecUnlockBtn">열기</button>
         </form>
         <div class="cred-exec-msg" id="credExecMsg"></div>
@@ -25439,6 +25439,7 @@
   const EXEC_CT_KEY='brightbeed_notice_exec_ct_v1';  // 암호문 캐시 (평문 아님)
   const EXEC_KDF_ITER=600000;
   const EXEC_IDLE_MS=10*60*1000;
+  const EXEC_PASS_MIN=4, EXEC_PASS_MAX=18;
 
   let _execBlob=null;      // {v,kdf,iter,salt,iv,ct,updatedAt} — 암호문
   let _execKey=null;       // CryptoKey — 메모리 전용
@@ -25537,7 +25538,7 @@
       if(title) title.textContent='대표 전용 금고 만들기';
       if(p2) p2.hidden=false;
       if(btn) btn.textContent='금고 만들기';
-      _execSetMsg('아직 금고가 없습니다. 새 암호를 정하세요. 암호문 파일은 공개되므로 짧은 암호는 깨질 수 있습니다 — 12자 이상, 뜻 있는 문장 형태(예: 브라이트비드-금고-2026-가을!)를 권합니다. 이 암호는 복구할 수 없으니 두 분이 안전하게 공유해 두세요.');
+      _execSetMsg(`아직 금고가 없습니다. 새 암호를 정하세요 (${EXEC_PASS_MIN}~${EXEC_PASS_MAX}자). 이 암호는 복구할 수 없으니 두 분이 안전하게 공유해 두세요.`);
     } else if(st==='error'){
       _execLockPrepared=false;
       _execSetMsg('금고 파일을 읽을 수 없습니다. 네트워크를 확인해주세요.',true);
@@ -25598,7 +25599,7 @@
     if(btn) btn.disabled=true;
     try{
       if(!_execBlob){
-        if(pass.length<12){_execSetMsg('암호는 12자 이상으로 정하세요 (암호문 파일이 공개되므로 짧으면 깨집니다)',true); return}
+        if(pass.length<EXEC_PASS_MIN||pass.length>EXEC_PASS_MAX){_execSetMsg(`암호는 ${EXEC_PASS_MIN}~${EXEC_PASS_MAX}자로 정하세요`,true); return}
         if(!pass2El||pass2El.value!==pass){_execSetMsg('확인 암호가 일치하지 않습니다',true); return}
         if(!(await ensureGhToken())){_execSetMsg('서버 프록시 연결 실패',true); return}
         _execSetMsg('금고 생성 중… 키 파생에 몇 초 걸립니다');
