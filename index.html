@@ -3299,7 +3299,7 @@
     width:100%;border-collapse:collapse;
     font-family:var(--sans);font-size:12.5px;min-width:900px;
   }
-  .wht-table.wht-table-invoice{min-width:1240px}
+  .wht-table.wht-table-invoice{min-width:1340px}
   .wht-table thead th{
     background:var(--bg-2);color:var(--text-2);
     font-weight:600;font-size:11px;letter-spacing:.02em;
@@ -3324,11 +3324,33 @@
   .wht-col-ssn{width:150px}
   .wht-col-bizno{width:140px}
   .wht-col-btype{width:150px}
-  /* 세금계산서 표는 min-width 1240px — 삭제 열이 가로 스크롤에 묻히므로 오른쪽 끝 고정 */
+  /* 세금계산서 표는 min-width 1340px — 삭제·입금완료 열이 가로 스크롤에 묻히므로 오른쪽 끝 고정 */
   .wht-col-act{width:48px;text-align:center;position:sticky;right:0;z-index:3}
   .wht-table thead th.wht-col-act{background:var(--bg-2);text-align:center;box-shadow:-7px 0 8px -7px rgba(0,0,0,.20)}
   .wht-table tbody td.wht-col-act{background:var(--bg-0);box-shadow:-7px 0 8px -7px rgba(0,0,0,.14)}
   .wht-table tbody tr:hover td.wht-col-act{background:var(--bg-1)}
+  .wht-col-paid{width:96px;text-align:center;position:sticky;right:48px;z-index:2}
+  .wht-table thead th.wht-col-paid{background:var(--bg-2);text-align:center}
+  .wht-table tbody td.wht-col-paid{background:var(--bg-0)}
+  .wht-table tbody tr:hover td.wht-col-paid{background:var(--bg-1)}
+  .wht-table tfoot td.wht-col-paid{background:var(--bg-2);font-size:11.5px;text-align:center}
+  .wht-paid-wrap{
+    display:inline-flex;flex-direction:column;align-items:center;gap:2px;
+    cursor:pointer;padding:2px 4px;border-radius:6px;user-select:none;
+  }
+  .wht-paid-wrap:hover{background:rgba(79,70,229,.08)}
+  .wht-paid-cb{width:17px;height:17px;cursor:pointer;accent-color:#16a34a;margin:0}
+  .wht-paid-stamp{
+    font-size:9.5px;line-height:1.2;color:var(--text-3);
+    max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .wht-table tbody tr.is-paid td{background:rgba(22,163,74,.07)}
+  .wht-table tbody tr.is-paid:hover td{background:rgba(22,163,74,.13)}
+  .wht-table tbody tr.is-paid td.wht-col-paid,
+  .wht-table tbody tr.is-paid td.wht-col-act{background:rgba(22,163,74,.07)}
+  .wht-table tbody tr.is-paid:hover td.wht-col-paid,
+  .wht-table tbody tr.is-paid:hover td.wht-col-act{background:rgba(22,163,74,.13)}
+  .wht-table tbody tr.is-paid .wht-paid-stamp{color:#15803d;font-weight:600}
   .wht-input{
     width:100%;box-sizing:border-box;
     padding:6px 8px;font-family:var(--sans);font-size:12.5px;
@@ -10513,7 +10535,7 @@
           <!-- 세금계산서 발행 (입금) -->
           <div class="wht-pane" data-pane="invoice">
             <div class="wht-pane-title">🧾 세금계산서 발행 <span class="wht-pane-title-sub">입금</span></div>
-            <div class="wht-pane-hint"><b>세금계산서 발행 (입금)</b> — 브랜드에 발행. <b>발행금액</b> 입력 시 공급가액(÷1.1)·부가세(×10%) 자동계산.</div>
+            <div class="wht-pane-hint"><b>세금계산서 발행 (입금)</b> — 브랜드에 발행. <b>발행금액</b> 입력 시 공급가액(÷1.1)·부가세(×10%) 자동계산. 입금 확인되면 맨 오른쪽 <b>입금완료</b> 체크 (누가·언제 체크했는지 기록됩니다).</div>
             <div class="wht-table-wrap">
               <table class="wht-table wht-table-invoice">
                 <thead>
@@ -10528,6 +10550,7 @@
                     <th class="wht-col-amt">공급가액</th>
                     <th class="wht-col-amt">부가세</th>
                     <th>이메일</th>
+                    <th class="wht-col-paid">입금완료</th>
                     <th class="wht-col-act">삭제</th>
                   </tr>
                 </thead>
@@ -10538,7 +10561,9 @@
                     <td class="wht-col-amt" id="whtInvoiceTotal">0</td>
                     <td class="wht-col-amt" id="whtInvoiceSupply">0</td>
                     <td class="wht-col-amt" id="whtInvoiceVat">0</td>
-                    <td colspan="2"></td>
+                    <td></td>
+                    <td class="wht-col-paid" id="whtInvoicePaidCnt">0 / 0</td>
+                    <td class="wht-col-act"></td>
                   </tr>
                 </tfoot>
               </table>
@@ -30022,7 +30047,7 @@
     invoice: {
       label:'세금계산서 발행',
       fields:['name','ceo','bizno','address','biztype','amount','email'],
-      headers:['사업자명','대표자명','사업자번호','소재지','업태/종목','발행금액','공급가액','부가세','이메일'],
+      headers:['사업자명','대표자명','사업자번호','소재지','업태/종목','발행금액','공급가액','부가세','이메일','입금완료'],
     },
   };
   const _whtState = {
@@ -31004,7 +31029,7 @@
     if(!body) return;
     const rows=_whtState.data[section]||[];
     if(!rows.length){
-      const cols=section==='invoice'?11:(section==='freelancer'?8:9);
+      const cols=section==='invoice'?12:(section==='freelancer'?8:9);
       body.innerHTML=`<tr><td colspan="${cols}" class="wht-empty">아직 입력된 항목이 없습니다. 아래 <b>+ 행 추가</b> 버튼으로 시작하세요.</td></tr>`;
       _whtUpdateTotals(section);
       return;
@@ -31040,7 +31065,13 @@
     const amt=_whtParseAmt(r.amount);
     const supply=amt?Math.round(amt/1.1):0;
     const vat=amt?amt-supply:0;
-    return `<tr>${num}
+    const paid=!!r.paid;
+    const stamp=paid?[r.paid_by||'',_whtFmtStamp(r.paid_at)].filter(Boolean).join(' '):'';
+    const paidCell=`<td class="wht-col-paid"><label class="wht-paid-wrap" title="${_esc(paid?(stamp?'입금완료 — '+stamp:'입금완료'):'입금 확인 후 체크')}">
+        <input type="checkbox" class="wht-paid-cb" data-sec="${section}" data-i="${i}" data-f="paid"${paid?' checked':''}>
+        <span class="wht-paid-stamp">${_esc(stamp)}</span>
+      </label></td>`;
+    return `<tr${paid?' class="is-paid"':''}>${num}
       <td class="wht-name-cell"><input class="wht-input" autocomplete="off" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명 (자동완성)"></td>
       <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="ceo" value="${_esc(r.ceo||'')}" placeholder="대표자명"></td>
       <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="bizno" value="${_esc(r.bizno||'')}" placeholder="000-00-00000"></td>
@@ -31050,6 +31081,7 @@
       <td><input class="wht-input wht-num wht-readonly" value="${_whtFmtAmt(supply)}" data-computed="supply" tabindex="-1" readonly></td>
       <td><input class="wht-input wht-num wht-readonly" value="${_whtFmtAmt(vat)}" data-computed="vat" tabindex="-1" readonly></td>
       <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="email" value="${_esc(r.email||'')}" placeholder="email@..."></td>
+      ${paidCell}
       ${del}</tr>`;
   }
   function _whtUpdateTotals(section){
@@ -31064,6 +31096,14 @@
       const vatEl=document.getElementById('whtInvoiceVat');
       if(supEl) supEl.textContent=sup.toLocaleString('ko-KR');
       if(vatEl) vatEl.textContent=vat.toLocaleString('ko-KR');
+      const cntEl=document.getElementById('whtInvoicePaidCnt');
+      if(cntEl){
+        const real=_whtSectionRows('invoice');
+        const done=real.filter(r=>r&&r.paid).length;
+        cntEl.textContent=`${done} / ${real.length}`;
+        const left=real.reduce((s,r)=>s+(r&&r.paid?0:_whtParseAmt(r.amount)),0);
+        cntEl.title=left?`미입금 ${left.toLocaleString('ko-KR')}원`:'전부 입금완료';
+      }
     }
   }
   function _whtOnInputEvt(e){
@@ -31076,6 +31116,25 @@
     if(!Number.isFinite(i)||!f) return;
     const arr=_whtState.data[sec]||[];
     if(i<0||i>=arr.length) return;
+    if(f==='paid'){
+      if(e.type!=='change') return; // 체크박스는 input·change 둘 다 발생 → 한 번만 처리
+      const on=!!el.checked;
+      arr[i].paid=on;
+      if(on){ arr[i].paid_by=_whtGetMe()||''; arr[i].paid_at=new Date().toISOString(); }
+      else { arr[i].paid_by=''; arr[i].paid_at=''; }
+      const tr=el.closest('tr');
+      if(tr){
+        tr.classList.toggle('is-paid',on);
+        const st=tr.querySelector('.wht-paid-stamp');
+        const stamp=on?[arr[i].paid_by,_whtFmtStamp(arr[i].paid_at)].filter(Boolean).join(' '):'';
+        if(st) st.textContent=stamp;
+        const wrap=tr.querySelector('.wht-paid-wrap');
+        if(wrap) wrap.title=on?(stamp?'입금완료 — '+stamp:'입금완료'):'입금 확인 후 체크';
+      }
+      _whtUpdateTotals(sec);
+      _whtQueueSave();
+      return;
+    }
     if(f==='amount'){
       const n=_whtParseAmt(el.value);
       arr[i][f]=n||0;
@@ -31167,7 +31226,7 @@
         const supply=amt?Math.round(amt/1.1):0;
         const vat=amt?amt-supply:0;
         total+=amt; supplyTotal+=supply; vatTotal+=vat;
-        aoa.push([i+1,r.name||'',r.ceo||'',r.bizno||'',r.address||'',r.biztype||'',amt||'',supply||'',vat||'',r.email||'']);
+        aoa.push([i+1,r.name||'',r.ceo||'',r.bizno||'',r.address||'',r.biztype||'',amt||'',supply||'',vat||'',r.email||'',r.paid?'입금완료':'']);
       }
     });
     if(rows.length){
@@ -31176,12 +31235,13 @@
       } else if(section==='freelancer'){
         aoa.push(['','','','','합계',total,'']);
       } else {
-        aoa.push(['','','','','','합계',total,supplyTotal,vatTotal,'']);
+        const paidCnt=rows.filter(r=>r&&r.paid).length;
+        aoa.push(['','','','','','합계',total,supplyTotal,vatTotal,'',`${paidCnt}/${rows.length} 입금완료`]);
       }
     }
     const ws=XLSX.utils.aoa_to_sheet(aoa);
     const widths=section==='invoice'
-      ? [{wch:4},{wch:22},{wch:10},{wch:14},{wch:32},{wch:18},{wch:12},{wch:12},{wch:10},{wch:24}]
+      ? [{wch:4},{wch:22},{wch:10},{wch:14},{wch:32},{wch:18},{wch:12},{wch:12},{wch:10},{wch:24},{wch:12}]
       : section==='freelancer'
       ? [{wch:4},{wch:12},{wch:16},{wch:12},{wch:18},{wch:14},{wch:20}]
       : [{wch:4},{wch:20},{wch:12},{wch:18},{wch:14},{wch:14},{wch:12},{wch:20}];
@@ -31237,7 +31297,7 @@
       } else {
         const a=_whtParseAmt(r.amount);
         const s=a?Math.round(a/1.1):0;
-        vals=[r.name||'',r.ceo||'',r.bizno||'',r.address||'',r.biztype||'',_whtFmtAmt(r.amount),_whtFmtAmt(s),_whtFmtAmt(a?a-s:0),r.email||''];
+        vals=[r.name||'',r.ceo||'',r.bizno||'',r.address||'',r.biztype||'',_whtFmtAmt(r.amount),_whtFmtAmt(s),_whtFmtAmt(a?a-s:0),r.email||'',r.paid?'입금완료':''];
       }
       lines.push(vals.map(v=>String(v==null?'':v).replace(/[\t\r\n]/g,' ')).join('\t'));
     });
