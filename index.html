@@ -29212,10 +29212,11 @@
       month:lbl, monthNum:parsed.monthNum,
       year:parsed.year!=null?parsed.year:new Date().getFullYear(),
       items:[], totalMargin:'', totalSales:'', pending:false,
-      _lastProduct:'', _lastSeller:'',
+      _lastProduct:'', _lastSeller:'', _unnamed:false,
     });
     const _pushCur = () => {
       if(!cur) return;
+      if(cur._unnamed){ cur=null; return; } // 월을 끝내 특정 못한 조각은 버린다
       if(cur.items.length || cur.totalMargin || cur.totalSales){
         out.push(cur);
         lastMonthNum = cur.monthNum;
@@ -29224,7 +29225,13 @@
       cur = null;
     };
     const _openAutoCur = (asPending) => {
-      if(lastMonthNum == null) return false; // 컨텍스트 없이 시작할 수 없음
+      if(lastMonthNum == null){
+        // 시트 맨 앞 — 아직 월 컨텍스트가 없다. 뒤에 라벨 달린 마감행이 오면 그 달로 확정된다.
+        cur = _newSection({monthNum:0, year:null}, '');
+        cur._unnamed = true;
+        if(asPending) cur.pending = true;
+        return true;
+      }
       const nx = _nextMonth(lastMonthNum, lastYear);
       cur = _newSection(nx, _monthLblStr(nx.monthNum, nx.year));
       if(asPending) cur.pending = true;
@@ -29238,14 +29245,23 @@
       }
       const monthLbl=(r[0]||'').trim();
       const parsed=_parseMonthLbl(monthLbl);
+      const closing=_isClosingRow(r);
 
-      if(parsed){
-        // 새 라벨 만남 → 이전 cur 마무리 후 새 섹션 열기
+      if(parsed && closing){
+        /* 2025년 포맷: 월 라벨이 블록 끝 마감행에 붙어 있다 → 직전까지 모은 items 가 이 달의 내역.
+           여기서 새 섹션을 열면 items 는 "진행 중" 유령 월로, 라벨 쪽은 0건 중복 월로 갈라진다. */
+        if(!cur && !_openAutoCur(false)) continue;
+        cur.month=monthLbl;
+        cur.monthNum=parsed.monthNum;
+        if(parsed.year!=null) cur.year=parsed.year;
+        cur._unnamed=false;
+      } else if(parsed){
+        // 2026년 포맷: 라벨이 블록 첫 행 → 이전 cur 마무리 후 새 섹션 열기
         _pushCur();
         cur=_newSection(parsed, monthLbl);
       }
 
-      if(_isClosingRow(r)){
+      if(closing){
         // 라벨 없이 마감만 온 경우 → 다음 월 자동 개시
         if(!cur){
           if(!_openAutoCur(false)) continue;
@@ -29283,7 +29299,7 @@
       }
     }
     // 마감 없이 파일 끝난 진행 월
-    if(cur){
+    if(cur && !cur._unnamed){
       if(cur.items.length || cur.totalMargin || cur.totalSales){
         cur.pending = !cur.totalMargin && !cur.totalSales ? true : cur.pending;
         out.push(cur);
