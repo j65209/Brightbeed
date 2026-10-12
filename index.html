@@ -3351,6 +3351,19 @@
   .wht-table tbody tr.is-paid:hover td.wht-col-paid,
   .wht-table tbody tr.is-paid:hover td.wht-col-act{background:rgba(22,163,74,.13)}
   .wht-table tbody tr.is-paid .wht-paid-stamp{color:#15803d;font-weight:600}
+  /* 송금완료 버튼 — 사업자·개인 출금 / 프리랜서 원천징수 (행마다 따로 누름) */
+  .wht-paid-cell{display:inline-flex;flex-direction:column;align-items:center;gap:2px;width:100%}
+  .wht-paid-btn{
+    width:100%;max-width:88px;
+    padding:4px 6px;font-family:var(--sans);font-size:10.5px;font-weight:700;
+    letter-spacing:-.2px;white-space:nowrap;cursor:pointer;
+    color:var(--text-2);background:var(--bg-1);
+    border:1px solid var(--line);border-radius:6px;
+    transition:background .12s,border-color .12s,color .12s;
+  }
+  .wht-paid-btn:hover{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.45);color:#15803d}
+  .wht-paid-btn.is-done{background:rgba(22,163,74,.16);border-color:rgba(22,163,74,.5);color:#15803d}
+  .wht-paid-btn.is-done:hover{background:rgba(22,163,74,.26)}
   .wht-input{
     width:100%;box-sizing:border-box;
     padding:6px 8px;font-family:var(--sans);font-size:12.5px;
@@ -10462,7 +10475,7 @@
           <!-- 사업자·개인 출금 -->
           <div class="wht-pane" data-pane="withdrawal">
             <div class="wht-pane-title">💸 사업자·개인 출금</div>
-            <div class="wht-pane-hint"><b>사업자·개인 출금</b> — 공구건 정산 (원천세 없음). 사업자 또는 개인 셀러 지급.</div>
+            <div class="wht-pane-hint"><b>사업자·개인 출금</b> — 공구건 정산 (원천세 없음). 사업자 또는 개인 셀러 지급. 송금한 건은 맨 오른쪽 <b>송금완료</b> 버튼을 누르세요 (누가·언제 눌렀는지 기록됩니다).</div>
             <div class="wht-table-wrap">
               <table class="wht-table">
                 <thead>
@@ -10475,6 +10488,7 @@
                     <th class="wht-col-per">기간</th>
                     <th>예금주명</th>
                     <th>비고</th>
+                    <th class="wht-col-paid">송금완료</th>
                     <th class="wht-col-act">삭제</th>
                   </tr>
                 </thead>
@@ -10483,7 +10497,9 @@
                   <tr>
                     <td colspan="4" class="wht-foot-label">합계</td>
                     <td class="wht-col-amt" id="whtWithdrawalTotal">0</td>
-                    <td colspan="4"></td>
+                    <td colspan="3"></td>
+                    <td class="wht-col-paid" id="whtWithdrawalPaidCnt">0 / 0</td>
+                    <td class="wht-col-act"></td>
                   </tr>
                 </tfoot>
               </table>
@@ -10499,7 +10515,7 @@
           <!-- 프리랜서 원천징수 -->
           <div class="wht-pane" data-pane="freelancer">
             <div class="wht-pane-title">📄 프리랜서 원천징수 <span class="wht-pane-title-sub">3.3%</span></div>
-            <div class="wht-pane-hint"><b>사업소득 원천징수 3.3%</b> — 프리랜서 지급. <b>3.3% 제외한 실지급액</b>을 기재.</div>
+            <div class="wht-pane-hint"><b>사업소득 원천징수 3.3%</b> — 프리랜서 지급. <b>3.3% 제외한 실지급액</b>을 기재. 송금한 건은 맨 오른쪽 <b>송금완료</b> 버튼을 누르세요 (누가·언제 눌렀는지 기록됩니다).</div>
             <div class="wht-table-wrap">
               <table class="wht-table">
                 <thead>
@@ -10511,6 +10527,7 @@
                     <th>계좌번호</th>
                     <th class="wht-col-amt">3.3% 제외 금액</th>
                     <th>비고</th>
+                    <th class="wht-col-paid">송금완료</th>
                     <th class="wht-col-act">삭제</th>
                   </tr>
                 </thead>
@@ -10519,7 +10536,9 @@
                   <tr>
                     <td colspan="5" class="wht-foot-label">합계</td>
                     <td class="wht-col-amt" id="whtFreelancerTotal">0</td>
-                    <td colspan="2"></td>
+                    <td></td>
+                    <td class="wht-col-paid" id="whtFreelancerPaidCnt">0 / 0</td>
+                    <td class="wht-col-act"></td>
                   </tr>
                 </tfoot>
               </table>
@@ -30053,12 +30072,12 @@
     withdrawal: {
       label:'사업자·개인 출금',
       fields:['name','bank','account','amount','period','holder','memo'],
-      headers:['사업자명 / 이름','은행','계좌번호','금액','기간','예금주명','비고'],
+      headers:['사업자명 / 이름','은행','계좌번호','금액','기간','예금주명','비고','송금완료'],
     },
     freelancer: {
       label:'프리랜서 원천징수 3.3%',
       fields:['name','ssn','bank','account','amount','memo'],
-      headers:['이름','주민번호','은행','계좌번호','3.3%제외 금액','비고'],
+      headers:['이름','주민번호','은행','계좌번호','3.3%제외 금액','비고','송금완료'],
     },
     invoice: {
       label:'세금계산서 발행',
@@ -31021,6 +31040,7 @@
   }
   function _whtBodyId(section){return{withdrawal:'whtWithdrawalBody',freelancer:'whtFreelancerBody',invoice:'whtInvoiceBody'}[section]}
   function _whtTotalId(section){return{withdrawal:'whtWithdrawalTotal',freelancer:'whtFreelancerTotal',invoice:'whtInvoiceTotal'}[section]}
+  function _whtPaidCntId(section){return{withdrawal:'whtWithdrawalPaidCnt',freelancer:'whtFreelancerPaidCnt',invoice:'whtInvoicePaidCnt'}[section]}
   function _whtRenderAll(){
     _whtRenderMonthLabel();
     _whtRenderBankList();
@@ -31045,7 +31065,7 @@
     if(!body) return;
     const rows=_whtState.data[section]||[];
     if(!rows.length){
-      const cols=section==='invoice'?12:(section==='freelancer'?8:9);
+      const cols=section==='invoice'?12:(section==='freelancer'?9:10);
       body.innerHTML=`<tr><td colspan="${cols}" class="wht-empty">아직 입력된 항목이 없습니다. 아래 <b>+ 행 추가</b> 버튼으로 시작하세요.</td></tr>`;
       _whtUpdateTotals(section);
       return;
@@ -31053,11 +31073,23 @@
     body.innerHTML=rows.map((r,i)=>_whtRowHtml(section,r,i)).join('');
     _whtUpdateTotals(section);
   }
+  function _whtPaidStamp(r){
+    return r && r.paid ? [r.paid_by||'',_whtFmtStamp(r.paid_at)].filter(Boolean).join(' ') : '';
+  }
+  function _whtPaidBtnCell(section,r,i){
+    const paid=!!(r&&r.paid);
+    const stamp=_whtPaidStamp(r);
+    const title=paid?(stamp?'송금완료 — '+stamp+' (누르면 취소)':'송금완료 (누르면 취소)'):'송금했으면 누르세요';
+    return `<td class="wht-col-paid"><span class="wht-paid-cell">
+        <button type="button" class="wht-paid-btn${paid?' is-done':''}" title="${_esc(title)}" onclick="whtTogglePaid('${section}',${i})">${paid?'✅ 완료':'송금완료'}</button>
+        <span class="wht-paid-stamp">${_esc(stamp)}</span>
+      </span></td>`;
+  }
   function _whtRowHtml(section,r,i){
     const num=`<td class="wht-col-num">${i+1}</td>`;
     const del=`<td class="wht-col-act"><button type="button" class="wht-row-del" title="행 삭제" onclick="whtDelRow('${section}',${i})">×</button></td>`;
     if(section==='withdrawal'){
-      return `<tr>${num}
+      return `<tr${r&&r.paid?' class="is-paid"':''}>${num}
         <td class="wht-name-cell"><input class="wht-input" autocomplete="off" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="사업자명 또는 이름 (자동완성)"></td>
         <td><input class="wht-input" list="whtBankList" data-sec="${section}" data-i="${i}" data-f="bank" value="${_esc(r.bank||'')}" placeholder="은행 입력 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="000-0000-0000"></td>
@@ -31065,16 +31097,18 @@
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="period" value="${_esc(r.period||'')}" placeholder="9/1~9/30"></td>
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="holder" value="${_esc(r.holder||'')}" placeholder="예금주명"></td>
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="memo" value="${_esc(r.memo||'')}" placeholder=""></td>
+        ${_whtPaidBtnCell(section,r,i)}
         ${del}</tr>`;
     }
     if(section==='freelancer'){
-      return `<tr>${num}
+      return `<tr${r&&r.paid?' class="is-paid"':''}>${num}
         <td class="wht-name-cell"><input class="wht-input" autocomplete="off" data-sec="${section}" data-i="${i}" data-f="name" value="${_esc(r.name||'')}" placeholder="이름 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="ssn" value="${_esc(r.ssn||'')}" placeholder="000000-0000000"></td>
         <td><input class="wht-input" list="whtBankList" data-sec="${section}" data-i="${i}" data-f="bank" value="${_esc(r.bank||'')}" placeholder="은행 입력 (자동완성)"></td>
         <td><input class="wht-input wht-mono" data-sec="${section}" data-i="${i}" data-f="account" value="${_esc(r.account||'')}" placeholder="계좌번호"></td>
         <td><input class="wht-input wht-num" data-sec="${section}" data-i="${i}" data-f="amount" value="${_whtFmtAmt(r.amount)}" placeholder="0" inputmode="numeric"></td>
         <td><input class="wht-input" data-sec="${section}" data-i="${i}" data-f="memo" value="${_esc(r.memo||'')}" placeholder=""></td>
+        ${_whtPaidBtnCell(section,r,i)}
         ${del}</tr>`;
     }
     // invoice
@@ -31112,15 +31146,45 @@
       const vatEl=document.getElementById('whtInvoiceVat');
       if(supEl) supEl.textContent=sup.toLocaleString('ko-KR');
       if(vatEl) vatEl.textContent=vat.toLocaleString('ko-KR');
-      const cntEl=document.getElementById('whtInvoicePaidCnt');
-      if(cntEl){
-        const real=_whtSectionRows('invoice');
-        const done=real.filter(r=>r&&r.paid).length;
-        cntEl.textContent=`${done} / ${real.length}`;
-        const left=real.reduce((s,r)=>s+(r&&r.paid?0:_whtParseAmt(r.amount)),0);
-        cntEl.title=left?`미입금 ${left.toLocaleString('ko-KR')}원`:'전부 입금완료';
-      }
     }
+    const cntEl=document.getElementById(_whtPaidCntId(section));
+    if(cntEl){
+      const real=_whtSectionRows(section);
+      const done=real.filter(r=>r&&r.paid).length;
+      cntEl.textContent=`${done} / ${real.length}`;
+      const left=real.reduce((s,r)=>s+(r&&r.paid?0:_whtParseAmt(r.amount)),0);
+      const word=section==='invoice'?'입금':'송금';
+      cntEl.title=left?`미${word} ${left.toLocaleString('ko-KR')}원`:`전부 ${word}완료`;
+    }
+  }
+  /* 송금완료 토글 — 사업자·개인 출금 / 프리랜서 원천징수. 행마다 따로 누른다. */
+  function whtTogglePaid(section,i){
+    if(!_whtHasAccess()) return;
+    const arr=_whtState.data[section]||[];
+    if(i<0||i>=arr.length||!arr[i]) return;
+    const r=arr[i];
+    const on=!r.paid;
+    if(!on && !confirm(`[${r.name||(i+1)+'행'}] 송금완료를 취소할까요?`)) return;
+    r.paid=on;
+    r.paid_by=on?(_whtGetMe()||''):'';
+    r.paid_at=on?new Date().toISOString():'';
+    const body=document.getElementById(_whtBodyId(section));
+    const tr=body?body.querySelectorAll('tr')[i]:null;
+    if(tr){
+      const stamp=_whtPaidStamp(r);
+      tr.classList.toggle('is-paid',on);
+      const btn=tr.querySelector('.wht-paid-btn');
+      if(btn){
+        btn.classList.toggle('is-done',on);
+        btn.textContent=on?'✅ 완료':'송금완료';
+        btn.title=on?(stamp?'송금완료 — '+stamp+' (누르면 취소)':'송금완료 (누르면 취소)'):'송금했으면 누르세요';
+      }
+      const st=tr.querySelector('.wht-paid-stamp');
+      if(st) st.textContent=stamp;
+    }
+    _whtUpdateTotals(section);
+    _whtQueueSave();
+    if(typeof toast==='function') toast(on?'✅ 송금완료로 표시했습니다':'송금완료를 취소했습니다','ok');
   }
   function _whtOnInputEvt(e){
     const el=e.target;
@@ -31233,10 +31297,10 @@
     rows.forEach((r,i)=>{
       if(section==='withdrawal'){
         const amt=_whtParseAmt(r.amount); total+=amt;
-        aoa.push([i+1,r.name||'',r.bank||'',r.account||'',amt||'',r.period||'',r.holder||'',r.memo||'']);
+        aoa.push([i+1,r.name||'',r.bank||'',r.account||'',amt||'',r.period||'',r.holder||'',r.memo||'',r.paid?'송금완료':'']);
       } else if(section==='freelancer'){
         const amt=_whtParseAmt(r.amount); total+=amt;
-        aoa.push([i+1,r.name||'',r.ssn||'',r.bank||'',r.account||'',amt||'',r.memo||'']);
+        aoa.push([i+1,r.name||'',r.ssn||'',r.bank||'',r.account||'',amt||'',r.memo||'',r.paid?'송금완료':'']);
       } else {
         const amt=_whtParseAmt(r.amount);
         const supply=amt?Math.round(amt/1.1):0;
@@ -31246,12 +31310,12 @@
       }
     });
     if(rows.length){
+      const paidCnt=rows.filter(r=>r&&r.paid).length;
       if(section==='withdrawal'){
-        aoa.push(['','','','합계',total,'','','']);
+        aoa.push(['','','','합계',total,'','','',`${paidCnt}/${rows.length} 송금완료`]);
       } else if(section==='freelancer'){
-        aoa.push(['','','','','합계',total,'']);
+        aoa.push(['','','','','합계',total,'',`${paidCnt}/${rows.length} 송금완료`]);
       } else {
-        const paidCnt=rows.filter(r=>r&&r.paid).length;
         aoa.push(['','','','','','합계',total,supplyTotal,vatTotal,'',`${paidCnt}/${rows.length} 입금완료`]);
       }
     }
@@ -31259,8 +31323,8 @@
     const widths=section==='invoice'
       ? [{wch:4},{wch:22},{wch:10},{wch:14},{wch:32},{wch:18},{wch:12},{wch:12},{wch:10},{wch:24},{wch:12}]
       : section==='freelancer'
-      ? [{wch:4},{wch:12},{wch:16},{wch:12},{wch:18},{wch:14},{wch:20}]
-      : [{wch:4},{wch:20},{wch:12},{wch:18},{wch:14},{wch:14},{wch:12},{wch:20}];
+      ? [{wch:4},{wch:12},{wch:16},{wch:12},{wch:18},{wch:14},{wch:20},{wch:12}]
+      : [{wch:4},{wch:20},{wch:12},{wch:18},{wch:14},{wch:14},{wch:12},{wch:20},{wch:12}];
     ws['!cols']=widths;
     return {ws, count:rows.length};
   }
@@ -31307,9 +31371,9 @@
     rows.forEach(r=>{
       let vals;
       if(section==='withdrawal'){
-        vals=[r.name||'',r.bank||'',r.account||'',_whtFmtAmt(r.amount),r.period||'',r.holder||'',r.memo||''];
+        vals=[r.name||'',r.bank||'',r.account||'',_whtFmtAmt(r.amount),r.period||'',r.holder||'',r.memo||'',r.paid?'송금완료':''];
       } else if(section==='freelancer'){
-        vals=[r.name||'',r.ssn||'',r.bank||'',r.account||'',_whtFmtAmt(r.amount),r.memo||''];
+        vals=[r.name||'',r.ssn||'',r.bank||'',r.account||'',_whtFmtAmt(r.amount),r.memo||'',r.paid?'송금완료':''];
       } else {
         const a=_whtParseAmt(r.amount);
         const s=a?Math.round(a/1.1):0;
@@ -31331,6 +31395,7 @@
   window.whtReload=whtReload;
   window.whtAddRow=whtAddRow;
   window.whtDelRow=whtDelRow;
+  window.whtTogglePaid=whtTogglePaid;
   window.whtCopyTable=whtCopyTable;
   window.whtExportExcel=whtExportExcel;
   window.whtMonthPrev=whtMonthPrev;
