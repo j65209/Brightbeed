@@ -3351,19 +3351,8 @@
   .wht-table tbody tr.is-paid:hover td.wht-col-paid,
   .wht-table tbody tr.is-paid:hover td.wht-col-act{background:rgba(22,163,74,.13)}
   .wht-table tbody tr.is-paid .wht-paid-stamp{color:#15803d;font-weight:600}
-  /* 송금완료 버튼 — 사업자·개인 출금 / 프리랜서 원천징수 (행마다 따로 누름) */
-  .wht-paid-cell{display:inline-flex;flex-direction:column;align-items:center;gap:2px;width:100%}
-  .wht-paid-btn{
-    width:100%;max-width:88px;
-    padding:4px 6px;font-family:var(--sans);font-size:10.5px;font-weight:700;
-    letter-spacing:-.2px;white-space:nowrap;cursor:pointer;
-    color:var(--text-2);background:var(--bg-1);
-    border:1px solid var(--line);border-radius:6px;
-    transition:background .12s,border-color .12s,color .12s;
-  }
-  .wht-paid-btn:hover{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.45);color:#15803d}
-  .wht-paid-btn.is-done{background:rgba(22,163,74,.16);border-color:rgba(22,163,74,.5);color:#15803d}
-  .wht-paid-btn.is-done:hover{background:rgba(22,163,74,.26)}
+  /* 송금완료 — 출금요청서(.wr-row-done-btn / .wr-btn-done)와 같은 버튼을 그대로 씀 */
+  .wht-table .wr-row-done-btn{font-family:var(--sans)}
   .wht-input{
     width:100%;box-sizing:border-box;
     padding:6px 8px;font-family:var(--sans);font-size:12.5px;
@@ -3403,6 +3392,8 @@
     color:#4338ca;border-color:rgba(79,70,229,.35);background:rgba(79,70,229,.06);
   }
   .wht-btn.wht-btn-add:hover{background:rgba(79,70,229,.14);border-color:rgba(79,70,229,.55)}
+  .wht-btn.wht-btn-allpaid{background:#dcfce7;border-color:#86efac;color:#14532d}
+  .wht-btn.wht-btn-allpaid:hover{background:#bbf7d0;border-color:#4ade80;color:#14532d}
   .wht-btn.wht-btn-delmonth{
     color:#b91c1c;border-color:rgba(220,38,38,.30);background:rgba(220,38,38,.06);
   }
@@ -10475,7 +10466,7 @@
           <!-- 사업자·개인 출금 -->
           <div class="wht-pane" data-pane="withdrawal">
             <div class="wht-pane-title">💸 사업자·개인 출금</div>
-            <div class="wht-pane-hint"><b>사업자·개인 출금</b> — 공구건 정산 (원천세 없음). 사업자 또는 개인 셀러 지급. 송금한 건은 맨 오른쪽 <b>송금완료</b> 버튼을 누르세요 (누가·언제 눌렀는지 기록됩니다).</div>
+            <div class="wht-pane-hint"><b>사업자·개인 출금</b> — 공구건 정산 (원천세 없음). 사업자 또는 개인 셀러 지급. 송금한 건은 맨 오른쪽 <b>송금완료</b> 버튼을 누르세요 (버튼에 마우스를 올리면 누가·언제 눌렀는지 보입니다). 한꺼번에 보냈으면 아래 <b>전부 송금완료</b>.</div>
             <div class="wht-table-wrap">
               <table class="wht-table">
                 <thead>
@@ -10507,6 +10498,7 @@
             <div class="wht-actions">
               <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('withdrawal')">+ 행 추가</button>
               <div class="wht-actions-right">
+                <button type="button" class="wht-btn wht-btn-allpaid" id="whtWithdrawalAllBtn" onclick="whtMarkAllPaid('withdrawal')" hidden>✅ 전부 송금완료</button>
                 <button type="button" class="wht-btn wht-btn-copy" onclick="whtCopyTable('withdrawal')">📋 표 복사 (엑셀 붙여넣기)</button>
               </div>
             </div>
@@ -10515,7 +10507,7 @@
           <!-- 프리랜서 원천징수 -->
           <div class="wht-pane" data-pane="freelancer">
             <div class="wht-pane-title">📄 프리랜서 원천징수 <span class="wht-pane-title-sub">3.3%</span></div>
-            <div class="wht-pane-hint"><b>사업소득 원천징수 3.3%</b> — 프리랜서 지급. <b>3.3% 제외한 실지급액</b>을 기재. 송금한 건은 맨 오른쪽 <b>송금완료</b> 버튼을 누르세요 (누가·언제 눌렀는지 기록됩니다).</div>
+            <div class="wht-pane-hint"><b>사업소득 원천징수 3.3%</b> — 프리랜서 지급. <b>3.3% 제외한 실지급액</b>을 기재. 송금한 건은 맨 오른쪽 <b>송금완료</b> 버튼을 누르세요 (버튼에 마우스를 올리면 누가·언제 눌렀는지 보입니다). 한꺼번에 보냈으면 아래 <b>전부 송금완료</b>.</div>
             <div class="wht-table-wrap">
               <table class="wht-table">
                 <thead>
@@ -10546,6 +10538,7 @@
             <div class="wht-actions">
               <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('freelancer')">+ 행 추가</button>
               <div class="wht-actions-right">
+                <button type="button" class="wht-btn wht-btn-allpaid" id="whtFreelancerAllBtn" onclick="whtMarkAllPaid('freelancer')" hidden>✅ 전부 송금완료</button>
                 <button type="button" class="wht-btn wht-btn-copy" onclick="whtCopyTable('freelancer')">📋 표 복사 (엑셀 붙여넣기)</button>
               </div>
             </div>
@@ -31041,6 +31034,7 @@
   function _whtBodyId(section){return{withdrawal:'whtWithdrawalBody',freelancer:'whtFreelancerBody',invoice:'whtInvoiceBody'}[section]}
   function _whtTotalId(section){return{withdrawal:'whtWithdrawalTotal',freelancer:'whtFreelancerTotal',invoice:'whtInvoiceTotal'}[section]}
   function _whtPaidCntId(section){return{withdrawal:'whtWithdrawalPaidCnt',freelancer:'whtFreelancerPaidCnt',invoice:'whtInvoicePaidCnt'}[section]}
+  function _whtAllBtnId(section){return{withdrawal:'whtWithdrawalAllBtn',freelancer:'whtFreelancerAllBtn'}[section]}
   function _whtRenderAll(){
     _whtRenderMonthLabel();
     _whtRenderBankList();
@@ -31076,14 +31070,14 @@
   function _whtPaidStamp(r){
     return r && r.paid ? [r.paid_by||'',_whtFmtStamp(r.paid_at)].filter(Boolean).join(' ') : '';
   }
+  function _whtPaidBtnTitle(r){
+    const stamp=_whtPaidStamp(r);
+    if(!(r&&r.paid)) return '송금했으면 누르세요';
+    return stamp?`송금완료 — ${stamp} (누르면 취소)`:'송금완료 (누르면 취소)';
+  }
   function _whtPaidBtnCell(section,r,i){
     const paid=!!(r&&r.paid);
-    const stamp=_whtPaidStamp(r);
-    const title=paid?(stamp?'송금완료 — '+stamp+' (누르면 취소)':'송금완료 (누르면 취소)'):'송금했으면 누르세요';
-    return `<td class="wht-col-paid"><span class="wht-paid-cell">
-        <button type="button" class="wht-paid-btn${paid?' is-done':''}" title="${_esc(title)}" onclick="whtTogglePaid('${section}',${i})">${paid?'✅ 완료':'송금완료'}</button>
-        <span class="wht-paid-stamp">${_esc(stamp)}</span>
-      </span></td>`;
+    return `<td class="wht-col-paid"><button type="button" class="wr-row-done-btn${paid?' is-done':''}" title="${_esc(_whtPaidBtnTitle(r))}" onclick="whtTogglePaid('${section}',${i})">${paid?'✅ 완료':'송금완료'}</button></td>`;
   }
   function _whtRowHtml(section,r,i){
     const num=`<td class="wht-col-num">${i+1}</td>`;
@@ -31148,13 +31142,22 @@
       if(vatEl) vatEl.textContent=vat.toLocaleString('ko-KR');
     }
     const cntEl=document.getElementById(_whtPaidCntId(section));
-    if(cntEl){
+    const allBtn=document.getElementById(_whtAllBtnId(section));
+    if(cntEl||allBtn){
       const real=_whtSectionRows(section);
       const done=real.filter(r=>r&&r.paid).length;
-      cntEl.textContent=`${done} / ${real.length}`;
       const left=real.reduce((s,r)=>s+(r&&r.paid?0:_whtParseAmt(r.amount)),0);
       const word=section==='invoice'?'입금':'송금';
-      cntEl.title=left?`미${word} ${left.toLocaleString('ko-KR')}원`:`전부 ${word}완료`;
+      if(cntEl){
+        cntEl.textContent=`${done} / ${real.length}`;
+        cntEl.title=left?`미${word} ${left.toLocaleString('ko-KR')}원`:`전부 ${word}완료`;
+      }
+      if(allBtn){
+        const remain=real.length-done;
+        allBtn.hidden=remain<=0;
+        allBtn.textContent=done>0?`✅ 나머지 ${remain}건 전부 완료`:'✅ 전부 송금완료';
+        allBtn.title=left?`미송금 ${left.toLocaleString('ko-KR')}원을 전부 송금완료로 표시`:'';
+      }
     }
   }
   /* 송금완료 토글 — 사업자·개인 출금 / 프리랜서 원천징수. 행마다 따로 누른다. */
@@ -31171,20 +31174,33 @@
     const body=document.getElementById(_whtBodyId(section));
     const tr=body?body.querySelectorAll('tr')[i]:null;
     if(tr){
-      const stamp=_whtPaidStamp(r);
       tr.classList.toggle('is-paid',on);
-      const btn=tr.querySelector('.wht-paid-btn');
+      const btn=tr.querySelector('.wr-row-done-btn');
       if(btn){
         btn.classList.toggle('is-done',on);
         btn.textContent=on?'✅ 완료':'송금완료';
-        btn.title=on?(stamp?'송금완료 — '+stamp+' (누르면 취소)':'송금완료 (누르면 취소)'):'송금했으면 누르세요';
+        btn.title=_whtPaidBtnTitle(r);
       }
-      const st=tr.querySelector('.wht-paid-stamp');
-      if(st) st.textContent=stamp;
     }
     _whtUpdateTotals(section);
     _whtQueueSave();
     if(typeof toast==='function') toast(on?'✅ 송금완료로 표시했습니다':'송금완료를 취소했습니다','ok');
+  }
+  /* 남은 건 전부 송금완료 — 출금요청서의 [전부 송금완료]와 동일 동작 */
+  function whtMarkAllPaid(section){
+    if(!_whtHasAccess()) return;
+    const remain=_whtSectionRows(section).filter(r=>!r.paid);
+    if(!remain.length){
+      if(typeof toast==='function') toast('남은 건이 없습니다','err');
+      return;
+    }
+    const sum=remain.reduce((s,r)=>s+_whtParseAmt(r.amount),0);
+    if(!confirm(`남은 ${remain.length}건${sum?` (${sum.toLocaleString('ko-KR')}원)`:''}을 전부 송금완료로 표시할까요?`)) return;
+    const me=_whtGetMe()||'', now=new Date().toISOString();
+    remain.forEach(r=>{ r.paid=true; r.paid_by=me; r.paid_at=now; });
+    _whtRenderPane(section);
+    _whtQueueSave();
+    if(typeof toast==='function') toast(`✅ ${remain.length}건 송금완료 처리되었습니다`,'ok');
   }
   function _whtOnInputEvt(e){
     const el=e.target;
@@ -31396,6 +31412,7 @@
   window.whtAddRow=whtAddRow;
   window.whtDelRow=whtDelRow;
   window.whtTogglePaid=whtTogglePaid;
+  window.whtMarkAllPaid=whtMarkAllPaid;
   window.whtCopyTable=whtCopyTable;
   window.whtExportExcel=whtExportExcel;
   window.whtMonthPrev=whtMonthPrev;
