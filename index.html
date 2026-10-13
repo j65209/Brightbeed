@@ -3386,6 +3386,9 @@
     gap:10px;margin-top:12px;flex-wrap:wrap;
   }
   .wht-actions-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .wht-actions-left{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  /* .wht-btn 의 display 가 UA 의 [hidden]{display:none} 를 덮어쓰므로 명시 */
+  .wht-btn[hidden]{display:none}
   .wht-btn{
     display:inline-flex;align-items:center;gap:6px;
     padding:8px 14px;font-family:var(--sans);font-size:12.5px;font-weight:600;
@@ -10502,9 +10505,11 @@
               </table>
             </div>
             <div class="wht-actions">
-              <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('withdrawal')">+ 행 추가</button>
-              <div class="wht-actions-right">
+              <div class="wht-actions-left">
+                <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('withdrawal')">+ 행 추가</button>
                 <button type="button" class="wht-btn wht-btn-allpaid" id="whtWithdrawalAllBtn" onclick="whtMarkAllPaid('withdrawal')" hidden>✅ 전부 송금완료</button>
+              </div>
+              <div class="wht-actions-right">
                 <button type="button" class="wht-btn wht-btn-copy" onclick="whtCopyTable('withdrawal')">📋 표 복사 (엑셀 붙여넣기)</button>
               </div>
             </div>
@@ -10542,9 +10547,11 @@
               </table>
             </div>
             <div class="wht-actions">
-              <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('freelancer')">+ 행 추가</button>
-              <div class="wht-actions-right">
+              <div class="wht-actions-left">
+                <button type="button" class="wht-btn wht-btn-add" onclick="whtAddRow('freelancer')">+ 행 추가</button>
                 <button type="button" class="wht-btn wht-btn-allpaid" id="whtFreelancerAllBtn" onclick="whtMarkAllPaid('freelancer')" hidden>✅ 전부 송금완료</button>
+              </div>
+              <div class="wht-actions-right">
                 <button type="button" class="wht-btn wht-btn-copy" onclick="whtCopyTable('freelancer')">📋 표 복사 (엑셀 붙여넣기)</button>
               </div>
             </div>
