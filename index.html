@@ -3353,6 +3353,12 @@
   .wht-table tbody tr.is-paid .wht-paid-stamp{color:#15803d;font-weight:600}
   /* 송금완료 — 출금요청서(.wr-row-done-btn / .wr-btn-done)와 같은 버튼을 그대로 씀 */
   .wht-table .wr-row-done-btn{font-family:var(--sans)}
+  /* 송금완료된 행은 줄 긋고 흐릿하게 (버튼은 취소할 수 있게 선명히 남김) */
+  .wht-table tbody tr.is-paid .wht-input{
+    opacity:.45;text-decoration:line-through;text-decoration-thickness:1px;
+  }
+  .wht-table tbody tr.is-paid td.wht-col-num{opacity:.45;text-decoration:line-through}
+  .wht-table tbody tr.is-paid .wht-input:focus{opacity:1;text-decoration:none}
   .wht-input{
     width:100%;box-sizing:border-box;
     padding:6px 8px;font-family:var(--sans);font-size:12.5px;
@@ -30927,6 +30933,8 @@
         invoice:Array.isArray(p.invoice)?p.invoice:[],
       };
       _whtState.loaded=true;
+      _whtSortPaidLast('withdrawal');
+      _whtSortPaidLast('freelancer');
       _whtRenderAll();
       const stamp=row?_whtFmtStamp(row.updated_at):'';
       _whtSetStatus(stamp?`${_whtYmLabel(ym)} · ${stamp} 저장됨`:`${_whtYmLabel(ym)} · 새 폼`);
@@ -31014,14 +31022,17 @@
     if(!WHT_SCHEMA[section]) return;
     const row={};
     WHT_SCHEMA[section].fields.forEach(f=>row[f]='');
-    _whtState.data[section]=_whtState.data[section]||[];
-    _whtState.data[section].push(row);
+    const arr=_whtState.data[section]=_whtState.data[section]||[];
+    // 송금완료된 행이 아래에 깔려 있으면 그 위(= 미송금 묶음 끝)에 끼워 넣는다
+    const firstPaid=arr.findIndex(r=>r&&r.paid);
+    const at=firstPaid<0?arr.length:firstPaid;
+    arr.splice(at,0,row);
     _whtRenderPane(section);
     _whtQueueSave();
     setTimeout(()=>{
       const body=document.getElementById(_whtBodyId(section));
-      const last=body&&body.lastElementChild;
-      if(last){const first=last.querySelector('input:not([readonly]),select'); if(first) first.focus();}
+      const tr=body&&body.querySelectorAll('tr')[at];
+      if(tr){const first=tr.querySelector('input:not([readonly]),select'); if(first) first.focus();}
     },20);
   }
   function whtDelRow(section,idx){
@@ -31035,6 +31046,16 @@
   function _whtTotalId(section){return{withdrawal:'whtWithdrawalTotal',freelancer:'whtFreelancerTotal',invoice:'whtInvoiceTotal'}[section]}
   function _whtPaidCntId(section){return{withdrawal:'whtWithdrawalPaidCnt',freelancer:'whtFreelancerPaidCnt',invoice:'whtInvoicePaidCnt'}[section]}
   function _whtAllBtnId(section){return{withdrawal:'whtWithdrawalAllBtn',freelancer:'whtFreelancerAllBtn'}[section]}
+  /* 송금완료된 행은 최하단으로 — 안 보낸 건이 위로 올라오게. 각 묶음 안 순서는 유지 */
+  function _whtSortPaidLast(section){
+    if(section==='invoice') return;
+    const arr=_whtState.data[section];
+    if(!Array.isArray(arr)||arr.length<2) return;
+    const unpaid=[], paid=[];
+    arr.forEach(r=>{ (r&&r.paid?paid:unpaid).push(r); });
+    if(!paid.length) return;
+    _whtState.data[section]=unpaid.concat(paid);
+  }
   function _whtRenderAll(){
     _whtRenderMonthLabel();
     _whtRenderBankList();
@@ -31171,18 +31192,8 @@
     r.paid=on;
     r.paid_by=on?(_whtGetMe()||''):'';
     r.paid_at=on?new Date().toISOString():'';
-    const body=document.getElementById(_whtBodyId(section));
-    const tr=body?body.querySelectorAll('tr')[i]:null;
-    if(tr){
-      tr.classList.toggle('is-paid',on);
-      const btn=tr.querySelector('.wr-row-done-btn');
-      if(btn){
-        btn.classList.toggle('is-done',on);
-        btn.textContent=on?'✅ 완료':'송금완료';
-        btn.title=_whtPaidBtnTitle(r);
-      }
-    }
-    _whtUpdateTotals(section);
+    _whtSortPaidLast(section);
+    _whtRenderPane(section);
     _whtQueueSave();
     if(typeof toast==='function') toast(on?'✅ 송금완료로 표시했습니다':'송금완료를 취소했습니다','ok');
   }
@@ -31198,6 +31209,7 @@
     if(!confirm(`남은 ${remain.length}건${sum?` (${sum.toLocaleString('ko-KR')}원)`:''}을 전부 송금완료로 표시할까요?`)) return;
     const me=_whtGetMe()||'', now=new Date().toISOString();
     remain.forEach(r=>{ r.paid=true; r.paid_by=me; r.paid_at=now; });
+    _whtSortPaidLast(section);
     _whtRenderPane(section);
     _whtQueueSave();
     if(typeof toast==='function') toast(`✅ ${remain.length}건 송금완료 처리되었습니다`,'ok');
