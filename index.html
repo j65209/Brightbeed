@@ -25554,7 +25554,23 @@
   function _execCacheGet(){try{const d=JSON.parse(localStorage.getItem(EXEC_CT_KEY)||'null');return (d&&d.ct&&d.salt&&d.iv)?d:null}catch(e){return null}}
   function _execCacheSet(b){try{localStorage.setItem(EXEC_CT_KEY, JSON.stringify(b))}catch(e){}}
 
-  async function _execFetchRemote(){
+  /* 실시간 저장: Supabase exec_vault(id=1) 의 암호문 blob 이 source of truth.
+     과거 GitHub(data/notice-exec.json) 는 Supabase 행이 아직 없을 때만 1회 끌어오는 migration fallback.
+     어느 쪽이든 ciphertext 만 오가므로 평문 기밀성은 금고 암호(AES-GCM)에서 나온다. */
+  const EXEC_SB=`${SUPABASE_URL}/rest/v1/exec_vault`;
+  let _execSuppressRealtimeTs=0;   // 내가 방금 저장한 updatedAt — realtime echo 무시
+  let _execRtChan=null;
+
+  async function _execFetchSupabase(){
+    try{
+      const r=await fetch(`${EXEC_SB}?id=eq.1&select=blob`,{headers:_sbHeaders(),cache:'no-cache'});
+      if(!r.ok) return null;
+      const rows=await r.json();
+      if(Array.isArray(rows)&&rows.length&&rows[0].blob&&rows[0].blob.ct&&rows[0].blob.salt&&rows[0].blob.iv) return rows[0].blob;
+      return {missing:true};
+    }catch(e){return null}
+  }
+  async function _execFetchGithub(){
     try{
       const r=await fetch(`${EXEC_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
       if(r.status===404) return {missing:true};
@@ -25563,6 +25579,27 @@
       if(!d||typeof d!=='object'||!d.ct||!d.salt||!d.iv) return {missing:true};
       return d;
     }catch(e){return null}
+  }
+  async function _execPushSupabase(blob){
+    const body=JSON.stringify({id:1, blob:blob,
+      updated_at:new Date(blob.updatedAt||Date.now()).toISOString(),
+      updated_by:(typeof execGetMe==='function'?execGetMe():'')||''});
+    const r=await fetch(`${EXEC_SB}?on_conflict=id`,{
+      method:'POST',
+      headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+      body
+    });
+    return r.ok;
+  }
+  async function _execFetchRemote(){
+    const sb=await _execFetchSupabase();
+    if(sb && !sb.missing) return sb;
+    // Supabase 에 아직 없음(또는 네트워크 실패) → 과거 GitHub 금고에서 끌어와 Supabase 로 자동 이관
+    const gh=await _execFetchGithub();
+    if(gh && gh.ct){ _execPushSupabase(gh).catch(()=>{}); return gh; }
+    if(sb && sb.missing) return {missing:true};
+    if(gh && gh.missing) return {missing:true};
+    return null;
   }
 
   /* remote 우선 · 네트워크 실패나 CDN 지연으로 404 가 와도 캐시 암호문이 있으면 그걸 쓴다
@@ -25577,6 +25614,7 @@
   }
 
   async function _execPrepareLock(){
+    _execInitRealtime().catch(()=>{});   // 접근 권한 확인된 시점 — 실시간 구독 시작(멱등)
     if(_execLockPrepared) return;
     _execLockPrepared=true;
     _execSetMsg('금고 상태 확인 중…');
@@ -25651,7 +25689,6 @@
       if(!_execBlob){
         if(pass.length<EXEC_PASS_MIN||pass.length>EXEC_PASS_MAX){_execSetMsg(`암호는 ${EXEC_PASS_MIN}~${EXEC_PASS_MAX}자로 정하세요`,true); return}
         if(!pass2El||pass2El.value!==pass){_execSetMsg('확인 암호가 일치하지 않습니다',true); return}
-        if(!(await ensureGhToken())){_execSetMsg('서버 프록시 연결 실패',true); return}
         _execSetMsg('금고 생성 중… 키 파생에 몇 초 걸립니다');
         try{
           const salt=crypto.getRandomValues(new Uint8Array(16));
@@ -25694,7 +25731,6 @@
 
   async function execSave(){
     if(!_execKey||!_execBlob) return false;
-    if(!(await ensureGhToken())){toast('서버 프록시 연결 실패','err'); return false}
     let blob;
     try{
       const iv=crypto.getRandomValues(new Uint8Array(12));
@@ -25705,22 +25741,53 @@
             salt:_execBlob.salt, iv:_execB64e(iv), ct:_execB64e(ct), updatedAt:now};
     }catch(e){toast('암호화 실패','err'); return false}
     try{toast('금고 저장 중…','ok')}catch(e){}
-    for(let attempt=0; attempt<3; attempt++){
-      const file=await ghGetFile(EXEC_API);
-      if(file.error){try{toast(`⚠ 금고 저장 실패 (${file.error})`,'err')}catch(e){} return false}
-      const b64=btoa(unescape(encodeURIComponent(JSON.stringify(blob,null,2))));
-      const r=await ghPut(EXEC_API, b64, 'chore: 대표 전용 금고 갱신', {forceMaster:true, noConflictRetry:true, sha:file.sha||null});
-      if(r.ok){
-        _execBlob=blob;
-        _execCacheSet(blob);
-        renderExecVault();
-        try{toast('✓ 금고 저장됨','ok')}catch(e){}
-        return true;
-      }
-      if(r.reason!=='conflict'){try{toast(`⚠ 금고 저장 실패 (${r.reason||'network'})`,'err')}catch(e){} return false}
+    /* Supabase 즉시 저장 — 다른 대표 PC 는 realtime 으로 몇 초 내 반영.
+       모든 저장 버전은 exec_vault_history 트리거로 append-only 보관(복구 가능). */
+    let ok=false;
+    for(let attempt=0; attempt<3 && !ok; attempt++){
+      try{ ok=await _execPushSupabase(blob); }catch(e){ ok=false; }
+      if(!ok) await new Promise(r=>setTimeout(r, 400*(attempt+1)));
     }
-    try{toast('⚠ 금고 저장 충돌 — 다시 시도해주세요','err')}catch(e){}
+    if(ok){
+      _execBlob=blob;
+      _execCacheSet(blob);
+      _execSuppressRealtimeTs=now;   // 내 저장 echo 무시
+      renderExecVault();
+      try{toast('✓ 금고 저장됨','ok')}catch(e){}
+      return true;
+    }
+    try{toast('⚠ 금고 저장 실패 — 네트워크를 확인해주세요','err')}catch(e){}
     return false;
+  }
+
+  /* 다른 대표 PC 의 저장을 실시간 반영 */
+  async function _execInitRealtime(){
+    if(_execRtChan) return;
+    if(typeof supabase==='undefined' || !supabase || !supabase.channel){
+      if(typeof _diaryLoadSupabaseClient==='function') await _diaryLoadSupabaseClient();
+      if(typeof supabase==='undefined' || !supabase || !supabase.channel) return;
+    }
+    _execRtChan=supabase.channel('exec_vault_live')
+      .on('postgres_changes',{event:'*',schema:'public',table:'exec_vault'}, async (payload)=>{
+        const blob=(payload.new&&payload.new.blob)||null;
+        if(!blob||!blob.ct||!blob.salt||!blob.iv) return;
+        if(blob.updatedAt && blob.updatedAt===_execSuppressRealtimeTs) return; // 내가 방금 저장한 echo
+        if(_execBlob && _execBlob.updatedAt && blob.updatedAt && blob.updatedAt<=_execBlob.updatedAt) return; // 더 오래된 버전 무시
+        _execBlob=blob; _execCacheSet(blob);
+        if(_execKey){
+          try{
+            const plain=await crypto.subtle.decrypt({name:'AES-GCM', iv:_execB64d(blob.iv)}, _execKey, _execB64d(blob.ct));
+            const obj=JSON.parse(_execTd.decode(plain));
+            _execEntries=Array.isArray(obj.entries)?obj.entries.map(normalizeEntry).filter(Boolean):[];
+            try{toast('🔄 금고가 업데이트되었습니다','info')}catch(e){}
+          }catch(e){ /* 키 불일치(암호 변경 등) — blob 만 갱신 */ }
+        }
+        if(_execViewOpen()){
+          if(!_execKey) _execLockPrepared=false; // 잠금화면이면 상태(만들기/열기) 재평가
+          renderExecVault();
+        }
+      })
+      .subscribe();
   }
 
   async function deleteExecEntry(id){
