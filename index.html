@@ -12812,7 +12812,7 @@
     {id:'pp',   endpoint:'/pro-sales?brand=pp',     group:'식스샵프로',display:'프로덕트피알',dot:'#f59e0b', hasItemAmount:true,  hasOptions:true,  platforms:['smartstore']},
     {id:'akoi', endpoint:'/pro-sales?brand=akoi',   group:'식스샵프로',display:'아코이하우스', dot:'#f472b6', hasItemAmount:true,  hasOptions:true},
     {id:'kop',  endpoint:'/pro-sales?brand=kop',    group:'식스샵프로',display:'코페리',     dot:'#818cf8', hasItemAmount:true,  hasOptions:true,  platforms:['ably','smartstore','zigzag']},
-    {id:'apt',  endpoint:'/admin-sales?brand=apt',  group:'식스샵',    display:'아페티',     dot:'#fb7185', hasItemAmount:false, hasOptions:false, platforms:['ably','zigzag']},
+    {id:'apt',  endpoint:'/pro-sales?brand=apt',    group:'식스샵프로',display:'아페티',     dot:'#fb7185', hasItemAmount:true,  hasOptions:true,  platforms:['ably','zigzag']},
     {id:'koz',  endpoint:'/pro-sales?brand=koz',    group:'식스샵프로',display:'코즈미',     dot:'#14b8a6', hasItemAmount:true,  hasOptions:true},
   ];
   const _PLAT_LABEL={ably:'에이블리', smartstore:'스마트스토어', zigzag:'지그재그'};
@@ -14611,7 +14611,7 @@
     {key:'pp',  display:'프로덕트피알', host:'store.sixshop.com/produktepr',   endpoint:'/pro-stock?brand=pp',   proShape:true},
     {key:'akoi',display:'아코이하우스', host:'store.sixshop.com/akoihaus1',    endpoint:'/pro-stock?brand=akoi', proShape:true},
     {key:'kop', display:'코페리',       host:'store.sixshop.com/coferry',     endpoint:'/pro-stock?brand=kop',  proShape:true},
-    {key:'apt', display:'아페티',       host:'구글시트 (수기 관리)',            endpoint:'/catalog?brand=apt'},
+    {key:'apt', display:'아페티',       host:'store.sixshop.com/apeti',       endpoint:'/pro-stock?brand=apt',  proShape:true},
     {key:'koz', display:'코즈미',       host:'store.sixshop.com/cos-mi',      endpoint:'/pro-stock?brand=koz',  proShape:true},
   ];
   const _sixStockCache    = { '6a':null,  'ct':null,  'pp':null,  'akoi':null,  'yar':null,  'kop':null,  'apt':null,  'koz':null };
