@@ -2646,6 +2646,8 @@
     background:linear-gradient(135deg,var(--neon-vendor) 0%,var(--neon-vendor-2) 100%);
     color:#fff;border:1px solid rgba(79,70,229,.45);
   }
+  .md-cal-event.gc-cal-event.is-holiday{color:#fff;font-weight:600}
+  .md-cal-daynum.is-holiday-num{color:#ef4444;font-weight:700}
   .po-section-meta-inline{
     font-family:var(--mono);font-size:11px;color:var(--text-3);
     font-weight:500;letter-spacing:.02em;margin-left:8px;
@@ -29065,8 +29067,8 @@
         cur.uid=line.slice(4);
       }
     }
-    // 공구 이벤트만 (공구], 공구 ], 공구) 등)
-    return all.filter(ev=>/^공구\s*[\]\)]/.test(ev.title)).map(ev=>{
+    // 구글 캘린더 그대로 — 전체 이벤트 (iCal fallback 경로. 색 정보 없음)
+    return all.map(ev=>{
       let endIso=ev.end||ev.start;
       if(ev.end&&ev.endExclusive){
         // 종일 이벤트의 DTEND는 exclusive — 하루 빼서 inclusive로
@@ -29075,9 +29077,29 @@
         const out=_gcIso(d);
         if(out>=ev.start) endIso=out; else endIso=ev.start;
       }
-      const display=ev.title.replace(/^공구\s*[\]\)]\s*/,'').trim();
-      return {start:ev.start,end:endIso,title:ev.title,display,uid:ev.uid};
+      const display=ev.title.replace(/^공구\s*[\]\)]\s*/,'').trim()||ev.title;
+      return {start:ev.start,end:endIso,title:ev.title,display,uid:ev.uid,colorId:null,source:'main'};
     });
+  }
+
+  /* Google Calendar API(JSON) 응답 → 렌더 이벤트. 제목 필터 없음(그대로).
+     공구] 접두사는 보기 좋게 떼고, 공휴일/기타는 원제목 그대로. */
+  function gcMapApiEvents(events){
+    return (events||[]).map(ev=>{
+      const t=ev.title||'';
+      const display=(ev.source==='main' && /^공구\s*[\]\)]/.test(t))
+        ? (t.replace(/^공구\s*[\]\)]\s*/,'').trim()||t) : t;
+      return {start:ev.start, end:ev.end||ev.start, title:t, display, uid:ev.uid,
+              colorId:ev.colorId||null, source:ev.source||'main'};
+    });
+  }
+
+  /* 구글 이벤트 색(colorId 1~11) → hex. 지정 없으면 source 기본색. */
+  const GC_COLOR_MAP={1:'#7986cb',2:'#33b679',3:'#8e24aa',4:'#e67c73',5:'#f6bf26',6:'#f4511e',7:'#039be5',8:'#616161',9:'#3f51b5',10:'#0b8043',11:'#d50000'};
+  function _gcEventColor(ev){
+    if(ev.colorId && GC_COLOR_MAP[ev.colorId]) return GC_COLOR_MAP[ev.colorId];
+    if(ev.source==='holiday') return '#d50000';
+    return null; // main 기본색 → CSS 인디고 유지
   }
 
   async function gcCalLoad(force){
@@ -29091,7 +29113,10 @@
       const r=await fetch(`${base}/cal?cb=${Date.now()}`,{headers:{'X-Brightbeed-PIN':ghPin()},cache:'no-cache'});
       if(!r.ok) throw new Error('HTTP '+r.status);
       const text=await r.text();
-      _gcCal.events=gcParseICS(text);
+      // Calendar API(JSON {events}) 우선, 과거 iCal 텍스트면 fallback 파싱
+      let parsed=null;
+      try{ const j=JSON.parse(text); if(j&&Array.isArray(j.events)) parsed=gcMapApiEvents(j.events); }catch(e){}
+      _gcCal.events = parsed!==null ? parsed : gcParseICS(text);
       _gcCal.loaded=true;
       _gcCal._loadedAt=Date.now();
     }catch(e){
@@ -29199,6 +29224,7 @@
           const evE=(ev.end||ev.start)>weekEndIso ? weekEndIso : (ev.end||ev.start);
           return iso>=evS && iso<=evE;
         });
+        if(cellEvs.some(ev=>ev.source==='holiday')) numEl.classList.add('is-holiday-num');
 
         const laneSlots=new Array(MAX_LANES).fill(null);
         let extras=0;
@@ -29221,6 +29247,9 @@
             evEl.className='md-cal-event gc-cal-event';
             if(isStart) evEl.classList.add('is-left-cap');
             if(isEnd) evEl.classList.add('is-right-cap');
+            const col=_gcEventColor(ev);
+            if(col){ evEl.style.background=col; evEl.style.borderColor=col; }
+            if(ev.source==='holiday') evEl.classList.add('is-holiday');
             evEl.title=ev.title;
             evEl.textContent=isStart?ev.display:'';
             eventsEl.appendChild(evEl);
