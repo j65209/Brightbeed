@@ -8044,7 +8044,19 @@
     background:linear-gradient(135deg,#c2410c,#ea580c);
     color:#ffffff;border:1px solid rgba(234,88,12,.6);font-weight:600;
   }
-  .leave-form-submit:hover{filter:brightness(1.08);box-shadow:0 0 16px rgba(234,88,12,.4)}
+  .leave-form-submit:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 0 16px rgba(234,88,12,.4)}
+  .leave-form-submit:disabled{opacity:.4;cursor:not-allowed;filter:none;box-shadow:none}
+  /* 연차 사용 전 공지 확인 체크 (신청 버튼 게이트) */
+  .leave-form-notice{
+    display:flex;align-items:flex-start;gap:10px;margin-top:14px;
+    padding:12px 14px;cursor:pointer;
+    background:linear-gradient(180deg,rgba(255,179,71,.10) 0%,rgba(255,179,71,.03) 100%);
+    border:1px solid rgba(255,179,71,.5);border-radius:8px;
+  }
+  .leave-form-notice input{margin-top:2px;width:16px;height:16px;accent-color:#ea580c;cursor:pointer;flex-shrink:0}
+  .leave-form-notice span{font-size:12.5px;line-height:1.55;color:var(--text-1)}
+  .leave-form-notice b{color:#c2410c;font-weight:700}
+  .leave-form-notice .sub{display:block;margin-top:3px;font-size:11px;color:var(--text-3)}
   .leave-form-cancel{
     background:transparent;color:var(--text-2);border:1px solid var(--line);
   }
@@ -9548,9 +9560,13 @@
         <div class="leave-form-days" id="lfDaysOut">— <span class="leave-form-days-sub" id="lfDaysSub"></span></div>
       </div>
       <div class="leave-form-hint">반차/생일반차/대체휴무는 단일일만 가능 (종료일 자동 비활성화). 생일반차·출산휴가·경조사휴가는 연차 차감이 없고, <b style="color:#4f46e5">대체휴무는 연차 총량을 부여일에 +1일 또는 +0.5일 늘려줍니다.</b></div>
+      <label class="leave-form-notice" for="lfNotice">
+        <input type="checkbox" id="lfNotice" onchange="document.getElementById('lfSubmitBtn').disabled=!this.checked">
+        <span><b>📢 연차 사용일정은 공지사항에 안내 후 사용해주세요.</b><span class="sub">위 내용을 확인했으며, 공지 후 신청합니다.</span></span>
+      </label>
       <div class="leave-form-actions">
         <button type="button" class="leave-form-btn leave-form-cancel" onclick="closeLeaveForm()">취소</button>
-        <button type="submit" class="leave-form-btn leave-form-submit">신청</button>
+        <button type="submit" id="lfSubmitBtn" class="leave-form-btn leave-form-submit" disabled>신청</button>
       </div>
     </form>
 
@@ -21687,6 +21703,11 @@
         });
       }
       updateLeaveDays();
+      // 공지 확인 체크는 열 때마다 초기화 — 신청 버튼 게이트 재적용
+      const notice=document.getElementById('lfNotice');
+      if(notice) notice.checked=false;
+      const subBtn=document.getElementById('lfSubmitBtn');
+      if(subBtn) subBtn.disabled=true;
       form.hidden=false;
       if(restored) toast('임시 저장된 내용을 복원했습니다','ok');
       startDraftPolling(); // 폼 열린 동안 리모트 변경 실시간 반영
@@ -21701,6 +21722,8 @@
     stopDraftPolling();
     form.reset();
     form.hidden=true;
+    const subBtn=document.getElementById('lfSubmitBtn');
+    if(subBtn) subBtn.disabled=true;
     const rsnWrap=document.getElementById('lfReasonWrap');
     if(rsnWrap) rsnWrap.hidden=true;
     const compSub=document.getElementById('lfCompSub');
@@ -21792,6 +21815,7 @@
 
   async function submitLeaveForm(e){
     e.preventDefault();
+    if(!document.getElementById('lfNotice')?.checked){toast('공지사항 안내 확인에 체크해주세요','err');return}
     const name=document.getElementById('lfStaff').value;
     const startDate=document.getElementById('lfDate').value;
     const endDateRaw=document.getElementById('lfDateEnd')?.value||startDate;
