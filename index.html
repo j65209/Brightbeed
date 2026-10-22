@@ -29111,7 +29111,7 @@
   function gcMapApiEvents(events){
     return (events||[]).map(ev=>{
       const t=ev.title||'';
-      const display=(ev.source==='main' && /^공구\s*[\]\)]/.test(t))
+      const display=((ev.source==='main'||ev.source==='payment') && /^공구\s*[\]\)]/.test(t))
         ? (t.replace(/^공구\s*[\]\)]\s*/,'').trim()||t) : t;
       return {start:ev.start, end:ev.end||ev.start, title:t, display, uid:ev.uid,
               colorId:ev.colorId||null, source:ev.source||'main'};
@@ -29121,6 +29121,7 @@
   /* 구글 이벤트 색(colorId 1~11) → hex. 지정 없으면 source 기본색. */
   const GC_COLOR_MAP={1:'#7986cb',2:'#33b679',3:'#8e24aa',4:'#e67c73',5:'#f6bf26',6:'#f4511e',7:'#039be5',8:'#616161',9:'#3f51b5',10:'#0b8043',11:'#d50000'};
   function _gcEventColor(ev){
+    if(ev.source==='payment') return '#0d9488'; // 브랜드사 결제창 — 진한 에메랄드(흰 글자 대비 ↑)
     if(ev.colorId && GC_COLOR_MAP[ev.colorId]) return GC_COLOR_MAP[ev.colorId];
     if(ev.source==='holiday') return '#d50000';
     return null; // main 기본색 → CSS 인디고 유지
