@@ -9735,13 +9735,15 @@
       </div>
     </div>
 
-    <!-- ============ 탭 바 (디자인팀 · 코페리 디자인센터) ============ -->
+    <!-- ============ 탭 바 (코페리 디자인센터 · 디자인팀) ============
+         2026-10-26 사장님 지시로 코페리 디자인센터를 메인(기본) 화면으로 올렸다.
+         디자인팀(디자인 보드 + 작업 보드) 은 두 번째 탭으로 그대로 남아있다. -->
     <div class="dsg-tabs" role="tablist" aria-label="디자인팀 뷰">
-      <button class="dsg-tab" id="dsgTabDesign" role="tab" onclick="dsgSwitchTab('design')">
-        <span>🗂</span><span>디자인팀</span>
-      </button>
       <button class="dsg-tab" id="dsgTabCoferry" role="tab" onclick="dsgSwitchTab('coferry')">
         <span>📓</span><span>코페리 디자인센터</span>
+      </button>
+      <button class="dsg-tab" id="dsgTabDesign" role="tab" onclick="dsgSwitchTab('design')">
+        <span>🗂</span><span>디자인팀</span>
       </button>
     </div>
 
@@ -15330,7 +15332,7 @@
   }
   let _dsgRefs  = [];
   let _dsgPosts = [];                       // 디자인 보드 게시글 배열 (디자인 뷰 전용)
-  let _dsgCurTab = 'posts';
+  let _dsgCurTab = 'coferry';               // 기본 = 메인 화면 (2026-10-26 사장님 지시)
   let _dsgCurBoard = 'moodboard';
   let _dsgCurPostId = null;
   let _dsgModalRefId  = null;
@@ -16177,8 +16179,20 @@
     _dsgPurgePostTombs();
     if(_dsgPostsDirty.size > 0) _dsgSchedPush();  // 새로고침 후 미푸시 편집 자동 재전송
     if(_dsgAnyDocDirty())      _dsgSchedPush();   // doc 미푸시 편집도 자동 재전송
-    try{ const saved = localStorage.getItem('dsgCurTab'); if(saved) _dsgCurTab = saved; }catch(e){}
-    dsgSwitchTab(_dsgCurTab||'design');
+    /* 서브탭 복원. 2026-10-26 부터 기본 탭이 코페리 디자인센터다.
+       기존 브라우저에 남은 옛 선호값('posts'/'board'/'design')을 그대로 쓰면
+       디자이너 화면에선 변경이 체감되지 않으므로 한 번만 초기화한다.
+       이 플래그 이후 사용자가 직접 고른 탭은 평소대로 유지된다. */
+    try{
+      const MIGRATED = 'brightbeed_dsg_tab_main_v2';
+      if(!localStorage.getItem(MIGRATED)){
+        localStorage.setItem(MIGRATED, '1');
+        localStorage.setItem('dsgCurTab', 'coferry');
+      }
+      const saved = localStorage.getItem('dsgCurTab');
+      if(saved) _dsgCurTab = saved;
+    }catch(e){}
+    dsgSwitchTab(_dsgCurTab||'coferry');
     dsgDocRender();
     _dsgApplyFs();
     dsgRefsRender();
@@ -16260,7 +16274,7 @@
   function dsgSwitchTab(tab){
     // 이전 값 'posts' / 'board' 은 새 구조에서 'design' 하나로 합쳐졌다
     if(tab === 'posts' || tab === 'board') tab = 'design';
-    _dsgCurTab = tab || 'design';
+    _dsgCurTab = tab || 'coferry';           // 기본 = 코페리 디자인센터 (메인)
     // 탭 active 표시
     ['design','coferry'].forEach(t=>{
       const btn = document.getElementById('dsgTab' + t[0].toUpperCase() + t.slice(1));
@@ -16275,6 +16289,9 @@
       if(paneId === 'coferry') p.hidden = showDesign;
       else                     p.hidden = !showDesign;
     });
+    // 헤더 부제 — 어느 탭이 열려있는지 표시 (코페리가 기본이라 하드코딩하면 틀린다)
+    const subEl = document.getElementById('dsgTitleSub');
+    if(subEl) subEl.textContent = showDesign ? '/ 디자인 보드' : '/ 코페리 디자인센터';
     // 디자인센터 탭 진입 시: 노션 링크 초기화 (실제 열 때 처음 로드)
     if(_dsgCurTab === 'coferry'){
       if(typeof dcInit === 'function') dcInit();
