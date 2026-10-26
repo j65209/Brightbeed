@@ -16474,14 +16474,18 @@
       if(!r.ok || !j || j.ok!==true) throw new Error((j && (j.detail||j.error)) || ('HTTP '+r.status));
       if(_dcState[cfg.stateKey] !== url){ st.requeue = true; return; }   // 응답 도착 전에 링크가 바뀜
       st.doc = j; st.err = null; st.at = Date.now();
-      _dcMirrorCacheWrite(cfg, url, j, st.at);
+      /* 스탬프는 '내가 받은 시각' 이 아니라 '노션에서 실제로 퍼온 시각'(서버 fetched_at).
+         프록시 워머가 10분마다 채워둔 캐시를 받는 구조라, 받은 시각을 찍으면
+         9분 지난 내용을 방금 갱신한 것처럼 보여준다. */
+      const srcAt = Number(j.fetched_at) || st.at;
+      _dcMirrorCacheWrite(cfg, url, j, srcAt);
       // 내용이 그대로면 innerHTML 을 건드리지 않는다 — 스크롤·펼침 상태 보존
       const sig = (j.title||'') + '|' + JSON.stringify(j.blocks||[]);
       if(st.sig !== sig){
         _ntExpandDays = cfg.expandDays || 0;
         body.innerHTML = _ntRenderDoc(j); st.sig = sig; _ntHookEntries(body);
       }
-      _dcStamp(cfg, _dcHm(st.at)+' 갱신');
+      _dcStamp(cfg, _dcHm(srcAt)+' 갱신');
     }catch(e){
       st.err = String(e && e.message || e); st.at = Date.now();
       if(!st.doc){ body.innerHTML = _ntErrorHtml(st.err); st.sig = null; }
@@ -16503,7 +16507,9 @@
       if(!_dcState[cfg.stateKey] || _dcCollapsed(cfg)) continue;
       const st = _dcMirrorState(cfg);
       if(force) _dcLoadMirror(cfg, true);                                   // 프록시 캐시까지 무시하고 새로
-      else if(!st.doc || (Date.now()-st.at) > DC_MIRROR_POLL) _dcLoadMirror(cfg, false);
+      /* 0.8 배: 타이머 주기와 임계값이 똑같으면 밀리초 차이로 한 바퀴를 건너뛰어
+         실제 갱신이 20분마다가 된다. 따뜻한 프록시 캐시 읽기는 수십 ms 라 넉넉하게 둔다. */
+      else if(!st.doc || (Date.now()-st.at) > DC_MIRROR_POLL*0.8) _dcLoadMirror(cfg, false);
     }
   }
 
@@ -16759,13 +16765,13 @@
         _dcRefreshMirrors(false);
       }
     }, 12000);
-    // 10분마다 강제 최신화 (프록시 2분 캐시까지 무시). 안 보는 동안은 건너뛰고 복귀 훅이 따라잡는다.
+    /* 10분마다 최신화 — 2026-10-26 부터 "어느 화면을 보고 있든" 계속 돌린다.
+       디자인센터를 닫아둔 동안에도 받아두므로 탭을 여는 순간 이미 그려져 있다.
+       force 를 쓰지 않는 이유: 노션을 실제로 때리는 주체는 프록시 워머 하나여야 한다
+       (서버가 10분마다 캐시를 채워둠 → 여기선 따뜻한 캐시만 받아 수십 ms).
+       보는 사람 수만큼 노션 부하가 늘어나면 안 된다. 수동 🔄 버튼만 force. */
     if(!_dcState.mirrorTimer){
-      _dcState.mirrorTimer = setInterval(()=>{
-        if(document.visibilityState !== 'visible') return;
-        if(!_dcCurTabIsCoferry() || document.getElementById('viewDesign')?.hidden) return;
-        _dcRefreshMirrors(true);
-      }, DC_MIRROR_POLL);
+      _dcState.mirrorTimer = setInterval(()=>{ _dcRefreshMirrors(false); }, DC_MIRROR_POLL);
     }
   }
   function _dcAttachHooks(){
