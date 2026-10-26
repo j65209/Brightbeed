@@ -14695,7 +14695,7 @@
       return {
         name: p.name,
         price: Number(p.price)||0,
-        status: p.status==='판매중' ? 'selling' : 'stop_selling',
+        status: p.status==='판매중' ? 'selling' : (p.status==='품절' ? 'soldOut_selling' : 'stop_selling'),
         stock: hasOpts ? totalOptStock : (Number(p.stock)||0),
         hasOptions: hasOpts,
         options: (p.options||[]).map(o=>({label:o.label, stock:Number(o.stock)||0})),
@@ -14704,15 +14704,18 @@
     return {ok:true, products, fetchedAt:pro.fetchedAt, elapsedMs:pro.elapsedMs||0};
   }
 
-  async function sixStockFetch(brandKey){
+  async function sixStockFetch(brandKey, forceFresh){
     if(_sixStockInflight[brandKey]) return;
     _sixStockInflight[brandKey] = true;
     _sixStockSetStatus(brandKey, 'loading', '로그인 + fetch 중… (~2-5초)');
     _sixStockDisableRefresh(brandKey, true);
     try{
       const meta = SIX_STOCK_BRANDS.find(b=>b.key===brandKey);
-      const ep = meta?.endpoint || `/catalog?brand=${brandKey}`;
-      const r = await sxFetch(ep, {method:'GET'});
+      const base = meta?.endpoint || `/catalog?brand=${brandKey}`;
+      // 식스샵프로는 캐시 서빙이라 새로고침 시 fresh=1 로 재수집을 요청한다.
+      // cron 이 같은 job lock 을 잡고 있으면 409 → 캐시 GET 으로 폴백.
+      let r = await sxFetch(forceFresh && meta?.proShape ? `${base}&fresh=1` : base, {method:'GET'});
+      if(!r.ok && forceFresh && meta?.proShape) r = await sxFetch(base, {method:'GET'});
       let data;
       try{ data = await r.json(); } catch(e){ data = {ok:false, error:'invalid JSON'}; }
       if(!r.ok || !data.ok){
@@ -14733,14 +14736,14 @@
   function sixStockRefreshOne(brandKey){
     if(_sixStockInflight[brandKey]) return;
     _sixStockCache[brandKey] = null;
-    sixStockFetch(brandKey).catch(()=>{});
+    sixStockFetch(brandKey, true).catch(()=>{});
   }
 
   function sixStockRefreshAll(){
     for(const b of SIX_STOCK_BRANDS){
       if(_sixStockInflight[b.key]) continue;
       _sixStockCache[b.key] = null;
-      sixStockFetch(b.key).catch(()=>{});
+      sixStockFetch(b.key, true).catch(()=>{});
     }
   }
 
