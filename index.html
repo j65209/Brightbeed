@@ -3730,6 +3730,11 @@
   .adsh-month button{border:0;background:transparent;padding:4px 10px;font-size:15px;line-height:1;cursor:pointer;color:var(--text-1)}
   .adsh-month button:hover{background:var(--bg-2)}
   .adsh-month span{font-family:var(--mono);font-size:12.5px;font-weight:800;padding:0 4px;min-width:64px;text-align:center}
+  .sub-modules.adsh-brands{max-width:none;margin:4px 0 14px}
+  .adsh-brands .sub-module-tag{color:var(--m-color);border-color:var(--m-color);opacity:.8}
+  .adsh-brands .sub-module.is-active{border:2px solid var(--m-color);padding:15px 15px 13px;background:var(--bg-1)}
+  .adsh-brands .sub-module.is-active::before{opacity:.1}
+  .adsh-brands .sub-module.is-active .sub-module-tag{border-style:solid;opacity:1;font-weight:700}
   .adsh-h{font-size:13px;font-weight:800;margin:14px 0 6px;display:flex;align-items:center;gap:6px}
   .adsh-h::before{content:'';width:9px;height:9px;background:var(--text-0)}
   .adsh-h small{font-weight:500;color:var(--text-3);font-size:11px}
@@ -10249,7 +10254,7 @@
             </div>
           </div>
         </div>
-        <div class="lg-tabs" id="adshTabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0"></div>
+        <div class="sub-modules adsh-brands" id="adshTabs" role="tablist"></div>
         <div id="adshBody"></div>
       </div>
     </div>
@@ -14598,6 +14603,7 @@
       if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
       if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
       if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
+      if(typeof adshEnsureLoaded==='function') adshEnsureLoaded();
     }
     if(id==='viewExecVault'){
       if(typeof execRefreshAccess==='function') execRefreshAccess();
@@ -14798,7 +14804,6 @@
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
-    if(typeof adshEnsureLoaded==='function') adshEnsureLoaded();
   }
   function triggerDesign(){ _dsgActiveBoard = 'design'; showView('viewDesign'); if(typeof dsgInit==='function') dsgInit(); }
   function triggerStock(){ showView('viewStock'); }
@@ -23488,9 +23493,15 @@
   function _adshRenderTabs(){
     const wrap=document.getElementById('adshTabs');
     if(!wrap) return;
-    wrap.innerHTML=BRAND_SECTIONS.map(b=>
-      `<button class="lg-tab${b.id===_adsh.brand?' active':''}" role="tab" aria-selected="${b.id===_adsh.brand}" onclick="adshSwitch('${b.id}')"><span class="brand-dot" style="background:${b.dot}"></span>${_akoiEsc(b.display)}</button>`
-    ).join('');
+    // 홈 "일일 브랜드 리포트" 카드와 같은 모양 (sub-module) — 선택된 브랜드는 테두리·태그를 브랜드 색으로
+    wrap.innerHTML=BRAND_SECTIONS.map(b=>{
+      const on=b.id===_adsh.brand;
+      return `<div class="sub-module${on?' is-active':''}" role="tab" tabindex="0" aria-selected="${on}" style="--m-color:${b.dot};--m-border:${b.dot}" onclick="adshSwitch('${b.id}')" onkeydown="if(event.key==='Enter')adshSwitch('${b.id}')">
+        <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:${b.dot};box-shadow:0 0 12px ${b.dot}b3"></span></div>
+        <div class="sub-module-title">${_akoiEsc(b.display)}</div>
+        <div class="sub-module-tag">${on?'보는 중':'광고 시트'}</div>
+      </div>`;
+    }).join('');
     const ml=document.getElementById('adshMonthLabel');
     if(ml) ml.textContent=_adsh.month.replace('-','.');
   }
@@ -23518,7 +23529,7 @@
   }
   /* 막대(왼쪽 축) + 꺾은선(오른쪽 축) 콤보 차트 — 엑셀 기본 색 */
   function _adshNiceMax(v){
-    if(!(v>0)) return 1;
+    if(!(v>0)) return 4;   // 데이터 없을 때 0/1/2/3/4 (소수 반올림으로 축 숫자가 겹치지 않게)
     const p=Math.pow(10,Math.floor(Math.log10(v)));
     for(const m of [1,1.2,1.5,2,2.5,3,4,5,6,8,10]) if(v<=m*p) return m*p;
     return 10*p;
