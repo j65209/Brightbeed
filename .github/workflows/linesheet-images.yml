@@ -1,0 +1,40 @@
+name: 라인시트 사진 (디자인센터 전광판)
+
+# 구글시트 'COFERRY LINE SHEET' 의 상품 사진을 linesheet/ 로 옮긴다 (scripts/linesheet-images.mjs).
+# 시트 사진 주소는 금방 만료되고 다른 사이트에 못 띄워서, 오피스는 여기서 옮긴 사본을 쓴다.
+# 사진이 바뀌었을 때만 커밋한다.
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: linesheet-images
+  cancel-in-progress: false
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 사진 받기
+        run: node scripts/linesheet-images.mjs
+      - name: 커밋
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A linesheet
+          git diff --cached --quiet && exit 0
+          git commit -m "linesheet: 라인시트 사진 갱신 $(TZ=Asia/Seoul date '+%F %H:%M')"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && exit 0
+            sleep 5
+          done
+          exit 1

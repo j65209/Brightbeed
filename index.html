@@ -7370,13 +7370,23 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-kpi.k-arr b,.lsb-kpi.k-order b{color:var(--lsb-green);text-shadow:0 0 14px rgba(61,220,151,.3)}
   .lsb-kpi.k-req b{color:var(--lsb-blue)}
   .lsb-kpi.k-hold b{color:var(--lsb-red)}
-  .lsb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:10px}
+  .lsb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;margin-top:10px}
   .lsb-grid.is-fade{animation:lsbFade .35s ease}
-  .lsb-tile{min-width:0;display:flex;flex-direction:column;gap:5px;background:var(--lsb-panel);border:1px solid var(--lsb-line);border-radius:10px;padding:10px 12px;cursor:pointer}
+  .lsb-tile{min-width:0;display:flex;flex-wrap:wrap;gap:11px;background:var(--lsb-panel);border:1px solid var(--lsb-line);border-radius:10px;padding:10px 12px;cursor:pointer}
   .lsb-tile:hover{border-color:#3c4652}
   .lsb-tile:focus{outline:none}
   .lsb-tile:focus-visible{outline:2px solid var(--lsb-amber);outline-offset:2px}
   .lsb-tile.is-open{border-color:rgba(255,181,71,.45)}
+  .lsb-tb{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+  .lsb-ph{position:relative;flex:none;width:84px;height:84px;border-radius:8px;background:#f3f2ef;overflow:hidden}
+  .lsb-ph img{display:block;width:100%;height:100%;object-fit:contain}
+  .lsb-ph-n{position:absolute;right:4px;bottom:4px;font-size:10px;font-weight:800;line-height:1.6;color:#fff;background:rgba(14,17,22,.72);border-radius:6px;padding:0 5px}
+  .lsb-ph.is-broken,.lsb-gal a.is-broken{display:none}
+  .lsb-gal{flex-basis:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+  .lsb-gal a{display:block;aspect-ratio:1;border-radius:8px;background:#f3f2ef;overflow:hidden}
+  .lsb-gal a:hover{box-shadow:0 0 0 2px var(--lsb-amber)}
+  .lsb-gal img{display:block;width:100%;height:100%;object-fit:contain}
+  .lsb-ev-im{width:20px;height:20px;border-radius:50%;object-fit:contain;background:#f3f2ef;vertical-align:-5px;margin-right:6px}
   .lsb-t-top{display:flex;align-items:center;gap:7px;min-width:0}
   .lsb-no{flex:none;font-size:11px;font-weight:800;color:var(--lsb-tx3);font-variant-numeric:tabular-nums}
   .lsb-t-name{flex:1;min-width:0;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -7421,6 +7431,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     .lsb-kpi{padding:7px 6px}
     .lsb-kpi b{font-size:20px}
     .lsb-grid{grid-template-columns:1fr}
+    .lsb-ph{width:72px;height:72px}
     .lsb-tabs{flex-wrap:wrap;overflow:visible}
     .lsb-dots{gap:12px}
     .lsb-dot::before{inset:-10px -6px}
@@ -17165,12 +17176,14 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
      · 탭 목록은 htmlview 에서 찾는다(새 시즌 탭 자동 반영) — 못 찾으면 마지막 목록 → 기본 3탭
      · 디자인센터가 보일 때만 1분마다 다시 받고, 마지막 결과는 localStorage 에 두어 들어오자마자 그린다
      · 상품 타일은 7초마다 넘어간다 — 마우스를 올리거나, 타일을 펼치거나, 키보드로 고르거나, 화면 밖이면 멈춘다
+     · 상품 사진은 칸 안 이미지라 CSV 에 안 실리고, 시트의 사진 주소는 15분이면 만료되며 다른 사이트에 띄우는 것도 막혀 있다
+       → GitHub Actions(linesheet-images.yml)가 30분마다 사진을 받아 linesheet/ 에 두고, 여기서는 그 목록(images.json)을 읽는다
      ============================================================ */
   const LSB_ID = '1Q3eMHCnPsbt3ijGv3Gswym9Q_ao_fJsPSZg8n7R-tng';
   const LSB_TABS = [{name:'26WINTER', gid:'0'}, {name:'27SS', gid:'417455932'}, {name:'홀딩', gid:'534097050'}];
   const LSB_K = {cache:'brightbeed_lsb_cache_v1', tab:'brightbeed_lsb_tab_v1', fold:'brightbeed_lsb_fold_v1'};
-  const LSB_EVERY = 60e3, LSB_ROTATE = 7000, LSB_TIMEOUT = 15e3;
-  const _lsb = {tabs:null, tabsAt:0, data:{}, at:0, tried:0, busy:false, err:'', sig:'', tab:null, fold:false,
+  const LSB_EVERY = 60e3, LSB_ROTATE = 7000, LSB_TIMEOUT = 15e3, LSB_IMG_EVERY = 5 * 60e3;
+  const _lsb = {tabs:null, tabsAt:0, data:{}, img:{}, imgAt:0, imgErrAt:0, at:0, tried:0, busy:false, err:'', sig:'', tab:null, fold:false,
                 page:0, ps:0, all:false, open:{}, hover:false, touchAt:0, inView:true, minH:null, fadeT:0,
                 tick:'', tickW:0, booted:false};
   // 컬러 이름 → 견본 색 (앞에 있는 것부터 찾는다: french gray 가 gray 보다, salmon 이 pink 보다 먼저)
@@ -17189,7 +17202,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   function _lsbParse(rows){
     const T = v => String(v ?? '').replace(/\r/g,'').trim();
     const K = v => T(v).replace(/\s/g,'');
-    const out = {title:'', counts:{}, items:[]};
+    const out = {title:'', counts:{}, items:[], heads:[]};
     let cur = null, label = null;
     for(let r = 0; r < rows.length; r++){
       const row = rows[r] || [];
@@ -17198,7 +17211,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       if(/^(BAG|ACC|ETC)$/i.test(kc) && /^\d+(\.0+)?$/.test(K(row[3]))) out.counts[kc.toUpperCase()] = Math.round(+K(row[3]));
       const b = T(row[1]), kb = K(row[1]);
       if(kb === '시즌카테고리'){
-        cur = {name:T(row[2]).replace(/\s+/g,' '), no:'', season:'', fabric:'', factory:'', note:'', reason:'', colors:[], meta:{}, cols:{}};
+        cur = {name:T(row[2]).replace(/\s+/g,' '), no:'', season:'', fabric:'', factory:'', note:'', reason:'', colors:[], meta:{}, cols:{}, row:r};
+        out.heads.push(r);
         row.forEach((h, c) => {
           const k = K(h).toUpperCase();
           if(k === 'FABRIC') cur.cols.fabric = c;
@@ -17314,6 +17328,23 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   async function _lsbFetchTab(tb){
     return _lsbParse(_mdsParseCsv(await _lsbText(`https://docs.google.com/spreadsheets/d/${LSB_ID}/export?format=csv&gid=${tb.gid}`)));
   }
+  /* 상품 사진 — linesheet/images.json 의 {k:'번호|상품명', r:블록 머리글 행, f:파일} 를 번호+이름으로 붙인다
+     (같은 번호·이름 블록이 둘 이상이면 행이 가장 가까운 블록 것만) → 사진 파일 해시 목록 */
+  function _lsbImgs(gid, it){
+    const list = _lsb.img[gid];
+    if(!Array.isArray(list)) return [];
+    let hit = list.filter(x => x && x.k === `${it.no}|${it.name}` && /^[0-9a-f]{16}$/.test(x.f));
+    const rows = [...new Set(hit.map(x => x.r))];
+    if(rows.length > 1 && it.row != null){ const best = rows.reduce((a, b) => Math.abs(b - it.row) < Math.abs(a - it.row) ? b : a); hit = hit.filter(x => x.r === best); }
+    return hit.map(x => x.f);
+  }
+  function _lsbImgSrc(f){ return `linesheet/img/${f}.webp`; }
+  // 사진 파일이 없어졌으면(목록이 바뀐 직후) 숨기고, 2분에 한 번까지 목록을 다시 받게 한다
+  function lsbImgErr(el){
+    const box = el.closest('.lsb-ph, .lsb-gal a');
+    if(box) box.classList.add('is-broken'); else el.remove();
+    if(Date.now() - _lsb.imgErrAt > 120e3){ _lsb.imgErrAt = Date.now(); _lsb.imgAt = 0; }
+  }
   async function lsbRefresh(){
     if(_lsb.busy) return;
     _lsb.busy = true; _lsb.tried = Date.now();
@@ -17322,19 +17353,22 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     _lsbStamp();
     try{
       await _lsbDiscover();
-      const tabs = _lsb.tabs.slice();
-      const res = await Promise.allSettled(tabs.map(_lsbFetchTab));
+      const tabs = _lsb.tabs.slice(), wantImg = Date.now() - _lsb.imgAt >= LSB_IMG_EVERY;
+      if(wantImg) _lsb.imgAt = Date.now();   // 실패해도 5분 뒤에 다시
+      const [res, idx] = await Promise.all([Promise.allSettled(tabs.map(_lsbFetchTab)),
+        wantImg ? _lsbText('linesheet/images.json').then(JSON.parse).catch(() => null) : null]);
+      if(idx && idx.tabs && typeof idx.tabs === 'object') _lsb.img = idx.tabs;
       let ok = 0;
       res.forEach((x, i) => { if(x.status === 'fulfilled'){ _lsb.data[tabs[i].gid] = x.value; ok++; } });
       _lsb.err = !ok ? '시트를 못 불러왔어요' : ok < res.length ? '일부 탭을 못 받았어요' : '';
       if(ok){
         _lsb.at = Date.now();
-        const keep = {}; tabs.forEach(t => { if(_lsb.data[t.gid]) keep[t.gid] = _lsb.data[t.gid]; });
-        _lsb.data = keep;
+        const keep = {}, img = {}; tabs.forEach(t => { if(_lsb.data[t.gid]) keep[t.gid] = _lsb.data[t.gid]; if(_lsb.img[t.gid]) img[t.gid] = _lsb.img[t.gid]; });
+        _lsb.data = keep; _lsb.img = img;
         // 내용이 그대로면 다시 그리지 않는다 (보던 타일·키보드 위치 유지). 날짜가 바뀌면 D-day 가 달라지니 오늘 날짜도 넣는다
-        const sig = _lsbToday().getTime() + JSON.stringify(tabs) + JSON.stringify(keep);
+        const sig = _lsbToday().getTime() + JSON.stringify(tabs) + JSON.stringify(keep) + JSON.stringify(img);
         changed = sig !== _lsb.sig; _lsb.sig = sig;
-        try{ localStorage.setItem(LSB_K.cache, JSON.stringify({at:_lsb.at, tabs, tabsAt:_lsb.tabsAt, data:keep})); }catch(e){}
+        try{ localStorage.setItem(LSB_K.cache, JSON.stringify({at:_lsb.at, tabs, tabsAt:_lsb.tabsAt, data:keep, img, imgAt:_lsb.imgAt})); }catch(e){}
       }
     }catch(e){ _lsb.err = '시트를 못 불러왔어요'; }
     finally{ _lsb.busy = false; }
@@ -17369,14 +17403,14 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     _lsbTabs().filter(t => !_lsbIsHold(t)).forEach(tb => {
       const sn = _lsbSeason(tb);
       _lsb.data[tb.gid].items.forEach(it => {
-        const name = it.name.replace(/^\(가제\)\s*/,'') || '이름 미정';
+        const name = it.name.replace(/^\(가제\)\s*/,'') || '이름 미정', im = _lsbImgs(tb.gid, it)[0] || '';
         const od = _lsbDate(it.meta['첫발주일']);
-        if(od){ const n = _lsbDays(od); if(n <= 0 && n >= -14) ev.push({n, k:'order', sn, name, color:'', what:`첫발주 ${_lsbMd(od)}`}); }
+        if(od){ const n = _lsbDays(od); if(n <= 0 && n >= -14) ev.push({n, k:'order', sn, name, im, color:'', what:`첫발주 ${_lsbMd(od)}`}); }
         it.colors.forEach(c => {
           const s = _lsbColorState(c);
-          if(s.k === 'due' && s.n <= 21) ev.push({n:s.n, k:'due', sn, name, color:c.color, what:`샘플 입고 예정 ${_lsbMd(s.d)}`});
-          else if(s.k === 'arr' && s.n >= -7) ev.push({n:s.n, k:'arr', sn, name, color:c.color, what:`샘플 입고 ${_lsbMd(s.d)}`});
-          else if(s.k === 'req' && s.n <= 0 && s.n >= -7) ev.push({n:s.n, k:'req', sn, name, color:c.color, what:`샘플 요청 ${_lsbMd(s.d)}`});
+          if(s.k === 'due' && s.n <= 21) ev.push({n:s.n, k:'due', sn, name, im, color:c.color, what:`샘플 입고 예정 ${_lsbMd(s.d)}`});
+          else if(s.k === 'arr' && s.n >= -7) ev.push({n:s.n, k:'arr', sn, name, im, color:c.color, what:`샘플 입고 ${_lsbMd(s.d)}`});
+          else if(s.k === 'req' && s.n <= 0 && s.n >= -7) ev.push({n:s.n, k:'req', sn, name, im, color:c.color, what:`샘플 요청 ${_lsbMd(s.d)}`});
         });
       });
     });
@@ -17388,7 +17422,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const tag = e => e.k === 'due' ? `D-${e.n}` : e.k === 'arr' ? (e.n === 0 ? '오늘 입고' : '입고') : e.k === 'req' ? '요청' : '발주';
     const msg = t => `<span class="lsb-ev"><span class="sn">${t}</span></span>`;
     const html = !_lsbTabs().length ? msg(_lsb.busy || !_lsb.tried ? '라인시트 불러오는 중…' : '라인시트를 못 불러왔어요')
-      : ev.length ? ev.map(e => `<span class="lsb-ev lsb-ev-${e.k}"><b>${tag(e)}</b><span class="sn">${E(e.sn)}</span>${E(e.name)}${e.color ? ` <em>${E(e.color)}</em>` : ''} · ${E(e.what)}</span>`).join('')
+      : ev.length ? ev.map(e => `<span class="lsb-ev lsb-ev-${e.k}"><b>${tag(e)}</b><span class="sn">${E(e.sn)}</span>${e.im ? `<img class="lsb-ev-im" src="${_lsbImgSrc(e.im)}" alt="" decoding="async" onerror="this.remove()">` : ''}${E(e.name)}${e.color ? ` <em>${E(e.color)}</em>` : ''} · ${E(e.what)}</span>`).join('')
       : msg('가까운 샘플 입고·요청·발주 일정이 없어요');
     if(html === _lsb.tick && _lsb.tickW) return;
     _lsb.tick = html; _lsb.tickW = 0;
@@ -17434,8 +17468,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     el.classList.toggle('is-3', hold);
     el.innerHTML = list.map(([k, t, v]) => `<div class="lsb-kpi${k ? ' k-' + k : ''}"><span>${t}</span><b>${v}</b></div>`).join('');
   }
-  function _lsbTile(it, hold, key){
-    const E = escapeHTML, st = _lsbStatus(it, hold), open = !!_lsb.open[key];
+  function _lsbTile(it, hold, key, gid){
+    const E = escapeHTML, st = _lsbStatus(it, hold), open = !!_lsb.open[key], imgs = _lsbImgs(gid, it);
     const draft = /^\(가제\)/.test(it.name), name = it.name.replace(/^\(가제\)\s*/,'') || '이름 미정';
     const cat = it.meta['제품카테고리'] || '';
     const sub = `${it.season ? `<span class="lsb-tag${/new/i.test(it.season) ? ' t-new' : ''}">${E(it.season)}</span>` : ''}${draft ? '<span class="lsb-tag">가제</span>' : ''}${E(cat)}`;
@@ -17449,13 +17483,20 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const more = it.colors.length > shown.length ? `<div class="lsb-more">+ 컬러 ${it.colors.length - shown.length}개 더</div>` : '';
     const note = hold ? (it.reason || it.note) : it.note;
     const price = it.meta['정상가'] && /[1-9]/.test(it.meta['정상가']) ? it.meta['정상가'] : '';
-    return `<article class="lsb-tile${open ? ' is-open' : ''}" role="button" tabindex="0" aria-expanded="${open}" data-k="${E(key)}" onclick="lsbToggle(this.dataset.k)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();lsbToggle(this.dataset.k)}">
+    const img = f => `<img src="${_lsbImgSrc(f)}" alt="" loading="lazy" decoding="async" onerror="lsbImgErr(this)">`;
+    const ph = imgs.length ? `<div class="lsb-ph">${img(imgs[0])}${imgs.length > 1 ? `<span class="lsb-ph-n">${imgs.length}장</span>` : ''}</div>` : '';
+    // 펼치면 사진 전부 — 누르면 구글시트의 그 상품 자리로 (큰 사진·원본은 시트에서)
+    const at = `https://docs.google.com/spreadsheets/d/${LSB_ID}/edit#gid=${encodeURIComponent(gid)}${it.row != null ? `&range=A${it.row + 1}` : ''}`;
+    const gal = open && imgs.length ? `<div class="lsb-gal">${imgs.map(f => `<a href="${E(at)}" target="_blank" rel="noopener" title="구글시트에서 이 상품 보기" onclick="event.stopPropagation()">${img(f)}</a>`).join('')}</div>` : '';
+    return `<article class="lsb-tile${open ? ' is-open' : ''}${ph ? ' has-ph' : ''}" role="button" tabindex="0" aria-expanded="${open}" data-k="${E(key)}" onclick="lsbToggle(this.dataset.k)" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();lsbToggle(this.dataset.k)}">
+      ${ph}<div class="lsb-tb">
       <div class="lsb-t-top">${it.no ? `<span class="lsb-no">${E(it.no.padStart(2, '0'))}</span>` : ''}<b class="lsb-t-name" title="${E(it.name)}">${E(name)}</b><span class="lsb-st lsb-st-${st.k}">${st.t}</span></div>
       ${sub ? `<div class="lsb-t-sub">${sub}</div>` : ''}
       ${colors}${more}
       ${fac && (!hold || open) ? `<div class="lsb-fac">${E(fac)}</div>` : ''}
       ${note ? `<div class="lsb-note">${hold ? '<b>사유</b> ' : ''}${E(note)}</div>` : ''}
       ${open && (it.fabric || price) ? `<div class="lsb-fab">${it.fabric ? `원단 ${E(it.fabric.replace(/\n+/g, ' · '))}` : ''}${price ? `${it.fabric ? ' · ' : ''}정상가 ${E(price)}` : ''}</div>` : ''}
+      </div>${gal}
     </article>`;
   }
   function _lsbPageSize(){
@@ -17476,7 +17517,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const ps = _lsb.ps = _lsbPageSize(), pages = Math.max(1, Math.ceil(items.length / ps));
     if(_lsb.page >= pages) _lsb.page = 0;
     const from = _lsb.all ? 0 : _lsb.page * ps, to = _lsb.all ? items.length : from + ps;
-    g.innerHTML = items.slice(from, to).map((it, i) => _lsbTile(it, hold, keys[from + i])).join('');
+    g.innerHTML = items.slice(from, to).map((it, i) => _lsbTile(it, hold, keys[from + i], cur.gid)).join('');
     // 쪽마다 높이가 달라 아래 내용이 들썩이지 않게 — 같은 탭·같은 폭에서는 지금까지 가장 높았던 쪽 높이를 유지
     const mk = `${cur.gid}|${g.clientWidth}|${_lsb.all}`;
     if(!_lsb.minH || _lsb.minH.k !== mk){ _lsb.minH = {k:mk, h:0}; g.style.minHeight = ''; }
@@ -17538,6 +17579,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         if(c && c.data && typeof c.data === 'object' && Array.isArray(c.tabs)
           && Object.values(c.data).every(d => d && Array.isArray(d.items) && d.items.every(i => i && typeof i.name === 'string' && Array.isArray(i.colors) && i.meta))){
           _lsb.tabs = c.tabs; _lsb.tabsAt = c.tabsAt || 0; _lsb.data = c.data; _lsb.at = c.at || 0;
+          if(c.img && typeof c.img === 'object' && Object.values(c.img).every(Array.isArray)){ _lsb.img = c.img; _lsb.imgAt = c.imgAt || 0; }
         }
         _lsb.tab = localStorage.getItem(LSB_K.tab);
         _lsb.fold = localStorage.getItem(LSB_K.fold) === '1';
@@ -17566,7 +17608,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(_lsbVisible() && Date.now() - _lsb.tried >= 20e3) lsbRefresh();
   }
   window.lsbInit = lsbInit; window.lsbRefresh = lsbRefresh; window.lsbTab = lsbTab; window.lsbPage = lsbPage;
-  window.lsbAll = lsbAll; window.lsbToggle = lsbToggle; window.lsbFold = lsbFold;
+  window.lsbAll = lsbAll; window.lsbToggle = lsbToggle; window.lsbFold = lsbFold; window.lsbImgErr = lsbImgErr;
 
   /* ============================================================
      디자인센터 — 노션 미러 2장 (업무일지 · 콰이디 업무 공유)
