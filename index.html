@@ -23399,7 +23399,10 @@
      입력: 노출수·클릭수·광고비($ 또는 원 중 하나)·전환수·전환매출·환율(비우면 자동)
      환율: data/fx-usd.json — GHA fx-usd.yml 이 평일 09:00 KST 하나은행 매매기준율 기록.
            그 날 값이 없으면(주말·공휴일) 직전 영업일 값을 쓴다.
-     저장: 셀 수정 → 1.2s 디바운스 → 원격 최신본 위에 "수정한 셀만" 덮어 ghPut (동시 편집 보호). */
+     저장: 타이핑 즉시(input) → 이 PC(localStorage)에 셀값 + 미저장 목록(dirty) 기록 → 0.1s 디바운스
+           → 원격 최신본 위에 "수정한 셀만" 덮어 ghPut (동시 편집 보호).
+           이중 저장 방어 — ① dirty 는 localStorage 에 남아 새로고침·창닫기 뒤에도 재전송
+                            ② 방금 올린 updatedAt 보다 옛 원격본(캐시 지연)은 무시해 되돌아감 방지 */
   const ADSH_FX_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/data/fx-usd.json`;
   const ADSH_API=(id)=>`https://api.github.com/repos/${PO_REPO}/contents/data/ad-sheets/${id}.json`;
   const ADSH_LS='brightbeed_adsh_';
@@ -23417,7 +23420,30 @@
     {k:'roas', label:'ROAS(%)'},
     {k:'fx',   label:'환율',        in:true},
   ];
-  const _adsh={brand:null, month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, saveTimer:null, saving:false, saveAgain:false};
+  const _adsh={brand:null, month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, inflight:{}, pushed:{}, failStreak:0, saveTimer:null, saving:false, saveAgain:false};
+  const ADSH_DIRTY_KEY=ADSH_LS+'dirty_v1', ADSH_PUSHED_KEY=ADSH_LS+'pushed_v1', ADSH_CONFIRM_MS=3*60*1000;
+  // 미저장 셀(전송 중 포함)을 localStorage 에 — 새로고침·창닫기 후에도 남아서 다시 보낸다
+  function _adshPersistDirty(){
+    const all={};
+    for(const src of [_adsh.inflight,_adsh.dirty]) for(const id of Object.keys(src)){
+      if(src[id] && Object.keys(src[id]).length) all[id]=Object.assign(all[id]||{},src[id]);
+    }
+    try{ localStorage.setItem(ADSH_DIRTY_KEY, JSON.stringify(all)) }catch(e){}
+  }
+  function _adshRestoreDirty(){
+    try{
+      const all=JSON.parse(localStorage.getItem(ADSH_DIRTY_KEY)||'{}')||{};
+      for(const id of Object.keys(all)) _adsh.dirty[id]=Object.assign({},all[id],_adsh.dirty[id]||{});
+    }catch(e){}
+    try{
+      const p=JSON.parse(localStorage.getItem(ADSH_PUSHED_KEY)||'{}')||{}, now=Date.now();
+      for(const id of Object.keys(p)) if(p[id] && now-p[id].ts<ADSH_CONFIRM_MS) _adsh.pushed[id]=p[id];
+    }catch(e){}
+  }
+  function _adshSavePushed(){ try{ localStorage.setItem(ADSH_PUSHED_KEY, JSON.stringify(_adsh.pushed)) }catch(e){} }
+  const _adshHasDirty=()=>[_adsh.dirty,_adsh.inflight].some(src=>Object.keys(src).some(id=>Object.keys(src[id]||{}).length));
+  function _adshSchedule(ms){ clearTimeout(_adsh.saveTimer); _adsh.saveTimer=setTimeout(_adshSave,ms) }
+  _adshRestoreDirty();
 
   function _adshYmd(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
   function _adshAdd(ymd,n){const d=new Date(ymd+'T00:00:00');d.setDate(d.getDate()+n);return _adshYmd(d)}
@@ -23658,17 +23684,34 @@
   function _adshSet(date,k,val){
     const id=_adsh.brand, sh=_adshSheet(id);
     const day=sh.days[date]||(sh.days[date]={});
-    if(val==null) delete day[k]; else day[k]=val;
     // 광고비는 $ / 원 중 하나만 원본으로 보관 (다른 쪽은 환율로 계산)
     const other = k==='usd' ? 'krw' : k==='krw' ? 'usd' : null;
+    // 값이 그대로면 아무것도 안 함 (input 으로 이미 저장된 칸의 change 이벤트 등)
+    if((day[k]==null?null:day[k])===val && !(other && val!=null && day[other]!=null)){
+      if(!Object.keys(day).length) delete sh.days[date];
+      return;
+    }
+    if(val==null) delete day[k]; else day[k]=val;
     const dk=_adsh.dirty[id]||(_adsh.dirty[id]={});
     if(other && val!=null && day[other]!=null){ delete day[other]; dk[date+'|'+other]=null }
     if(!Object.keys(day).length) delete sh.days[date];
     dk[date+'|'+k]=val;
     try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(sh)) }catch(e){}
+    _adshPersistDirty();
     _adshSaveTag('저장 중…');
-    clearTimeout(_adsh.saveTimer);
-    _adsh.saveTimer=setTimeout(_adshSave,50);   // 입력 즉시 저장 (붙여넣기처럼 한 번에 여러 칸이면 한 커밋으로 묶음)
+    _adshSchedule(100);   // 0.1s 디바운스 (붙여넣기처럼 한 번에 여러 칸이면 한 커밋으로 묶음)
+  }
+  /* 타이핑 즉시 저장 — 칸을 벗어나지 않아도 한 글자마다 기록. 입력 중인 칸 값은 건드리지 않는다 */
+  function _adshOnInput(e){
+    const inp=e.target;
+    if(!inp.matches('#adshDaily input')) return;
+    const date=inp.closest('tr').dataset.date, k=ADSH_COLS[+inp.dataset.c].k;
+    let val=_adshNum(inp.value);
+    if(val!=null && val<0 && k!=='rev') val=null;
+    const day=_adshSheet(_adsh.brand).days[date]||{};
+    if(day[k]==null && val==null) return;
+    _adshSet(date,k,val);
+    _adshRefresh();
   }
   function _adshOnChange(e){
     const inp=e.target;
@@ -23746,42 +23789,53 @@
         const dirty=_adsh.dirty[id];
         delete _adsh.dirty[id];
         if(!dirty || !Object.keys(dirty).length) continue;
+        _adsh.inflight[id]=dirty;   // 전송 중에도 localStorage 엔 남겨 둔다 (창이 닫혀도 다음에 재전송)
+        _adshPersistDirty();
         const name=(BRAND_SECTIONS.find(b=>b.id===id)||{}).display||id;
         let ok=false, reason='';
         for(let i=0;i<3 && !ok;i++){
-          const f=await ghGetFile(ADSH_API(id));
-          if(f.error){ reason=f.error; break }
-          let remote={days:{}};
-          try{ if(f.text) remote=JSON.parse(f.text) }catch(e){}
-          remote.days=remote.days||{};
-          _adshApplyDirty(remote.days,dirty);
-          remote.updatedAt=Date.now();
-          const b64=btoa(unescape(encodeURIComponent(JSON.stringify(remote))));
-          const r=await ghPut(ADSH_API(id), b64, `chore: 광고 시트 갱신 (${name})`, {forceMaster:true, noConflictRetry:true, sha:f.sha||null});
-          if(r.ok){
-            ok=true;
-            // 저장 중 새로 친 칸은 아직 dirty — 원격본 위에 다시 얹어 로컬 갱신
-            _adshApplyDirty(remote.days,_adsh.dirty[id]||{});
-            _adsh.sheets[id]=remote;
-            try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(remote)) }catch(e){}
-          }else{ reason=r.reason; if(r.reason!=='conflict') break }
+          try{
+            const f=await ghGetFile(ADSH_API(id));
+            if(f.error){ reason=f.error; break }
+            let remote={days:{}};
+            try{ if(f.text) remote=JSON.parse(f.text) }catch(e){}
+            remote.days=remote.days||{};
+            _adshApplyDirty(remote.days,dirty);
+            remote.updatedAt=Math.max(Date.now(), (remote.updatedAt||0)+1);
+            const b64=btoa(unescape(encodeURIComponent(JSON.stringify(remote))));
+            const r=await ghPut(ADSH_API(id), b64, `chore: 광고 시트 갱신 (${name})`, {forceMaster:true, noConflictRetry:true, sha:f.sha||null});
+            if(r.ok){
+              ok=true;
+              _adsh.pushed[id]={updatedAt:remote.updatedAt, ts:Date.now()};
+              _adshSavePushed();
+              // 저장 중 새로 친 칸은 아직 dirty — 원격본 위에 다시 얹어 로컬 갱신
+              _adshApplyDirty(remote.days,_adsh.dirty[id]||{});
+              _adsh.sheets[id]=remote;
+              try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(remote)) }catch(e){}
+            }else{ reason=r.reason; if(r.reason!=='conflict') break }
+          }catch(e){ reason='fetch'; break }   // 네트워크 순간 끊김 — 아래 재시도로
         }
+        delete _adsh.inflight[id];
         if(!ok){
           _adsh.dirty[id]=Object.assign({},dirty,_adsh.dirty[id]||{});
           failed=reason||'error';
         }
+        _adshPersistDirty();
       }
     }finally{
       _adsh.saving=false;
     }
     if(failed){
+      // 1s → 2s → 4s … 최대 30s 간격으로 계속 재시도 (입력값은 이 PC에 안전하게 남아 있음)
+      _adsh.failStreak=Math.min(_adsh.failStreak+1,6);
+      const wait=Math.min(1000*2**(_adsh.failStreak-1),30000);
       const why={fetch:'서버(맥) 연결 안 됨', auth:'권한 없음', conflict:'동시 저장 충돌'}[failed]||failed;
-      _adshSaveTag(`저장 실패 (${why}) — 이 PC에 보관 중, 30초 뒤 재시도`,true);
-      clearTimeout(_adsh.saveTimer);
-      _adsh.saveTimer=setTimeout(_adshSave,30000);
+      _adshSaveTag(`⚠ 저장 대기 (${why}) — 이 PC에 보관 중, ${Math.round(wait/1000)}초 뒤 재시도`,true);
+      _adshSchedule(wait);
       return;
     }
-    if(_adsh.saveAgain){ _adsh.saveAgain=false; return _adshSave() }
+    _adsh.failStreak=0;
+    if(_adsh.saveAgain || _adshHasDirty()){ _adsh.saveAgain=false; return _adshSave() }
     const d=new Date();
     _adshSaveTag(`✓ 저장됨 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`);
     if(!document.querySelector('#adshDaily input:focus')) _adshRefresh();
@@ -23804,6 +23858,14 @@
     }
     if(!remote) return;
     remote.days=remote.days||{};
+    // 방금 저장한 것보다 옛 원격본(GitHub 캐시 지연)이면 받지 않는다 — 입력값이 옛 값으로 되돌아가는 것 방지
+    const p=_adsh.pushed[id], local=_adsh.sheets[id];
+    if(p && (remote.updatedAt||0) < p.updatedAt && local && local.days){
+      remote=local;
+    }else if(p){
+      delete _adsh.pushed[id]; _adshSavePushed();
+    }
+    _adshApplyDirty(remote.days,_adsh.inflight[id]||{});
     _adshApplyDirty(remote.days,_adsh.dirty[id]||{});
     _adsh.sheets[id]=remote;
     try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(remote)) }catch(e){}
@@ -23831,6 +23893,7 @@
     if(!_adshBound){
       const body=document.getElementById('adshBody');
       if(body){
+        body.addEventListener('input',_adshOnInput);
         body.addEventListener('change',_adshOnChange);
         body.addEventListener('keydown',_adshOnKey);
         body.addEventListener('paste',_adshOnPaste);
@@ -23839,10 +23902,16 @@
     }
     _adshLoadFx().then(()=>{ if(!document.querySelector('#adshDaily input:focus')) _adshRefresh() });
     adshSwitch(_adsh.brand);
+    // 지난번에 못 보낸 셀(새로고침·창닫기·네트워크 끊김)이 있으면 바로 재전송
+    if(_adshHasDirty()) _adshSchedule(0);
   }
-  // 창을 닫기 전에 대기 중인 저장을 바로 보낸다
-  const _adshHasDirty=()=>Object.keys(_adsh.dirty).some(id=>Object.keys(_adsh.dirty[id]).length);
-  window.addEventListener('beforeunload',()=>{ if(_adshHasDirty()) _adshSave() });
+  // 창을 닫기 전에 대기 중인 저장을 바로 보내고, 아직 안 끝났으면 닫기 경고
+  window.addEventListener('beforeunload',e=>{
+    if(!_adshHasDirty()) return;
+    _adshSave();
+    e.preventDefault(); e.returnValue='';
+  });
+  window.addEventListener('pagehide',()=>{ if(_adshHasDirty()) _adshSave() });
   document.addEventListener('visibilitychange',()=>{ if(document.hidden && _adshHasDirty()) _adshSave() });
   /* 저장 버튼 — 입력 중인 칸은 blur 로 change 를 먼저 발생시켜 확정한 뒤 바로 저장 */
   function adshSaveNow(){
