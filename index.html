@@ -10247,6 +10247,7 @@
           <div class="po-section-meta adsh-meta">
             <span class="adsh-fx" id="adshFxTag" title="하나은행 매매기준율 (네이버) · 평일 오전 9시 자동 갱신">환율 —</span>
             <span class="adsh-save" id="adshSaveTag"></span>
+            <button class="btn po-import akoi-refresh-btn" type="button" onclick="adshSaveNow()" title="입력 중인 칸까지 바로 저장">저장</button>
             <div class="adsh-month">
               <button type="button" onclick="adshMoveMonth(-1)" aria-label="이전 달">‹</button>
               <span id="adshMonthLabel">—</span>
@@ -23656,9 +23657,9 @@
     if(!Object.keys(day).length) delete sh.days[date];
     dk[date+'|'+k]=val;
     try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(sh)) }catch(e){}
-    _adshSaveTag('저장 대기…');
+    _adshSaveTag('저장 중…');
     clearTimeout(_adsh.saveTimer);
-    _adsh.saveTimer=setTimeout(_adshSave,1200);
+    _adsh.saveTimer=setTimeout(_adshSave,50);   // 입력 즉시 저장 (붙여넣기처럼 한 번에 여러 칸이면 한 커밋으로 묶음)
   }
   function _adshOnChange(e){
     const inp=e.target;
@@ -23710,7 +23711,7 @@
     });
     inp.blur();
     adshRender();
-    _adshSaveTag(`${n}칸 붙여넣음 · 저장 대기…`);
+    _adshSaveTag(`${n}칸 붙여넣음 · 저장 중…`);
   }
 
   /* ----- 저장 / 불러오기 ----- */
@@ -23765,14 +23766,15 @@
       _adsh.saving=false;
     }
     if(failed){
-      _adshSaveTag(`저장 실패 (${failed}) — 30초 뒤 재시도`,true);
+      const why={fetch:'서버(맥) 연결 안 됨', auth:'권한 없음', conflict:'동시 저장 충돌'}[failed]||failed;
+      _adshSaveTag(`저장 실패 (${why}) — 이 PC에 보관 중, 30초 뒤 재시도`,true);
       clearTimeout(_adsh.saveTimer);
       _adsh.saveTimer=setTimeout(_adshSave,30000);
       return;
     }
     if(_adsh.saveAgain){ _adsh.saveAgain=false; return _adshSave() }
     const d=new Date();
-    _adshSaveTag(`저장됨 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
+    _adshSaveTag(`✓ 저장됨 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`);
     if(!document.querySelector('#adshDaily input:focus')) _adshRefresh();
   }
   async function _adshLoad(id){
@@ -23830,7 +23832,18 @@
     adshSwitch(_adsh.brand);
   }
   // 창을 닫기 전에 대기 중인 저장을 바로 보낸다
-  window.addEventListener('beforeunload',()=>{ if(Object.keys(_adsh.dirty).some(id=>Object.keys(_adsh.dirty[id]).length)) _adshSave() });
+  const _adshHasDirty=()=>Object.keys(_adsh.dirty).some(id=>Object.keys(_adsh.dirty[id]).length);
+  window.addEventListener('beforeunload',()=>{ if(_adshHasDirty()) _adshSave() });
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden && _adshHasDirty()) _adshSave() });
+  /* 저장 버튼 — 입력 중인 칸은 blur 로 change 를 먼저 발생시켜 확정한 뒤 바로 저장 */
+  function adshSaveNow(){
+    const a=document.activeElement;
+    if(a && a.matches && a.matches('#adshDaily input')) a.blur();
+    clearTimeout(_adsh.saveTimer);
+    if(!_adshHasDirty() && !_adsh.saving){ _adshSaveTag('저장할 변경 없음 · 모두 저장됨'); return }
+    _adshSave();
+  }
+  window.adshSaveNow=adshSaveNow;
   window.adshSwitch=adshSwitch;
   window.adshMoveMonth=adshMoveMonth;
   window.adshEnsureLoaded=adshEnsureLoaded;

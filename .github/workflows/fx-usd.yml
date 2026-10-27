@@ -1,8 +1,10 @@
 name: USD 환율 (오전 9시)
 
+# 정시 09:00 기록은 맥미니 launchd(scripts/mac/fx-usd.sh)가 담당.
+# 여기 스케줄은 10:30 백업 — 맥이 못 돌려 오늘 값이 비어 있을 때만 채운다 (덮어쓰지 않음).
 on:
   schedule:
-    - cron: '0 0 * * 1-5'   # 평일 09:00 KST
+    - cron: '30 1 * * 1-5'   # 평일 10:30 KST (백업)
   workflow_dispatch:
     inputs:
       force_today:
@@ -27,7 +29,7 @@ jobs:
           node-version: 20
       - name: 환율 수집
         env:
-          FX_FORCE_TODAY: ${{ (github.event_name == 'schedule' || inputs.force_today) && '1' || '0' }}
+          FX_FORCE_TODAY: ${{ inputs.force_today && '1' || '0' }}
         run: node scripts/fx-usd.mjs
       - name: 커밋
         run: |

@@ -1,5 +1,5 @@
 // 미국 USD 환율(하나은행 매매기준율, 네이버 증권) → data/fx-usd.json
-// GitHub Actions(.github/workflows/fx-usd.yml)가 평일 오전 9시(KST)에 실행.
+// 맥미니 launchd(scripts/mac/fx-usd.sh)가 평일 09:00 실행, GitHub Actions(fx-usd.yml)는 10:30 백업.
 //   - 오늘 날짜: 실행 시점의 현재 고시 환율(= 오전 9시 기준)
 //   - 비어 있는 과거 평일: 네이버 일별 시세(종가)로 백필
 // 주말·공휴일은 기록하지 않는다 → 오피스 광고 시트가 직전 영업일 환율을 쓴다.
