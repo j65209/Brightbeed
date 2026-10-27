@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>/* 아이폰은 글씨 16px 미만 입력 칸을 누르면 화면을 자동 확대함 → iOS 에서만 끔 (손가락으로 확대는 계속 가능) */
+if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){var _vp=document.querySelector('meta[name=viewport]');if(_vp)_vp.content='width=device-width, initial-scale=1.0, maximum-scale=1.0';}</script>
 <title>Bead Universe Co., Ltd. · Office</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -9233,6 +9235,113 @@
     .mds-book-title small{display:none}
     .mds-open{display:none}
     .mds-prio-bar{top:96px}
+  }
+
+  /* =====================================================================
+     모바일 최적화 (2026-10-27) — 폰(375px) 실측 결과 기준. 스타일 맨 끝이라 위 규칙보다 우선.
+     ① 아이폰 입력 확대는 <head> 의 viewport 스크립트에서 처리
+     ② 손가락 터치 영역 ≥ 30px  ③ 잘리는 표 = 첫 열 고정 or 세로 배치  ④ 글씨 ≥ 11px  ⑤ 광고 시트 브랜드 카드 = 가로 칩
+     ===================================================================== */
+  .adsh-m-only{display:none}
+  /* ② 터치 기기 — 마우스 올려야 보이던 버튼은 항상 보이게, 작은 버튼은 키움 */
+  @media (pointer:coarse), (max-width:600px){
+    /* 업무일지 */
+    .dcs-move{opacity:.8}
+    .dcs-move-btn{width:28px;height:22px}
+    .dcs-prio{width:24px;height:24px;font-size:11px}
+    .dcs-req-check,.dcs-plan-check,.dcs-prev-check,.dcs-task-check{width:24px;height:24px}
+    .dcs-plan,.dcs-req{gap:5px;padding-left:6px;padding-right:4px}
+    .dcs-add,.dcs-prev-toggle{min-width:32px;min-height:32px}
+    .dcs-prev-carry{min-height:28px;padding:4px 9px}
+    .dcs-archive-btn{min-height:28px;padding-left:8px;padding-right:8px}
+    .dcs-restore-btn,.diary-today-btn{min-height:32px}
+    .diary-date-input{height:32px}
+    .dcs-req-del,.dcs-plan-del,.dcs-prev-del{opacity:.6;min-width:28px;min-height:30px;padding:0;font-size:14px}
+    .dcs-req-from{padding:6px 10px}
+    /* 공지사항 계정 카드 */
+    .cred-field-btn,.cred-card-actions button{width:34px;height:34px}
+    /* 벤더팀 */
+    .wr-copy-btn{width:32px;height:32px}
+    .wr-row-del{width:34px;height:34px}
+    .wr-input{min-height:32px}
+    .btn-md-cal-nav,.btn-md-cal-nav.md-cal-nav-arrow{height:34px;min-width:40px}
+    /* 마케팅 · 판매 순위 링크 */
+    .best-link-icon{width:34px;height:34px}
+    /* 인사팀 */
+    .leave-recent-del{width:32px;height:32px}
+    .leave-toggle{min-height:32px}
+    /* C/S */
+    .cs-item-actions button,
+    #csFaqList .cs-item:not(.cs-item-editing) .cs-item-actions button{padding:8px 12px;font-size:12px}
+    .dsg-blk-move-btn{min-width:28px;min-height:26px}
+    .dsg-blk-plus{width:26px;height:28px}
+    .pc-tier-del-btn{min-width:30px;min-height:30px}
+    .dsg-fs-btn{min-width:32px;min-height:32px}
+    /* 체크박스 · 라디오 */
+    input[type=checkbox],input[type=radio]{min-width:22px;min-height:22px}
+    /* 광고 시트 */
+    .adsh-month button{padding:8px 12px}
+    .adsh-cur button{padding:7px 12px}
+    .adsh-tbl th,.adsh-tbl td{height:32px}
+    .adsh-tbl td.in input{height:31px}
+    .adsh-plat-del{opacity:1;width:26px;height:26px;line-height:26px}
+  }
+  @media (max-width:600px){
+    /* ③ 잘리는 표 — 첫 열(제품·날짜)을 고정하고 나머지만 옆으로 밀기 */
+    .vm-table th:first-child,.vm-table td:first-child,
+    .ably-tbl th:first-child,.ably-tbl td:first-child{position:sticky;left:0;z-index:1;background:var(--bg-1)}
+    .vm-table th:first-child,.ably-tbl th:first-child{background:var(--bg-2)}
+    .pc-product-table th:nth-child(-n+2),.pc-product-table td:nth-child(-n+2){position:sticky;z-index:1;background:var(--bg-1)}
+    .pc-product-table th:nth-child(1),.pc-product-table td:nth-child(1){left:0;min-width:36px;max-width:36px}
+    .pc-product-table th:nth-child(2),.pc-product-table td:nth-child(2){left:36px}
+    .pc-product-table th:nth-child(-n+2){background:#fff}
+    /* 광고 시트 — 요약 두 표는 세로 배치판으로 교체, 일자별 표는 날짜·요일 고정 */
+    .adsh-d-only{display:none}
+    .adsh-m-only{display:block}
+    .adsh-m-only .adsh-tbl{width:100%;font-size:12px}
+    .adsh-m-only .adsh-tbl td small{display:block;font-size:10.5px;font-weight:600;color:#525252}
+    .adsh-m-only tr.is-now td{background:#fef3c7}
+    .adsh-m-only .adsh-sum-m td:first-child{white-space:normal}
+    #adshDaily th:nth-child(1),#adshDaily td:nth-child(1){position:sticky;left:0;z-index:2;min-width:40px;max-width:40px;background:#fff}
+    #adshDaily th:nth-child(2),#adshDaily td:nth-child(2){position:sticky;left:40px;z-index:2;min-width:24px;max-width:24px;background:#fff;box-shadow:2px 0 0 #bfbfbf}
+    #adshDaily thead th:nth-child(-n+2){background:#d9d9d9}
+    #adshDaily tr.is-total td:first-child{background:#fff2cc;min-width:64px;max-width:64px;box-shadow:2px 0 0 #bfbfbf}
+    #adshDaily tr.is-today td.c{background:#fff2cc}
+
+    /* ④ 작은 글씨 → 11px 이상 */
+    .dcs-num,.dcs-plan-date,.dcs-sec-title-count,.dcs-reset-hint,.dcs-prev-carry,.dcs-team{font-size:11px}
+    .dcs-sec-title{font-size:11.5px}
+    .dcs-req-from{font-size:12px}
+    .cred-card-type{font-size:11px}
+    .md-cal-event{font-size:10.5px}
+    .md-cal-daynum{font-size:11px}
+    .md-cal-more{font-size:10px}
+    .vm-pill-label{font-size:11px}
+    .leave-cycle-badge,.leave-recent-when,.leave-recent-date,.leave-title-badge{font-size:11px}
+    .leave-cal-bar{font-size:10.5px}
+    .pc-product-table th,.pc-field-hint{font-size:11px}
+    .pc-product-table th small{font-size:10px}
+    .ably-kpi-l,.ably-badge{font-size:11px}
+    .sales-updated-tag,.akoi-summary-label,.akoi-summary-card.is-secondary .akoi-summary-label{font-size:11px}
+    .lg-tab-badge{font-size:11px}
+    .signage-eyebrow,.dsg-fs-suffix,.wr-batch-caret,.hero-eyebrow{font-size:11px}
+    .leave-cal-cell .leave-cal-daynum,.leave-cal-daynum{font-size:11px}
+    .dcs-archive-btn{font-size:11px}
+    .pc-product-table th,.pc-product-table th small{font-size:11px}
+    .signage-rank-badge,.signage-brand-badge,.signage-hint-pill,.signage-video-badge,.best-col-site{font-size:11px}
+
+    /* ⑤ 광고 시트 브랜드·플랫폼 카드 — 화면 절반을 차지하던 2열 카드를 가로로 넘기는 칩으로 */
+    .sub-modules.adsh-brands{display:flex;grid-template-columns:none;overflow-x:auto;gap:8px;margin:0 -16px 12px;padding:2px 16px 6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .sub-modules.adsh-brands::-webkit-scrollbar{display:none}
+    .adsh-brands .sub-module{flex:0 0 auto;flex-direction:row;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;scroll-snap-align:start;min-height:40px}
+    .adsh-brands .sub-module.is-active{padding:8px 13px}
+    .adsh-brands .sub-module-icon{width:auto;height:auto;margin:0}
+    .adsh-brands .sub-module-icon .sixstock-brand-dot{width:9px;height:9px}
+    .adsh-brands .sub-module-title{font-size:13px;white-space:nowrap}
+    .adsh-brands .sub-module-tag{position:static;font-size:11px;padding:1px 6px}
+    .adsh-brands:not(.is-plat) .sub-module-tag{display:none}   /* 공홈 칩은 테두리로 선택 표시 · 플랫폼 칩은 플랫폼명이 구분값이라 항상 표시 */
+    .adsh-brands .adsh-plat-del{position:static;margin:0 -6px 0 2px}
+    .adsh-brands .adsh-plat-add{border-radius:999px}
   }
 </style>
 </head>
@@ -23791,6 +23900,7 @@
     // 홈 "일일 브랜드 리포트" 카드와 같은 모양 (sub-module) — 선택된 브랜드는 테두리·태그를 브랜드 색으로
     // 플랫폼 카드 = 직접 추가한 목록(_platforms.json) · 태그 = 플랫폼명 · ✕ 삭제 · 맨 끝 "+ 플랫폼 추가"
     const plat=_adshIsPlat();
+    wrap.classList.toggle('is-plat',plat);
     wrap.innerHTML=(plat?_adshPlatList():BRAND_SECTIONS).map(b=>{
       const on=b.id===_adsh.brand;
       const tag=plat ? `${b.group}${on?' · 보는 중':''}` : (on?'보는 중':'광고 시트');
@@ -23837,9 +23947,12 @@
     const cell=(a,k,f)=>`<td>${f==='p'?_adshPct(a[k]):f==='r'?_adshPct(a[k],0):_adshFmt(a[k],f)}</td>`;
     const row=(label,a)=>`<tr><td class="c">${label}</td>${keys.map(([k,f])=>cell(a,k,f)).join('')}</tr>`;
     return `<div class="adsh-h">전주대비 광고요약 <small>금주 ${_adshMd(_adshAdd(end,-6))}~${_adshMd(end)} · 전주 ${_adshMd(_adshAdd(end,-13))}~${_adshMd(_adshAdd(end,-7))}</small></div>
-      <div class="adsh-scroll"><table class="adsh-tbl"><thead><tr><th>구분</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>평균CPC<small>(원)</small></th><th>총광고비</th><th>전환수</th><th>전환율</th><th>매출</th><th>ROAS<small>(%)</small></th></tr></thead>
+      <div class="adsh-scroll adsh-d-only"><table class="adsh-tbl"><thead><tr><th>구분</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>평균CPC<small>(원)</small></th><th>총광고비</th><th>전환수</th><th>전환율</th><th>매출</th><th>ROAS<small>(%)</small></th></tr></thead>
       <tbody>${row('금주',cur)}${row('전주',prev)}
-      <tr class="is-diff"><td class="c">전주대비 증감율</td>${keys.map(([k])=>_adshDiffCell(cur[k],prev[k])).join('')}</tr></tbody></table></div>`;
+      <tr class="is-diff"><td class="c">전주대비 증감율</td>${keys.map(([k])=>_adshDiffCell(cur[k],prev[k])).join('')}</tr></tbody></table></div>
+      <div class="adsh-m-only"><table class="adsh-tbl adsh-sum-m"><thead><tr><th>지표</th><th>금주</th><th>전주</th><th>증감</th></tr></thead><tbody>
+      ${keys.map(([k,f],i)=>`<tr><td class="c">${['노출수','클릭수','클릭률','평균CPC(원)','총광고비','전환수','전환율','매출','ROAS'][i]}</td>${cell(cur,k,f)}${cell(prev,k,f)}${_adshDiffCell(cur[k],prev[k])}</tr>`).join('')}
+      </tbody></table></div>`;
   }
   /* 막대(왼쪽 축) + 꺾은선(오른쪽 축) 콤보 차트 — 엑셀 기본 색 */
   function _adshNiceMax(v){
@@ -23954,9 +24067,13 @@
     const th=weeks.map((w,i)=>`<th${w.s<=today&&today<=w.e?' class="is-now"':''}>${i+1}주<small>${_adshMd(w.s)}~${_adshMd(w.e)}</small></th>`).join('');
     const row=(label,f)=>`<tr><td class="c">${label}</td>${weeks.map(w=>`<td>${w.a.n?f(w.a):'-'}</td>`).join('')}</tr>`;
     return `<div class="adsh-h">주차별 요약 <small>월~일 기준</small></div>
-      <div class="adsh-scroll"><table class="adsh-tbl adsh-weeks"><thead><tr><th>구분</th>${th}</tr></thead><tbody>
+      <div class="adsh-scroll adsh-d-only"><table class="adsh-tbl adsh-weeks"><thead><tr><th>구분</th>${th}</tr></thead><tbody>
       ${row('광고비',a=>_adshFmt(a.krw))}${row('매출',a=>_adshFmt(a.rev))}
-      <tr class="is-diff"><td class="c">ROAS</td>${weeks.map(w=>`<td>${w.a.n?_adshPct(w.a.roas,0):'-'}</td>`).join('')}</tr></tbody></table></div>`;
+      <tr class="is-diff"><td class="c">ROAS</td>${weeks.map(w=>`<td>${w.a.n?_adshPct(w.a.roas,0):'-'}</td>`).join('')}</tr></tbody></table></div>
+      <div class="adsh-m-only"><table class="adsh-tbl adsh-weeks"><thead><tr><th>주차</th><th>광고비</th><th>매출</th><th>ROAS</th></tr></thead><tbody>
+      ${weeks.map((w,i)=>`<tr${w.s<=today&&today<=w.e?' class="is-now"':''}><td class="c">${i+1}주<small>${_adshMd(w.s)}~${_adshMd(w.e)}</small></td>
+        <td>${w.a.n?_adshFmt(w.a.krw):'-'}</td><td>${w.a.n?_adshFmt(w.a.rev):'-'}</td><td class="b">${w.a.n?_adshPct(w.a.roas,0):'-'}</td></tr>`).join('')}
+      </tbody></table></div>`;
   }
   function _adshTotalHtml(){
     const a=_adshAgg(_adshMonthDates());
