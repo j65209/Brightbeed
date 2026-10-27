@@ -7394,8 +7394,9 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-ph-n{position:absolute;right:3px;bottom:3px;font-size:9.5px;font-weight:800;line-height:1.5;color:#fff;background:rgba(28,25,23,.62);border-radius:5px;padding:0 4px}
   .lsb-ph.is-broken,.lsb-gal a.is-broken{display:none}
   .lsb-cb{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px}
-  .lsb-c1{display:flex;align-items:flex-start;gap:8px;min-width:0}
-  .lsb-cn{flex:1;min-width:0;font-size:13.5px;font-weight:800;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* 이름 칸이 7em 보다 좁아지면 날짜 배지는 이름 아래 줄로 내려간다 (좁은 화면에서 이름이 몇 글자만 남지 않게) */
+  .lsb-c1{display:flex;flex-wrap:wrap;align-items:flex-start;gap:3px 8px;min-width:0}
+  .lsb-cn{flex:1 1 7em;min-width:0;font-size:13.5px;font-weight:800;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lsb-card.is-open .lsb-cn{white-space:normal}
   .lsb-badge{flex:none;display:inline-flex;align-items:baseline;gap:4px;font-size:11.5px;font-weight:800;line-height:1.5;padding:1px 8px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .lsb-badge small{font-size:10.5px;font-weight:700;opacity:.85}
@@ -7435,6 +7436,13 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-empty{grid-column:1/-1;padding:24px 6px;text-align:center;font-size:13px;color:var(--lsb-tx3)}
   .lsb-empty .lsb-btn{margin-left:6px}
   .lsb.is-fold .lsb-tabs,.lsb.is-fold .lsb-cols{display:none}
+  /* 기획·요청은 카드가 많아 두 칸 너비에 카드 2열 (1200px 이상만 — 그보다 좁으면 옆 두 열의 카드 이름이 잘린다).
+     시즌 구분선·빈 칸 안내·펼친 카드는 두 열을 다 쓴다 */
+  @media (min-width:1200px){
+    .lsb-cols:not(.is-hold){grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}
+    .lsb-col.c-plan .lsb-col-b{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start}
+    .lsb-col.c-plan .lsb-sg,.lsb-col.c-plan .lsb-col-empty,.lsb-col.c-plan .lsb-card.is-open{grid-column:1/-1}
+  }
   @media (max-width:1100px) and (min-width:701px){
     .lsb-cols:not(.is-hold){gap:8px}
     .lsb-ph{width:48px;height:48px}
