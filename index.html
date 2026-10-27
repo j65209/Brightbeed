@@ -11989,14 +11989,14 @@
      "책상 5개 중 몇 명 근무 중" 관점. 미루(재고팀)는 alwaysOn 이라 항상 근무 카운트. */
   const AGENTS_CHARACTERS = [
     {id:'chief',     name:'리안',   team:'본부',     taskLabel:'전 에이전트 자동업무 검수', schedule:'상시 감시',    agentIds:['kd-brightbeed','kd-shinebeed','vendor-fetch','withdrawal-nag','pro-sales','admin-sales','platform-sales','brand-report','bestsellers','ably-daily','fb-ads','ably-ads','fx-usd']},
-    {id:'logistics', name:'콜리',   team:'물류팀',   taskLabel:'콰이디에어 동기화',        schedule:'매 10분',       agentIds:['kd-brightbeed','kd-shinebeed']},
-    {id:'stock',     name:'미루',   team:'재고팀',   taskLabel:'식스샵 재고 관리',         schedule:'상시 대응',     agentIds:[], alwaysOn:true},
-    {id:'vendor',    name:'노아',   team:'벤더팀',   taskLabel:'벤더 마진 시트 · 출금 알림', schedule:'매 10분',       agentIds:['vendor-fetch','withdrawal-nag']},
-    {id:'marketing', name:'자스민', team:'매출팀',   taskLabel:'매출 수집',               schedule:'매 30분',       agentIds:['pro-sales','admin-sales','platform-sales']},
-    {id:'ads',       name:'오스카', team:'광고팀',   taskLabel:'메타 광고 성과 수집',      schedule:'매 30분',       agentIds:['fb-ads']},
-    {id:'plat_ads',  name:'루나',   team:'플랫폼광고팀', taskLabel:'에이블리 광고 · 환율',   schedule:'매일 8시',      agentIds:['ably-ads','fx-usd']},
-    {id:'report',    name:'릴리',   team:'리포트팀', taskLabel:'에이블리 일일 보고서',     schedule:'매일 7:10',     agentIds:['ably-daily']},
-    {id:'planning',  name:'아이비', team:'기획팀',   taskLabel:'판매 순위 · 브랜드 리포트', schedule:'매 30분',      agentIds:['brand-report','bestsellers']},
+    {id:'logistics', name:'콜리',   team:'MD2팀',   taskLabel:'콰이디에어 동기화',        schedule:'매 10분',       agentIds:['kd-brightbeed','kd-shinebeed']},
+    {id:'stock',     name:'미루',   team:'MD2팀',   taskLabel:'식스샵 재고 관리',         schedule:'상시 대응',     agentIds:[], alwaysOn:true},
+    {id:'vendor',    name:'노아',   team:'MD2팀',   taskLabel:'벤더 마진 시트 · 출금 알림', schedule:'매 10분',       agentIds:['vendor-fetch','withdrawal-nag']},
+    {id:'marketing', name:'자스민', team:'MD1팀',   taskLabel:'매출 수집',               schedule:'매 30분',       agentIds:['pro-sales','admin-sales','platform-sales']},
+    {id:'ads',       name:'오스카', team:'MD1팀',   taskLabel:'메타 광고 성과 수집',      schedule:'매 30분',       agentIds:['fb-ads']},
+    {id:'plat_ads',  name:'루나',   team:'MD1팀', taskLabel:'에이블리 광고 · 환율',   schedule:'매일 8시',      agentIds:['ably-ads','fx-usd']},
+    {id:'report',    name:'릴리',   team:'MD1팀', taskLabel:'에이블리 일일 보고서',     schedule:'매일 7:10',     agentIds:['ably-daily']},
+    {id:'planning',  name:'아이비', team:'MD1팀',   taskLabel:'판매 순위 · 브랜드 리포트', schedule:'매 30분',      agentIds:['brand-report','bestsellers']},
   ];
   async function loadAgentsMini(){
     const runN = document.getElementById('agentsRunningN');
