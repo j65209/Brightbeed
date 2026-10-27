@@ -34320,7 +34320,8 @@
       +`<br>수수료는 ${_ablyEsc(a.fee_basis||'최근 정산 내역')}의 평균 수수료율로 추정한 값이에요. 원가는 포함하지 않았어요.`;
 
     const evs=rep.events||[];
-    document.getElementById('ablyEvN').textContent=evs.length?`${evs.filter(e=>e.state==='진행중').length}개 진행 · ${evs.filter(e=>e.state==='예정').length}개 예정`:'';
+    const _evCnt=st=>evs.filter(e=>e.state===st).length;
+    document.getElementById('ablyEvN').textContent=evs.length?[['진행중','진행'],['승인대기','승인대기'],['예정','예정']].filter(([st])=>_evCnt(st)).map(([st,l])=>`${_evCnt(st)}개 ${l}`).join(' · '):'';
     document.getElementById('ablyEvents').innerHTML=evs.length
       ? '<div class="ably-ev">'+evs.map(e=>`<div class="ably-ev-card"><div class="t"><span class="ably-badge ${e.state==='진행중'?'on':'soon'}">${_ablyEsc(e.state)}</span>${_ablyEsc(e.name)}</div><div class="d">${_ablyDay(e.start)} ~ ${_ablyDay(e.end)} · 승인 ${_ablyW(e.approved_goods)}/${_ablyW(e.applied_goods)}개 상품${e.applied_status==='pending_approval'?' · 승인 대기':''}</div></div>`).join('')+'</div>'
       : '<div class="ably-empty">참여 중이거나 예정된 기획전이 없어요.</div>';
