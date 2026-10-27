@@ -388,7 +388,7 @@ const CHARACTERS = [
     taskLabel:'전 에이전트 자동업무 검수', scheduleLabel:'상시 감시', intervalSec:1800,
     role:'자동화 검수관 · 이상 감지',
     knows:[
-      'MD1팀(브랜드 · 자스민·오스카·루나·릴리·아이비)과 MD2팀(벤더 · 콜리·미루·노아) 전 직원의 launchd 스케줄과 last_run 을 상시 추적',
+      '모든 에이전트(콜리·미루·노아·자스민·오스카·루나·릴리·아이비)의 launchd 스케줄과 last_run 을 상시 추적',
       '검수 기준 · 주기 1배 이내=정상 / 1~2배=곧 실행 / 2배 초과=이상',
       '이상 발견 시 담당 에이전트 · 마지막 성공 시각 · 원인을 근거로 브리핑',
       '검수는 관찰만 · 파이프라인 재실행·설정 변경은 사장님 지시 대기',
@@ -401,11 +401,11 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'logistics', name:'콜리', team:'MD2팀',
+    id:'logistics', name:'콜리', team:'물류팀',
     hairColor:'#2c1810', cloth:'#7c3aed',
     agentIds:['kd-brightbeed','kd-shinebeed'],
     taskLabel:'콰이디에어 동기화 업무', scheduleLabel:'매 10분', intervalSec:600,
-    role:'물류 담당 · 콰이디에어 배송·통관 전문',
+    role:'콰이디에어 배송·통관 전문',
     knows:[
       '브라이트비드(BB)·샤인비드(SB) 2계정을 각각 10분마다 pull',
       '주문번호·운송장·통관 상태 매칭, 중복 주문 제거',
@@ -418,11 +418,11 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'stock', name:'미루', team:'MD2팀',
+    id:'stock', name:'미루', team:'재고팀',
     hairColor:'#3b2416', cloth:'#0ea5e9',
     agentIds:[], alwaysOn:true,
     taskLabel:'식스샵 재고 관리 업무', scheduleLabel:'상시 대응', manual:true,
-    role:'재고 담당 · 식스샵 재고 조회·수정 전문',
+    role:'식스샵 재고 조회·수정 전문',
     knows:[
       '식스에이·클리어타입·야르·코페리·아페티 재고를 실시간 조회',
       '재고 수정은 식스에이(6thanother) 옵션 단위로 직접 반영',
@@ -437,11 +437,11 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'vendor', name:'노아', team:'MD2팀',
+    id:'vendor', name:'노아', team:'벤더팀',
     hairColor:'#1a1a1a', cloth:'#4f46e5',
     agentIds:['vendor-fetch','withdrawal-nag'],
     taskLabel:'벤더 데이터 · 출금 요청 알림', scheduleLabel:'매 10분 · 알림 매시간', intervalSec:600,
-    role:'벤더 담당 · 마진·원가·출금 요청',
+    role:'벤더 마진·원가 데이터 전문',
     knows:[
       'vMargin·gcCal 원본을 10분 주기로 갱신',
       '첫 로드 + 30분 게이트 / 실패 시 5분 재시도 패턴',
@@ -455,11 +455,11 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'marketing', name:'자스민', team:'MD1팀',
+    id:'marketing', name:'자스민', team:'매출팀',
     hairColor:'#2c1810', cloth:'#65a30d',
     agentIds:['pro-sales','admin-sales','platform-sales'],
     taskLabel:'매출 수집 업무', scheduleLabel:'매 30분', intervalSec:1800,
-    role:'매출 담당 · 전 브랜드·전 채널 매출 데이터',
+    role:'전 브랜드·전 채널 매출 데이터 총괄',
     knows:[
       '식스샵프로(Pro) · 식스샵 admin · 외부 플랫폼(에이블리·지그재그·스마트스토어) 매출 30분 주기 수집',
       'Pro item/top 은 자사몰만 집계 — 외부채널은 별도 플랫폼 데이터로 커버',
@@ -472,11 +472,11 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'ads', name:'오스카', team:'MD1팀',
+    id:'ads', name:'오스카', team:'광고팀',
     hairColor:'#1e1a17', cloth:'#ea580c',
     agentIds:['fb-ads'],
     taskLabel:'메타 광고 성과 업무', scheduleLabel:'매 30분', intervalSec:1800,
-    role:'광고 담당 · 메타(페이스북) 광고 성과',
+    role:'메타(페이스북) 광고 성과 전문',
     knows:[
       '구매 지표는 omni_purchase 하나만 사용 — 다른 action_type 합산은 중복',
       '지출·구매·ROAS·CPA 를 브랜드별로 분리 집계',
@@ -490,11 +490,11 @@ const CHARACTERS = [
   },
   /* 2026-10-27 — 자동 업무가 늘어 직원 3명 추가 (아이비·릴리는 대화 인격이 이미 프록시에 있었음) */
   {
-    id:'plat_ads', name:'루나', team:'MD1팀',
+    id:'plat_ads', name:'루나', team:'플랫폼광고팀',
     hairColor:'#2a1b14', cloth:'#e11d48',
     agentIds:['ably-ads','fx-usd'],
     taskLabel:'에이블리 광고 · 환율 업무', scheduleLabel:'에이블리 매일 8시 · 환율 평일 9시', cronH:8, cronM:0,
-    role:'플랫폼 광고 담당 · 에이블리 광고·광고 시트 자동 입력',
+    role:'플랫폼(에이블리) 광고 성과 · 광고 시트 자동 입력',
     knows:[
       '코페리·아페티 에이블리 광고를 매일 아침 8시 광고 관리자에서 받아 광고 시트 플랫폼 탭에 자동 입력',
       '노출·클릭·광고비·전환수·전환매출(원화) — 지난달 1일~오늘을 광고 관리자 값으로 맞춤',
@@ -508,11 +508,11 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'report', name:'릴리', team:'MD1팀',
+    id:'report', name:'릴리', team:'리포트팀',
     hairColor:'#3b2416', cloth:'#0891b2',
     agentIds:['ably-daily'],
     taskLabel:'에이블리 일일 보고서 업무', scheduleLabel:'매일 7:10', cronH:7, cronM:10,
-    role:'리포트 담당 · 일일 보고서·웹 리서치',
+    role:'일일 보고서 · 웹 리서치 리포트',
     knows:[
       '코페리 에이블리 일일 보고서 — 매일 아침 07:10 전날 주문·정산 추정·광고비·원가·순이익 정리',
       '보고서는 업무용 툴 "에이블리 일일 보고서"에서 확인',
@@ -524,11 +524,11 @@ const CHARACTERS = [
     ],
   },
   {
-    id:'planning', name:'아이비', team:'MD1팀',
+    id:'planning', name:'아이비', team:'기획팀',
     hairColor:'#4a2c1a', cloth:'#db2777',
     agentIds:['brand-report','bestsellers'],
     taskLabel:'판매 순위 · 브랜드 리포트 업무', scheduleLabel:'판매 순위 30분 · 리포트 8·12·18시', intervalSec:1800,
-    role:'기획 담당 · 판매 순위·리오더·브랜드 분석',
+    role:'리오더·핫아이템 · 브랜드 분석',
     knows:[
       '브랜드별 판매 순위(TOP10) 30분 주기 수집',
       '브랜드별 TOP10·리오더·핫아이템 리포트 — 매일 8·12·18시 (admin v2 orders 는 세션 살아있어야 응답)',
@@ -570,17 +570,6 @@ function saveOverride(id, changes){
   o[id] = Object.assign(o[id]||{}, changes);
   localStorage.setItem(OVERRIDES_KEY, JSON.stringify(o));
 }
-/* 2026-10-27 MD1팀·MD2팀 재편 — 예전에 이 PC에서 직접 바꿔 둔 부서명이 남아 있으면 새 팀 묶음이 안 보이므로 1회만 비운다 (이름 수정은 유지) */
-(function(){
-  const FLAG = 'agents_overrides_md_teams_v1';
-  try{
-    if(localStorage.getItem(FLAG)) return;
-    const o = loadOverrides();
-    Object.keys(o).forEach(id => { if(o[id] && 'team' in o[id]){ delete o[id].team; if(!Object.keys(o[id]).length) delete o[id]; } });
-    localStorage.setItem(OVERRIDES_KEY, JSON.stringify(o));
-    localStorage.setItem(FLAG, '1');
-  }catch(e){}
-})();
 function displayName(c){ return (loadOverrides()[c.id]?.name) || c.name; }
 function displayTeam(c){ return (loadOverrides()[c.id]?.team) || c.team; }
 
@@ -828,7 +817,6 @@ function deskSvg(c){
    분석·마케팅·리포트·기획으로 이어짐. 값이 낮을수록 위로. */
 const _TEAM_ORDER = {
   '본부':0,
-  'MD1팀':1, 'MD2팀':2,   // 2026-10-27 AI 직원을 MD1팀(브랜드)·MD2팀(벤더)로 재편
   '물류팀':1, '재고팀':2, '벤더팀':3,
   '매출팀':4, '마케팅팀':4, '광고팀':5, '플랫폼광고팀':5, '리포트팀':6, '기획팀':7,
 };
