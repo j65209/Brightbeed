@@ -7319,126 +7319,149 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     .qt-grid{grid-template-columns:1fr}
     .qt-search{width:100%}
   }
-  /* ── 디자인센터 전광판 (구글시트 COFERRY LINE SHEET) — 어두운 판 + 앰버/그린 글자 ── */
-  .lsb{--lsb-bg:#0e1116;--lsb-panel:#161b22;--lsb-line:#262d36;--lsb-tx:#e8edf2;--lsb-tx2:#a3aebb;--lsb-tx3:#6e7a88;
-    --lsb-amber:#ffb547;--lsb-green:#3ddc97;--lsb-blue:#79b8ff;--lsb-red:#ff7b72;
-    background:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1.3px) 0 0/6px 6px,var(--lsb-bg);
-    color:var(--lsb-tx);border-radius:16px;padding:14px 16px 12px;margin-bottom:18px;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 24px rgba(15,23,42,.12);overflow:hidden}
+  /* ── 디자인센터 보드맵 (구글시트 COFERRY LINE SHEET) — 3열 단계판: 기획·요청 → 샘플 진행 → 발주 확정 ── */
+  .lsb{--lsb-line:#ebe7e1;--lsb-col:#f6f4f1;--lsb-tx:#1c1917;--lsb-tx2:#57534e;--lsb-tx3:#a29b93;
+    --lsb-plan:#a8b3c4;--lsb-sample:#f59e0b;--lsb-order:#10b981;--lsb-red:#ef4444;
+    background:#fff;border:1px solid var(--lsb-line);border-radius:16px;padding:14px 16px 16px;margin-bottom:18px;color:var(--lsb-tx);
+    box-shadow:0 1px 2px rgba(28,25,23,.04);overflow:hidden}
   .lsb-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .lsb-live{display:inline-flex;align-items:center;gap:6px;font:800 11px/1 var(--sans);letter-spacing:.14em;color:var(--lsb-red)}
-  .lsb-live i{width:8px;height:8px;border-radius:50%;background:var(--lsb-red);box-shadow:0 0 8px var(--lsb-red);animation:lsbPulse 1.6s ease-in-out infinite}
+  .lsb-live{display:inline-flex;align-items:center;gap:6px;font:800 11px/1 var(--sans);letter-spacing:.12em;color:var(--lsb-red)}
+  .lsb-live i{width:8px;height:8px;border-radius:50%;background:var(--lsb-red);box-shadow:0 0 0 3px rgba(239,68,68,.16);animation:lsbPulse 1.6s ease-in-out infinite}
   .lsb.is-err .lsb-live{color:var(--lsb-tx3)}
   .lsb.is-err .lsb-live i{background:var(--lsb-tx3);box-shadow:none;animation:none}
-  .lsb-name{font-weight:800;font-size:15px;letter-spacing:.08em;white-space:nowrap}
+  .lsb-name{font-weight:800;font-size:16px;white-space:nowrap}
   .lsb-stamp{font-size:12px;color:var(--lsb-tx3);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .lsb.is-err .lsb-stamp{color:var(--lsb-amber)}
+  .lsb.is-err .lsb-stamp{color:#b45309}
   .lsb-sp{flex:1}
-  .lsb-btn{font:600 12px var(--sans);color:var(--lsb-tx2);background:transparent;border:1px solid var(--lsb-line);border-radius:8px;padding:5px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;line-height:1.3}
-  .lsb-btn:hover{color:var(--lsb-tx);border-color:#3c4652}
-  .lsb-btn:focus-visible,.lsb-tab:focus-visible,.lsb-dot:focus-visible,.lsb-ticker:focus-visible{outline:2px solid var(--lsb-amber);outline-offset:2px}
-  .lsb-ticker{margin-top:10px;padding:8px 0;border-top:1px solid var(--lsb-line);border-bottom:1px solid var(--lsb-line);overflow:hidden;white-space:nowrap;
-    -webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}
+  .lsb-btn{font:600 12px var(--sans);color:var(--lsb-tx2);background:#fff;border:1px solid var(--lsb-line);border-radius:8px;padding:5px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;line-height:1.3}
+  .lsb-btn:hover{color:var(--lsb-tx);border-color:#d6d0c8}
+  .lsb-btn:focus-visible,.lsb-tab:focus-visible,.lsb-lg:focus-visible,.lsb-ticker:focus-visible,.lsb-link:focus-visible{outline:2px solid var(--lsb-sample);outline-offset:2px}
+  /* 시즌 */
+  .lsb-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .lsb-tab{display:inline-flex;align-items:baseline;gap:6px;font:600 13px var(--sans);color:var(--lsb-tx2);background:#fff;border:1px solid var(--lsb-line);border-radius:999px;padding:6px 13px;cursor:pointer;white-space:nowrap}
+  .lsb-tab b{font-weight:800;color:var(--lsb-tx)}
+  .lsb-tab span{font-size:11.5px;font-weight:700;color:var(--lsb-tx3);font-variant-numeric:tabular-nums}
+  .lsb-tab:hover{border-color:#d6d0c8}
+  .lsb-tab.is-on{background:var(--lsb-tx);border-color:var(--lsb-tx)}
+  .lsb-tab.is-on b{color:#fff}
+  .lsb-tab.is-on span{color:#d6d3d1}
+  .lsb-tab.t-hold{margin-left:auto}
+  /* 단계 막대 + 범례 */
+  .lsb-flow{margin-top:14px}
+  .lsb-bar{display:flex;gap:3px;height:8px;border-radius:99px;overflow:hidden;background:var(--lsb-col)}
+  .lsb-bar i{display:block;min-width:6px}
+  .lsb-legend{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin-top:8px}
+  .lsb-lg{display:inline-flex;align-items:center;gap:6px;font:600 12.5px var(--sans);color:var(--lsb-tx2);background:none;border:0;padding:2px 0;cursor:pointer}
+  .lsb-lg i{width:9px;height:9px;border-radius:3px}
+  .lsb-lg b{font-weight:800;color:var(--lsb-tx);font-variant-numeric:tabular-nums}
+  .lsb-lg:hover{color:var(--lsb-tx)}
+  .lsb-sum{margin-left:auto;font-size:12px;color:var(--lsb-tx3);white-space:nowrap}
+  .lsb-sum b{color:#b45309;font-weight:800}
+  .lsb-bar .c-plan,.lsb-lg.c-plan i,.lsb-col.c-plan .lsb-col-h i{background:var(--lsb-plan)}
+  .lsb-bar .c-sample,.lsb-lg.c-sample i,.lsb-col.c-sample .lsb-col-h i{background:var(--lsb-sample)}
+  .lsb-bar .c-order,.lsb-lg.c-order i,.lsb-col.c-order .lsb-col-h i{background:var(--lsb-order)}
+  /* 다음 일정 띠 */
+  .lsb-next{display:flex;align-items:center;gap:10px;margin-top:12px;padding:7px 12px;border-radius:10px;background:var(--lsb-col)}
+  .lsb-next-l{flex:none;font-size:11.5px;font-weight:800;color:var(--lsb-tx2)}
+  .lsb-ticker{flex:1;min-width:0;overflow:hidden;white-space:nowrap;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent)}
   .lsb-track,.lsb-dup{display:inline-flex}
-  .lsb-track{padding-left:6px}
+  .lsb-track{padding-left:4px}
   .lsb-track.is-run{padding-left:0;animation:lsbMarquee var(--lsb-dur,40s) linear infinite}
   .lsb-ticker:hover .lsb-track,.lsb-ticker:focus .lsb-track{animation-play-state:paused}
-  .lsb-ev{font-size:13px;color:var(--lsb-tx);margin-right:30px}
+  .lsb-ev{display:inline-flex;align-items:center;font-size:12.5px;color:var(--lsb-tx);margin-right:28px}
   .lsb-ev b{font-weight:800;margin-right:7px;font-variant-numeric:tabular-nums}
-  .lsb-ev .sn{color:var(--lsb-tx3);margin-right:6px}
-  .lsb-ev em{font-style:normal;color:var(--lsb-tx2)}
-  .lsb-ev-due b{color:var(--lsb-amber);text-shadow:0 0 10px rgba(255,181,71,.45)}
-  .lsb-ev-arr b,.lsb-ev-order b{color:var(--lsb-green)}
-  .lsb-ev-req b{color:var(--lsb-blue)}
+  .lsb-ev em{font-style:normal;color:var(--lsb-tx2);margin-left:5px}
+  .lsb-ev .sn{color:var(--lsb-tx3);margin-left:5px}
+  .lsb-ev-due b{color:#b45309}
+  .lsb-ev-arr b,.lsb-ev-order b{color:#047857}
+  .lsb-ev-req b{color:#1d4ed8}
+  .lsb-ev-im{width:20px;height:20px;border-radius:50%;object-fit:contain;background:#fff;box-shadow:0 0 0 1px var(--lsb-line);margin-right:6px}
   @keyframes lsbMarquee{to{transform:translateX(-50%)}}
-  @keyframes lsbPulse{50%{opacity:.3}}
-  @keyframes lsbFade{from{opacity:.25;transform:translateY(4px)}}
-  .lsb-tabs{display:flex;gap:6px;margin-top:12px;overflow-x:auto;scrollbar-width:none}
-  .lsb-tabs::-webkit-scrollbar{display:none}
-  .lsb-tab{flex:none;display:inline-flex;align-items:baseline;gap:7px;font:600 13px var(--sans);color:var(--lsb-tx2);background:var(--lsb-panel);border:1px solid var(--lsb-line);border-radius:999px;padding:6px 13px;cursor:pointer;white-space:nowrap}
-  .lsb-tab b{font-weight:800;color:var(--lsb-tx);letter-spacing:.04em}
-  .lsb-tab span{font-size:11.5px;color:var(--lsb-tx3);font-variant-numeric:tabular-nums}
-  .lsb-tab:hover{border-color:#3c4652}
-  .lsb-tab.is-on{border-color:var(--lsb-amber);background:rgba(255,181,71,.1)}
-  .lsb-tab.is-on b{color:var(--lsb-amber)}
-  .lsb-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:10px}
-  .lsb-kpis.is-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .lsb-kpi{background:var(--lsb-panel);border:1px solid var(--lsb-line);border-radius:10px;padding:8px 12px;text-align:center}
-  .lsb-kpi span{display:block;font-size:11.5px;font-weight:600;color:var(--lsb-tx3);white-space:nowrap}
-  .lsb-kpi b{display:block;font-size:24px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--lsb-tx)}
-  .lsb-kpi.k-due b{color:var(--lsb-amber);text-shadow:0 0 14px rgba(255,181,71,.4)}
-  .lsb-kpi.k-arr b,.lsb-kpi.k-order b{color:var(--lsb-green);text-shadow:0 0 14px rgba(61,220,151,.3)}
-  .lsb-kpi.k-req b{color:var(--lsb-blue)}
-  .lsb-kpi.k-hold b{color:var(--lsb-red)}
-  .lsb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;margin-top:10px}
-  .lsb-grid.is-fade{animation:lsbFade .35s ease}
-  .lsb-tile{min-width:0;display:flex;flex-wrap:wrap;gap:11px;background:var(--lsb-panel);border:1px solid var(--lsb-line);border-radius:10px;padding:10px 12px;cursor:pointer}
-  .lsb-tile:hover{border-color:#3c4652}
-  .lsb-tile:focus{outline:none}
-  .lsb-tile:focus-visible{outline:2px solid var(--lsb-amber);outline-offset:2px}
-  .lsb-tile.is-open{border-color:rgba(255,181,71,.45)}
-  .lsb-tb{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
-  .lsb-ph{position:relative;flex:none;width:84px;height:84px;border-radius:8px;background:#f3f2ef;overflow:hidden}
+  @keyframes lsbPulse{50%{opacity:.35}}
+  /* 3열 */
+  .lsb-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+  .lsb-col{min-width:0;display:flex;flex-direction:column;background:var(--lsb-col);border-radius:12px;padding:10px}
+  .lsb-col-h{display:flex;align-items:center;gap:7px;padding:2px 4px 10px}
+  .lsb-col-h i{flex:none;width:9px;height:9px;border-radius:3px}
+  .lsb-col-h b{font-size:13.5px;font-weight:800;white-space:nowrap}
+  .lsb-col-h span{font-size:12px;font-weight:800;color:var(--lsb-tx2);background:#fff;border-radius:99px;padding:1px 8px;font-variant-numeric:tabular-nums}
+  .lsb-col-h small{margin-left:auto;font-size:11px;color:var(--lsb-tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lsb-col-b{display:flex;flex-direction:column;gap:8px;max-height:640px;overflow-y:auto;padding:2px;margin:-2px;scrollbar-width:thin;scrollbar-color:#d6d0c8 transparent}
+  .lsb-col-empty{padding:22px 0;text-align:center;font-size:12.5px;color:var(--lsb-tx3);border:1.5px dashed #e2ddd6;border-radius:10px}
+  /* 카드 */
+  .lsb-card{min-width:0;display:flex;flex-wrap:wrap;gap:10px;padding:9px;background:#fff;border:1px solid var(--lsb-line);border-radius:10px;cursor:pointer;box-shadow:0 1px 1px rgba(28,25,23,.03);transition:border-color .15s,box-shadow .15s}
+  .lsb-card:hover{border-color:#d6d0c8;box-shadow:0 2px 8px rgba(28,25,23,.07)}
+  .lsb-card:focus{outline:none}
+  .lsb-card:focus-visible{outline:2px solid var(--lsb-sample);outline-offset:2px}
+  .lsb-card.is-hot{border-color:#fcd34d;background:#fffbeb}
+  .lsb-ph{position:relative;flex:none;width:58px;height:58px;border-radius:8px;background:#f5f4f1;overflow:hidden}
   .lsb-ph img{display:block;width:100%;height:100%;object-fit:contain}
-  .lsb-ph-n{position:absolute;right:4px;bottom:4px;font-size:10px;font-weight:800;line-height:1.6;color:#fff;background:rgba(14,17,22,.72);border-radius:6px;padding:0 5px}
+  .lsb-ph-n{position:absolute;right:3px;bottom:3px;font-size:9.5px;font-weight:800;line-height:1.5;color:#fff;background:rgba(28,25,23,.62);border-radius:5px;padding:0 4px}
   .lsb-ph.is-broken,.lsb-gal a.is-broken{display:none}
-  .lsb-gal{flex-basis:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
-  .lsb-gal a{display:block;aspect-ratio:1;border-radius:8px;background:#f3f2ef;overflow:hidden}
-  .lsb-gal a:hover{box-shadow:0 0 0 2px var(--lsb-amber)}
+  .lsb-cb{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .lsb-c1{display:flex;align-items:flex-start;gap:8px;min-width:0}
+  .lsb-cn{flex:1;min-width:0;font-size:13.5px;font-weight:800;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lsb-card.is-open .lsb-cn{white-space:normal}
+  .lsb-badge{flex:none;display:inline-flex;align-items:baseline;gap:4px;font-size:11.5px;font-weight:800;line-height:1.5;padding:1px 8px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .lsb-badge small{font-size:10.5px;font-weight:700;opacity:.85}
+  .b-due{background:#fef3c7;color:#b45309}
+  .b-due b{font-size:12.5px}
+  .b-arr{background:#d1fae5;color:#047857}
+  .b-req{background:#dbeafe;color:#1d4ed8}
+  .b-order{background:#059669;color:#fff}
+  .lsb-c2{display:flex;align-items:center;gap:8px;min-width:0;font-size:11.5px;color:var(--lsb-tx3)}
+  .lsb-sws{flex:none;display:inline-flex;align-items:center}
+  .lsb-sws i{width:11px;height:11px;margin-right:-3px;border-radius:50%;box-shadow:0 0 0 1.5px #fff,inset 0 0 0 1px rgba(0,0,0,.14)}
+  .lsb-sws em{margin-left:8px;font-style:normal;font-size:11px;color:var(--lsb-tx3);white-space:nowrap}
+  .lsb-meta{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lsb-new{color:#c2410c;font-weight:800;letter-spacing:.03em}
+  .lsb-note{font-size:12px;color:var(--lsb-tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lsb-note b{color:var(--lsb-red);font-weight:700;margin-right:4px}
+  /* 펼침 */
+  .lsb-det{flex-basis:100%;min-width:0;display:flex;flex-direction:column;gap:7px;padding-top:9px;border-top:1px dashed var(--lsb-line)}
+  .lsb-crow{display:flex;align-items:center;gap:7px;min-width:0;font-size:12px}
+  .lsb-crow i{flex:none;width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+  .lsb-crow span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lsb-crow small{flex:none;color:var(--lsb-tx3)}
+  .lsb-crow em{flex:none;margin-left:auto;font-style:normal;font-size:11.5px;color:var(--lsb-tx3);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .lsb-crow em.due{color:#b45309;font-weight:700}
+  .lsb-crow em.arr{color:#047857;font-weight:700}
+  .lsb-crow em.req{color:#1d4ed8;font-weight:700}
+  .lsb-dl{font-size:12px;line-height:1.5;color:var(--lsb-tx2);white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
+  .lsb-dl b{color:var(--lsb-tx3);font-weight:700;margin-right:6px}
+  .lsb-gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px}
+  .lsb-gal a{display:block;aspect-ratio:1;border-radius:8px;background:#f5f4f1;overflow:hidden}
+  .lsb-gal a:hover{box-shadow:0 0 0 2px var(--lsb-sample)}
   .lsb-gal img{display:block;width:100%;height:100%;object-fit:contain}
-  .lsb-ev-im{width:20px;height:20px;border-radius:50%;object-fit:contain;background:#f3f2ef;vertical-align:-5px;margin-right:6px}
-  .lsb-t-top{display:flex;align-items:center;gap:7px;min-width:0}
-  .lsb-no{flex:none;font-size:11px;font-weight:800;color:var(--lsb-tx3);font-variant-numeric:tabular-nums}
-  .lsb-t-name{flex:1;min-width:0;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .lsb-tile.is-open .lsb-t-name{white-space:normal}
-  .lsb-st{flex:none;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.06);color:var(--lsb-tx2);font-variant-numeric:tabular-nums}
-  .lsb-st-due{background:rgba(255,181,71,.15);color:var(--lsb-amber)}
-  .lsb-st-arr{background:rgba(61,220,151,.13);color:var(--lsb-green)}
-  .lsb-st-order{background:var(--lsb-green);color:#06281a}
-  .lsb-st-req{background:rgba(121,184,255,.15);color:var(--lsb-blue)}
-  .lsb-st-hold{background:rgba(255,123,114,.15);color:var(--lsb-red)}
-  .lsb-t-sub{font-size:11.5px;color:var(--lsb-tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .lsb-tag{display:inline-block;font-size:10.5px;font-weight:700;line-height:1.5;padding:0 5px;border-radius:4px;border:1px solid var(--lsb-line);color:var(--lsb-tx2);margin-right:5px}
-  .lsb-tag.t-new{color:#ffd28a;border-color:rgba(255,181,71,.4)}
-  .lsb-c{display:flex;align-items:center;gap:6px;min-width:0;font-size:12px}
-  .lsb-sw{flex:none;width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
-  .lsb-cn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lsb-cr{flex:none;font-size:11px;color:var(--lsb-tx3)}
-  .lsb-cd{flex:none;margin-left:auto;font-size:11.5px;color:var(--lsb-tx3);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .lsb-cd.due{color:var(--lsb-amber)}
-  .lsb-cd.arr{color:var(--lsb-green)}
-  .lsb-cd.req{color:var(--lsb-blue)}
-  .lsb-more{font-size:11px;color:var(--lsb-tx3)}
-  .lsb-fac,.lsb-fab{font-size:11.5px;color:var(--lsb-tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .lsb-tile.is-open .lsb-fac,.lsb-tile.is-open .lsb-fab{white-space:normal}
-  .lsb-note{font-size:12px;line-height:1.45;color:var(--lsb-tx2);white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere;
-    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;border-top:1px dashed var(--lsb-line);padding-top:6px;margin-top:1px}
-  .lsb-note b{color:var(--lsb-red);font-weight:700;margin-right:2px}
-  .lsb-tile.is-open .lsb-note{display:block;-webkit-line-clamp:unset}
-  .lsb-foot{display:flex;align-items:center;gap:10px;margin-top:10px;min-height:26px}
-  .lsb-dots{display:flex;gap:5px;flex-wrap:wrap}
-  .lsb-dot{position:relative;width:7px;height:7px;padding:0;border:0;border-radius:4px;background:#323b46;cursor:pointer;transition:width .2s,background .2s}
-  .lsb-dot::before{content:'';position:absolute;inset:-9px -2px}
-  .lsb-dot.is-on{width:18px;background:var(--lsb-amber)}
-  .lsb-pg{flex:1;font-size:11.5px;color:var(--lsb-tx3);font-variant-numeric:tabular-nums}
-  .lsb-empty{grid-column:1/-1;padding:20px 6px;text-align:center;font-size:13px;color:var(--lsb-tx3)}
+  .lsb-link{align-self:flex-start;font-size:12px;font-weight:700;color:var(--lsb-tx2);text-decoration:none}
+  .lsb-link:hover{color:var(--lsb-tx);text-decoration:underline}
+  /* 홀딩 — 단계 없이 카드 바둑판 */
+  .lsb-cols.is-hold{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;padding:10px;border-radius:12px;background:var(--lsb-col)}
+  .lsb-empty{grid-column:1/-1;padding:24px 6px;text-align:center;font-size:13px;color:var(--lsb-tx3)}
   .lsb-empty .lsb-btn{margin-left:6px}
-  .lsb.is-fold .lsb-tabs,.lsb.is-fold .lsb-kpis,.lsb.is-fold .lsb-grid,.lsb.is-fold .lsb-foot{display:none}
+  .lsb.is-fold .lsb-tabs,.lsb.is-fold .lsb-flow,.lsb.is-fold .lsb-cols{display:none}
+  @media (max-width:1100px) and (min-width:701px){
+    .lsb-cols:not(.is-hold){gap:8px}
+    .lsb-ph{width:48px;height:48px}
+    .lsb-col-h small{display:none}
+  }
   @media (max-width:700px){
-    .lsb{padding:12px 12px 10px;border-radius:14px;margin-bottom:14px}
-    .lsb-name{font-size:14px}
-    .lsb-kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-    .lsb-kpi{padding:7px 6px}
-    .lsb-kpi b{font-size:20px}
-    .lsb-grid{grid-template-columns:1fr}
-    .lsb-ph{width:72px;height:72px}
-    .lsb-tabs{flex-wrap:wrap;overflow:visible}
-    .lsb-dots{gap:12px}
-    .lsb-dot::before{inset:-10px -6px}
+    .lsb{padding:12px;border-radius:14px;margin-bottom:14px}
+    .lsb-name{font-size:15px}
+    .lsb-sum{margin-left:0;flex-basis:100%}
+    .lsb-next-l{display:none}
+    /* 폰: 열을 옆으로 넘겨 본다 (범례를 누르면 그 열로) */
+    .lsb-cols:not(.is-hold){grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:86%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;
+      margin:12px -12px 0;padding:0 12px 2px;scroll-padding:0 12px;scrollbar-width:none}
+    .lsb-cols:not(.is-hold)::-webkit-scrollbar{display:none}
+    .lsb-col{scroll-snap-align:start}
+    .lsb-col-b{max-height:64vh}
+    .lsb-cols.is-hold{grid-template-columns:1fr}
   }
   @media (prefers-reduced-motion:reduce){
     .lsb-ticker{overflow-x:auto}
-    .lsb-live i,.lsb-grid.is-fade{animation:none}
+    .lsb-live i{animation:none}
   }
   /* 디자인센터 — 노션 미러 카드 */
   .dc-notion-card{background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;overflow:hidden;
@@ -10332,22 +10355,21 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
 
     <!-- ============ 디자인센터 (노션 미러: 업무일지 · 콰이디 업무 공유) ============ -->
     <div class="dsg-pane" data-pane="coferry" hidden>
-      <!-- 전광판 — 구글시트 COFERRY LINE SHEET 실시간 (2026-10-27) -->
-      <section class="lsb" id="lsb" aria-label="코페리 라인시트 전광판">
+      <!-- 보드맵 — 구글시트 COFERRY LINE SHEET 실시간 (2026-10-27) -->
+      <section class="lsb" id="lsb" aria-label="코페리 라인시트 보드맵">
         <div class="lsb-top">
           <span class="lsb-live"><i></i>LIVE</span>
-          <b class="lsb-name">COFERRY LINE SHEET</b>
+          <b class="lsb-name">COFERRY 보드맵</b>
           <span class="lsb-stamp" id="lsbStamp"></span>
           <span class="lsb-sp"></span>
           <button type="button" class="lsb-btn" onclick="lsbRefresh()" title="시트에서 지금 다시 불러오기">↻ 새로고침</button>
           <a class="lsb-btn" href="https://docs.google.com/spreadsheets/d/1Q3eMHCnPsbt3ijGv3Gswym9Q_ao_fJsPSZg8n7R-tng/edit" target="_blank" rel="noopener" title="구글시트에서 열기">시트 ↗</a>
-          <button type="button" class="lsb-btn" id="lsbFoldBtn" aria-expanded="true" aria-controls="lsbGrid" onclick="lsbFold()">접기</button>
+          <button type="button" class="lsb-btn" id="lsbFoldBtn" aria-expanded="true" aria-controls="lsbCols" onclick="lsbFold()">접기</button>
         </div>
-        <div class="lsb-ticker" id="lsbTicker" tabindex="0" aria-label="다가오는 샘플·발주 일정 (선택하면 멈춤)"><div class="lsb-track" id="lsbTrack"></div></div>
         <div class="lsb-tabs" id="lsbTabs" role="tablist" aria-label="시즌"></div>
-        <div class="lsb-kpis" id="lsbKpis"></div>
-        <div class="lsb-grid" id="lsbGrid"></div>
-        <div class="lsb-foot" id="lsbFoot"></div>
+        <div class="lsb-flow" id="lsbFlow"></div>
+        <div class="lsb-next"><span class="lsb-next-l">다음 일정</span><div class="lsb-ticker" id="lsbTicker" tabindex="0" aria-label="다가오는 샘플·발주 일정 (선택하면 멈춤)"><div class="lsb-track" id="lsbTrack"></div></div></div>
+        <div class="lsb-cols" id="lsbCols"></div>
       </section>
       <div class="dc-notion-card">
         <div class="dc-notion-head">
@@ -17171,20 +17193,20 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   window.qtDelete = qtDelete; window.qtCopy = qtCopy; window.qtRender = qtRender;
 
   /* ============================================================
-     디자인센터 전광판 — 구글시트 'COFERRY LINE SHEET' 를 그대로 끌어와 맨 위에 띄운다
+     디자인센터 보드맵 — 구글시트 'COFERRY LINE SHEET' 를 끌어와 맨 위에 3열 단계판(기획·요청 → 샘플 진행 → 발주 확정)으로 띄운다
      · 시트가 링크 공개라 CSV 내보내기(export?format=csv&gid=)로 바로 받는다 (로그인·브리지 불필요)
      · 탭 목록은 htmlview 에서 찾는다(새 시즌 탭 자동 반영) — 못 찾으면 마지막 목록 → 기본 3탭
      · 디자인센터가 보일 때만 1분마다 다시 받고, 마지막 결과는 localStorage 에 두어 들어오자마자 그린다
-     · 상품 타일은 7초마다 넘어간다 — 마우스를 올리거나, 타일을 펼치거나, 키보드로 고르거나, 화면 밖이면 멈춘다
+     · 카드는 사진·이름·핵심 날짜(D-day)·컬러만 보이고, 누르면 컬러별 일정·메모·공장·사진 전부가 펼쳐진다
      · 상품 사진은 칸 안 이미지라 CSV 에 안 실리고, 시트의 사진 주소는 15분이면 만료되며 다른 사이트에 띄우는 것도 막혀 있다
        → GitHub Actions(linesheet-images.yml)가 30분마다 사진을 받아 linesheet/ 에 두고, 여기서는 그 목록(images.json)을 읽는다
      ============================================================ */
   const LSB_ID = '1Q3eMHCnPsbt3ijGv3Gswym9Q_ao_fJsPSZg8n7R-tng';
   const LSB_TABS = [{name:'26WINTER', gid:'0'}, {name:'27SS', gid:'417455932'}, {name:'홀딩', gid:'534097050'}];
   const LSB_K = {cache:'brightbeed_lsb_cache_v1', tab:'brightbeed_lsb_tab_v1', fold:'brightbeed_lsb_fold_v1'};
-  const LSB_EVERY = 60e3, LSB_ROTATE = 7000, LSB_TIMEOUT = 15e3, LSB_IMG_EVERY = 5 * 60e3;
+  const LSB_EVERY = 60e3, LSB_TIMEOUT = 15e3, LSB_IMG_EVERY = 5 * 60e3;
   const _lsb = {tabs:null, tabsAt:0, data:{}, img:{}, imgAt:0, imgErrAt:0, at:0, tried:0, busy:false, err:'', sig:'', tab:null, fold:false,
-                page:0, ps:0, all:false, open:{}, hover:false, touchAt:0, inView:true, minH:null, fadeT:0,
+                open:{},
                 tick:'', tickW:0, booted:false};
   // 컬러 이름 → 견본 색 (앞에 있는 것부터 찾는다: french gray 가 gray 보다, salmon 이 pink 보다 먼저)
   const LSB_SW = [['mixed','conic-gradient(#f4b3c6,#9ccfe8,#f6e7a1,#a5e3cc,#f4b3c6)'],['crayon','linear-gradient(135deg,#f6b49c,#9ccfe8,#f6e7a1)'],
@@ -17293,13 +17315,16 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   function _lsbStatus(it, hold){
     if(hold) return {k:'hold', t:'홀딩'};
     const od = _lsbDate(it.meta['첫발주일']);
-    if(od) return {k:'order', t:`첫발주 ${_lsbMd(od)}`};
+    if(od) return {k:'order', t:_lsbMd(od), n:_lsbDays(od)};
     const st = it.colors.map(_lsbColorState);
-    const due = st.filter(s => s.k === 'due').sort((a, b) => a.n - b.n)[0];
-    if(due) return {k:'due', t:`입고 D-${due.n}`};
-    if(st.some(s => s.k === 'req')) return {k:'req', t:'샘플 요청'};
-    if(st.some(s => s.k === 'arr')) return {k:'arr', t:'샘플 입고'};
-    return {k:'prep', t:'준비'};
+    const pick = (k, f) => st.filter(s => s.k === k).sort(f)[0];
+    const due = pick('due', (a, b) => a.n - b.n);
+    if(due) return {k:'due', t:_lsbMd(due.d), n:due.n, d:due.d};
+    const arr = pick('arr', (a, b) => b.n - a.n);
+    if(arr) return {k:'arr', t:_lsbMd(arr.d), n:arr.n};
+    const req = pick('req', (a, b) => b.n - a.n);
+    if(req) return {k:'req', t:_lsbMd(req.d), n:req.n};
+    return {k:'prep', t:''};
   }
 
   /* ── 불러오기 ── 요청마다 15초 제한 (멈춘 연결 하나 때문에 이후 새로고침이 모두 막히지 않게) */
@@ -17376,7 +17401,9 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     else _lsbStamp();
   }
 
-  /* ── 그리기 ── */
+  /* ── 그리기 ── 3열 단계판: 기획·요청 → 샘플 진행 → 발주 확정 (홀딩 탭은 단계 없이 카드만) */
+  const LSB_STAGES = [{k:'plan', t:'기획·요청', d:'샘플 전·요청'}, {k:'sample', t:'샘플 진행', d:'입고 예정·입고'}, {k:'order', t:'발주 확정', d:'첫발주'}];
+  function _lsbStage(st){ return st.k === 'order' ? 'order' : st.k === 'due' || st.k === 'arr' ? 'sample' : 'plan'; }
   function _lsbVisible(){
     const v = document.getElementById('viewDesign'), p = document.querySelector('#viewDesign .dsg-pane[data-pane="coferry"]');
     return !!(v && !v.hidden && p && !p.hidden && document.visibilityState === 'visible');
@@ -17386,7 +17413,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const tabs = _lsbTabs();
     return tabs.find(t => t.gid === _lsb.tab) || tabs.slice().reverse().find(t => !_lsbIsHold(t)) || tabs[0] || null;
   }
-  /* 타일 고유 키 — 순서가 아니라 번호+이름으로 (새로고침 때 줄이 끼어들어도 펼친 타일이 다른 상품으로 바뀌지 않게) */
+  /* 카드 고유 키 — 순서가 아니라 번호+이름으로 (새로고침 때 줄이 끼어들어도 펼친 카드가 다른 상품으로 바뀌지 않게) */
   function _lsbKeys(gid, items){
     const seen = {};
     return items.map(it => { const b = `${gid}|${it.no}|${it.name}`; seen[b] = (seen[b] || 0) + 1; return seen[b] > 1 ? `${b}|${seen[b]}` : b; });
@@ -17395,7 +17422,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const el = document.getElementById('lsbStamp'), root = document.getElementById('lsb');
     if(!el) return;
     const hm = _lsb.at ? new Date(_lsb.at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', hour12:false}) : '';
-    el.textContent = _lsb.busy && !_lsb.at ? '불러오는 중…' : _lsb.err ? `⚠ ${_lsb.err}${hm ? ` · ${hm} 기준` : ''}` : hm ? `${hm} 기준` : '';
+    el.textContent = _lsb.busy && !_lsb.at ? '불러오는 중…' : _lsb.err ? `⚠ ${_lsb.err}${hm ? ` · ${hm} 기준` : ''}` : hm ? `${hm} 기준 · 1분마다 갱신` : '';
     if(root) root.classList.toggle('is-err', !!_lsb.err);
   }
   function _lsbEvents(){
@@ -17408,8 +17435,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         if(od){ const n = _lsbDays(od); if(n <= 0 && n >= -14) ev.push({n, k:'order', sn, name, im, color:'', what:`첫발주 ${_lsbMd(od)}`}); }
         it.colors.forEach(c => {
           const s = _lsbColorState(c);
-          if(s.k === 'due' && s.n <= 21) ev.push({n:s.n, k:'due', sn, name, im, color:c.color, what:`샘플 입고 예정 ${_lsbMd(s.d)}`});
-          else if(s.k === 'arr' && s.n >= -7) ev.push({n:s.n, k:'arr', sn, name, im, color:c.color, what:`샘플 입고 ${_lsbMd(s.d)}`});
+          if(s.k === 'due' && s.n <= 21) ev.push({n:s.n, k:'due', sn, name, im, color:c.color, what:`입고 예정 ${_lsbMd(s.d)}`});
+          else if(s.k === 'arr' && s.n >= -7) ev.push({n:s.n, k:'arr', sn, name, im, color:c.color, what:`입고 ${_lsbMd(s.d)}`});
           else if(s.k === 'req' && s.n <= 0 && s.n >= -7) ev.push({n:s.n, k:'req', sn, name, im, color:c.color, what:`샘플 요청 ${_lsbMd(s.d)}`});
         });
       });
@@ -17419,11 +17446,11 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   }
   function _lsbRenderTicker(){
     const E = escapeHTML, ev = _lsbEvents();
-    const tag = e => e.k === 'due' ? `D-${e.n}` : e.k === 'arr' ? (e.n === 0 ? '오늘 입고' : '입고') : e.k === 'req' ? '요청' : '발주';
+    const tag = e => e.k === 'due' ? `D-${e.n}` : e.k === 'arr' ? (e.n === 0 ? '오늘' : '입고') : e.k === 'req' ? '요청' : '발주';
     const msg = t => `<span class="lsb-ev"><span class="sn">${t}</span></span>`;
     const html = !_lsbTabs().length ? msg(_lsb.busy || !_lsb.tried ? '라인시트 불러오는 중…' : '라인시트를 못 불러왔어요')
-      : ev.length ? ev.map(e => `<span class="lsb-ev lsb-ev-${e.k}"><b>${tag(e)}</b><span class="sn">${E(e.sn)}</span>${e.im ? `<img class="lsb-ev-im" src="${_lsbImgSrc(e.im)}" alt="" decoding="async" onerror="this.remove()">` : ''}${E(e.name)}${e.color ? ` <em>${E(e.color)}</em>` : ''} · ${E(e.what)}</span>`).join('')
-      : msg('가까운 샘플 입고·요청·발주 일정이 없어요');
+      : ev.length ? ev.map(e => `<span class="lsb-ev lsb-ev-${e.k}"><b>${tag(e)}</b>${e.im ? `<img class="lsb-ev-im" src="${_lsbImgSrc(e.im)}" alt="" decoding="async" onerror="this.remove()">` : ''}${E(e.name)}${e.color ? `<em>${E(e.color)}</em>` : ''}<span class="sn">· ${E(e.what)} · ${E(e.sn)}</span></span>`).join('')
+      : msg('3주 안에 잡힌 샘플 입고·요청·발주 일정이 없어요');
     if(html === _lsb.tick && _lsb.tickW) return;
     _lsb.tick = html; _lsb.tickW = 0;
     _lsbTickerFit();
@@ -17438,99 +17465,118 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const w = tr.scrollWidth;
     if(w <= tk.clientWidth || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     tr.innerHTML = _lsb.tick + `<span class="lsb-dup" aria-hidden="true">${_lsb.tick}</span>`;
-    tr.style.setProperty('--lsb-dur', Math.max(18, Math.round(w / 55)) + 's');
+    tr.style.setProperty('--lsb-dur', Math.max(18, Math.round(w / 50)) + 's');
     tr.classList.add('is-run');
   }
   function _lsbRenderTabs(cur){
     const el = document.getElementById('lsbTabs');
     if(!el) return;
-    // 개수는 시트에 손으로 적은 BAG/ACC 합계 대신 실제로 읽은 상품 수 — 아래 숫자판·쪽 표시와 같은 기준
     el.innerHTML = _lsbTabs().map(tb => {
       const on = !!cur && cur.gid === tb.gid;
-      return `<button type="button" class="lsb-tab${on ? ' is-on' : ''}" role="tab" aria-selected="${on}" data-gid="${escapeHTML(tb.gid)}" onclick="lsbTab(this.dataset.gid)"><b>${escapeHTML(_lsbSeason(tb))}</b><span>${_lsb.data[tb.gid].items.length}개</span></button>`;
+      return `<button type="button" class="lsb-tab${on ? ' is-on' : ''}${_lsbIsHold(tb) ? ' t-hold' : ''}" role="tab" aria-selected="${on}" data-gid="${escapeHTML(tb.gid)}" onclick="lsbTab(this.dataset.gid)"><b>${escapeHTML(_lsbSeason(tb))}</b><span>${_lsb.data[tb.gid].items.length}</span></button>`;
     }).join('');
   }
-  function _lsbRenderKpis(cur){
-    const el = document.getElementById('lsbKpis');
+  /* 상품 → 카드 자료 (단계·정렬 기준·강조) */
+  function _lsbCardsOf(cur){
+    const items = _lsb.data[cur.gid].items, hold = _lsbIsHold(cur), keys = _lsbKeys(cur.gid, items);
+    return items.map((it, i) => { const st = _lsbStatus(it, hold); return {it, st, key:keys[i], stage:hold ? 'hold' : _lsbStage(st)}; });
+  }
+  // 같은 단계 안에서는 급한 것 먼저 — 입고 임박(가까운 순) → 최근 입고 → 최근 요청 → 시트 순서
+  function _lsbSort(a, b){
+    const rank = s => ({due:0, arr:1, order:1, req:2, prep:3, hold:3})[s.k] ?? 3;
+    const ra = rank(a.st), rb = rank(b.st);
+    if(ra !== rb) return ra - rb;
+    if(a.st.k === 'due') return a.st.n - b.st.n;
+    if(a.st.n != null && b.st.n != null && a.st.n !== b.st.n) return b.st.n - a.st.n;
+    return (parseInt(a.it.no, 10) || 999) - (parseInt(b.it.no, 10) || 999);
+  }
+  function _lsbRenderFlow(cur, cards){
+    const el = document.getElementById('lsbFlow');
     if(!el) return;
-    if(!cur){ el.innerHTML = ''; return; }
-    const items = _lsb.data[cur.gid].items, hold = _lsbIsHold(cur);
-    let list;
-    if(hold){
-      list = [['hold', '홀딩', items.length], ['', 'New', items.filter(i => /new/i.test(i.season)).length], ['', '컬러추가', items.filter(i => /컬러/.test(i.season)).length]];
-    }else{
-      // 상품 수 외에는 컬러(줄) 기준 — 한 상품에 컬러가 여럿이면 각각 센다
-      const n = {colors:0, req:0, due:0, arr:0};
-      items.forEach(it => it.colors.forEach(c => { n.colors++; const k = _lsbColorState(c).k; if(k in n) n[k]++; }));
-      list = [['', '상품', items.length], ['', '컬러', n.colors], ['req', '요청 중', n.req], ['due', '입고 예정', n.due], ['arr', '샘플 입고', n.arr],
-              ['order', '첫발주', items.filter(i => _lsbDate(i.meta['첫발주일'])).length]];
-    }
-    el.classList.toggle('is-3', hold);
-    el.innerHTML = list.map(([k, t, v]) => `<div class="lsb-kpi${k ? ' k-' + k : ''}"><span>${t}</span><b>${v}</b></div>`).join('');
+    if(!cur || _lsbIsHold(cur)){ el.innerHTML = ''; el.hidden = true; return; }
+    el.hidden = false;
+    const n = {}; LSB_STAGES.forEach(s => { n[s.k] = cards.filter(c => c.stage === s.k).length; });
+    const colors = cards.reduce((a, c) => a + c.it.colors.length, 0);
+    const next = cards.filter(c => c.st.k === 'due').sort(_lsbSort)[0];
+    el.innerHTML = `<div class="lsb-bar" role="img" aria-label="${LSB_STAGES.map(s => `${s.t} ${n[s.k]}`).join(', ')}">${LSB_STAGES.map(s => n[s.k] ? `<i class="c-${s.k}" style="flex-grow:${n[s.k]}"></i>` : '').join('')}</div>
+      <div class="lsb-legend">${LSB_STAGES.map(s => `<button type="button" class="lsb-lg c-${s.k}" onclick="lsbGo('${s.k}')"><i></i>${s.t}<b>${n[s.k]}</b></button>`).join('')}
+        <span class="lsb-sum">상품 ${cards.length} · 컬러 ${colors}${next ? ` · 다음 입고 <b>D-${next.st.n}</b>` : ''}</span></div>`;
   }
-  function _lsbTile(it, hold, key, gid){
-    const E = escapeHTML, st = _lsbStatus(it, hold), open = !!_lsb.open[key], imgs = _lsbImgs(gid, it);
+  function _lsbCard(c, gid){
+    const E = escapeHTML, {it, st, key} = c, hold = c.stage === 'hold', open = !!_lsb.open[key], imgs = _lsbImgs(gid, it);
     const draft = /^\(가제\)/.test(it.name), name = it.name.replace(/^\(가제\)\s*/,'') || '이름 미정';
-    const cat = it.meta['제품카테고리'] || '';
-    const sub = `${it.season ? `<span class="lsb-tag${/new/i.test(it.season) ? ' t-new' : ''}">${E(it.season)}</span>` : ''}${draft ? '<span class="lsb-tag">가제</span>' : ''}${E(cat)}`;
-    const fac = it.factory.split(/\n+/).map(s => s.trim()).filter(Boolean).join(' · ');
-    const shown = open ? it.colors : it.colors.slice(0, 3);
-    const colors = shown.map(c => {
-      const s = _lsbColorState(c), rd = /^\d+$/.test(c.round) ? c.round + '차' : c.round;
-      const when = s.k === 'due' ? `입고 ${_lsbMd(s.d)} · D-${s.n}` : s.k === 'arr' ? `입고 ${_lsbMd(s.d)}` : s.k === 'req' ? `요청 ${_lsbMd(s.d)}` : '—';
-      return `<div class="lsb-c"><i class="lsb-sw" style="background:${_lsbSwatch(c.color)}"></i><span class="lsb-cn">${E(c.color)}</span>${rd ? `<span class="lsb-cr">${E(rd)}</span>` : ''}<span class="lsb-cd ${s.k}">${when}</span></div>`;
-    }).join('');
-    const more = it.colors.length > shown.length ? `<div class="lsb-more">+ 컬러 ${it.colors.length - shown.length}개 더</div>` : '';
-    const note = hold ? (it.reason || it.note) : it.note;
-    const price = it.meta['정상가'] && /[1-9]/.test(it.meta['정상가']) ? it.meta['정상가'] : '';
+    const badge = st.k === 'due' ? `<span class="lsb-badge b-due"><b>D-${st.n}</b><small>${_lsbMd(st.d)} 입고</small></span>`
+      : st.k === 'arr' ? `<span class="lsb-badge b-arr">${st.n === 0 ? '오늘 입고' : `입고 <small>${st.t}</small>`}</span>`
+      : st.k === 'req' ? `<span class="lsb-badge b-req">요청 <small>${st.t}</small></span>`
+      : st.k === 'order' ? `<span class="lsb-badge b-order">발주 <small>${st.t}</small></span>` : '';
+    const sw = it.colors.slice(0, 6).map(x => `<i style="background:${_lsbSwatch(x.color)}" title="${E(x.color)}"></i>`).join('');
+    const sws = it.colors.length ? `<span class="lsb-sws">${sw}<em>${it.colors.length}컬러</em></span>` : '';
+    const meta = [/new/i.test(it.season) ? '<span class="lsb-new">NEW</span>' : it.season ? E(it.season) : '', draft ? '가제' : '', E(it.meta['제품카테고리'] || '')].filter(Boolean).join(' · ');
+    const note = (hold ? (it.reason || it.note) : it.note).replace(/\s*\n+\s*/g, ' / ');
     const img = f => `<img src="${_lsbImgSrc(f)}" alt="" loading="lazy" decoding="async" onerror="lsbImgErr(this)">`;
-    const ph = imgs.length ? `<div class="lsb-ph">${img(imgs[0])}${imgs.length > 1 ? `<span class="lsb-ph-n">${imgs.length}장</span>` : ''}</div>` : '';
-    // 펼치면 사진 전부 — 누르면 구글시트의 그 상품 자리로 (큰 사진·원본은 시트에서)
-    const at = `https://docs.google.com/spreadsheets/d/${LSB_ID}/edit#gid=${encodeURIComponent(gid)}${it.row != null ? `&range=A${it.row + 1}` : ''}`;
-    const gal = open && imgs.length ? `<div class="lsb-gal">${imgs.map(f => `<a href="${E(at)}" target="_blank" rel="noopener" title="구글시트에서 이 상품 보기" onclick="event.stopPropagation()">${img(f)}</a>`).join('')}</div>` : '';
-    return `<article class="lsb-tile${open ? ' is-open' : ''}${ph ? ' has-ph' : ''}" role="button" tabindex="0" aria-expanded="${open}" data-k="${E(key)}" onclick="lsbToggle(this.dataset.k)" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();lsbToggle(this.dataset.k)}">
-      ${ph}<div class="lsb-tb">
-      <div class="lsb-t-top">${it.no ? `<span class="lsb-no">${E(it.no.padStart(2, '0'))}</span>` : ''}<b class="lsb-t-name" title="${E(it.name)}">${E(name)}</b><span class="lsb-st lsb-st-${st.k}">${st.t}</span></div>
-      ${sub ? `<div class="lsb-t-sub">${sub}</div>` : ''}
-      ${colors}${more}
-      ${fac && (!hold || open) ? `<div class="lsb-fac">${E(fac)}</div>` : ''}
-      ${note ? `<div class="lsb-note">${hold ? '<b>사유</b> ' : ''}${E(note)}</div>` : ''}
-      ${open && (it.fabric || price) ? `<div class="lsb-fab">${it.fabric ? `원단 ${E(it.fabric.replace(/\n+/g, ' · '))}` : ''}${price ? `${it.fabric ? ' · ' : ''}정상가 ${E(price)}` : ''}</div>` : ''}
-      </div>${gal}
+    const ph = imgs.length ? `<div class="lsb-ph">${img(imgs[0])}${imgs.length > 1 ? `<span class="lsb-ph-n">${imgs.length}</span>` : ''}</div>` : '';
+    let det = '';
+    if(open){
+      // 펼치면: 컬러별 차수·날짜, 공장·원단·정상가, 메모 전체, 사진 전부(누르면 구글시트의 그 상품 자리로)
+      const at = `https://docs.google.com/spreadsheets/d/${LSB_ID}/edit#gid=${encodeURIComponent(gid)}${it.row != null ? `&range=A${it.row + 1}` : ''}`;
+      const rows = it.colors.map(x => {
+        const s = _lsbColorState(x), rd = /^\d+$/.test(x.round) ? x.round + '차' : x.round;
+        const when = s.k === 'due' ? `${_lsbMd(s.d)} 입고 · D-${s.n}` : s.k === 'arr' ? `${_lsbMd(s.d)} 입고` : s.k === 'req' ? `${_lsbMd(s.d)} 요청` : '—';
+        return `<div class="lsb-crow"><i style="background:${_lsbSwatch(x.color)}"></i><span>${E(x.color)}</span>${rd ? `<small>${E(rd)}</small>` : ''}<em class="${s.k}">${when}</em></div>`;
+      }).join('');
+      const price = it.meta['정상가'] && /[1-9]/.test(it.meta['정상가']) ? it.meta['정상가'] : '';
+      const fac = it.factory.split(/\n+/).map(s => s.trim()).filter(Boolean).join(' · ');
+      const dl = (k, v) => v ? `<div class="lsb-dl"><b>${k}</b>${E(v)}</div>` : '';
+      det = `<div class="lsb-det">${rows}
+        ${dl(hold ? '홀딩 사유' : '진행 메모', hold ? (it.reason || it.note) : it.note)}${dl('공장', fac)}${dl('원단', it.fabric.replace(/\n+/g, ' · '))}${dl('정상가', price)}
+        ${imgs.length ? `<div class="lsb-gal">${imgs.map(f => `<a href="${E(at)}" target="_blank" rel="noopener" title="구글시트에서 이 상품 보기" onclick="event.stopPropagation()">${img(f)}</a>`).join('')}</div>` : ''}
+        <a class="lsb-link" href="${E(at)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">구글시트에서 보기 ↗</a></div>`;
+    }
+    const hot = st.k === 'due' && st.n <= 3;
+    return `<article class="lsb-card s-${st.k}${hot ? ' is-hot' : ''}${open ? ' is-open' : ''}" role="button" tabindex="0" aria-expanded="${open}" data-k="${E(key)}" onclick="lsbToggle(this.dataset.k)" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();lsbToggle(this.dataset.k)}">
+      ${ph}<div class="lsb-cb">
+        <div class="lsb-c1"><b class="lsb-cn" title="${E(it.name)}">${E(name)}</b>${badge}</div>
+        ${sws || meta ? `<div class="lsb-c2">${sws}<span class="lsb-meta">${meta}</span></div>` : ''}
+        ${note && !open ? `<div class="lsb-note">${hold ? '<b>사유</b>' : ''}${E(note)}</div>` : ''}
+      </div>${det}
     </article>`;
   }
-  function _lsbPageSize(){
-    const g = document.getElementById('lsbGrid');
-    const cols = g ? getComputedStyle(g).gridTemplateColumns.split(' ').filter(Boolean).length : 0;
-    return !g || !g.clientWidth ? 6 : cols <= 1 ? 3 : cols * 2;
-  }
-  function _lsbRenderGrid(cur, fade){
-    const g = document.getElementById('lsbGrid'), f = document.getElementById('lsbFoot');
-    if(!g || !f) return;
+  function _lsbRenderCols(cur, cards){
+    const el = document.getElementById('lsbCols');
+    if(!el) return;
     if(!cur){
-      g.style.minHeight = '';
-      g.innerHTML = `<div class="lsb-empty">${_lsb.busy || !_lsb.tried ? '라인시트 불러오는 중…' : `라인시트를 못 불러왔어요 — 시트 공유가 '링크가 있는 모든 사용자'인지 확인해 주세요. <button type="button" class="lsb-btn" onclick="lsbRefresh()">다시 시도</button>`}</div>`;
-      f.innerHTML = ''; return;
+      el.className = 'lsb-cols';
+      el.innerHTML = `<div class="lsb-empty">${_lsb.busy || !_lsb.tried ? '라인시트 불러오는 중…' : `라인시트를 못 불러왔어요 — 시트 공유가 '링크가 있는 모든 사용자'인지 확인해 주세요. <button type="button" class="lsb-btn" onclick="lsbRefresh()">다시 시도</button>`}</div>`;
+      return;
     }
-    const items = _lsb.data[cur.gid].items, hold = _lsbIsHold(cur), keys = _lsbKeys(cur.gid, items);
+    const keys = cards.map(c => c.key);
     Object.keys(_lsb.open).forEach(k => { if(!keys.includes(k)) delete _lsb.open[k]; });   // 시트에서 사라진 상품의 펼침 기록은 버린다
-    const ps = _lsb.ps = _lsbPageSize(), pages = Math.max(1, Math.ceil(items.length / ps));
-    if(_lsb.page >= pages) _lsb.page = 0;
-    const from = _lsb.all ? 0 : _lsb.page * ps, to = _lsb.all ? items.length : from + ps;
-    g.innerHTML = items.slice(from, to).map((it, i) => _lsbTile(it, hold, keys[from + i], cur.gid)).join('');
-    // 쪽마다 높이가 달라 아래 내용이 들썩이지 않게 — 같은 탭·같은 폭에서는 지금까지 가장 높았던 쪽 높이를 유지
-    const mk = `${cur.gid}|${g.clientWidth}|${_lsb.all}`;
-    if(!_lsb.minH || _lsb.minH.k !== mk){ _lsb.minH = {k:mk, h:0}; g.style.minHeight = ''; }
-    if(!_lsb.all && !g.querySelector('.lsb-tile.is-open')){ _lsb.minH.h = Math.max(_lsb.minH.h, g.offsetHeight); g.style.minHeight = _lsb.minH.h + 'px'; }
-    else if(_lsb.all) g.style.minHeight = '';
-    if(fade){
-      g.classList.remove('is-fade'); void g.offsetWidth; g.classList.add('is-fade');
-      clearTimeout(_lsb.fadeT); _lsb.fadeT = setTimeout(() => g.classList.remove('is-fade'), 450);   // 화면이 가려져 애니메이션이 멈춰도 흐리게 남지 않게
+    // 다시 그려도 보던 자리 유지 (열 안 세로 스크롤 · 폰의 가로 넘김)
+    const keepY = {}; el.querySelectorAll('.lsb-col').forEach(c => { keepY[c.dataset.s] = c.querySelector('.lsb-col-b')?.scrollTop || 0; });
+    const keepX = el.scrollLeft, same = el.dataset.gid === cur.gid;
+    el.dataset.gid = cur.gid;
+    if(_lsbIsHold(cur)){
+      el.className = 'lsb-cols is-hold';
+      el.innerHTML = cards.map(c => _lsbCard(c, cur.gid)).join('');
+      return;
     }
-    const dots = !_lsb.all && pages > 1 ? Array.from({length:pages}, (_, i) =>
-      `<button type="button" class="lsb-dot${i === _lsb.page ? ' is-on' : ''}" aria-label="${i + 1}쪽" aria-current="${i === _lsb.page}" data-i="${i}" onclick="lsbPage(${i})"></button>`).join('') : '';
-    f.innerHTML = `<div class="lsb-dots">${dots}</div><span class="lsb-pg">${_lsb.all || pages < 2 ? `${items.length}개` : `${from + 1}–${Math.min(items.length, to)} / ${items.length}`}</span>`
-      + (pages > 1 ? `<button type="button" class="lsb-btn" id="lsbAllBtn" onclick="lsbAll()">${_lsb.all ? '넘겨 보기' : '전체 보기'}</button>` : '');
+    el.className = 'lsb-cols';
+    el.innerHTML = LSB_STAGES.map(s => {
+      const list = cards.filter(c => c.stage === s.k).sort(_lsbSort);
+      return `<section class="lsb-col c-${s.k}" data-s="${s.k}" aria-label="${s.t} ${list.length}개">
+        <header class="lsb-col-h"><i></i><b>${s.t}</b><span>${list.length}</span><small>${s.d}</small></header>
+        <div class="lsb-col-b">${list.length ? list.map(c => _lsbCard(c, cur.gid)).join('') : '<div class="lsb-col-empty">아직 없어요</div>'}</div>
+      </section>`;
+    }).join('');
+    if(same){
+      el.scrollLeft = keepX;
+      el.querySelectorAll('.lsb-col').forEach(c => { const b = c.querySelector('.lsb-col-b'); if(b && keepY[c.dataset.s]) b.scrollTop = keepY[c.dataset.s]; });
+    }
+  }
+  function _lsbRenderBoard(){
+    const cur = _lsbCur(), cards = cur ? _lsbCardsOf(cur) : [];
+    _lsbRenderFlow(cur, cards); _lsbRenderCols(cur, cards);
+    return cur;
   }
   function lsbRender(){
     const root = document.getElementById('lsb');
@@ -17538,37 +17584,26 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     root.classList.toggle('is-fold', _lsb.fold);
     const fb = document.getElementById('lsbFoldBtn');
     if(fb){ fb.textContent = _lsb.fold ? '펼치기' : '접기'; fb.setAttribute('aria-expanded', String(!_lsb.fold)); }
-    const cur = _lsbCur();
-    _lsbStamp(); _lsbRenderTicker(); _lsbRenderTabs(cur); _lsbRenderKpis(cur); _lsbRenderGrid(cur);
-  }
-  /* 자동 넘김 — 보고 있는 사람을 방해하지 않을 때만 */
-  function _lsbAdvance(){
-    if(!_lsbVisible() || _lsb.fold || _lsb.all || _lsb.hover || !_lsb.inView || Date.now() - _lsb.touchAt < 20e3) return;
-    if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const root = document.getElementById('lsb'), a = document.activeElement;
-    if(root && a && a !== document.body && root.contains(a)) return;            // 키보드로 타일·버튼을 고른 중
-    if(document.querySelector('#lsbGrid .lsb-tile.is-open')) return;           // 펼쳐 읽는 중
-    const cur = _lsbCur();
-    if(!cur) return;
-    const pages = Math.ceil(_lsb.data[cur.gid].items.length / (_lsb.ps || _lsbPageSize()));
-    if(pages < 2) return;
-    _lsb.page = (_lsb.page + 1) % pages;
-    _lsbRenderGrid(cur, true);
+    _lsbStamp(); _lsbRenderTicker(); _lsbRenderTabs(_lsbCur()); _lsbRenderBoard();
   }
   // 다시 그린 뒤에도 키보드 위치를 잃지 않게 같은 자리로 되돌린다
   function _lsbRefocus(sel){ const el = document.querySelector(sel); if(el) el.focus({preventScroll:true}); }
   function lsbTab(gid){
-    _lsb.tab = gid; _lsb.page = 0; _lsb.open = {};
+    _lsb.tab = gid; _lsb.open = {};
     try{ localStorage.setItem(LSB_K.tab, gid); }catch(e){}
+    const el = document.getElementById('lsbCols'); if(el) el.dataset.gid = '';
     lsbRender();
     _lsbRefocus(`#lsbTabs .lsb-tab[data-gid="${CSS.escape(String(gid))}"]`);
   }
-  function lsbPage(i){ _lsb.page = i; _lsb.open = {}; _lsbRenderGrid(_lsbCur(), true); _lsbRefocus(`#lsbFoot .lsb-dot[data-i="${i}"]`); }
-  function lsbAll(){ _lsb.all = !_lsb.all; _lsb.page = 0; _lsb.open = {}; _lsbRenderGrid(_lsbCur()); _lsbRefocus('#lsbAllBtn'); }
+  // 범례를 누르면 그 열로 (폰에서는 옆으로 넘겨 준다)
+  function lsbGo(k){
+    const col = document.querySelector(`#lsbCols .lsb-col[data-s="${CSS.escape(String(k))}"]`);
+    if(col) col.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'nearest', inline:'start'});
+  }
   function lsbToggle(key){
     if(_lsb.open[key]) delete _lsb.open[key]; else _lsb.open[key] = 1;
-    _lsbRenderGrid(_lsbCur());
-    _lsbRefocus(`#lsbGrid .lsb-tile[data-k="${CSS.escape(String(key))}"]`);
+    _lsbRenderBoard();
+    _lsbRefocus(`#lsbCols .lsb-card[data-k="${CSS.escape(String(key))}"]`);
   }
   function lsbFold(){ _lsb.fold = !_lsb.fold; try{ localStorage.setItem(LSB_K.fold, _lsb.fold ? '1' : '0'); }catch(e){} lsbRender(); }
   function lsbInit(){
@@ -17586,29 +17621,16 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       }catch(e){}
       const stale = () => _lsbVisible() && Date.now() - _lsb.tried >= LSB_EVERY;
       setInterval(() => { if(stale()) lsbRefresh(); }, 10e3);
-      setInterval(_lsbAdvance, LSB_ROTATE);
       document.addEventListener('visibilitychange', () => { if(stale()) lsbRefresh(); });
-      const g = document.getElementById('lsbGrid'), root = document.getElementById('lsb');
-      if(g){
-        // 마우스만 멈춤 신호로 쓴다 — 터치는 mouseleave 가 안 와서 멈춘 채 남는다. 터치는 마지막으로 만진 뒤 20초 쉰다
-        g.addEventListener('pointerenter', e => { if(e.pointerType !== 'touch') _lsb.hover = true; });
-        g.addEventListener('pointerleave', e => { if(e.pointerType !== 'touch') _lsb.hover = false; });
-        g.addEventListener('touchstart', () => { _lsb.touchAt = Date.now(); }, {passive:true});
-        if(window.IntersectionObserver) new IntersectionObserver(es => { const e = es[es.length - 1]; _lsb.inView = e.isIntersecting && e.intersectionRatio >= 0.6; },
-          {threshold:[0, 0.6, 1]}).observe(g);
-      }
-      // 판이 보이게 되거나 폭이 바뀌면 — 띠 길이 다시 재고, 한 쪽 타일 수가 달라졌으면 다시 그리고, 오래됐으면 새로 받는다
-      if(root && window.ResizeObserver) new ResizeObserver(() => {
-        _lsbTickerFit();
-        if(!_lsb.fold && _lsbPageSize() !== _lsb.ps) _lsbRenderGrid(_lsbCur());
-        if(stale()) lsbRefresh();
-      }).observe(root);
+      // 판이 보이게 되거나 폭이 바뀌면 — 띠 길이 다시 재고, 오래됐으면 새로 받는다
+      const root = document.getElementById('lsb');
+      if(root && window.ResizeObserver) new ResizeObserver(() => { _lsbTickerFit(); if(stale()) lsbRefresh(); }).observe(root);
     }
     lsbRender();
     if(_lsbVisible() && Date.now() - _lsb.tried >= 20e3) lsbRefresh();
   }
-  window.lsbInit = lsbInit; window.lsbRefresh = lsbRefresh; window.lsbTab = lsbTab; window.lsbPage = lsbPage;
-  window.lsbAll = lsbAll; window.lsbToggle = lsbToggle; window.lsbFold = lsbFold; window.lsbImgErr = lsbImgErr;
+  window.lsbInit = lsbInit; window.lsbRefresh = lsbRefresh; window.lsbTab = lsbTab; window.lsbGo = lsbGo;
+  window.lsbToggle = lsbToggle; window.lsbFold = lsbFold; window.lsbImgErr = lsbImgErr;
 
   /* ============================================================
      디자인센터 — 노션 미러 2장 (업무일지 · 콰이디 업무 공유)
