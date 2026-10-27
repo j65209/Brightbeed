@@ -3720,6 +3720,49 @@
     .wht-vendor-search-row{padding:10px 14px 6px}
   }
 
+  /* ===== 브랜드별 광고 시트 (마케팅팀 뷰) ===== */
+  .adsh-section{padding:0;background:transparent;border:none;margin-bottom:16px;overflow:visible}
+  .adsh-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .adsh-fx{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--text-2);background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+  .adsh-save{font-size:11px;color:var(--text-3);min-width:60px;text-align:right}
+  .adsh-save.is-err{color:#dc2626;font-weight:700}
+  .adsh-month{display:inline-flex;align-items:center;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;background:var(--bg-1)}
+  .adsh-month button{border:0;background:transparent;padding:4px 10px;font-size:15px;line-height:1;cursor:pointer;color:var(--text-1)}
+  .adsh-month button:hover{background:var(--bg-2)}
+  .adsh-month span{font-family:var(--mono);font-size:12.5px;font-weight:800;padding:0 4px;min-width:64px;text-align:center}
+  .adsh-h{font-size:13px;font-weight:800;margin:14px 0 6px;display:flex;align-items:center;gap:6px}
+  .adsh-h::before{content:'';width:9px;height:9px;background:var(--text-0)}
+  .adsh-h small{font-weight:500;color:var(--text-3);font-size:11px}
+  .adsh-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .adsh-tbl{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--bg-1);font-variant-numeric:tabular-nums}
+  .adsh-tbl th,.adsh-tbl td{border:1px solid #bfbfbf;padding:0;height:28px;white-space:nowrap}
+  .adsh-tbl th{background:#d9d9d9;font-weight:800;padding:0 8px;text-align:center}
+  .adsh-tbl td{text-align:right;padding:0 8px}
+  .adsh-tbl td.c{text-align:center;font-weight:700}
+  .adsh-tbl td.b{font-weight:800}
+  .adsh-tbl td.mute{color:var(--text-3)}
+  .adsh-tbl tr.is-total td{background:#fff2cc;font-weight:800}
+  .adsh-tbl tr.is-diff td{background:#fff2cc;font-weight:800}
+  .adsh-tbl tr.is-today td.c{background:#fff2cc}
+  .adsh-tbl .sat{color:#2563eb}
+  .adsh-tbl .sun{color:#dc2626}
+  .adsh-tbl .up{color:#dc2626}
+  .adsh-tbl .down{color:#2563eb}
+  .adsh-tbl td.in{padding:0;background:#fff}
+  .adsh-tbl td.in input{width:100%;min-width:74px;height:27px;border:0;background:transparent;text-align:right;font:inherit;padding:0 8px;outline:none;color:var(--text-0)}
+  .adsh-tbl td.in input:focus{box-shadow:inset 0 0 0 2px #16a34a;background:#f0fdf4}
+  .adsh-tbl td.in input::placeholder{color:#a3a3a3;font-weight:400}
+  .adsh-tbl td.in.is-auto input{color:var(--text-3)}
+  .adsh-tbl th.in{background:#c6e0b4}
+  .adsh-charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  .adsh-chart{background:var(--bg-1);border:1px solid #bfbfbf;padding:8px 6px 4px}
+  .adsh-chart svg{display:block;width:100%;height:auto}
+  .adsh-chart text{font-family:var(--mono);font-size:10px;fill:#404040}
+  .adsh-legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--text-2);padding:2px 0 4px}
+  .adsh-legend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
+  .adsh-hint{font-size:11px;color:var(--text-3);margin-top:6px;line-height:1.5}
+  @media (max-width:900px){ .adsh-charts{grid-template-columns:1fr} }
+
   /* ===== 브랜드별 실시간 매출 리포트 (식스샵 + 식스샵프로) ===== */
   .akoi-section .po-section-title{display:flex;align-items:center;gap:8px;color:var(--text-0)}
   .brand-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1px rgba(0,0,0,.05)}
@@ -10191,6 +10234,26 @@
       </div>
     </div>
 
+    <!-- 브랜드별 광고 시트 — 일자별 입력 → 전주대비 요약·그래프 자동 생성. 데이터: data/ad-sheets/{brand}.json -->
+    <div class="po-wrap" style="padding-bottom:0">
+      <div class="po-section adsh-section">
+        <div class="po-section-head" style="padding:0 0 6px">
+          <div class="po-section-title">브랜드별 광고 시트 <span class="po-section-meta-inline">노출·클릭·광고비($)·전환매출 입력 → 자동 계산</span></div>
+          <div class="po-section-meta adsh-meta">
+            <span class="adsh-fx" id="adshFxTag" title="하나은행 매매기준율 (네이버) · 평일 오전 9시 자동 갱신">환율 —</span>
+            <span class="adsh-save" id="adshSaveTag"></span>
+            <div class="adsh-month">
+              <button type="button" onclick="adshMoveMonth(-1)" aria-label="이전 달">‹</button>
+              <span id="adshMonthLabel">—</span>
+              <button type="button" onclick="adshMoveMonth(1)" aria-label="다음 달">›</button>
+            </div>
+          </div>
+        </div>
+        <div class="lg-tabs" id="adshTabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0"></div>
+        <div id="adshBody"></div>
+      </div>
+    </div>
+
     <!-- 광고 전광판 패널 -->
     <section class="ad-signage-panel" id="adSignagePanel">
       <div class="signage-head">
@@ -14720,6 +14783,7 @@
     if(typeof syncSalesPptFromRemote==='function') syncSalesPptFromRemote().catch(()=>{});
     if(typeof syncSalesArchiveFromRemote==='function') syncSalesArchiveFromRemote().catch(()=>{});
     if(typeof akoiSalesEnsureLoaded==='function') akoiSalesEnsureLoaded();
+    if(typeof adshEnsureLoaded==='function') adshEnsureLoaded();
   }
   function triggerDesign(){ _dsgActiveBoard = 'design'; showView('viewDesign'); if(typeof dsgInit==='function') dsgInit(); }
   function triggerStock(){ showView('viewStock'); }
@@ -23297,6 +23361,452 @@
     if(r.status===401||r.status===403) return {ok:false,reason:'auth'};
     return {ok:false,reason:`http_${r.status}`};
   }
+
+  /* ===================================================== */
+  /* ============ 브랜드별 광고 시트 (마케팅팀) ============ */
+  /* =====================================================
+     브랜드마다 data/ad-sheets/{id}.json — {days:{'YYYY-MM-DD':{imp,clk,usd,krw,conv,rev,fx}}, updatedAt}
+     입력: 노출수·클릭수·광고비($ 또는 원 중 하나)·전환수·전환매출·환율(비우면 자동)
+     환율: data/fx-usd.json — GHA fx-usd.yml 이 평일 09:00 KST 하나은행 매매기준율 기록.
+           그 날 값이 없으면(주말·공휴일) 직전 영업일 값을 쓴다.
+     저장: 셀 수정 → 1.2s 디바운스 → 원격 최신본 위에 "수정한 셀만" 덮어 ghPut (동시 편집 보호). */
+  const ADSH_FX_RAW=`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/data/fx-usd.json`;
+  const ADSH_API=(id)=>`https://api.github.com/repos/${PO_REPO}/contents/data/ad-sheets/${id}.json`;
+  const ADSH_LS='brightbeed_adsh_';
+  // 일자별 표 컬럼 (화면 순서 = 엑셀 붙여넣기 순서). in: 입력 칸, 나머지는 계산 칸.
+  const ADSH_COLS=[
+    {k:'imp',  label:'노출수',      in:true},
+    {k:'clk',  label:'클릭수',      in:true},
+    {k:'ctr',  label:'클릭률'},
+    {k:'cpc',  label:'평균CPC($)'},
+    {k:'usd',  label:'광고비($)',   in:true},
+    {k:'krw',  label:'총광고비(원)', in:true},
+    {k:'cpm',  label:'평균CPM($)'},
+    {k:'conv', label:'전환수',      in:true},
+    {k:'rev',  label:'전환매출',    in:true},
+    {k:'roas', label:'ROAS(%)'},
+    {k:'fx',   label:'환율',        in:true},
+  ];
+  const _adsh={brand:null, month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, saveTimer:null, saving:false, saveAgain:false};
+
+  function _adshYmd(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+  function _adshAdd(ymd,n){const d=new Date(ymd+'T00:00:00');d.setDate(d.getDate()+n);return _adshYmd(d)}
+  function _adshMd(ymd){return `${Number(ymd.slice(5,7))}/${Number(ymd.slice(8,10))}`}
+  function _adshNum(s){
+    if(s==null) return null;
+    s=String(s).replace(/[,\s₩$원%]/g,'');
+    if(s===''||s==='-') return null;
+    const v=Number(s);
+    return isFinite(v)?v:null;
+  }
+  function _adshFmt(v,dec){
+    if(v==null||!isFinite(v)) return '-';
+    return v.toLocaleString('ko-KR',{minimumFractionDigits:dec||0,maximumFractionDigits:dec||0});
+  }
+  function _adshPct(v,dec){ return (v==null||!isFinite(v)) ? '-' : _adshFmt(v*100,dec==null?2:dec)+'%' }
+  function _adshSheet(id){ return _adsh.sheets[id] || (_adsh.sheets[id]={days:{}}) }
+
+  /* ----- 환율 ----- */
+  function _adshFx(date, day){
+    if(day && day.fx>0) return {rate:day.fx, src:'manual'};
+    if(_adsh.fx[date]) return {rate:_adsh.fx[date].rate, src:'auto', at:_adsh.fx[date].at};
+    let prev=null;
+    for(const d of _adsh.fxDates){ if(d<date) prev=d; else break }
+    return prev ? {rate:_adsh.fx[prev].rate, src:'prev', from:prev} : null;
+  }
+  async function _adshLoadFx(){
+    try{
+      const c=JSON.parse(localStorage.getItem(ADSH_LS+'fx')||'null');
+      if(c && c.rates && !_adsh.fxLoaded) _adshSetFx(c.rates);
+    }catch(e){}
+    try{
+      const r=await fetch(`${ADSH_FX_RAW}?cb=${Date.now()}`,{cache:'no-cache'});
+      if(!r.ok) return;
+      const j=await r.json();
+      if(j && j.rates){ _adshSetFx(j.rates); _adsh.fxLoaded=true; localStorage.setItem(ADSH_LS+'fx',JSON.stringify(j)) }
+    }catch(e){}
+  }
+  function _adshSetFx(rates){
+    _adsh.fx=rates; _adsh.fxDates=Object.keys(rates).sort();
+    const tag=document.getElementById('adshFxTag');
+    const last=_adsh.fxDates[_adsh.fxDates.length-1];
+    if(tag && last) tag.textContent=`USD ${_adshFmt(rates[last].rate,2)}원 · ${_adshMd(last)} ${rates[last].at||''}`;
+  }
+
+  /* ----- 일자별 계산 ----- */
+  function _adshCalc(date){
+    const day=_adshSheet(_adsh.brand).days[date]||{};
+    const fx=_adshFx(date,day), rate=fx?fx.rate:null;
+    const usd = day.usd!=null ? day.usd : (day.krw!=null && rate ? day.krw/rate : null);
+    const krw = day.krw!=null ? day.krw : (day.usd!=null && rate ? day.usd*rate : null);
+    return {day, fx, imp:day.imp||0, clk:day.clk||0, usd, krw, conv:day.conv||0, rev:day.rev||0,
+      has:ADSH_COLS.some(c=>c.in && c.k!=='fx' && day[c.k]!=null)};
+  }
+  function _adshAgg(dates){
+    const a={imp:0,clk:0,usd:0,krw:0,conv:0,rev:0,n:0};
+    for(const d of dates){
+      const c=_adshCalc(d);
+      if(!c.has) continue;
+      a.n++; a.imp+=c.imp; a.clk+=c.clk; a.conv+=c.conv; a.rev+=c.rev;
+      if(c.usd!=null) a.usd+=c.usd;
+      if(c.krw!=null) a.krw+=c.krw;
+    }
+    return _adshRatios(a);
+  }
+  function _adshRatios(a){
+    a.ctr = a.imp ? a.clk/a.imp : null;
+    a.cpc = a.clk && a.usd ? a.usd/a.clk : (a.clk?0:null);
+    a.cpcKrw = a.clk && a.krw ? a.krw/a.clk : (a.clk?0:null);
+    a.cpm = a.imp && a.usd ? a.usd/a.imp*1000 : (a.imp?0:null);
+    a.cvr = a.clk ? a.conv/a.clk : null;
+    a.roas = a.krw ? a.rev/a.krw : null;
+    return a;
+  }
+  function _adshMonthDates(){
+    const [y,m]=_adsh.month.split('-').map(Number);
+    const n=new Date(y,m,0).getDate();
+    return Array.from({length:n},(_,i)=>`${_adsh.month}-${String(i+1).padStart(2,'0')}`);
+  }
+
+  /* ----- 렌더 ----- */
+  function _adshRenderTabs(){
+    const wrap=document.getElementById('adshTabs');
+    if(!wrap) return;
+    wrap.innerHTML=BRAND_SECTIONS.map(b=>
+      `<button class="lg-tab${b.id===_adsh.brand?' active':''}" role="tab" aria-selected="${b.id===_adsh.brand}" onclick="adshSwitch('${b.id}')"><span class="brand-dot" style="background:${b.dot}"></span>${_akoiEsc(b.display)}</button>`
+    ).join('');
+    const ml=document.getElementById('adshMonthLabel');
+    if(ml) ml.textContent=_adsh.month.replace('-','.');
+  }
+  function _adshDiffCell(cur,prev){
+    if(cur==null||prev==null||!prev) return '<td class="c">-</td>';
+    const p=(cur-prev)/Math.abs(prev);
+    if(!isFinite(p)) return '<td class="c">-</td>';
+    const up=p>=0;
+    return `<td class="${up?'up':'down'}">${up?'▲':'▼'} ${_adshFmt(Math.abs(p)*100,2)}%</td>`;
+  }
+  function _adshRenderSummary(){
+    const today=_adshYmd(new Date());
+    const dates=_adshMonthDates();
+    let end=_adshAdd(today,-1);
+    if(end>dates[dates.length-1]) end=dates[dates.length-1];
+    const range=(e)=>Array.from({length:7},(_,i)=>_adshAdd(e,i-6));
+    const cur=_adshAgg(range(end)), prev=_adshAgg(range(_adshAdd(end,-7)));
+    const keys=[['imp',0],['clk',0],['ctr','p'],['cpcKrw',0],['krw',0],['conv',0],['cvr','p'],['rev',0],['roas','r']];
+    const cell=(a,k,f)=>`<td>${f==='p'?_adshPct(a[k]):f==='r'?_adshPct(a[k],0):_adshFmt(a[k],f)}</td>`;
+    const row=(label,a)=>`<tr><td class="c">${label}</td>${keys.map(([k,f])=>cell(a,k,f)).join('')}</tr>`;
+    return `<div class="adsh-h">전주대비 광고요약 <small>금주 ${_adshMd(_adshAdd(end,-6))}~${_adshMd(end)} · 전주 ${_adshMd(_adshAdd(end,-13))}~${_adshMd(_adshAdd(end,-7))}</small></div>
+      <div class="adsh-scroll"><table class="adsh-tbl"><thead><tr><th>구분</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>평균CPC(원)</th><th>총광고비</th><th>전환수</th><th>전환율</th><th>매출</th><th>ROAS(%)</th></tr></thead>
+      <tbody>${row('금주',cur)}${row('전주',prev)}
+      <tr class="is-diff"><td class="c">전주대비 증감율</td>${keys.map(([k])=>_adshDiffCell(cur[k],prev[k])).join('')}</tr></tbody></table></div>`;
+  }
+  /* 막대(왼쪽 축) + 꺾은선(오른쪽 축) 콤보 차트 — 엑셀 기본 색 */
+  function _adshNiceMax(v){
+    if(!(v>0)) return 1;
+    const p=Math.pow(10,Math.floor(Math.log10(v)));
+    for(const m of [1,1.2,1.5,2,2.5,3,4,5,6,8,10]) if(v<=m*p) return m*p;
+    return 10*p;
+  }
+  function _adshChart(dates,bars,line,opt){
+    const W=640,H=230,L=52,R=60,T=12,B=42,iw=W-L-R,ih=H-T-B,n=dates.length;
+    const bMax=_adshNiceMax(Math.max(0,...bars.filter(v=>v!=null))), lMax=_adshNiceMax(Math.max(0,...line.filter(v=>v!=null)));
+    const step=iw/n, bw=Math.max(3,step*.6);
+    const y=(v,max)=>T+ih-(v/max)*ih;
+    let g='';
+    for(let i=0;i<=4;i++){
+      const yy=T+ih-ih*i/4;
+      g+=`<line x1="${L}" x2="${L+iw}" y1="${yy}" y2="${yy}" stroke="#e5e5e5"/>`;
+      g+=`<text x="${L-6}" y="${yy+3}" text-anchor="end">${_adshFmt(bMax*i/4,opt.bDec||0)}</text>`;
+      g+=`<text x="${L+iw+6}" y="${yy+3}">${_adshFmt(lMax*i/4,opt.lDec||0)}</text>`;
+    }
+    dates.forEach((d,i)=>{
+      const cx=L+step*i+step/2;
+      const v=bars[i];
+      if(v) g+=`<rect x="${cx-bw/2}" y="${y(v,bMax)}" width="${bw}" height="${T+ih-y(v,bMax)}" fill="#4472c4"><title>${_adshMd(d)} ${opt.bName} ${_adshFmt(v,opt.bDec||0)}</title></rect>`;
+      g+=`<text transform="translate(${cx+3},${T+ih+8}) rotate(-50)" text-anchor="end">${_adshMd(d)}</text>`;
+    });
+    const pts=[];
+    line.forEach((v,i)=>{ if(v!=null) pts.push([L+step*i+step/2, y(v,lMax), v, dates[i]]) });
+    if(pts.length){
+      g+=`<polyline points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="none" stroke="#ed7d31" stroke-width="2"/>`;
+      g+=pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#ed7d31"><title>${_adshMd(p[3])} ${opt.lName} ${_adshFmt(p[2],opt.lDec||0)}</title></circle>`).join('');
+    }
+    g+=`<line x1="${L}" x2="${L+iw}" y1="${T+ih}" y2="${T+ih}" stroke="#9ca3af"/>`;
+    return `<div class="adsh-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opt.bName}·${opt.lName} 일자별 그래프">${g}</svg>
+      <div class="adsh-legend"><span><i style="background:#4472c4"></i>${opt.bName}</span><span><i style="background:#ed7d31;border-radius:50%"></i>${opt.lName}</span></div></div>`;
+  }
+  function _adshRenderCharts(){
+    const dates=_adshMonthDates();
+    const calcs=dates.map(_adshCalc);
+    let last=-1; calcs.forEach((c,i)=>{ if(c.has) last=i });
+    const lineOf=(f)=>calcs.map((c,i)=>i<=last ? f(c) : null);
+    const cpc=calcs.map(c=>c.clk && c.usd ? c.usd/c.clk : 0);
+    return `<div class="adsh-charts">
+      ${_adshChart(dates, calcs.map(c=>c.imp), lineOf(c=>c.clk), {bName:'노출수', lName:'클릭수'})}
+      ${_adshChart(dates, cpc, lineOf(c=>c.krw||0), {bName:'평균CPC($)', lName:'총광고비(원)', bDec:2})}
+    </div>`;
+  }
+  function _adshCellVals(date){
+    const c=_adshCalc(date), day=c.day;
+    const ctr=c.imp ? c.clk/c.imp : (c.has?0:null);
+    const cpc=c.clk && c.usd!=null ? c.usd/c.clk : (c.has?0:null);
+    const cpm=c.imp && c.usd!=null ? c.usd/c.imp*1000 : (c.has?0:null);
+    const roas=c.krw ? c.rev/c.krw : (c.has?0:null);
+    // 입력 칸: [표시값, 자동계산 여부]
+    return {
+      imp:[day.imp!=null?_adshFmt(day.imp):'',false],
+      clk:[day.clk!=null?_adshFmt(day.clk):'',false],
+      usd:[day.usd!=null?_adshFmt(day.usd,2):(c.usd!=null?_adshFmt(c.usd,2):''), day.usd==null],
+      krw:[day.krw!=null?_adshFmt(day.krw):(c.krw!=null?_adshFmt(c.krw):''), day.krw==null],
+      conv:[day.conv!=null?_adshFmt(day.conv):'',false],
+      rev:[day.rev!=null?_adshFmt(day.rev):'',false],
+      fx:[c.fx?_adshFmt(c.fx.rate,2):'', !(c.fx && c.fx.src==='manual')],
+      ctr:_adshPct(ctr), cpc:cpc==null?'':_adshFmt(cpc,2), cpm:cpm==null?'':_adshFmt(cpm,2), roas:_adshPct(roas,0),
+      fxTitle:c.fx ? (c.fx.src==='manual'?'직접 입력':c.fx.src==='auto'?`자동 (${c.fx.at||''})`:`직전 영업일 ${_adshMd(c.fx.from)} 환율`) : '환율 없음',
+    };
+  }
+  function _adshRowHtml(date,ri){
+    const v=_adshCellVals(date);
+    const dow=new Date(date+'T00:00:00').getDay();
+    const dn='일월화수목금토'[dow];
+    const today=_adshYmd(new Date());
+    return `<tr data-date="${date}"${date===today?' class="is-today"':''}><td class="c">${_adshMd(date)}</td><td class="c ${dow===0?'sun':dow===6?'sat':''}">${dn}</td>`+
+      ADSH_COLS.map((col,ci)=>{
+        if(!col.in) return `<td class="${col.k==='roas'||col.k==='ctr'?'b':''}" data-k="${col.k}">${v[col.k]}</td>`;
+        const [val,auto]=v[col.k];
+        const title=col.k==='fx'?` title="${v.fxTitle}"`:'';
+        return `<td class="in${auto?' is-auto':''}" data-k="${col.k}"${title}><input inputmode="decimal" data-r="${ri}" data-c="${ci}" value="${val}"></td>`;
+      }).join('')+'</tr>';
+  }
+  function _adshTotalHtml(){
+    const a=_adshAgg(_adshMonthDates());
+    const f={imp:_adshFmt(a.imp),clk:_adshFmt(a.clk),ctr:_adshPct(a.ctr),cpc:_adshFmt(a.cpc,2),usd:_adshFmt(a.usd,2),krw:_adshFmt(a.krw),
+      cpm:_adshFmt(a.cpm,2),conv:_adshFmt(a.conv),rev:_adshFmt(a.rev),roas:_adshPct(a.roas,0),fx:''};
+    return `<tr class="is-total"><td class="c" colspan="2">TOTAL</td>${ADSH_COLS.map(c=>`<td>${f[c.k]}</td>`).join('')}</tr>`;
+  }
+  function adshRender(){
+    const body=document.getElementById('adshBody');
+    if(!body || !_adsh.brand) return;
+    _adshRenderTabs();
+    const dates=_adshMonthDates();
+    body.innerHTML=`<div id="adshTop">${_adshRenderSummary()}${_adshRenderCharts()}</div>
+      <div class="adsh-h">일자별 운영 현황</div>
+      <div class="adsh-scroll"><table class="adsh-tbl" id="adshDaily">
+        <thead><tr><th>날짜</th><th>요일</th>${ADSH_COLS.map(c=>`<th${c.in?' class="in"':''}>${c.label}</th>`).join('')}</tr></thead>
+        <tbody id="adshTotal">${_adshTotalHtml()}</tbody>
+        <tbody>${dates.map(_adshRowHtml).join('')}</tbody>
+      </table></div>
+      <div class="adsh-hint">초록색 칸만 입력 · 엑셀에서 여러 칸 복사 후 붙여넣기 가능 · Enter/↑↓ 행 이동 · 광고비는 $ 또는 원 중 하나만 입력하면 그날 환율로 자동 환산 · 환율 칸을 비우면 자동(평일 오전 9시 하나은행 매매기준율, 주말은 직전 영업일)</div>`;
+  }
+  /* 셀 수정 후 — 포커스를 잃지 않도록 표 전체가 아니라 계산 칸·요약·그래프만 갱신 */
+  function _adshRefresh(){
+    const top=document.getElementById('adshTop'), tot=document.getElementById('adshTotal'), tbl=document.getElementById('adshDaily');
+    if(!top||!tbl) return adshRender();
+    top.innerHTML=_adshRenderSummary()+_adshRenderCharts();
+    tot.innerHTML=_adshTotalHtml();
+    tbl.querySelectorAll('tr[data-date]').forEach(tr=>{
+      const v=_adshCellVals(tr.dataset.date);
+      tr.querySelectorAll('td[data-k]').forEach(td=>{
+        const k=td.dataset.k, inp=td.querySelector('input');
+        if(!inp){ td.textContent=v[k]; return }
+        if(document.activeElement===inp) return;
+        inp.value=v[k][0];
+        td.classList.toggle('is-auto',v[k][1]);
+        if(k==='fx') td.title=v.fxTitle;
+      });
+    });
+  }
+
+  /* ----- 입력 ----- */
+  function _adshSet(date,k,val){
+    const id=_adsh.brand, sh=_adshSheet(id);
+    const day=sh.days[date]||(sh.days[date]={});
+    if(val==null) delete day[k]; else day[k]=val;
+    // 광고비는 $ / 원 중 하나만 원본으로 보관 (다른 쪽은 환율로 계산)
+    const other = k==='usd' ? 'krw' : k==='krw' ? 'usd' : null;
+    const dk=_adsh.dirty[id]||(_adsh.dirty[id]={});
+    if(other && val!=null && day[other]!=null){ delete day[other]; dk[date+'|'+other]=null }
+    if(!Object.keys(day).length) delete sh.days[date];
+    dk[date+'|'+k]=val;
+    try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(sh)) }catch(e){}
+    _adshSaveTag('저장 대기…');
+    clearTimeout(_adsh.saveTimer);
+    _adsh.saveTimer=setTimeout(_adshSave,1200);
+  }
+  function _adshOnChange(e){
+    const inp=e.target;
+    if(!inp.matches('#adshDaily input')) return;
+    const date=inp.closest('tr').dataset.date, k=ADSH_COLS[+inp.dataset.c].k;
+    let val=_adshNum(inp.value);
+    if(val!=null && val<0 && k!=='rev') val=null;   // 음수는 전환매출(환불)만 허용
+    const day=_adshSheet(_adsh.brand).days[date]||{};
+    // 자동 계산 칸을 지운 경우 — 원본이 없으니 바꿀 것도 없음
+    if(day[k]!=null || val!=null) _adshSet(date,k,val);
+    _adshRefresh();
+    const v=_adshCellVals(date)[k];
+    inp.value=v[0];
+    inp.closest('td').classList.toggle('is-auto',v[1]);
+  }
+  function _adshFocus(r,c){
+    const el=document.querySelector(`#adshDaily input[data-r="${r}"][data-c="${c}"]`);
+    if(el){ el.focus(); el.select() }
+  }
+  function _adshOnKey(e){
+    const inp=e.target;
+    if(!inp.matches('#adshDaily input')) return;
+    const r=+inp.dataset.r, c=+inp.dataset.c;
+    if(e.key==='Enter'||e.key==='ArrowDown'){ e.preventDefault(); inp.blur(); _adshFocus(r+(e.shiftKey&&e.key==='Enter'?-1:1),c) }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); inp.blur(); _adshFocus(r-1,c) }
+    else if(e.key==='Escape'){ inp.value=_adshCellVals(inp.closest('tr').dataset.date)[ADSH_COLS[c].k][0]; inp.blur() }
+  }
+  /* 엑셀 범위 붙여넣기 — 탭/줄바꿈으로 나눠 현재 칸부터 오른쪽·아래로 채움 (계산 칸 위치는 건너뜀) */
+  function _adshOnPaste(e){
+    const inp=e.target;
+    if(!inp.matches('#adshDaily input')) return;
+    const text=(e.clipboardData||window.clipboardData).getData('text');
+    if(!/[\t\n]/.test(text.trim())) return;
+    e.preventDefault();
+    const rows=text.replace(/\r/g,'').replace(/\n$/,'').split('\n').map(l=>l.split('\t'));
+    const trs=[...document.querySelectorAll('#adshDaily tr[data-date]')];
+    const r0=+inp.dataset.r, c0=+inp.dataset.c;
+    let n=0;
+    rows.forEach((cells,i)=>{
+      const tr=trs[r0+i]; if(!tr) return;
+      cells.forEach((raw,j)=>{
+        const col=ADSH_COLS[c0+j];
+        if(!col || !col.in) return;
+        const val=_adshNum(raw);
+        const cur=(_adshSheet(_adsh.brand).days[tr.dataset.date]||{})[col.k];
+        if(val==null && cur==null) return;
+        _adshSet(tr.dataset.date,col.k,val); n++;
+      });
+    });
+    inp.blur();
+    adshRender();
+    _adshSaveTag(`${n}칸 붙여넣음 · 저장 대기…`);
+  }
+
+  /* ----- 저장 / 불러오기 ----- */
+  function _adshSaveTag(t,err){
+    const el=document.getElementById('adshSaveTag');
+    if(el){ el.textContent=t; el.classList.toggle('is-err',!!err) }
+  }
+  function _adshApplyDirty(days,dirty){
+    for(const key of Object.keys(dirty)){
+      const [date,k]=key.split('|');
+      const d=days[date]||(days[date]={});
+      if(dirty[key]==null) delete d[k]; else d[k]=dirty[key];
+      if(!Object.keys(d).length) delete days[date];
+    }
+  }
+  async function _adshSave(){
+    if(_adsh.saving){ _adsh.saveAgain=true; return }
+    _adsh.saving=true;
+    _adshSaveTag('저장 중…');
+    let failed=null;
+    try{
+      for(const id of Object.keys(_adsh.dirty)){
+        const dirty=_adsh.dirty[id];
+        delete _adsh.dirty[id];
+        if(!dirty || !Object.keys(dirty).length) continue;
+        const name=(BRAND_SECTIONS.find(b=>b.id===id)||{}).display||id;
+        let ok=false, reason='';
+        for(let i=0;i<3 && !ok;i++){
+          const f=await ghGetFile(ADSH_API(id));
+          if(f.error){ reason=f.error; break }
+          let remote={days:{}};
+          try{ if(f.text) remote=JSON.parse(f.text) }catch(e){}
+          remote.days=remote.days||{};
+          _adshApplyDirty(remote.days,dirty);
+          remote.updatedAt=Date.now();
+          const b64=btoa(unescape(encodeURIComponent(JSON.stringify(remote))));
+          const r=await ghPut(ADSH_API(id), b64, `chore: 광고 시트 갱신 (${name})`, {forceMaster:true, noConflictRetry:true, sha:f.sha||null});
+          if(r.ok){
+            ok=true;
+            // 저장 중 새로 친 칸은 아직 dirty — 원격본 위에 다시 얹어 로컬 갱신
+            _adshApplyDirty(remote.days,_adsh.dirty[id]||{});
+            _adsh.sheets[id]=remote;
+            try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(remote)) }catch(e){}
+          }else{ reason=r.reason; if(r.reason!=='conflict') break }
+        }
+        if(!ok){
+          _adsh.dirty[id]=Object.assign({},dirty,_adsh.dirty[id]||{});
+          failed=reason||'error';
+        }
+      }
+    }finally{
+      _adsh.saving=false;
+    }
+    if(failed){
+      _adshSaveTag(`저장 실패 (${failed}) — 30초 뒤 재시도`,true);
+      clearTimeout(_adsh.saveTimer);
+      _adsh.saveTimer=setTimeout(_adshSave,30000);
+      return;
+    }
+    if(_adsh.saveAgain){ _adsh.saveAgain=false; return _adshSave() }
+    const d=new Date();
+    _adshSaveTag(`저장됨 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
+    if(!document.querySelector('#adshDaily input:focus')) _adshRefresh();
+  }
+  async function _adshLoad(id){
+    try{
+      const c=JSON.parse(localStorage.getItem(ADSH_LS+id)||'null');
+      if(c && c.days && !_adsh.sheets[id]) _adsh.sheets[id]=c;
+    }catch(e){}
+    let remote=null;
+    const f=await ghGetFile(ADSH_API(id));
+    if(!f.error){
+      try{ remote=f.text ? JSON.parse(f.text) : {days:{}} }catch(e){}
+    }else{
+      // 프록시가 꺼져 있으면 공개 raw 로 읽기만 (몇 분 늦을 수 있음)
+      try{
+        const r=await fetch(`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/data/ad-sheets/${id}.json?cb=${Date.now()}`,{cache:'no-cache'});
+        if(r.ok) remote=await r.json(); else if(r.status===404) remote={days:{}};
+      }catch(e){}
+    }
+    if(!remote) return;
+    remote.days=remote.days||{};
+    _adshApplyDirty(remote.days,_adsh.dirty[id]||{});
+    _adsh.sheets[id]=remote;
+    try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(remote)) }catch(e){}
+  }
+  async function adshSwitch(id){
+    _adsh.brand=id;
+    try{ localStorage.setItem(ADSH_LS+'brand',id) }catch(e){}
+    adshRender();
+    await _adshLoad(id);
+    if(_adsh.brand===id && !document.querySelector('#adshDaily input:focus')) adshRender();
+  }
+  function adshMoveMonth(delta){
+    const [y,m]=_adsh.month.split('-').map(Number);
+    const d=new Date(y,m-1+delta,1);
+    _adsh.month=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    adshRender();
+  }
+  let _adshBound=false;
+  function adshEnsureLoaded(){
+    if(!_adsh.month) _adsh.month=_adshYmd(new Date()).slice(0,7);
+    if(!_adsh.brand){
+      let saved=null; try{ saved=localStorage.getItem(ADSH_LS+'brand') }catch(e){}
+      _adsh.brand=BRAND_SECTIONS.some(b=>b.id===saved) ? saved : BRAND_SECTIONS[0].id;
+    }
+    if(!_adshBound){
+      const body=document.getElementById('adshBody');
+      if(body){
+        body.addEventListener('change',_adshOnChange);
+        body.addEventListener('keydown',_adshOnKey);
+        body.addEventListener('paste',_adshOnPaste);
+        _adshBound=true;
+      }
+    }
+    _adshLoadFx().then(()=>{ if(!document.querySelector('#adshDaily input:focus')) _adshRefresh() });
+    adshSwitch(_adsh.brand);
+  }
+  // 창을 닫기 전에 대기 중인 저장을 바로 보낸다
+  window.addEventListener('beforeunload',()=>{ if(Object.keys(_adsh.dirty).some(id=>Object.keys(_adsh.dirty[id]).length)) _adshSave() });
+  window.adshSwitch=adshSwitch;
+  window.adshMoveMonth=adshMoveMonth;
+  window.adshEnsureLoaded=adshEnsureLoaded;
 
   /* ===== 연차 데이터 Supabase 동기화 (누구나 신청 → 자동저장 → 다른 기기/IP) ===== */
   const SUPABASE_URL='https://ckyjkxbqsyjoqpuqwoce.supabase.co';

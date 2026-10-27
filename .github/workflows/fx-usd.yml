@@ -1,0 +1,43 @@
+name: USD 환율 (오전 9시)
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5'   # 평일 09:00 KST
+  workflow_dispatch:
+    inputs:
+      force_today:
+        description: '오늘 환율을 지금 값으로 덮어쓰기'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fx-usd
+  cancel-in-progress: false
+
+jobs:
+  fx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 환율 수집
+        env:
+          FX_FORCE_TODAY: ${{ (github.event_name == 'schedule' || inputs.force_today) && '1' || '0' }}
+        run: node scripts/fx-usd.mjs
+      - name: 커밋
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/fx-usd.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: USD 환율 갱신 $(TZ=Asia/Seoul date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && exit 0
+            sleep 5
+          done
+          exit 1
