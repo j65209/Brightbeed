@@ -23292,12 +23292,12 @@
     {k:'imp',  label:'노출수',      in:true},
     {k:'clk',  label:'클릭수',      in:true},
     {k:'ctr',  label:'클릭률'},
-    {k:'cpc',  label:'평균CPC($)'},
+    {k:'cpcKrw',label:'평균CPC(원)'},
     {k:'usd',  label:'광고비($)',   in:true},
     {k:'krw',  label:'총광고비(원)', in:true},
     {k:'cpm',  label:'평균CPM($)'},
     {k:'conv', label:'전환수',      in:true},
-    {k:'rev',  label:'전환매출',    in:true},
+    {k:'rev',  label:'전환매출(원)', in:true},   // $ 입력이면 revUsd '전환매출($)' 로 바뀜 (_adshCols)
     {k:'roas', label:'ROAS(%)'},
     {k:'fx',   label:'환율',        in:true},
   ];
@@ -23329,7 +23329,13 @@
     adshRender();
   }
   window.adshSetCur=adshSetCur;
-  const _adshCols=()=>_adshIsPlat()?ADSH_COLS_PLAT:ADSH_COLS.map(c=>(c.k==='usd'||c.k==='krw')?Object.assign({},c,{in:c.k===_adshCur()}):c);
+  // $/원 선택이 바꾸는 건 광고비·총광고비(어느 쪽이 입력 칸인지)와 전환매출(통화)뿐. 노출·클릭·전환수·환율·CPC(원)는 그대로
+  const _adshCols=()=>_adshIsPlat()?ADSH_COLS_PLAT:ADSH_COLS.map(c=>{
+    const usd=_adshCur()==='usd';
+    if(c.k==='usd'||c.k==='krw') return Object.assign({},c,{in:c.k===(usd?'usd':'krw')});
+    if(c.k==='rev' && usd) return {k:'revUsd', label:'전환매출($)', in:true};
+    return c;
+  });
   const _adshCfg=(id)=>BRAND_SECTIONS.find(b=>b.id===id)||_adshPlatList().find(p=>p.id===id);
   const _adsh={brand:null, mode:'home', month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, inflight:{}, pushed:{}, failStreak:0, saveTimer:null, saving:false, saveAgain:false,
     plats:[], platOps:[], platPushedAt:0, platSaving:false, platTimer:null, platFail:0, platFormOpen:false};
@@ -23559,8 +23565,11 @@
     const fx=_adshFx(date,day), rate=fx?fx.rate:null;
     const usd = day.usd!=null ? day.usd : (day.krw!=null && rate ? day.krw/rate : null);
     const krw = day.krw!=null ? day.krw : (day.usd!=null && rate ? day.usd*rate : null);
-    return {day, fx, imp:day.imp||0, clk:day.clk||0, usd, krw, conv:day.conv||0, rev:day.rev||0,
-      has:ADSH_COLS.some(c=>c.in && c.k!=='fx' && day[c.k]!=null)};
+    // 전환매출도 $ / 원 중 하나만 원본 — 합계·ROAS·요약은 원화로 계산
+    const rev = day.rev!=null ? day.rev : (day.revUsd!=null && rate ? day.revUsd*rate : 0);
+    const revUsd = day.revUsd!=null ? day.revUsd : (day.rev!=null && rate ? day.rev/rate : null);
+    return {day, fx, imp:day.imp||0, clk:day.clk||0, usd, krw, conv:day.conv||0, rev, revUsd,
+      has:['imp','clk','usd','krw','conv','rev','revUsd'].some(k=>day[k]!=null)};
   }
   function _adshAgg(dates){
     const a={imp:0,clk:0,usd:0,krw:0,conv:0,rev:0,n:0};
@@ -23570,6 +23579,7 @@
       a.n++; a.imp+=c.imp; a.clk+=c.clk; a.conv+=c.conv; a.rev+=c.rev;
       if(c.usd!=null) a.usd+=c.usd;
       if(c.krw!=null) a.krw+=c.krw;
+      if(c.revUsd!=null) a.revUsd=(a.revUsd||0)+c.revUsd;
     }
     return _adshRatios(a);
   }
@@ -23686,11 +23696,11 @@
     const calcs=dates.map(_adshCalc);
     let last=-1; calcs.forEach((c,i)=>{ if(c.has) last=i });
     const lineOf=(f)=>calcs.map((c,i)=>i<=last ? f(c) : null);
-    const plat=_adshIsPlat();   // 플랫폼은 원화 CPC
-    const cpc=calcs.map(c=>plat ? (c.clk && c.krw ? c.krw/c.clk : 0) : (c.clk && c.usd ? c.usd/c.clk : 0));
+    const plat=_adshIsPlat();
+    const cpc=calcs.map(c=>c.clk && c.krw ? c.krw/c.clk : 0);   // CPC 는 공홈·플랫폼 모두 원화
     return `<div class="adsh-charts">
       ${_adshChart(dates, calcs.map(c=>c.imp), lineOf(c=>c.clk), {bName:'노출수', lName:'클릭수'})}
-      ${_adshChart(dates, cpc, lineOf(c=>c.krw||0), plat ? {bName:'평균CPC(원)', lName:'광고비(원)', bDec:0} : {bName:'평균CPC($)', lName:'총광고비(원)', bDec:2})}
+      ${_adshChart(dates, cpc, lineOf(c=>c.krw||0), {bName:'평균CPC(원)', lName:plat?'광고비(원)':'총광고비(원)', bDec:0})}
     </div>`;
   }
   function _adshCellVals(date){
@@ -23708,7 +23718,8 @@
       usd:[day.usd!=null?_adshFmt(day.usd,2):(c.usd!=null?_adshFmt(c.usd,2):''), day.usd==null],
       krw:[day.krw!=null?_adshFmt(day.krw):(c.krw!=null?_adshFmt(c.krw):''), day.krw==null],
       conv:[day.conv!=null?_adshFmt(day.conv):'',false],
-      rev:[day.rev!=null?_adshFmt(day.rev):'',false],
+      rev:[day.rev!=null?_adshFmt(day.rev):(day.revUsd!=null&&c.rev?_adshFmt(c.rev):''), day.rev==null&&day.revUsd!=null],
+      revUsd:[day.revUsd!=null?_adshFmt(day.revUsd,2):(day.rev!=null&&c.revUsd!=null?_adshFmt(c.revUsd,2):''), day.revUsd==null&&day.rev!=null],
       fx:[c.fx?_adshFmt(c.fx.rate,2):'', !(c.fx && c.fx.src==='manual')],
       ctr:_adshPct(ctr), cpc:cpc==null?'':_adshFmt(cpc,2), cpm:cpm==null?'':_adshFmt(cpm,2), roas:_adshPct(roas,0),
       cpcKrw:cpcKrw==null?'':_adshFmt(cpcKrw), cpmKrw:cpmKrw==null?'':_adshFmt(cpmKrw),
@@ -23765,7 +23776,7 @@
   function _adshTotalHtml(){
     const a=_adshAgg(_adshMonthDates());
     const f={imp:_adshFmt(a.imp),clk:_adshFmt(a.clk),ctr:_adshPct(a.ctr),cpc:_adshFmt(a.cpc,2),usd:_adshFmt(a.usd,2),krw:_adshFmt(a.krw),
-      cpm:_adshFmt(a.cpm,2),conv:_adshFmt(a.conv),rev:_adshFmt(a.rev),roas:_adshPct(a.roas,0),fx:'',
+      cpm:_adshFmt(a.cpm,2),conv:_adshFmt(a.conv),rev:_adshFmt(a.rev),revUsd:_adshFmt(a.revUsd||0,2),roas:_adshPct(a.roas,0),fx:'',
       cpcKrw:_adshFmt(a.cpcKrw),cpmKrw:_adshFmt(a.cpmKrw)};
     return `<tr class="is-total"><td class="c" colspan="2">TOTAL</td>${_adshCols().map(c=>`<td>${f[c.k]}</td>`).join('')}</tr>`;
   }
@@ -23786,7 +23797,7 @@
       return `<div class="adsh-sync"><i class="adsh-live"></i><b>에이블리 광고 관리자 자동 연동</b> · 매일 아침 8시 갱신 · 마지막 반영 ${hm}<span>지난달 1일~오늘 값은 광고 관리자 값으로 덮어써지니 직접 고치지 않아도 됩니다</span></div>`;
     })() : '';
     body.innerHTML=`${sync}<div id="adshTop">${_adshRenderWeeks()}${_adshRenderSummary()}${_adshRenderCharts()}</div>
-      <div class="adsh-h">일자별 운영 현황${_adshIsPlat() ? '' : (()=>{ const c=_adshCur(); return `<span class="adsh-cur" role="group" aria-label="광고비 입력 통화">광고비 입력
+      <div class="adsh-h">일자별 운영 현황${_adshIsPlat() ? '' : (()=>{ const c=_adshCur(); return `<span class="adsh-cur" role="group" aria-label="광고비·전환매출 입력 통화">광고비·전환매출 입력
         <button type="button" class="${c==='usd'?'on':''}" aria-pressed="${c==='usd'}" onclick="adshSetCur('usd')">$ 달러</button><button type="button" class="${c==='krw'?'on':''}" aria-pressed="${c==='krw'}" onclick="adshSetCur('krw')">₩ 원</button></span>` })()}</div>
       <div class="adsh-scroll"><table class="adsh-tbl" id="adshDaily">
         <thead><tr><th>날짜</th><th>요일</th>${_adshCols().map(c=>_adshTh(c.label,c.in?'in':'')).join('')}</tr></thead>
@@ -23795,7 +23806,7 @@
       </table></div>
       <div class="adsh-hint">초록색 칸만 입력 · 입력하는 즉시 실시간 자동저장(저장 버튼 없음) · 엑셀에서 여러 칸 복사 후 붙여넣기 가능 · Enter/↑↓ 행 이동 · ${_adshIsPlat()
         ? '플랫폼 광고비는 원화 그대로 입력 (환율 없음)'
-        : '광고비는 위에서 고른 통화($ 달러 / ₩ 원) 칸에 입력하면 다른 쪽은 그날 환율로 자동 환산 · 환율 칸을 비우면 자동(평일 오전 9시 하나은행 매매기준율, 주말은 직전 영업일)'}</div>`;
+        : '광고비·전환매출은 위에서 고른 통화($ 달러 / ₩ 원)로 입력 — 원화 환산은 그날 환율로 자동, CPC는 원화 · 환율 칸을 비우면 자동(평일 오전 9시 하나은행 매매기준율, 주말은 직전 영업일)'}</div>`;
   }
   /* 셀 수정 후 — 포커스를 잃지 않도록 표 전체가 아니라 계산 칸·요약·그래프만 갱신 */
   function _adshRefresh(){
@@ -23822,8 +23833,8 @@
   function _adshSet(date,k,val){
     const id=_adsh.brand, sh=_adshSheet(id);
     const day=sh.days[date]||(sh.days[date]={});
-    // 광고비는 $ / 원 중 하나만 원본으로 보관 (다른 쪽은 환율로 계산)
-    const other = k==='usd' ? 'krw' : k==='krw' ? 'usd' : null;
+    // 광고비·전환매출은 $ / 원 중 하나만 원본으로 보관 (다른 쪽은 환율로 계산)
+    const other = {usd:'krw', krw:'usd', rev:'revUsd', revUsd:'rev'}[k] || null;
     // 값이 그대로면 아무것도 안 함 (input 으로 이미 저장된 칸의 change 이벤트 등)
     if((day[k]==null?null:day[k])===val && !(other && val!=null && day[other]!=null)){
       if(!Object.keys(day).length) delete sh.days[date];
@@ -23845,7 +23856,7 @@
     if(!inp.matches('#adshDaily input')) return;
     const date=inp.closest('tr').dataset.date, k=_adshCols()[+inp.dataset.c].k;
     let val=_adshNum(inp.value);
-    if(val!=null && val<0 && k!=='rev') val=null;
+    if(val!=null && val<0 && k!=='rev' && k!=='revUsd') val=null;
     const day=_adshSheet(_adsh.brand).days[date]||{};
     if(day[k]==null && val==null) return;
     _adshSet(date,k,val);
@@ -23856,7 +23867,7 @@
     if(!inp.matches('#adshDaily input')) return;
     const date=inp.closest('tr').dataset.date, k=_adshCols()[+inp.dataset.c].k;
     let val=_adshNum(inp.value);
-    if(val!=null && val<0 && k!=='rev') val=null;   // 음수는 전환매출(환불)만 허용
+    if(val!=null && val<0 && k!=='rev' && k!=='revUsd') val=null;   // 음수는 전환매출(환불)만 허용
     const day=_adshSheet(_adsh.brand).days[date]||{};
     // 자동 계산 칸을 지운 경우 — 원본이 없으니 바꿀 것도 없음
     if(day[k]!=null || val!=null) _adshSet(date,k,val);
