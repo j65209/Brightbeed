@@ -7275,7 +7275,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .qt-head{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.2fr) auto 18px;gap:14px;align-items:center;padding:14px 16px;cursor:pointer}
   .qt-head:hover{background:#fffaf5}
   .qt-sup{font-size:15px;font-weight:800;color:var(--text-0)}
-  .qt-title{font-size:13px;color:var(--text-2);margin-top:2px;word-break:keep-all}
+  .qt-sup{word-break:keep-all}
+  .qt-qty{font-size:13.5px;font-weight:700;color:#c2410c;margin-top:3px;font-variant-numeric:tabular-nums}
   .qt-h-mid{display:flex;gap:6px;flex-wrap:wrap}
   .qt-date,.qt-valid,.qt-lead{font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--bg-2);color:var(--text-2);white-space:nowrap}
   .qt-valid{background:#ecfdf5;color:#047857}
@@ -16992,12 +16993,14 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       const items = (p.items || []).map(it => `<tr><td>${E(it.name)}</td><td>${E(it.opt)}</td><td class="n">${_qtW(it.qty)}</td><td class="n">${_qtW(it.price)}</td><td class="n">${_qtW(it.supply)}</td><td class="n">${_qtW(it.vat)}</td><td class="n b">${_qtW(it.total)}</td></tr>`).join('');
       const row = (k, v, extra) => v ? `<div class="qt-kv"><span>${k}</span><b>${E(v)}</b>${extra || ''}</div>` : '';
       const raw = (p.raw || []).filter(r => r.some(Boolean)).map(r => '<tr>' + r.map(v => `<td>${E(v)}</td>`).join('') + '</tr>').join('');
+      const its = p.items || [], qty = p.qtyTotal != null ? p.qtyTotal : its[0] && its[0].qty;
+      const bag = its.length ? [its[0].name, its[0].opt].filter(Boolean).join(' · ') + (its.length > 1 ? ` 외 ${its.length - 1}건` : '') : (x.title || x.file_name || '(품목 없음)');
       const up = x.created_at ? new Date(x.created_at).toLocaleString('ko-KR', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) : '';
       return `<article class="qt-card${open ? ' is-open' : ''}${p.ok ? '' : ' is-raw'}">
         <header class="qt-head" onclick="qtToggle('${x.id}')">
-          <div class="qt-h-left"><div class="qt-sup">${E(x.supplier || '(업체 미상)')}</div><div class="qt-title">${E(x.title || x.file_name || '')}</div></div>
+          <div class="qt-h-left"><div class="qt-sup">${E(bag)}</div>${qty != null ? `<div class="qt-qty">${_qtW(qty)}개</div>` : ''}</div>
           <div class="qt-h-mid">${x.quote_date ? `<span class="qt-date">${x.quote_date.replace(/-/g,'.')} 견적</span>` : ''}${_qtValid(x)}${t.lead ? `<span class="qt-lead">납기 ${E(t.lead.replace(/^.*?(\d+\s*일).*$/,'$1'))}</span>` : ''}</div>
-          <div class="qt-h-right"><div class="qt-total">${x.total != null ? _qtW(x.total) + '원' : '—'}</div><div class="qt-total-sub">${p.qtyTotal ? '수량 ' + _qtW(p.qtyTotal) + ' · ' : ''}부가세 ${_qtW(p.vatTotal || 0)}</div></div>
+          <div class="qt-h-right"><div class="qt-total">${x.total != null ? _qtW(x.total) + '원' : '—'}</div><div class="qt-total-sub">부가세 ${_qtW(p.vatTotal || 0)}</div></div>
           <span class="qt-chev">▾</span>
         </header>
         <div class="qt-body">
