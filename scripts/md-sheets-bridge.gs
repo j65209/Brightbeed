@@ -48,7 +48,7 @@ function route_(p) {
     switch (p.action) {
       case 'ping':  return json_({ ok: true });
       case 'meta':  return json_(meta_(p.fresh === '1' || p.fresh === true));
-      case 'read':  return json_(read_(p.book, p.sheet, p.have || null));
+      case 'read':  return json_(read_(p.book, p.sheet, p.have || null, p.parts || ''));
       case 'write': return json_(write_(p.book, p.sheet, p.edits || []));
       case 'audit_fix': return json_(auditFix_(!(p.apply === true || p.apply === '1'), p.babyB === '16400'));
       default:      return json_({ ok: false, error: 'unknown_action' });
@@ -172,7 +172,7 @@ const SPILL = /\b(QUERY|FILTER|SORT|SORTN|SEQUENCE|ARRAYFORMULA|UNIQUE|IMPORTRAN
 function cacheBase_(key, sh) {
   return key + ':' + sh.getSheetId() + ':' + Math.min(sh.getLastRow(), MAX_ROWS) + 'x' + sh.getLastColumn();
 }
-function read_(key, name, have) {
+function read_(key, name, have, parts) {
   const T = {}, t0 = Date.now();
   const sh = sheetOf_(key, name).sh;
   T.open = Date.now() - t0;
@@ -183,16 +183,21 @@ function read_(key, name, have) {
       structure: { sig: 'empty', bg: [], fc: [], bold: [], dv: [], lists: [], hiddenCols: [], merges: [], frozenRows: 0, frozenCols: 0 } };
   }
   const nRows = Math.min(lastRow, MAX_ROWS), base = cacheBase_(key, sh);
-  let t = Date.now();
-  let content = cacheGet_('c2:' + base);
-  if (!content) { content = readContent_(sh, nRows, lastCol); cachePut_('c2:' + base, content, 20); }
-  T.content = Date.now() - t; t = Date.now();
-  let st = cacheGet_('s2:' + base);
-  if (!st) { st = readStructure_(sh, nRows, lastCol); cachePut_('s2:' + base, st, 1800); }
-  T.structure = Date.now() - t;
+  // parts='content' 면 값만(빠름), 'structure' 면 서식만 — 오피스가 처음 여는 탭은 둘을 따로 받아 값부터 그린다
   const out = { ok: true, v: 2, rows: nRows, cols: lastCol, totalRows: lastRow, truncated: lastRow > nRows, gid: gid, at: at, ms: T };
-  if (!have || have.ct !== content.sig) out.content = content;
-  if (!have || have.st !== st.sig) out.structure = st;
+  let t = Date.now();
+  if (parts !== 'structure') {
+    let content = cacheGet_('c2:' + base);
+    if (!content) { content = readContent_(sh, nRows, lastCol); cachePut_('c2:' + base, content, 20); }
+    if (!have || have.ct !== content.sig) out.content = content;
+  }
+  T.content = Date.now() - t; t = Date.now();
+  if (parts !== 'content') {
+    let st = cacheGet_('s2:' + base);
+    if (!st) { st = readStructure_(sh, nRows, lastCol, key + ':' + base); cachePut_('s2:' + base, st, 1800); }
+    if (!have || have.st !== st.sig) out.structure = st;
+  }
+  T.structure = Date.now() - t;
   return out;
 }
 
@@ -252,14 +257,15 @@ function relIdx_(part, base) {
   return Number(part) - 1;
 }
 
-function readStructure_(sh, nRows, nCols) {
+function readStructure_(sh, nRows, nCols, ckey) {
   const rg = sh.getRange(1, 1, nRows, nCols);
   const lower = function (def) { return function (x) { x = String(x || '').toLowerCase(); return x && x !== def ? x : null; }; };
   const bg = runs_(rg.getBackgrounds(), nRows, nCols, lower('#ffffff'));
   const fc = runs_(rg.getFontColors(), nRows, nCols, lower('#000000'));
   const bold = runs_(rg.getFontWeights(), nRows, nCols, function (x) { return x === 'bold' ? 1 : null; });
-  const lists = [], listIdx = {}, rangeCache = {};
-  const dv = runs_(rg.getDataValidations(), nRows, nCols, function (v) {
+  const dvHit = ckey ? cacheGet_('d2:' + ckey) : null;
+  const lists = dvHit ? dvHit.lists : [], listIdx = {}, rangeCache = {};
+  const dv = dvHit ? dvHit.dv : runs_(rg.getDataValidations(), nRows, nCols, function (v) {
     if (!v) return null;
     const spec = dvSpec_(v, rangeCache);
     if (!spec) return null;
@@ -267,6 +273,7 @@ function readStructure_(sh, nRows, nCols) {
     if (!(sk in listIdx)) { listIdx[sk] = lists.length; lists.push(spec); }
     return listIdx[sk];
   });
+  if (!dvHit && ckey) cachePut_('d2:' + ckey, { dv: dv, lists: lists }, 21600);
   const hiddenCols = [];
   for (let c = 1; c <= nCols; c++) if (sh.isColumnHiddenByUser(c)) hiddenCols.push(c - 1);
   const merges = rg.getMergedRanges().map(function (m) {

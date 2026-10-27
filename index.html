@@ -9215,7 +9215,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .container{max-width:none;padding:20px clamp(12px,1.6vw,28px)}
   .home-ceocal-card,.sub-modules-section,.po-wrap,.mdw-wrap,.fx-wrap,.ably-wrap,.brep-wrap,.pc-wrap,#viewCeoCal,#viewDesign{max-width:none}
   .lg-tabs,.lg-brand-switch{max-width:none}
-  @media (min-width:1500px){ .hero-row,.hero-row-3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))} }
+  @media (min-width:1500px){ .hero-row.hero-row-3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))} }
   @media (max-width:600px){
     body{font-size:15px;line-height:1.6}
     .container{padding:14px 12px}
@@ -35872,7 +35872,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       if(!_mds.cfg||!_mds.cfg.token) return;  // 연결 정보를 읽기 전이면 저장본만 보여 두고, 진입 끝에서 다시 불러온다
       if(body&&!prev) body.innerHTML='<div class="mds-loading">구글시트에서 불러오는 중… (큰 탭은 처음 한 번만 오래 걸려요)</div>';
       const pr=prev&&prev._raw;
-      const have=pr&&pr.v===2?{ct:pr.content.sig, st:pr.structure.sig}:null;
+      const have=pr&&pr.v===2?{ct:pr.content.sig, st:pr.structure.sig==='pending'?'':pr.structure.sig}:null;
+      if(!pr){ await _mdsFirstLoad(tk,book,sheet); return }
       let j=await _mdsCall('read',{book,sheet,have});
       if(j.v===2&&((!j.content&&!pr)||(!j.structure&&!pr))) j=await _mdsCall('read',{book,sheet});
       const raw=j.v===2
@@ -35896,6 +35897,28 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     }finally{
       _mds.loading[tk]=false;
     }
+  }
+  // 처음 여는 탭 — 값만 먼저(수 초) 받아 그리고, 서식·드롭다운은 따로 받아 오는 대로 입힌다.
+  // 예전 브리지(parts 모름)는 한 번에 다 주므로 그대로 쓴다.
+  async function _mdsFirstLoad(tk,book,sheet){
+    const stP=_mdsCall('read',{book,sheet,parts:'structure'}).catch(e=>({ok:false,error:String(e&&e.message||e)}));
+    const j=await _mdsCall('read',{book,sheet,parts:'content'});
+    const meta={rows:j.rows,cols:j.cols,totalRows:j.totalRows,truncated:j.truncated,gid:j.gid,at:j.at};
+    if(j.v!==2){ const raw=_mdsV1Raw(j); _mds.data[tk]=_mdsPrepare(raw); _mdsIdbPut(tk,raw); _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준'); _mdsRenderTabBody(tk); return }
+    let raw={v:2, meta, content:j.content, structure:j.structure||null};
+    _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준');
+    if(!raw.structure){
+      _mds.data[tk]=_mdsPrepare(Object.assign({},raw,{structure:{sig:'pending',bg:[],fc:[],bold:[],dv:[],lists:[],hiddenCols:[],merges:[],frozenRows:0,frozenCols:0}}));
+      _mds.data[tk].stylePending=true;
+      _mdsRenderTabBody(tk);
+      const s2=await stP;
+      if(!s2||!s2.ok||!s2.structure) return;  // 서식은 다음 갱신 때 다시 받는다
+      const cur=_mds.data[tk];
+      raw={v:2, meta, content:(cur&&cur._raw&&cur._raw.content)||raw.content, structure:s2.structure};
+    }
+    _mds.data[tk]=_mdsPrepare(raw);
+    _mdsIdbPut(tk,raw);
+    _mdsRenderTabBody(tk);
   }
   function _mdsPrepare(raw){
     const m=raw.meta||{}, ct=raw.content||{}, st=raw.structure||{};
@@ -36045,6 +36068,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(asCards) h='<div class="mds-cards'+(bodyW>=640?' grid':'')+'">'+shown.map(r=>_mdsCardHtml(d,r,canEdit)).join('')+'</div>';
     const notes=[];
     if(d.stale) notes.push('저장된 화면 · 최신 내용 불러오는 중');
+    if(d.stylePending) notes.push('색·드롭다운 불러오는 중');
     if(q) notes.push(`검색 결과 ${rows.length.toLocaleString()}행`);
     if(d.ro) notes.push('QUERY·FILTER 같은 자동계산 탭이라 보기만 돼요 — 원본 탭이나 구글시트에서 고쳐 주세요');
     else if(!_mdsCanEdit()) notes.push('보기 전용 — MD팀 계정(업무일지 "나는")이나 관리자만 고칠 수 있어요');
