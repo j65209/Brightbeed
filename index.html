@@ -9162,10 +9162,10 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
 
   .mds-scroll{max-height:74vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
   .mds-table{border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px;color:#1f2329}
-  .mds-table th,.mds-table td{box-sizing:border-box;padding:4px 5px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;vertical-align:middle;background:#fff;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;overflow:hidden}
+  .mds-table th,.mds-table td{box-sizing:border-box;font-size:12px;padding:4px 6px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;vertical-align:middle;background:#fff;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;overflow:hidden}
   .mds-table td .mds-c{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
   .mds-table.dense{font-size:11px}
-  .mds-table.dense th,.mds-table.dense td{padding:3px 3px}
+  .mds-table.dense th,.mds-table.dense td{padding:3px 3px;font-size:11px}
   .mds-table.dense .mds-rn{font-size:10px}
   .mds-table thead th{position:sticky;top:0;z-index:2;background:#f3f4f6;color:#6b7280;font-weight:500;font-size:10.5px;text-align:center;padding:2px 3px}
   .mds-table .mds-rn{position:sticky;left:0;z-index:1;background:#f3f4f6;color:#6b7280;font-size:11px;text-align:center}
@@ -9177,7 +9177,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .mds-table td.mds-ed:hover{box-shadow:inset 0 0 0 1px rgba(225,29,72,.45)}
   .mds-table td.mds-fx{color:#374151}
   .mds-table td.mds-err{background:#fef2f2 !important;color:#b91c1c !important;font-weight:700}
-  .mds-table td.mds-num{text-align:right;font-variant-numeric:tabular-nums}
+  .mds-table td.mds-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;overflow-wrap:normal;word-break:normal}
+  .mds-table td.mds-num .mds-c{white-space:nowrap}
   .mds-table td.mds-saving{opacity:.55}
   .mds-table td.mds-saved{animation:mdsFlash 1.2s ease}
   @keyframes mdsFlash{0%{box-shadow:inset 0 0 0 2px #16a34a}100%{box-shadow:inset 0 0 0 0 transparent}}
@@ -35983,52 +35984,70 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     return _mdsCanvas.measureText(s).width;
   }
   function _mdsShowText(v){ return /^https?:\/\/\S+$/i.test(v)?'링크 ↗':v }
+  const MDS_NUMRE=/^[-+]?[₩￦$]?\s?[\d,]+(\.\d+)?\s?[%원개]?$/;
+  // 표 숫자는 고정폭 숫자(tabular-nums)로 그려서 일반 글꼴로 재면 좁게 나온다 → 숫자를 0 으로 바꿔 잰다
+  function _mdsNumW(v,bold){ return _mdsTextW(v.trim().replace(/\d/g,'0'),bold)*1.04+2 }
   function _mdsMeasureCols(d){
-    d.natW={}; d.minW={};
-    const rows=Math.min(d.lastRow,400), PAD=12;
+    d.natW={}; d.minW={}; d.numCol={}; d.flexW={};
+    const rows=Math.min(d.lastRow,400), PAD=13, SHORT=150, MAXW=260;
     d.visCols.forEach(c=>{
-      const ws=[]; let word=0;
+      let maxT=0, word=0, num=0, hdrWord=0, nTxt=0, nNum=0; const ws=[];
       for(let r=0;r<rows;r++){
         const k=r+','+c;
         if(d.skip.has(k)) continue;
         const sp=d.span[k];
         if(sp&&sp[1]>1) continue;  // 여러 열에 걸친 병합 칸은 한 열 너비 계산에서 뺀다
-        if(d.img[k]){ ws.push(42); continue }
+        if(d.img[k]){ maxT=Math.max(maxT,42); continue }
         const v=_mdsShowText(String((d.values[r]||[])[c]??''));
         if(!v) continue;
-        const isH=r<d.hdrRows;
-        v.split(/\s+/).forEach(wd=>{ if(wd) word=Math.max(word,Math.min(_mdsTextW(wd,isH),isH?120:90)) });
-        ws.push(Math.min(_mdsTextW(v.split('\n')[0],isH),isH?150:400));
+        const isH=r<d.hdrRows, bold=isH||d.boldSet.has(k);
+        if(isH){ v.split(/\s+/).forEach(wd=>{ if(wd) hdrWord=Math.max(hdrWord,_mdsTextW(wd,true)*1.04) }); continue }
+        if(MDS_NUMRE.test(v.trim())){ const w=_mdsNumW(v,bold); num=Math.max(num,w); ws.push(w); nNum++; continue }
+        nTxt++;
+        const w=_mdsTextW(v.split('\n')[0],bold)*1.04;
+        maxT=Math.max(maxT,w); ws.push(w);
+        v.split(/\s+/).forEach(wd=>{ if(wd) word=Math.max(word,Math.min(_mdsTextW(wd,bold)*1.04,120)) });
       }
       ws.sort((a,b)=>a-b);
       const p90=ws.length?ws[Math.min(ws.length-1,Math.floor(ws.length*0.9))]:16;
-      d.natW[c]=Math.round(Math.min(Math.max(p90,word,16)+PAD,260));
-      d.minW[c]=Math.round(Math.min(d.natW[c],Math.max(word+PAD,32)));
+      d.numCol[c]=nNum>0&&nNum>=nTxt;
+      const longest=Math.max(maxT,num);
+      // 짧은 값만 있는 열은 가장 긴 값 그대로(한 줄), 긴 글 열은 넉넉히 잡되 260px 까지만
+      const nat=longest<=SHORT?longest:Math.min(Math.max(p90,SHORT),MAXW);
+      const min=longest<=SHORT?longest:Math.max(word,num,SHORT*0.6);
+      d.natW[c]=Math.round(Math.max(nat,hdrWord,16)+PAD);
+      d.minW[c]=Math.round(Math.max(min,num,Math.min(hdrWord,90),16)+PAD);
+      d.flexW[c]=longest>SHORT;  // 남는 폭을 먼저 받을 긴 글 열
     });
   }
   // 화면 폭(avail)에 들어가도록 열 너비를 나눈다. 다 못 들어가면 11px 촘촘 모드로 한 번 더 줄인다.
   function _mdsLayout(d,avail){
     const cols=d.visCols, w={};
-    const nat=c=>d.natW[c], sum=cols.reduce((s,c)=>s+nat(c),0);
-    if(sum<=avail){
-      const k=Math.min(avail/sum,1.6);
-      cols.forEach(c=>{ w[c]=Math.floor(nat(c)*k) });
-      return {w,dense:false};
+    const sum=a=>cols.reduce((t,c)=>t+a[c],0);
+    const nat={...d.natW}, min={...d.minW};
+    let dense=false;
+    if(sum(min)>avail){
+      // 촘촘 모드(11px·여백 축소)로 한 번 더 — 글자 폭은 11/12, 칸 여백 13→7
+      dense=true;
+      cols.forEach(c=>{ nat[c]=Math.round((nat[c]-13)*11/12+7); min[c]=Math.round((min[c]-13)*11/12+7) });
     }
-    const minSum=cols.reduce((s,c)=>s+d.minW[c],0);
-    const dense=minSum>avail*0.98;
-    const f=dense?11/12:1, N={}, M={};
-    cols.forEach(c=>{ N[c]=nat(c)*f; M[c]=Math.max(d.minW[c]*f,dense?28:32) });
-    // 비례로 줄이되 최소폭 아래로 내려가는 열은 최소폭에 고정하고 나머지끼리 다시 나눈다
-    let flex=cols.slice(), fixed=0;
-    for(let it=0;it<8&&flex.length;it++){
-      const k=(avail-fixed)/flex.reduce((s,c)=>s+N[c],0), keep=[];
-      flex.forEach(c=>{ if(N[c]*k<M[c]){ w[c]=M[c]; fixed+=M[c] } else keep.push(c) });
-      if(keep.length===flex.length){ keep.forEach(c=>{ w[c]=N[c]*k }); break }
-      flex=keep;
+    const natSum=sum(nat);
+    if(natSum<=avail){
+      // 다 들어가면 남는 폭을 긴 글 열에 먼저, 없으면 모든 열에 고르게 (너무 벌어지지 않게 1.5배까지)
+      const extra=avail-natSum, flex=cols.filter(c=>d.flexW[c]);
+      const tgt=flex.length?flex:cols, base=tgt.reduce((t,c)=>t+nat[c],0);
+      cols.forEach(c=>{ w[c]=nat[c] });
+      tgt.forEach(c=>{ w[c]=Math.floor(nat[c]+Math.min(extra*nat[c]/base,nat[c]*(flex.length?1.5:0.5))) });
+      return {w,dense,overflow:false};
     }
-    cols.forEach(c=>{ w[c]=Math.floor(w[c]==null?M[c]:w[c]) });
-    return {w,dense,overflow:cols.reduce((t,c)=>t+w[c],0)>avail+2};
+    // 안 들어가면 긴 글 열(최소폭이 자연폭보다 작은 열)부터 줄인다 — 짧은 열·숫자 열은 한 줄 너비 유지
+    cols.forEach(c=>{ w[c]=nat[c] });
+    let over=natSum-avail;
+    const shrinkable=cols.filter(c=>nat[c]>min[c]);
+    const room=shrinkable.reduce((t,c)=>t+(nat[c]-min[c]),0);
+    if(room>0){ const k=Math.min(1,over/room); shrinkable.forEach(c=>{ w[c]=Math.floor(nat[c]-(nat[c]-min[c])*k) }) }
+    const total=sum(w);
+    return {w,dense,overflow:total>avail+2};
   }
   function _mdsR1C1toA1(f,r,c){
     return String(f).replace(/(^|[^A-Za-z0-9_.!'])R(\[-?\d+\]|\d+)?C(\[-?\d+\]|\d+)?(?![A-Za-z0-9_(])/g,(m,pre,rp,cp)=>{
