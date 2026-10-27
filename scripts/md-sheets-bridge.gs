@@ -50,6 +50,7 @@ function route_(p) {
       case 'meta':  return json_(meta_(p.fresh === '1' || p.fresh === true));
       case 'read':  return json_(read_(p.book, p.sheet));
       case 'write': return json_(write_(p.book, p.sheet, p.edits || []));
+      case 'audit_fix': return json_(auditFix_(!(p.apply === true || p.apply === '1'), p.babyB === '16400'));
       default:      return json_({ ok: false, error: 'unknown_action' });
     }
   } catch (err) {
@@ -260,4 +261,88 @@ function coerce_(cell, input) {
   if (/^-?\d+(\.\d+)?%$/.test(t)) return parseFloat(t) / 100;
   if (/^-?\d+(\.\d+)?$/.test(t) && !/^0\d/.test(t)) return parseFloat(t);
   return s;
+}
+
+/* ── 2026-10-27 로직 점검에서 찾은 수식 오류 3건 수정 ──
+ * 정해진 세 가지만 고치고, 지금 수식이 "고장 난 모양" 그대로일 때만 바꾼다 → 여러 번 돌려도 안전하다.
+ * 웹에서는 action=audit_fix (apply 없으면 미리보기만), 편집기에서는 fixAuditErrors 를 실행하면 바로 적용된다.
+ *  1) 코즈미 [50%할인이벤트] C열: 지워진 칸 참조(=#REF!*9.5) → =B×9.5 (공급가×9.5, Product List 공홈 최저 판매가와 같은 규칙)
+ *  2) 아페티 [플랫폼 세트] K·L열: 다른 행의 플랫폼 최저가($J윗행)로 마진율을 계산한 칸 → 자기 행 $J
+ *  3) 에이블리 가격표 [아페티] H열: =G×0.85 인데 G(세트 할인가)가 비면 0이 되는 칸 → G가 비면 F(최종 판매가)로
+ *     babyB16400 이면 Baby-B 의 비어 있는 G 칸에 Baby-A 와 같은 세트 할인가 16,400 을 넣는다
+ */
+function fixAuditErrors() {
+  const r = auditFix_(false, false);
+  Logger.log(JSON.stringify(r, null, 2));
+  return r;
+}
+
+function auditFix_(dry, babyB16400) {
+  const out = { ok: true, dry: dry, changes: [], at: new Date().toISOString() };
+  const note = function (book, sheet, a1, before, after) { out.changes.push({ book: book, sheet: sheet, cell: a1, before: before, after: after }); };
+
+  // 1) 코즈미 50%할인이벤트 C열 — 연속된 #REF! 구간 단위로 한 번에 넣는다 (수백 칸)
+  (function () {
+    const sh = openBook_('kozmi').getSheetByName('50%할인이벤트');
+    if (!sh || sh.getLastRow() < 2) return;
+    const n = sh.getLastRow() - 1;
+    const fs = sh.getRange(2, 3, n, 1).getFormulas();
+    let runStart = -1;
+    const flush = function (endIdx) {
+      if (runStart < 0) return;
+      const from = runStart + 2, to = endIdx + 1, rows = [];
+      for (let r = from; r <= to; r++) rows.push(['=B' + r + '*9.5']);
+      note('kozmi', '50%할인이벤트', 'C' + from + ':C' + to, '=#REF!*9.5', '=B' + from + '*9.5 … (' + rows.length + '칸)');
+      if (!dry) sh.getRange(from, 3, rows.length, 1).setFormulas(rows);
+      runStart = -1;
+    };
+    for (let i = 0; i < n; i++) {
+      if (/^=#REF!\*9\.5$/i.test(fs[i][0])) { if (runStart < 0) runStart = i; }
+      else flush(i);
+    }
+    flush(n);
+  })();
+
+  // 2) 아페티 플랫폼 세트 K(에이블리)·L(지그재그) 마진율 — $J 가 자기 행이 아닌 칸
+  (function () {
+    const sh = openBook_('apeti').getSheetByName('플랫폼 세트');
+    if (!sh || sh.getLastRow() < 2) return;
+    const n = sh.getLastRow() - 1;
+    const fs = sh.getRange(2, 11, n, 2).getFormulas();
+    for (let i = 0; i < n; i++) {
+      const row = i + 2;
+      for (let k = 0; k < 2; k++) {
+        const f = fs[i][k];
+        const refs = (f.match(/\$J(\d+)/g) || []).map(function (x) { return Number(x.slice(2)); });
+        if (!refs.length || refs.every(function (x) { return x === row; })) continue;
+        const after = f.replace(/\$J\d+/g, '$J' + row);
+        note('apeti', '플랫폼 세트', (k ? 'L' : 'K') + row, f, after);
+        if (!dry) sh.getRange(row, 11 + k).setFormula(after);
+      }
+    }
+  })();
+
+  // 3) 에이블리 가격표 아페티 H열 — =G×0.85 (세트 할인가 기준) 칸에 G 가 비었을 때 F 로 대신 계산
+  (function () {
+    const sh = openBook_('ably_price').getSheetByName('아페티');
+    if (!sh || sh.getLastRow() < 2) return;
+    const n = sh.getLastRow() - 1;
+    const rg = sh.getRange(2, 5, n, 4); // E(옵션명) F G H
+    const fs = rg.getFormulas(), vs = rg.getDisplayValues();
+    for (let i = 0; i < n; i++) {
+      const row = i + 2, f = fs[i][3];
+      const m = f.match(/^=G(\d+)\*0\.85$/i);
+      if (!m || Number(m[1]) !== row) continue;
+      if (babyB16400 && vs[i][0] === 'Baby-B' && vs[i][2] === '') {
+        note('ably_price', '아페티', 'G' + row, '(빈칸)', '16400');
+        if (!dry) sh.getRange(row, 7).setValue(16400);
+      }
+      const after = '=IF(G' + row + '="",F' + row + ',G' + row + ')*0.85';
+      note('ably_price', '아페티', 'H' + row, f, after);
+      if (!dry) sh.getRange(row, 8).setFormula(after);
+    }
+  })();
+
+  if (!dry) SpreadsheetApp.flush();
+  return out;
 }
