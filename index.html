@@ -12131,7 +12131,7 @@
     {id:'vendor',    name:'노아',   team:'엠디1팀',   taskLabel:'벤더 마진 시트 · 출금 알림', schedule:'매 10분',       agentIds:['vendor-fetch','withdrawal-nag']},
     {id:'marketing', name:'자스민', team:'엠디2팀',   taskLabel:'매출 수집',               schedule:'매 30분',       agentIds:['pro-sales','admin-sales','platform-sales']},
     {id:'ads',       name:'오스카', team:'엠디2팀',   taskLabel:'메타 광고 성과 수집',      schedule:'매 30분',       agentIds:['fb-ads']},
-    {id:'plat_ads',  name:'루나',   team:'플랫폼광고팀', taskLabel:'에이블리 광고 · 환율',   schedule:'매일 8시',      agentIds:['ably-ads','fx-usd']},
+    {id:'plat_ads',  name:'루나',   team:'플랫폼광고팀', taskLabel:'플랫폼 광고 · 환율',   schedule:'매일 8시',      agentIds:['ably-ads','fx-usd']},
     {id:'report',    name:'릴리',   team:'리포트팀', taskLabel:'에이블리 일일 보고서',     schedule:'매일 7:10',     agentIds:['ably-daily']},
     {id:'planning',  name:'아이비', team:'기획팀',   taskLabel:'판매 순위 · 브랜드 리포트', schedule:'매 30분',      agentIds:['brand-report','bestsellers']},
   ];
@@ -23935,9 +23935,10 @@
     _adsh.colW=_adshColW(dates);
     // 서버 맥이 광고 관리자에서 자동으로 채우는 시트 (scripts/ably_ads.py, 매일 08:00 · 지난달 1일~오늘 덮어씀)
     const src=(_adsh.sheets[_adsh.brand]||{}).source;
-    const sync=src && src.type==='ably-ads' ? (()=>{
+    const SYNC_NAME={'ably-ads':'에이블리 광고 관리자','zigzag-ads':'지그재그 광고 관리'};   // 서버 맥 ably_ads.py · zigzag_ads.py
+    const sync=src && SYNC_NAME[src.type] ? (()=>{
       const t=new Date(src.syncedAt||0), hm=`${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-      return `<div class="adsh-sync"><i class="adsh-live"></i><b>에이블리 광고 관리자 자동 연동</b> · 매일 아침 8시 갱신 · 마지막 반영 ${hm}<span>지난달 1일~오늘 값은 광고 관리자 값으로 덮어써지니 직접 고치지 않아도 됩니다</span></div>`;
+      return `<div class="adsh-sync"><i class="adsh-live"></i><b>${SYNC_NAME[src.type]} 자동 연동</b> · 매일 아침 8시 갱신 · 마지막 반영 ${hm}<span>지난달 1일~오늘 값은 광고 관리 값으로 덮어써지니 직접 고치지 않아도 됩니다${src.type==='zigzag-ads'?' · 전환은 클릭 후 7일 기준':''}</span></div>`;
     })() : '';
     body.innerHTML=`${sync}<div id="adshTop">${_adshRenderWeeks()}${_adshRenderSummary()}${_adshRenderCharts()}</div>
       <div class="adsh-h">일자별 운영 현황${_adshIsPlat() ? '' : (()=>{ const c=_adshCur(); return `<span class="adsh-cur" role="group" aria-label="광고비·전환매출 입력 통화">광고비·전환매출 입력
