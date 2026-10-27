@@ -3724,8 +3724,11 @@
   .adsh-section{padding:0;background:transparent;border:none;margin-bottom:16px;overflow:visible}
   .adsh-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .adsh-fx{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--text-2);background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
-  .adsh-save{font-size:11px;color:var(--text-3);min-width:60px;text-align:right}
-  .adsh-save.is-err{color:#dc2626;font-weight:700}
+  .adsh-save{font-size:11px;color:#15803d;font-weight:700;min-width:60px;text-align:right;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .adsh-save.is-err{color:#dc2626}
+  .adsh-live{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:adshPulse 1.8s infinite}
+  .adsh-save.is-err .adsh-live{background:#dc2626;animation:none}
+  @keyframes adshPulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 6px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
   .adsh-month{display:inline-flex;align-items:center;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;background:var(--bg-1)}
   .adsh-month button{border:0;background:transparent;padding:4px 10px;font-size:15px;line-height:1;cursor:pointer;color:var(--text-1)}
   .adsh-month button:hover{background:var(--bg-2)}
@@ -3739,10 +3742,13 @@
   .adsh-h::before{content:'';width:9px;height:9px;background:var(--text-0)}
   .adsh-h small{font-weight:500;color:var(--text-3);font-size:11px}
   .adsh-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .adsh-tbl{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--bg-1);font-variant-numeric:tabular-nums}
-  .adsh-tbl th,.adsh-tbl td{border:1px solid #bfbfbf;padding:0;height:28px;white-space:nowrap}
-  .adsh-tbl th{background:#d9d9d9;font-weight:800;padding:0 8px;text-align:center}
-  .adsh-tbl td{text-align:right;padding:0 8px}
+  /* 칸 너비는 내용(글자)에 딱 맞게 — 입력 칸은 JS 가 그 달 최대 자릿수로 ch 단위 너비를 준다(_adshColW) */
+  .adsh-tbl{width:100%;border-collapse:collapse;font-size:12px;background:var(--bg-1);font-variant-numeric:tabular-nums}
+  .adsh-tbl th,.adsh-tbl td{border:1px solid #bfbfbf;padding:0;height:26px;white-space:nowrap}
+  .adsh-tbl th{background:#d9d9d9;font-weight:800;padding:2px 4px;text-align:center;line-height:1.2}
+  .adsh-tbl th small{display:block;font-size:10px;font-weight:600;color:#525252}
+  .adsh-weeks th.is-now{background:#fde68a}
+  .adsh-tbl td{text-align:right;padding:0 5px}
   .adsh-tbl td.c{text-align:center;font-weight:700}
   .adsh-tbl td.b{font-weight:800}
   .adsh-tbl td.mute{color:var(--text-3)}
@@ -3754,7 +3760,8 @@
   .adsh-tbl .up{color:#dc2626}
   .adsh-tbl .down{color:#2563eb}
   .adsh-tbl td.in{padding:0;background:#fff}
-  .adsh-tbl td.in input{width:100%;min-width:74px;height:27px;border:0;background:transparent;text-align:right;font:inherit;padding:0 8px;outline:none;color:var(--text-0)}
+  .adsh-tbl{--adsh-ip:5px}
+  .adsh-tbl td.in input{display:block;box-sizing:border-box;width:calc(6ch + 2*var(--adsh-ip));min-width:100%;height:25px;border:0;background:transparent;text-align:right;font:inherit;padding:0 var(--adsh-ip);margin:0;outline:none;color:var(--text-0)}
   .adsh-tbl td.in input:focus{box-shadow:inset 0 0 0 2px #16a34a;background:#f0fdf4}
   .adsh-tbl td.in input::placeholder{color:#a3a3a3;font-weight:400}
   .adsh-tbl td.in.is-auto input{color:var(--text-3)}
@@ -3766,7 +3773,7 @@
   .adsh-legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--text-2);padding:2px 0 4px}
   .adsh-legend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
   .adsh-hint{font-size:11px;color:var(--text-3);margin-top:6px;line-height:1.5}
-  @media (max-width:900px){ .adsh-charts{grid-template-columns:1fr} }
+  @media (max-width:900px){ .adsh-charts{grid-template-columns:1fr} .adsh-tbl{font-size:11px;--adsh-ip:3px} .adsh-tbl td{padding:0 3px} .adsh-tbl th{padding:2px 2px} }
 
   /* ===== 브랜드별 실시간 매출 리포트 (식스샵 + 식스샵프로) ===== */
   .akoi-section .po-section-title{display:flex;align-items:center;gap:8px;color:var(--text-0)}
@@ -10250,17 +10257,21 @@
     <div class="po-wrap" style="padding-bottom:0">
       <div class="po-section adsh-section">
         <div class="po-section-head" style="padding:0 0 6px">
-          <div class="po-section-title">브랜드별 광고 시트 <span class="po-section-meta-inline">노출·클릭·광고비($)·전환매출 입력 → 자동 계산</span></div>
+          <div class="po-section-title">브랜드별 광고 시트 <span class="po-section-meta-inline" id="adshSubtitle">노출·클릭·광고비($)·전환매출 입력 → 자동 계산</span></div>
           <div class="po-section-meta adsh-meta">
             <span class="adsh-fx" id="adshFxTag" title="하나은행 매매기준율 (네이버) · 평일 오전 9시 자동 갱신">환율 —</span>
-            <span class="adsh-save" id="adshSaveTag"></span>
-            <button class="btn po-import akoi-refresh-btn" type="button" onclick="adshSaveNow()" title="입력 중인 칸까지 바로 저장">저장</button>
+            <span class="adsh-save" id="adshSaveTag" title="입력하는 즉시 자동으로 저장됩니다 · 저장 버튼 필요 없음"><i class="adsh-live"></i>실시간 자동저장</span>
             <div class="adsh-month">
               <button type="button" onclick="adshMoveMonth(-1)" aria-label="이전 달">‹</button>
               <span id="adshMonthLabel">—</span>
               <button type="button" onclick="adshMoveMonth(1)" aria-label="다음 달">›</button>
             </div>
           </div>
+        </div>
+        <!-- 공홈(메타, $) / 플랫폼(에이블리·지그재그·스마트스토어, 원화) — 실시간 매출 탭과 같은 모양 -->
+        <div class="lg-tabs" role="tablist" style="padding:0 0 12px;max-width:none;margin:0">
+          <button class="lg-tab active" data-adshmode="home" onclick="adshSwitchMode('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="adshCountHome">8</span></button>
+          <button class="lg-tab" data-adshmode="platform" onclick="adshSwitchMode('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="adshCountPlatform">8</span></button>
         </div>
         <div class="sub-modules adsh-brands" id="adshTabs" role="tablist"></div>
         <div id="adshBody"></div>
@@ -23420,6 +23431,21 @@
     {k:'roas', label:'ROAS(%)'},
     {k:'fx',   label:'환율',        in:true},
   ];
+  // 플랫폼(에이블리·지그재그·스마트스토어) 광고는 원화 — 환율·$ 칸 없음. 시트 id = PLATFORM_SECTIONS id (예: ably-6a)
+  const ADSH_COLS_PLAT=[
+    {k:'imp',    label:'노출수',      in:true},
+    {k:'clk',    label:'클릭수',      in:true},
+    {k:'ctr',    label:'클릭률'},
+    {k:'cpcKrw', label:'평균CPC(원)'},
+    {k:'krw',    label:'광고비(원)',  in:true},
+    {k:'cpmKrw', label:'평균CPM(원)'},
+    {k:'conv',   label:'전환수',      in:true},
+    {k:'rev',    label:'전환매출',    in:true},
+    {k:'roas',   label:'ROAS(%)'},
+  ];
+  const _adshIsPlat=(id)=>PLATFORM_SECTIONS.some(p=>p.id===(id||_adsh.brand));
+  const _adshCols=()=>_adshIsPlat()?ADSH_COLS_PLAT:ADSH_COLS;
+  const _adshCfg=(id)=>BRAND_SECTIONS.find(b=>b.id===id)||PLATFORM_SECTIONS.find(p=>p.id===id);
   const _adsh={brand:null, month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, inflight:{}, pushed:{}, failStreak:0, saveTimer:null, saving:false, saveAgain:false};
   const ADSH_DIRTY_KEY=ADSH_LS+'dirty_v1', ADSH_PUSHED_KEY=ADSH_LS+'pushed_v1', ADSH_CONFIRM_MS=3*60*1000;
   // 미저장 셀(전송 중 포함)을 localStorage 에 — 새로고침·창닫기 후에도 남아서 다시 보낸다
@@ -23515,6 +23541,7 @@
     a.cpc = a.clk && a.usd ? a.usd/a.clk : (a.clk?0:null);
     a.cpcKrw = a.clk && a.krw ? a.krw/a.clk : (a.clk?0:null);
     a.cpm = a.imp && a.usd ? a.usd/a.imp*1000 : (a.imp?0:null);
+    a.cpmKrw = a.imp && a.krw ? a.krw/a.imp*1000 : (a.imp?0:null);
     a.cvr = a.clk ? a.conv/a.clk : null;
     a.roas = a.krw ? a.rev/a.krw : null;
     return a;
@@ -23530,14 +23557,28 @@
     const wrap=document.getElementById('adshTabs');
     if(!wrap) return;
     // 홈 "일일 브랜드 리포트" 카드와 같은 모양 (sub-module) — 선택된 브랜드는 테두리·태그를 브랜드 색으로
-    wrap.innerHTML=BRAND_SECTIONS.map(b=>{
+    // 플랫폼 카드는 실시간 매출 플랫폼 탭과 같은 목록(PLATFORM_SECTIONS) · 태그 = 플랫폼명
+    const plat=_adshIsPlat();
+    wrap.innerHTML=(plat?PLATFORM_SECTIONS:BRAND_SECTIONS).map(b=>{
       const on=b.id===_adsh.brand;
+      const tag=plat ? `${b.group}${on?' · 보는 중':''}` : (on?'보는 중':'광고 시트');
       return `<div class="sub-module${on?' is-active':''}" role="tab" tabindex="0" aria-selected="${on}" style="--m-color:${b.dot};--m-border:${b.dot}" onclick="adshSwitch('${b.id}')" onkeydown="if(event.key==='Enter')adshSwitch('${b.id}')">
         <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:${b.dot};box-shadow:0 0 12px ${b.dot}b3"></span></div>
         <div class="sub-module-title">${_akoiEsc(b.display)}</div>
-        <div class="sub-module-tag">${on?'보는 중':'광고 시트'}</div>
+        <div class="sub-module-tag">${_akoiEsc(tag)}</div>
       </div>`;
     }).join('');
+    document.querySelectorAll('.lg-tab[data-adshmode]').forEach(btn=>{
+      const on=btn.dataset.adshmode===(plat?'platform':'home');
+      btn.classList.toggle('active',on);
+      btn.setAttribute('aria-selected',on?'true':'false');
+    });
+    const ch=document.getElementById('adshCountHome'), cp=document.getElementById('adshCountPlatform');
+    if(ch) ch.textContent=BRAND_SECTIONS.length;
+    if(cp) cp.textContent=PLATFORM_SECTIONS.length;
+    const fxTag=document.getElementById('adshFxTag'); if(fxTag) fxTag.hidden=plat;
+    const sub=document.getElementById('adshSubtitle');
+    if(sub) sub.textContent=plat ? '노출·클릭·광고비(원)·전환매출 입력 → 자동 계산 · 원화라 환율 없음' : '노출·클릭·광고비($)·전환매출 입력 → 자동 계산';
     const ml=document.getElementById('adshMonthLabel');
     if(ml) ml.textContent=_adsh.month.replace('-','.');
   }
@@ -23559,7 +23600,7 @@
     const cell=(a,k,f)=>`<td>${f==='p'?_adshPct(a[k]):f==='r'?_adshPct(a[k],0):_adshFmt(a[k],f)}</td>`;
     const row=(label,a)=>`<tr><td class="c">${label}</td>${keys.map(([k,f])=>cell(a,k,f)).join('')}</tr>`;
     return `<div class="adsh-h">전주대비 광고요약 <small>금주 ${_adshMd(_adshAdd(end,-6))}~${_adshMd(end)} · 전주 ${_adshMd(_adshAdd(end,-13))}~${_adshMd(_adshAdd(end,-7))}</small></div>
-      <div class="adsh-scroll"><table class="adsh-tbl"><thead><tr><th>구분</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>평균CPC(원)</th><th>총광고비</th><th>전환수</th><th>전환율</th><th>매출</th><th>ROAS(%)</th></tr></thead>
+      <div class="adsh-scroll"><table class="adsh-tbl"><thead><tr><th>구분</th><th>노출수</th><th>클릭수</th><th>클릭률</th><th>평균CPC<small>(원)</small></th><th>총광고비</th><th>전환수</th><th>전환율</th><th>매출</th><th>ROAS<small>(%)</small></th></tr></thead>
       <tbody>${row('금주',cur)}${row('전주',prev)}
       <tr class="is-diff"><td class="c">전주대비 증감율</td>${keys.map(([k])=>_adshDiffCell(cur[k],prev[k])).join('')}</tr></tbody></table></div>`;
   }
@@ -23603,10 +23644,11 @@
     const calcs=dates.map(_adshCalc);
     let last=-1; calcs.forEach((c,i)=>{ if(c.has) last=i });
     const lineOf=(f)=>calcs.map((c,i)=>i<=last ? f(c) : null);
-    const cpc=calcs.map(c=>c.clk && c.usd ? c.usd/c.clk : 0);
+    const plat=_adshIsPlat();   // 플랫폼은 원화 CPC
+    const cpc=calcs.map(c=>plat ? (c.clk && c.krw ? c.krw/c.clk : 0) : (c.clk && c.usd ? c.usd/c.clk : 0));
     return `<div class="adsh-charts">
       ${_adshChart(dates, calcs.map(c=>c.imp), lineOf(c=>c.clk), {bName:'노출수', lName:'클릭수'})}
-      ${_adshChart(dates, cpc, lineOf(c=>c.krw||0), {bName:'평균CPC($)', lName:'총광고비(원)', bDec:2})}
+      ${_adshChart(dates, cpc, lineOf(c=>c.krw||0), plat ? {bName:'평균CPC(원)', lName:'광고비(원)', bDec:0} : {bName:'평균CPC($)', lName:'총광고비(원)', bDec:2})}
     </div>`;
   }
   function _adshCellVals(date){
@@ -23615,6 +23657,8 @@
     const cpc=c.clk && c.usd!=null ? c.usd/c.clk : (c.has?0:null);
     const cpm=c.imp && c.usd!=null ? c.usd/c.imp*1000 : (c.has?0:null);
     const roas=c.krw ? c.rev/c.krw : (c.has?0:null);
+    const cpcKrw=c.clk && c.krw!=null ? c.krw/c.clk : (c.has?0:null);
+    const cpmKrw=c.imp && c.krw!=null ? c.krw/c.imp*1000 : (c.has?0:null);
     // 입력 칸: [표시값, 자동계산 여부]
     return {
       imp:[day.imp!=null?_adshFmt(day.imp):'',false],
@@ -23625,6 +23669,7 @@
       rev:[day.rev!=null?_adshFmt(day.rev):'',false],
       fx:[c.fx?_adshFmt(c.fx.rate,2):'', !(c.fx && c.fx.src==='manual')],
       ctr:_adshPct(ctr), cpc:cpc==null?'':_adshFmt(cpc,2), cpm:cpm==null?'':_adshFmt(cpm,2), roas:_adshPct(roas,0),
+      cpcKrw:cpcKrw==null?'':_adshFmt(cpcKrw), cpmKrw:cpmKrw==null?'':_adshFmt(cpmKrw),
       fxTitle:c.fx ? (c.fx.src==='manual'?'직접 입력':c.fx.src==='auto'?`자동 (${c.fx.at||''})`:`직전 영업일 ${_adshMd(c.fx.from)} 환율`) : '환율 없음',
     };
   }
@@ -23634,39 +23679,79 @@
     const dn='일월화수목금토'[dow];
     const today=_adshYmd(new Date());
     return `<tr data-date="${date}"${date===today?' class="is-today"':''}><td class="c">${_adshMd(date)}</td><td class="c ${dow===0?'sun':dow===6?'sat':''}">${dn}</td>`+
-      ADSH_COLS.map((col,ci)=>{
+      _adshCols().map((col,ci)=>{
         if(!col.in) return `<td class="${col.k==='roas'||col.k==='ctr'?'b':''}" data-k="${col.k}">${v[col.k]}</td>`;
         const [val,auto]=v[col.k];
         const title=col.k==='fx'?` title="${v.fxTitle}"`:'';
-        return `<td class="in${auto?' is-auto':''}" data-k="${col.k}"${title}><input inputmode="decimal" data-r="${ri}" data-c="${ci}" value="${val}"></td>`;
+        const w=_adsh.colW&&_adsh.colW[col.k];
+        return `<td class="in${auto?' is-auto':''}" data-k="${col.k}"${title}><input inputmode="decimal" data-r="${ri}" data-c="${ci}" value="${val}"${w?` style="width:${w}"`:''}></td>`;
       }).join('')+'</tr>';
+  }
+  /* 입력 칸 너비 = 그 달 가장 긴 값의 글자폭 (숫자 1ch, 쉼표·점 0.4ch) — 가로 스크롤 없이 폰트에 딱 맞게 */
+  function _adshColW(dates){
+    const w={};
+    _adshCols().filter(c=>c.in).forEach(c=>{
+      let mx=2;
+      dates.forEach(d=>{
+        const s=String(_adshCellVals(d)[c.k][0]||'');
+        const n=s.replace(/[,.]/g,'').length+(s.length-s.replace(/[,.]/g,'').length)*0.4;
+        if(n>mx) mx=n;
+      });
+      w[c.k]=`calc(${(mx+0.3).toFixed(1)}ch + 2*var(--adsh-ip))`;
+    });
+    return w;
+  }
+  // '총광고비(원)' → 단위는 아랫줄로 (칸 너비를 줄이려고)
+  const _adshTh=(label,cls)=>`<th${cls?` class="${cls}"`:''}>${label.replace(/(\(.+\))$/,'<small>$1</small>')}</th>`;
+  /* 최상단 — 이 달 1주~마지막주 (월~일, 시트와 같은 기준: 1일이 낀 주 = 1주) 광고비·매출·ROAS */
+  function _adshRenderWeeks(){
+    const dates=_adshMonthDates(), first=dates[0], last=dates[dates.length-1];
+    const dow=(new Date(first+'T00:00:00').getDay()+6)%7;   // 월=0
+    const weeks=[];
+    for(let s=_adshAdd(first,-dow); s<=last; s=_adshAdd(s,7)){
+      const days=Array.from({length:7},(_,i)=>_adshAdd(s,i));
+      weeks.push({s, e:days[6], a:_adshAgg(days)});
+    }
+    const today=_adshYmd(new Date());
+    const th=weeks.map((w,i)=>`<th${w.s<=today&&today<=w.e?' class="is-now"':''}>${i+1}주<small>${_adshMd(w.s)}~${_adshMd(w.e)}</small></th>`).join('');
+    const row=(label,f)=>`<tr><td class="c">${label}</td>${weeks.map(w=>`<td>${w.a.n?f(w.a):'-'}</td>`).join('')}</tr>`;
+    return `<div class="adsh-h">주차별 요약 <small>월~일 기준</small></div>
+      <div class="adsh-scroll"><table class="adsh-tbl adsh-weeks"><thead><tr><th>구분</th>${th}</tr></thead><tbody>
+      ${row('광고비',a=>_adshFmt(a.krw))}${row('매출',a=>_adshFmt(a.rev))}
+      <tr class="is-diff"><td class="c">ROAS</td>${weeks.map(w=>`<td>${w.a.n?_adshPct(w.a.roas,0):'-'}</td>`).join('')}</tr></tbody></table></div>`;
   }
   function _adshTotalHtml(){
     const a=_adshAgg(_adshMonthDates());
     const f={imp:_adshFmt(a.imp),clk:_adshFmt(a.clk),ctr:_adshPct(a.ctr),cpc:_adshFmt(a.cpc,2),usd:_adshFmt(a.usd,2),krw:_adshFmt(a.krw),
-      cpm:_adshFmt(a.cpm,2),conv:_adshFmt(a.conv),rev:_adshFmt(a.rev),roas:_adshPct(a.roas,0),fx:''};
-    return `<tr class="is-total"><td class="c" colspan="2">TOTAL</td>${ADSH_COLS.map(c=>`<td>${f[c.k]}</td>`).join('')}</tr>`;
+      cpm:_adshFmt(a.cpm,2),conv:_adshFmt(a.conv),rev:_adshFmt(a.rev),roas:_adshPct(a.roas,0),fx:'',
+      cpcKrw:_adshFmt(a.cpcKrw),cpmKrw:_adshFmt(a.cpmKrw)};
+    return `<tr class="is-total"><td class="c" colspan="2">TOTAL</td>${_adshCols().map(c=>`<td>${f[c.k]}</td>`).join('')}</tr>`;
   }
   function adshRender(){
     const body=document.getElementById('adshBody');
     if(!body || !_adsh.brand) return;
     _adshRenderTabs();
     const dates=_adshMonthDates();
-    body.innerHTML=`<div id="adshTop">${_adshRenderSummary()}${_adshRenderCharts()}</div>
+    _adsh.colW=_adshColW(dates);
+    body.innerHTML=`<div id="adshTop">${_adshRenderWeeks()}${_adshRenderSummary()}${_adshRenderCharts()}</div>
       <div class="adsh-h">일자별 운영 현황</div>
       <div class="adsh-scroll"><table class="adsh-tbl" id="adshDaily">
-        <thead><tr><th>날짜</th><th>요일</th>${ADSH_COLS.map(c=>`<th${c.in?' class="in"':''}>${c.label}</th>`).join('')}</tr></thead>
+        <thead><tr><th>날짜</th><th>요일</th>${_adshCols().map(c=>_adshTh(c.label,c.in?'in':'')).join('')}</tr></thead>
         <tbody id="adshTotal">${_adshTotalHtml()}</tbody>
         <tbody>${dates.map(_adshRowHtml).join('')}</tbody>
       </table></div>
-      <div class="adsh-hint">초록색 칸만 입력 · 엑셀에서 여러 칸 복사 후 붙여넣기 가능 · Enter/↑↓ 행 이동 · 광고비는 $ 또는 원 중 하나만 입력하면 그날 환율로 자동 환산 · 환율 칸을 비우면 자동(평일 오전 9시 하나은행 매매기준율, 주말은 직전 영업일)</div>`;
+      <div class="adsh-hint">초록색 칸만 입력 · 입력하는 즉시 실시간 자동저장(저장 버튼 없음) · 엑셀에서 여러 칸 복사 후 붙여넣기 가능 · Enter/↑↓ 행 이동 · ${_adshIsPlat()
+        ? '플랫폼 광고비는 원화 그대로 입력 (환율 없음)'
+        : '광고비는 $ 또는 원 중 하나만 입력하면 그날 환율로 자동 환산 · 환율 칸을 비우면 자동(평일 오전 9시 하나은행 매매기준율, 주말은 직전 영업일)'}</div>`;
   }
   /* 셀 수정 후 — 포커스를 잃지 않도록 표 전체가 아니라 계산 칸·요약·그래프만 갱신 */
   function _adshRefresh(){
     const top=document.getElementById('adshTop'), tot=document.getElementById('adshTotal'), tbl=document.getElementById('adshDaily');
     if(!top||!tbl) return adshRender();
-    top.innerHTML=_adshRenderSummary()+_adshRenderCharts();
+    top.innerHTML=_adshRenderWeeks()+_adshRenderSummary()+_adshRenderCharts();
     tot.innerHTML=_adshTotalHtml();
+    _adsh.colW=_adshColW(_adshMonthDates());
+    tbl.querySelectorAll('input[data-c]').forEach(inp=>{ const w=_adsh.colW[_adshCols()[+inp.dataset.c].k]; if(w) inp.style.width=w });
     tbl.querySelectorAll('tr[data-date]').forEach(tr=>{
       const v=_adshCellVals(tr.dataset.date);
       tr.querySelectorAll('td[data-k]').forEach(td=>{
@@ -23698,14 +23783,14 @@
     dk[date+'|'+k]=val;
     try{ localStorage.setItem(ADSH_LS+id, JSON.stringify(sh)) }catch(e){}
     _adshPersistDirty();
-    _adshSaveTag('저장 중…');
+    _adshSaveTag('실시간 자동저장 중…');
     _adshSchedule(100);   // 0.1s 디바운스 (붙여넣기처럼 한 번에 여러 칸이면 한 커밋으로 묶음)
   }
   /* 타이핑 즉시 저장 — 칸을 벗어나지 않아도 한 글자마다 기록. 입력 중인 칸 값은 건드리지 않는다 */
   function _adshOnInput(e){
     const inp=e.target;
     if(!inp.matches('#adshDaily input')) return;
-    const date=inp.closest('tr').dataset.date, k=ADSH_COLS[+inp.dataset.c].k;
+    const date=inp.closest('tr').dataset.date, k=_adshCols()[+inp.dataset.c].k;
     let val=_adshNum(inp.value);
     if(val!=null && val<0 && k!=='rev') val=null;
     const day=_adshSheet(_adsh.brand).days[date]||{};
@@ -23716,7 +23801,7 @@
   function _adshOnChange(e){
     const inp=e.target;
     if(!inp.matches('#adshDaily input')) return;
-    const date=inp.closest('tr').dataset.date, k=ADSH_COLS[+inp.dataset.c].k;
+    const date=inp.closest('tr').dataset.date, k=_adshCols()[+inp.dataset.c].k;
     let val=_adshNum(inp.value);
     if(val!=null && val<0 && k!=='rev') val=null;   // 음수는 전환매출(환불)만 허용
     const day=_adshSheet(_adsh.brand).days[date]||{};
@@ -23737,7 +23822,7 @@
     const r=+inp.dataset.r, c=+inp.dataset.c;
     if(e.key==='Enter'||e.key==='ArrowDown'){ e.preventDefault(); inp.blur(); _adshFocus(r+(e.shiftKey&&e.key==='Enter'?-1:1),c) }
     else if(e.key==='ArrowUp'){ e.preventDefault(); inp.blur(); _adshFocus(r-1,c) }
-    else if(e.key==='Escape'){ inp.value=_adshCellVals(inp.closest('tr').dataset.date)[ADSH_COLS[c].k][0]; inp.blur() }
+    else if(e.key==='Escape'){ inp.value=_adshCellVals(inp.closest('tr').dataset.date)[_adshCols()[c].k][0]; inp.blur() }
   }
   /* 엑셀 범위 붙여넣기 — 탭/줄바꿈으로 나눠 현재 칸부터 오른쪽·아래로 채움 (계산 칸 위치는 건너뜀) */
   function _adshOnPaste(e){
@@ -23753,7 +23838,7 @@
     rows.forEach((cells,i)=>{
       const tr=trs[r0+i]; if(!tr) return;
       cells.forEach((raw,j)=>{
-        const col=ADSH_COLS[c0+j];
+        const col=_adshCols()[c0+j];
         if(!col || !col.in) return;
         const val=_adshNum(raw);
         const cur=(_adshSheet(_adsh.brand).days[tr.dataset.date]||{})[col.k];
@@ -23763,13 +23848,16 @@
     });
     inp.blur();
     adshRender();
-    _adshSaveTag(`${n}칸 붙여넣음 · 저장 중…`);
+    _adshSaveTag(`${n}칸 붙여넣음 · 자동저장 중…`);
   }
 
   /* ----- 저장 / 불러오기 ----- */
+  // 저장 버튼 없음 — 입력 즉시 자동저장. 상태는 항상 "실시간 자동저장" 녹색 점과 함께 표시
   function _adshSaveTag(t,err){
     const el=document.getElementById('adshSaveTag');
-    if(el){ el.textContent=t; el.classList.toggle('is-err',!!err) }
+    if(!el) return;
+    el.innerHTML='<i class="adsh-live"></i>'+_akoiEsc(t);
+    el.classList.toggle('is-err',!!err);
   }
   function _adshApplyDirty(days,dirty){
     for(const key of Object.keys(dirty)){
@@ -23782,7 +23870,7 @@
   async function _adshSave(){
     if(_adsh.saving){ _adsh.saveAgain=true; return }
     _adsh.saving=true;
-    _adshSaveTag('저장 중…');
+    _adshSaveTag('실시간 자동저장 중…');
     let failed=null;
     try{
       for(const id of Object.keys(_adsh.dirty)){
@@ -23791,7 +23879,7 @@
         if(!dirty || !Object.keys(dirty).length) continue;
         _adsh.inflight[id]=dirty;   // 전송 중에도 localStorage 엔 남겨 둔다 (창이 닫혀도 다음에 재전송)
         _adshPersistDirty();
-        const name=(BRAND_SECTIONS.find(b=>b.id===id)||{}).display||id;
+        const cfg=_adshCfg(id)||{}, name=(cfg.group && _adshIsPlat(id) ? cfg.group+" " : "")+(cfg.display||id);
         let ok=false, reason='';
         for(let i=0;i<3 && !ok;i++){
           try{
@@ -23837,7 +23925,7 @@
     _adsh.failStreak=0;
     if(_adsh.saveAgain || _adshHasDirty()){ _adsh.saveAgain=false; return _adshSave() }
     const d=new Date();
-    _adshSaveTag(`✓ 저장됨 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`);
+    _adshSaveTag(`실시간 자동저장 · ✓ ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`);
     if(!document.querySelector('#adshDaily input:focus')) _adshRefresh();
   }
   async function _adshLoad(id){
@@ -23872,11 +23960,22 @@
   }
   async function adshSwitch(id){
     _adsh.brand=id;
-    try{ localStorage.setItem(ADSH_LS+'brand',id) }catch(e){}
+    try{
+      localStorage.setItem(ADSH_LS+'brand',id);
+      localStorage.setItem(ADSH_LS+'brand_'+(_adshIsPlat(id)?'platform':'home'),id);   // 탭별 마지막 카드 기억
+    }catch(e){}
     adshRender();
     await _adshLoad(id);
     if(_adsh.brand===id && !document.querySelector('#adshDaily input:focus')) adshRender();
   }
+  /* 공홈 / 플랫폼 탭 — 그 탭에서 마지막으로 보던 카드로 */
+  function adshSwitchMode(mode){
+    const list=mode==='platform'?PLATFORM_SECTIONS:BRAND_SECTIONS;
+    if(list.some(b=>b.id===_adsh.brand)) return;
+    let saved=null; try{ saved=localStorage.getItem(ADSH_LS+'brand_'+mode) }catch(e){}
+    adshSwitch(list.some(b=>b.id===saved) ? saved : list[0].id);
+  }
+  window.adshSwitchMode=adshSwitchMode;
   function adshMoveMonth(delta){
     const [y,m]=_adsh.month.split('-').map(Number);
     const d=new Date(y,m-1+delta,1);
@@ -23888,7 +23987,7 @@
     if(!_adsh.month) _adsh.month=_adshYmd(new Date()).slice(0,7);
     if(!_adsh.brand){
       let saved=null; try{ saved=localStorage.getItem(ADSH_LS+'brand') }catch(e){}
-      _adsh.brand=BRAND_SECTIONS.some(b=>b.id===saved) ? saved : BRAND_SECTIONS[0].id;
+      _adsh.brand=_adshCfg(saved) ? saved : BRAND_SECTIONS[0].id;
     }
     if(!_adshBound){
       const body=document.getElementById('adshBody');
@@ -23918,7 +24017,7 @@
     const a=document.activeElement;
     if(a && a.matches && a.matches('#adshDaily input')) a.blur();
     clearTimeout(_adsh.saveTimer);
-    if(!_adshHasDirty() && !_adsh.saving){ _adshSaveTag('저장할 변경 없음 · 모두 저장됨'); return }
+    if(!_adshHasDirty() && !_adsh.saving){ _adshSaveTag('실시간 자동저장 · 모두 저장됨'); return }
     _adshSave();
   }
   window.adshSaveNow=adshSaveNow;
