@@ -8216,6 +8216,18 @@
   }
   .btn-add-staff:hover{background:rgba(255,179,71,.16);box-shadow:0 0 12px rgba(255,179,71,.25)}
   .btn-add-staff svg{width:12px;height:12px}
+  /* 직원 정보 편집 (마스터) — 연차 현황 아래 묻혀 있던 편집 모드를 상단에서 바로 켠다 */
+  .btn-edit-staff{color:#fff;background:#4f46e5;border-color:#4f46e5}
+  .btn-edit-staff:hover{background:#4338ca;box-shadow:0 0 12px rgba(79,70,229,.35)}
+  body.leave-edit-mode .btn-edit-staff{background:#16a34a;border-color:#16a34a}
+  .btn-edit-staff + .btn-add-staff{margin-left:8px}
+  body.role-master .viewer-only{display:none !important}
+  .hr-viewer-note{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--text-2);background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+  /* 조직도 이름 클릭 → 그 직원 편집 (마스터만) */
+  body.role-master .org-svg [data-staff]{cursor:pointer}
+  body.role-master .org-svg rect[data-staff]:hover{stroke-width:2}
+  body.role-master .org-mobile [data-staff]{cursor:pointer}
+  .leave-card.is-flash{box-shadow:0 0 0 3px #4f46e5 !important;transition:box-shadow .3s}
   .add-staff-form{
     max-width:520px;margin:0 auto 22px;
     padding:18px 22px 20px;
@@ -9492,6 +9504,8 @@
         홈
       </button>
       <h1 class="view-title">인사팀<span class="view-title-sub">/ 조직도</span></h1>
+      <span class="hr-viewer-note viewer-only">🔒 보기 전용 접속 — 수정하려면 오른쪽 위 로그아웃 후 관리자 PIN으로 다시 들어오세요</span>
+      <button type="button" class="btn-add-staff btn-edit-staff master-only" id="hrEditBtn" onclick="hrEditToggle()" aria-label="직원 정보 편집">✏️ 직원 정보 편집</button>
       <button type="button" class="btn-add-staff master-only" onclick="toggleAddStaffForm()" aria-label="신규 입사자 등록">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         신규 입사자 등록
@@ -21527,8 +21541,34 @@
     const editing=document.body.classList.toggle('leave-edit-mode');
     const btn=document.getElementById('leaveEditBtn');
     if(btn) btn.textContent=editing?'완료':'편집';
+    const top=document.getElementById('hrEditBtn');
+    if(top) top.textContent=editing?'✓ 편집 완료':'✏️ 직원 정보 편집';
     renderLeaveStatus();
   }
+  /* 상단 "직원 정보 편집" — 편집 모드 토글 + 켤 때 직원 카드로 스크롤 */
+  function hrEditToggle(){
+    toggleLeaveEdit();
+    if(document.body.classList.contains('leave-edit-mode')){
+      document.getElementById('leaveGrid')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  }
+  window.hrEditToggle=hrEditToggle;
+  /* 조직도 이름 클릭 → 편집 모드 켜고 그 직원 카드로 이동, 직책칸 포커스 (마스터만) */
+  function hrEditStaff(name){
+    if(!name || !isMaster()) return;
+    if(!document.body.classList.contains('leave-edit-mode')) toggleLeaveEdit();
+    const card=[...document.querySelectorAll('#leaveGrid .leave-card')].find(c=>c.dataset.staff===name);
+    if(!card) return;
+    card.scrollIntoView({behavior:'smooth',block:'center'});
+    card.classList.add('is-flash');
+    setTimeout(()=>card.classList.remove('is-flash'),1600);
+    card.querySelector('.leave-title-inp')?.focus({preventScroll:true});
+  }
+  window.hrEditStaff=hrEditStaff;
+  document.addEventListener('click',e=>{
+    const el=e.target.closest?.('.org-svg [data-staff], .org-mobile [data-staff]');
+    if(el) hrEditStaff(el.getAttribute('data-staff'));
+  });
   /* 부서 select 변경 — 마스터 전용. '_orig'면 override 삭제(원래 부서로) */
   async function onDeptSelChange(sel){
     if(!requireMaster('부서 변경')) return;
@@ -24709,11 +24749,13 @@
           r.setAttribute('width',w);
           r.setAttribute('height','24');
           r.setAttribute('rx','7');
+          r.setAttribute('data-staff',s.name);
           svg.appendChild(r);
           const t=document.createElementNS(NS,'text');
           t.setAttribute('class',`t-mem ${slot.cls}`);
           t.setAttribute('x',slot.x);
           t.setAttribute('y',y+12);
+          t.setAttribute('data-staff',s.name);
           t.textContent=s.name;
           if(title){
             const ts=document.createElementNS(NS,'tspan');
@@ -24737,8 +24779,8 @@
       host.innerHTML=(groups[k]||[]).map(s=>{
         const title=getStaffTitle(s.name);
         return title
-          ? `<span class="om-mem is-lead">${escapeHTML(s.name)} <small>${escapeHTML(title)}</small></span>`
-          : `<span class="om-mem">${escapeHTML(s.name)}</span>`;
+          ? `<span class="om-mem is-lead" data-staff="${escapeHTML(s.name)}">${escapeHTML(s.name)} <small>${escapeHTML(title)}</small></span>`
+          : `<span class="om-mem" data-staff="${escapeHTML(s.name)}">${escapeHTML(s.name)}</span>`;
       }).join('');
     }
     renderHiddenStaffPanel();
