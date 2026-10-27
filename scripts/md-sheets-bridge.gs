@@ -48,7 +48,7 @@ function route_(p) {
     switch (p.action) {
       case 'ping':  return json_({ ok: true });
       case 'meta':  return json_(meta_(p.fresh === '1' || p.fresh === true));
-      case 'read':  return json_(read_(p.book, p.sheet));
+      case 'read':  return json_(read_(p.book, p.sheet, p.have || null));
       case 'write': return json_(write_(p.book, p.sheet, p.edits || []));
       case 'audit_fix': return json_(auditFix_(!(p.apply === true || p.apply === '1'), p.babyB === '16400'));
       default:      return json_({ ok: false, error: 'unknown_action' });
@@ -100,9 +100,42 @@ function openBook_(key) {
 }
 function sheetOf_(key, name) {
   const ss = openBook_(key);
-  const sh = allowedSheets_(ss).filter(function (s) { return s.getName() === name; })[0];
-  if (!sh) throw new Error('sheet_not_allowed');
+  const sh = ss.getSheetByName(name);
+  if (!sh || sh.isSheetHidden() || EXCLUDE.test(name)) throw new Error('sheet_not_allowed');
+  // 날짜 붙은 송장출력 탭만 "브랜드별 최신 1개" 규칙을 확인한다 (전체 탭 훑기는 이때만)
+  if (LATEST_ONLY.test(name) && !allowedSheets_(ss).some(function (s) { return s.getName() === name; })) throw new Error('sheet_not_allowed');
   return { ss: ss, sh: sh };
+}
+
+/* ── 캐시 — CacheService 값 1개당 100KB 제한이라 잘라서 저장한다 ── */
+const CHUNK = 30000;
+function cachePut_(key, obj, ttl) {
+  try {
+    const s = JSON.stringify(obj), n = Math.max(1, Math.ceil(s.length / CHUNK)), m = {};
+    for (let i = 0; i < n; i++) m[key + ':' + i] = s.slice(i * CHUNK, (i + 1) * CHUNK);
+    m[key + ':n'] = String(n);
+    CacheService.getScriptCache().putAll(m, ttl);
+  } catch (_) {}
+}
+function cacheGet_(key) {
+  try {
+    const c = CacheService.getScriptCache(), n = Number(c.get(key + ':n'));
+    if (!n) return null;
+    const keys = [];
+    for (let i = 0; i < n; i++) keys.push(key + ':' + i);
+    const got = c.getAll(keys);
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      const part = got[key + ':' + i];
+      if (part == null) return null;
+      s += part;
+    }
+    return JSON.parse(s);
+  } catch (_) { return null; }
+}
+function cacheDel_(key) { try { CacheService.getScriptCache().remove(key + ':n'); } catch (_) {} }
+function sig_(s) {
+  return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, s, Utilities.Charset.UTF_8));
 }
 
 function meta_(fresh) {
@@ -129,63 +162,127 @@ function meta_(fresh) {
   return out;
 }
 
-/* ── 읽기 ── 표시값 + 수식 + 서식(배경·글자색·굵게) + 드롭다운 + 병합 + 열 너비 */
-function read_(key, name) {
-  const o = sheetOf_(key, name), sh = o.sh;
-  const lastRow = sh.getLastRow(), lastCol = sh.getLastColumn();
-  if (!lastRow || !lastCol) return { ok: true, rows: 0, cols: 0, values: [], at: new Date().toISOString() };
-  const nRows = Math.min(lastRow, MAX_ROWS);
-  const rg = sh.getRange(1, 1, nRows, lastCol);
+/* ── 읽기 v2 ──
+ * 내용(표시값·수식)과 구조(서식·드롭다운·숨김열·병합)를 따로 캐시한다.
+ *  · 내용 20초 캐시 (쓰기 때 지움) — 여러 사람이 같은 탭을 보거나 60초 갱신이 몰려도 시트를 한 번만 읽는다
+ *  · 구조 30분 캐시 — 서식·드롭다운은 거의 안 바뀌는데 큰 탭에서 가장 오래 걸린다
+ * 같은 수식(아래로 채우기)은 R1C1 로 한 번만, 서식은 같은 열의 연속 구간 단위로 묶어 보낸다.
+ * 오피스가 have={ct,st} 로 이미 가진 버전을 알려주면 바뀐 부분만 보낸다. */
+const SPILL = /\b(QUERY|FILTER|SORT|SORTN|SEQUENCE|ARRAYFORMULA|UNIQUE|IMPORTRANGE|FLATTEN|TRANSPOSE)\s*\(/i;
+function cacheBase_(key, sh) {
+  return key + ':' + sh.getSheetId() + ':' + Math.min(sh.getLastRow(), MAX_ROWS) + 'x' + sh.getLastColumn();
+}
+function read_(key, name, have) {
+  const T = {}, t0 = Date.now();
+  const sh = sheetOf_(key, name).sh;
+  T.open = Date.now() - t0;
+  const lastRow = sh.getLastRow(), lastCol = sh.getLastColumn(), gid = sh.getSheetId(), at = new Date().toISOString();
+  if (!lastRow || !lastCol) {
+    return { ok: true, v: 2, rows: 0, cols: 0, totalRows: 0, gid: gid, at: at,
+      content: { sig: 'empty', values: [], fxList: [], fxRuns: [], img: {}, ro: false },
+      structure: { sig: 'empty', bg: [], fc: [], bold: [], dv: [], lists: [], hiddenCols: [], merges: [], frozenRows: 0, frozenCols: 0 } };
+  }
+  const nRows = Math.min(lastRow, MAX_ROWS), base = cacheBase_(key, sh);
+  let t = Date.now();
+  let content = cacheGet_('c2:' + base);
+  if (!content) { content = readContent_(sh, nRows, lastCol); cachePut_('c2:' + base, content, 20); }
+  T.content = Date.now() - t; t = Date.now();
+  let st = cacheGet_('s2:' + base);
+  if (!st) { st = readStructure_(sh, nRows, lastCol); cachePut_('s2:' + base, st, 1800); }
+  T.structure = Date.now() - t;
+  const out = { ok: true, v: 2, rows: nRows, cols: lastCol, totalRows: lastRow, truncated: lastRow > nRows, gid: gid, at: at, ms: T };
+  if (!have || have.ct !== content.sig) out.content = content;
+  if (!have || have.st !== st.sig) out.structure = st;
+  return out;
+}
 
-  const values = rg.getDisplayValues();
-  const formulas = rg.getFormulas();
-  const bgs = rg.getBackgrounds();
-  const fcs = rg.getFontColors();
-  const fws = rg.getFontWeights();
-  const dvs = rg.getDataValidations();
-
-  const f = {}, bg = {}, fc = {}, bold = [], dv = {}, lists = [], listIdx = {}, rangeCache = {};
-  for (let r = 0; r < nRows; r++) {
-    for (let c = 0; c < lastCol; c++) {
-      const k = r + ',' + c;
-      if (formulas[r][c]) f[k] = formulas[r][c];
-      const b = String(bgs[r][c] || '').toLowerCase();
-      if (b && b !== '#ffffff') bg[k] = b;
-      const t = String(fcs[r][c] || '').toLowerCase();
-      if (t && t !== '#000000') fc[k] = t;
-      if (fws[r][c] === 'bold') bold.push(k);
-      const v = dvs[r][c];
-      if (v) {
-        const spec = dvSpec_(v, rangeCache);
-        if (spec) {
-          const sk = JSON.stringify(spec);
-          if (!(sk in listIdx)) { listIdx[sk] = lists.length; lists.push(spec); }
-          dv[k] = listIdx[sk];
-        }
-      }
+// 같은 열에서 연속된 같은 값을 [열, 시작행, 끝행, 값] 으로 묶는다 (값이 null 이면 생략)
+function runs_(grid, nRows, nCols, pick) {
+  const out = [];
+  for (let c = 0; c < nCols; c++) {
+    let run = null;
+    for (let r = 0; r < nRows; r++) {
+      const v = pick(grid[r][c], r, c);
+      if (run && run[3] === v && run[2] === r - 1) { run[2] = r; continue; }
+      if (run && run[3] != null) out.push(run);
+      run = [c, r, r, v];
     }
-    // 뒤쪽 빈칸은 잘라서 전송량을 줄인다
-    let end = values[r].length;
-    while (end > 0 && values[r][end - 1] === '') end--;
-    values[r] = values[r].slice(0, end);
+    if (run && run[3] != null) out.push(run);
   }
+  return out;
+}
 
-  const widths = [], hiddenCols = [];
-  for (let c = 1; c <= lastCol; c++) {
-    widths.push(sh.getColumnWidth(c));
-    if (sh.isColumnHiddenByUser(c)) hiddenCols.push(c - 1);
+function readContent_(sh, nRows, nCols) {
+  const rg = sh.getRange(1, 1, nRows, nCols);
+  const values = rg.getDisplayValues();
+  const fr = rg.getFormulasR1C1();
+  const fxList = [], fxIdx = {}, img = {};
+  let ro = false;
+  const fxRuns = runs_(fr, nRows, nCols, function (f, r, c) {
+    if (!f) return null;
+    if (!(f in fxIdx)) { fxIdx[f] = fxList.length; fxList.push(f); if (SPILL.test(f)) ro = true; }
+    const src = imageSrc_(f, r, c, values);
+    if (src) img[r + ',' + c] = src;
+    return fxIdx[f];
+  });
+  // 뒤쪽 빈칸·빈 행은 잘라서 전송량을 줄인다
+  for (let r = 0; r < values.length; r++) {
+    let e = values[r].length;
+    while (e > 0 && values[r][e - 1] === '') e--;
+    values[r] = values[r].slice(0, e);
   }
+  let last = values.length;
+  while (last > 0 && !values[last - 1].length) last--;
+  values.length = last;
+  const body = { values: values, fxList: fxList, fxRuns: fxRuns, img: img, ro: ro };
+  body.sig = sig_(JSON.stringify(body));
+  return body;
+}
+
+function imageSrc_(f, r, c, values) {
+  const m = f.match(/^=\s*IMAGE\s*\(\s*(?:"([^"]+)"|R(\[-?\d+\]|\d+)?C(\[-?\d+\]|\d+)?)/i);
+  if (!m) return '';
+  if (m[1]) return m[1];
+  const v = String(((values[relIdx_(m[2], r)] || [])[relIdx_(m[3], c)]) || '');
+  return /^https?:\/\//i.test(v) ? v : '';
+}
+function relIdx_(part, base) {
+  if (part == null || part === '') return base;
+  if (part.charAt(0) === '[') return base + Number(part.slice(1, -1));
+  return Number(part) - 1;
+}
+
+function readStructure_(sh, nRows, nCols) {
+  const rg = sh.getRange(1, 1, nRows, nCols);
+  const lower = function (def) { return function (x) { x = String(x || '').toLowerCase(); return x && x !== def ? x : null; }; };
+  const bg = runs_(rg.getBackgrounds(), nRows, nCols, lower('#ffffff'));
+  const fc = runs_(rg.getFontColors(), nRows, nCols, lower('#000000'));
+  const bold = runs_(rg.getFontWeights(), nRows, nCols, function (x) { return x === 'bold' ? 1 : null; });
+  const lists = [], listIdx = {}, rangeCache = {};
+  const dv = runs_(rg.getDataValidations(), nRows, nCols, function (v) {
+    if (!v) return null;
+    const spec = dvSpec_(v, rangeCache);
+    if (!spec) return null;
+    const sk = JSON.stringify(spec);
+    if (!(sk in listIdx)) { listIdx[sk] = lists.length; lists.push(spec); }
+    return listIdx[sk];
+  });
+  const hiddenCols = [];
+  for (let c = 1; c <= nCols; c++) if (sh.isColumnHiddenByUser(c)) hiddenCols.push(c - 1);
   const merges = rg.getMergedRanges().map(function (m) {
     return [m.getRow() - 1, m.getColumn() - 1, m.getNumRows(), m.getNumColumns()];
   });
+  const st = { bg: bg, fc: fc, bold: bold, dv: dv, lists: lists, hiddenCols: hiddenCols, merges: merges,
+    frozenRows: sh.getFrozenRows(), frozenCols: sh.getFrozenColumns() };
+  st.sig = sig_(JSON.stringify(st));
+  return st;
+}
 
-  return {
-    ok: true, rows: nRows, cols: lastCol, totalRows: lastRow, truncated: lastRow > nRows,
-    frozenRows: sh.getFrozenRows(), frozenCols: sh.getFrozenColumns(),
-    values: values, f: f, bg: bg, fc: fc, bold: bold, dv: dv, lists: lists,
-    widths: widths, hiddenCols: hiddenCols, merges: merges,
-    gid: sh.getSheetId(), at: new Date().toISOString(),
-  };
+// 편집기에서 실행해 큰 탭 읽기 속도를 본다 (두 번째 실행은 캐시 효과)
+function perfTest() {
+  const t = Date.now();
+  const r = read_('coferry', 'Product List', null);
+  Logger.log('total ' + (Date.now() - t) + 'ms ' + JSON.stringify(r.ms) + ' size ' + JSON.stringify(r).length);
 }
 
 function dvSpec_(v, rangeCache) {
@@ -232,6 +329,7 @@ function write_(key, name, edits) {
       results.push({ r: r, c: c, ok: true });
     });
     SpreadsheetApp.flush();
+    cacheDel_('c2:' + cacheBase_(key, sh));
     const lastCol = sh.getLastColumn();
     const rows = {};
     Object.keys(touchedRows).forEach(function (r) {

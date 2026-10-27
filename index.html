@@ -9158,11 +9158,15 @@
   .mds-loading,.mds-empty{font-size:12.5px;color:var(--text-3);padding:12px 6px}
   .mds-note{font-size:11.5px;color:var(--text-3);padding:2px 4px 6px}
 
-  .mds-scroll{max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .mds-scroll{max-height:74vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
   .mds-table{border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px;color:#1f2329}
-  .mds-table th,.mds-table td{box-sizing:border-box;height:26px;padding:3px 6px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;background:#fff}
-  .mds-table thead th{position:sticky;z-index:2;background:#f3f4f6;color:#6b7280;font-weight:500;font-size:11px;text-align:center}
-  .mds-table .mds-rn{position:sticky;left:0;z-index:1;background:#f3f4f6;color:#6b7280;font-size:11px;text-align:center;width:40px;min-width:40px}
+  .mds-table th,.mds-table td{box-sizing:border-box;padding:4px 5px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;vertical-align:middle;background:#fff;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;overflow:hidden}
+  .mds-table td .mds-c{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
+  .mds-table.dense{font-size:11px}
+  .mds-table.dense th,.mds-table.dense td{padding:3px 3px}
+  .mds-table.dense .mds-rn{font-size:10px}
+  .mds-table thead th{position:sticky;top:0;z-index:2;background:#f3f4f6;color:#6b7280;font-weight:500;font-size:10.5px;text-align:center;padding:2px 3px}
+  .mds-table .mds-rn{position:sticky;left:0;z-index:1;background:#f3f4f6;color:#6b7280;font-size:11px;text-align:center}
   .mds-table thead .mds-rn{z-index:3}
   .mds-table tr.mds-hdr td{font-weight:700;background:#fafafa;position:sticky;z-index:2}
   .mds-table td.mds-fz{position:sticky;z-index:1}
@@ -9176,14 +9180,52 @@
   .mds-table td.mds-saved{animation:mdsFlash 1.2s ease}
   @keyframes mdsFlash{0%{box-shadow:inset 0 0 0 2px #16a34a}100%{box-shadow:inset 0 0 0 0 transparent}}
   .mds-table td.mds-editing{padding:0;overflow:visible}
-  .mds-table td.mds-editing input,.mds-table td.mds-editing select{width:100%;height:26px;border:2px solid var(--neon-md);padding:0 5px;font:inherit;outline:none;box-sizing:border-box;background:#fff}
+  .mds-table td.mds-editing input,.mds-table td.mds-editing select{width:100%;height:28px;border:2px solid var(--neon-md);padding:0 5px;font:inherit;outline:none;box-sizing:border-box;background:#fff}
   .mds-table td a{color:#2563eb;text-decoration:none}
   .mds-table td a:hover{text-decoration:underline}
   .mds-table td img{height:40px;max-width:100%;object-fit:contain;display:block;margin:0 auto}
   .mds-table tr.has-img td{height:46px}
   .mds-table td input[type=checkbox]{margin:0;accent-color:var(--neon-md);cursor:pointer}
+  .mds-cards{display:flex;flex-direction:column;gap:8px}
+  .mds-cards.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;align-items:start}
+  .mds-view-btn{margin-left:8px;font:600 11.5px var(--sans);padding:3px 9px;border:1px solid var(--line-2);border-radius:6px;background:#fff;color:var(--text-2);cursor:pointer}
+  .mds-view-btn:hover{border-color:var(--neon-md);color:var(--neon-md)}
+  .mds-card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 12px}
+  .mds-card-h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+  .mds-card-rn{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+  .mds-card-t{flex:1;font-size:15px;font-weight:700;color:var(--text-0);line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+  .mds-cf-row{display:grid;grid-template-columns:minmax(84px,38%) 1fr;gap:8px;padding:5px 0;border-top:1px dashed #eee;font-size:14px;line-height:1.45}
+  .mds-cf-k{color:var(--text-3);font-size:12.5px;word-break:keep-all}
+  .mds-cf{min-width:0;word-break:keep-all;overflow-wrap:anywhere;border-radius:4px;padding:0 3px}
+  .mds-cf .mds-c{white-space:pre-line}
+  .mds-cf img{height:56px;max-width:100%;object-fit:contain;display:block}
+  .mds-cf.mds-err{background:#fef2f2 !important;color:#b91c1c !important;font-weight:700}
+  .mds-cf.mds-fx{color:#4b5563}
+  .mds-cf.mds-ed,.mds-card-t.mds-ed{cursor:pointer;box-shadow:inset 0 -1px 0 rgba(225,29,72,.25)}
+  .mds-cf.mds-editing,.mds-card-t.mds-editing{display:block;box-shadow:none}
+  .mds-cf.mds-editing input,.mds-cf.mds-editing select,.mds-card-t.mds-editing input{width:100%;height:36px;font:inherit;font-size:15px;border:2px solid var(--neon-md);border-radius:6px;padding:0 8px;box-sizing:border-box}
+  .mds-cf.mds-saving,.mds-card-t.mds-saving{opacity:.55}
+  .mds-cf.mds-saved{animation:mdsFlash 1.2s ease}
+  .mds-cf-empty{font-size:12.5px;color:var(--text-3)}
   .mds-more{display:block;margin:8px auto 0;font:600 12px var(--sans);padding:6px 14px;border:1px solid var(--line-2);border-radius:7px;background:#fff;cursor:pointer}
   .mds-more:hover{border-color:var(--neon-md);color:var(--neon-md)}
+  /* ===== 레이아웃 (2026-10-27): PC는 여백을 줄이고 좌우를 넓게, 휴대폰은 글씨·간격을 키워 읽기 편하게 ===== */
+  .container{max-width:none;padding:20px clamp(12px,1.6vw,28px)}
+  .home-ceocal-card,.sub-modules-section,.po-wrap,.mdw-wrap,.fx-wrap,.ably-wrap,.brep-wrap,.pc-wrap,#viewCeoCal,#viewDesign{max-width:none}
+  .lg-tabs,.lg-brand-switch{max-width:none}
+  @media (min-width:1500px){ .hero-row,.hero-row-3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))} }
+  @media (max-width:600px){
+    body{font-size:15px;line-height:1.6}
+    .container{padding:14px 12px}
+    .view-title{font-size:20px}
+    .mds-bar{gap:6px}
+    .mds-btn{padding:8px 11px;font-size:13px}
+    .mds-search{font-size:15px;padding:9px 11px}
+    .mds-book-head{padding:14px 12px}
+    .mds-tab-head{padding:12px 6px;font-size:14.5px}
+    .mds-note{font-size:12.5px;line-height:1.5}
+    .hero-row .btn-neon{white-space:nowrap;word-break:keep-all;gap:8px;padding:15px 16px;font-size:15px;max-width:100%}
+  }
   .mds-foot{font-size:11.5px;color:var(--text-3);line-height:1.6}
   .mds-foot button{font:inherit;color:var(--neon-md);background:none;border:0;cursor:pointer;padding:0;text-decoration:underline}
   @media (max-width:600px){
@@ -35320,7 +35362,7 @@
   const MDS_SPILL=/\b(QUERY|FILTER|SORT|SORTN|SEQUENCE|ARRAYFORMULA|UNIQUE|IMPORTRANGE|FLATTEN|TRANSPOSE)\s*\(/i;
   const MDS_ERR=/^#(REF!|N\/A|VALUE!|DIV\/0!|NAME\?|ERROR!|NUM!|NULL!)/;
   const MDS_LS_OPEN='mds_open_v1', MDS_LS_META='mds_meta_v1';
-  const _mds={cfg:null, meta:null, order:null, orderBy:'', data:{}, loading:{}, shown:{}, open:{}, editing:null, prio:false, search:'', timer:null, initing:null};
+  const _mds={tableMode:{}, cfg:null, meta:null, order:null, orderBy:'', data:{}, loading:{}, shown:{}, open:{}, editing:null, prio:false, search:'', timer:null, initing:null};
   try{ _mds.open=JSON.parse(localStorage.getItem(MDS_LS_OPEN)||'{}')||{} }catch(e){ _mds.open={} }
 
   function _mdsMe(){ return (typeof _diaryGetMe==='function'?_diaryGetMe():'')||'' }
@@ -35426,7 +35468,7 @@
     }
     document.getElementById('mdsSetup').hidden=true;
     await _mdsLoadMeta(false);
-    _mdsOpenTabKeys().forEach(tk=>{ if(!_mds.data[tk]) _mdsLoadTab(tk,false) });
+    _mdsOpenTabKeys().forEach(tk=>{ if(!_mds.data[tk]||_mds.data[tk].stale) _mdsLoadTab(tk,false) });
     if(!_mds.timer) _mds.timer=setInterval(_mdsTick,60000);
   }
   async function _mdsLoadMeta(fresh){
@@ -35661,58 +35703,189 @@
   }
   function _mdsEnsureTab(tk){ if(_mds.data[tk]) _mdsRenderTabBody(tk); else _mdsLoadTab(tk,false) }
 
-  /* ── 탭 읽기 ── */
+  /* ── 탭 읽기 ──
+     · 한 번 연 탭은 이 브라우저(IndexedDB)에 저장해 두고, 다음에는 저장본을 바로 그린 뒤 최신본을 받아 바꾼다
+     · 브리지 v2 는 내용(값·수식)과 구조(서식·드롭다운)를 따로 주고, 오피스가 가진 버전(have)과 같으면 그 부분을 생략한다 */
+  const _mdsIdb={db:null,opening:null};
+  function _mdsIdbOpen(){
+    if(_mdsIdb.db) return Promise.resolve(_mdsIdb.db);
+    if(!_mdsIdb.opening) _mdsIdb.opening=new Promise(res=>{
+      try{
+        const q=indexedDB.open('mds_cache',1);
+        q.onupgradeneeded=()=>q.result.createObjectStore('tabs');
+        q.onsuccess=()=>{ _mdsIdb.db=q.result; res(q.result) };
+        q.onerror=()=>res(null);
+      }catch(e){ res(null) }
+    });
+    return _mdsIdb.opening;
+  }
+  async function _mdsIdbGet(k){
+    const db=await _mdsIdbOpen();
+    if(!db) return null;
+    return new Promise(res=>{
+      try{ const q=db.transaction('tabs').objectStore('tabs').get(k); q.onsuccess=()=>res(q.result||null); q.onerror=()=>res(null) }catch(e){ res(null) }
+    });
+  }
+  async function _mdsIdbPut(k,v){
+    const db=await _mdsIdbOpen();
+    if(!db) return;
+    try{ db.transaction('tabs','readwrite').objectStore('tabs').put(v,k) }catch(e){}
+  }
+  // 예전 브리지(v1) 응답도 같은 모양으로 맞춘다
+  function _mdsV1Raw(j){
+    return {v:1, meta:{rows:j.rows,cols:j.cols,totalRows:j.totalRows,truncated:j.truncated,gid:j.gid,at:j.at},
+      content:{sig:JSON.stringify([j.values,j.f]).length+':'+j.at, values:j.values||[], f:j.f||{}},
+      structure:{sig:'v1:'+j.at, v1:j}};
+  }
   async function _mdsLoadTab(tk,silent){
     if(_mds.loading[tk]) return;
     const i=tk.indexOf('|'), book=tk.slice(0,i), sheet=tk.slice(i+1);
     _mds.loading[tk]=true;
-    const body=_mdsBodyEl(tk);
-    if(body&&!_mds.data[tk]) body.innerHTML='<div class="mds-loading">구글시트에서 불러오는 중…</div>';
     try{
-      const j=await _mdsCall('read',{book,sheet});
-      const prev=_mds.data[tk];
-      const sig=JSON.stringify([j.values,j.f]);
-      if(prev&&prev._sig===sig){ prev.at=j.at; return }
-      const d=_mdsPrepare(j); d._sig=sig;
-      _mds.data[tk]=d;
+      let prev=_mds.data[tk];
+      if(!prev){
+        const saved=await _mdsIdbGet(tk);
+        if(saved&&saved.content&&saved.structure){
+          prev=_mds.data[tk]=_mdsPrepare(saved);
+          prev.stale=true;
+          _mdsRenderTabBody(tk);
+        }
+      }
+      const body=_mdsBodyEl(tk);
+      if(!_mds.cfg||!_mds.cfg.token) return;  // 연결 정보를 읽기 전이면 저장본만 보여 두고, 진입 끝에서 다시 불러온다
+      if(body&&!prev) body.innerHTML='<div class="mds-loading">구글시트에서 불러오는 중… (큰 탭은 처음 한 번만 오래 걸려요)</div>';
+      const pr=prev&&prev._raw;
+      const have=pr&&pr.v===2?{ct:pr.content.sig, st:pr.structure.sig}:null;
+      let j=await _mdsCall('read',{book,sheet,have});
+      if(j.v===2&&((!j.content&&!pr)||(!j.structure&&!pr))) j=await _mdsCall('read',{book,sheet});
+      const raw=j.v===2
+        ? {v:2, meta:{rows:j.rows,cols:j.cols,totalRows:j.totalRows,truncated:j.truncated,gid:j.gid,at:j.at},
+            content:j.content||pr.content, structure:j.structure||pr.structure}
+        : _mdsV1Raw(j);
       _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준');
+      _mdsIdbPut(tk,raw);
+      if(pr&&pr.content.sig===raw.content.sig&&pr.structure.sig===raw.structure.sig){
+        prev._raw=raw; prev.at=raw.meta.at;
+        if(prev.stale){ prev.stale=false; _mdsRenderTabBody(tk) }
+        else{ const at=_mdsBodyEl(tk)?.querySelector('.mds-note-at'); if(at) at.textContent=_mdsHm(prev.at)+' 기준' }
+        return;
+      }
+      _mds.data[tk]=_mdsPrepare(raw);
       _mdsRenderTabBody(tk);
     }catch(e){
+      const body=_mdsBodyEl(tk);
       if(!silent&&body&&!_mds.data[tk]) body.innerHTML=`<div class="mds-empty">불러오지 못했어요 — ${escapeHTML(_mdsErrText(e))}</div>`;
       if(!silent) _mdsStatus('err',_mdsErrText(e));
     }finally{
       _mds.loading[tk]=false;
     }
   }
-  function _mdsPrepare(j){
-    const d=Object.assign({},j);
-    d.values=d.values||[]; d.f=d.f||{}; d.bg=d.bg||{}; d.fc=d.fc||{}; d.dv=d.dv||{}; d.lists=d.lists||[]; d.widths=d.widths||[];
-    d.boldSet=new Set(d.bold||[]);
-    const hidden=new Set(d.hiddenCols||[]);
+  function _mdsPrepare(raw){
+    const m=raw.meta||{}, ct=raw.content||{}, st=raw.structure||{};
+    const d={_raw:raw, rows:m.rows, cols:m.cols, totalRows:m.totalRows, truncated:m.truncated, gid:m.gid, at:m.at};
+    d.values=ct.values||[];
+    d.r1c1=raw.v===2;
+    d.f={}; d.img=ct.img||{}; d.bg={}; d.fc={}; d.dv={}; d.boldSet=new Set();
+    const fill=(runs,fn)=>(runs||[]).forEach(([c,r0,r1,v])=>{ for(let r=r0;r<=r1;r++) fn(r+','+c,v) });
+    if(raw.v===2){
+      fill(ct.fxRuns,(k,id)=>{ d.f[k]=ct.fxList[id] });
+      fill(st.bg,(k,v)=>{ d.bg[k]=v }); fill(st.fc,(k,v)=>{ d.fc[k]=v });
+      fill(st.dv,(k,v)=>{ d.dv[k]=v }); fill(st.bold,k=>{ d.boldSet.add(k) });
+      Object.assign(d,{lists:st.lists||[], hiddenCols:st.hiddenCols||[], merges:st.merges||[], frozenRows:st.frozenRows||0, frozenCols:st.frozenCols||0, ro:!!ct.ro});
+    }else{
+      const v1=st.v1||{};
+      Object.assign(d,{f:ct.f||{}, bg:v1.bg||{}, fc:v1.fc||{}, dv:v1.dv||{}, boldSet:new Set(v1.bold||[]), lists:v1.lists||[],
+        hiddenCols:v1.hiddenCols||[], merges:v1.merges||[], frozenRows:v1.frozenRows||0, frozenCols:v1.frozenCols||0});
+      d.ro=Object.values(d.f).some(x=>MDS_SPILL.test(x));
+    }
     let last=d.values.length;
     while(last>0&&!(d.values[last-1]||[]).some(v=>v!=='')) last--;
     d.lastRow=last;
     d.hdrRows=Math.max(1,Math.min(d.frozenRows||0,4,last||1));
-    d.ro=Object.values(d.f).some(x=>MDS_SPILL.test(x));
     let nErr=0;
     for(let r=0;r<last;r++){ const row=d.values[r]||[]; for(let c=0;c<row.length;c++) if(MDS_ERR.test(row[c])) nErr++ }
     d.nErr=nErr;
     d.nDataRows=Math.max(0,last-d.hdrRows);
-    d.visCols=[];
-    for(let c=0;c<(d.cols||0);c++) if(!hidden.has(c)) d.visCols.push(c);
     // 병합: 왼쪽 위 칸에 rowspan/colspan, 가려지는 칸은 건너뛴다
     d.span={}; d.skip=new Set();
-    (d.merges||[]).forEach(([r,c,nr,nc])=>{
+    d.merges.forEach(([r,c,nr,nc])=>{
       d.span[r+','+c]=[nr,nc];
       for(let a=0;a<nr;a++) for(let b=0;b<nc;b++) if(a||b) d.skip.add((r+a)+','+(c+b));
     });
-    // 고정 열(구글 '열 고정') — 행번호 칸 뒤로 왼쪽에 붙인다
-    d.left={};
-    let acc=40;
-    d.visCols.forEach((c,i)=>{ if(i<Math.min(d.frozenCols||0,3)){ d.left[c]=acc; acc+=_mdsColW(d,c) } });
+    // 숨긴 열과 처음부터 끝까지 빈 열은 그리지 않는다 (가로 폭 절약)
+    const hidden=new Set(d.hiddenCols), used=new Set();
+    for(let r=0;r<last;r++){ const row=d.values[r]||[]; for(let c=0;c<row.length;c++) if(row[c]!=='') used.add(c) }
+    Object.keys(d.img).forEach(k=>used.add(+k.split(',')[1]));
+    Object.keys(d.span).forEach(k=>used.add(+k.split(',')[1]));
+    d.visCols=[];
+    for(let c=0;c<(d.cols||0);c++) if(!hidden.has(c)&&used.has(c)) d.visCols.push(c);
+    _mdsMeasureCols(d);
     return d;
   }
-  function _mdsColW(d,c){ return Math.max(30,Math.min(d.widths[c]||100,480)) }
+
+  /* ── 칸 너비 — 구글 열 너비 대신 글자 길이(12px 기준)로 정하고, 화면 폭에 맞춰 줄인다 ── */
+  let _mdsCanvas=null;
+  function _mdsTextW(s,bold){
+    if(!_mdsCanvas) _mdsCanvas=document.createElement('canvas').getContext('2d');
+    _mdsCanvas.font=(bold?'700':'500')+' 12px Pretendard, Inter, sans-serif';
+    return _mdsCanvas.measureText(s).width;
+  }
+  function _mdsShowText(v){ return /^https?:\/\/\S+$/i.test(v)?'링크 ↗':v }
+  function _mdsMeasureCols(d){
+    d.natW={}; d.minW={};
+    const rows=Math.min(d.lastRow,400), PAD=12;
+    d.visCols.forEach(c=>{
+      const ws=[]; let word=0;
+      for(let r=0;r<rows;r++){
+        const k=r+','+c;
+        if(d.skip.has(k)) continue;
+        const sp=d.span[k];
+        if(sp&&sp[1]>1) continue;  // 여러 열에 걸친 병합 칸은 한 열 너비 계산에서 뺀다
+        if(d.img[k]){ ws.push(42); continue }
+        const v=_mdsShowText(String((d.values[r]||[])[c]??''));
+        if(!v) continue;
+        const isH=r<d.hdrRows;
+        v.split(/\s+/).forEach(wd=>{ if(wd) word=Math.max(word,Math.min(_mdsTextW(wd,isH),isH?120:90)) });
+        ws.push(Math.min(_mdsTextW(v.split('\n')[0],isH),isH?150:400));
+      }
+      ws.sort((a,b)=>a-b);
+      const p90=ws.length?ws[Math.min(ws.length-1,Math.floor(ws.length*0.9))]:16;
+      d.natW[c]=Math.round(Math.min(Math.max(p90,word,16)+PAD,260));
+      d.minW[c]=Math.round(Math.min(d.natW[c],Math.max(word+PAD,32)));
+    });
+  }
+  // 화면 폭(avail)에 들어가도록 열 너비를 나눈다. 다 못 들어가면 11px 촘촘 모드로 한 번 더 줄인다.
+  function _mdsLayout(d,avail){
+    const cols=d.visCols, w={};
+    const nat=c=>d.natW[c], sum=cols.reduce((s,c)=>s+nat(c),0);
+    if(sum<=avail){
+      const k=Math.min(avail/sum,1.6);
+      cols.forEach(c=>{ w[c]=Math.floor(nat(c)*k) });
+      return {w,dense:false};
+    }
+    const minSum=cols.reduce((s,c)=>s+d.minW[c],0);
+    const dense=minSum>avail*0.98;
+    const f=dense?11/12:1, N={}, M={};
+    cols.forEach(c=>{ N[c]=nat(c)*f; M[c]=Math.max(d.minW[c]*f,dense?28:32) });
+    // 비례로 줄이되 최소폭 아래로 내려가는 열은 최소폭에 고정하고 나머지끼리 다시 나눈다
+    let flex=cols.slice(), fixed=0;
+    for(let it=0;it<8&&flex.length;it++){
+      const k=(avail-fixed)/flex.reduce((s,c)=>s+N[c],0), keep=[];
+      flex.forEach(c=>{ if(N[c]*k<M[c]){ w[c]=M[c]; fixed+=M[c] } else keep.push(c) });
+      if(keep.length===flex.length){ keep.forEach(c=>{ w[c]=N[c]*k }); break }
+      flex=keep;
+    }
+    cols.forEach(c=>{ w[c]=Math.floor(w[c]==null?M[c]:w[c]) });
+    return {w,dense,overflow:cols.reduce((t,c)=>t+w[c],0)>avail+2};
+  }
+  function _mdsR1C1toA1(f,r,c){
+    return String(f).replace(/(^|[^A-Za-z0-9_.!'])R(\[-?\d+\]|\d+)?C(\[-?\d+\]|\d+)?(?![A-Za-z0-9_(])/g,(m,pre,rp,cp)=>{
+      const rr=rp==null?r:(rp[0]==='['?r+Number(rp.slice(1,-1)):Number(rp)-1);
+      const cc=cp==null?c:(cp[0]==='['?c+Number(cp.slice(1,-1)):Number(cp)-1);
+      if(rr<0||cc<0) return m;
+      return pre+(cp!=null&&cp[0]!=='['?'$':'')+_mdsColName(cc)+(rp!=null&&rp[0]!=='['?'$':'')+(rr+1);
+    });
+  }
 
   /* ── 표 그리기 ── */
   function _mdsRenderTabBody(tk){
@@ -35734,25 +35907,116 @@
       rows.push(r);
     }
     const shown=rows.slice(0,_mds.shown[tk]||MDS_PAGE);
-    let h='<div class="mds-scroll"><table class="mds-table"><colgroup><col style="width:40px">'
-      +d.visCols.map(c=>`<col style="width:${_mdsColW(d,c)}px">`).join('')+'</colgroup>'
-      +'<thead><tr><th class="mds-rn" style="top:0"></th>'+d.visCols.map(c=>`<th style="top:0">${_mdsColName(c)}</th>`).join('')+'</tr></thead><tbody>';
+    const bodyW=body.clientWidth||document.getElementById('mdsList')?.clientWidth||1000;
+    const RN=d.visCols.length>24?30:36;
+    const width=bodyW-RN-20;  // 테두리 + 세로 스크롤바 몫
+    const L=_mdsLayout(d,width);
+    d.colW=L.w;
+    // 고정 열(구글 '열 고정') — 행번호 칸 뒤로 왼쪽에 붙인다
+    d.left={};
+    let acc=RN;
+    d.visCols.forEach((c,i)=>{ if(i<Math.min(d.frozenCols||0,3)){ d.left[c]=acc; acc+=L.w[c] } });
+    const total=RN+d.visCols.reduce((s,c)=>s+L.w[c],0);
+    let h=`<div class="mds-scroll"><table class="mds-table${L.dense?' dense':''}" style="width:${total}px"><colgroup><col style="width:${RN}px">`
+      +d.visCols.map(c=>`<col style="width:${L.w[c]}px">`).join('')+'</colgroup>'
+      +'<thead><tr><th class="mds-rn"></th>'+d.visCols.map(c=>`<th>${_mdsColName(c)}</th>`).join('')+'</tr></thead><tbody>';
     for(let r=0;r<d.hdrRows;r++) h+=_mdsRowHtml(d,r,true,canEdit,!q);
     shown.forEach(r=>{ h+=_mdsRowHtml(d,r,false,canEdit,!q) });
     h+='</tbody></table></div>';
+    // 휴대폰처럼 좁은 화면은 표 대신 행마다 카드(머리글: 값)로 — 가로 스크롤 없이 읽힌다
+    const wide=bodyW>=640&&L.overflow, asCards=bodyW<640||(wide&&!_mds.tableMode[tk]);
+    if(asCards) h='<div class="mds-cards'+(bodyW>=640?' grid':'')+'">'+shown.map(r=>_mdsCardHtml(d,r,canEdit)).join('')+'</div>';
     const notes=[];
+    if(d.stale) notes.push('저장된 화면 · 최신 내용 불러오는 중');
     if(q) notes.push(`검색 결과 ${rows.length.toLocaleString()}행`);
     if(d.ro) notes.push('QUERY·FILTER 같은 자동계산 탭이라 보기만 돼요 — 원본 탭이나 구글시트에서 고쳐 주세요');
     else if(!_mdsCanEdit()) notes.push('보기 전용 — MD팀 계정(업무일지 "나는")이나 관리자만 고칠 수 있어요');
     else notes.push('칸을 클릭해서 고치면 구글시트에 바로 저장돼요 (Enter 저장 · Tab 오른쪽 · Esc 취소) · 수식 칸은 마우스를 올리면 수식이 보이고 자동 계산돼요');
     if(d.truncated) notes.push(`행이 많아 위쪽 ${d.rows.toLocaleString()}행만 불러왔어요 (전체 ${d.totalRows.toLocaleString()}행)`);
-    notes.push(_mdsHm(d.at)+' 기준');
     const left=rows.length-shown.length;
-    body.innerHTML=`<div class="mds-note">${notes.map(escapeHTML).join(' · ')}</div>`+h
+    const toggle=wide?`<button type="button" class="mds-view-btn" onclick="mdsToggleView(this)">${asCards?`표로 보기 (열 ${d.visCols.length}개 · 가로 스크롤)`:'카드로 보기'}</button>`:'';
+    body.innerHTML=`<div class="mds-note">${notes.map(escapeHTML).join(' · ')} · <span class="mds-note-at">${_mdsHm(d.at)} 기준</span>${toggle}</div>`+h
       +(left>0?`<button type="button" class="mds-more" onclick="mdsShowMore(this)">아래 ${Math.min(MDS_PAGE,left).toLocaleString()}행 더 보기 (남은 ${left.toLocaleString()}행)</button>`:'');
+    _mdsSticky(body);
     const nsc=body.querySelector('.mds-scroll');
     if(pos&&nsc){ nsc.scrollTop=pos[0]; nsc.scrollLeft=pos[1] }
   }
+  // 줄바꿈 때문에 행 높이가 달라지므로, 그린 뒤 실제 높이로 머리글 행의 고정 위치를 잡는다
+  function _mdsSticky(body){
+    const table=body.querySelector('.mds-table');
+    if(!table||!table.tHead) return;
+    let top=table.tHead.rows[0].offsetHeight;
+    table.querySelectorAll('tbody tr.mds-hdr').forEach(tr=>{
+      tr.querySelectorAll('td').forEach(td=>{ td.style.top=top+'px' });
+      top+=tr.offsetHeight;
+    });
+  }
+  // 카드 머리글 = 머리글 행의 글자 (없으면 열 이름), 카드 제목 = 상품명·품목명 열 (없으면 첫 글자 칸)
+  function _mdsHeadLabel(d,c){
+    for(let r=d.hdrRows-1;r>=0;r--){ const v=String((d.values[r]||[])[c]??'').replace(/\s+/g,' ').trim(); if(v) return v }
+    return _mdsColName(c)+'열';
+  }
+  function _mdsTitleCol(d){
+    if(d._titleCol!=null) return d._titleCol;
+    let pick=d.visCols.find(c=>/상품명|품목명|제품명|상품 이름|이름/.test(_mdsHeadLabel(d,c)));
+    if(pick==null) pick=d.visCols.find(c=>{
+      for(let r=d.hdrRows;r<Math.min(d.lastRow,d.hdrRows+30);r++){ const v=String((d.values[r]||[])[c]??''); if(v&&!/^[-+]?[\d,.%₩￦]+$/.test(v)&&!/^https?:/.test(v)) return true }
+      return false;
+    });
+    return d._titleCol=(pick==null?d.visCols[0]:pick);
+  }
+  function _mdsCardHtml(d,r,canEdit){
+    const row=d.values[r]||[], tc=_mdsTitleCol(d);
+    const title=String(row[tc]??'').trim()||'(이름 없음)';
+    let fields='';
+    for(const c of d.visCols){
+      if(c===tc) continue;
+      const k=r+','+c, v=row[c]==null?'':String(row[c]), img=d.img[k];
+      if(!v&&!img) continue;
+      const fx=d.f[k], dvi=d.dv[k], spec=dvi!=null?d.lists[dvi]:null;
+      const cls=['mds-cf'], st=[];
+      if(d.bg[k]) st.push('background:'+d.bg[k]);
+      if(d.fc[k]) st.push('color:'+d.fc[k]);
+      if(d.boldSet.has(k)) st.push('font-weight:700');
+      if(fx) cls.push('mds-fx');
+      if(MDS_ERR.test(v)) cls.push('mds-err');
+      let inner;
+      if(img) inner='<img src="'+escapeHTML(img)+'" loading="lazy" referrerpolicy="no-referrer" alt="">';
+      else if(spec&&spec.t==='check') inner='<input type="checkbox" '+((v===spec.on||v==='TRUE')?'checked ':'')+(canEdit&&!fx?'':'disabled ')+'onclick="mdsCheck(event,this)" aria-label="체크">';
+      else if(/^https?:\/\/\S+$/i.test(v)) inner='<a href="'+escapeHTML(v)+'" target="_blank" rel="noopener">링크 ↗</a>';
+      else inner='<div class="mds-c">'+escapeHTML(v)+'</div>';
+      if(canEdit&&!fx&&!(spec&&spec.t==='check')) cls.push('mds-ed');
+      const tip=fx?(v?v+'\n':'')+'수식 '+(d.r1c1?_mdsR1C1toA1(fx,r,c):fx):v;
+      fields+='<div class="mds-cf-row"><span class="mds-cf-k">'+escapeHTML(_mdsHeadLabel(d,c))+'</span><span class="'+cls.join(' ')+'" data-c="'+c+'"'+(st.length?' style="'+st.join(';')+'"':'')+' title="'+escapeHTML(tip)+'">'+inner+'</span></div>';
+    }
+    const tEd=canEdit&&!d.f[r+','+tc];
+    return '<div class="mds-card" data-r="'+r+'"><div class="mds-card-h"><span class="mds-card-rn">'+(r+1)+'</span><span class="mds-card-t'+(tEd?' mds-ed':'')+'" data-c="'+tc+'">'+escapeHTML(title)+'</span></div>'+(fields||'<div class="mds-cf-empty">다른 칸은 비어 있어요</div>')+'</div>';
+  }
+  // 목록 폭이 바뀌면(창 크기·사이드 패널·휴대폰 회전) 펼친 표를 새 폭에 맞춰 다시 그린다
+  let _mdsResizeT=null, _mdsLastW=0;
+  function _mdsRelayout(){
+    if(document.getElementById('viewMd')?.hidden) return;
+    Object.keys(_mds.data).forEach(tk=>{
+      const b=_mdsBodyEl(tk);
+      if(b&&b.closest('.mds-tab').classList.contains('is-open')&&b.closest('.mds-book').classList.contains('is-open')) _mdsRenderTabBody(tk);
+    });
+  }
+  const _mdsListEl=document.getElementById('mdsList');
+  if(window.ResizeObserver&&_mdsListEl){
+    new ResizeObserver(ents=>{
+      const w=Math.round(ents[0].contentRect.width);
+      if(!w||Math.abs(w-_mdsLastW)<8) return;
+      _mdsLastW=w;
+      clearTimeout(_mdsResizeT); _mdsResizeT=setTimeout(_mdsRelayout,250);
+    }).observe(_mdsListEl);
+  }
+  window.addEventListener('resize',()=>{ clearTimeout(_mdsResizeT); _mdsResizeT=setTimeout(_mdsRelayout,250) });
+  function mdsToggleView(btn){
+    const tk=btn.closest('.mds-tab-body').dataset.k;
+    _mds.tableMode[tk]=!_mds.tableMode[tk];
+    _mdsRenderTabBody(tk);
+  }
+  window.mdsToggleView=mdsToggleView;
   function mdsShowMore(btn){
     const tk=btn.closest('.mds-tab-body').dataset.k;
     _mds.shown[tk]=(_mds.shown[tk]||MDS_PAGE)+MDS_PAGE;
@@ -35767,7 +36031,6 @@
   }
   function _mdsRowHtml(d,r,isHdr,canEdit,useMerge){
     const row=d.values[r]||[];
-    const top=isHdr?MDS_ROW_H*(r+1):0;
     let hasImg=false, cells='';
     for(const c of d.visCols){
       const k=r+','+c;
@@ -35786,37 +36049,37 @@
       if(d.bg[k]) st.push('background:'+d.bg[k]);
       if(d.fc[k]) st.push('color:'+d.fc[k]);
       if(d.boldSet.has(k)) st.push('font-weight:700');
-      if(c in d.left){ cls.push('mds-fz'); st.push('left:'+d.left[c]+'px') }
-      if(isHdr) st.push('top:'+top+'px');
+      if(d.left&&c in d.left){ cls.push('mds-fz'); st.push('left:'+d.left[c]+'px') }
       let inner='', title=v;
       if(fx){
-        cls.push('mds-fx'); title=(v?v+'\n':'')+'수식 '+fx;
-        const img=_mdsImageSrc(d,fx);
+        cls.push('mds-fx');
+        title=(v?v+'\n':'')+'수식 '+(d.r1c1?_mdsR1C1toA1(fx,r,c):fx);
+        const img=d.img[k]||(d.r1c1?'':_mdsImageSrc(d,fx));
         if(img){ inner=`<img src="${escapeHTML(img)}" loading="lazy" referrerpolicy="no-referrer" alt="">`; hasImg=true }
       }
-      if(MDS_ERR.test(v)){ cls.push('mds-err'); title='수식 오류 '+v+(fx?'\n수식 '+fx:'') }
+      if(MDS_ERR.test(v)){ cls.push('mds-err'); title='수식 오류 '+v+(fx?'\n수식 '+(d.r1c1?_mdsR1C1toA1(fx,r,c):fx):'') }
       if(!inner){
         if(spec&&spec.t==='check'){
           const on=v===spec.on||v==='TRUE';
           inner=`<input type="checkbox" ${on?'checked':''} ${canEdit&&!fx?'':'disabled'} onclick="mdsCheck(event,this)" aria-label="체크">`;
         }else if(/^https?:\/\/\S+$/i.test(v)){
-          inner=`<a href="${escapeHTML(v)}" target="_blank" rel="noopener">${escapeHTML(v.replace(/^https?:\/\/(www\.)?/,'').slice(0,40))}</a>`;
-        }else inner=escapeHTML(v);
+          inner=`<a href="${escapeHTML(v)}" target="_blank" rel="noopener">링크 ↗</a>`;
+        }else if(v) inner=`<div class="mds-c">${escapeHTML(v)}</div>`;
       }
       if(!isHdr&&/^[-+]?[₩￦]?\s?[\d,]+(\.\d+)?\s?%?$/.test(v.trim())&&v.trim()!=='') cls.push('mds-num');
       if(canEdit&&!fx&&!(spec&&spec.t==='check')) cls.push('mds-ed');
       cells+=`<td class="${cls.join(' ')}" data-c="${c}"${attrs}${st.length?` style="${st.join(';')}"`:''}${title?` title="${escapeHTML(title)}"`:''}>${inner}</td>`;
     }
-    return `<tr class="${isHdr?'mds-hdr':''}${hasImg?' has-img':''}" data-r="${r}"><td class="mds-rn"${isHdr?` style="top:${top}px"`:''}>${r+1}</td>${cells}</tr>`;
+    return `<tr class="${isHdr?'mds-hdr':''}${hasImg?' has-img':''}" data-r="${r}"><td class="mds-rn">${r+1}</td>${cells}</tr>`;
   }
 
   /* ── 칸 수정 → 구글시트 저장 ── */
   function _mdsCtx(td){
     const body=td.closest('.mds-tab-body'), tk=body.dataset.k;
-    return {tk, d:_mds.data[tk], r:+td.parentElement.dataset.r, c:+td.dataset.c};
+    return {tk, d:_mds.data[tk], r:+td.closest('[data-r]').dataset.r, c:+td.dataset.c};
   }
   document.addEventListener('click',e=>{
-    const td=e.target.closest&&e.target.closest('#mdsList td.mds-ed');
+    const td=e.target.closest&&e.target.closest('#mdsList .mds-ed');
     if(!td||e.target.closest('a')||td.classList.contains('mds-editing')) return;
     _mdsBeginEdit(td);
   });
@@ -35856,17 +36119,17 @@
     if(_mds.editing&&_mds.editing.td===td) _mds.editing=null;
   }
   function _mdsNeighbor(td,move){
+    const row=td.closest('[data-r]');
     if(move==='right'||move==='left'){
-      let n=td;
-      do{ n=move==='right'?n.nextElementSibling:n.previousElementSibling }while(n&&!n.classList.contains('mds-ed'));
-      return n||null;
+      const eds=[...row.querySelectorAll('.mds-ed')], i=eds.indexOf(td);
+      return eds[move==='right'?i+1:i-1]||null;
     }
     const c=td.dataset.c;
-    let tr=td.parentElement.nextElementSibling;
-    while(tr){
-      const n=tr.querySelector(`td[data-c="${c}"]`);
+    let next=row.nextElementSibling;
+    while(next){
+      const n=next.querySelector('[data-c="'+c+'"]');
       if(n) return n.classList.contains('mds-ed')?n:null;
-      tr=tr.nextElementSibling;
+      next=next.nextElementSibling;
     }
     return null;
   }
@@ -35923,20 +36186,20 @@
   function _mdsPatchRow(tk,r){
     const body=_mdsBodyEl(tk), d=_mds.data[tk];
     if(!body||!d) return;
-    const tr=body.querySelector(`tr[data-r="${r}"]`);
+    const tr=body.querySelector('[data-r="'+r+'"]');
     if(!tr) return;
-    const tmp=document.createElement('tbody');
-    tmp.innerHTML=_mdsRowHtml(d,r,tr.classList.contains('mds-hdr'),_mdsCanEdit()&&!d.ro,!_mds.search.trim());
+    const card=tr.classList.contains('mds-card'), canEdit=_mdsCanEdit()&&!d.ro;
+    const tmp=document.createElement(card?'div':'tbody');
+    tmp.innerHTML=card?_mdsCardHtml(d,r,canEdit):_mdsRowHtml(d,r,tr.classList.contains('mds-hdr'),canEdit,!_mds.search.trim());
     const ntr=tmp.firstElementChild;
-    [...ntr.children].forEach(ntd=>{
-      const c=ntd.dataset.c;
-      if(c==null) return;
-      const otd=tr.querySelector(`td[data-c="${c}"]`);
+    [...ntr.querySelectorAll('[data-c]')].forEach(ntd=>{
+      const otd=tr.querySelector('[data-c="'+ntd.dataset.c+'"]');
       if(!otd) return;
       if(otd.classList.contains('mds-editing')) ntd.replaceWith(otd);
       else if(otd.classList.contains('mds-saving')) ntd.classList.add('mds-saved');
     });
     tr.replaceWith(ntr);
+    if(ntr.classList.contains('mds-hdr')) _mdsSticky(body);
   }
 
   /* ── 검색 ── */
