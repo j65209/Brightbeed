@@ -11939,7 +11939,7 @@
      - 서버 Mac이 cloudflared quick tunnel을 띄우고 URL을 tunnel.json에 기록.
      - 대시보드는 tunnel.json을 읽어 base URL을 확보, /gh/* 로 호출 → 프록시가 PAT 주입 후 api.github.com 으로 포워딩.
      - 인증은 X-Brightbeed-PIN 헤더. viewer PIN은 GET만, master PIN은 모든 메서드. */
-  const PROXY_TUNNEL_URL='https://raw.githubusercontent.com/j65209/Brightbeed/main/tunnel.json';
+  const PROXY_TUNNEL_URL='https://raw.githubusercontent.com/j65209/beaduniverse/main/tunnel.json';
   let _proxyBase=null;
   async function loadProxyBase(force){
     if(_proxyBase && !force) return _proxyBase;
@@ -13213,8 +13213,8 @@
   const _akpBackupLSKey = (b)=>AKP_PREFIX+b+'.backup';
   const _akpRemoteTsKey = (b)=>AKP_PREFIX+b+'.lastRemote';
   const _akpRemotePath  = (b)=>'data/promo-'+b+'.json';
-  const _akpRemoteApi   = (b)=>'https://api.github.com/repos/j65209/Brightbeed/contents/'+_akpRemotePath(b);
-  const _akpRemoteRaw   = (b)=>'https://raw.githubusercontent.com/j65209/Brightbeed/main/'+_akpRemotePath(b);
+  const _akpRemoteApi   = (b)=>'https://api.github.com/repos/j65209/beaduniverse/contents/'+_akpRemotePath(b);
+  const _akpRemoteRaw   = (b)=>'https://raw.githubusercontent.com/j65209/beaduniverse/main/'+_akpRemotePath(b);
   // 브랜드별 독립 상태
   const _akpStates={sixA:null, pp:null, akoi:null};
   const _akpInited={sixA:false, pp:false, akoi:false};
@@ -14363,7 +14363,7 @@
         1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 접속<br>
         2. Repository access → <b>Only select</b>:<br>
            &nbsp;&nbsp;☑ <b>j65209/sixshop-collector</b><br>
-           &nbsp;&nbsp;☑ <b>j65209/Brightbeed</b><br>
+           &nbsp;&nbsp;☑ <b>j65209/beaduniverse</b><br>
         3. Permissions → Repository permissions:<br>
            &nbsp;&nbsp;• <b>Actions: Read and write</b><br>
            &nbsp;&nbsp;• <b>Contents: Read and write</b> (발주 내역 동기화)<br>
@@ -15346,14 +15346,14 @@
   const DSG_DOC_PATH  = DSG_DOC_PATHS.design;          // legacy alias
   const DSG_REFS_PATH ='data/design_refs.json';
   const DSG_POSTS_PATH='data/design_posts.json';
-  const DSG_DOC_RAWS  = Object.fromEntries(Object.entries(DSG_DOC_PATHS).map(([k,v])=>[k, `https://raw.githubusercontent.com/j65209/Brightbeed/main/${v}`]));
-  const DSG_DOC_APIS  = Object.fromEntries(Object.entries(DSG_DOC_PATHS).map(([k,v])=>[k, `https://api.github.com/repos/j65209/Brightbeed/contents/${v}`]));
+  const DSG_DOC_RAWS  = Object.fromEntries(Object.entries(DSG_DOC_PATHS).map(([k,v])=>[k, `https://raw.githubusercontent.com/j65209/beaduniverse/main/${v}`]));
+  const DSG_DOC_APIS  = Object.fromEntries(Object.entries(DSG_DOC_PATHS).map(([k,v])=>[k, `https://api.github.com/repos/j65209/beaduniverse/contents/${v}`]));
   const DSG_DOC_RAW   = DSG_DOC_RAWS.design;           // legacy alias
   const DSG_DOC_API   = DSG_DOC_APIS.design;           // legacy alias
-  const DSG_REFS_RAW  =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_REFS_PATH}`;
-  const DSG_REFS_API  =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_REFS_PATH}`;
-  const DSG_POSTS_RAW =`https://raw.githubusercontent.com/j65209/Brightbeed/main/${DSG_POSTS_PATH}`;
-  const DSG_POSTS_API =`https://api.github.com/repos/j65209/Brightbeed/contents/${DSG_POSTS_PATH}`;
+  const DSG_REFS_RAW  =`https://raw.githubusercontent.com/j65209/beaduniverse/main/${DSG_REFS_PATH}`;
+  const DSG_REFS_API  =`https://api.github.com/repos/j65209/beaduniverse/contents/${DSG_REFS_PATH}`;
+  const DSG_POSTS_RAW =`https://raw.githubusercontent.com/j65209/beaduniverse/main/${DSG_POSTS_PATH}`;
+  const DSG_POSTS_API =`https://api.github.com/repos/j65209/beaduniverse/contents/${DSG_POSTS_PATH}`;
   /* 우선순위: 클릭할 때마다 없음 → high → medium → low → 없음 순환 */
   const DSG_PRIO_CYCLE = ['','high','medium','low'];
   const DSG_PRIO_DOT   = {high:'🔴', medium:'🟡', low:'🟢'};
@@ -18187,8 +18187,8 @@
     return t;
   }
   // PO_REPO/PO_BRANCH가 이 위치에선 아직 TDZ라 하드코딩 (변경 시 두 곳 동시 변경 필요)
-  const DIARY_RAW='https://raw.githubusercontent.com/j65209/Brightbeed/main/'+DIARY_PATH;
-  const DIARY_API='https://api.github.com/repos/j65209/Brightbeed/contents/'+DIARY_PATH;
+  const DIARY_RAW='https://raw.githubusercontent.com/j65209/beaduniverse/main/'+DIARY_PATH;
+  const DIARY_API='https://api.github.com/repos/j65209/beaduniverse/contents/'+DIARY_PATH;
   const _diaryDirty = new Set();      // 마지막 push 이후 편집된 staff 이름들
   let _diary_lastHash = null;         // 로컬 상태의 JSON 해시 — no-op 감지
   let _diary_lastEditTs = 0;          // 마지막 편집 시각 (ms) — 편집 중이면 pull 스킵
@@ -22022,7 +22022,7 @@
      - 프록시 /kd/orders 가 캐시 JSON 서빙 (10분 stale → 백그라운드 refresh).
      - 권한: viewer GET 가능. 새로고침 버튼은 ?refresh=1 로 강제.
      - PO_REPO/PO_BRANCH 는 그대로 유지 — PPT/공지/CS/세일즈 등에서 공유. */
-  const PO_REPO='j65209/Brightbeed';
+  const PO_REPO='j65209/beaduniverse';
   const PO_BRANCH='main';
 
   async function fetchKDOrders(opts){
@@ -22483,8 +22483,8 @@
   const _arStateSB={all:[],filtered:[],q:'',sort:'recent',shown:60,overrides:{},autoOverrides:{},imgOverrides:{},deletedIds:{},brand:'shinebeed',readonly:false};
   // 브랜드별 오버라이드 파일 (GitHub contents API) + PUT용 sha 캐시
   const AR_OVERRIDES_APIS={
-    brightbeed:'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json',
-    shinebeed :'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides-shinebeed.json',
+    brightbeed:'https://api.github.com/repos/j65209/beaduniverse/contents/data/product-name-overrides.json',
+    shinebeed :'https://api.github.com/repos/j65209/beaduniverse/contents/data/product-name-overrides-shinebeed.json',
   };
   const _arOverridesShaMap={brightbeed:null, shinebeed:null};
   function _arCurBrand(){ return (arState && arState.brand) || 'brightbeed'; }
@@ -22608,8 +22608,8 @@
     _arOvPushTimer[brand] = setTimeout(()=>_arOvPushInner(brand), 300);
   }
   const _AR_OV_APIS = {
-    brightbeed: 'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides.json',
-    shinebeed:  'https://api.github.com/repos/j65209/Brightbeed/contents/data/product-name-overrides-shinebeed.json',
+    brightbeed: 'https://api.github.com/repos/j65209/beaduniverse/contents/data/product-name-overrides.json',
+    shinebeed:  'https://api.github.com/repos/j65209/beaduniverse/contents/data/product-name-overrides-shinebeed.json',
   };
   async function _arOvPushInner(brand){
     if(!_arOvPending[brand]) return true;

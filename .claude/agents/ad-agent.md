@@ -183,8 +183,8 @@ python3 insights.py --since 2026-08-01 --until 2026-08-17 --level ad
 
 ## 📊 대시보드 참조 URL
 
-- 홈: https://j65209.github.io/Brightbeed/ → 📱 메타 광고 분석 리포트 폴더
-- Cleartype: https://j65209.github.io/Brightbeed/meta-ads/report.html?brand=ct
+- 홈: https://j65209.github.io/beaduniverse/ → 📱 메타 광고 분석 리포트 폴더
+- Cleartype: https://j65209.github.io/beaduniverse/meta-ads/report.html?brand=ct
 
 ## 🎁 Nice to have (요청 시 구현)
 

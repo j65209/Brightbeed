@@ -3,8 +3,8 @@
 브라이트비드 내부 운영용 웹 대시보드.
 중국 발주, ERP 연동, 사내 자료 관리를 하나의 화면에서 다룬다.
 
-> **라이브 URL** · https://j65209.github.io/Brightbeed/
-> **저장소** · https://github.com/j65209/Brightbeed
+> **라이브 URL** · https://j65209.github.io/beaduniverse/
+> **저장소** · https://github.com/j65209/beaduniverse
 
 ---
 
@@ -19,7 +19,7 @@
 
 | 항목 | 값 |
 |---|---|
-| URL | https://j65209.github.io/Brightbeed/ |
+| URL | https://j65209.github.io/beaduniverse/ |
 | PIN | `6702` (뷰어) · `0000` (마스터) |
 | 자동 통과 IP | `110.11.178.25` |
 | 저장 키 | `brightbeed_unlocked` (localStorage) |
@@ -43,7 +43,7 @@ Brightbeed/
 
 ### 방법 A · GitHub 웹 에디터에서 바로 수정 (가장 간단)
 
-1. https://github.com/j65209/Brightbeed 접속 후 로그인
+1. https://github.com/j65209/beaduniverse 접속 후 로그인
 2. `index.html` 클릭 → 우상단 연필 아이콘
 3. 수정 후 `Commit changes`
 4. 1~2분 뒤 라이브 사이트에 자동 반영 (GitHub Pages 빌드)
@@ -52,14 +52,14 @@ Brightbeed/
 
 새 대화창에서 아래 한 줄을 보내면 이 프로젝트를 바로 이어서 작업한다.
 
-> **"브라이트비드 오피스 수정하자: github.com/j65209/Brightbeed"**
+> **"브라이트비드 오피스 수정하자: github.com/j65209/beaduniverse"**
 
 Claude가 저장소 상태를 읽고 이 README를 기준으로 작업을 이어간다.
 
 ### 방법 C · 로컬에서 클론
 
 ```bash
-git clone https://github.com/j65209/Brightbeed.git
+git clone https://github.com/j65209/beaduniverse.git
 cd Brightbeed
 # index.html 수정 후
 git add . && git commit -m "수정 내용" && git push
