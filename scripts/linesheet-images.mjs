@@ -1,7 +1,7 @@
 // 디자인센터 전광판 사진 — 구글시트 'COFERRY LINE SHEET' 의 칸 안 상품 사진을 linesheet/ 로 옮겨 둔다.
 // 시트 사진 주소(sheets-images-rt)는 15분 안팎이면 만료되고, 다른 사이트(오피스)에 띄우는 것도 막혀 있어서
 // 브라우저가 바로 쓸 수 없다. 그래서 이 스크립트가 주기적으로 받아 오피스와 같은 주소에서 내보낸다.
-//   linesheet/images.json  — {v, tabs:{gid:[{k:'번호|상품명', r:블록 머리글 행, f:파일 해시}]}}
+//   linesheet/images.json  — {v, tabs:{gid:[{k:'번호|상품명', r:블록 머리글 행, f:파일 해시, p:32px 판 지문}]}}
 //   linesheet/img/<hash>.webp — 240px 썸네일 하나만 (큰 사진은 시트에서 본다 — 레포가 무거워지지 않게)
 // 글자(진행 상황)는 오피스가 시트 CSV 를 1분마다 직접 읽는다 — 여기서는 사진만.
 import { createHash } from 'node:crypto';
@@ -81,19 +81,28 @@ function images(html) {
 async function main() {
   await mkdir(IMG, { recursive: true });
   const prev = existsSync(INDEX) ? JSON.parse(await readFile(INDEX, 'utf8')) : { tabs: {} };
+  // 5분마다 도니까 사진마다 32px 판(수백 바이트)만 먼저 받아 지문(p)으로 비교하고, 처음 보는 사진만 240px 를 받는다
+  const known = new Map(Object.values(prev.tabs || {}).flat().filter(x => x.p && existsSync(`${IMG}/${x.f}.webp`)).map(x => [x.p, x.f]));
   const list = await tabs(), next = {};
-  let ok = 0;
+  let ok = 0, fresh = 0;
   for (const tb of list) {
     try {
       const [csv, html] = await Promise.all([get(`${BASE}/export?format=csv&gid=${tb.gid}`), get(`${BASE}/htmlview/sheet?headers=true&gid=${tb.gid}`)]);
       const bl = blocks(parseCsv(csv)), ims = images(html), rows = [];
-      for (const im of ims) {
-        const b = bl.filter(x => x.r <= im.r).pop();
-        if (!b) continue;
-        const buf = await get(`${im.src}=w240-h240-rw`, 'buf');
-        const f = createHash('sha1').update(buf).digest('hex').slice(0, 16);   // 같은 사진은 같은 이름 → 바뀐 게 없으면 커밋도 없다
-        if (!existsSync(`${IMG}/${f}.webp`)) await writeFile(`${IMG}/${f}.webp`, buf);
-        rows.push({ k: b.k, r: b.r, f });
+      for (let i = 0; i < ims.length; i += 8) {   // 8장씩 나눠 동시에
+        rows.push(...(await Promise.all(ims.slice(i, i + 8).map(async im => {
+          const b = bl.filter(x => x.r <= im.r).pop();
+          if (!b) return null;
+          const p = createHash('sha1').update(await get(`${im.src}=w32-h32-rw`, 'buf')).digest('hex').slice(0, 12);
+          let f = known.get(p);
+          if (!f) {
+            const buf = await get(`${im.src}=w240-h240-rw`, 'buf');
+            f = createHash('sha1').update(buf).digest('hex').slice(0, 16);   // 같은 사진은 같은 이름 → 바뀐 게 없으면 커밋도 없다
+            if (!existsSync(`${IMG}/${f}.webp`)) await writeFile(`${IMG}/${f}.webp`, buf);
+            known.set(p, f); fresh++;
+          }
+          return { k: b.k, r: b.r, f, p };
+        }))).filter(Boolean));
       }
       next[tb.gid] = rows; ok++;
       console.log(`${tb.name} (${tb.gid}): 블록 ${bl.length} · 사진 ${rows.length}`);
@@ -108,6 +117,6 @@ async function main() {
   // 더 이상 안 쓰는 사진 파일 정리
   const used = new Set(Object.values(next).flat().map(x => `${x.f}.webp`));
   for (const fn of await readdir(IMG)) if (!used.has(fn)) await unlink(`${IMG}/${fn}`);
-  console.log(`사진 ${used.size}장`);
+  console.log(`사진 ${used.size}장 (새로 받은 사진 ${fresh}장)`);
 }
 main().catch(e => { console.error(e); process.exit(1); });

@@ -7389,6 +7389,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-card:focus{outline:none}
   .lsb-card:focus-visible{outline:2px solid var(--lsb-sample);outline-offset:2px}
   .lsb-card.is-hot{border-color:#fcd34d;background:#fffbeb}
+  .lsb-card.is-flash{animation:lsbFlash 2.6s ease-out}
+  @keyframes lsbFlash{0%,40%{box-shadow:0 0 0 3px rgba(245,158,11,.6)}100%{box-shadow:0 0 0 3px rgba(245,158,11,0)}}
   .lsb-ph{position:relative;flex:none;width:58px;height:58px;border-radius:8px;background:#f5f4f1;overflow:hidden}
   .lsb-ph img{display:block;width:100%;height:100%;object-fit:contain}
   .lsb-ph-n{position:absolute;right:3px;bottom:3px;font-size:9.5px;font-weight:800;line-height:1.5;color:#fff;background:rgba(28,25,23,.62);border-radius:5px;padding:0 4px}
@@ -7462,7 +7464,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   }
   @media (prefers-reduced-motion:reduce){
     .lsb-ticker{overflow-x:auto}
-    .lsb-live i{animation:none}
+    .lsb-live i,.lsb-card.is-flash{animation:none}
   }
   /* 디자인센터 — 노션 미러 카드 */
   .dc-notion-card{background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;overflow:hidden;
@@ -17196,18 +17198,19 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
      디자인센터 보드맵 — 구글시트 'COFERRY LINE SHEET' 를 끌어와 맨 위에 3열 단계판(기획·요청 → 샘플 진행 → 발주 확정)으로 띄운다
      · 시트가 링크 공개라 CSV 내보내기(export?format=csv&gid=)로 바로 받는다 (로그인·브리지 불필요)
      · 탭 목록은 htmlview 에서 찾는다(새 시즌 탭 자동 반영) — 못 찾으면 마지막 목록 → 기본 3탭
-     · 디자인센터가 보일 때만 1분마다 다시 받고, 마지막 결과는 localStorage 에 두어 들어오자마자 그린다
+     · 디자인센터가 보일 때만 15초마다 다시 받고(실패하면 점점 천천히, 최대 3분), 창으로 돌아오면 바로 받는다.
+       마지막 결과는 localStorage 에 두어 들어오자마자 그리고, 보는 중에 바뀐 카드는 잠깐 반짝인다
      · 카드는 사진·이름·핵심 날짜(D-day)·컬러만 보이고, 누르면 컬러별 일정·메모·공장·사진 전부가 펼쳐진다
      · 기본은 시즌을 합친 '전체' — 가까운 시즌(진행 중 → 다가오는 순)부터, 열마다 시즌별로 묶어 보여 준다
      · 상품 사진은 칸 안 이미지라 CSV 에 안 실리고, 시트의 사진 주소는 15분이면 만료되며 다른 사이트에 띄우는 것도 막혀 있다
-       → GitHub Actions(linesheet-images.yml)가 30분마다 사진을 받아 linesheet/ 에 두고, 여기서는 그 목록(images.json)을 읽는다
+       → GitHub Actions(linesheet-images.yml)가 5분마다 사진을 받아 linesheet/ 에 두고, 여기서는 그 목록(images.json)을 1분마다 읽는다
      ============================================================ */
   const LSB_ID = '1Q3eMHCnPsbt3ijGv3Gswym9Q_ao_fJsPSZg8n7R-tng';
   const LSB_TABS = [{name:'26WINTER', gid:'0'}, {name:'27SS', gid:'417455932'}, {name:'홀딩', gid:'534097050'}];
   const LSB_K = {cache:'brightbeed_lsb_cache_v1', tab:'brightbeed_lsb_tab_v2', fold:'brightbeed_lsb_fold_v1'};
-  const LSB_EVERY = 60e3, LSB_TIMEOUT = 15e3, LSB_IMG_EVERY = 5 * 60e3;
+  const LSB_EVERY = 15e3, LSB_SLOW = 180e3, LSB_TIMEOUT = 15e3, LSB_IMG_EVERY = 60e3;
   const _lsb = {tabs:null, tabsAt:0, data:{}, img:{}, imgAt:0, imgErrAt:0, at:0, tried:0, busy:false, err:'', sig:'', tab:null, fold:false,
-                open:{},
+                open:{}, wait:LSB_EVERY, cardSig:null, flash:null, changedN:0, changedAt:0,
                 tick:'', tickW:0, booted:false};
   // 컬러 이름 → 견본 색 (앞에 있는 것부터 찾는다: french gray 가 gray 보다, salmon 이 pink 보다 먼저)
   const LSB_SW = [['mixed','conic-gradient(#f4b3c6,#9ccfe8,#f6e7a1,#a5e3cc,#f4b3c6)'],['crayon','linear-gradient(135deg,#f6b49c,#9ccfe8,#f6e7a1)'],
@@ -17341,8 +17344,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   }
   function _lsbUnesc(s){ try{ return JSON.parse('"' + s.replace(/\\x([0-9a-fA-F]{2})/g, '\\u00$1') + '"'); }catch(e){ return s; } }
   async function _lsbDiscover(){
-    if(_lsb.tabs && Date.now() - _lsb.tabsAt < 30 * 60e3) return;
-    _lsb.tabsAt = Date.now();   // 실패해도 30분 뒤에 다시 (htmlview 는 오피스 주소에서만 열린다)
+    if(_lsb.tabs && Date.now() - _lsb.tabsAt < 10 * 60e3) return;
+    _lsb.tabsAt = Date.now();   // 실패해도 10분 뒤에 다시 (htmlview 는 오피스 주소에서만 열린다)
     try{
       const h = await _lsbText(`https://docs.google.com/spreadsheets/d/${LSB_ID}/htmlview`, true), out = [];
       const re = /items\.push\(\{name: "((?:[^"\\]|\\.)*)", pageUrl: "[^"]*", gid: "(\d+)"/g;
@@ -17380,13 +17383,16 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     try{
       await _lsbDiscover();
       const tabs = _lsb.tabs.slice(), wantImg = Date.now() - _lsb.imgAt >= LSB_IMG_EVERY;
-      if(wantImg) _lsb.imgAt = Date.now();   // 실패해도 5분 뒤에 다시
+      if(wantImg) _lsb.imgAt = Date.now();   // 실패해도 1분 뒤에 다시
       const [res, idx] = await Promise.all([Promise.allSettled(tabs.map(_lsbFetchTab)),
-        wantImg ? _lsbText('linesheet/images.json').then(JSON.parse).catch(() => null) : null]);
+        // 사진 목록 — 주소 끝에 '분' 값을 붙여 GitHub Pages 의 10분 캐시를 건너뛴다
+        wantImg ? _lsbText('linesheet/images.json?v=' + Math.floor(Date.now() / 60e3)).then(JSON.parse).catch(() => null) : null]);
       if(idx && idx.tabs && typeof idx.tabs === 'object') _lsb.img = idx.tabs;
       let ok = 0;
       res.forEach((x, i) => { if(x.status === 'fulfilled'){ _lsb.data[tabs[i].gid] = x.value; ok++; } });
       _lsb.err = !ok ? '시트를 못 불러왔어요' : ok < res.length ? '일부 탭을 못 받았어요' : '';
+      // 다 받으면 다시 15초, 하나라도 실패하면 간격을 두 배로 (구글이 잦은 요청을 막는 경우 대비, 최대 3분)
+      _lsb.wait = ok === res.length ? LSB_EVERY : Math.min(_lsb.wait * 2, LSB_SLOW);
       if(ok){
         _lsb.at = Date.now();
         const keep = {}, img = {}; tabs.forEach(t => { if(_lsb.data[t.gid]) keep[t.gid] = _lsb.data[t.gid]; if(_lsb.img[t.gid]) img[t.gid] = _lsb.img[t.gid]; });
@@ -17394,12 +17400,26 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         // 내용이 그대로면 다시 그리지 않는다 (보던 타일·키보드 위치 유지). 날짜가 바뀌면 D-day 가 달라지니 오늘 날짜도 넣는다
         const sig = _lsbToday().getTime() + JSON.stringify(tabs) + JSON.stringify(keep) + JSON.stringify(img);
         changed = sig !== _lsb.sig; _lsb.sig = sig;
+        if(changed) _lsbMarkChanges();
         try{ localStorage.setItem(LSB_K.cache, JSON.stringify({at:_lsb.at, tabs, tabsAt:_lsb.tabsAt, data:keep, img, imgAt:_lsb.imgAt})); }catch(e){}
       }
-    }catch(e){ _lsb.err = '시트를 못 불러왔어요'; }
+    }catch(e){ _lsb.err = '시트를 못 불러왔어요'; _lsb.wait = Math.min(_lsb.wait * 2, LSB_SLOW); }
     finally{ _lsb.busy = false; }
     if(changed || _lsb.err !== errBefore || !_lsbTabs().length) lsbRender();
     else _lsbStamp();
+  }
+  /* 바뀐 상품 — 판을 보는 동안 새로 받은 내용(글자·사진)이 달라진 카드만 다음 그리기에서 잠깐 반짝인다.
+     열고 처음 받을 때는 비교 대상이 없어 표시하지 않는다 */
+  function _lsbMarkChanges(){
+    const now = {};
+    (_lsb.tabs || []).forEach(tb => {
+      const d = _lsb.data[tb.gid];
+      if(d) _lsbKeys(tb.gid, d.items).forEach((k, i) => { now[k] = JSON.stringify(d.items[i]) + '|' + _lsbImgs(tb.gid, d.items[i]).join(','); });
+    });
+    const prev = _lsb.cardSig; _lsb.cardSig = now;
+    if(!prev) return;
+    const hit = Object.keys(now).filter(k => prev[k] !== now[k]);
+    if(hit.length){ _lsb.flash = new Set(hit); _lsb.changedN = hit.length; _lsb.changedAt = Date.now(); }
   }
 
   /* ── 그리기 ── 3열 단계판: 기획·요청 → 샘플 진행 → 발주 확정 (홀딩 탭은 단계 없이 카드만) */
@@ -17440,11 +17460,16 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const seen = {};
     return items.map(it => { const b = `${gid}|${it.no}|${it.name}`; seen[b] = (seen[b] || 0) + 1; return seen[b] > 1 ? `${b}|${seen[b]}` : b; });
   }
+  function _lsbAgo(t){
+    const s = Math.max(0, Math.round((Date.now() - t) / 1000));
+    return s < 10 ? '방금' : s < 60 ? `${s}초 전` : s < 3600 ? `${Math.floor(s / 60)}분 전` : new Date(t).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', hour12:false});
+  }
   function _lsbStamp(){
     const el = document.getElementById('lsbStamp'), root = document.getElementById('lsb');
     if(!el) return;
-    const hm = _lsb.at ? new Date(_lsb.at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', hour12:false}) : '';
-    el.textContent = _lsb.busy && !_lsb.at ? '불러오는 중…' : _lsb.err ? `⚠ ${_lsb.err}${hm ? ` · ${hm} 기준` : ''}` : hm ? `${hm} 기준 · 1분마다 갱신` : '';
+    const ago = _lsb.at ? _lsbAgo(_lsb.at) : '', chg = _lsb.changedN && Date.now() - _lsb.changedAt < 60e3 ? ` · 상품 ${_lsb.changedN}개 바뀜` : '';
+    el.textContent = _lsb.busy && !_lsb.at ? '불러오는 중…' : _lsb.err ? `⚠ ${_lsb.err}${ago ? ` · ${ago} 기준` : ''}` : ago ? `${ago} 갱신${chg}` : '';
+    el.title = `디자인센터가 열려 있는 동안 ${Math.round(_lsb.wait / 1000)}초마다 시트를 확인해요${_lsb.wait > LSB_EVERY ? ' (연결이 불안정해 천천히 확인 중)' : ''} · 사진은 5분마다`;
     if(root) root.classList.toggle('is-err', !!_lsb.err);
   }
   function _lsbEvents(){
@@ -17548,7 +17573,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         <a class="lsb-link" href="${E(at)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">구글시트에서 보기 ↗</a></div>`;
     }
     const hot = st.k === 'due' && st.n <= 3;
-    return `<article class="lsb-card s-${st.k}${hot ? ' is-hot' : ''}${open ? ' is-open' : ''}" role="button" tabindex="0" aria-expanded="${open}" data-k="${E(key)}" onclick="lsbToggle(this.dataset.k)" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();lsbToggle(this.dataset.k)}">
+    const flash = !!_lsb.flash && _lsb.flash.has(key);
+    return `<article class="lsb-card s-${st.k}${hot ? ' is-hot' : ''}${open ? ' is-open' : ''}${flash ? ' is-flash' : ''}" role="button" tabindex="0" aria-expanded="${open}" data-k="${E(key)}" onclick="lsbToggle(this.dataset.k)" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();lsbToggle(this.dataset.k)}">
       ${ph}<div class="lsb-cb">
         <div class="lsb-c1"><b class="lsb-cn" title="${E(it.name)}">${E(name)}</b>${badge}</div>
         ${sws || meta ? `<div class="lsb-c2">${sws}<span class="lsb-meta">${meta}</span></div>` : ''}
@@ -17604,6 +17630,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const fb = document.getElementById('lsbFoldBtn');
     if(fb){ fb.textContent = _lsb.fold ? '펼치기' : '접기'; fb.setAttribute('aria-expanded', String(!_lsb.fold)); }
     _lsbStamp(); _lsbRenderTicker(); _lsbRenderTabs(_lsbCur()); _lsbRenderBoard();
+    _lsb.flash = null;   // 반짝임은 새로 받은 직후 한 번만
   }
   // 다시 그린 뒤에도 키보드 위치를 잃지 않게 같은 자리로 되돌린다
   function _lsbRefocus(sel){ const el = document.querySelector(sel); if(el) el.focus({preventScroll:true}); }
@@ -17633,15 +17660,19 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         _lsb.tab = localStorage.getItem(LSB_K.tab);
         _lsb.fold = localStorage.getItem(LSB_K.fold) === '1';
       }catch(e){}
-      const stale = () => _lsbVisible() && Date.now() - _lsb.tried >= LSB_EVERY;
-      setInterval(() => { if(stale()) lsbRefresh(); }, 10e3);
-      document.addEventListener('visibilitychange', () => { if(stale()) lsbRefresh(); });
+      const stale = gap => _lsbVisible() && Date.now() - _lsb.tried >= gap;
+      // 3초마다: 마지막 확인 뒤 15초(실패 중이면 더 길게)가 지났으면 새로 받고, 아니면 'N초 전' 글자만 고친다
+      setInterval(() => { if(stale(_lsb.wait)) lsbRefresh(); else if(_lsbVisible()) _lsbStamp(); }, 3e3);
+      // 다른 탭·창에 갔다가 돌아오면 바로 (5초 안에 받은 게 있으면 건너뜀)
+      const back = () => { if(stale(5e3)) lsbRefresh(); };
+      document.addEventListener('visibilitychange', back);
+      window.addEventListener('focus', back);
       // 판이 보이게 되거나 폭이 바뀌면 — 띠 길이 다시 재고, 오래됐으면 새로 받는다
       const root = document.getElementById('lsb');
-      if(root && window.ResizeObserver) new ResizeObserver(() => { _lsbTickerFit(); if(stale()) lsbRefresh(); }).observe(root);
+      if(root && window.ResizeObserver) new ResizeObserver(() => { _lsbTickerFit(); if(stale(_lsb.wait)) lsbRefresh(); }).observe(root);
     }
     lsbRender();
-    if(_lsbVisible() && Date.now() - _lsb.tried >= 20e3) lsbRefresh();
+    if(_lsbVisible() && Date.now() - _lsb.tried >= 5e3) lsbRefresh();
   }
   window.lsbInit = lsbInit; window.lsbRefresh = lsbRefresh; window.lsbTab = lsbTab;
   window.lsbToggle = lsbToggle; window.lsbFold = lsbFold; window.lsbImgErr = lsbImgErr;
