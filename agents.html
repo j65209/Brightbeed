@@ -388,7 +388,7 @@ const CHARACTERS = [
     taskLabel:'전 에이전트 자동업무 검수', scheduleLabel:'상시 감시', intervalSec:1800,
     role:'자동화 검수관 · 이상 감지',
     knows:[
-      '모든 에이전트(콜리·미루·노아·자스민·오스카)의 launchd 스케줄과 last_run 을 상시 추적',
+      '모든 에이전트(콜리·미루·노아·자스민·오스카·루나·릴리·아이비)의 launchd 스케줄과 last_run 을 상시 추적',
       '검수 기준 · 주기 1배 이내=정상 / 1~2배=곧 실행 / 2배 초과=이상',
       '이상 발견 시 담당 에이전트 · 마지막 성공 시각 · 원인을 근거로 브리핑',
       '검수는 관찰만 · 파이프라인 재실행·설정 변경은 사장님 지시 대기',
@@ -457,39 +457,86 @@ const CHARACTERS = [
   {
     id:'marketing', name:'자스민', team:'매출팀',
     hairColor:'#2c1810', cloth:'#65a30d',
-    agentIds:['pro-sales','admin-sales','platform-sales','brand-report','bestsellers','ably-daily'],
-    taskLabel:'매출 수집·분석·리포트 업무', scheduleLabel:'매 30분 · 에이블리 보고서 매일 7:10', intervalSec:1800,
+    agentIds:['pro-sales','admin-sales','platform-sales'],
+    taskLabel:'매출 수집 업무', scheduleLabel:'매 30분', intervalSec:1800,
     role:'전 브랜드·전 채널 매출 데이터 총괄',
     knows:[
       '식스샵프로(Pro) · 식스샵 admin · 외부 플랫폼(에이블리·지그재그·스마트스토어) 매출 30분 주기 수집',
-      '브랜드별 TOP10·리오더·핫아이템 리포트 (admin v2 orders 는 세션 살아있어야 응답)',
       'Pro item/top 은 자사몰만 집계 — 외부채널은 별도 플랫폼 데이터로 커버',
-      '브랜드별 판매 순위(TOP10) 30분 주기 수집',
-      '코페리 에이블리 일일 보고서(주문·정산 추정·광고비·순이익) 매일 아침 07:10 생성',
+      '판매 순위·브랜드 리포트는 아이비, 에이블리 일일 보고서는 릴리 담당',
     ],
     quick:[
       {label:'업무 보고', cmd:'업무 보고'},
       {label:'베스트셀러', cmd:'베스트셀러'},
-      {label:'브랜드 리포트', cmd:'브랜드 리포트'},
       {label:'전문 분야', cmd:'전문 분야'},
     ],
   },
   {
     id:'ads', name:'오스카', team:'광고팀',
     hairColor:'#1e1a17', cloth:'#ea580c',
-    agentIds:['fb-ads','ably-ads','fx-usd'],
-    taskLabel:'메타·에이블리 광고 성과 업무', scheduleLabel:'메타 30분 · 에이블리 매일 8시 · 환율 평일 9시', intervalSec:1800,
+    agentIds:['fb-ads'],
+    taskLabel:'메타 광고 성과 업무', scheduleLabel:'매 30분', intervalSec:1800,
     role:'메타(페이스북) 광고 성과 전문',
     knows:[
       '구매 지표는 omni_purchase 하나만 사용 — 다른 action_type 합산은 중복',
       '지출·구매·ROAS·CPA 를 브랜드별로 분리 집계',
       '리포트 push 실패 시 pull --rebase 재시도가 붙어 있어야 함',
-      '에이블리 광고(코페리·아페티)를 매일 아침 8시 광고 관리자에서 받아 광고 시트 플랫폼 탭에 자동 입력',
-      '광고 시트 USD 환율 — 평일 오전 9시 하나은행 매매기준율 기록',
     ],
     quick:[
       {label:'업무 보고', cmd:'업무 보고'},
       {label:'광고 성과', cmd:'광고 성과'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  /* 2026-10-27 — 자동 업무가 늘어 직원 3명 추가 (아이비·릴리는 대화 인격이 이미 프록시에 있었음) */
+  {
+    id:'plat_ads', name:'루나', team:'플랫폼광고팀',
+    hairColor:'#2a1b14', cloth:'#e11d48',
+    agentIds:['ably-ads','fx-usd'],
+    taskLabel:'에이블리 광고 · 환율 업무', scheduleLabel:'에이블리 매일 8시 · 환율 평일 9시', cronH:8, cronM:0,
+    role:'플랫폼(에이블리) 광고 성과 · 광고 시트 자동 입력',
+    knows:[
+      '코페리·아페티 에이블리 광고를 매일 아침 8시 광고 관리자에서 받아 광고 시트 플랫폼 탭에 자동 입력',
+      '노출·클릭·광고비·전환수·전환매출(원화) — 지난달 1일~오늘을 광고 관리자 값으로 맞춤',
+      '저장 전 대시보드 "최근 7일 광고비"와 대조, 어긋나면 저장하지 않고 이전 값 유지',
+      '광고 시트 USD 환율 — 평일 오전 9시 하나은행 매매기준율 기록 (주말은 직전 영업일)',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'에이블리 광고', cmd:'에이블리 광고 어때?'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'report', name:'릴리', team:'리포트팀',
+    hairColor:'#3b2416', cloth:'#0891b2',
+    agentIds:['ably-daily'],
+    taskLabel:'에이블리 일일 보고서 업무', scheduleLabel:'매일 7:10', cronH:7, cronM:10,
+    role:'일일 보고서 · 웹 리서치 리포트',
+    knows:[
+      '코페리 에이블리 일일 보고서 — 매일 아침 07:10 전날 주문·정산 추정·광고비·원가·순이익 정리',
+      '보고서는 업무용 툴 "에이블리 일일 보고서"에서 확인',
+      '사장님 지시로 웹 리서치 리포트 작성 (검색 → 요약 → 저장)',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'전문 분야', cmd:'전문 분야'},
+    ],
+  },
+  {
+    id:'planning', name:'아이비', team:'기획팀',
+    hairColor:'#4a2c1a', cloth:'#db2777',
+    agentIds:['brand-report','bestsellers'],
+    taskLabel:'판매 순위 · 브랜드 리포트 업무', scheduleLabel:'판매 순위 30분 · 리포트 8·12·18시', intervalSec:1800,
+    role:'리오더·핫아이템 · 브랜드 분석',
+    knows:[
+      '브랜드별 판매 순위(TOP10) 30분 주기 수집',
+      '브랜드별 TOP10·리오더·핫아이템 리포트 — 매일 8·12·18시 (admin v2 orders 는 세션 살아있어야 응답)',
+      '리오더 판단 = 남은 재고 ÷ 최근 7일 일평균 판매, 리드타임 3~4주 감안',
+    ],
+    quick:[
+      {label:'업무 보고', cmd:'업무 보고'},
+      {label:'브랜드 리포트', cmd:'브랜드 리포트'},
       {label:'전문 분야', cmd:'전문 분야'},
     ],
   },
@@ -526,7 +573,19 @@ function saveOverride(id, changes){
 function displayName(c){ return (loadOverrides()[c.id]?.name) || c.name; }
 function displayTeam(c){ return (loadOverrides()[c.id]?.team) || c.team; }
 
-function loadChats(){ try{ return JSON.parse(localStorage.getItem(CHAT_KEY)||'{}'); }catch(e){ return {}; } }
+/* 업무 지시 대화는 매일 초기화 — 오늘 0시(이 PC 시각) 이전 대화는 읽을 때 버리고 저장소에서도 지운다 */
+function loadChats(){
+  let all;
+  try{ all = JSON.parse(localStorage.getItem(CHAT_KEY)||'{}') || {}; }catch(e){ return {}; }
+  const today0 = new Date(); today0.setHours(0,0,0,0);
+  let changed = false;
+  Object.keys(all).forEach(id => {
+    const keep = (all[id]||[]).filter(m => m && m.ts >= today0.getTime());
+    if(keep.length !== (all[id]||[]).length){ changed = true; if(keep.length) all[id] = keep; else delete all[id]; }
+  });
+  if(changed) saveChats(all);
+  return all;
+}
 function saveChats(o){ try{ localStorage.setItem(CHAT_KEY, JSON.stringify(o)); }catch(e){} }
 function chatOf(id){ return loadChats()[id] || []; }
 function pushChat(id, msg){
@@ -759,7 +818,7 @@ function deskSvg(c){
 const _TEAM_ORDER = {
   '본부':0,
   '물류팀':1, '재고팀':2, '벤더팀':3,
-  '매출팀':4, '마케팅팀':4, '광고팀':5, '리포트팀':6, '기획팀':7,
+  '매출팀':4, '마케팅팀':4, '광고팀':5, '플랫폼광고팀':5, '리포트팀':6, '기획팀':7,
 };
 function _teamsInOrder(){
   const seen = new Map();
@@ -1055,8 +1114,15 @@ async function submit(raw){
 
 function has(t, arr){ return arr.some(w => t.includes(w)); }
 
+let _chatDay = new Date().toDateString();
 async function handle(c, text){
   const t = text.toLowerCase().replace(/\s+/g,' ').trim();
+  // 창을 켜 둔 채 날이 바뀌면 진행 중이던 업무 흐름·AI 대화 맥락도 새로 시작 (대화 기록은 loadChats 가 비움)
+  if(_chatDay !== new Date().toDateString()){
+    _chatDay = new Date().toDateString();
+    Object.keys(sess).forEach(k => delete sess[k]);
+    Object.keys(llmHist).forEach(k => delete llmHist[k]);
+  }
 
   if(t === '#cancel'){
     delete sess[c.id];
