@@ -3756,6 +3756,11 @@
   .adsh-h{font-size:13px;font-weight:800;margin:14px 0 6px;display:flex;align-items:center;gap:6px}
   .adsh-h::before{content:'';width:9px;height:9px;background:var(--text-0)}
   .adsh-h small{font-weight:500;color:var(--text-3);font-size:11px}
+  .adsh-cur{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--text-2)}
+  .adsh-cur button{border:1px solid var(--line-2);background:var(--bg-1);color:var(--text-2);font:inherit;font-size:12px;font-weight:700;padding:3px 10px;cursor:pointer}
+  .adsh-cur button:first-of-type{border-radius:6px 0 0 6px}
+  .adsh-cur button:last-of-type{border-radius:0 6px 6px 0;margin-left:-1px}
+  .adsh-cur button.on{background:#16a34a;border-color:#16a34a;color:#fff}
   .adsh-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   /* 칸 너비는 내용(글자)에 딱 맞게 — 입력 칸은 JS 가 그 달 최대 자릿수로 ch 단위 너비를 준다(_adshColW) */
   .adsh-tbl{width:100%;border-collapse:collapse;font-size:12px;background:var(--bg-1);font-variant-numeric:tabular-nums}
@@ -23310,7 +23315,21 @@
   ];
   // 공홈 브랜드가 아닌 시트 id 는 전부 플랫폼. 인자 없으면 지금 보고 있는 탭(mode)
   const _adshIsPlat=(id)=>id ? !BRAND_SECTIONS.some(b=>b.id===id) : _adsh.mode==='platform';
-  const _adshCols=()=>_adshIsPlat()?ADSH_COLS_PLAT:ADSH_COLS;
+  // 공홈 광고비 입력 통화 — $ 또는 원 중 고른 쪽만 입력 칸(초록), 다른 쪽은 그날 환율로 자동 계산. 브랜드별로 이 PC에 기억 (기본 $)
+  function _adshCur(){
+    const id=_adsh.brand; _adsh.cur=_adsh.cur||{};
+    if(!(id in _adsh.cur)){ let v=null; try{ v=localStorage.getItem(ADSH_LS+'cur_'+id) }catch(e){} _adsh.cur[id]=v==='krw'?'krw':'usd' }
+    return _adsh.cur[id];
+  }
+  function adshSetCur(cur){
+    const a=document.activeElement;
+    if(a && a.matches && a.matches('#adshDaily input')) a.blur();   // 입력 중이던 칸 먼저 확정
+    _adsh.cur=_adsh.cur||{}; _adsh.cur[_adsh.brand]=cur==='krw'?'krw':'usd';
+    try{ localStorage.setItem(ADSH_LS+'cur_'+_adsh.brand,_adsh.cur[_adsh.brand]) }catch(e){}
+    adshRender();
+  }
+  window.adshSetCur=adshSetCur;
+  const _adshCols=()=>_adshIsPlat()?ADSH_COLS_PLAT:ADSH_COLS.map(c=>(c.k==='usd'||c.k==='krw')?Object.assign({},c,{in:c.k===_adshCur()}):c);
   const _adshCfg=(id)=>BRAND_SECTIONS.find(b=>b.id===id)||_adshPlatList().find(p=>p.id===id);
   const _adsh={brand:null, mode:'home', month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, inflight:{}, pushed:{}, failStreak:0, saveTimer:null, saving:false, saveAgain:false,
     plats:[], platOps:[], platPushedAt:0, platSaving:false, platTimer:null, platFail:0, platFormOpen:false};
@@ -23703,7 +23722,7 @@
     const today=_adshYmd(new Date());
     return `<tr data-date="${date}"${date===today?' class="is-today"':''}><td class="c">${_adshMd(date)}</td><td class="c ${dow===0?'sun':dow===6?'sat':''}">${dn}</td>`+
       _adshCols().map((col,ci)=>{
-        if(!col.in) return `<td class="${col.k==='roas'||col.k==='ctr'?'b':''}" data-k="${col.k}">${v[col.k]}</td>`;
+        if(!col.in) return `<td class="${col.k==='roas'||col.k==='ctr'?'b':''}" data-k="${col.k}">${Array.isArray(v[col.k])?v[col.k][0]:v[col.k]}</td>`;
         const [val,auto]=v[col.k];
         const title=col.k==='fx'?` title="${v.fxTitle}"`:'';
         const w=_adsh.colW&&_adsh.colW[col.k];
@@ -23760,14 +23779,15 @@
     }
     const dates=_adshMonthDates();
     _adsh.colW=_adshColW(dates);
-    // 서버 맥이 광고 관리자에서 자동으로 채우는 시트 (scripts/ably_ads.py, 30분마다 · 지난달 1일~오늘 덮어씀)
+    // 서버 맥이 광고 관리자에서 자동으로 채우는 시트 (scripts/ably_ads.py, 매일 08:00 · 지난달 1일~오늘 덮어씀)
     const src=(_adsh.sheets[_adsh.brand]||{}).source;
     const sync=src && src.type==='ably-ads' ? (()=>{
       const t=new Date(src.syncedAt||0), hm=`${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-      return `<div class="adsh-sync"><i class="adsh-live"></i><b>에이블리 광고 관리자 자동 연동</b> · 30분마다 갱신 · 마지막 반영 ${hm}<span>지난달 1일~오늘 값은 광고 관리자 값으로 덮어써지니 직접 고치지 않아도 됩니다</span></div>`;
+      return `<div class="adsh-sync"><i class="adsh-live"></i><b>에이블리 광고 관리자 자동 연동</b> · 매일 아침 8시 갱신 · 마지막 반영 ${hm}<span>지난달 1일~오늘 값은 광고 관리자 값으로 덮어써지니 직접 고치지 않아도 됩니다</span></div>`;
     })() : '';
     body.innerHTML=`${sync}<div id="adshTop">${_adshRenderWeeks()}${_adshRenderSummary()}${_adshRenderCharts()}</div>
-      <div class="adsh-h">일자별 운영 현황</div>
+      <div class="adsh-h">일자별 운영 현황${_adshIsPlat() ? '' : (()=>{ const c=_adshCur(); return `<span class="adsh-cur" role="group" aria-label="광고비 입력 통화">광고비 입력
+        <button type="button" class="${c==='usd'?'on':''}" aria-pressed="${c==='usd'}" onclick="adshSetCur('usd')">$ 달러</button><button type="button" class="${c==='krw'?'on':''}" aria-pressed="${c==='krw'}" onclick="adshSetCur('krw')">₩ 원</button></span>` })()}</div>
       <div class="adsh-scroll"><table class="adsh-tbl" id="adshDaily">
         <thead><tr><th>날짜</th><th>요일</th>${_adshCols().map(c=>_adshTh(c.label,c.in?'in':'')).join('')}</tr></thead>
         <tbody id="adshTotal">${_adshTotalHtml()}</tbody>
@@ -23775,7 +23795,7 @@
       </table></div>
       <div class="adsh-hint">초록색 칸만 입력 · 입력하는 즉시 실시간 자동저장(저장 버튼 없음) · 엑셀에서 여러 칸 복사 후 붙여넣기 가능 · Enter/↑↓ 행 이동 · ${_adshIsPlat()
         ? '플랫폼 광고비는 원화 그대로 입력 (환율 없음)'
-        : '광고비는 $ 또는 원 중 하나만 입력하면 그날 환율로 자동 환산 · 환율 칸을 비우면 자동(평일 오전 9시 하나은행 매매기준율, 주말은 직전 영업일)'}</div>`;
+        : '광고비는 위에서 고른 통화($ 달러 / ₩ 원) 칸에 입력하면 다른 쪽은 그날 환율로 자동 환산 · 환율 칸을 비우면 자동(평일 오전 9시 하나은행 매매기준율, 주말은 직전 영업일)'}</div>`;
   }
   /* 셀 수정 후 — 포커스를 잃지 않도록 표 전체가 아니라 계산 칸·요약·그래프만 갱신 */
   function _adshRefresh(){
@@ -23789,7 +23809,7 @@
       const v=_adshCellVals(tr.dataset.date);
       tr.querySelectorAll('td[data-k]').forEach(td=>{
         const k=td.dataset.k, inp=td.querySelector('input');
-        if(!inp){ td.textContent=v[k]; return }
+        if(!inp){ td.textContent=Array.isArray(v[k])?v[k][0]:v[k]; return }
         if(document.activeElement===inp) return;
         inp.value=v[k][0];
         td.classList.toggle('is-auto',v[k][1]);
