@@ -3738,6 +3738,21 @@
   .adsh-brands .sub-module.is-active{border:2px solid var(--m-color);padding:15px 15px 13px;background:var(--bg-1)}
   .adsh-brands .sub-module.is-active::before{opacity:.1}
   .adsh-brands .sub-module.is-active .sub-module-tag{border-style:solid;opacity:1;font-weight:700}
+  /* 플랫폼 카드 추가·삭제 */
+  .adsh-brands .sub-module{position:relative}
+  .adsh-plat-del{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;font-size:11px;line-height:20px;text-align:center;color:var(--text-3);background:transparent;opacity:0;transition:opacity .15s,background .15s;z-index:2}
+  .adsh-brands .sub-module:hover .adsh-plat-del,.adsh-brands .sub-module.is-active .adsh-plat-del,.adsh-plat-del:focus{opacity:1}
+  .adsh-plat-del:hover{background:#fee2e2;color:#dc2626}
+  @media (hover:none){ .adsh-plat-del{opacity:1} }
+  .adsh-brands .adsh-plat-add{border-style:dashed;--m-color:var(--text-3);justify-content:center}
+  .adsh-brands .adsh-plat-add .sub-module-title{color:var(--text-2)}
+  .adsh-brands .adsh-plat-add.is-open{border-color:#16a34a;border-style:solid}
+  .adsh-plat-form{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 14px;padding:10px 12px;border:1px solid #16a34a;border-radius:10px;background:#f0fdf4}
+  .adsh-plat-form[hidden]{display:none}
+  .adsh-plat-form select,.adsh-plat-form input{height:32px;border:1px solid var(--line-2);border-radius:6px;padding:0 10px;font:inherit;font-size:13px;background:#fff;color:var(--text-0)}
+  .adsh-plat-form input{min-width:200px;flex:0 1 240px}
+  .adsh-plat-msg{font-size:11.5px;color:var(--text-3)}
+  .adsh-empty{padding:28px 16px;text-align:center;color:var(--text-2);font-size:13px;border:1px dashed var(--line-2);border-radius:10px;background:var(--bg-1)}
   .adsh-h{font-size:13px;font-weight:800;margin:14px 0 6px;display:flex;align-items:center;gap:6px}
   .adsh-h::before{content:'';width:9px;height:9px;background:var(--text-0)}
   .adsh-h small{font-weight:500;color:var(--text-3);font-size:11px}
@@ -10274,6 +10289,7 @@
           <button class="lg-tab" data-adshmode="platform" onclick="adshSwitchMode('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="adshCountPlatform">8</span></button>
         </div>
         <div class="sub-modules adsh-brands" id="adshTabs" role="tablist"></div>
+        <div class="adsh-plat-form" id="adshPlatForm" hidden></div>
         <div id="adshBody"></div>
       </div>
     </div>
@@ -23254,7 +23270,7 @@
     {k:'roas', label:'ROAS(%)'},
     {k:'fx',   label:'환율',        in:true},
   ];
-  // 플랫폼(에이블리·지그재그·스마트스토어) 광고는 원화 — 환율·$ 칸 없음. 시트 id = PLATFORM_SECTIONS id (예: ably-6a)
+  // 플랫폼(에이블리·지그재그·스마트스토어) 광고는 원화 — 환율·$ 칸 없음. 시트 id = 플랫폼 카드 id (예: ably-6a, 아래 _platforms.json)
   const ADSH_COLS_PLAT=[
     {k:'imp',    label:'노출수',      in:true},
     {k:'clk',    label:'클릭수',      in:true},
@@ -23266,10 +23282,162 @@
     {k:'rev',    label:'전환매출',    in:true},
     {k:'roas',   label:'ROAS(%)'},
   ];
-  const _adshIsPlat=(id)=>PLATFORM_SECTIONS.some(p=>p.id===(id||_adsh.brand));
+  // 공홈 브랜드가 아닌 시트 id 는 전부 플랫폼. 인자 없으면 지금 보고 있는 탭(mode)
+  const _adshIsPlat=(id)=>id ? !BRAND_SECTIONS.some(b=>b.id===id) : _adsh.mode==='platform';
   const _adshCols=()=>_adshIsPlat()?ADSH_COLS_PLAT:ADSH_COLS;
-  const _adshCfg=(id)=>BRAND_SECTIONS.find(b=>b.id===id)||PLATFORM_SECTIONS.find(p=>p.id===id);
-  const _adsh={brand:null, month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, inflight:{}, pushed:{}, failStreak:0, saveTimer:null, saving:false, saveAgain:false};
+  const _adshCfg=(id)=>BRAND_SECTIONS.find(b=>b.id===id)||_adshPlatList().find(p=>p.id===id);
+  const _adsh={brand:null, mode:'home', month:null, sheets:{}, fx:{}, fxDates:[], fxLoaded:false, dirty:{}, inflight:{}, pushed:{}, failStreak:0, saveTimer:null, saving:false, saveAgain:false,
+    plats:[], platOps:[], platPushedAt:0, platSaving:false, platTimer:null, platFail:0, platFormOpen:false};
+
+  /* ----- 플랫폼 카드 목록 (광고 집행하는 플랫폼만 직접 추가·삭제) -----
+     data/ad-sheets/_platforms.json — {items:[{id, brand, platform}], updatedAt}. 전 직원 공유.
+     id = {플랫폼키}-{브랜드} (예: ably-6a). 같은 브랜드·플랫폼을 다시 추가하면 같은 id → 지웠던 광고 데이터도 그대로 돌아온다.
+     삭제는 카드만 지우고 data/ad-sheets/{id}.json 은 남긴다.
+     저장: 추가/삭제를 작업(op) 단위로 localStorage 에 쌓고 → 원격 최신 목록 위에 다시 적용해 PUT (동시 편집 보호)
+           방금 올린 것보다 옛 원격본(캐시 지연)은 무시 → 지운 카드가 되살아나지 않음 */
+  const ADSH_PLATS_API=`https://api.github.com/repos/${PO_REPO}/contents/data/ad-sheets/_platforms.json`;
+  const ADSH_PLAT_KEYS={'에이블리':'ably','지그재그':'zigzag','스마트스토어':'smartstore'};
+  const ADSH_PLAT_DOTS={'ably':'#ff5a92','zigzag':'#ff2380','smartstore':'#03c75a'};
+  const ADSH_PLAT_SUGGEST=['에이블리','지그재그','스마트스토어','무신사','29CM','W컨셉','쿠팡','브랜디','하이버','포스티','카카오톡 선물하기','오늘의집'];
+  function _adshPlatKey(name){
+    const n=String(name).trim();
+    if(ADSH_PLAT_KEYS[n]) return ADSH_PLAT_KEYS[n];
+    let h=2166136261;   // 그 외 플랫폼명은 해시로 고정 키 (파일명이라 영문·숫자만)
+    for(const ch of n.toLowerCase().replace(/\s+/g,'')){ h^=ch.codePointAt(0); h=Math.imul(h,16777619)>>>0 }
+    return 'pf'+h.toString(36);
+  }
+  function _adshPlatList(){
+    return _adsh.plats.map(p=>{
+      const b=BRAND_SECTIONS.find(x=>x.id===p.brand)||{};
+      const key=p.id.slice(0,p.id.lastIndexOf('-'));
+      return {id:p.id, brand:p.brand, group:p.platform, display:b.display||p.brand, dot:ADSH_PLAT_DOTS[key]||b.dot||'#94a3b8'};
+    });
+  }
+  function _adshPlatApply(items,ops){
+    let out=(items||[]).slice();
+    for(const o of ops||[]){
+      if(o.op==='add' && o.item && !out.some(x=>x.id===o.item.id)) out.push(o.item);
+      if(o.op==='del') out=out.filter(x=>x.id!==o.id);
+    }
+    return out;
+  }
+  function _adshPlatPersist(){
+    try{
+      localStorage.setItem(ADSH_LS+'plats', JSON.stringify(_adsh.plats));
+      localStorage.setItem(ADSH_LS+'plat_ops', JSON.stringify(_adsh.platOps));
+      localStorage.setItem(ADSH_LS+'plat_pushed', String(_adsh.platPushedAt||0));
+    }catch(e){}
+  }
+  function _adshPlatRestore(){
+    try{
+      const p=JSON.parse(localStorage.getItem(ADSH_LS+'plats')||'[]'); if(Array.isArray(p)) _adsh.plats=p;
+      const o=JSON.parse(localStorage.getItem(ADSH_LS+'plat_ops')||'[]'); if(Array.isArray(o)) _adsh.platOps=o;
+      const t=+localStorage.getItem(ADSH_LS+'plat_pushed')||0; if(Date.now()-t<ADSH_CONFIRM_MS) _adsh.platPushedAt=t;
+    }catch(e){}
+  }
+  async function _adshPlatLoad(){
+    let remote=null;
+    const f=await ghGetFile(ADSH_PLATS_API);
+    if(!f.error){ try{ remote=f.text ? JSON.parse(f.text) : {items:[]} }catch(e){} }
+    else{
+      try{
+        const r=await fetch(`https://raw.githubusercontent.com/${PO_REPO}/${PO_BRANCH}/data/ad-sheets/_platforms.json?cb=${Date.now()}`,{cache:'no-cache'});
+        if(r.ok) remote=await r.json(); else if(r.status===404) remote={items:[]};
+      }catch(e){}
+    }
+    if(!remote || !Array.isArray(remote.items)) return;
+    // 방금 올린 것보다 옛 원격본이면 로컬 유지 (캐시 지연)
+    if(_adsh.platPushedAt && (remote.updatedAt||0) < _adsh.platPushedAt) return;
+    _adsh.plats=_adshPlatApply(remote.items,_adsh.platOps);
+    _adshPlatPersist();
+  }
+  async function _adshPlatSave(){
+    if(_adsh.platSaving || !_adsh.platOps.length) return;
+    _adsh.platSaving=true;
+    const ops=_adsh.platOps.slice();
+    let ok=false, reason='';
+    try{
+      for(let i=0;i<3 && !ok;i++){
+        try{
+          const f=await ghGetFile(ADSH_PLATS_API);
+          if(f.error){ reason=f.error; break }
+          let remote={items:[]};
+          try{ if(f.text) remote=JSON.parse(f.text) }catch(e){}
+          const items=_adshPlatApply(Array.isArray(remote.items)?remote.items:[], ops);
+          const body={items, updatedAt:Math.max(Date.now(),(remote.updatedAt||0)+1)};
+          const b64=btoa(unescape(encodeURIComponent(JSON.stringify(body))));
+          const r=await ghPut(ADSH_PLATS_API, b64, 'chore: 광고 시트 플랫폼 목록 갱신', {forceMaster:true, noConflictRetry:true, sha:f.sha||null});
+          if(r.ok){
+            ok=true;
+            _adsh.platPushedAt=body.updatedAt;
+            _adsh.platOps=_adsh.platOps.slice(ops.length);   // 저장 중 새로 생긴 작업은 남김
+            _adsh.plats=_adshPlatApply(items,_adsh.platOps);
+          }else{ reason=r.reason; if(r.reason!=='conflict') break }
+        }catch(e){ reason='fetch'; break }
+      }
+    }finally{ _adsh.platSaving=false }
+    _adshPlatPersist();
+    if(!ok){
+      _adsh.platFail=Math.min(_adsh.platFail+1,6);
+      const wait=Math.min(1000*2**(_adsh.platFail-1),30000);
+      _adshSaveTag(`⚠ 플랫폼 목록 저장 대기 (${reason||'error'}) — ${Math.round(wait/1000)}초 뒤 재시도`,true);
+      clearTimeout(_adsh.platTimer); _adsh.platTimer=setTimeout(_adshPlatSave,wait);
+      return;
+    }
+    _adsh.platFail=0;
+    if(_adsh.platOps.length) return _adshPlatSave();
+    const d=new Date();
+    _adshSaveTag(`실시간 자동저장 · ✓ ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`);
+  }
+  function _adshPlatOp(op){
+    _adsh.platOps.push(op);
+    _adsh.plats=_adshPlatApply(_adsh.plats,[op]);
+    _adshPlatPersist();
+    _adshSaveTag('실시간 자동저장 중…');
+    clearTimeout(_adsh.platTimer); _adsh.platTimer=setTimeout(_adshPlatSave,100);
+  }
+  function adshPlatFormToggle(open){
+    _adsh.platFormOpen=open==null ? !_adsh.platFormOpen : !!open;
+    _adshRenderPlatForm();
+    if(_adsh.platFormOpen){ const n=document.getElementById('adshPlatName'); if(n) n.focus() }
+  }
+  function adshPlatAdd(){
+    const brand=(document.getElementById('adshPlatBrand')||{}).value;
+    const name=((document.getElementById('adshPlatName')||{}).value||'').trim().replace(/\s+/g,' ');
+    const msg=document.getElementById('adshPlatMsg');
+    if(!brand || !name){ if(msg) msg.textContent='브랜드와 플랫폼명을 넣어주세요'; return }
+    const id=`${_adshPlatKey(name)}-${brand}`;
+    if(!_adsh.plats.some(p=>p.id===id)) _adshPlatOp({op:'add', item:{id, brand, platform:name}});
+    _adsh.platFormOpen=false;
+    adshSwitch(id);
+  }
+  function adshPlatDel(id,ev){
+    if(ev) ev.stopPropagation();
+    const p=_adshPlatList().find(x=>x.id===id);
+    if(!p) return;
+    if(!confirm(`${p.display} · ${p.group} 카드를 삭제할까요?\n입력한 광고 데이터는 지워지지 않아서, 같은 브랜드·플랫폼을 다시 추가하면 그대로 돌아옵니다.`)) return;
+    _adshPlatOp({op:'del', id});
+    if(_adsh.brand===id){
+      const rest=_adshPlatList();
+      if(rest.length) adshSwitch(rest[0].id);
+      else { _adsh.brand=null; adshRender() }
+    }else _adshRenderTabs();
+  }
+  function _adshRenderPlatForm(){
+    const el=document.getElementById('adshPlatForm');
+    if(!el) return;
+    el.hidden=!(_adsh.mode==='platform' && _adsh.platFormOpen);
+    if(el.hidden){ el.innerHTML=''; return }
+    el.innerHTML=`<select id="adshPlatBrand" aria-label="브랜드">${BRAND_SECTIONS.map(b=>`<option value="${b.id}">${_akoiEsc(b.display)}</option>`).join('')}</select>
+      <input id="adshPlatName" list="adshPlatSuggest" placeholder="플랫폼명 (예: 에이블리, 무신사)" autocomplete="off" onkeydown="if(event.key==='Enter')adshPlatAdd();else if(event.key==='Escape')adshPlatFormToggle(false)">
+      <datalist id="adshPlatSuggest">${ADSH_PLAT_SUGGEST.map(s=>`<option value="${_akoiEsc(s)}">`).join('')}</datalist>
+      <button class="btn po-import" type="button" onclick="adshPlatAdd()">추가</button>
+      <button class="btn" type="button" onclick="adshPlatFormToggle(false)">취소</button>
+      <span class="adsh-plat-msg" id="adshPlatMsg">광고를 집행하는 플랫폼만 추가하세요</span>`;
+  }
+  window.adshPlatFormToggle=adshPlatFormToggle;
+  window.adshPlatAdd=adshPlatAdd;
+  window.adshPlatDel=adshPlatDel;
   const ADSH_DIRTY_KEY=ADSH_LS+'dirty_v1', ADSH_PUSHED_KEY=ADSH_LS+'pushed_v1', ADSH_CONFIRM_MS=3*60*1000;
   // 미저장 셀(전송 중 포함)을 localStorage 에 — 새로고침·창닫기 후에도 남아서 다시 보낸다
   function _adshPersistDirty(){
@@ -23293,6 +23461,7 @@
   const _adshHasDirty=()=>[_adsh.dirty,_adsh.inflight].some(src=>Object.keys(src).some(id=>Object.keys(src[id]||{}).length));
   function _adshSchedule(ms){ clearTimeout(_adsh.saveTimer); _adsh.saveTimer=setTimeout(_adshSave,ms) }
   _adshRestoreDirty();
+  _adshPlatRestore();
 
   function _adshYmd(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
   function _adshAdd(ymd,n){const d=new Date(ymd+'T00:00:00');d.setDate(d.getDate()+n);return _adshYmd(d)}
@@ -23380,17 +23549,22 @@
     const wrap=document.getElementById('adshTabs');
     if(!wrap) return;
     // 홈 "일일 브랜드 리포트" 카드와 같은 모양 (sub-module) — 선택된 브랜드는 테두리·태그를 브랜드 색으로
-    // 플랫폼 카드는 실시간 매출 플랫폼 탭과 같은 목록(PLATFORM_SECTIONS) · 태그 = 플랫폼명
+    // 플랫폼 카드 = 직접 추가한 목록(_platforms.json) · 태그 = 플랫폼명 · ✕ 삭제 · 맨 끝 "+ 플랫폼 추가"
     const plat=_adshIsPlat();
-    wrap.innerHTML=(plat?PLATFORM_SECTIONS:BRAND_SECTIONS).map(b=>{
+    wrap.innerHTML=(plat?_adshPlatList():BRAND_SECTIONS).map(b=>{
       const on=b.id===_adsh.brand;
       const tag=plat ? `${b.group}${on?' · 보는 중':''}` : (on?'보는 중':'광고 시트');
-      return `<div class="sub-module${on?' is-active':''}" role="tab" tabindex="0" aria-selected="${on}" style="--m-color:${b.dot};--m-border:${b.dot}" onclick="adshSwitch('${b.id}')" onkeydown="if(event.key==='Enter')adshSwitch('${b.id}')">
+      const del=plat ? `<button type="button" class="adsh-plat-del" title="카드 삭제 (입력한 데이터는 남음)" aria-label="삭제" onclick="adshPlatDel('${b.id}',event)">✕</button>` : '';
+      return `<div class="sub-module${on?' is-active':''}" role="tab" tabindex="0" aria-selected="${on}" style="--m-color:${b.dot};--m-border:${b.dot}" onclick="adshSwitch('${b.id}')" onkeydown="if(event.key==='Enter')adshSwitch('${b.id}')">${del}
         <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:${b.dot};box-shadow:0 0 12px ${b.dot}b3"></span></div>
         <div class="sub-module-title">${_akoiEsc(b.display)}</div>
         <div class="sub-module-tag">${_akoiEsc(tag)}</div>
       </div>`;
-    }).join('');
+    }).join('') + (plat ? `<div class="sub-module adsh-plat-add${_adsh.platFormOpen?' is-open':''}" role="button" tabindex="0" onclick="adshPlatFormToggle()" onkeydown="if(event.key==='Enter')adshPlatFormToggle()">
+        <div class="sub-module-title">＋ 플랫폼 추가</div>
+        <div class="sub-module-tag">광고 집행하는 곳만</div>
+      </div>` : '');
+    _adshRenderPlatForm();
     document.querySelectorAll('.lg-tab[data-adshmode]').forEach(btn=>{
       const on=btn.dataset.adshmode===(plat?'platform':'home');
       btn.classList.toggle('active',on);
@@ -23398,7 +23572,7 @@
     });
     const ch=document.getElementById('adshCountHome'), cp=document.getElementById('adshCountPlatform');
     if(ch) ch.textContent=BRAND_SECTIONS.length;
-    if(cp) cp.textContent=PLATFORM_SECTIONS.length;
+    if(cp) cp.textContent=_adsh.plats.length;
     const fxTag=document.getElementById('adshFxTag'); if(fxTag) fxTag.hidden=plat;
     const sub=document.getElementById('adshSubtitle');
     if(sub) sub.textContent=plat ? '노출·클릭·광고비(원)·전환매출 입력 → 자동 계산 · 원화라 환율 없음' : '노출·클릭·광고비($)·전환매출 입력 → 자동 계산';
@@ -23552,8 +23726,12 @@
   }
   function adshRender(){
     const body=document.getElementById('adshBody');
-    if(!body || !_adsh.brand) return;
+    if(!body) return;
     _adshRenderTabs();
+    if(!_adsh.brand){
+      body.innerHTML=`<div class="adsh-empty">아직 추가한 플랫폼이 없습니다. 위 <b>＋ 플랫폼 추가</b>에서 광고를 집행하는 플랫폼만 넣어주세요.</div>`;
+      return;
+    }
     const dates=_adshMonthDates();
     _adsh.colW=_adshColW(dates);
     body.innerHTML=`<div id="adshTop">${_adshRenderWeeks()}${_adshRenderSummary()}${_adshRenderCharts()}</div>
@@ -23783,6 +23961,7 @@
   }
   async function adshSwitch(id){
     _adsh.brand=id;
+    _adsh.mode=_adshIsPlat(id)?'platform':'home';
     try{
       localStorage.setItem(ADSH_LS+'brand',id);
       localStorage.setItem(ADSH_LS+'brand_'+(_adshIsPlat(id)?'platform':'home'),id);   // 탭별 마지막 카드 기억
@@ -23793,9 +23972,14 @@
   }
   /* 공홈 / 플랫폼 탭 — 그 탭에서 마지막으로 보던 카드로 */
   function adshSwitchMode(mode){
-    const list=mode==='platform'?PLATFORM_SECTIONS:BRAND_SECTIONS;
+    const list=mode==='platform'?_adshPlatList():BRAND_SECTIONS;
     if(list.some(b=>b.id===_adsh.brand)) return;
     let saved=null; try{ saved=localStorage.getItem(ADSH_LS+'brand_'+mode) }catch(e){}
+    if(!list.length){   // 플랫폼을 아직 하나도 안 넣었으면 빈 화면 + 추가 폼
+      _adsh.mode=mode; _adsh.brand=null; _adsh.platFormOpen=true;
+      adshRender();
+      return;
+    }
     adshSwitch(list.some(b=>b.id===saved) ? saved : list[0].id);
   }
   window.adshSwitchMode=adshSwitchMode;
@@ -23808,10 +23992,16 @@
   let _adshBound=false;
   function adshEnsureLoaded(){
     if(!_adsh.month) _adsh.month=_adshYmd(new Date()).slice(0,7);
-    if(!_adsh.brand){
+    if(!_adsh.brand && _adsh.mode!=='platform'){
       let saved=null; try{ saved=localStorage.getItem(ADSH_LS+'brand') }catch(e){}
       _adsh.brand=_adshCfg(saved) ? saved : BRAND_SECTIONS[0].id;
     }
+    // 플랫폼 목록은 매번 원격에서 새로 — 못 보낸 추가·삭제가 있으면 다시 전송
+    _adshPlatLoad().then(()=>{
+      if(_adsh.mode==='platform' && _adsh.brand && !_adsh.plats.some(p=>p.id===_adsh.brand)){ _adsh.brand=null; adshSwitchMode('platform') }
+      else if(!document.querySelector('#adshDaily input:focus')) _adshRenderTabs();
+      if(_adsh.platOps.length) _adshPlatSave();
+    });
     if(!_adshBound){
       const body=document.getElementById('adshBody');
       if(body){
@@ -23823,7 +24013,7 @@
       }
     }
     _adshLoadFx().then(()=>{ if(!document.querySelector('#adshDaily input:focus')) _adshRefresh() });
-    adshSwitch(_adsh.brand);
+    if(_adsh.brand) adshSwitch(_adsh.brand); else adshRender();
     // 지난번에 못 보낸 셀(새로고침·창닫기·네트워크 끊김)이 있으면 바로 재전송
     if(_adshHasDirty()) _adshSchedule(0);
   }
