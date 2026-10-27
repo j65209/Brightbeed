@@ -35597,6 +35597,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       return;
     }
     document.getElementById('mdsSetup').hidden=true;
+    const loadOpen=()=>_mdsOpenTabKeys().forEach(tk=>{ if(!_mds.data[tk]||_mds.data[tk].stale) _mdsLoadTab(tk,false) });
+    if(_mds.meta) loadOpen();
     await _mdsLoadMeta(false);
     _mdsOpenTabKeys().forEach(tk=>{ if(!_mds.data[tk]||_mds.data[tk].stale) _mdsLoadTab(tk,false) });
     if(!_mds.timer) _mds.timer=setInterval(_mdsTick,60000);
@@ -35834,8 +35836,12 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   function _mdsEnsureTab(tk){ if(_mds.data[tk]) _mdsRenderTabBody(tk); else _mdsLoadTab(tk,false) }
 
   /* ── 탭 읽기 ──
-     · 한 번 연 탭은 이 브라우저(IndexedDB)에 저장해 두고, 다음에는 저장본을 바로 그린 뒤 최신본을 받아 바꾼다
-     · 브리지 v2 는 내용(값·수식)과 구조(서식·드롭다운)를 따로 주고, 오피스가 가진 버전(have)과 같으면 그 부분을 생략한다 */
+     · 값: 구글 CSV 내보내기(뷰어 링크)로 직접 받는다 — 큰 탭도 0.6~1초, Apps Script 를 거치지 않아 여러 탭을 열어도 줄 서지 않는다.
+       공유가 꺼져 CSV 가 막히면 브리지(parts=content)로 자동 전환.
+     · 수식(읽기전용 표시·IMAGE)과 서식·드롭다운: 브리지에서 따로, 가진 버전(have)과 다를 때만 — 처음과 5분마다(또는 행 수가 바뀌면)
+     · 한 번 연 탭은 이 브라우저(IndexedDB)에 저장해 두고 다음에는 저장본부터 그린다
+     · 60초 자동 갱신은 CSV 값만 다시 받는다 */
+  const MDS_FX_EVERY=5*60*1000;
   const _mdsIdb={db:null,opening:null};
   function _mdsIdbOpen(){
     if(_mdsIdb.db) return Promise.resolve(_mdsIdb.db);
@@ -35861,48 +35867,97 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(!db) return;
     try{ db.transaction('tabs','readwrite').objectStore('tabs').put(v,k) }catch(e){}
   }
-  // 예전 브리지(v1) 응답도 같은 모양으로 맞춘다
-  function _mdsV1Raw(j){
-    return {v:1, meta:{rows:j.rows,cols:j.cols,totalRows:j.totalRows,truncated:j.truncated,gid:j.gid,at:j.at},
-      content:{sig:JSON.stringify([j.values,j.f]).length+':'+j.at, values:j.values||[], f:j.f||{}},
-      structure:{sig:'v1:'+j.at, v1:j}};
+  function _mdsGid(tk){
+    const i=tk.indexOf('|'), b=tk.slice(0,i), t=tk.slice(i+1);
+    const bk=((_mds.meta&&_mds.meta.books)||[]).find(x=>x.key===b);
+    const tb=bk&&(bk.tabs||[]).find(x=>x.name===t);
+    return bk&&tb?{id:bk.id,gid:tb.gid}:null;
+  }
+  // RFC4180 CSV — 따옴표 안의 쉼표·줄바꿈 지원, 행 끝 빈칸은 잘라 둔다
+  function _mdsParseCsv(text){
+    const rows=[]; let row=[], cell='', q=false;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i];
+      if(q){
+        if(ch==='"'){ if(text[i+1]==='"'){ cell+='"'; i++ } else q=false }
+        else cell+=ch;
+      }else if(ch==='"') q=true;
+      else if(ch===','){ row.push(cell); cell='' }
+      else if(ch==='\n'||ch==='\r'){
+        if(ch==='\r'&&text[i+1]==='\n') i++;
+        row.push(cell); cell=''; rows.push(row); row=[];
+      }else cell+=ch;
+    }
+    if(cell!==''||row.length){ row.push(cell); rows.push(row) }
+    rows.forEach((r,i)=>{ let e=r.length; while(e>0&&r[e-1]==='') e--; rows[i]=r.slice(0,e) });
+    return rows;
+  }
+  async function _mdsCsv(tk){
+    const g=_mdsGid(tk);
+    if(!g) throw new Error('no_gid');
+    const r=await fetch(`https://docs.google.com/spreadsheets/d/${g.id}/export?format=csv&gid=${g.gid}`,{cache:'no-store'});
+    if(!r.ok) throw new Error('csv_'+r.status);
+    if(/text\/html/i.test(r.headers.get('content-type')||'')) throw new Error('csv_login');
+    return _mdsParseCsv(await r.text());
+  }
+  function _mdsHash(v){
+    const s=JSON.stringify(v||[]); let h=5381;
+    for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0;
+    return s.length+':'+h;
   }
   async function _mdsLoadTab(tk,silent){
     if(_mds.loading[tk]) return;
     const i=tk.indexOf('|'), book=tk.slice(0,i), sheet=tk.slice(i+1);
     _mds.loading[tk]=true;
     try{
-      let prev=_mds.data[tk];
-      if(!prev){
+      let cur=_mds.data[tk];
+      if(!cur){
         const saved=await _mdsIdbGet(tk);
-        if(saved&&saved.content&&saved.structure){
-          prev=_mds.data[tk]=_mdsPrepare(saved);
-          prev.stale=true;
+        if(saved&&saved.v===3&&saved.values){
+          cur=_mds.data[tk]=_mdsPrepare(saved);
+          cur.stale=true;
           _mdsRenderTabBody(tk);
         }
       }
-      const body=_mdsBodyEl(tk);
       if(!_mds.cfg||!_mds.cfg.token) return;  // 연결 정보를 읽기 전이면 저장본만 보여 두고, 진입 끝에서 다시 불러온다
-      if(body&&!prev) body.innerHTML='<div class="mds-loading">구글시트에서 불러오는 중… (큰 탭은 처음 한 번만 오래 걸려요)</div>';
-      const pr=prev&&prev._raw;
-      const have=pr&&pr.v===2?{ct:pr.content.sig, st:pr.structure.sig==='pending'?'':pr.structure.sig}:null;
-      if(!pr){ await _mdsFirstLoad(tk,book,sheet); return }
-      let j=await _mdsCall('read',{book,sheet,have});
-      if(j.v===2&&((!j.content&&!pr)||(!j.structure&&!pr))) j=await _mdsCall('read',{book,sheet});
-      const raw=j.v===2
-        ? {v:2, meta:{rows:j.rows,cols:j.cols,totalRows:j.totalRows,truncated:j.truncated,gid:j.gid,at:j.at},
-            content:j.content||pr.content, structure:j.structure||pr.structure}
-        : _mdsV1Raw(j);
-      _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준');
-      _mdsIdbPut(tk,raw);
-      if(pr&&pr.content.sig===raw.content.sig&&pr.structure.sig===raw.structure.sig){
-        prev._raw=raw; prev.at=raw.meta.at;
-        if(prev.stale){ prev.stale=false; _mdsRenderTabBody(tk) }
-        else{ const at=_mdsBodyEl(tk)?.querySelector('.mds-note-at'); if(at) at.textContent=_mdsHm(prev.at)+' 기준' }
-        return;
+      const body=_mdsBodyEl(tk);
+      if(body&&!cur) body.innerHTML='<div class="mds-loading">구글시트에서 불러오는 중…</div>';
+      const raw=Object.assign({v:3, meta:{}, values:null, valSig:'', fx:null, fxAt:0, structure:null}, (cur&&cur._raw)||{});
+      const prevRows=raw.values?raw.values.length:-1;
+      // 값 — CSV 직접 (막히면 브리지)
+      let values=null, viaBridge=null;
+      try{ values=await _mdsCsv(tk) }
+      catch(e){ viaBridge=await _mdsCall('read',{book,sheet,parts:'content'}); values=(viaBridge.content&&viaBridge.content.values)||[] }
+      const prevSig=raw.valSig;
+      raw.values=values; raw.valSig=_mdsHash(values);
+      raw.meta=Object.assign({},raw.meta,{at:new Date().toISOString()});
+      if(viaBridge&&viaBridge.content){
+        const c=viaBridge.content;
+        raw.meta=Object.assign(raw.meta,{rows:viaBridge.rows,cols:viaBridge.cols,totalRows:viaBridge.totalRows,truncated:viaBridge.truncated});
+        if(c.fxList){ raw.fx={sig:c.sig,fxList:c.fxList,fxRuns:c.fxRuns,ro:c.ro}; raw.fxAt=Date.now() }
       }
-      _mds.data[tk]=_mdsPrepare(raw);
-      _mdsRenderTabBody(tk);
+      _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준');
+      if(!cur||cur.stale||prevSig!==raw.valSig){ _mds.data[tk]=_mdsPrepare(raw); _mdsRenderTabBody(tk) }
+      else{ cur.at=raw.meta.at; const at=_mdsBodyEl(tk)?.querySelector('.mds-note-at'); if(at) at.textContent=_mdsHm(cur.at)+' 기준' }
+      _mdsIdbPut(tk,raw);
+      // 수식·서식 — 처음, 5분마다, 행 수가 바뀌었을 때만 브리지에 묻는다 (바뀐 것만 돌아온다)
+      const due=!raw.fx||!raw.structure||prevRows!==values.length||Date.now()-(raw.fxAt||0)>MDS_FX_EVERY;
+      if(!due) return;
+      const [fj,sj]=await Promise.all([
+        raw.fx&&viaBridge?null:_mdsCall('read',{book,sheet,parts:'formulas',have:raw.fx?{fx:raw.fx.sig}:null}).catch(()=>null),
+        _mdsCall('read',{book,sheet,parts:'structure',have:raw.structure?{st:raw.structure.sig}:null}).catch(()=>null),
+      ]);
+      let changed=false;
+      if(fj&&fj.ok){
+        raw.fxAt=Date.now();
+        raw.meta=Object.assign(raw.meta,{rows:fj.rows,cols:fj.cols,totalRows:fj.totalRows,truncated:fj.truncated});
+        if(fj.fx){ raw.fx=fj.fx; changed=true }
+        else if(fj.content&&fj.content.fxList){ const c=fj.content; raw.fx={sig:c.sig,fxList:c.fxList,fxRuns:c.fxRuns,ro:c.ro}; changed=true }  // 예전 브리지(수식만 읽기 없음)
+      }
+      if(sj&&sj.ok&&sj.structure){ raw.structure=sj.structure; changed=true }
+      const d=_mds.data[tk];
+      if(changed||(d&&(d.fxPending&&raw.fx||d.stylePending&&raw.structure))){ _mds.data[tk]=_mdsPrepare(raw); _mdsRenderTabBody(tk) }
+      _mdsIdbPut(tk,raw);
     }catch(e){
       const body=_mdsBodyEl(tk);
       if(!silent&&body&&!_mds.data[tk]) body.innerHTML=`<div class="mds-empty">불러오지 못했어요 — ${escapeHTML(_mdsErrText(e))}</div>`;
@@ -35911,46 +35966,32 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       _mds.loading[tk]=false;
     }
   }
-  // 처음 여는 탭 — 값만 먼저(수 초) 받아 그리고, 서식·드롭다운은 따로 받아 오는 대로 입힌다.
-  // 예전 브리지(parts 모름)는 한 번에 다 주므로 그대로 쓴다.
-  async function _mdsFirstLoad(tk,book,sheet){
-    const stP=_mdsCall('read',{book,sheet,parts:'structure'}).catch(e=>({ok:false,error:String(e&&e.message||e)}));
-    const j=await _mdsCall('read',{book,sheet,parts:'content'});
-    const meta={rows:j.rows,cols:j.cols,totalRows:j.totalRows,truncated:j.truncated,gid:j.gid,at:j.at};
-    if(j.v!==2){ const raw=_mdsV1Raw(j); _mds.data[tk]=_mdsPrepare(raw); _mdsIdbPut(tk,raw); _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준'); _mdsRenderTabBody(tk); return }
-    let raw={v:2, meta, content:j.content, structure:j.structure||null};
-    _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준');
-    if(!raw.structure){
-      _mds.data[tk]=_mdsPrepare(Object.assign({},raw,{structure:{sig:'pending',bg:[],fc:[],bold:[],dv:[],lists:[],hiddenCols:[],merges:[],frozenRows:0,frozenCols:0}}));
-      _mds.data[tk].stylePending=true;
-      _mdsRenderTabBody(tk);
-      const s2=await stP;
-      if(!s2||!s2.ok||!s2.structure) return;  // 서식은 다음 갱신 때 다시 받는다
-      const cur=_mds.data[tk];
-      raw={v:2, meta, content:(cur&&cur._raw&&cur._raw.content)||raw.content, structure:s2.structure};
-    }
-    _mds.data[tk]=_mdsPrepare(raw);
-    _mdsIdbPut(tk,raw);
-    _mdsRenderTabBody(tk);
+  // IMAGE(R1C1) 수식의 사진 주소를 값에서 찾는다
+  function _mdsImgSrc(f,r,c,values){
+    const m=String(f).match(/^=\s*IMAGE\s*\(\s*(?:"([^"]+)"|R(\[-?\d+\]|\d+)?C(\[-?\d+\]|\d+)?)/i);
+    if(!m) return '';
+    if(m[1]) return m[1];
+    const rel=(p,b)=>p==null?b:(p[0]==='['?b+Number(p.slice(1,-1)):Number(p)-1);
+    const v=String(((values[rel(m[2],r)]||[])[rel(m[3],c)])||'');
+    return /^https?:\/\//i.test(v)?v:'';
   }
   function _mdsPrepare(raw){
-    const m=raw.meta||{}, ct=raw.content||{}, st=raw.structure||{};
-    const d={_raw:raw, rows:m.rows, cols:m.cols, totalRows:m.totalRows, truncated:m.truncated, gid:m.gid, at:m.at};
-    d.values=ct.values||[];
-    d.r1c1=raw.v===2;
-    d.f={}; d.img=ct.img||{}; d.bg={}; d.fc={}; d.dv={}; d.boldSet=new Set();
+    const m=raw.meta||{}, fx=raw.fx, st=raw.structure||{};
+    const d={_raw:raw, rows:m.rows, totalRows:m.totalRows, truncated:m.truncated, at:m.at};
+    d.values=raw.values||[];
+    d.cols=Math.max(m.cols||0, ...d.values.map(r=>r.length), 0);
+    d.r1c1=true;
+    d.f={}; d.img={}; d.bg={}; d.fc={}; d.dv={}; d.boldSet=new Set();
+    d.fxPending=!fx; d.stylePending=!raw.structure;
     const fill=(runs,fn)=>(runs||[]).forEach(([c,r0,r1,v])=>{ for(let r=r0;r<=r1;r++) fn(r+','+c,v) });
-    if(raw.v===2){
-      fill(ct.fxRuns,(k,id)=>{ d.f[k]=ct.fxList[id] });
-      fill(st.bg,(k,v)=>{ d.bg[k]=v }); fill(st.fc,(k,v)=>{ d.fc[k]=v });
-      fill(st.dv,(k,v)=>{ d.dv[k]=v }); fill(st.bold,k=>{ d.boldSet.add(k) });
-      Object.assign(d,{lists:st.lists||[], hiddenCols:st.hiddenCols||[], merges:st.merges||[], frozenRows:st.frozenRows||0, frozenCols:st.frozenCols||0, ro:!!ct.ro});
-    }else{
-      const v1=st.v1||{};
-      Object.assign(d,{f:ct.f||{}, bg:v1.bg||{}, fc:v1.fc||{}, dv:v1.dv||{}, boldSet:new Set(v1.bold||[]), lists:v1.lists||[],
-        hiddenCols:v1.hiddenCols||[], merges:v1.merges||[], frozenRows:v1.frozenRows||0, frozenCols:v1.frozenCols||0});
-      d.ro=Object.values(d.f).some(x=>MDS_SPILL.test(x));
+    if(fx){
+      fill(fx.fxRuns,(k,id)=>{ d.f[k]=fx.fxList[id] });
+      Object.entries(d.f).forEach(([k,f])=>{ if(/^=\s*IMAGE/i.test(f)){ const [r,c]=k.split(',').map(Number); const src=_mdsImgSrc(f,r,c,d.values); if(src) d.img[k]=src } });
     }
+    d.ro=!!(fx&&fx.ro);
+    fill(st.bg,(k,v)=>{ d.bg[k]=v }); fill(st.fc,(k,v)=>{ d.fc[k]=v });
+    fill(st.dv,(k,v)=>{ d.dv[k]=v }); fill(st.bold,k=>{ d.boldSet.add(k) });
+    Object.assign(d,{lists:st.lists||[], hiddenCols:st.hiddenCols||[], merges:st.merges||[], frozenRows:st.frozenRows||0, frozenCols:st.frozenCols||0});
     let last=d.values.length;
     while(last>0&&!(d.values[last-1]||[]).some(v=>v!=='')) last--;
     d.lastRow=last;
@@ -36070,7 +36111,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(!d.lastRow){ body.innerHTML='<div class="mds-empty">비어 있는 탭이에요.</div>'; return }
     const sc=body.querySelector('.mds-scroll');
     const pos=sc?[sc.scrollTop,sc.scrollLeft]:null;
-    const canEdit=_mdsCanEdit()&&!d.ro;
+    const canEdit=_mdsCanEdit()&&!d.ro&&!d.fxPending;
     const q=_mds.search.trim().toLowerCase();
     const rows=[];
     for(let r=d.hdrRows;r<d.lastRow;r++){
@@ -36099,6 +36140,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(asCards) h='<div class="mds-cards'+(bodyW>=640?' grid':'')+'">'+shown.map(r=>_mdsCardHtml(d,r,canEdit)).join('')+'</div>';
     const notes=[];
     if(d.stale) notes.push('저장된 화면 · 최신 내용 불러오는 중');
+    if(d.fxPending) notes.push('수식 확인 중 — 잠시 뒤 고칠 수 있어요');
     if(d.stylePending) notes.push('색·드롭다운 불러오는 중');
     if(q) notes.push(`검색 결과 ${rows.length.toLocaleString()}행`);
     if(d.ro) notes.push('QUERY·FILTER 같은 자동계산 탭이라 보기만 돼요 — 원본 탭이나 구글시트에서 고쳐 주세요');

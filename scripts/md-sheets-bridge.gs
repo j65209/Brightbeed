@@ -150,7 +150,7 @@ function meta_(fresh) {
       return {
         key: key, id: BOOKS[key], name: ss.getName(), url: ss.getUrl(),
         tabs: allowedSheets_(ss).map(function (sh) {
-          return { name: sh.getName(), gid: sh.getSheetId(), rows: sh.getLastRow(), cols: sh.getLastColumn() };
+          return { name: sh.getName(), gid: sh.getSheetId() };
         }),
       };
     } catch (err) {
@@ -158,7 +158,7 @@ function meta_(fresh) {
     }
   });
   const out = { ok: true, books: books, at: new Date().toISOString() };
-  try { cache.put('meta', JSON.stringify(out), 300); } catch (_) {}
+  try { cache.put('meta', JSON.stringify(out), 1800); } catch (_) {}
   return out;
 }
 
@@ -183,6 +183,15 @@ function read_(key, name, have, parts) {
       structure: { sig: 'empty', bg: [], fc: [], bold: [], dv: [], lists: [], hiddenCols: [], merges: [], frozenRows: 0, frozenCols: 0 } };
   }
   const nRows = Math.min(lastRow, MAX_ROWS), base = cacheBase_(key, sh);
+  if (parts === 'formulas') {
+    const tf = Date.now();
+    let fx = cacheGet_('f2:' + base);
+    if (!fx) { fx = readFormulas_(sh, nRows, lastCol); cachePut_('f2:' + base, fx, 600); }
+    T.formulas = Date.now() - tf;
+    const o = { ok: true, v: 2, rows: nRows, cols: lastCol, totalRows: lastRow, truncated: lastRow > nRows, gid: gid, at: at, ms: T };
+    if (!have || have.fx !== fx.sig) o.fx = fx;
+    return o;
+  }
   // parts='content' 면 값만(빠름), 'structure' 면 서식만 — 오피스가 처음 여는 탭은 둘을 따로 받아 값부터 그린다
   const out = { ok: true, v: 2, rows: nRows, cols: lastCol, totalRows: lastRow, truncated: lastRow > nRows, gid: gid, at: at, ms: T };
   let t = Date.now();
@@ -240,6 +249,20 @@ function readContent_(sh, nRows, nCols) {
   while (last > 0 && !values[last - 1].length) last--;
   values.length = last;
   const body = { values: values, fxList: fxList, fxRuns: fxRuns, img: img, ro: ro };
+  body.sig = sig_(JSON.stringify(body));
+  return body;
+}
+
+function readFormulas_(sh, nRows, nCols) {
+  const fr = sh.getRange(1, 1, nRows, nCols).getFormulasR1C1();
+  const fxList = [], fxIdx = {};
+  let ro = false;
+  const fxRuns = runs_(fr, nRows, nCols, function (f) {
+    if (!f) return null;
+    if (!(f in fxIdx)) { fxIdx[f] = fxList.length; fxList.push(f); if (SPILL.test(f)) ro = true; }
+    return fxIdx[f];
+  });
+  const body = { fxList: fxList, fxRuns: fxRuns, ro: ro };
   body.sig = sig_(JSON.stringify(body));
   return body;
 }
