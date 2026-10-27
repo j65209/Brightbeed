@@ -384,7 +384,7 @@ const CHARACTERS = [
   {
     id:'chief', name:'리안', team:'본부',
     hairColor:'#1a1a1a', cloth:'#78350f',
-    agentIds:['kd-brightbeed','kd-shinebeed','vendor-fetch','pro-sales','admin-sales','platform-sales','brand-report','fb-ads'],
+    agentIds:['kd-brightbeed','kd-shinebeed','vendor-fetch','withdrawal-nag','pro-sales','admin-sales','platform-sales','brand-report','bestsellers','ably-daily','fb-ads','ably-ads','fx-usd'],
     taskLabel:'전 에이전트 자동업무 검수', scheduleLabel:'상시 감시', intervalSec:1800,
     role:'자동화 검수관 · 이상 감지',
     knows:[
@@ -439,13 +439,14 @@ const CHARACTERS = [
   {
     id:'vendor', name:'노아', team:'벤더팀',
     hairColor:'#1a1a1a', cloth:'#4f46e5',
-    agentIds:['vendor-fetch'],
-    taskLabel:'벤더 데이터 업무', scheduleLabel:'매 10분', intervalSec:600,
+    agentIds:['vendor-fetch','withdrawal-nag'],
+    taskLabel:'벤더 데이터 · 출금 요청 알림', scheduleLabel:'매 10분 · 알림 매시간', intervalSec:600,
     role:'벤더 마진·원가 데이터 전문',
     knows:[
       'vMargin·gcCal 원본을 10분 주기로 갱신',
       '첫 로드 + 30분 게이트 / 실패 시 5분 재시도 패턴',
       '화면의 "HH:MM 갱신" 표기가 실제 데이터 신선도',
+      '출금 요청서가 대기 중이면 매시간 대표 PC 에 알림 — [송금완료] 누르면 멈춤',
     ],
     quick:[
       {label:'업무 보고', cmd:'업무 보고'},
@@ -456,13 +457,15 @@ const CHARACTERS = [
   {
     id:'marketing', name:'자스민', team:'매출팀',
     hairColor:'#2c1810', cloth:'#65a30d',
-    agentIds:['pro-sales','admin-sales','platform-sales','brand-report'],
-    taskLabel:'매출 수집·분석·리포트 업무', scheduleLabel:'매 30분', intervalSec:1800,
+    agentIds:['pro-sales','admin-sales','platform-sales','brand-report','bestsellers','ably-daily'],
+    taskLabel:'매출 수집·분석·리포트 업무', scheduleLabel:'매 30분 · 에이블리 보고서 매일 7:10', intervalSec:1800,
     role:'전 브랜드·전 채널 매출 데이터 총괄',
     knows:[
       '식스샵프로(Pro) · 식스샵 admin · 외부 플랫폼(에이블리·지그재그·스마트스토어) 매출 30분 주기 수집',
       '브랜드별 TOP10·리오더·핫아이템 리포트 (admin v2 orders 는 세션 살아있어야 응답)',
       'Pro item/top 은 자사몰만 집계 — 외부채널은 별도 플랫폼 데이터로 커버',
+      '브랜드별 판매 순위(TOP10) 30분 주기 수집',
+      '코페리 에이블리 일일 보고서(주문·정산 추정·광고비·순이익) 매일 아침 07:10 생성',
     ],
     quick:[
       {label:'업무 보고', cmd:'업무 보고'},
@@ -474,13 +477,15 @@ const CHARACTERS = [
   {
     id:'ads', name:'오스카', team:'광고팀',
     hairColor:'#1e1a17', cloth:'#ea580c',
-    agentIds:['fb-ads'],
-    taskLabel:'메타 광고 성과 업무', scheduleLabel:'매 30분', intervalSec:1800,
+    agentIds:['fb-ads','ably-ads','fx-usd'],
+    taskLabel:'메타·에이블리 광고 성과 업무', scheduleLabel:'메타 30분 · 에이블리 매일 8시 · 환율 평일 9시', intervalSec:1800,
     role:'메타(페이스북) 광고 성과 전문',
     knows:[
       '구매 지표는 omni_purchase 하나만 사용 — 다른 action_type 합산은 중복',
       '지출·구매·ROAS·CPA 를 브랜드별로 분리 집계',
       '리포트 push 실패 시 pull --rebase 재시도가 붙어 있어야 함',
+      '에이블리 광고(코페리·아페티)를 매일 아침 8시 광고 관리자에서 받아 광고 시트 플랫폼 탭에 자동 입력',
+      '광고 시트 USD 환율 — 평일 오전 9시 하나은행 매매기준율 기록',
     ],
     quick:[
       {label:'업무 보고', cmd:'업무 보고'},
