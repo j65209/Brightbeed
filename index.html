@@ -9090,6 +9090,108 @@
     .sub-module-sub{font-size:10.5px}
     .sub-module-tag{font-size:9px;top:8px;right:8px;padding:1px 5px}
   }
+  /* ===== MD팀 — 구글시트 6종 실시간 연동 ===== */
+  .mds-wrap{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+  .mds-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:6;background:var(--bg-0);padding:8px 0}
+  .mds-sp{flex:1}
+  .mds-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-3);padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg-1)}
+  .mds-status::before{content:'';width:7px;height:7px;border-radius:50%;background:#a8a29e}
+  .mds-status[data-state="ok"]::before{background:#16a34a}
+  .mds-status[data-state="busy"]::before{background:#f59e0b}
+  .mds-status[data-state="err"]::before{background:var(--danger)}
+  .mds-search{width:200px;max-width:100%;font:500 12.5px var(--sans);padding:6px 10px;border:1px solid var(--line-2);border-radius:7px;background:var(--bg-1);color:var(--text-0);outline:none}
+  .mds-search:focus{border-color:var(--neon-md)}
+  .mds-btn{font:600 12px var(--sans);padding:6px 11px;border:1px solid var(--line-2);border-radius:7px;background:var(--bg-1);color:var(--text-2);cursor:pointer;white-space:nowrap}
+  .mds-btn:hover{border-color:var(--neon-md);color:var(--neon-md)}
+  .mds-btn-primary{background:var(--neon-md);border-color:var(--neon-md);color:#fff}
+  .mds-btn-primary:hover{background:var(--neon-md-2);color:#fff}
+  .mds-btn-prio{border-color:rgba(225,29,72,.45);color:var(--neon-md)}
+  .mds-banner[hidden],.mds-prio-bar[hidden],.mds-setup[hidden]{display:none}
+  .mds-banner,.mds-prio-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5}
+  .mds-banner{background:#fff1f4;border:1px solid rgba(225,29,72,.35);color:#7f1d1d}
+  .mds-banner-ico{font-size:18px}
+  .mds-banner-txt{flex:1;min-width:220px}
+  .mds-prio-bar{background:#1c1917;color:#fafaf9;position:sticky;top:52px;z-index:5}
+  .mds-prio-bar span:first-child{flex:1}
+  .mds-prio-save{font-size:11.5px;color:#a8a29e}
+  .mds-setup{border:1px dashed var(--line-2);border-radius:10px;padding:16px;background:var(--bg-1)}
+  .mds-setup-title{font-weight:700;font-size:14px;margin-bottom:6px}
+  .mds-setup-desc{font-size:12.5px;color:var(--text-3);line-height:1.6}
+  .mds-setup-desc ol{margin:6px 0 0;padding-left:18px}
+  .mds-setup-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .mds-setup-inp{flex:1;min-width:240px;font:500 12.5px var(--sans);padding:8px 10px;border:1px solid var(--line-2);border-radius:7px;outline:none}
+  .mds-setup-inp:focus{border-color:var(--neon-md)}
+
+  .mds-list{display:flex;flex-direction:column;gap:10px}
+  .mds-book{border:1px solid var(--line);border-radius:12px;background:var(--bg-1);overflow:hidden}
+  .mds-book-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
+  .mds-book-head:hover{background:#fffafb}
+  .mds-chev{display:inline-block;width:12px;color:var(--text-3);transition:transform .15s;font-size:11px}
+  .is-open > .mds-book-head .mds-chev,.is-open > .mds-tab-head .mds-chev{transform:rotate(90deg)}
+  .mds-rank{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:6px;background:var(--neon-md);color:#fff;font-size:11.5px;font-weight:800}
+  .mds-book-title{font-weight:700;font-size:15px;color:var(--text-0);letter-spacing:-.01em}
+  .mds-book-title small{font-weight:500;font-size:11.5px;color:var(--text-3);margin-left:6px}
+  .mds-book-meta{font-size:12px;color:var(--text-3)}
+  .mds-head-sp{flex:1}
+  .mds-open{font-size:11.5px;color:var(--text-3);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px;white-space:nowrap}
+  .mds-open:hover{color:var(--neon-md);border-color:var(--neon-md)}
+  .mds-move{display:none;gap:4px}
+  .mds-prio .mds-move{display:inline-flex}
+  .mds-move button{width:26px;height:24px;border:1px solid var(--line-2);border-radius:6px;background:#fff;cursor:pointer;font-size:11px;color:var(--text-2)}
+  .mds-move button:hover:not(:disabled){border-color:var(--neon-md);color:var(--neon-md)}
+  .mds-move button:disabled{opacity:.35;cursor:default}
+  .mds-book-body{display:none;border-top:1px solid var(--line);padding:6px 10px 10px}
+  .mds-book.is-open > .mds-book-body{display:block}
+  .mds-book-err{font-size:12.5px;color:var(--danger);padding:8px 4px}
+
+  .mds-tab{border-bottom:1px solid var(--line)}
+  .mds-tab:last-child{border-bottom:0}
+  .mds-tab-head{display:flex;align-items:center;gap:8px;padding:9px 6px;cursor:pointer;user-select:none;font-size:13.5px}
+  .mds-tab-head:hover{background:var(--bg-2)}
+  .mds-tab-rank{font-size:11px;font-weight:700;color:var(--text-3);min-width:16px;text-align:right}
+  .mds-tab-name{font-weight:600;color:var(--text-1)}
+  .mds-tab-meta{font-size:11.5px;color:var(--text-3)}
+  .mds-badge{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:#fee2e2;color:#b91c1c}
+  .mds-badge.ro{background:var(--bg-3);color:var(--text-3)}
+  .mds-tab-body{display:none;padding:2px 0 10px}
+  .mds-tab.is-open > .mds-tab-body{display:block}
+  .mds-loading,.mds-empty{font-size:12.5px;color:var(--text-3);padding:12px 6px}
+  .mds-note{font-size:11.5px;color:var(--text-3);padding:2px 4px 6px}
+
+  .mds-scroll{max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .mds-table{border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px;color:#1f2329}
+  .mds-table th,.mds-table td{box-sizing:border-box;height:26px;padding:3px 6px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;background:#fff}
+  .mds-table thead th{position:sticky;z-index:2;background:#f3f4f6;color:#6b7280;font-weight:500;font-size:11px;text-align:center}
+  .mds-table .mds-rn{position:sticky;left:0;z-index:1;background:#f3f4f6;color:#6b7280;font-size:11px;text-align:center;width:40px;min-width:40px}
+  .mds-table thead .mds-rn{z-index:3}
+  .mds-table tr.mds-hdr td{font-weight:700;background:#fafafa;position:sticky;z-index:2}
+  .mds-table td.mds-fz{position:sticky;z-index:1}
+  .mds-table tr.mds-hdr td.mds-fz{z-index:3}
+  .mds-table td.mds-ed{cursor:cell}
+  .mds-table td.mds-ed:hover{box-shadow:inset 0 0 0 1px rgba(225,29,72,.45)}
+  .mds-table td.mds-fx{color:#374151}
+  .mds-table td.mds-err{background:#fef2f2 !important;color:#b91c1c !important;font-weight:700}
+  .mds-table td.mds-num{text-align:right;font-variant-numeric:tabular-nums}
+  .mds-table td.mds-saving{opacity:.55}
+  .mds-table td.mds-saved{animation:mdsFlash 1.2s ease}
+  @keyframes mdsFlash{0%{box-shadow:inset 0 0 0 2px #16a34a}100%{box-shadow:inset 0 0 0 0 transparent}}
+  .mds-table td.mds-editing{padding:0;overflow:visible}
+  .mds-table td.mds-editing input,.mds-table td.mds-editing select{width:100%;height:26px;border:2px solid var(--neon-md);padding:0 5px;font:inherit;outline:none;box-sizing:border-box;background:#fff}
+  .mds-table td a{color:#2563eb;text-decoration:none}
+  .mds-table td a:hover{text-decoration:underline}
+  .mds-table td img{height:40px;max-width:100%;object-fit:contain;display:block;margin:0 auto}
+  .mds-table tr.has-img td{height:46px}
+  .mds-table td input[type=checkbox]{margin:0;accent-color:var(--neon-md);cursor:pointer}
+  .mds-more{display:block;margin:8px auto 0;font:600 12px var(--sans);padding:6px 14px;border:1px solid var(--line-2);border-radius:7px;background:#fff;cursor:pointer}
+  .mds-more:hover{border-color:var(--neon-md);color:var(--neon-md)}
+  .mds-foot{font-size:11.5px;color:var(--text-3);line-height:1.6}
+  .mds-foot button{font:inherit;color:var(--neon-md);background:none;border:0;cursor:pointer;padding:0;text-decoration:underline}
+  @media (max-width:600px){
+    .mds-search{width:100%;order:9}
+    .mds-book-title small{display:none}
+    .mds-open{display:none}
+    .mds-prio-bar{top:96px}
+  }
 </style>
 </head>
 <body>
@@ -10358,7 +10460,42 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">MD팀<span class="view-title-sub">/ 기획전</span></h1>
+      <h1 class="view-title">MD팀<span class="view-title-sub">/ 구글시트</span></h1>
+    </div>
+    <!-- ============ MD팀 구글시트 6종 — 실시간 양방향 연동 (scripts/md-sheets-bridge.gs) ============ -->
+    <div class="mds-wrap" id="mdsWrap">
+      <div class="mds-bar">
+        <span class="mds-status" id="mdsStatus" data-state="idle">불러오는 중…</span>
+        <span class="mds-sp"></span>
+        <input class="mds-search" id="mdsSearch" type="search" placeholder="펼친 탭에서 검색" oninput="mdsOnSearch(this.value)" autocomplete="off">
+        <button type="button" class="mds-btn" onclick="mdsExpandAll(true)">시트 모두 펼치기</button>
+        <button type="button" class="mds-btn" onclick="mdsExpandAll(false)">모두 접기</button>
+        <button type="button" class="mds-btn mds-btn-prio" id="mdsPrioBtn" onclick="mdsTogglePrio()" hidden>우선순위 편집</button>
+        <button type="button" class="mds-btn" onclick="mdsRefreshAll()" title="구글시트에서 다시 불러오기">새로고침</button>
+      </div>
+
+      <div class="mds-banner" id="mdsPrioBanner" hidden>
+        <span class="mds-banner-ico">📌</span>
+        <span class="mds-banner-txt"><b>희선님, MD 시트 우선순위를 정해주세요.</b> 시트와 탭을 ▲▼로 옮기면 그 순서대로 MD팀 모두에게 보여요. 언제든 다시 바꿀 수 있어요.</span>
+        <button type="button" class="mds-btn mds-btn-primary" onclick="mdsTogglePrio(true)">우선순위 정하기</button>
+      </div>
+      <div class="mds-prio-bar" id="mdsPrioBar" hidden>
+        <span>↕ 우선순위 편집 중 — ▲▼로 시트·탭 순서를 바꾸면 바로 저장돼요</span>
+        <span class="mds-prio-save" id="mdsPrioSave"></span>
+        <button type="button" class="mds-btn mds-btn-primary" onclick="mdsTogglePrio(false)">완료</button>
+      </div>
+
+      <div class="mds-setup" id="mdsSetup" hidden>
+        <div class="mds-setup-title">구글시트 연결</div>
+        <div class="mds-setup-desc" id="mdsSetupDesc"></div>
+        <div class="mds-setup-row master-only">
+          <input class="mds-setup-inp" id="mdsSetupUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
+          <button type="button" class="mds-btn mds-btn-primary" id="mdsSetupBtn" onclick="mdsConnect()">연결</button>
+        </div>
+      </div>
+
+      <div class="mds-list" id="mdsList"></div>
+      <div class="mds-foot" id="mdsFoot"></div>
     </div>
   </div>
 
@@ -14442,6 +14579,9 @@
         if(typeof switchLgBrand==='function') switchLgBrand(last);
       }
       if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{});
+    }
+    if(id==='viewMd'){
+      if(typeof mdsInit==='function') mdsInit();
     }
     if(id==='viewMarketing'){
       if(typeof renderAdSignage==='function') renderAdSignage();
@@ -35165,6 +35305,666 @@
   window.ablyLoad=ablyLoad;
   window.ablyShift=ablyShift;
   window.ablyRenderOrders=ablyRenderOrders;
+
+  /* ===== MD팀 — 구글시트 6종 실시간 양방향 연동 =====
+     · 구글시트 ↔ 오피스는 Apps Script 웹앱(scripts/md-sheets-bridge.gs)이 중계. URL·토큰은 md_sheet_config 테이블.
+     · 보이는 값은 구글시트 표시값 그대로 — 수식·자동수집은 구글에서 계산되고 오피스는 결과만 보여준다.
+     · 수식 칸, QUERY·FILTER 같은 자동계산 탭은 읽기 전용. 나머지 칸은 MD팀(+관리자)이 클릭해서 고치면 구글시트에 바로 저장.
+     · 시트·탭 순서(우선순위)는 지희선이 정하고 모두에게 같은 순서로 보인다 (md_sheet_prefs 'order').
+     · 펼친 탭은 60초마다 조용히 다시 읽어 구글에서 바뀐 내용을 따라간다. */
+  const MDS_BOOK_LABELS={ably_price:'에이블리 가격표', zig_price:'지그재그 가격표', coferry:'코페리', apeti:'아페티', kozmi:'코즈미', invoice:'송장 · 재고/리오더'};
+  const MDS_PRIO_OWNER='지희선';
+  const MDS_PAGE=200;
+  const MDS_ROW_H=26;
+  const MDS_SPILL=/\b(QUERY|FILTER|SORT|SORTN|SEQUENCE|ARRAYFORMULA|UNIQUE|IMPORTRANGE|FLATTEN|TRANSPOSE)\s*\(/i;
+  const MDS_ERR=/^#(REF!|N\/A|VALUE!|DIV\/0!|NAME\?|ERROR!|NUM!|NULL!)/;
+  const MDS_LS_OPEN='mds_open_v1', MDS_LS_META='mds_meta_v1';
+  const _mds={cfg:null, meta:null, order:null, orderBy:'', data:{}, loading:{}, shown:{}, open:{}, editing:null, prio:false, search:'', timer:null, initing:null};
+  try{ _mds.open=JSON.parse(localStorage.getItem(MDS_LS_OPEN)||'{}')||{} }catch(e){ _mds.open={} }
+
+  function _mdsMe(){ return (typeof _diaryGetMe==='function'?_diaryGetMe():'')||'' }
+  function _mdsWho(){ return _mdsMe()||(isMaster()?'관리자':'') }
+  function _mdsCanEdit(){
+    if(isMaster()) return true;
+    const s=STAFF.find(x=>x.name===_mdsMe());
+    const k=s?_staffSlotKey(s):null;
+    return k==='md_brand'||k==='md_vendor';
+  }
+  function _mdsCanPrio(){ return isMaster() || _mdsMe()===MDS_PRIO_OWNER }
+  function _mdsTabKey(b,t){ return b+'|'+t }
+  // 날짜가 붙는 탭(10.27코페리송장출력)은 날짜를 떼고 순서·펼침 상태를 기억한다 — 매일 이름이 바뀌어도 유지
+  function _mdsTabSortKey(name){ return String(name).replace(/^\d+\.\d+/,'') }
+  function _mdsOpenKeyT(b,name){ return 't:'+_mdsTabKey(b,_mdsTabSortKey(name)) }
+  function _mdsColName(n){ let s=''; n++; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26) } return s }
+  function _mdsColIdx(s){ let n=0; for(const ch of String(s).toUpperCase()) n=n*26+(ch.charCodeAt(0)-64); return n-1 }
+  function _mdsSaveOpen(){ try{ localStorage.setItem(MDS_LS_OPEN, JSON.stringify(_mds.open)) }catch(e){} }
+  function _mdsHm(iso){ try{ return (iso?new Date(iso):new Date()).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) }catch(e){ return '' } }
+  function _mdsStatus(state,text){ const el=document.getElementById('mdsStatus'); if(!el) return; el.dataset.state=state; el.textContent=text }
+  function _mdsErrText(e){
+    const m=String((e&&e.message)||e);
+    if(m==='unauthorized') return '연결 토큰이 맞지 않아요 — 관리자가 다시 연결해 주세요';
+    if(m==='not_connected') return '구글시트 연결 전이에요';
+    if(m==='sheet_not_allowed') return '오피스에 열어둔 탭이 아니에요';
+    if(/Failed to fetch|NetworkError|Load failed|http_/.test(m)) return '구글시트에 접속하지 못했어요';
+    return m;
+  }
+
+  /* ── Supabase (연결 정보 · 우선순위 · 수정 기록) ── */
+  async function _mdsSbGet(path){
+    try{ const r=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{headers:_sbHeaders(),cache:'no-cache'}); return r.ok?await r.json():null }catch(e){ return null }
+  }
+  async function _mdsSbUpsert(table,row,conflict){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}?on_conflict=${conflict}`,{method:'POST',headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(row)});
+      return r.ok;
+    }catch(e){ return false }
+  }
+  async function _mdsLoadCfg(){
+    // 로컬 개발용 — localhost 에서만 모의 브리지로 바꿔 끼울 수 있다
+    if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){
+      try{ const dev=JSON.parse(localStorage.getItem('mds_dev_bridge')||'null'); if(dev&&dev.url) return dev }catch(e){}
+    }
+    const rows=await _mdsSbGet('md_sheet_config?select=key,value');
+    if(!rows) return null;
+    const m={}; rows.forEach(r=>{ m[r.key]=r.value });
+    return {url:m.bridge_url||'', token:m.bridge_token||''};
+  }
+  async function _mdsLoadPrefs(){
+    const rows=await _mdsSbGet('md_sheet_prefs?id=eq.order&select=data,updated_by');
+    if(!rows) return;
+    _mds.order=(rows[0]&&rows[0].data)||{};
+    _mds.orderBy=(rows[0]&&rows[0].updated_by)||'';
+  }
+  let _mdsPrioSaveT=null;
+  function _mdsSavePrefs(){
+    clearTimeout(_mdsPrioSaveT);
+    const tag=document.getElementById('mdsPrioSave');
+    if(tag) tag.textContent='저장 중…';
+    _mdsPrioSaveT=setTimeout(async ()=>{
+      const who=_mdsWho();
+      const ok=await _mdsSbUpsert('md_sheet_prefs',{id:'order',data:_mds.order,updated_by:who,updated_at:new Date().toISOString()},'id');
+      if(ok) _mds.orderBy=who;
+      if(tag) tag.textContent=ok?'✓ 저장됨 '+_mdsHm():'저장 실패 — 다시 시도해 주세요';
+      _mdsApplyPrioUi();
+    },500);
+  }
+  function _mdsLog(book,sheet,cell,oldv,newv,ok,error){
+    fetch(`${SUPABASE_URL}/rest/v1/md_sheet_edit_log`,{method:'POST',headers:_sbHeaders({'Prefer':'return=minimal'}),
+      body:JSON.stringify({who:_mdsWho(),book,sheet,cell,old_value:oldv,new_value:newv,ok,error:error||null})}).catch(()=>{});
+  }
+
+  /* ── 브리지 호출 — text/plain POST 라 preflight 없이 Apps Script 로 간다 ── */
+  async function _mdsCall(action,extra){
+    const cfg=_mds.cfg;
+    if(!cfg||!cfg.url||!cfg.token) throw new Error('not_connected');
+    const r=await fetch(cfg.url,{method:'POST',body:JSON.stringify(Object.assign({action,token:cfg.token},extra||{}))});
+    if(!r.ok) throw new Error('http_'+r.status);
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'error');
+    return j;
+  }
+
+  /* ── 진입 ── */
+  function mdsInit(){
+    if(!_mds.initing) _mds.initing=_mdsInitRun().finally(()=>{ _mds.initing=null });
+    return _mds.initing;
+  }
+  async function _mdsInitRun(){
+    if(!_mds.meta){ try{ const c=JSON.parse(localStorage.getItem(MDS_LS_META)||'null'); if(c&&c.books) _mds.meta=c }catch(e){} }
+    if(_mds.meta) mdsRender();
+    _mdsStatus('busy','불러오는 중…');
+    const [cfg]=await Promise.all([_mdsLoadCfg(), _mdsLoadPrefs()]);
+    _mds.cfg=cfg;
+    _mdsApplyPrioUi();
+    _mdsRenderFoot();
+    if(!cfg||!cfg.token){
+      _mdsShowSetup(cfg);
+      _mdsStatus('err', cfg===null?'설정을 불러오지 못했어요':'구글시트 연결 전');
+      if(cfg!==null){ _mds.meta=null; try{ localStorage.removeItem(MDS_LS_META) }catch(e){} document.getElementById('mdsList').innerHTML='' }
+      return;
+    }
+    document.getElementById('mdsSetup').hidden=true;
+    await _mdsLoadMeta(false);
+    _mdsOpenTabKeys().forEach(tk=>{ if(!_mds.data[tk]) _mdsLoadTab(tk,false) });
+    if(!_mds.timer) _mds.timer=setInterval(_mdsTick,60000);
+  }
+  async function _mdsLoadMeta(fresh){
+    try{
+      const j=await _mdsCall('meta',fresh?{fresh:true}:null);
+      _mds.meta=j;
+      try{ localStorage.setItem(MDS_LS_META,JSON.stringify(j)) }catch(e){}
+      _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준');
+      mdsRender();
+    }catch(e){
+      _mdsStatus('err',_mdsErrText(e));
+    }
+  }
+  function _mdsOpenTabKeys(){
+    const out=[];
+    ((_mds.meta&&_mds.meta.books)||[]).forEach(b=>{
+      if(!_mds.open['b:'+b.key]) return;
+      (b.tabs||[]).forEach(t=>{ if(_mds.open[_mdsOpenKeyT(b.key,t.name)]) out.push(_mdsTabKey(b.key,t.name)) });
+    });
+    return out;
+  }
+  function _mdsTick(){
+    if(document.getElementById('viewMd')?.hidden || document.visibilityState!=='visible') return;
+    if(!_mds.cfg||!_mds.cfg.token) return;
+    _mdsOpenTabKeys().forEach(tk=>_mdsLoadTab(tk,true));
+  }
+  async function mdsRefreshAll(){
+    if(!_mds.cfg||!_mds.cfg.token){ mdsInit(); return }
+    _mdsStatus('busy','새로고침 중…');
+    await _mdsLoadMeta(true);
+    _mdsOpenTabKeys().forEach(tk=>_mdsLoadTab(tk,true));
+  }
+
+  /* ── 연결 설정 (관리자) ── */
+  function _mdsShowSetup(cfg){
+    const box=document.getElementById('mdsSetup');
+    if(!box) return;
+    box.hidden=false;
+    document.getElementById('mdsSetupDesc').innerHTML=isMaster()
+      ? '구글시트 6개를 오피스와 연결하려면 Apps Script를 한 번 배포해야 해요.<ol>'
+        +'<li><a href="https://script.google.com/home/projects/create" target="_blank" rel="noopener">script.google.com 새 프로젝트</a>를 열고 '
+        +'<a href="https://github.com/j65209/beaduniverse/blob/main/scripts/md-sheets-bridge.gs" target="_blank" rel="noopener">md-sheets-bridge.gs</a> 내용을 전부 붙여넣고 저장 (6개 시트 편집 권한이 있는 계정으로)</li>'
+        +'<li>[배포] → [새 배포] → 유형 <b>웹 앱</b> · 실행 계정 <b>나</b> · 액세스 권한 <b>모든 사용자</b> → [배포] → 권한 승인</li>'
+        +'<li>나온 <b>웹 앱 URL</b>(…/exec)을 아래에 붙여넣고 [연결]</li></ol>'
+      : '아직 구글시트가 연결되지 않았어요. 관리자 PIN으로 접속해서 연결해 주세요.';
+    if(cfg&&cfg.url) document.getElementById('mdsSetupUrl').value=cfg.url;
+  }
+  async function mdsConnect(){
+    if(!requireMaster('구글시트 연결')) return;
+    const url=(document.getElementById('mdsSetupUrl').value||'').trim();
+    if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)){ toast('웹 앱 URL(https://script.google.com/…/exec)을 붙여넣어 주세요','err'); return }
+    const btn=document.getElementById('mdsSetupBtn');
+    btn.disabled=true; btn.textContent='연결 중…';
+    try{
+      const r=await fetch(url,{method:'POST',body:JSON.stringify({action:'pair'})});
+      const j=await r.json();
+      let token=j.ok?j.token:'';
+      if(!j.ok){
+        // 이미 연결된 스크립트를 새 배포 URL로 옮긴 경우 — 갖고 있던 토큰이 통하면 URL만 바꾼다
+        const old=_mds.cfg&&_mds.cfg.token;
+        if(j.error==='already_paired'&&old){
+          const p=await (await fetch(url,{method:'POST',body:JSON.stringify({action:'ping',token:old})})).json();
+          if(p.ok) token=old;
+        }
+        if(!token) throw new Error(j.error==='already_paired'?'이미 다른 곳과 연결된 스크립트예요. 스크립트 편집기에서 resetPairing 을 실행한 뒤 다시 연결해 주세요.':(j.error||'연결 실패'));
+      }
+      const at=new Date().toISOString();
+      const ok=await _mdsSbUpsert('md_sheet_config',[{key:'bridge_url',value:url,updated_at:at},{key:'bridge_token',value:token,updated_at:at}],'key');
+      if(!ok) throw new Error('연결 정보를 저장하지 못했어요 — resetPairing 후 다시 시도해 주세요');
+      toast('✓ 구글시트를 연결했어요','ok');
+      _mds.meta=null; _mds.data={};
+      await mdsInit();
+    }catch(e){
+      toast(String((e&&e.message)||e),'err');
+    }finally{
+      btn.disabled=false; btn.textContent='연결';
+    }
+  }
+  function mdsShowSetup(){ _mdsShowSetup(_mds.cfg); document.getElementById('mdsSetup').scrollIntoView({behavior:'smooth',block:'center'}) }
+  function _mdsRenderFoot(){
+    const el=document.getElementById('mdsFoot');
+    if(!el) return;
+    el.innerHTML='구글시트 원본은 그대로 두고, 오피스에서 고친 칸은 구글시트에 바로 저장돼요 (수정 기록은 따로 남아요). '
+      +'판매원본·주문로그·날짜별 주문 원본은 너무 크거나 개인정보가 있어 오피스에는 보이지 않아요.'
+      +(isMaster()&&_mds.cfg&&_mds.cfg.token?' · <button type="button" onclick="mdsShowSetup()">연결 설정</button>':'');
+  }
+
+  /* ── 우선순위 (지희선) ── */
+  function _mdsApplyPrioUi(){
+    const btn=document.getElementById('mdsPrioBtn');
+    if(btn) btn.hidden=!_mdsCanPrio()||_mds.prio;
+    const banner=document.getElementById('mdsPrioBanner');
+    if(banner) banner.hidden=!(_mdsMe()===MDS_PRIO_OWNER && _mds.order!==null && _mds.orderBy!==MDS_PRIO_OWNER && !_mds.prio);
+    const bar=document.getElementById('mdsPrioBar');
+    if(bar) bar.hidden=!_mds.prio;
+  }
+  function mdsTogglePrio(on){
+    if(!_mdsCanPrio()){ toast(`우선순위는 ${MDS_PRIO_OWNER}님(또는 관리자)만 바꿀 수 있어요`,'err'); return }
+    _mds.prio=on==null?!_mds.prio:!!on;
+    if(_mds.prio){ const t=document.getElementById('mdsPrioSave'); if(t) t.textContent='' }
+    _mdsApplyPrioUi();
+    mdsRender();
+  }
+  function _mdsOrderedBooks(){
+    const ord=(_mds.order&&_mds.order.books)||[];
+    return (((_mds.meta&&_mds.meta.books)||[]).slice()).sort((a,b)=>{
+      const ia=ord.indexOf(a.key), ib=ord.indexOf(b.key);
+      return (ia<0?999:ia)-(ib<0?999:ib);
+    });
+  }
+  function _mdsOrderedTabs(book){
+    const ord=(((_mds.order&&_mds.order.tabs)||{})[book.key])||[];
+    return (book.tabs||[]).slice().sort((a,b)=>{
+      const ia=ord.indexOf(_mdsTabSortKey(a.name)), ib=ord.indexOf(_mdsTabSortKey(b.name));
+      return (ia<0?999:ia)-(ib<0?999:ib);
+    });
+  }
+  function mdsMoveBook(btn,dir){
+    if(!_mdsCanPrio()) return;
+    const key=btn.closest('.mds-book').dataset.b;
+    const list=_mdsOrderedBooks().map(b=>b.key);
+    const i=list.indexOf(key), j=i+dir;
+    if(i<0||j<0||j>=list.length) return;
+    [list[i],list[j]]=[list[j],list[i]];
+    _mds.order=Object.assign({},_mds.order,{books:list});
+    mdsRender(); _mdsSavePrefs();
+  }
+  function mdsMoveTab(btn,dir){
+    if(!_mdsCanPrio()) return;
+    const tab=btn.closest('.mds-tab'), bkey=tab.dataset.b;
+    const book=((_mds.meta&&_mds.meta.books)||[]).find(b=>b.key===bkey);
+    if(!book) return;
+    const list=_mdsOrderedTabs(book).map(t=>_mdsTabSortKey(t.name));
+    const i=list.indexOf(_mdsTabSortKey(tab.dataset.t)), j=i+dir;
+    if(i<0||j<0||j>=list.length) return;
+    [list[i],list[j]]=[list[j],list[i]];
+    const tabs=Object.assign({},(_mds.order&&_mds.order.tabs)||{});
+    tabs[bkey]=list;
+    _mds.order=Object.assign({},_mds.order,{tabs});
+    mdsRender(); _mdsSavePrefs();
+  }
+  // 앱에 들어온 지희선에게 하루 한 번 알림 — 아직 본인이 우선순위를 정한 적이 없을 때만
+  async function _mdsPrioNudge(tries){
+    if(!document.getElementById('app')?.classList.contains('show')){ if((tries||0)<60) setTimeout(()=>_mdsPrioNudge((tries||0)+1),5000); return }
+    if(_mdsMe()!==MDS_PRIO_OWNER) return;
+    const day=new Date().toISOString().slice(0,10);
+    try{ if(localStorage.getItem('mds_prio_nudge')===day) return }catch(e){}
+    const rows=await _mdsSbGet('md_sheet_prefs?id=eq.order&select=updated_by');
+    if(!rows||(rows[0]&&rows[0].updated_by===MDS_PRIO_OWNER)) return;
+    try{ localStorage.setItem('mds_prio_nudge',day) }catch(e){}
+    toast(`📌 ${MDS_PRIO_OWNER.slice(1)}님, MD팀 탭에서 시트 우선순위를 직접 정할 수 있어요 — 눌러서 바로 가기`,'ok');
+    const el=document.getElementById('toastArea')?.lastElementChild;
+    if(el){ el.style.cursor='pointer'; el.addEventListener('click',()=>{ showView('viewMd'); setTimeout(()=>mdsTogglePrio(true),300) }) }
+  }
+  setTimeout(()=>_mdsPrioNudge(0),4000);
+
+  /* ── 목록 그리기 ── */
+  function mdsRender(){
+    const list=document.getElementById('mdsList');
+    if(!list) return;
+    const keep={};
+    list.querySelectorAll('.mds-tab-body[data-k]').forEach(el=>{ keep[el.dataset.k]=el });
+    const books=_mdsOrderedBooks();
+    list.classList.toggle('mds-prio',_mds.prio);
+    list.innerHTML=books.map((b,bi)=>{
+      const tabs=_mdsOrderedTabs(b);
+      const bopen=!!_mds.open['b:'+b.key];
+      const body=b.error
+        ? `<div class="mds-book-err">이 시트를 열지 못했어요 (${escapeHTML(b.error)}) — 스크립트를 배포한 구글 계정에 편집 권한이 있는지 확인해 주세요.</div>`
+        : tabs.map((t,ti)=>{
+            const tk=_mdsTabKey(b.key,t.name);
+            const topen=!!_mds.open[_mdsOpenKeyT(b.key,t.name)];
+            return `<div class="mds-tab${topen?' is-open':''}" data-b="${escapeHTML(b.key)}" data-t="${escapeHTML(t.name)}">
+              <div class="mds-tab-head" onclick="mdsToggleTab(this)">
+                <span class="mds-chev">▶</span><span class="mds-tab-rank">${ti+1}</span>
+                <span class="mds-tab-name">${escapeHTML(t.name)}</span>
+                <span class="mds-tab-metas">${_mdsTabMetaHtml(t,_mds.data[tk])}</span>
+                <span class="mds-head-sp"></span>
+                <span class="mds-move" onclick="event.stopPropagation()"><button type="button" onclick="mdsMoveTab(this,-1)" ${ti===0?'disabled':''} aria-label="위로">▲</button><button type="button" onclick="mdsMoveTab(this,1)" ${ti===tabs.length-1?'disabled':''} aria-label="아래로">▼</button></span>
+                ${b.url?`<a class="mds-open" href="${escapeHTML(b.url)}#gid=${encodeURIComponent(t.gid)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">구글 ↗</a>`:''}
+              </div>
+              <div class="mds-tab-body" data-k="${escapeHTML(tk)}"></div>
+            </div>`;
+          }).join('')||'<div class="mds-empty">표시할 탭이 없어요.</div>';
+      return `<section class="mds-book${bopen?' is-open':''}" data-b="${escapeHTML(b.key)}">
+        <header class="mds-book-head" onclick="mdsToggleBook(this)">
+          <span class="mds-chev">▶</span><span class="mds-rank">${bi+1}</span>
+          <span class="mds-book-title">${escapeHTML(MDS_BOOK_LABELS[b.key]||b.name||b.key)}<small>${escapeHTML(b.name||'')}</small></span>
+          <span class="mds-book-meta">탭 ${tabs.length}개</span>
+          <span class="mds-head-sp"></span>
+          <span class="mds-move" onclick="event.stopPropagation()"><button type="button" onclick="mdsMoveBook(this,-1)" ${bi===0?'disabled':''} aria-label="위로">▲</button><button type="button" onclick="mdsMoveBook(this,1)" ${bi===books.length-1?'disabled':''} aria-label="아래로">▼</button></span>
+          ${b.url?`<a class="mds-open" href="${escapeHTML(b.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">구글시트 ↗</a>`:''}
+        </header>
+        <div class="mds-book-body">${body}</div>
+      </section>`;
+    }).join('')||'<div class="mds-empty">표시할 시트가 없어요.</div>';
+    // 이미 그려둔 표는 그대로 옮겨 붙인다 (스크롤·입력 상태 유지)
+    list.querySelectorAll('.mds-tab-body[data-k]').forEach(el=>{
+      const old=keep[el.dataset.k];
+      if(old) el.replaceWith(old);
+      else if(el.closest('.mds-tab').classList.contains('is-open') && el.closest('.mds-book').classList.contains('is-open')) _mdsEnsureTab(el.dataset.k);
+    });
+  }
+  function _mdsTabMetaHtml(t,d){
+    if(d){
+      return `<span class="mds-tab-meta">${d.nDataRows.toLocaleString()}행</span>`
+        +(d.ro?'<span class="mds-badge ro">자동계산 · 보기전용</span>':'')
+        +(d.nErr?`<span class="mds-badge" title="수식 결과가 오류인 칸">오류 ${d.nErr.toLocaleString()}</span>`:'');
+    }
+    return t.rows?`<span class="mds-tab-meta">${Math.max(0,t.rows-1).toLocaleString()}행</span>`:'';
+  }
+  function _mdsBodyEl(tk){ return [...document.querySelectorAll('#mdsList .mds-tab-body[data-k]')].find(el=>el.dataset.k===tk)||null }
+  function mdsToggleBook(head){
+    const sec=head.closest('.mds-book');
+    const open=!sec.classList.contains('is-open');
+    sec.classList.toggle('is-open',open);
+    _mds.open['b:'+sec.dataset.b]=open; _mdsSaveOpen();
+    if(open) sec.querySelectorAll('.mds-tab.is-open .mds-tab-body').forEach(el=>_mdsEnsureTab(el.dataset.k));
+  }
+  function mdsToggleTab(head){
+    const tab=head.closest('.mds-tab');
+    const open=!tab.classList.contains('is-open');
+    tab.classList.toggle('is-open',open);
+    _mds.open[_mdsOpenKeyT(tab.dataset.b,tab.dataset.t)]=open; _mdsSaveOpen();
+    if(open) _mdsEnsureTab(_mdsTabKey(tab.dataset.b,tab.dataset.t));
+  }
+  function mdsExpandAll(open){
+    document.querySelectorAll('#mdsList .mds-book').forEach(sec=>{ sec.classList.toggle('is-open',open); _mds.open['b:'+sec.dataset.b]=open });
+    if(!open) document.querySelectorAll('#mdsList .mds-tab').forEach(tab=>{ tab.classList.remove('is-open'); _mds.open[_mdsOpenKeyT(tab.dataset.b,tab.dataset.t)]=false });
+    _mdsSaveOpen();
+    if(open) document.querySelectorAll('#mdsList .mds-tab.is-open .mds-tab-body').forEach(el=>_mdsEnsureTab(el.dataset.k));
+  }
+  function _mdsEnsureTab(tk){ if(_mds.data[tk]) _mdsRenderTabBody(tk); else _mdsLoadTab(tk,false) }
+
+  /* ── 탭 읽기 ── */
+  async function _mdsLoadTab(tk,silent){
+    if(_mds.loading[tk]) return;
+    const i=tk.indexOf('|'), book=tk.slice(0,i), sheet=tk.slice(i+1);
+    _mds.loading[tk]=true;
+    const body=_mdsBodyEl(tk);
+    if(body&&!_mds.data[tk]) body.innerHTML='<div class="mds-loading">구글시트에서 불러오는 중…</div>';
+    try{
+      const j=await _mdsCall('read',{book,sheet});
+      const prev=_mds.data[tk];
+      const sig=JSON.stringify([j.values,j.f]);
+      if(prev&&prev._sig===sig){ prev.at=j.at; return }
+      const d=_mdsPrepare(j); d._sig=sig;
+      _mds.data[tk]=d;
+      _mdsStatus('ok','구글시트 연결됨 · '+_mdsHm()+' 기준');
+      _mdsRenderTabBody(tk);
+    }catch(e){
+      if(!silent&&body&&!_mds.data[tk]) body.innerHTML=`<div class="mds-empty">불러오지 못했어요 — ${escapeHTML(_mdsErrText(e))}</div>`;
+      if(!silent) _mdsStatus('err',_mdsErrText(e));
+    }finally{
+      _mds.loading[tk]=false;
+    }
+  }
+  function _mdsPrepare(j){
+    const d=Object.assign({},j);
+    d.values=d.values||[]; d.f=d.f||{}; d.bg=d.bg||{}; d.fc=d.fc||{}; d.dv=d.dv||{}; d.lists=d.lists||[]; d.widths=d.widths||[];
+    d.boldSet=new Set(d.bold||[]);
+    const hidden=new Set(d.hiddenCols||[]);
+    let last=d.values.length;
+    while(last>0&&!(d.values[last-1]||[]).some(v=>v!=='')) last--;
+    d.lastRow=last;
+    d.hdrRows=Math.max(1,Math.min(d.frozenRows||0,4,last||1));
+    d.ro=Object.values(d.f).some(x=>MDS_SPILL.test(x));
+    let nErr=0;
+    for(let r=0;r<last;r++){ const row=d.values[r]||[]; for(let c=0;c<row.length;c++) if(MDS_ERR.test(row[c])) nErr++ }
+    d.nErr=nErr;
+    d.nDataRows=Math.max(0,last-d.hdrRows);
+    d.visCols=[];
+    for(let c=0;c<(d.cols||0);c++) if(!hidden.has(c)) d.visCols.push(c);
+    // 병합: 왼쪽 위 칸에 rowspan/colspan, 가려지는 칸은 건너뛴다
+    d.span={}; d.skip=new Set();
+    (d.merges||[]).forEach(([r,c,nr,nc])=>{
+      d.span[r+','+c]=[nr,nc];
+      for(let a=0;a<nr;a++) for(let b=0;b<nc;b++) if(a||b) d.skip.add((r+a)+','+(c+b));
+    });
+    // 고정 열(구글 '열 고정') — 행번호 칸 뒤로 왼쪽에 붙인다
+    d.left={};
+    let acc=40;
+    d.visCols.forEach((c,i)=>{ if(i<Math.min(d.frozenCols||0,3)){ d.left[c]=acc; acc+=_mdsColW(d,c) } });
+    return d;
+  }
+  function _mdsColW(d,c){ return Math.max(30,Math.min(d.widths[c]||100,480)) }
+
+  /* ── 표 그리기 ── */
+  function _mdsRenderTabBody(tk){
+    const body=_mdsBodyEl(tk), d=_mds.data[tk];
+    if(!body||!d) return;
+    const tab=body.closest('.mds-tab');
+    const metas=tab&&tab.querySelector('.mds-tab-metas');
+    if(metas) metas.innerHTML=_mdsTabMetaHtml({},d);
+    // 이 표에서 칸을 고치는 중이면 다 끝난 뒤에 다시 그린다
+    if(_mds.editing&&body.contains(_mds.editing.td)){ clearTimeout(d._deferT); d._deferT=setTimeout(()=>_mdsRenderTabBody(tk),1500); return }
+    if(!d.lastRow){ body.innerHTML='<div class="mds-empty">비어 있는 탭이에요.</div>'; return }
+    const sc=body.querySelector('.mds-scroll');
+    const pos=sc?[sc.scrollTop,sc.scrollLeft]:null;
+    const canEdit=_mdsCanEdit()&&!d.ro;
+    const q=_mds.search.trim().toLowerCase();
+    const rows=[];
+    for(let r=d.hdrRows;r<d.lastRow;r++){
+      if(q&&!(d.values[r]||[]).some(v=>String(v).toLowerCase().includes(q))) continue;
+      rows.push(r);
+    }
+    const shown=rows.slice(0,_mds.shown[tk]||MDS_PAGE);
+    let h='<div class="mds-scroll"><table class="mds-table"><colgroup><col style="width:40px">'
+      +d.visCols.map(c=>`<col style="width:${_mdsColW(d,c)}px">`).join('')+'</colgroup>'
+      +'<thead><tr><th class="mds-rn" style="top:0"></th>'+d.visCols.map(c=>`<th style="top:0">${_mdsColName(c)}</th>`).join('')+'</tr></thead><tbody>';
+    for(let r=0;r<d.hdrRows;r++) h+=_mdsRowHtml(d,r,true,canEdit,!q);
+    shown.forEach(r=>{ h+=_mdsRowHtml(d,r,false,canEdit,!q) });
+    h+='</tbody></table></div>';
+    const notes=[];
+    if(q) notes.push(`검색 결과 ${rows.length.toLocaleString()}행`);
+    if(d.ro) notes.push('QUERY·FILTER 같은 자동계산 탭이라 보기만 돼요 — 원본 탭이나 구글시트에서 고쳐 주세요');
+    else if(!_mdsCanEdit()) notes.push('보기 전용 — MD팀 계정(업무일지 "나는")이나 관리자만 고칠 수 있어요');
+    else notes.push('칸을 클릭해서 고치면 구글시트에 바로 저장돼요 (Enter 저장 · Tab 오른쪽 · Esc 취소) · 수식 칸은 마우스를 올리면 수식이 보이고 자동 계산돼요');
+    if(d.truncated) notes.push(`행이 많아 위쪽 ${d.rows.toLocaleString()}행만 불러왔어요 (전체 ${d.totalRows.toLocaleString()}행)`);
+    notes.push(_mdsHm(d.at)+' 기준');
+    const left=rows.length-shown.length;
+    body.innerHTML=`<div class="mds-note">${notes.map(escapeHTML).join(' · ')}</div>`+h
+      +(left>0?`<button type="button" class="mds-more" onclick="mdsShowMore(this)">아래 ${Math.min(MDS_PAGE,left).toLocaleString()}행 더 보기 (남은 ${left.toLocaleString()}행)</button>`:'');
+    const nsc=body.querySelector('.mds-scroll');
+    if(pos&&nsc){ nsc.scrollTop=pos[0]; nsc.scrollLeft=pos[1] }
+  }
+  function mdsShowMore(btn){
+    const tk=btn.closest('.mds-tab-body').dataset.k;
+    _mds.shown[tk]=(_mds.shown[tk]||MDS_PAGE)+MDS_PAGE;
+    _mdsRenderTabBody(tk);
+  }
+  function _mdsImageSrc(d,fx){
+    const m=String(fx).match(/^=\s*IMAGE\s*\(\s*(?:"([^"]+)"|\$?([A-Z]{1,3})\$?(\d+))/i);
+    if(!m) return '';
+    if(m[1]) return m[1];
+    const v=String((d.values[+m[3]-1]||[])[_mdsColIdx(m[2])]||'');
+    return /^https?:\/\//i.test(v)?v:'';
+  }
+  function _mdsRowHtml(d,r,isHdr,canEdit,useMerge){
+    const row=d.values[r]||[];
+    const top=isHdr?MDS_ROW_H*(r+1):0;
+    let hasImg=false, cells='';
+    for(const c of d.visCols){
+      const k=r+','+c;
+      if(useMerge&&d.skip.has(k)) continue;
+      let attrs='';
+      const sp=useMerge?d.span[k]:null;
+      if(sp){
+        const vc=d.visCols.filter(x=>x>=c&&x<c+sp[1]).length;
+        if(sp[0]>1) attrs+=` rowspan="${sp[0]}"`;
+        if(vc>1) attrs+=` colspan="${vc}"`;
+      }
+      const v=row[c]==null?'':String(row[c]);
+      const fx=d.f[k];
+      const dvi=d.dv[k], spec=dvi!=null?d.lists[dvi]:null;
+      const cls=[], st=[];
+      if(d.bg[k]) st.push('background:'+d.bg[k]);
+      if(d.fc[k]) st.push('color:'+d.fc[k]);
+      if(d.boldSet.has(k)) st.push('font-weight:700');
+      if(c in d.left){ cls.push('mds-fz'); st.push('left:'+d.left[c]+'px') }
+      if(isHdr) st.push('top:'+top+'px');
+      let inner='', title=v;
+      if(fx){
+        cls.push('mds-fx'); title=(v?v+'\n':'')+'수식 '+fx;
+        const img=_mdsImageSrc(d,fx);
+        if(img){ inner=`<img src="${escapeHTML(img)}" loading="lazy" referrerpolicy="no-referrer" alt="">`; hasImg=true }
+      }
+      if(MDS_ERR.test(v)){ cls.push('mds-err'); title='수식 오류 '+v+(fx?'\n수식 '+fx:'') }
+      if(!inner){
+        if(spec&&spec.t==='check'){
+          const on=v===spec.on||v==='TRUE';
+          inner=`<input type="checkbox" ${on?'checked':''} ${canEdit&&!fx?'':'disabled'} onclick="mdsCheck(event,this)" aria-label="체크">`;
+        }else if(/^https?:\/\/\S+$/i.test(v)){
+          inner=`<a href="${escapeHTML(v)}" target="_blank" rel="noopener">${escapeHTML(v.replace(/^https?:\/\/(www\.)?/,'').slice(0,40))}</a>`;
+        }else inner=escapeHTML(v);
+      }
+      if(!isHdr&&/^[-+]?[₩￦]?\s?[\d,]+(\.\d+)?\s?%?$/.test(v.trim())&&v.trim()!=='') cls.push('mds-num');
+      if(canEdit&&!fx&&!(spec&&spec.t==='check')) cls.push('mds-ed');
+      cells+=`<td class="${cls.join(' ')}" data-c="${c}"${attrs}${st.length?` style="${st.join(';')}"`:''}${title?` title="${escapeHTML(title)}"`:''}>${inner}</td>`;
+    }
+    return `<tr class="${isHdr?'mds-hdr':''}${hasImg?' has-img':''}" data-r="${r}"><td class="mds-rn"${isHdr?` style="top:${top}px"`:''}>${r+1}</td>${cells}</tr>`;
+  }
+
+  /* ── 칸 수정 → 구글시트 저장 ── */
+  function _mdsCtx(td){
+    const body=td.closest('.mds-tab-body'), tk=body.dataset.k;
+    return {tk, d:_mds.data[tk], r:+td.parentElement.dataset.r, c:+td.dataset.c};
+  }
+  document.addEventListener('click',e=>{
+    const td=e.target.closest&&e.target.closest('#mdsList td.mds-ed');
+    if(!td||e.target.closest('a')||td.classList.contains('mds-editing')) return;
+    _mdsBeginEdit(td);
+  });
+  function _mdsBeginEdit(td){
+    const x=_mdsCtx(td);
+    if(!x.d) return;
+    const old=String((x.d.values[x.r]||[])[x.c]??'');
+    const dvi=x.d.dv[x.r+','+x.c], spec=dvi!=null?x.d.lists[dvi]:null;
+    let el;
+    if(spec&&spec.t==='list'){
+      el=document.createElement('select');
+      const uniq=[...new Set(spec.items)];
+      const items=(old===''||uniq.includes(old))?uniq:[old,...uniq];
+      el.innerHTML='<option value=""></option>'+items.map(it=>`<option${it===old?' selected':''}>${escapeHTML(it)}</option>`).join('');
+      el.addEventListener('change',()=>_mdsCommit(td));
+    }else{
+      el=document.createElement('input');
+      el.type='text'; el.value=old;
+    }
+    el.addEventListener('keydown',ev=>{
+      if(ev.key==='Enter'&&!ev.isComposing){ ev.preventDefault(); _mdsCommit(td,'down') }
+      else if(ev.key==='Tab'){ ev.preventDefault(); _mdsCommit(td,ev.shiftKey?'left':'right') }
+      else if(ev.key==='Escape'){ ev.preventDefault(); _mdsCancel(td) }
+    });
+    el.addEventListener('blur',()=>setTimeout(()=>{ if(td.classList.contains('mds-editing')) _mdsCommit(td) },0));
+    td.dataset.html=td.innerHTML;
+    td.classList.add('mds-editing');
+    td.innerHTML='';
+    td.appendChild(el);
+    _mds.editing={td,old};
+    el.focus();
+    if(el.select) el.select();
+  }
+  function _mdsCancel(td){
+    td.classList.remove('mds-editing');
+    td.innerHTML=td.dataset.html||'';
+    if(_mds.editing&&_mds.editing.td===td) _mds.editing=null;
+  }
+  function _mdsNeighbor(td,move){
+    if(move==='right'||move==='left'){
+      let n=td;
+      do{ n=move==='right'?n.nextElementSibling:n.previousElementSibling }while(n&&!n.classList.contains('mds-ed'));
+      return n||null;
+    }
+    const c=td.dataset.c;
+    let tr=td.parentElement.nextElementSibling;
+    while(tr){
+      const n=tr.querySelector(`td[data-c="${c}"]`);
+      if(n) return n.classList.contains('mds-ed')?n:null;
+      tr=tr.nextElementSibling;
+    }
+    return null;
+  }
+  async function _mdsCommit(td,move){
+    if(!td.classList.contains('mds-editing')) return;
+    const el=td.querySelector('input,select');
+    const val=el?el.value:'';
+    const old=_mds.editing&&_mds.editing.td===td?_mds.editing.old:null;
+    if(_mds.editing&&_mds.editing.td===td) _mds.editing=null;
+    td.classList.remove('mds-editing');
+    const next=move?_mdsNeighbor(td,move):null;
+    if(old===null||val===old){ td.innerHTML=td.dataset.html||''; if(next) _mdsBeginEdit(next); return }
+    td.textContent=val;
+    td.classList.add('mds-saving');
+    if(next) _mdsBeginEdit(next);
+    await _mdsWrite(td,val,old);
+  }
+  async function mdsCheck(ev,cb){
+    ev.stopPropagation();
+    const td=cb.closest('td'), x=_mdsCtx(td);
+    const spec=x.d.lists[x.d.dv[x.r+','+x.c]];
+    if(!spec||!_mdsCanEdit()||x.d.ro){ ev.preventDefault(); return }
+    const old=String((x.d.values[x.r]||[])[x.c]??'');
+    td.classList.add('mds-saving');
+    await _mdsWrite(td,cb.checked?spec.on:spec.off,old);
+  }
+  async function _mdsWrite(td,val,old){
+    const x=_mdsCtx(td);
+    const i=x.tk.indexOf('|'), book=x.tk.slice(0,i), sheet=x.tk.slice(i+1);
+    const cell=_mdsColName(x.c)+(x.r+1);
+    let res=null, err=null;
+    try{ res=await _mdsCall('write',{book,sheet,edits:[{r:x.r+1,c:x.c+1,v:val,old}]}) }catch(e){ err=_mdsErrText(e) }
+    const rr=res&&res.results&&res.results[0];
+    if(!err&&rr&&!rr.ok){
+      err=rr.error==='conflict'?`그 사이 다른 곳에서 "${rr.current}"(으)로 바뀌었어요`
+        :rr.error==='formula_cell'?'수식 칸이라 고칠 수 없어요':rr.error;
+    }
+    _mdsLog(book,sheet,cell,old,val,!err,err);
+    if(err){
+      toast(`저장 못 했어요 (${sheet} ${cell}) — ${err}`,'err');
+      td.classList.remove('mds-saving');
+      _mdsPatchRow(x.tk,x.r);
+      _mdsLoadTab(x.tk,true);
+      return;
+    }
+    Object.entries(res.rows||{}).forEach(([r,vals])=>{ x.d.values[+r-1]=vals });
+    x.d.at=res.at;
+    _mdsPatchRow(x.tk,x.r);
+    // 다른 행·탭에 걸린 수식(VLOOKUP 등)도 따라오도록 잠시 뒤 탭 전체를 조용히 다시 읽는다
+    clearTimeout(x.d._reT);
+    x.d._reT=setTimeout(()=>_mdsLoadTab(x.tk,true),2500);
+  }
+  // 저장된 행만 다시 그린다 — 같은 행의 다른 칸을 고치는 중이면 그 칸은 그대로 둔다
+  function _mdsPatchRow(tk,r){
+    const body=_mdsBodyEl(tk), d=_mds.data[tk];
+    if(!body||!d) return;
+    const tr=body.querySelector(`tr[data-r="${r}"]`);
+    if(!tr) return;
+    const tmp=document.createElement('tbody');
+    tmp.innerHTML=_mdsRowHtml(d,r,tr.classList.contains('mds-hdr'),_mdsCanEdit()&&!d.ro,!_mds.search.trim());
+    const ntr=tmp.firstElementChild;
+    [...ntr.children].forEach(ntd=>{
+      const c=ntd.dataset.c;
+      if(c==null) return;
+      const otd=tr.querySelector(`td[data-c="${c}"]`);
+      if(!otd) return;
+      if(otd.classList.contains('mds-editing')) ntd.replaceWith(otd);
+      else if(otd.classList.contains('mds-saving')) ntd.classList.add('mds-saved');
+    });
+    tr.replaceWith(ntr);
+  }
+
+  /* ── 검색 ── */
+  let _mdsSearchT=null;
+  function mdsOnSearch(v){
+    clearTimeout(_mdsSearchT);
+    _mdsSearchT=setTimeout(()=>{
+      _mds.search=v||'';
+      Object.keys(_mds.data).forEach(tk=>{
+        const b=_mdsBodyEl(tk);
+        if(b&&b.closest('.mds-tab').classList.contains('is-open')) _mdsRenderTabBody(tk);
+      });
+    },250);
+  }
+
+  window.mdsInit=mdsInit;
+  window.mdsRender=mdsRender;
+  window.mdsToggleBook=mdsToggleBook;
+  window.mdsToggleTab=mdsToggleTab;
+  window.mdsExpandAll=mdsExpandAll;
+  window.mdsRefreshAll=mdsRefreshAll;
+  window.mdsOnSearch=mdsOnSearch;
+  window.mdsShowMore=mdsShowMore;
+  window.mdsCheck=mdsCheck;
+  window.mdsTogglePrio=mdsTogglePrio;
+  window.mdsMoveBook=mdsMoveBook;
+  window.mdsMoveTab=mdsMoveTab;
+  window.mdsConnect=mdsConnect;
+  window.mdsShowSetup=mdsShowSetup;
 
   init();
 </script>
