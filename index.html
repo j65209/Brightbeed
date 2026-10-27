@@ -4736,6 +4736,13 @@
   .ably-sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
   .ably-sec-head h2{margin:0}
   .ably-chk{font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:5px;cursor:pointer}
+  .ably-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none}
+  .ably-fold>summary::-webkit-details-marker{display:none}
+  .ably-fold>summary::before{content:'▸';color:var(--text-3);font-size:12px;transition:transform .15s}
+  .ably-fold[open]>summary::before{transform:rotate(90deg)}
+  .ably-fold>summary h2{margin:0}
+  .ably-fold[open]>summary{margin-bottom:10px}
+  .ably-fold-tools{display:flex;justify-content:flex-end;gap:14px;margin-bottom:8px}
   .ably-tbl-wrap{overflow-x:auto}
   .ably-tbl{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
   .ably-tbl th{text-align:left;font-weight:600;color:var(--text-3);font-size:11px;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -11558,13 +11565,15 @@
           <div id="ablyEvents"></div>
         </section>
 
-        <section class="ably-sec">
-          <div class="ably-sec-head">
-            <h2>주문 내역 <span id="ablyOrdN"></span></h2>
+        <!-- 주문 내역은 기본 접힘. 날짜를 바꿔도 펼침 상태는 유지(표만 다시 그림). -->
+        <details class="ably-sec ably-fold">
+          <summary><h2>주문 내역 <span id="ablyOrdN"></span></h2></summary>
+          <div class="ably-fold-tools">
+            <label class="ably-chk"><input type="checkbox" id="ablyStatusShow" onchange="ablyRenderOrders()"> 상태 보기</label>
             <label class="ably-chk"><input type="checkbox" id="ablyCouponOnly" onchange="ablyRenderOrders()"> 쿠폰 사용만</label>
           </div>
           <div class="ably-tbl-wrap"><table class="ably-tbl" id="ablyOrders"></table></div>
-        </section>
+        </details>
 
         <section class="ably-sec">
           <h2>쿠폰 현황 <span id="ablyCpN"></span></h2>
@@ -34900,12 +34909,13 @@
   function ablyRenderOrders(){
     const rep=_ablyState.report; if(!rep) return;
     const only=document.getElementById('ablyCouponOnly').checked;
+    const showSt=document.getElementById('ablyStatusShow').checked;  // 상태 열은 기본 접힘
     const all=rep.orders||[];
     const list=only?all.filter(o=>o.coupon>0):all;
     document.getElementById('ablyOrdN').textContent=`${list.length}건${only?' (쿠폰 사용)':''}`;
     document.getElementById('ablyOrders').innerHTML=list.length
-      ? '<tr><th>결제</th><th>주문번호</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th><th class="n">쿠폰</th><th class="n">기타할인</th><th class="n">실결제</th><th class="n">원가</th><th>상태</th></tr>'
-        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}"><td>${_ablyTime(o.checked_at)}</td><td>${_ablyEsc(o.order_sno)}</td><td>${_ablyEsc(o.goods_name)}<span class="opt">${_ablyEsc(o.option)}</span></td><td class="n">${_ablyW(o.ea)}</td><td class="n">₩${_ablyW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_ablyW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_ablyW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_ablyW(o.paid)}</td><td class="n" title="${_ablyEsc(o.cost_name||'')}">${o.cost_match==null?'-':o.cost_match==='none'?'<span class="neg">미확인</span>':'₩'+_ablyW(o.cost)+(o.cost_match==='base'?'<span class="opt">기본값</span>':'')}</td><td>${_ablyEsc(o.status)}</td></tr>`).join('')
+      ? '<tr><th>결제</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th><th class="n">쿠폰</th><th class="n">기타할인</th><th class="n">실결제</th><th class="n">원가</th>'+(showSt?'<th>상태</th>':'')+'</tr>'
+        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}" title="${_ablyEsc(o.status)}"><td>${_ablyTime(o.checked_at)}</td><td>${_ablyEsc(o.goods_name)}<span class="opt">${_ablyEsc(o.option)}</span></td><td class="n">${_ablyW(o.ea)}</td><td class="n">₩${_ablyW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_ablyW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_ablyW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_ablyW(o.paid)}</td><td class="n" title="${_ablyEsc(o.cost_name||'')}">${o.cost_match==null?'-':o.cost_match==='none'?'<span class="neg">미확인</span>':'₩'+_ablyW(o.cost)+(o.cost_match==='base'?'<span class="opt">기본값</span>':'')}</td>${showSt?`<td>${_ablyEsc(o.status)}</td>`:''}</tr>`).join('')
       : '<tr><td class="ably-empty">해당하는 주문이 없어요.</td></tr>';
   }
 
