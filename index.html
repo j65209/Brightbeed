@@ -6272,6 +6272,10 @@
   .org-svg .t-mem.m-md2   {fill:#991b1b}
   .org-svg .t-mem.m-design{fill:#7c2d12}
   .org-svg .t-mem.m-vendor{fill:#6d28d9}
+  .org-svg .p-mem.is-lead{stroke-width:1.6}
+  .org-svg .t-mem-title{font-size:10.5px;font-weight:800}
+  .om-mem.is-lead{font-weight:700}
+  .om-mem.is-lead small{font-size:10.5px;font-weight:800;margin-left:2px}
   /* 팀 캡션 — 텍스트만, 팀 색 */
   .org-svg .t-teamcap{font-weight:700;font-size:12.5px;letter-spacing:-.01em}
   .org-svg .t-teamcap.c-logi  {fill:#c2410c}
@@ -8670,6 +8674,10 @@
   }
   .leave-dept-sel:hover{background:#eef2ff}
   .leave-dept-sel:disabled{opacity:.55;cursor:wait}
+  .leave-title-badge{display:inline-block;margin-left:6px;padding:1px 6px;font-size:10.5px;font-weight:700;color:#fff;background:#4f46e5;border-radius:5px;vertical-align:2px;letter-spacing:0}
+  .leave-title-inp{display:block;margin-top:4px;width:120px;max-width:100%;font-size:11.5px;padding:3px 8px;border:1.5px dashed #4f46e5;border-radius:7px;background:#fff;color:#1c1917;font-weight:600;font-family:var(--sans);outline:none}
+  .leave-title-inp:focus{border-style:solid;background:#eef2ff}
+  .leave-title-inp:disabled{opacity:.55;cursor:wait}
   .leave-hire{
     display:inline-flex;align-items:center;
     font-size:10.5px;font-family:var(--mono);color:var(--text-3);
@@ -9556,40 +9564,7 @@
         <text class="t-teamcap c-share"  x="740" y="158">씨에스팀</text>
         <text class="t-teamcap c-vendor" x="900" y="158">벤더</text>
 
-        <!-- 인원 pill (팀별 세로 스택, y=172/200/228) -->
-        <!-- 물류 (x=100) -->
-        <rect class="p-mem p-logi" x="62" y="172" width="76" height="24" rx="7"/>
-        <text class="t-mem m-logi" x="100" y="184">김성군</text>
-        <rect class="p-mem p-logi" x="62" y="200" width="76" height="24" rx="7"/>
-        <text class="t-mem m-logi" x="100" y="212">전준호</text>
-        <rect class="p-mem p-logi" x="62" y="228" width="76" height="24" rx="7"/>
-        <text class="t-mem m-logi" x="100" y="240">이소영</text>
-
-        <!-- 마케팅 (x=260) -->
-        <rect class="p-mem p-mkt" x="222" y="172" width="76" height="24" rx="7"/>
-        <text class="t-mem m-mkt" x="260" y="184">김수민</text>
-        <rect class="p-mem p-mkt" x="222" y="200" width="76" height="24" rx="7"/>
-        <text class="t-mem m-mkt" x="260" y="212">이승원</text>
-        <rect class="p-mem p-mkt" x="222" y="228" width="76" height="24" rx="7"/>
-        <text class="t-mem m-mkt" x="260" y="240">박규현</text>
-
-        <!-- 디자인 (x=420) — 인원은 renderOrgChartExtra가 staff_added에서 append -->
-
-        <!-- MD팀 (x=580) -->
-        <rect class="p-mem p-md2" x="542" y="172" width="76" height="24" rx="7"/>
-        <text class="t-mem m-md2" x="580" y="184">김채원</text>
-        <rect class="p-mem p-md2" x="542" y="200" width="76" height="24" rx="7"/>
-        <text class="t-mem m-md2" x="580" y="212">지희선</text>
-
-        <!-- C/S (x=740) -->
-        <rect class="p-mem p-share" x="702" y="172" width="76" height="24" rx="7"/>
-        <text class="t-mem m-share" x="740" y="184">정신혜</text>
-
-        <!-- 벤더 (x=900) — MD 캡션 제거, 벤더 자체가 팀 -->
-        <rect class="p-mem p-vendor" x="862" y="172" width="76" height="24" rx="7"/>
-        <text class="t-mem m-vendor" x="900" y="184">조혜인</text>
-        <rect class="p-mem p-vendor" x="862" y="200" width="76" height="24" rx="7"/>
-        <text class="t-mem m-vendor" x="900" y="212">김완성</text>
+        <!-- 인원 pill — renderOrgChartExtra() 가 STAFF(부서 이동·직책·신규·숨김 반영)로 매번 새로 그린다 -->
       </svg>
 
       <!-- 모바일 전용 카드 레이아웃 (≤600px에서 표시, SVG는 숨김) -->
@@ -9603,17 +9578,11 @@
           <div class="om-div om-logi">
             <div class="om-div-name">물류</div>
             <div class="om-members">
-              <span class="om-mem">김성군</span>
-              <span class="om-mem">전준호</span>
-              <span class="om-mem">이소영</span>
             </div>
           </div>
           <div class="om-div om-mkt">
             <div class="om-div-name">마케팅팀</div>
             <div class="om-members">
-              <span class="om-mem">김수민</span>
-              <span class="om-mem">이승원</span>
-              <span class="om-mem">박규현</span>
             </div>
           </div>
           <div class="om-div om-design">
@@ -9623,21 +9592,16 @@
           <div class="om-div om-md2">
             <div class="om-div-name">엠디팀</div>
             <div class="om-members">
-              <span class="om-mem">김채원</span>
-              <span class="om-mem">지희선</span>
             </div>
           </div>
           <div class="om-div om-share">
             <div class="om-div-name">씨에스팀</div>
             <div class="om-members">
-              <span class="om-mem">정신혜</span>
             </div>
           </div>
           <div class="om-div om-vendor">
             <div class="om-div-name">벤더</div>
             <div class="om-members">
-              <span class="om-mem">조혜인</span>
-              <span class="om-mem">김완성</span>
             </div>
           </div>
         </div>
@@ -9804,6 +9768,7 @@
         </div>
       </div>
       <div class="leave-grid" id="leaveGrid"></div>
+      <datalist id="staffTitleOpts"><option value="팀장"><option value="실장"><option value="파트장"><option value="매니저"><option value="주임"><option value="사원"></datalist>
       <!-- 숨긴 직원(퇴사자) 복원 패널 — master 전용, 숨긴 직원이 있을 때만 표시 -->
       <div class="leave-hidden-panel master-only" id="leaveHiddenPanel" hidden></div>
     </div>
@@ -21155,6 +21120,9 @@
     const sub=s.team?`${s.dept} · ${s.team}`:s.dept;
     const isDeptOv=_deptOverrides.has(s.name);
     const deptBadge=isDeptOv?'<span class="leave-dept-ov" title="원래 부서에서 변경됨">*</span>':'';
+    const title=getStaffTitle(s.name);
+    const titleBadge=title?`<span class="leave-title-badge">${escapeHTML(title)}</span>`:'';
+    const titleEditHtml=editing?`<input class="leave-title-inp" type="text" list="staffTitleOpts" maxlength="12" placeholder="직책 (예: 팀장)" data-staff="${escapeHTML(s.name)}" value="${escapeHTML(title)}" onchange="onTitleChange(this)">`:'';
     const curSlot=_findDeptSlot(s.dept, s.team);
     const deptEditHtml=editing?`<select class="leave-dept-sel" data-staff="${escapeHTML(s.name)}" onchange="onDeptSelChange(this)">
       <option value="_orig">— 원래 부서로 —</option>
@@ -21225,8 +21193,8 @@
         ${hideBtn}
         <div class="leave-head">
           <div class="leave-head-left">
-            <span class="leave-name">${escapeHTML(s.name)}</span>
-            ${editing ? deptEditHtml : `<span class="leave-dept">${sub}${deptBadge}</span>`}
+            <span class="leave-name">${escapeHTML(s.name)}${editing?'':titleBadge}</span>
+            ${editing ? deptEditHtml+titleEditHtml : `<span class="leave-dept">${sub}${deptBadge}</span>`}
           </div>
           ${cycleBadge}
         </div>
@@ -21589,6 +21557,22 @@
     if(typeof renderOrgChartExtra==='function') renderOrgChartExtra();
   }
   window.onDeptSelChange=onDeptSelChange;
+  /* 직책 입력 변경 — 마스터 전용. 빈 값이면 직책 삭제 */
+  async function onTitleChange(inp){
+    if(!requireMaster('직책 변경')) return;
+    const name=inp.dataset.staff;
+    if(!name) return;
+    const title=inp.value.trim();
+    if(title===getStaffTitle(name)) return;
+    inp.disabled=true;
+    const r=title ? await sbUpsertStaffTitle(name, title) : await sbDeleteStaffTitle(name);
+    inp.disabled=false;
+    if(!r.ok){ inp.value=getStaffTitle(name); toast('직책 저장 실패 — 다시 시도해주세요','err'); return; }
+    if(title) _staffTitles.set(name, title); else _staffTitles.delete(name);
+    toast(title?`${name} — 직책을 '${title}'(으)로 저장했습니다`:`${name} — 직책을 지웠습니다`,'ok');
+    renderOrgChartExtra();
+  }
+  window.onTitleChange=onTitleChange;
   // 인라인 편집 — blur 시 저장 (master + leave-edit-mode일 때만)
   document.addEventListener('focusout',async e=>{
     const span=e.target.closest?.('.leave-card .leave-used, .leave-card .leave-total, .leave-card .leave-hire');
@@ -24051,6 +24035,12 @@
   window.activeStaff=activeStaff;
   window.isStaffHidden=isStaffHidden;
 
+  /* 직책(팀장 등) — staff_titles 테이블에서 동기화. 마스터가 인사팀 편집 모드에서 입력/삭제.
+     조직도 pill · 연차 카드 이름 옆에 표시되고, 직책 있는 사람이 팀 맨 위로 온다. */
+  const _staffTitles=new Map();
+  function getStaffTitle(name){return _staffTitles.get(name)||''}
+  window.getStaffTitle=getStaffTitle;
+
   /* 업무일지만 숨김(작성 안 하는 직원) — 재직 중이지만 업무일지 카드/버튼/뷰 접근을 차단.
      staff_diary_hidden 테이블에서 동기화. 연차·조직도에는 그대로 남음. 마스터가 토글. */
   const _diaryHiddenStaff=new Set();
@@ -24325,6 +24315,35 @@
   async function sbDeleteDeptOverride(staff_name){
     try{
       const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_dept_overrides?staff_name=eq.${encodeURIComponent(staff_name)}`,{
+        method:'DELETE', headers:_sbHeaders()
+      });
+      return {ok:r.ok};
+    }catch(e){return {ok:false}}
+  }
+
+  /* 직책 — staff_titles 테이블 (staff_name PK). 빈 값 저장 = 삭제 */
+  async function sbFetchStaffTitles(){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_titles?select=staff_name,title`,{
+        headers:_sbHeaders(), cache:'no-cache'
+      });
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){return null}
+  }
+  async function sbUpsertStaffTitle(staff_name, title){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_titles?on_conflict=staff_name`,{
+        method:'POST',
+        headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify({staff_name, title, updated_at:new Date().toISOString()})
+      });
+      return r.ok?{ok:true}:{ok:false,reason:`http_${r.status}`};
+    }catch(e){return {ok:false,reason:'fetch'}}
+  }
+  async function sbDeleteStaffTitle(staff_name){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/staff_titles?staff_name=eq.${encodeURIComponent(staff_name)}`,{
         method:'DELETE', headers:_sbHeaders()
       });
       return {ok:r.ok};
@@ -24624,69 +24643,17 @@
   }
   window.renderHiddenStaffPanel=renderHiddenStaffPanel;
 
-  /* SVG 조직도 · 모바일 카드에서 숨긴 직원 pill(알약) 처리 + 남은 인원 위로 압축
-     — 퇴사자 자리는 비워두지 않고 아래 인원을 172부터 28px 간격으로 재배치.
-     — 데이터 속성 data-orig-y 로 원본 순서를 보존해 복원 시 원위치. */
-  const _ORG_PILL_TEAMS = ['logi','mkt','design','md2','share','vendor'];
-  function applyHiddenToOrgChart(){
-    const svg = document.querySelector('.org-svg');
-    if(svg){
-      for(const t of _ORG_PILL_TEAMS){
-        const rects = [...svg.querySelectorAll(`rect.p-${t}`)];
-        const items = rects.map(r=>{
-          if(!r.hasAttribute('data-orig-y')){
-            r.setAttribute('data-orig-y', r.getAttribute('y'));
-          }
-          const origY = parseFloat(r.getAttribute('data-orig-y'));
-          const curY  = parseFloat(r.getAttribute('y'));
-          // 매칭 텍스트: 같은 팀 클래스에서 data-orig-y(없으면 y) === origY 인 text
-          const texts = [...svg.querySelectorAll(`text.m-${t}`)];
-          let text = null;
-          for(const tx of texts){
-            if(!tx.hasAttribute('data-orig-y')){
-              tx.setAttribute('data-orig-y', String(parseFloat(tx.getAttribute('y'))-12));
-            }
-            if(parseFloat(tx.getAttribute('data-orig-y')) === origY){ text = tx; break; }
-          }
-          return { rect:r, text, origY, name: text?.textContent?.trim() || '' };
-        });
-        items.sort((a,b)=>a.origY - b.origY);
-
-        let idx = 0;
-        for(const it of items){
-          const hidden = it.name && _hiddenStaff.has(it.name);
-          it.rect.style.display = hidden ? 'none' : '';
-          if(it.text) it.text.style.display = hidden ? 'none' : '';
-          if(!hidden){
-            const newY = 172 + idx*28;
-            if(parseFloat(it.rect.getAttribute('y')) !== newY){
-              it.rect.setAttribute('y', String(newY));
-              if(it.text) it.text.setAttribute('y', String(newY+12));
-            }
-            idx++;
-          }
-        }
-      }
-    }
-    document.querySelectorAll('.org-mobile .om-mem').forEach(el=>{
-      el.style.display=_hiddenStaff.has(el.textContent.trim())?'none':'';
-    });
-    renderHiddenStaffPanel();
-  }
-  window.applyHiddenToOrgChart=applyHiddenToOrgChart;
-
-  /* 신규 입사자(_extra=true) 를 SVG 조직도 · 모바일 카드에 append.
-     slotKey(dept+team) → SVG x좌표/CSS class 매핑. 팀별 하단에 28px 간격으로 쌓음.
-     x 좌표는 SVG 팀 박스 center 와 동일 (2026-09-01 디자인팀 신설로 재배치). */
-  /* 인원 pill 슬롯. base = 현재 마지막 pill의 y (top). i번째 추가 인원 = base + 28*(i+1).
-     pill: rect(x-38, y, 76, 24) + text(x, y+12) */
+  /* 조직도 — STAFF(부서 override · 직책 · 신규 입사 · 숨김 반영)로 SVG · 모바일 카드를 매번 통째로 다시 그린다.
+     예전엔 HTML 에 하드코딩된 pill 을 숨기고 위로 당기는 방식이라 부서 이동·직책이 조직도에 안 따라왔다.
+     팀 안 순서: 직책 있는 사람 먼저 → 입사일 오름차순. */
+  /* 인원 pill 슬롯 — x 는 SVG 팀 캡션 center. pill: rect(x-w/2, y, w, 24) + text(x, y+12), 첫 줄 y=172, 28px 간격 */
   const ORG_SLOTS={
-    'logi':      {x:100, cls:'m-logi',   pcls:'p-logi',   base:228}, // 3명 (172/200/228) → 다음 256
-    'mkt':       {x:260, cls:'m-mkt',    pcls:'p-mkt',    base:228},
-    'design':    {x:420, cls:'m-design', pcls:'p-design', base:144}, // 0명 → 첫 인원 y=172
-    'md_brand':  {x:580, cls:'m-md2',    pcls:'p-md2',    base:200}, // 2명 (172/200) → 다음 228
-    'share':     {x:740, cls:'m-share',  pcls:'p-share',  base:172}, // 1명 (172) → 다음 200
-    'md_vendor': {x:900, cls:'m-vendor', pcls:'p-vendor', base:200}, // 2명 (172/200) → 다음 228
+    'logi':      {x:100, cls:'m-logi',   pcls:'p-logi',   mobile:'.om-div.om-logi'},
+    'mkt':       {x:260, cls:'m-mkt',    pcls:'p-mkt',    mobile:'.om-div.om-mkt'},
+    'design':    {x:420, cls:'m-design', pcls:'p-design', mobile:'.om-div.om-design'},
+    'md_brand':  {x:580, cls:'m-md2',    pcls:'p-md2',    mobile:'.om-div.om-md2'},
+    'share':     {x:740, cls:'m-share',  pcls:'p-share',  mobile:'.om-div.om-share'},
+    'md_vendor': {x:900, cls:'m-vendor', pcls:'p-vendor', mobile:'.om-div.om-vendor'},
   };
   function _staffSlotKey(s){
     const dept=String(s.dept||''), team=String(s.team||'');
@@ -24698,77 +24665,80 @@
     if(dept==='벤더' && team==='MD') return 'md_vendor';
     return null;
   }
-  function renderOrgChartExtra(){
-    const svg=document.querySelector('.org-svg');
-    if(!svg) return;
-    // 기존 신규 노드 제거
-    svg.querySelectorAll('[data-extra]').forEach(n=>n.remove());
-    document.querySelectorAll('.org-mobile [data-extra]').forEach(n=>n.remove());
-
-    // 슬롯별 그룹핑
+  function _orgSortedGroups(){
     const groups={};
-    for(const s of STAFF){
-      if(!s._extra) continue;
+    for(const s of activeStaff()){
       const k=_staffSlotKey(s);
       if(!k) continue;
       (groups[k]=groups[k]||[]).push(s);
     }
-    let maxY=252;
-    const NS='http://www.w3.org/2000/svg';
     for(const k of Object.keys(groups)){
-      const slot=ORG_SLOTS[k]; if(!slot) continue;
-      groups[k].forEach((s,i)=>{
-        const y=slot.base+28*(i+1);
-        // pill 배경
-        const r=document.createElementNS(NS,'rect');
-        r.setAttribute('class',`p-mem ${slot.pcls}`);
-        r.setAttribute('x',slot.x-38);
-        r.setAttribute('y',y);
-        r.setAttribute('width','76');
-        r.setAttribute('height','24');
-        r.setAttribute('rx','7');
-        r.setAttribute('data-extra','1');
-        svg.appendChild(r);
-        // 이름 텍스트
-        const t=document.createElementNS(NS,'text');
-        t.setAttribute('class',`t-mem ${slot.cls}`);
-        t.setAttribute('x',slot.x);
-        t.setAttribute('y',y+12);
-        t.setAttribute('data-extra','1');
-        t.textContent=s.name;
-        svg.appendChild(t);
-        if(y+24>maxY) maxY=y+24;
+      groups[k].sort((a,b)=>{
+        const ta=getStaffTitle(a.name)?0:1, tb=getStaffTitle(b.name)?0:1;
+        if(ta!==tb) return ta-tb;
+        return (a.hire||'9999-12-31').localeCompare(b.hire||'9999-12-31') || a.name.localeCompare(b.name);
       });
     }
-    // viewBox height 확장 (기본 275, 인원 많으면 늘림)
-    const need=Math.max(275, maxY+16);
-    const vb=svg.getAttribute('viewBox')?.split(/\s+/)||['0','0','1100','275'];
-    if(vb[3]!==String(need)) svg.setAttribute('viewBox',`${vb[0]} ${vb[1]} ${vb[2]} ${need}`);
-
-    // 모바일 카드에도 append (기존 om-team/om-div 안 om-mem 뒤로 삽입)
-    const MOBILE_HOSTS={
-      'logi':      '.org-mobile .om-div.om-logi .om-members',
-      'mkt':       '.org-mobile .om-div.om-mkt .om-members',
-      'design':    '.org-mobile .om-div.om-design .om-members',
-      'md_brand':  '.org-mobile .om-div.om-md2 .om-members',
-      'share':     '.org-mobile .om-div.om-share .om-members',
-      'md_vendor': '.org-mobile .om-div.om-vendor .om-members',
-    };
-    for(const k of Object.keys(groups)){
-      const host=document.querySelector(MOBILE_HOSTS[k]);
+    return groups;
+  }
+  function renderOrgChartExtra(){
+    const groups=_orgSortedGroups();
+    const svg=document.querySelector('.org-svg');
+    if(svg){
+      svg.querySelectorAll('rect.p-mem, text.t-mem').forEach(n=>n.remove());
+      const NS='http://www.w3.org/2000/svg';
+      let maxY=252;
+      for(const [k,list] of Object.entries(groups)){
+        const slot=ORG_SLOTS[k]; if(!slot) continue;
+        list.forEach((s,i)=>{
+          const y=172+28*i;
+          const title=getStaffTitle(s.name);
+          const w=title?100:76;
+          const r=document.createElementNS(NS,'rect');
+          r.setAttribute('class',`p-mem ${slot.pcls}${title?' is-lead':''}`);
+          r.setAttribute('x',slot.x-w/2);
+          r.setAttribute('y',y);
+          r.setAttribute('width',w);
+          r.setAttribute('height','24');
+          r.setAttribute('rx','7');
+          svg.appendChild(r);
+          const t=document.createElementNS(NS,'text');
+          t.setAttribute('class',`t-mem ${slot.cls}`);
+          t.setAttribute('x',slot.x);
+          t.setAttribute('y',y+12);
+          t.textContent=s.name;
+          if(title){
+            const ts=document.createElementNS(NS,'tspan');
+            ts.setAttribute('class','t-mem-title');
+            ts.textContent=' '+title;
+            t.appendChild(ts);
+          }
+          svg.appendChild(t);
+          if(y+24>maxY) maxY=y+24;
+        });
+      }
+      // viewBox height 확장 (기본 275, 인원 많으면 늘림)
+      const need=Math.max(275, maxY+16);
+      const vb=svg.getAttribute('viewBox')?.split(/\s+/)||['0','0','1100','275'];
+      if(vb[3]!==String(need)) svg.setAttribute('viewBox',`${vb[0]} ${vb[1]} ${vb[2]} ${need}`);
+    }
+    // 모바일 카드
+    for(const [k,slot] of Object.entries(ORG_SLOTS)){
+      const host=document.querySelector(`.org-mobile ${slot.mobile} .om-members`);
       if(!host) continue;
-      groups[k].forEach(s=>{
-        const span=document.createElement('span');
-        span.className='om-mem';
-        span.setAttribute('data-extra','1');
-        span.textContent=s.name;
-        host.appendChild(span);
-      });
+      host.innerHTML=(groups[k]||[]).map(s=>{
+        const title=getStaffTitle(s.name);
+        return title
+          ? `<span class="om-mem is-lead">${escapeHTML(s.name)} <small>${escapeHTML(title)}</small></span>`
+          : `<span class="om-mem">${escapeHTML(s.name)}</span>`;
+      }).join('');
     }
-    // 숨김 처리 재적용
-    applyHiddenToOrgChart();
+    renderHiddenStaffPanel();
   }
   window.renderOrgChartExtra=renderOrgChartExtra;
+  /* 예전 이름 유지 — 숨김/복원·연차 렌더 등 여러 곳에서 부른다. 이제 전체 재렌더와 같다. */
+  function applyHiddenToOrgChart(){ renderOrgChartExtra(); }
+  window.applyHiddenToOrgChart=applyHiddenToOrgChart;
 
   /* Supabase staff_added → STAFF 병합 + 조직도 재렌더 + 연차 상태 갱신 */
   async function syncStaffAddedFromRemote(){
@@ -24832,13 +24802,18 @@
     });
   }
   async function syncDeptOverridesFromRemote(){
-    const rows=await sbFetchDeptOverrides();
+    const [rows, titles]=await Promise.all([sbFetchDeptOverrides(), sbFetchStaffTitles()]);
     if(rows===null) return false;
     _deptOverrides.clear();
     for(const r of (rows||[])){
       if(r?.staff_name){
         _deptOverrides.set(r.staff_name, {dept:r.dept||'', team:r.team||null, color:r.color||'md2'});
       }
+    }
+    // 직책은 같은 인사팀 진입 sync 에 얹는다 (실패 시 기존 값 유지)
+    if(Array.isArray(titles)){
+      _staffTitles.clear();
+      for(const t of titles) if(t?.staff_name && t.title) _staffTitles.set(t.staff_name, String(t.title));
     }
     applyDeptOverrides();
     if(document.getElementById('leaveGrid')) renderLeaveStatus();
