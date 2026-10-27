@@ -7335,7 +7335,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-sp{flex:1}
   .lsb-btn{font:600 12px var(--sans);color:var(--lsb-tx2);background:#fff;border:1px solid var(--lsb-line);border-radius:8px;padding:5px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;line-height:1.3}
   .lsb-btn:hover{color:var(--lsb-tx);border-color:#d6d0c8}
-  .lsb-btn:focus-visible,.lsb-tab:focus-visible,.lsb-lg:focus-visible,.lsb-ticker:focus-visible,.lsb-link:focus-visible{outline:2px solid var(--lsb-sample);outline-offset:2px}
+  .lsb-btn:focus-visible,.lsb-tab:focus-visible,.lsb-ticker:focus-visible,.lsb-link:focus-visible{outline:2px solid var(--lsb-sample);outline-offset:2px}
   /* 시즌 */
   .lsb-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
   .lsb-tab{display:inline-flex;align-items:baseline;gap:6px;font:600 13px var(--sans);color:var(--lsb-tx2);background:#fff;border:1px solid var(--lsb-line);border-radius:999px;padding:6px 13px;cursor:pointer;white-space:nowrap}
@@ -7346,20 +7346,9 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-tab.is-on b{color:#fff}
   .lsb-tab.is-on span{color:#d6d3d1}
   .lsb-tab.t-hold{margin-left:auto}
-  /* 단계 막대 + 범례 */
-  .lsb-flow{margin-top:14px}
-  .lsb-bar{display:flex;gap:3px;height:8px;border-radius:99px;overflow:hidden;background:var(--lsb-col)}
-  .lsb-bar i{display:block;min-width:6px}
-  .lsb-legend{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin-top:8px}
-  .lsb-lg{display:inline-flex;align-items:center;gap:6px;font:600 12.5px var(--sans);color:var(--lsb-tx2);background:none;border:0;padding:2px 0;cursor:pointer}
-  .lsb-lg i{width:9px;height:9px;border-radius:3px}
-  .lsb-lg b{font-weight:800;color:var(--lsb-tx);font-variant-numeric:tabular-nums}
-  .lsb-lg:hover{color:var(--lsb-tx)}
-  .lsb-sum{margin-left:auto;font-size:12px;color:var(--lsb-tx3);white-space:nowrap}
-  .lsb-sum b{color:#b45309;font-weight:800}
-  .lsb-bar .c-plan,.lsb-lg.c-plan i,.lsb-col.c-plan .lsb-col-h i{background:var(--lsb-plan)}
-  .lsb-bar .c-sample,.lsb-lg.c-sample i,.lsb-col.c-sample .lsb-col-h i{background:var(--lsb-sample)}
-  .lsb-bar .c-order,.lsb-lg.c-order i,.lsb-col.c-order .lsb-col-h i{background:var(--lsb-order)}
+  .lsb-col.c-plan .lsb-col-h i{background:var(--lsb-plan)}
+  .lsb-col.c-sample .lsb-col-h i{background:var(--lsb-sample)}
+  .lsb-col.c-order .lsb-col-h i{background:var(--lsb-order)}
   /* 다음 일정 띠 */
   .lsb-next{display:flex;align-items:center;gap:10px;margin-top:12px;padding:7px 12px;border-radius:10px;background:var(--lsb-col)}
   .lsb-next-l{flex:none;font-size:11.5px;font-weight:800;color:var(--lsb-tx2)}
@@ -7389,6 +7378,11 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-col-h small{margin-left:auto;font-size:11px;color:var(--lsb-tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lsb-col-b{display:flex;flex-direction:column;gap:8px;max-height:640px;overflow-y:auto;padding:2px;margin:-2px;scrollbar-width:thin;scrollbar-color:#d6d0c8 transparent}
   .lsb-col-empty{padding:22px 0;text-align:center;font-size:12.5px;color:var(--lsb-tx3);border:1.5px dashed #e2ddd6;border-radius:10px}
+  /* 전체 보기: 열 안에서 시즌별로 묶는 구분선 (스크롤해도 위에 붙어 있음) */
+  .lsb-sg{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:6px;padding:3px 2px 4px;background:var(--lsb-col);font-size:11.5px;font-weight:800;letter-spacing:.03em;color:var(--lsb-tx2);white-space:nowrap}
+  .lsb-sg span{font-weight:700;color:var(--lsb-tx3);font-variant-numeric:tabular-nums}
+  .lsb-sg::after{content:'';flex:1;height:1px;margin-left:4px;background:#e2ddd6}
+  .lsb-sg ~ .lsb-sg{margin-top:6px}
   /* 카드 */
   .lsb-card{min-width:0;display:flex;flex-wrap:wrap;gap:10px;padding:9px;background:#fff;border:1px solid var(--lsb-line);border-radius:10px;cursor:pointer;box-shadow:0 1px 1px rgba(28,25,23,.03);transition:border-color .15s,box-shadow .15s}
   .lsb-card:hover{border-color:#d6d0c8;box-shadow:0 2px 8px rgba(28,25,23,.07)}
@@ -7440,7 +7434,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .lsb-cols.is-hold{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;padding:10px;border-radius:12px;background:var(--lsb-col)}
   .lsb-empty{grid-column:1/-1;padding:24px 6px;text-align:center;font-size:13px;color:var(--lsb-tx3)}
   .lsb-empty .lsb-btn{margin-left:6px}
-  .lsb.is-fold .lsb-tabs,.lsb.is-fold .lsb-flow,.lsb.is-fold .lsb-cols{display:none}
+  .lsb.is-fold .lsb-tabs,.lsb.is-fold .lsb-cols{display:none}
   @media (max-width:1100px) and (min-width:701px){
     .lsb-cols:not(.is-hold){gap:8px}
     .lsb-ph{width:48px;height:48px}
@@ -7449,9 +7443,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   @media (max-width:700px){
     .lsb{padding:12px;border-radius:14px;margin-bottom:14px}
     .lsb-name{font-size:15px}
-    .lsb-sum{margin-left:0;flex-basis:100%}
     .lsb-next-l{display:none}
-    /* 폰: 열을 옆으로 넘겨 본다 (범례를 누르면 그 열로) */
+    /* 폰: 열을 옆으로 넘겨 본다 */
     .lsb-cols:not(.is-hold){grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:86%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;
       margin:12px -12px 0;padding:0 12px 2px;scroll-padding:0 12px;scrollbar-width:none}
     .lsb-cols:not(.is-hold)::-webkit-scrollbar{display:none}
@@ -10367,7 +10360,6 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
           <button type="button" class="lsb-btn" id="lsbFoldBtn" aria-expanded="true" aria-controls="lsbCols" onclick="lsbFold()">접기</button>
         </div>
         <div class="lsb-tabs" id="lsbTabs" role="tablist" aria-label="시즌"></div>
-        <div class="lsb-flow" id="lsbFlow"></div>
         <div class="lsb-next"><span class="lsb-next-l">다음 일정</span><div class="lsb-ticker" id="lsbTicker" tabindex="0" aria-label="다가오는 샘플·발주 일정 (선택하면 멈춤)"><div class="lsb-track" id="lsbTrack"></div></div></div>
         <div class="lsb-cols" id="lsbCols"></div>
       </section>
@@ -17198,12 +17190,13 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
      · 탭 목록은 htmlview 에서 찾는다(새 시즌 탭 자동 반영) — 못 찾으면 마지막 목록 → 기본 3탭
      · 디자인센터가 보일 때만 1분마다 다시 받고, 마지막 결과는 localStorage 에 두어 들어오자마자 그린다
      · 카드는 사진·이름·핵심 날짜(D-day)·컬러만 보이고, 누르면 컬러별 일정·메모·공장·사진 전부가 펼쳐진다
+     · 기본은 시즌을 합친 '전체' — 가까운 시즌(진행 중 → 다가오는 순)부터, 열마다 시즌별로 묶어 보여 준다
      · 상품 사진은 칸 안 이미지라 CSV 에 안 실리고, 시트의 사진 주소는 15분이면 만료되며 다른 사이트에 띄우는 것도 막혀 있다
        → GitHub Actions(linesheet-images.yml)가 30분마다 사진을 받아 linesheet/ 에 두고, 여기서는 그 목록(images.json)을 읽는다
      ============================================================ */
   const LSB_ID = '1Q3eMHCnPsbt3ijGv3Gswym9Q_ao_fJsPSZg8n7R-tng';
   const LSB_TABS = [{name:'26WINTER', gid:'0'}, {name:'27SS', gid:'417455932'}, {name:'홀딩', gid:'534097050'}];
-  const LSB_K = {cache:'brightbeed_lsb_cache_v1', tab:'brightbeed_lsb_tab_v1', fold:'brightbeed_lsb_fold_v1'};
+  const LSB_K = {cache:'brightbeed_lsb_cache_v1', tab:'brightbeed_lsb_tab_v2', fold:'brightbeed_lsb_fold_v1'};
   const LSB_EVERY = 60e3, LSB_TIMEOUT = 15e3, LSB_IMG_EVERY = 5 * 60e3;
   const _lsb = {tabs:null, tabsAt:0, data:{}, img:{}, imgAt:0, imgErrAt:0, at:0, tried:0, busy:false, err:'', sig:'', tab:null, fold:false,
                 open:{},
@@ -17404,14 +17397,35 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   /* ── 그리기 ── 3열 단계판: 기획·요청 → 샘플 진행 → 발주 확정 (홀딩 탭은 단계 없이 카드만) */
   const LSB_STAGES = [{k:'plan', t:'기획·요청', d:'샘플 전·요청'}, {k:'sample', t:'샘플 진행', d:'입고 예정·입고'}, {k:'order', t:'발주 확정', d:'첫발주'}];
   function _lsbStage(st){ return st.k === 'order' ? 'order' : st.k === 'due' || st.k === 'arr' ? 'sample' : 'plan'; }
+  const LSB_ALL = {gid:'all', name:'전체'};
+  /* 시즌 기간 — 탭·제목의 '연도 + 시즌'(26 WINTER, 27SS, 27 F/W …)으로 대략 잡는다 [시작 월, 개월 수] */
+  const LSB_SEASON_M = [[/PRE[\s-]?FALL/, 7, 2], [/S\/?S\b|SPRING\s*SUMMER/, 3, 6], [/SPRING/, 3, 3], [/SUMMER/, 6, 3],
+    [/[FA]\/?W\b|FALL\s*WINTER|AUTUMN\s*WINTER/, 9, 6], [/FALL|AUTUMN/, 9, 3], [/WINTER/, 11, 4], [/HOLIDAY/, 12, 1], [/RESORT|CRUISE/, 11, 3]];
+  function _lsbSeasonSpan(tb){
+    const s = `${_lsbSeason(tb)} ${tb.name}`.toUpperCase();
+    const y = s.match(/(?:^|\D)(20\d{2}|\d{2})(?!\d)\s*[A-Z]/), m = LSB_SEASON_M.find(([re]) => re.test(s));
+    if(!y || !m) return null;
+    const yr = +y[1] < 100 ? 2000 + +y[1] : +y[1];
+    return {start:new Date(yr, m[1] - 1, 1), end:new Date(yr, m[1] - 1 + m[2], 1)};
+  }
+  /* 가까운 시즌 먼저 — 진행 중·다가오는 시즌(시작 순) → 이름을 못 읽은 탭(시트 순서) → 끝난 시즌(최근 끝난 순) */
+  function _lsbOrder(tabs){
+    const today = _lsbToday();
+    const g = r => !r.sp ? 1 : r.sp.end > today ? 0 : 2;
+    return tabs.map((tb, i) => ({tb, i, sp:_lsbSeasonSpan(tb)}))
+      .sort((a, b) => g(a) - g(b) || (g(a) === 0 ? a.sp.start - b.sp.start : g(a) === 2 ? b.sp.end - a.sp.end : a.i - b.i))
+      .map(r => r.tb);
+  }
   function _lsbVisible(){
     const v = document.getElementById('viewDesign'), p = document.querySelector('#viewDesign .dsg-pane[data-pane="coferry"]');
     return !!(v && !v.hidden && p && !p.hidden && document.visibilityState === 'visible');
   }
   function _lsbTabs(){ return (_lsb.tabs || []).filter(t => _lsb.data[t.gid] && _lsb.data[t.gid].items.length); }
+  function _lsbSeasons(){ return _lsbOrder(_lsbTabs().filter(t => !_lsbIsHold(t))); }
+  // 고른 탭이 없으면 '전체'(시즌이 둘 이상일 때) — 시즌이 하나뿐이면 그 시즌
   function _lsbCur(){
-    const tabs = _lsbTabs();
-    return tabs.find(t => t.gid === _lsb.tab) || tabs.slice().reverse().find(t => !_lsbIsHold(t)) || tabs[0] || null;
+    const tabs = _lsbTabs(), seasons = _lsbSeasons(), all = seasons.length > 1 ? LSB_ALL : seasons[0] || tabs[0] || null;
+    return _lsb.tab === 'all' ? all : tabs.find(t => t.gid === _lsb.tab) || all;
   }
   /* 카드 고유 키 — 순서가 아니라 번호+이름으로 (새로고침 때 줄이 끼어들어도 펼친 카드가 다른 상품으로 바뀌지 않게) */
   function _lsbKeys(gid, items){
@@ -17471,15 +17485,20 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   function _lsbRenderTabs(cur){
     const el = document.getElementById('lsbTabs');
     if(!el) return;
-    el.innerHTML = _lsbTabs().map(tb => {
-      const on = !!cur && cur.gid === tb.gid;
-      return `<button type="button" class="lsb-tab${on ? ' is-on' : ''}${_lsbIsHold(tb) ? ' t-hold' : ''}" role="tab" aria-selected="${on}" data-gid="${escapeHTML(tb.gid)}" onclick="lsbTab(this.dataset.gid)"><b>${escapeHTML(_lsbSeason(tb))}</b><span>${_lsb.data[tb.gid].items.length}</span></button>`;
-    }).join('');
+    const E = escapeHTML, seasons = _lsbSeasons(), n = tb => _lsb.data[tb.gid].items.length;
+    const pill = (gid, label, cnt, cls) => { const on = !!cur && cur.gid === gid;
+      return `<button type="button" class="lsb-tab${on ? ' is-on' : ''}${cls}" role="tab" aria-selected="${on}" data-gid="${E(gid)}" onclick="lsbTab(this.dataset.gid)"><b>${E(label)}</b><span>${cnt}</span></button>`; };
+    // 전체 → 시즌(가까운 순) → 홀딩(오른쪽 끝)
+    el.innerHTML = (seasons.length > 1 ? pill('all', '전체', seasons.reduce((a, tb) => a + n(tb), 0), '') : '')
+      + seasons.map(tb => pill(tb.gid, _lsbSeason(tb), n(tb), '')).join('')
+      + _lsbTabs().filter(_lsbIsHold).map(tb => pill(tb.gid, _lsbSeason(tb), n(tb), ' t-hold')).join('');
   }
-  /* 상품 → 카드 자료 (단계·정렬 기준·강조) */
+  /* 상품 → 카드 자료 (단계·정렬 기준·강조). '전체'면 시즌을 가까운 순으로 이어 붙이고 시즌 순번(si)을 단다 */
   function _lsbCardsOf(cur){
-    const items = _lsb.data[cur.gid].items, hold = _lsbIsHold(cur), keys = _lsbKeys(cur.gid, items);
-    return items.map((it, i) => { const st = _lsbStatus(it, hold); return {it, st, key:keys[i], stage:hold ? 'hold' : _lsbStage(st)}; });
+    return (cur.gid === 'all' ? _lsbSeasons() : [cur]).flatMap((tb, si) => {
+      const items = _lsb.data[tb.gid].items, hold = _lsbIsHold(tb), keys = _lsbKeys(tb.gid, items), sn = _lsbSeason(tb);
+      return items.map((it, i) => { const st = _lsbStatus(it, hold); return {it, st, key:keys[i], gid:tb.gid, sn, si, stage:hold ? 'hold' : _lsbStage(st)}; });
+    });
   }
   // 같은 단계 안에서는 급한 것 먼저 — 입고 임박(가까운 순) → 최근 입고 → 최근 요청 → 시트 순서
   function _lsbSort(a, b){
@@ -17490,20 +17509,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(a.st.n != null && b.st.n != null && a.st.n !== b.st.n) return b.st.n - a.st.n;
     return (parseInt(a.it.no, 10) || 999) - (parseInt(b.it.no, 10) || 999);
   }
-  function _lsbRenderFlow(cur, cards){
-    const el = document.getElementById('lsbFlow');
-    if(!el) return;
-    if(!cur || _lsbIsHold(cur)){ el.innerHTML = ''; el.hidden = true; return; }
-    el.hidden = false;
-    const n = {}; LSB_STAGES.forEach(s => { n[s.k] = cards.filter(c => c.stage === s.k).length; });
-    const colors = cards.reduce((a, c) => a + c.it.colors.length, 0);
-    const next = cards.filter(c => c.st.k === 'due').sort(_lsbSort)[0];
-    el.innerHTML = `<div class="lsb-bar" role="img" aria-label="${LSB_STAGES.map(s => `${s.t} ${n[s.k]}`).join(', ')}">${LSB_STAGES.map(s => n[s.k] ? `<i class="c-${s.k}" style="flex-grow:${n[s.k]}"></i>` : '').join('')}</div>
-      <div class="lsb-legend">${LSB_STAGES.map(s => `<button type="button" class="lsb-lg c-${s.k}" onclick="lsbGo('${s.k}')"><i></i>${s.t}<b>${n[s.k]}</b></button>`).join('')}
-        <span class="lsb-sum">상품 ${cards.length} · 컬러 ${colors}${next ? ` · 다음 입고 <b>D-${next.st.n}</b>` : ''}</span></div>`;
-  }
-  function _lsbCard(c, gid){
-    const E = escapeHTML, {it, st, key} = c, hold = c.stage === 'hold', open = !!_lsb.open[key], imgs = _lsbImgs(gid, it);
+  function _lsbCard(c){
+    const E = escapeHTML, {it, st, key, gid} = c, hold = c.stage === 'hold', open = !!_lsb.open[key], imgs = _lsbImgs(gid, it);
     const draft = /^\(가제\)/.test(it.name), name = it.name.replace(/^\(가제\)\s*/,'') || '이름 미정';
     const badge = st.k === 'due' ? `<span class="lsb-badge b-due"><b>D-${st.n}</b><small>${_lsbMd(st.d)} 입고</small></span>`
       : st.k === 'arr' ? `<span class="lsb-badge b-arr">${st.n === 0 ? '오늘 입고' : `입고 <small>${st.t}</small>`}</span>`
@@ -17557,15 +17564,19 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     el.dataset.gid = cur.gid;
     if(_lsbIsHold(cur)){
       el.className = 'lsb-cols is-hold';
-      el.innerHTML = cards.map(c => _lsbCard(c, cur.gid)).join('');
+      el.innerHTML = cards.map(c => _lsbCard(c)).join('');
       return;
     }
     el.className = 'lsb-cols';
+    const all = cur.gid === 'all';
     el.innerHTML = LSB_STAGES.map(s => {
-      const list = cards.filter(c => c.stage === s.k).sort(_lsbSort);
+      // 가까운 시즌 먼저, 같은 시즌 안에서는 급한 것 먼저. '전체'면 시즌이 바뀔 때마다 구분선
+      const list = cards.filter(c => c.stage === s.k).sort((a, b) => a.si - b.si || _lsbSort(a, b));
+      const body = list.map((c, i) => (all && (i === 0 || list[i - 1].si !== c.si)
+        ? `<div class="lsb-sg">${escapeHTML(c.sn)}<span>${list.filter(x => x.si === c.si).length}</span></div>` : '') + _lsbCard(c)).join('');
       return `<section class="lsb-col c-${s.k}" data-s="${s.k}" aria-label="${s.t} ${list.length}개">
         <header class="lsb-col-h"><i></i><b>${s.t}</b><span>${list.length}</span><small>${s.d}</small></header>
-        <div class="lsb-col-b">${list.length ? list.map(c => _lsbCard(c, cur.gid)).join('') : '<div class="lsb-col-empty">아직 없어요</div>'}</div>
+        <div class="lsb-col-b">${body || '<div class="lsb-col-empty">아직 없어요</div>'}</div>
       </section>`;
     }).join('');
     if(same){
@@ -17575,7 +17586,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   }
   function _lsbRenderBoard(){
     const cur = _lsbCur(), cards = cur ? _lsbCardsOf(cur) : [];
-    _lsbRenderFlow(cur, cards); _lsbRenderCols(cur, cards);
+    _lsbRenderCols(cur, cards);
     return cur;
   }
   function lsbRender(){
@@ -17594,11 +17605,6 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const el = document.getElementById('lsbCols'); if(el) el.dataset.gid = '';
     lsbRender();
     _lsbRefocus(`#lsbTabs .lsb-tab[data-gid="${CSS.escape(String(gid))}"]`);
-  }
-  // 범례를 누르면 그 열로 (폰에서는 옆으로 넘겨 준다)
-  function lsbGo(k){
-    const col = document.querySelector(`#lsbCols .lsb-col[data-s="${CSS.escape(String(k))}"]`);
-    if(col) col.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'nearest', inline:'start'});
   }
   function lsbToggle(key){
     if(_lsb.open[key]) delete _lsb.open[key]; else _lsb.open[key] = 1;
@@ -17629,7 +17635,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     lsbRender();
     if(_lsbVisible() && Date.now() - _lsb.tried >= 20e3) lsbRefresh();
   }
-  window.lsbInit = lsbInit; window.lsbRefresh = lsbRefresh; window.lsbTab = lsbTab; window.lsbGo = lsbGo;
+  window.lsbInit = lsbInit; window.lsbRefresh = lsbRefresh; window.lsbTab = lsbTab;
   window.lsbToggle = lsbToggle; window.lsbFold = lsbFold; window.lsbImgErr = lsbImgErr;
 
   /* ============================================================
