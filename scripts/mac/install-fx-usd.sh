@@ -9,7 +9,7 @@ PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 LOG="$HOME/Library/Logs/brightbeed-fx-usd.log"
 chmod +x "$SCRIPT"
 
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/node/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 command -v node >/dev/null || { echo "node 가 없습니다 (brew install node)"; exit 1; }
 NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]')
 [ "$NODE_MAJOR" -ge 18 ] || { echo "node 18 이상 필요 (현재 $(node -v))"; exit 1; }

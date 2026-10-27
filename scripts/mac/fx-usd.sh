@@ -2,7 +2,7 @@
 # 맥미니 launchd(com.brightbeed.fx-usd)가 평일 09:00 실행 — 오늘 USD 환율 기록 후 push.
 # GitHub Actions(fx-usd.yml)는 10:30 백업: 이 스크립트가 못 돌았을 때만 채운다.
 set -euo pipefail
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/node/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO"
 echo "[$(date '+%F %T')] fx-usd 시작"
