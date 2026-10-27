@@ -7244,6 +7244,80 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     font-variant-numeric:tabular-nums;
   }
   .dsg-tab.active .dsg-tab-badge{background:rgba(249,115,22,.15);color:#9a3412}
+  /* 디자인팀 묶음 (디자인센터 맨 아래) */
+  .dsg-team-sec{margin-top:26px;border-top:2px dashed #fed7aa;padding-top:16px}
+  .dsg-team-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .dsg-team-title{font-size:16px;font-weight:800;color:#9a3412}
+  .dsg-team-sub{font-size:12.5px;color:var(--text-3)}
+  .dsg-team-tag{font-size:11.5px;font-weight:700;color:#b91c1c;background:#fee2e2;border-radius:999px;padding:2px 9px}
+  .dsg-team-sp{flex:1}
+  .dsg-team-sec.is-hidden-all{opacity:.75}
+  .dsg-team-body[hidden]{display:none}
+  /* 견적서 */
+  .qt-wrap{display:flex;flex-direction:column;gap:12px}
+  .qt-wrap[hidden]{display:none}
+  .qt-drop{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 20px;border:2px dashed #fdba74;border-radius:12px;background:#fff7ed}
+  .qt-drop.is-over{background:#ffedd5;border-color:#f97316}
+  .qt-drop-ico{font-size:28px}
+  .qt-drop-txt{flex:1;min-width:220px;font-size:13.5px;color:#7c2d12;line-height:1.55}
+  .qt-drop-txt span{font-size:12px;color:#9a3412;opacity:.8}
+  .qt-upload-btn{display:inline-flex;align-items:center;padding:9px 16px;border-radius:8px;background:#f97316;color:#fff;font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap}
+  .qt-upload-btn:hover{background:#ea580c}
+  .qt-bar{display:flex;align-items:center;gap:8px}
+  .qt-count{font-size:12.5px;color:var(--text-3);font-weight:600;white-space:nowrap}
+  .qt-sp{flex:1}
+  .qt-search{width:220px;max-width:100%;font:500 13px var(--sans);padding:7px 10px;border:1px solid var(--line-2);border-radius:7px;outline:none;background:#fff}
+  .qt-search:focus{border-color:#f97316}
+  .qt-list{display:flex;flex-direction:column;gap:10px}
+  .qt-empty{font-size:13px;color:var(--text-3);padding:14px 4px}
+  .qt-card{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+  .qt-card.is-raw{border-color:#fecaca}
+  .qt-head{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.2fr) auto 18px;gap:14px;align-items:center;padding:14px 16px;cursor:pointer}
+  .qt-head:hover{background:#fffaf5}
+  .qt-sup{font-size:15px;font-weight:800;color:var(--text-0)}
+  .qt-title{font-size:13px;color:var(--text-2);margin-top:2px;word-break:keep-all}
+  .qt-h-mid{display:flex;gap:6px;flex-wrap:wrap}
+  .qt-date,.qt-valid,.qt-lead{font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--bg-2);color:var(--text-2);white-space:nowrap}
+  .qt-valid{background:#ecfdf5;color:#047857}
+  .qt-valid.is-over{background:#fef2f2;color:#b91c1c}
+  .qt-lead{background:#eff6ff;color:#1d4ed8}
+  .qt-h-right{text-align:right}
+  .qt-total{font-size:18px;font-weight:800;color:#c2410c;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .qt-total-sub{font-size:11.5px;color:var(--text-3);white-space:nowrap}
+  .qt-chev{color:var(--text-3);transition:transform .15s}
+  .qt-card.is-open .qt-chev{transform:rotate(180deg)}
+  .qt-body{display:none;border-top:1px solid var(--line);padding:14px 16px 12px;flex-direction:column;gap:12px}
+  .qt-card.is-open .qt-body{display:flex}
+  .qt-scroll{overflow-x:auto}
+  .qt-items{width:100%;border-collapse:collapse;font-size:13px}
+  .qt-items th{background:#fff7ed;color:#9a3412;font-weight:700;font-size:12px;padding:7px 8px;text-align:left;border-bottom:1px solid #fed7aa;white-space:nowrap}
+  .qt-items td{padding:8px;border-bottom:1px solid #f1f0ee;word-break:keep-all}
+  .qt-items .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .qt-items .b{font-weight:800}
+  .qt-items tfoot td{font-weight:700;background:#fafaf9;border-bottom:0}
+  .qt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .qt-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .qt-box-t{font-size:12px;font-weight:800;color:#9a3412;margin-bottom:6px}
+  .qt-kv{display:grid;grid-template-columns:86px 1fr auto;gap:8px;align-items:baseline;padding:4px 0;font-size:13px;border-top:1px dashed #f1f0ee}
+  .qt-kv:first-of-type{border-top:0}
+  .qt-kv span{color:var(--text-3);font-size:12px}
+  .qt-kv b{font-weight:600;color:var(--text-0);word-break:keep-all;overflow-wrap:anywhere}
+  .qt-copy{font:600 11px var(--sans);padding:2px 8px;border:1px solid var(--line-2);border-radius:6px;background:#fff;cursor:pointer}
+  .qt-notes,.qt-raw{font-size:12.5px;color:var(--text-2)}
+  .qt-notes summary,.qt-raw summary{cursor:pointer;color:var(--text-3);font-weight:600}
+  .qt-notes div{padding:3px 0}
+  .qt-raw table{border-collapse:collapse;font-size:11.5px;margin-top:6px}
+  .qt-raw td{border:1px solid #eee;padding:3px 6px;white-space:nowrap}
+  .qt-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--text-3)}
+  .qt-btn{font:600 12px var(--sans);padding:5px 10px;border:1px solid var(--line-2);border-radius:7px;background:#fff;cursor:pointer;color:var(--text-2)}
+  .qt-btn:hover{border-color:#f97316;color:#c2410c}
+  .qt-del:hover{border-color:#ef4444;color:#b91c1c}
+  @media (max-width:700px){
+    .qt-head{grid-template-columns:1fr auto;grid-template-areas:"l r" "m m"}
+    .qt-h-left{grid-area:l}.qt-h-right{grid-area:r}.qt-h-mid{grid-area:m}.qt-chev{display:none}
+    .qt-grid{grid-template-columns:1fr}
+    .qt-search{width:100%}
+  }
   /* 디자인센터 — 노션 미러 카드 */
   .dc-notion-card{background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;overflow:hidden;
     box-shadow:0 1px 2px rgba(0,0,0,.03);margin-bottom:18px}
@@ -10122,103 +10196,16 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       </div>
     </div>
 
-    <!-- ============ 탭 바 (코페리 디자인센터 · 디자인팀) ============
-         2026-10-26 사장님 지시로 코페리 디자인센터를 메인(기본) 화면으로 올렸다.
-         디자인팀(디자인 보드 + 작업 보드) 은 두 번째 탭으로 그대로 남아있다. -->
+    <!-- ============ 탭 바 (디자인센터 · 견적서) ============
+         2026-10-26 디자인센터를 메인(기본) 화면으로 올렸고,
+         2026-10-27 디자인팀(디자인 보드 + 작업 보드)은 디자인센터 맨 아래로 합쳤다(관리자가 모두에게 숨길 수 있음). -->
     <div class="dsg-tabs" role="tablist" aria-label="디자인팀 뷰">
       <button class="dsg-tab" id="dsgTabCoferry" role="tab" onclick="dsgSwitchTab('coferry')">
-        <span>📓</span><span>코페리 디자인센터</span>
+        <span>📓</span><span>디자인센터</span>
       </button>
-      <button class="dsg-tab" id="dsgTabDesign" role="tab" onclick="dsgSwitchTab('design')">
-        <span>🗂</span><span>디자인팀</span>
+      <button class="dsg-tab" id="dsgTabQuote" role="tab" onclick="dsgSwitchTab('quote')">
+        <span>🧾</span><span>견적서</span>
       </button>
-    </div>
-
-    <!-- ============ 디자인 보드 — 아코디언 게시글 리스트 (최상단) ============ -->
-    <div class="dsg-pane" data-pane="posts" style="margin-bottom:26px">
-      <div class="dsg-section-label">📮 디자인 보드</div>
-      <div class="dsg-post-toolbar">
-        <label class="dsg-hide-done">
-          <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
-          <span>완료 숨김</span>
-        </label>
-        <div class="dsg-post-toolbar-spacer"></div>
-        <button class="dsg-new-btn" onclick="dsgPostAdd()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          새 게시
-        </button>
-      </div>
-
-      <!-- 빈 상태 -->
-      <div class="dsg-empty" id="dsgPostEmpty" hidden>
-        <div class="dsg-empty-icon">📮</div>
-        <div class="dsg-empty-title">아직 게시글이 없어요</div>
-        <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0914 한국=&gt;중국 발송</b> · 내용에 스와치·샘플 목록 · 사진 드래그&드롭.</div>
-      </div>
-
-      <!-- 아코디언 리스트 (게시글마다 헤더 + 접힘/펼침 본문) -->
-      <div class="dsg-post-list" id="dsgPostList"></div>
-
-      <!-- 첨부 파일 hover 프리뷰 (전역) -->
-      <div class="dsg-file-preview" id="dsgFilePreview" hidden aria-hidden="true"></div>
-
-      <!-- 삭제 Undo 스낵바 (5초) -->
-      <div class="dsg-post-snackbar" id="dsgPostSnackbar" hidden>
-        <span class="dsg-post-snackbar-msg" id="dsgPostSnackbarMsg">게시글이 삭제됐어요</span>
-        <button class="dsg-post-snackbar-undo" onclick="dsgPostUndoDelete()">되돌리기</button>
-        <span class="dsg-post-snackbar-timer" id="dsgPostSnackbarTimer">5</span>
-      </div>
-    </div>
-
-    <!-- ============ 작업 리스트 — 노션 스타일 아웃라이너 (기존 내용 유지) ============ -->
-    <div class="dsg-pane" data-pane="board">
-      <div class="dsg-section-label">🗂 작업 보드</div>
-      <div class="dsg-doc-toolbar">
-        <input id="dsgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
-        <label class="dsg-hide-done">
-          <input type="checkbox" id="dsgDocHideDone" onchange="dsgDocRender()">
-          <span>완료 숨김</span>
-        </label>
-        <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="dsgFsPicker" title="글꼴 크기 (8~28px)">
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
-          <input class="dsg-fs-num" id="dsgFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
-          <span class="dsg-fs-suffix">px</span>
-          <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
-        </div>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
-          펼치기
-        </button>
-        <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
-          접기
-        </button>
-      </div>
-
-      <div id="dsgBoardWrap" class="dsg-doc-wrap">
-        <div class="dsg-empty" id="dsgEmpty" hidden>
-          <div class="dsg-empty-icon">📝</div>
-          <div class="dsg-empty-title">아직 작업이 없어요</div>
-          <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작해 보세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
-        </div>
-        <div id="dsgDoc" class="dsg-doc"></div>
-
-        <div class="dsg-doc-add" id="dsgDocAdd">
-          <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
-            <span class="dsg-doc-add-plus">＋</span>
-            <span>여기에 입력하세요</span>
-          </button>
-          <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
-            새 섹션
-          </button>
-        </div>
-
-        <div class="dsg-doc-hint">
-          <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
-          <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
-        </div>
-      </div>
     </div>
 
     <!-- ============ 디자인센터 (노션 미러: 업무일지 · 콰이디 업무 공유) ============ -->
@@ -10272,6 +10259,121 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ============ 디자인팀 (디자인 보드 · 작업 보드) — 디자인센터 맨 아래. 관리자가 모두에게 숨길 수 있다 ============ -->
+    <section class="dsg-team-sec" id="dsgTeamSec">
+      <div class="dsg-team-head">
+        <span class="dsg-team-title">🗂 디자인팀</span>
+        <span class="dsg-team-sub">디자인 보드 · 작업 보드</span>
+        <span class="dsg-team-tag" id="dsgTeamHiddenTag" hidden>모두에게 숨김</span>
+        <span class="dsg-team-sp"></span>
+        <button type="button" class="dc-btn-ghost master-only" id="dsgTeamHideBtn" onclick="dsgTeamToggleHidden()">모두에게 숨기기</button>
+      </div>
+      <div class="dsg-team-body" id="dsgTeamBody">
+        <!-- ============ 디자인 보드 — 아코디언 게시글 리스트 (최상단) ============ -->
+        <div class="dsg-pane" data-pane="posts" style="margin-bottom:26px">
+          <div class="dsg-section-label">📮 디자인 보드</div>
+          <div class="dsg-post-toolbar">
+            <label class="dsg-hide-done">
+              <input type="checkbox" id="dsgPostHideDone" onchange="dsgPostsRender()">
+              <span>완료 숨김</span>
+            </label>
+            <div class="dsg-post-toolbar-spacer"></div>
+            <button class="dsg-new-btn" onclick="dsgPostAdd()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              새 게시
+            </button>
+          </div>
+
+          <!-- 빈 상태 -->
+          <div class="dsg-empty" id="dsgPostEmpty" hidden>
+            <div class="dsg-empty-icon">📮</div>
+            <div class="dsg-empty-title">아직 게시글이 없어요</div>
+            <div class="dsg-empty-sub">우측 상단 <b>＋ 새 게시</b> 를 눌러 시작하세요.<br/>예: <b>0914 한국=&gt;중국 발송</b> · 내용에 스와치·샘플 목록 · 사진 드래그&드롭.</div>
+          </div>
+
+          <!-- 아코디언 리스트 (게시글마다 헤더 + 접힘/펼침 본문) -->
+          <div class="dsg-post-list" id="dsgPostList"></div>
+
+          <!-- 첨부 파일 hover 프리뷰 (전역) -->
+          <div class="dsg-file-preview" id="dsgFilePreview" hidden aria-hidden="true"></div>
+
+          <!-- 삭제 Undo 스낵바 (5초) -->
+          <div class="dsg-post-snackbar" id="dsgPostSnackbar" hidden>
+            <span class="dsg-post-snackbar-msg" id="dsgPostSnackbarMsg">게시글이 삭제됐어요</span>
+            <button class="dsg-post-snackbar-undo" onclick="dsgPostUndoDelete()">되돌리기</button>
+            <span class="dsg-post-snackbar-timer" id="dsgPostSnackbarTimer">5</span>
+          </div>
+        </div>
+
+        <!-- ============ 작업 리스트 — 노션 스타일 아웃라이너 (기존 내용 유지) ============ -->
+        <div class="dsg-pane" data-pane="board">
+          <div class="dsg-section-label">🗂 작업 보드</div>
+          <div class="dsg-doc-toolbar">
+            <input id="dsgDocSearch" class="dsg-search" type="search" placeholder="검색" oninput="dsgDocRender()">
+            <label class="dsg-hide-done">
+              <input type="checkbox" id="dsgDocHideDone" onchange="dsgDocRender()">
+              <span>완료 숨김</span>
+            </label>
+            <div class="dsg-fs-picker" role="group" aria-label="글꼴 크기" id="dsgFsPicker" title="글꼴 크기 (8~28px)">
+              <button class="dsg-fs-btn" onclick="dsgDocFsStep(-1)" title="작게 (−1)">−</button>
+              <input class="dsg-fs-num" id="dsgFsNum" type="number" min="8" max="28" step="1" value="14" oninput="dsgDocFsSetFromInput()" onblur="dsgDocFsSnap()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" aria-label="글꼴 크기 (px)">
+              <span class="dsg-fs-suffix">px</span>
+              <button class="dsg-fs-btn" onclick="dsgDocFsStep(1)" title="크게 (+1)">+</button>
+            </div>
+            <button class="dsg-doc-btn-ghost" onclick="dsgDocExpandAll()" title="모두 펼치기">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+              펼치기
+            </button>
+            <button class="dsg-doc-btn-ghost" onclick="dsgDocCollapseAll()" title="모두 접기">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+              접기
+            </button>
+          </div>
+
+          <div id="dsgBoardWrap" class="dsg-doc-wrap">
+            <div class="dsg-empty" id="dsgEmpty" hidden>
+              <div class="dsg-empty-icon">📝</div>
+              <div class="dsg-empty-title">아직 작업이 없어요</div>
+              <div class="dsg-empty-sub">아래 <b>＋ 여기에 입력하세요</b> 를 눌러 시작해 보세요.<br/>Enter로 새 줄, Tab으로 하위 항목, Cmd/Ctrl+Enter로 완료 토글.</div>
+            </div>
+            <div id="dsgDoc" class="dsg-doc"></div>
+
+            <div class="dsg-doc-add" id="dsgDocAdd">
+              <button class="dsg-doc-add-item" onclick="dsgDocAppendItem()" title="새 항목 (Enter 로 시작)">
+                <span class="dsg-doc-add-plus">＋</span>
+                <span>여기에 입력하세요</span>
+              </button>
+              <button class="dsg-doc-add-sec" onclick="dsgDocAddSection()" title="새 섹션">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
+                새 섹션
+              </button>
+            </div>
+
+            <div class="dsg-doc-hint">
+              <span class="dsg-hint-desktop"><b>Enter</b> 새 항목 · <b>Tab</b> 하위로 · <b>Shift+Tab</b> 상위로 · <b>Cmd/Ctrl+Enter</b> 완료 · 왼쪽 <b>＋</b> 로 바로 뒤에 새 항목</span>
+              <span class="dsg-hint-mobile">각 줄 옆 <b>＋</b> 를 눌러 바로 뒤에 새 항목을 추가하세요</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ 견적서 — 엑셀 견적서를 올리면 공급자·견적일·품목·합계·조건을 카드로 정리 ============ -->
+    <div class="dsg-pane qt-wrap" data-pane="quote" hidden>
+      <div class="qt-drop" id="qtDrop">
+        <div class="qt-drop-ico">🧾</div>
+        <div class="qt-drop-txt"><b>견적서 엑셀 파일을 여기로 끌어다 놓거나</b> 버튼을 눌러 올려 주세요<br><span>.xlsx · .xls · 여러 개 한꺼번에 가능 · 업체·품목·합계·조건을 자동으로 정리해요</span></div>
+        <label class="qt-upload-btn">파일 올리기<input type="file" id="qtFile" accept=".xlsx,.xlsm,.xls,.csv" multiple hidden onchange="qtOnFiles(this.files)"></label>
+      </div>
+      <div class="qt-bar">
+        <span class="qt-count" id="qtCount"></span>
+        <span class="qt-sp"></span>
+        <input class="qt-search" id="qtSearch" type="search" placeholder="업체 · 품명 검색" oninput="qtRender()" autocomplete="off">
+      </div>
+      <div class="qt-list" id="qtList"></div>
     </div>
 
   </div><!-- /viewDesign -->
@@ -15677,7 +15779,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   }
   let _dsgRefs  = [];
   let _dsgPosts = [];                       // 디자인 보드 게시글 배열 (디자인 뷰 전용)
-  let _dsgCurTab = 'coferry';               // 기본 = 메인 화면 (2026-10-26 사장님 지시)
+  let _dsgCurTab = 'center';                // 기본 = 디자인센터 (그 외 'quote' = 견적서)
   let _dsgCurBoard = 'moodboard';
   let _dsgCurPostId = null;
   let _dsgModalRefId  = null;
@@ -16615,38 +16717,316 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     _dsgApplyFs();
   }
 
-  /* 서브탭 스위치 — 사장님 요청으로 서브탭 UI 는 없어졌지만, 두 pane 모두 항상 표시 */
+  /* 탭 — 디자인센터(기본) · 견적서. 2026-10-27 디자인팀 탭은 디자인센터 맨 아래로 합쳤다.
+     옛 선호값(coferry·design·posts·board)은 모두 디자인센터로 연다. */
   function dsgSwitchTab(tab){
-    // 이전 값 'posts' / 'board' 은 새 구조에서 'design' 하나로 합쳐졌다
-    if(tab === 'posts' || tab === 'board') tab = 'design';
-    _dsgCurTab = tab || 'coferry';           // 기본 = 코페리 디자인센터 (메인)
-    // 탭 active 표시
-    ['design','coferry'].forEach(t=>{
-      const btn = document.getElementById('dsgTab' + t[0].toUpperCase() + t.slice(1));
-      if(btn) btn.classList.toggle('active', t===_dsgCurTab);
-    });
-    // 패널 표시 · 숨김:
-    //   design 탭 → posts + board 두 패널 스택 노출
-    //   coferry 탭 → coferry 패널만
-    const showDesign = (_dsgCurTab === 'design');
-    document.querySelectorAll('#viewDesign .dsg-pane').forEach(p=>{
-      const paneId = p.dataset.pane;
-      if(paneId === 'coferry') p.hidden = showDesign;
-      else                     p.hidden = !showDesign;
-    });
-    // 헤더 부제 — 어느 탭이 열려있는지 표시 (코페리가 기본이라 하드코딩하면 틀린다)
+    tab = tab === 'quote' ? 'quote' : 'center';
+    _dsgCurTab = tab;
+    const bc = document.getElementById('dsgTabCoferry'), bq = document.getElementById('dsgTabQuote');
+    if(bc) bc.classList.toggle('active', tab === 'center');
+    if(bq) bq.classList.toggle('active', tab === 'quote');
+    const cof = document.querySelector('#viewDesign .dsg-pane[data-pane="coferry"]');
+    if(cof) cof.hidden = tab !== 'center';
+    const qp = document.querySelector('#viewDesign .dsg-pane[data-pane="quote"]');
+    if(qp) qp.hidden = tab !== 'quote';
+    _dsgTeamApply();
+    if(!_dsgTeamLoaded) _dsgTeamLoad();
     const subEl = document.getElementById('dsgTitleSub');
-    if(subEl) subEl.textContent = showDesign ? '/ 디자인 보드' : '/ 코페리 디자인센터';
-    // 디자인센터 탭 진입 시: 노션 링크 초기화 (실제 열 때 처음 로드)
-    if(_dsgCurTab === 'coferry'){
+    if(subEl) subEl.textContent = tab === 'quote' ? '/ 견적서' : '/ 디자인센터';
+    if(tab === 'center'){
       if(typeof dcInit === 'function') dcInit();
-    }
-    if(showDesign){
-      if(typeof dsgPostsRender==='function') dsgPostsRender();
-      if(typeof dsgDocRender  ==='function') dsgDocRender();
-    }
-    try{ localStorage.setItem('dsgCurTab', _dsgCurTab); }catch(e){}
+      if(typeof dsgPostsRender === 'function') dsgPostsRender();
+      if(typeof dsgDocRender === 'function') dsgDocRender();
+    }else qtInit();
+    try{ localStorage.setItem('dsgCurTab', tab); }catch(e){}
   }
+
+  /* ── 디자인팀(디자인 보드·작업 보드) 숨김 — 관리자가 모두에게 숨긴다 (design_center_settings.design_team_hidden) ── */
+  let _dsgTeamHidden = false, _dsgTeamLoaded = false;
+  async function _dsgTeamLoad(){
+    _dsgTeamLoaded = true;
+    try{
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/design_center_settings?key=eq.design_team_hidden&select=value`, {headers:_sbHeaders(), cache:'no-cache'});
+      if(r.ok){ const rows = await r.json(); _dsgTeamHidden = !!(rows[0] && rows[0].value === '1'); }
+    }catch(e){}
+    _dsgTeamApply();
+  }
+  function _dsgTeamApply(){
+    const sec = document.getElementById('dsgTeamSec');
+    if(!sec) return;
+    sec.hidden = _dsgCurTab === 'quote' || (_dsgTeamHidden && !isMaster());
+    sec.classList.toggle('is-hidden-all', _dsgTeamHidden);
+    const body = document.getElementById('dsgTeamBody');
+    if(body) body.hidden = _dsgTeamHidden;
+    const tag = document.getElementById('dsgTeamHiddenTag');
+    if(tag) tag.hidden = !_dsgTeamHidden;
+    const btn = document.getElementById('dsgTeamHideBtn');
+    if(btn) btn.textContent = _dsgTeamHidden ? '다시 보이기' : '모두에게 숨기기';
+  }
+  async function dsgTeamToggleHidden(){
+    if(!requireMaster('디자인팀 숨김')) return;
+    const next = !_dsgTeamHidden;
+    if(next && !confirm('디자인팀(디자인 보드 · 작업 보드)을 모두에게 숨길까요?\n관리자 화면에는 제목줄만 남아 언제든 다시 보이게 할 수 있어요.')) return;
+    try{
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/design_center_settings?on_conflict=key`, {
+        method:'POST', headers:_sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify({key:'design_team_hidden', value:next?'1':'0', updated_at:new Date().toISOString()})
+      });
+      if(!r.ok) throw new Error('http_'+r.status);
+    }catch(e){ toast('저장하지 못했어요 — 잠시 후 다시 시도해 주세요','err'); return; }
+    _dsgTeamHidden = next;
+    _dsgTeamApply();
+    toast(next ? '디자인팀을 모두에게 숨겼어요' : '디자인팀을 다시 보이게 했어요', 'ok');
+    if(!next){ if(typeof dsgPostsRender === 'function') dsgPostsRender(); if(typeof dsgDocRender === 'function') dsgDocRender(); }
+  }
+  window.dsgTeamToggleHidden = dsgTeamToggleHidden;
+
+  /* ===== 견적서 — 엑셀 견적서를 올리면 공급자·견적일·품목·합계·조건을 뽑아 카드로 정리한다 =====
+     · 업체마다 양식이 달라도 '품명·수량·단가' 같은 머리글과 '상호·사업자번호' 같은 라벨을 찾아 읽는다
+     · 못 읽은 부분은 '원본 표 보기'로 확인, 원본 파일도 함께 저장해 내려받을 수 있다
+     · design_quotes 테이블 (모두 공유). 삭제는 관리자·올린 사람 */
+  const _qt = {list:[], loaded:false, loading:false, open:{}};
+  const _qtT = v => String(v ?? '').replace(/\s+/g,' ').trim();
+  const _qtK = v => _qtT(v).replace(/\s/g,'');
+  const _qtN = v => { if(typeof v === 'number' && isFinite(v)) return v; const s = String(v ?? '').replace(/[^\d.\-]/g,''); return s && !isNaN(+s) ? +s : null; };
+  const _qtW = n => n == null ? '' : Math.round(n).toLocaleString('ko-KR');
+  const QT_LABELS = [
+    ['bizNo', /^사업자(등록)?번호$/], ['company', /^(상호|상호\(법인명\)|법인명|업체명|회사명)$/], ['ceo', /^(성명|대표|대표자|대표자명)$/],
+    ['addr', /^(사업장)?주소$/], ['bizType', /^업태$/], ['bizItem', /^종목$/], ['tel', /^(연락처|전화|전화번호|tel|휴대폰)$/i],
+    ['fax', /^(팩스|fax)$/i], ['email', /^(이메일|e-?mail)$/i], ['manager', /^담당자?$/]
+  ];
+  const QT_NAME = /^(품명|품목|품목명|상품명|제품명|모델명)$/;
+  function _qtWho(){ return (typeof _diaryGetMe === 'function' ? _diaryGetMe() : '') || (isMaster() ? '관리자' : ''); }
+  function _qtYmd(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+  function _qtDate(v){
+    if(v instanceof Date && !isNaN(v)) return _qtYmd(v);
+    if(typeof v === 'number' && v > 36000 && v < 60000) return _qtYmd(new Date(Math.round((v - 25569) * 86400000) + new Date().getTimezoneOffset() * 60000));
+    const m = String(v ?? '').match(/(20\d{2})\s*[.\-\/년]\s*(\d{1,2})\s*[.\-\/월]\s*(\d{1,2})/);
+    return m ? `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}` : '';
+  }
+  function _qtParse(wb){
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const A = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:''});
+    const Aw = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''});   // 엑셀에 보이는 글자 그대로
+    const out = {supplier:{}, items:[], notes:[], terms:{}, sheet:wb.SheetNames[0],
+      raw:Aw.slice(0,60).map(r => r.slice(0,20).map(_qtT))};
+    // 품목 머리글 행 — 품명 + 수량이 같이 있는 줄
+    let hr = -1; const col = {};
+    for(let r = 0; r < A.length && hr < 0; r++){
+      const ks = A[r].map(_qtK);
+      if(!ks.some(k => QT_NAME.test(k)) || !ks.some(k => /^수량/.test(k))) continue;
+      hr = r;
+      ks.forEach((k, c) => {
+        if(QT_NAME.test(k) && col.name == null) col.name = c;
+        else if(/^(색상|컬러|옵션|규격|사양|사이즈)/.test(k) && col.opt == null) col.opt = c;
+        else if(/^수량/.test(k) && col.qty == null) col.qty = c;
+        else if(/^단가/.test(k) && col.price == null) col.price = c;
+        else if(/^(공급가액|공급가|금액)$/.test(k) && col.supply == null) col.supply = c;
+        else if(/^(부가세|세액|vat)/i.test(k) && col.vat == null) col.vat = c;
+        else if(/^(합계|합계금액|총액|총금액)$/.test(k) && col.total == null) col.total = c;
+        else if(/^(비고|메모|참고)/.test(k) && col.note == null) col.note = c;
+      });
+    }
+    const top = hr >= 0 ? hr : Math.min(A.length, 20);
+    // 공급자 정보 — 라벨 오른쪽의 첫 값 (다른 라벨을 만나면 멈춘다)
+    for(let r = 0; r < top; r++){
+      const row = A[r];
+      for(let c = 0; c < row.length; c++){
+        const hit = QT_LABELS.find(([, re]) => re.test(_qtK(row[c])));
+        if(!hit || out.supplier[hit[0]]) continue;
+        for(let x = c + 1; x < row.length; x++){
+          const v = _qtT(row[x]);
+          if(!v) continue;
+          if(QT_LABELS.some(([, re]) => re.test(_qtK(v)))) break;
+          out.supplier[hit[0]] = v; break;
+        }
+      }
+    }
+    // 견적일 — 품목 표 위쪽의 날짜
+    outer: for(let r = 0; r < top; r++) for(let c = 0; c < A[r].length; c++){ const d = _qtDate((Aw[r] || [])[c]) || _qtDate(A[r][c]); if(d){ out.date = d; break outer; } }
+    // 품목 — 머리글 아래, '계·합계' 줄(또는 ※·1. 로 시작하는 안내 줄) 전까지
+    let endRow = hr;
+    if(hr >= 0){
+      for(let r = hr + 1; r < A.length; r++){
+        const row = A[r], name = _qtT(row[col.name]), k = _qtK(name);
+        if(/^(계|합계|총계|소계|총합계|total)$/i.test(k)){ out.sumRow = {supply:_qtN(row[col.supply]), vat:_qtN(row[col.vat]), total:_qtN(row[col.total])}; endRow = r; break; }
+        if(/^(※|\d+\.)/.test(name)){ endRow = r - 1; break; }
+        endRow = r;
+        const qty = _qtN(row[col.qty]), price = _qtN(row[col.price]);
+        if(!name && qty == null && price == null) continue;
+        let supply = _qtN(row[col.supply]); if(supply == null && qty != null && price != null) supply = qty * price;
+        const vat = _qtN(row[col.vat]) || 0;
+        let total = _qtN(row[col.total]); if(total == null && supply != null) total = supply + vat;
+        out.items.push({name, opt:col.opt != null ? _qtT(row[col.opt]) : '', qty, price, supply, vat, total, note:col.note != null ? _qtT(row[col.note]) : ''});
+      }
+    }
+    // 조건·안내 — 표 아래 글 줄 (유효기간·납기·결제계좌·결제조건·문의)
+    for(let r = Math.max(endRow + 1, 0); r < A.length; r++){ const t = A[r].map(_qtT).filter(Boolean).join(' '); if(t.length > 3) out.notes.push(t); }
+    const all = out.notes.join('\n');
+    const pick = re => { const x = all.match(re); return x ? _qtT(x[1]) : ''; };
+    out.terms = {
+      valid:pick(/유효\s*기간[은는이가:\s]*(.+?)(?:입니다|\.|\n|$)/),
+      lead:pick(/납기[는은:\s]*(.+?)(?:입니다|\.|\n|$)/),
+      account:pick(/(?:결제|입금)\s*계좌\s*[:：]?\s*(.+?)(?:\n|$)/),
+      pay:pick(/결제\s*조건\s*[:：]?\s*(.+?)(?:\n|$)/),
+      contact:pick(/문의[^\[\n]*\[([^\]\n]+)\]/)
+    };
+    const sum = k => out.items.reduce((t, it) => t + (it[k] || 0), 0);
+    out.total = (out.sumRow && out.sumRow.total) || sum('total') || null;
+    out.supplyTotal = (out.sumRow && out.sumRow.supply) || sum('supply') || null;
+    out.vatTotal = out.sumRow && out.sumRow.vat != null ? out.sumRow.vat : sum('vat');
+    out.qtyTotal = sum('qty');
+    out.ok = hr >= 0 && out.items.length > 0;
+    return out;
+  }
+  function _qtB64(buf){
+    const bytes = new Uint8Array(buf); let s = '';
+    for(let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+  }
+  function _qtTitle(p){
+    const it = p.items[0];
+    if(!it) return '(품목 없음)';
+    const one = [it.name, it.opt].filter(Boolean).join(' · ') + (it.qty != null ? ` ${_qtW(it.qty)}개` : '');
+    return p.items.length > 1 ? `${one} 외 ${p.items.length - 1}건` : one;
+  }
+  async function qtLoad(){
+    if(_qt.loading) return;
+    _qt.loading = true;
+    try{
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/design_quotes?select=id,created_at,uploaded_by,file_name,quote_date,supplier,title,total,data&deleted_at=is.null&order=quote_date.desc.nullslast,created_at.desc&limit=300`, {headers:_sbHeaders(), cache:'no-cache'});
+      if(!r.ok) throw new Error('http_'+r.status);
+      _qt.list = await r.json();
+      _qt.loaded = true;
+    }catch(e){
+      const el = document.getElementById('qtList');
+      if(el && !_qt.loaded) el.innerHTML = '<div class="qt-empty">견적서 목록을 불러오지 못했어요. 잠시 후 다시 열어 주세요.</div>';
+    }finally{ _qt.loading = false; }
+    qtRender();
+  }
+  function qtInit(){
+    if(!_qt.loaded) qtLoad(); else qtRender();
+    const drop = document.getElementById('qtDrop');
+    if(drop && !drop._bound){
+      drop._bound = true;
+      ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('is-over'); }));
+      ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('is-over'); }));
+      drop.addEventListener('drop', e => { if(e.dataTransfer && e.dataTransfer.files.length) qtOnFiles(e.dataTransfer.files); });
+    }
+  }
+  async function qtOnFiles(files){
+    const list = [...(files || [])];
+    for(const f of list){
+      if(!/\.(xlsx|xlsm|xls|csv)$/i.test(f.name)){ toast(`${f.name}: 엑셀 파일(.xlsx·.xls)만 올릴 수 있어요`, 'err'); continue; }
+      if(f.size > 3 * 1024 * 1024){ toast(`${f.name}: 3MB 이하만 올릴 수 있어요`, 'err'); continue; }
+      try{
+        const buf = await f.arrayBuffer();
+        const p = _qtParse(XLSX.read(buf, {type:'array'}));
+        const row = {uploaded_by:_qtWho(), file_name:f.name, quote_date:p.date || null, supplier:p.supplier.company || '',
+          title:_qtTitle(p), total:p.total, data:p, file_b64:_qtB64(buf)};
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/design_quotes?select=id,created_at,uploaded_by,file_name,quote_date,supplier,title,total,data`, {
+          method:'POST', headers:_sbHeaders({'Prefer':'return=representation'}), body:JSON.stringify(row)
+        });
+        if(!r.ok) throw new Error('http_'+r.status);
+        const [saved] = await r.json();
+        _qt.list.unshift(saved);
+        _qt.open[saved.id] = true;
+        toast(p.ok ? `✓ ${f.name} 정리했어요` : `${f.name}: 품목 표를 찾지 못해 원본 표로 저장했어요`, p.ok ? 'ok' : 'err');
+      }catch(e){ toast(`${f.name}: 읽지 못했어요 (${e.message || e})`, 'err'); }
+    }
+    const inp = document.getElementById('qtFile');
+    if(inp) inp.value = '';
+    qtRender();
+  }
+  function qtToggle(id){ _qt.open[id] = !_qt.open[id]; qtRender(); }
+  async function qtDownload(id){
+    try{
+      const q = _qt.list.find(x => x.id === id);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/design_quotes?id=eq.${id}&select=file_b64,file_name`, {headers:_sbHeaders()});
+      const [row] = await r.json();
+      if(!row || !row.file_b64) throw new Error('no_file');
+      const bin = atob(row.file_b64), bytes = new Uint8Array(bin.length);
+      for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([bytes], {type:'application/octet-stream'}));
+      const a = document.createElement('a'); a.href = url; a.download = row.file_name || (q && q.file_name) || 'quote.xlsx';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }catch(e){ toast('원본 파일을 내려받지 못했어요', 'err'); }
+  }
+  async function qtDelete(id){
+    const q = _qt.list.find(x => x.id === id);
+    if(!q) return;
+    if(!(isMaster() || (q.uploaded_by && q.uploaded_by === _qtWho()))){ toast('삭제는 관리자나 올린 사람만 할 수 있어요', 'err'); return; }
+    if(!confirm(`'${q.supplier || q.file_name}' 견적서를 삭제할까요?`)) return;
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/design_quotes?id=eq.${id}`, {method:'PATCH', headers:_sbHeaders({'Prefer':'return=minimal'}), body:JSON.stringify({deleted_at:new Date().toISOString()})});
+    if(!r.ok){ toast('삭제하지 못했어요', 'err'); return; }
+    _qt.list = _qt.list.filter(x => x.id !== id);
+    qtRender();
+    toast('견적서를 삭제했어요', 'ok');
+  }
+  function qtCopy(text){
+    try{ navigator.clipboard.writeText(text); toast('복사했어요', 'ok'); }catch(e){ toast(text); }
+  }
+  function _qtValid(q){
+    const p = q.data || {};
+    const days = _qtN(((p.terms || {}).valid || '').match(/(\d+)\s*일/)?.[1]);
+    if(!q.quote_date || !days) return '';
+    const end = new Date(q.quote_date + 'T00:00:00'); end.setDate(end.getDate() + days);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const left = Math.round((end - today) / 86400000);
+    const md = `${end.getMonth()+1}.${String(end.getDate()).padStart(2,'0')}`;
+    return left >= 0 ? `<span class="qt-valid">유효 ~${md} · D-${left}</span>` : `<span class="qt-valid is-over">유효기간 지남 (${md})</span>`;
+  }
+  function qtRender(){
+    const el = document.getElementById('qtList');
+    if(!el) return;
+    const q = _qtK(document.getElementById('qtSearch')?.value || '').toLowerCase();
+    const list = _qt.list.filter(x => !q || _qtK([x.supplier, x.title, x.file_name, ...((x.data && x.data.items) || []).map(i => i.name + i.opt)].join(' ')).toLowerCase().includes(q));
+    const cnt = document.getElementById('qtCount');
+    if(cnt) cnt.textContent = _qt.loaded ? `견적서 ${_qt.list.length}건` + (q ? ` · 검색 ${list.length}건` : '') : '불러오는 중…';
+    if(!_qt.loaded){ el.innerHTML = '<div class="qt-empty">불러오는 중…</div>'; return; }
+    if(!list.length){ el.innerHTML = `<div class="qt-empty">${_qt.list.length ? '검색 결과가 없어요.' : '아직 올린 견적서가 없어요. 위에서 엑셀 견적서를 올려 주세요.'}</div>`; return; }
+    const E = escapeHTML;
+    el.innerHTML = list.map(x => {
+      const p = x.data || {}, s = p.supplier || {}, t = p.terms || {}, open = !!_qt.open[x.id];
+      const items = (p.items || []).map(it => `<tr><td>${E(it.name)}</td><td>${E(it.opt)}</td><td class="n">${_qtW(it.qty)}</td><td class="n">${_qtW(it.price)}</td><td class="n">${_qtW(it.supply)}</td><td class="n">${_qtW(it.vat)}</td><td class="n b">${_qtW(it.total)}</td></tr>`).join('');
+      const row = (k, v, extra) => v ? `<div class="qt-kv"><span>${k}</span><b>${E(v)}</b>${extra || ''}</div>` : '';
+      const raw = (p.raw || []).filter(r => r.some(Boolean)).map(r => '<tr>' + r.map(v => `<td>${E(v)}</td>`).join('') + '</tr>').join('');
+      const up = x.created_at ? new Date(x.created_at).toLocaleString('ko-KR', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) : '';
+      return `<article class="qt-card${open ? ' is-open' : ''}${p.ok ? '' : ' is-raw'}">
+        <header class="qt-head" onclick="qtToggle('${x.id}')">
+          <div class="qt-h-left"><div class="qt-sup">${E(x.supplier || '(업체 미상)')}</div><div class="qt-title">${E(x.title || x.file_name || '')}</div></div>
+          <div class="qt-h-mid">${x.quote_date ? `<span class="qt-date">${x.quote_date.replace(/-/g,'.')} 견적</span>` : ''}${_qtValid(x)}${t.lead ? `<span class="qt-lead">납기 ${E(t.lead.replace(/^.*?(\d+\s*일).*$/,'$1'))}</span>` : ''}</div>
+          <div class="qt-h-right"><div class="qt-total">${x.total != null ? _qtW(x.total) + '원' : '—'}</div><div class="qt-total-sub">${p.qtyTotal ? '수량 ' + _qtW(p.qtyTotal) + ' · ' : ''}부가세 ${_qtW(p.vatTotal || 0)}</div></div>
+          <span class="qt-chev">▾</span>
+        </header>
+        <div class="qt-body">
+          ${items ? `<div class="qt-scroll"><table class="qt-items"><thead><tr><th>품명</th><th>색상·옵션</th><th class="n">수량</th><th class="n">단가</th><th class="n">공급가액</th><th class="n">부가세</th><th class="n">합계</th></tr></thead><tbody>${items}</tbody>
+            <tfoot><tr><td colspan="2">계</td><td class="n">${_qtW(p.qtyTotal)}</td><td></td><td class="n">${_qtW(p.supplyTotal)}</td><td class="n">${_qtW(p.vatTotal)}</td><td class="n b">${_qtW(x.total)}</td></tr></tfoot></table></div>`
+            : '<div class="qt-empty">품목 표를 찾지 못했어요 — 아래 원본 표를 확인해 주세요.</div>'}
+          <div class="qt-grid">
+            <section class="qt-box"><div class="qt-box-t">조건</div>
+              ${row('유효기간', t.valid)}${row('납기', t.lead)}${row('결제조건', t.pay)}
+              ${row('결제계좌', t.account, t.account ? `<button type="button" class="qt-copy" onclick="qtCopy(${E(JSON.stringify(t.account))})">복사</button>` : '')}
+              ${row('문의', t.contact)}
+              ${!t.valid && !t.lead && !t.pay && !t.account && !t.contact ? '<div class="qt-kv"><span>—</span><b>안내 문구를 찾지 못했어요</b></div>' : ''}
+            </section>
+            <section class="qt-box"><div class="qt-box-t">공급자</div>
+              ${row('상호', s.company)}${row('대표', s.ceo)}${row('사업자번호', s.bizNo)}${row('업태·종목', [s.bizType, s.bizItem].filter(Boolean).join(' · '))}
+              ${row('주소', s.addr)}${row('연락처', s.tel)}${row('이메일', s.email)}${row('담당', s.manager)}
+            </section>
+          </div>
+          ${(p.notes || []).length ? `<details class="qt-notes"><summary>견적서 안내 문구 ${p.notes.length}줄</summary>${p.notes.map(n => `<div>${E(n)}</div>`).join('')}</details>` : ''}
+          ${raw ? `<details class="qt-raw"${p.ok ? '' : ' open'}><summary>원본 표 보기</summary><div class="qt-scroll"><table>${raw}</table></div></details>` : ''}
+          <div class="qt-foot"><span>${E(up)} · ${E(x.uploaded_by || '이름 없음')} 올림 · ${E(x.file_name || '')}</span><span class="qt-sp"></span>
+            <button type="button" class="qt-btn" onclick="qtDownload('${x.id}')">원본 내려받기</button>
+            <button type="button" class="qt-btn qt-del" onclick="qtDelete('${x.id}')">삭제</button></div>
+        </div>
+      </article>`;
+    }).join('');
+  }
+  window.qtOnFiles = qtOnFiles; window.qtToggle = qtToggle; window.qtDownload = qtDownload;
+  window.qtDelete = qtDelete; window.qtCopy = qtCopy; window.qtRender = qtRender;
 
   /* ============================================================
      디자인센터 — 노션 미러 2장 (업무일지 · 콰이디 업무 공유)
