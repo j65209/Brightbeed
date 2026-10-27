@@ -4660,6 +4660,57 @@
   .sub-module.m-promo {--m-color:#06b6d4;--m-border:rgba(6,182,212,.4)}
   .sub-module.m-promo .sub-module-icon{color:#06b6d4}
   .sub-module.m-promo .sub-module-tag{color:#06b6d4;border-color:rgba(6,182,212,.45);border-style:solid}
+  .sub-module.m-ably {--m-color:#8b5cf6;--m-border:rgba(139,92,246,.4)}
+  .sub-module.m-ably .sub-module-icon{color:#8b5cf6}
+  .sub-module.m-ably .sub-module-tag{color:#8b5cf6;border-color:rgba(139,92,246,.45);border-style:solid}
+
+  /* ===== 에이블리 일일 보고서 (viewAbly) — 데이터: 비공개 레포 brightbeed-reports/ably (프록시 경유) ===== */
+  .ably-datebar{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .ably-datebar select{padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg-1);color:var(--text-1);font-family:var(--sans);font-size:13px;font-weight:600}
+  .ably-nav{width:30px;height:30px;border:1px solid var(--line);border-radius:6px;background:var(--bg-1);color:var(--text-2);font-size:16px;cursor:pointer}
+  .ably-nav:disabled{opacity:.35;cursor:default}
+  .ably-wrap{max-width:1180px;margin:0 auto;padding:12px 18px 40px;display:flex;flex-direction:column;gap:16px}
+  .ably-status{padding:28px 16px;text-align:center;color:var(--text-3);font-size:13px;line-height:1.7;border:1px dashed var(--line-2);border-radius:10px;background:var(--bg-1)}
+  .ably-status[hidden]{display:none}
+  .ably-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .ably-kpi{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+  .ably-kpi-l{font-size:10.5px;color:var(--text-3);letter-spacing:.06em}
+  .ably-kpi-v{font-size:20px;font-weight:700;color:var(--text-1);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ably-kpi-s{font-size:11px;color:var(--text-3)}
+  .ably-kpi.is-net{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.06)}
+  .ably-kpi.is-net .ably-kpi-v{color:#6d28d9}
+  .ably-kpi .neg{color:var(--danger)}
+  .ably-formula{font-size:12px;color:var(--text-3);background:var(--bg-2);border-radius:8px;padding:10px 14px;line-height:1.7;font-variant-numeric:tabular-nums}
+  .ably-formula b{color:var(--text-1)}
+  .ably-sec{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .ably-sec h2{font-size:14px;font-weight:700;color:var(--text-1);margin:0 0 10px}
+  .ably-sec h2 span{font-weight:500;color:var(--text-3);font-size:12px;margin-left:4px}
+  .ably-sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .ably-sec-head h2{margin:0}
+  .ably-chk{font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:5px;cursor:pointer}
+  .ably-tbl-wrap{overflow-x:auto}
+  .ably-tbl{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+  .ably-tbl th{text-align:left;font-weight:600;color:var(--text-3);font-size:11px;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .ably-tbl td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--text-2);vertical-align:top}
+  .ably-tbl td.n,.ably-tbl th.n{text-align:right;white-space:nowrap}
+  .ably-tbl tr.is-ex td{color:var(--text-3);text-decoration:line-through}
+  .ably-tbl tr.is-cp td.cp{color:#be185d;font-weight:600}
+  .ably-tbl .opt{display:block;color:var(--text-3);font-size:11px;margin-top:2px}
+  .ably-tbl tr.is-on td{font-weight:600;color:var(--text-1)}
+  .ably-ev{display:flex;flex-wrap:wrap;gap:8px}
+  .ably-ev-card{flex:1 1 260px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+  .ably-ev-card .t{font-weight:600;font-size:13px;color:var(--text-1)}
+  .ably-ev-card .d{font-size:11.5px;color:var(--text-3)}
+  .ably-badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:10px;margin-right:6px;vertical-align:1px}
+  .ably-badge.on{background:rgba(21,128,61,.12);color:var(--ok)}
+  .ably-badge.soon{background:rgba(180,83,9,.12);color:var(--warn)}
+  .ably-empty{font-size:12px;color:var(--text-3);padding:6px 0}
+  .ably-foot{font-size:11px;color:var(--text-3);line-height:1.7}
+  @media (max-width:720px){
+    .ably-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .ably-kpi-v{font-size:17px}
+    .ably-datebar select{max-width:130px}
+  }
   .sub-module.m-ceocal {--m-color:#d4af37;--m-border:rgba(212,175,55,.45)}
   .sub-module.m-ceocal .sub-module-icon{color:#d4af37}
   .sub-module.m-ceocal .sub-module-tag{color:#854d0e;border-color:rgba(212,175,55,.5);border-style:solid;background:rgba(212,175,55,.08)}
@@ -9291,6 +9342,12 @@
           <div class="sub-module-sub">에이블리 · 코페리 정가 자동 · 조건별 마진 분석</div>
           <div class="sub-module-tag">TOOL</div>
         </div>
+        <div class="sub-module m-ably" onclick="triggerAblyReport()">
+          <div class="sub-module-icon">📊</div>
+          <div class="sub-module-title">에이블리 일일 보고서</div>
+          <div class="sub-module-sub">주문 · 쿠폰 · 실결제 · 배송비 2,000원 · 광고비 · 순이익 · 기획전</div>
+          <div class="sub-module-tag">DAILY</div>
+        </div>
       </div>
     </div>
 
@@ -11407,6 +11464,53 @@
   </div>
 
   <!-- ============ 기획전 계산기 v2 ============ -->
+  <div class="view" id="viewAbly" hidden>
+    <div class="view-head">
+      <button class="btn-back" onclick="goHome()" aria-label="홈으로">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        홈
+      </button>
+      <h1 class="view-title">에이블리 일일 보고서<span class="view-title-sub" id="ablyMarket">/ 결제일 기준</span></h1>
+      <div class="ably-datebar">
+        <button type="button" class="ably-nav" onclick="ablyShift(1)" aria-label="이전 날짜">‹</button>
+        <select id="ablyDate" onchange="ablyLoad(this.value)" aria-label="보고서 날짜"></select>
+        <button type="button" class="ably-nav" onclick="ablyShift(-1)" aria-label="다음 날짜">›</button>
+      </div>
+    </div>
+
+    <div class="ably-wrap">
+      <div class="ably-status" id="ablyStatus">불러오는 중…</div>
+      <div id="ablyBody" hidden>
+        <div class="ably-kpis" id="ablyKpis"></div>
+        <div class="ably-formula" id="ablyFormula"></div>
+
+        <section class="ably-sec">
+          <h2>기획전 <span id="ablyEvN"></span></h2>
+          <div id="ablyEvents"></div>
+        </section>
+
+        <section class="ably-sec">
+          <div class="ably-sec-head">
+            <h2>주문 내역 <span id="ablyOrdN"></span></h2>
+            <label class="ably-chk"><input type="checkbox" id="ablyCouponOnly" onchange="ablyRenderOrders()"> 쿠폰 사용만</label>
+          </div>
+          <div class="ably-tbl-wrap"><table class="ably-tbl" id="ablyOrders"></table></div>
+        </section>
+
+        <section class="ably-sec">
+          <h2>쿠폰 현황 <span id="ablyCpN"></span></h2>
+          <div class="ably-tbl-wrap"><table class="ably-tbl" id="ablyCoupons"></table></div>
+        </section>
+
+        <section class="ably-sec">
+          <h2>최근 일별 추이</h2>
+          <div class="ably-tbl-wrap"><table class="ably-tbl" id="ablyTrend"></table></div>
+        </section>
+        <div class="ably-foot" id="ablyFoot"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="view" id="viewPromoCalc" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
@@ -14371,8 +14475,8 @@
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewExecVault','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts','viewCeoCal'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewExecVault:'vault',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx',viewCeoCal:'ceocal'};
+  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewExecVault','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts','viewCeoCal','viewAbly'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewExecVault:'vault',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx',viewCeoCal:'ceocal',viewAbly:'ably'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
 
   function applyView(id){
@@ -14457,6 +14561,9 @@
     }
     if(id==='viewPromoCalc'){
       if(typeof pcInit==='function') pcInit();
+    }
+    if(id==='viewAbly'){
+      if(typeof ablyInit==='function') ablyInit();
     }
     if(id==='viewDiary'){
       if(typeof initDiaryView==='function') initDiaryView();
@@ -34109,6 +34216,150 @@
   window.mdwKey=mdwKey;
   window.mdwStamp=mdwStamp;
   window.mdwSetTime=mdwSetTime;
+
+  /* ===== 에이블리 일일 보고서 (viewAbly) =====
+     맥미니 수집기(sixshop-collector/src/ably-daily.ts)가 비공개 레포 j65209/brightbeed-reports 에
+     ably/index.json · ably/daily/{date}.json 을 기록 → 여기서는 프록시(ghFetch, PIN)로 읽기만 한다.
+     레포가 비공개라 raw.githubusercontent 직접 읽기는 불가. */
+  const ABLY_REPO_API='https://api.github.com/repos/j65209/brightbeed-reports/contents/';
+  const _ablyState={index:null, report:null, cache:{}};
+  const ABLY_COUPON_STATE={complete:'발급중', suspend:'발급중지', ready:'발급예정', finish:'종료'};
+
+  async function _ablyGet(path){
+    const r=await ghFetch(ABLY_REPO_API+path+'?ref=main',{headers:{Accept:'application/vnd.github.raw+json'},cache:'no-store'});
+    if(r.status===404) return null;
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    // 프록시가 Accept 를 넘기지 않으면 contents 메타(JSON+base64)가 온다
+    if(j && typeof j.content==='string' && j.encoding==='base64'){
+      const bin=atob(j.content.replace(/\n/g,''));
+      const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+    return j;
+  }
+  const _ablyW=n=>(Math.round(Number(n)||0)).toLocaleString('ko-KR');
+  const _ablyEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const _ablyPct=n=>((Number(n)||0)*100).toFixed(1)+'%';
+  const _ablyDay=s=>String(s||'').slice(0,10);
+  const _ablyTime=s=>String(s||'').replace('T',' ').slice(11,16);
+
+  function _ablyStatus(msg){
+    const st=document.getElementById('ablyStatus'), body=document.getElementById('ablyBody');
+    if(msg){st.innerHTML=msg;st.hidden=false;body.hidden=true}
+    else{st.hidden=true;body.hidden=false}
+  }
+
+  async function ablyInit(){
+    _ablyStatus('불러오는 중…');
+    try{
+      _ablyState.index=await _ablyGet('ably/index.json');
+    }catch(e){
+      _ablyStatus('보고서 저장소에 연결하지 못했어요.<br>서버(맥미니) 프록시가 꺼져 있거나 비공개 레포 접근 권한이 없을 수 있어요. ('+_ablyEsc(e.message)+')');
+      return;
+    }
+    const days=(_ablyState.index&&_ablyState.index.days)||[];
+    if(!days.length){
+      _ablyStatus('아직 생성된 보고서가 없어요.<br>맥미니 수집기가 매일 아침 어제 보고서를 만들어요.');
+      return;
+    }
+    const sel=document.getElementById('ablyDate');
+    const cur=sel.value;
+    sel.innerHTML=days.map(d=>`<option value="${d.date}">${d.date}</option>`).join('');
+    await ablyLoad(days.some(d=>d.date===cur)?cur:days[0].date);
+  }
+
+  async function ablyLoad(date){
+    const sel=document.getElementById('ablyDate');
+    sel.value=date;
+    const days=(_ablyState.index&&_ablyState.index.days)||[];
+    const i=days.findIndex(d=>d.date===date);
+    const navs=document.querySelectorAll('#viewAbly .ably-nav');
+    if(navs[0]) navs[0].disabled=i<0||i>=days.length-1;
+    if(navs[1]) navs[1].disabled=i<=0;
+    try{
+      if(!_ablyState.cache[date]){
+        _ablyStatus('불러오는 중…');
+        _ablyState.cache[date]=await _ablyGet('ably/daily/'+date+'.json');
+      }
+    }catch(e){
+      _ablyStatus(_ablyEsc(date)+' 보고서를 불러오지 못했어요. ('+_ablyEsc(e.message)+')');
+      return;
+    }
+    const rep=_ablyState.cache[date];
+    if(!rep){_ablyStatus(_ablyEsc(date)+' 보고서가 없어요.');return}
+    _ablyState.report=rep;
+    _ablyRender(rep);
+    _ablyStatus(null);
+  }
+
+  function ablyShift(step){
+    const days=(_ablyState.index&&_ablyState.index.days)||[];
+    const i=days.findIndex(d=>d.date===document.getElementById('ablyDate').value);
+    const n=days[i+step];
+    if(n) ablyLoad(n.date);
+  }
+
+  function _ablyRender(rep){
+    const s=rep.summary||{}, a=rep.assumptions||{};
+    document.getElementById('ablyMarket').textContent='/ '+(rep.market||'에이블리')+' · '+(a.date_basis||'결제일 기준');
+    const kpi=(l,v,sub,cls)=>`<div class="ably-kpi ${cls||''}"><div class="ably-kpi-l">${l}</div><div class="ably-kpi-v">${v}</div><div class="ably-kpi-s">${sub||''}</div></div>`;
+    const net=Number(s.net)||0;
+    document.getElementById('ablyKpis').innerHTML=[
+      kpi('순이익', `<span class="${net<0?'neg':''}">₩${_ablyW(net)}</span>`, '실결제 대비 '+_ablyPct(s.net_rate), 'is-net'),
+      kpi('실결제 금액', '₩'+_ablyW(s.paid), '판매금액 ₩'+_ablyW(s.gross)),
+      kpi('주문', _ablyW(s.orders)+'건', '상품 '+_ablyW(s.items)+'건 · 수량 '+_ablyW(s.qty)+'개'),
+      kpi('쿠폰 사용', _ablyW(s.coupon_orders)+'건', '할인 ₩'+_ablyW(s.coupon_discount)+(s.coupon_by_ably?' (에이블리 부담 ₩'+_ablyW(s.coupon_by_ably)+')':'')),
+      kpi('수수료 (추정)', '₩'+_ablyW(s.fees_est), '수수료율 '+_ablyPct(a.fee_rate)),
+      kpi('배송비', '₩'+_ablyW(s.shipping), _ablyW(s.orders)+'건 × ₩'+_ablyW(a.shipping_cost_per_order||2000)),
+      kpi('광고비', '₩'+_ablyW(s.ad_spend), '광고 기여 매출 ₩'+_ablyW(s.ad_order_price)),
+      kpi('진행 중 기획전', _ablyW(s.events_running)+'개', s.excluded_items?'취소·반품 제외 '+_ablyW(s.excluded_items)+'건':''),
+    ].join('');
+    document.getElementById('ablyFormula').innerHTML=
+      `<b>순이익</b> = 실결제 ₩${_ablyW(s.paid)} − 수수료 ₩${_ablyW(s.fees_est)} − 배송비 ₩${_ablyW(s.shipping)} − 광고비 ₩${_ablyW(s.ad_spend)} = <b>₩${_ablyW(net)}</b>`
+      +`<br>수수료는 ${_ablyEsc(a.fee_basis||'최근 정산 내역')}의 평균 수수료율로 추정한 값이에요. 원가는 포함하지 않았어요.`;
+
+    const evs=rep.events||[];
+    document.getElementById('ablyEvN').textContent=evs.length?`${evs.filter(e=>e.state==='진행중').length}개 진행 · ${evs.filter(e=>e.state==='예정').length}개 예정`:'';
+    document.getElementById('ablyEvents').innerHTML=evs.length
+      ? '<div class="ably-ev">'+evs.map(e=>`<div class="ably-ev-card"><div class="t"><span class="ably-badge ${e.state==='진행중'?'on':'soon'}">${_ablyEsc(e.state)}</span>${_ablyEsc(e.name)}</div><div class="d">${_ablyDay(e.start)} ~ ${_ablyDay(e.end)} · 승인 ${_ablyW(e.approved_goods)}/${_ablyW(e.applied_goods)}개 상품${e.applied_status==='pending_approval'?' · 승인 대기':''}</div></div>`).join('')+'</div>'
+      : '<div class="ably-empty">참여 중이거나 예정된 기획전이 없어요.</div>';
+
+    ablyRenderOrders();
+
+    const cps=rep.coupons||[];
+    document.getElementById('ablyCpN').textContent=cps.length?cps.length+'개':'';
+    document.getElementById('ablyCoupons').innerHTML=cps.length
+      ? '<tr><th>쿠폰</th><th>상태</th><th class="n">할인</th><th class="n">최소주문</th><th class="n">사용/발급</th><th class="n">할인액</th><th class="n">ROAS</th><th>기간</th></tr>'
+        +cps.map(c=>`<tr><td>${_ablyEsc(c.name)}</td><td>${_ablyEsc(ABLY_COUPON_STATE[c.state]||c.state||'-')}</td><td class="n">${_ablyEsc(c.discount)}</td><td class="n">${c.minimum_price?'₩'+_ablyW(c.minimum_price):'-'}</td><td class="n">${_ablyW(c.used)}/${_ablyW(c.total)}</td><td class="n">₩${_ablyW(c.coupon_discount)}</td><td class="n">${c.roas!=null?_ablyW(c.roas)+'%':'-'}</td><td>${_ablyDay(c.start)} ~ ${_ablyDay(c.end).startsWith('9999')?'상시':_ablyDay(c.end)}</td></tr>`).join('')
+      : '<tr><td class="ably-empty">쿠폰이 없어요.</td></tr>';
+
+    const days=((_ablyState.index&&_ablyState.index.days)||[]).slice(0,14);
+    document.getElementById('ablyTrend').innerHTML='<tr><th>날짜</th><th class="n">주문</th><th class="n">쿠폰주문</th><th class="n">실결제</th><th class="n">광고비</th><th class="n">순이익</th></tr>'
+      +days.map(d=>`<tr class="${d.date===rep.date?'is-on':''}"><td>${d.date}</td><td class="n">${_ablyW(d.orders)}</td><td class="n">${_ablyW(d.coupon_orders)}</td><td class="n">₩${_ablyW(d.paid)}</td><td class="n">₩${_ablyW(d.ad_spend)}</td><td class="n">₩${_ablyW(d.net)}</td></tr>`).join('');
+
+    const gen=rep.generated_at?new Date(rep.generated_at):null;
+    document.getElementById('ablyFoot').textContent=(gen?'생성 '+gen.toLocaleString('ko-KR')+' · ':'')+(a.excluded_status||'')+' · 데이터: 에이블리 셀러 어드민 (비공개 저장소)';
+  }
+
+  function ablyRenderOrders(){
+    const rep=_ablyState.report; if(!rep) return;
+    const only=document.getElementById('ablyCouponOnly').checked;
+    const all=rep.orders||[];
+    const list=only?all.filter(o=>o.coupon>0):all;
+    document.getElementById('ablyOrdN').textContent=`${list.length}건${only?' (쿠폰 사용)':''}`;
+    document.getElementById('ablyOrders').innerHTML=list.length
+      ? '<tr><th>결제</th><th>주문번호</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th><th class="n">쿠폰</th><th class="n">기타할인</th><th class="n">실결제</th><th>상태</th></tr>'
+        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}"><td>${_ablyTime(o.checked_at)}</td><td>${_ablyEsc(o.order_sno)}</td><td>${_ablyEsc(o.goods_name)}<span class="opt">${_ablyEsc(o.option)}</span></td><td class="n">${_ablyW(o.ea)}</td><td class="n">₩${_ablyW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_ablyW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_ablyW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_ablyW(o.paid)}</td><td>${_ablyEsc(o.status)}</td></tr>`).join('')
+      : '<tr><td class="ably-empty">해당하는 주문이 없어요.</td></tr>';
+  }
+
+  function triggerAblyReport(){ showView('viewAbly'); }
+  window.triggerAblyReport=triggerAblyReport;
+  window.ablyInit=ablyInit;
+  window.ablyLoad=ablyLoad;
+  window.ablyShift=ablyShift;
+  window.ablyRenderOrders=ablyRenderOrders;
 
   init();
 </script>
