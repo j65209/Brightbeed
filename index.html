@@ -9345,7 +9345,7 @@
         <div class="sub-module m-ably" onclick="triggerAblyReport()">
           <div class="sub-module-icon">📊</div>
           <div class="sub-module-title">에이블리 일일 보고서</div>
-          <div class="sub-module-sub">주문 · 쿠폰 · 실결제 · 배송비 2,000원 · 광고비 · 순이익 · 기획전</div>
+          <div class="sub-module-sub">주문 · 쿠폰 · 실결제 · 원가 · 배송비 2,200원 · 광고비 · 순이익 · 기획전</div>
           <div class="sub-module-tag">DAILY</div>
         </div>
       </div>
@@ -34311,13 +34311,17 @@
       kpi('주문', _ablyW(s.orders)+'건', '상품 '+_ablyW(s.items)+'건 · 수량 '+_ablyW(s.qty)+'개'),
       kpi('쿠폰 사용', _ablyW(s.coupon_orders)+'건', '할인 ₩'+_ablyW(s.coupon_discount)+(s.coupon_by_ably?' (에이블리 부담 ₩'+_ablyW(s.coupon_by_ably)+')':'')),
       kpi('수수료 (추정)', '₩'+_ablyW(s.fees_est), '수수료율 '+_ablyPct(a.fee_rate)),
-      kpi('배송비', '₩'+_ablyW(s.shipping), _ablyW(s.orders)+'건 × ₩'+_ablyW(a.shipping_cost_per_order||2000)),
+      kpi('배송비', '₩'+_ablyW(s.shipping), _ablyW(s.orders)+'건 × ₩'+_ablyW(a.shipping_cost_per_order||2200)),
       kpi('광고비', '₩'+_ablyW(s.ad_spend), '광고 기여 매출 ₩'+_ablyW(s.ad_order_price)),
-      kpi('진행 중 기획전', _ablyW(s.events_running)+'개', s.excluded_items?'취소·반품 제외 '+_ablyW(s.excluded_items)+'건':''),
+      kpi('원가', s.cost!=null?'₩'+_ablyW(s.cost):'—', s.cost==null?'원가 미반영 보고서':(s.cost_missing_items?`<span class="neg">미확인 ${_ablyW(s.cost_missing_items)}건</span>`:'전 상품 원가 확인')+(s.cost_base_items?` · 기본값 ${_ablyW(s.cost_base_items)}건`:'')),
     ].join('');
+    const hasCost=s.cost!=null;
     document.getElementById('ablyFormula').innerHTML=
-      `<b>순이익</b> = 실결제 ₩${_ablyW(s.paid)} − 수수료 ₩${_ablyW(s.fees_est)} − 배송비 ₩${_ablyW(s.shipping)} − 광고비 ₩${_ablyW(s.ad_spend)} = <b>₩${_ablyW(net)}</b>`
-      +`<br>수수료는 ${_ablyEsc(a.fee_basis||'최근 정산 내역')}의 평균 수수료율로 추정한 값이에요. 원가는 포함하지 않았어요.`;
+      `<b>순이익</b> = 실결제 ₩${_ablyW(s.paid)} − 수수료 ₩${_ablyW(s.fees_est)} − 배송비 ₩${_ablyW(s.shipping)} − 광고비 ₩${_ablyW(s.ad_spend)}${hasCost?` − 원가 ₩${_ablyW(s.cost)}`:''} = <b>₩${_ablyW(net)}</b>`
+      +`<br>수수료는 ${_ablyEsc(a.fee_basis||'최근 정산 내역')}의 평균 수수료율로 추정한 값이에요. `
+      +(hasCost?'원가는 원가 시트에서 상품명·옵션으로 찾았고, 시트에 없는 색상은 같은 상품의 기본 원가(기본값)를 썼어요.':'이 보고서에는 원가가 포함되지 않았어요.')
+      +(s.events_running?` · 진행 중 기획전 ${_ablyW(s.events_running)}개`:'')
+      +(s.excluded_items?` · 취소·반품 제외 ${_ablyW(s.excluded_items)}건`:'');
 
     const evs=rep.events||[];
     const _evCnt=st=>evs.filter(e=>e.state===st).length;
@@ -34336,8 +34340,8 @@
       : '<tr><td class="ably-empty">쿠폰이 없어요.</td></tr>';
 
     const days=((_ablyState.index&&_ablyState.index.days)||[]).slice(0,14);
-    document.getElementById('ablyTrend').innerHTML='<tr><th>날짜</th><th class="n">주문</th><th class="n">쿠폰주문</th><th class="n">실결제</th><th class="n">광고비</th><th class="n">순이익</th></tr>'
-      +days.map(d=>`<tr class="${d.date===rep.date?'is-on':''}"><td>${d.date}</td><td class="n">${_ablyW(d.orders)}</td><td class="n">${_ablyW(d.coupon_orders)}</td><td class="n">₩${_ablyW(d.paid)}</td><td class="n">₩${_ablyW(d.ad_spend)}</td><td class="n">₩${_ablyW(d.net)}</td></tr>`).join('');
+    document.getElementById('ablyTrend').innerHTML='<tr><th>날짜</th><th class="n">주문</th><th class="n">쿠폰주문</th><th class="n">실결제</th><th class="n">광고비</th><th class="n">원가</th><th class="n">순이익</th></tr>'
+      +days.map(d=>`<tr class="${d.date===rep.date?'is-on':''}"><td>${d.date}</td><td class="n">${_ablyW(d.orders)}</td><td class="n">${_ablyW(d.coupon_orders)}</td><td class="n">₩${_ablyW(d.paid)}</td><td class="n">₩${_ablyW(d.ad_spend)}</td><td class="n">${d.cost!=null?'₩'+_ablyW(d.cost):'-'}</td><td class="n">₩${_ablyW(d.net)}</td></tr>`).join('');
 
     const gen=rep.generated_at?new Date(rep.generated_at):null;
     document.getElementById('ablyFoot').textContent=(gen?'생성 '+gen.toLocaleString('ko-KR')+' · ':'')+(a.excluded_status||'')+' · 데이터: 에이블리 셀러 어드민 (비공개 저장소)';
@@ -34350,8 +34354,8 @@
     const list=only?all.filter(o=>o.coupon>0):all;
     document.getElementById('ablyOrdN').textContent=`${list.length}건${only?' (쿠폰 사용)':''}`;
     document.getElementById('ablyOrders').innerHTML=list.length
-      ? '<tr><th>결제</th><th>주문번호</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th><th class="n">쿠폰</th><th class="n">기타할인</th><th class="n">실결제</th><th>상태</th></tr>'
-        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}"><td>${_ablyTime(o.checked_at)}</td><td>${_ablyEsc(o.order_sno)}</td><td>${_ablyEsc(o.goods_name)}<span class="opt">${_ablyEsc(o.option)}</span></td><td class="n">${_ablyW(o.ea)}</td><td class="n">₩${_ablyW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_ablyW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_ablyW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_ablyW(o.paid)}</td><td>${_ablyEsc(o.status)}</td></tr>`).join('')
+      ? '<tr><th>결제</th><th>주문번호</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th><th class="n">쿠폰</th><th class="n">기타할인</th><th class="n">실결제</th><th class="n">원가</th><th>상태</th></tr>'
+        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}"><td>${_ablyTime(o.checked_at)}</td><td>${_ablyEsc(o.order_sno)}</td><td>${_ablyEsc(o.goods_name)}<span class="opt">${_ablyEsc(o.option)}</span></td><td class="n">${_ablyW(o.ea)}</td><td class="n">₩${_ablyW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_ablyW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_ablyW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_ablyW(o.paid)}</td><td class="n" title="${_ablyEsc(o.cost_name||'')}">${o.cost_match==null?'-':o.cost_match==='none'?'<span class="neg">미확인</span>':'₩'+_ablyW(o.cost)+(o.cost_match==='base'?'<span class="opt">기본값</span>':'')}</td><td>${_ablyEsc(o.status)}</td></tr>`).join('')
       : '<tr><td class="ably-empty">해당하는 주문이 없어요.</td></tr>';
   }
 
