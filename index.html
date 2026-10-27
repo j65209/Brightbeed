@@ -3788,6 +3788,8 @@
   .adsh-legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--text-2);padding:2px 0 4px}
   .adsh-legend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
   .adsh-hint{font-size:11px;color:var(--text-3);margin-top:6px;line-height:1.5}
+  .adsh-sync{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:0 0 10px;padding:8px 12px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;color:#166534}
+  .adsh-sync span{color:var(--text-3);font-size:11px}
   @media (max-width:900px){ .adsh-charts{grid-template-columns:1fr} .adsh-tbl{font-size:11px;--adsh-ip:3px} .adsh-tbl td{padding:0 3px} .adsh-tbl th{padding:2px 2px} }
 
   /* ===== 브랜드별 실시간 매출 리포트 (식스샵 + 식스샵프로) ===== */
@@ -23718,7 +23720,13 @@
     }
     const dates=_adshMonthDates();
     _adsh.colW=_adshColW(dates);
-    body.innerHTML=`<div id="adshTop">${_adshRenderWeeks()}${_adshRenderSummary()}${_adshRenderCharts()}</div>
+    // 서버 맥이 광고 관리자에서 자동으로 채우는 시트 (scripts/ably_ads.py, 30분마다 · 지난달 1일~오늘 덮어씀)
+    const src=(_adsh.sheets[_adsh.brand]||{}).source;
+    const sync=src && src.type==='ably-ads' ? (()=>{
+      const t=new Date(src.syncedAt||0), hm=`${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+      return `<div class="adsh-sync"><i class="adsh-live"></i><b>에이블리 광고 관리자 자동 연동</b> · 30분마다 갱신 · 마지막 반영 ${hm}<span>지난달 1일~오늘 값은 광고 관리자 값으로 덮어써지니 직접 고치지 않아도 됩니다</span></div>`;
+    })() : '';
+    body.innerHTML=`${sync}<div id="adshTop">${_adshRenderWeeks()}${_adshRenderSummary()}${_adshRenderCharts()}</div>
       <div class="adsh-h">일자별 운영 현황</div>
       <div class="adsh-scroll"><table class="adsh-tbl" id="adshDaily">
         <thead><tr><th>날짜</th><th>요일</th>${_adshCols().map(c=>_adshTh(c.label,c.in?'in':'')).join('')}</tr></thead>
