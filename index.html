@@ -16812,19 +16812,49 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   function _dsgClearPostsPushedSnap(){
     try{ localStorage.removeItem(DSG_POSTS_PUSHED_KEY); }catch(e){}
   }
-  /* ── rolling history (극한 복구 — 매 저장마다 최대 20개 스냅샷) ── */
+  /* ── rolling history (극한 복구 — 매 저장마다 최대 20개 스냅샷) ──
+     글자 수 상한: 이미지(data:URL) 든 게시글 하나가 수 MB 라 스냅샷 몇 개만으로 브라우저
+     localStorage(~5M자)를 다 채워 다른 화면 저장(사내 공지사항 등)이 전부 실패했다 (2026-10-28).
+     원격(GitHub)에 이력이 남으니 로컬 스냅샷은 작게만 둔다. */
+  const DSG_POSTS_HISTORY_MAX_CHARS = 400*1000;
+  function _dsgTrimHistory(hist){
+    let total = 0;
+    const out = [];
+    for(let i=hist.length-1; i>=0; i--){
+      const len = (hist[i] && hist[i].json || '').length;
+      if(total + len > DSG_POSTS_HISTORY_MAX_CHARS) break;
+      total += len;
+      out.unshift(hist[i]);
+    }
+    return out;
+  }
+  /* 꽉 찬 저장공간 비우기 — 다른 저장 지점이 QuotaExceededError 를 맞았을 때도 호출 */
+  function _bbFreeLocalSpace(){
+    try{
+      const raw = localStorage.getItem(DSG_POSTS_HISTORY_KEY);
+      if(!raw || raw.length <= DSG_POSTS_HISTORY_MAX_CHARS) return;
+      let hist; try{ hist = JSON.parse(raw); }catch(e){ hist = []; }
+      hist = Array.isArray(hist) ? _dsgTrimHistory(hist) : [];
+      if(hist.length) localStorage.setItem(DSG_POSTS_HISTORY_KEY, JSON.stringify(hist));
+      else localStorage.removeItem(DSG_POSTS_HISTORY_KEY);
+    }catch(e){ try{ localStorage.removeItem(DSG_POSTS_HISTORY_KEY); }catch(e2){} }
+  }
+  window._bbFreeLocalSpace = _bbFreeLocalSpace;
+  _bbFreeLocalSpace();   // 이미 꽉 찬 기기 — 부팅 시 1회 정리
   let _dsgLastHistoryJson = null;
   function _dsgPushHistorySnap(){
     let json;
     try{ json = JSON.stringify(_dsgPosts); }catch(e){ return; }
     if(json === _dsgLastHistoryJson) return;
     _dsgLastHistoryJson = json;
+    if(json.length > DSG_POSTS_HISTORY_MAX_CHARS) return;   // 너무 큰 스냅샷은 로컬 이력에 안 넣음
     let hist;
     try{ hist = JSON.parse(localStorage.getItem(DSG_POSTS_HISTORY_KEY)||'[]'); }
     catch(e){ hist = []; }
     if(!Array.isArray(hist)) hist = [];
     hist.push({ ts:Date.now(), json });
     if(hist.length > DSG_POSTS_HISTORY_MAX) hist = hist.slice(-DSG_POSTS_HISTORY_MAX);
+    hist = _dsgTrimHistory(hist);
     try{ localStorage.setItem(DSG_POSTS_HISTORY_KEY, JSON.stringify(hist)); }catch(e){
       // 용량 초과 시 오래된 절반 버리고 재시도
       try{
@@ -27351,9 +27381,19 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     return entries;
   }
 
+  /* 브라우저 저장공간이 꽉 차면(QuotaExceededError) setItem 이 throw 해서 saveCredEntry 가
+     원격 push 전에 죽었다 (2026-10-28 "저장 안 돼"). 로컬은 캐시일 뿐 — 실패해도 push 는 계속. */
   function saveNoticeLocal(n){
-    if(n){const j=JSON.stringify(n);localStorage.setItem(NOTICE_KEY,j);_notice_lastHash=j}
-    else{localStorage.removeItem(NOTICE_KEY);_notice_lastHash='null'}
+    if(n){
+      const j=JSON.stringify(n);
+      _notice_lastHash=j;
+      try{localStorage.setItem(NOTICE_KEY,j)}
+      catch(e){
+        if(typeof _bbFreeLocalSpace==='function') _bbFreeLocalSpace();
+        try{localStorage.setItem(NOTICE_KEY,j)}catch(e2){}
+      }
+    }
+    else{try{localStorage.removeItem(NOTICE_KEY)}catch(e){} _notice_lastHash='null'}
   }
 
   async function fetchNoticeFromRemote(){
@@ -27391,8 +27431,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       _noticeClearPushedSnap();      // 원격 반영 확인
     }
     if(json===_notice_lastHash) return;
-    _notice_lastHash=json;
-    localStorage.setItem(NOTICE_KEY,json);
+    saveNoticeLocal(normalized);
     renderCredentials();
     renderNoticeUpdatedTag();
   }
