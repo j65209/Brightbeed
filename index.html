@@ -10951,6 +10951,59 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       </button>
       <h1 class="view-title">MD팀<span class="view-title-sub">/ 구글시트</span></h1>
     </div>
+    <div class="po-wrap">
+
+      <!-- 기획전 일정 캘린더 -->
+      <div class="po-section md-cal-section">
+        <div class="po-section-head md-cal-head">
+          <div class="po-section-title">기획전 일정</div>
+          <div class="po-section-meta md-cal-meta">
+            <div class="md-cal-nav">
+              <button type="button" class="btn-md-cal-nav" onclick="mdCalNavToday()" title="오늘">오늘</button>
+              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="mdCalNavPrev()" aria-label="이전 달">‹</button>
+              <span class="md-cal-monthlabel" id="mdCalMonthLabel">2026.05</span>
+              <button type="button" class="btn-md-cal-nav md-cal-nav-arrow" onclick="mdCalNavNext()" aria-label="다음 달">›</button>
+            </div>
+            <button class="btn po-import md-cal-add" onclick="mdCalOpenAdd()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              일정 추가
+            </button>
+          </div>
+        </div>
+        <div class="md-cal-body">
+          <div class="filter-dd-bar">
+            <div class="filter-dd" id="mdCalBrandDD">
+              <button type="button" class="filter-dd-btn" onclick="mdCalToggleDD('mdCalBrandDD', event)">
+                <span class="filter-dd-btn-label">브랜드</span>
+                <span class="filter-dd-btn-summary" id="mdCalBrandDDSummary">전체</span>
+              </button>
+              <div class="filter-dd-panel" id="mdCalBrandDDPanel"></div>
+            </div>
+            <div class="filter-dd" id="mdCalPlatDD">
+              <button type="button" class="filter-dd-btn" onclick="mdCalToggleDD('mdCalPlatDD', event)">
+                <span class="filter-dd-btn-label">플랫폼</span>
+                <span class="filter-dd-btn-summary" id="mdCalPlatDDSummary">전체</span>
+              </button>
+              <div class="filter-dd-panel" id="mdCalPlatDDPanel"></div>
+            </div>
+            <button type="button" class="filter-dd-reset" onclick="mdCalResetFilters()">전체 보기</button>
+          </div>
+          <div class="md-cal-weekdays">
+            <div class="md-cal-wd md-cal-sun">일</div>
+            <div class="md-cal-wd">월</div>
+            <div class="md-cal-wd">화</div>
+            <div class="md-cal-wd">수</div>
+            <div class="md-cal-wd">목</div>
+            <div class="md-cal-wd">금</div>
+            <div class="md-cal-wd md-cal-sat">토</div>
+          </div>
+          <div class="md-cal-grid" id="mdCalGrid"></div>
+          <div class="md-cal-hint">날짜 칸 클릭 → 그 날짜로 일정 추가 · 일정 클릭 → 수정/삭제 · 일정 위에 마우스 올리면 상세보기</div>
+        </div>
+      </div>
+
+    </div>
+
     <!-- ============ MD팀 구글시트 6종 — 실시간 양방향 연동 (scripts/md-sheets-bridge.gs) ============ -->
     <div class="mds-wrap" id="mdsWrap">
       <div class="mds-bar">
@@ -15096,6 +15149,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       if(typeof renderKDOrders==='function') renderKDOrders().catch(()=>{});
     }
     if(id==='viewMd'){
+      if(typeof renderMdCal==='function') renderMdCal();
+      if(typeof syncMdEventsFromRemote==='function') syncMdEventsFromRemote().catch(()=>{});
       if(typeof mdsInit==='function') mdsInit();
     }
     if(id==='viewMarketing'){
