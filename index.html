@@ -4808,6 +4808,9 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .ably-tbl tr.is-cp td.cp{color:#be185d;font-weight:600}
   .ably-tbl .opt{display:block;color:var(--text-3);font-size:11px;margin-top:2px}
   .ably-tbl tr.is-on td{font-weight:600;color:var(--text-1)}
+  .ably-tbl tr.is-total td{font-weight:700;color:var(--text-1);background:var(--bg-2);border-top:2px solid var(--line-2);border-bottom:0}
+  .ably-tbl .neg{color:var(--danger)}
+  .ably-chk[hidden]{display:none}
   .ably-ev{display:flex;flex-wrap:wrap;gap:8px}
   .ably-ev-card{flex:1 1 260px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
   .ably-ev-card .t{font-weight:600;font-size:13px;color:var(--text-1)}
@@ -9582,6 +9585,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     /* ③ 잘리는 표 — 첫 열(제품·날짜)을 고정하고 나머지만 옆으로 밀기 */
     .vm-table th:first-child,.vm-table td:first-child,
     .ably-tbl th:first-child,.ably-tbl td:first-child{position:sticky;left:0;z-index:1;background:var(--bg-1)}
+    .ably-tbl tr.is-total td:first-child{background:var(--bg-2)}
     .vm-table th:first-child,.ably-tbl th:first-child{background:var(--bg-2)}
     .pc-product-table th:nth-child(-n+2),.pc-product-table td:nth-child(-n+2){position:sticky;z-index:1;background:var(--bg-1)}
     .pc-product-table th:nth-child(1),.pc-product-table td:nth-child(1){left:0;min-width:36px;max-width:36px}
@@ -12108,7 +12112,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         <div class="ably-kpis" id="stratKpis"></div>
         <div class="ably-formula" id="stratFormula"></div>
 
-        <section class="ably-sec">
+        <!-- 기획전 · 쿠폰은 플랫폼 탭에서만 (공홈은 쓰지 않아 숨김) -->
+        <section class="ably-sec" id="stratEvSec">
           <h2>기획전 <span id="stratEvN"></span></h2>
           <div id="stratEvents"></div>
         </section>
@@ -12118,12 +12123,12 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
           <summary><h2>주문 내역 <span id="stratOrdN"></span></h2></summary>
           <div class="ably-fold-tools">
             <label class="ably-chk"><input type="checkbox" id="stratStatusShow" onchange="stratRenderOrders()"> 상태 보기</label>
-            <label class="ably-chk"><input type="checkbox" id="stratCouponOnly" onchange="stratRenderOrders()"> 쿠폰 사용만</label>
+            <label class="ably-chk" id="stratCouponOnlyWrap"><input type="checkbox" id="stratCouponOnly" onchange="stratRenderOrders()"> 쿠폰 사용만</label>
           </div>
           <div class="ably-tbl-wrap"><table class="ably-tbl" id="stratOrders"></table></div>
         </details>
 
-        <section class="ably-sec">
+        <section class="ably-sec" id="stratCpSec">
           <h2>쿠폰 현황 <span id="stratCpN"></span></h2>
           <div class="ably-tbl-wrap"><table class="ably-tbl" id="stratCoupons"></table></div>
         </section>
@@ -36816,14 +36821,14 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const k=STRAT_KIND[c.kind]||STRAT_KIND.home;
     document.getElementById('stratPendingNote').innerHTML=
       `<span class="ably-badge soon">준비 완료</span><b>${_stratEsc(c.display)} ${_stratEsc(c.chLabel)}</b> 일일 보고서 — 데이터 연결을 기다리는 중이에요.<br>`
-      +'에이블리 일일 보고서와 같은 양식(주문 · 쿠폰 · 실결제 · 수수료 · 배송비 · 광고비 · 원가 · 순이익 · 기획전)으로 틀을 만들어 뒀어요. 수집기가 연결되면 매일 아침 어제 보고서가 여기에 자동으로 표시돼요.'
+      +`에이블리 일일 보고서와 같은 양식(${c.kind==='home'?'주문 · 네이버페이 주문형 · 실결제 · 수수료 · 배송비 · 광고비 · 원가 · 순이익':'주문 · 쿠폰 · 실결제 · 수수료 · 배송비 · 광고비 · 원가 · 순이익 · 기획전'})으로 틀을 만들어 뒀어요. 수집기가 연결되면 매일 아침 어제 보고서가 여기에 자동으로 표시돼요.`
       +`<span class="strat-pending-path">데이터 위치: brightbeed-reports/${_stratEsc(c.path)}/index.json · ${_stratEsc(c.path)}/daily/YYYY-MM-DD.json</span>`;
     const kpi=(l,sub,cls)=>`<div class="ably-kpi ${cls||''}"><div class="ably-kpi-l">${l}</div><div class="ably-kpi-v">—</div><div class="ably-kpi-s">${sub}</div></div>`;
     document.getElementById('stratPendingKpis').innerHTML=[
       kpi('순이익', '실결제 대비 이익률', 'is-net'),
-      kpi('실결제 금액', '판매금액 − 쿠폰 · 할인'),
+      kpi('실결제 금액', c.kind==='home'?'상품 + 고객이 낸 배송비':'판매금액 − 쿠폰 · 할인'),
       kpi('주문', '상품 건수 · 수량'),
-      kpi('쿠폰 사용', '쿠폰 주문 · 할인액'),
+      c.kind==='home' ? kpi('네이버페이 주문형', '건수 · 실결제 비중') : kpi('쿠폰 사용', '쿠폰 주문 · 할인액'),
       kpi(_stratEsc(k.fee), '수수료율'),
       kpi('배송비', '주문당 ₩2,200'),
       kpi('광고비', _stratEsc(k.ad)),
@@ -36836,6 +36841,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
 
   function _stratRender(c, rep, days){
     const s=rep.summary||{}, a=rep.assumptions||{}, k=STRAT_KIND[c.kind]||STRAT_KIND.home;
+    // 공홈은 쿠폰·기획전을 쓰지 않아 그 칸들을 숨기고, 대신 절반 넘는 네이버페이 주문형을 보여 준다
+    const isHome=c.kind==='home';
     _stratRenderTitle(c, rep);
     const kpi=(l,v,sub,cls)=>`<div class="ably-kpi ${cls||''}"><div class="ably-kpi-l">${l}</div><div class="ably-kpi-v">${v}</div><div class="ably-kpi-s">${sub||''}</div></div>`;
     const net=Number(s.net)||0;
@@ -36844,8 +36851,10 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       kpi('순이익', `<span class="${net<0?'neg':''}">₩${_stratW(net)}</span>`, '실결제 대비 '+_stratPct(s.net_rate), 'is-net'),
       // 공홈은 실결제에 고객이 낸 배송비가 들어가서 구성으로 보여 줌
       kpi('실결제 금액', '₩'+_stratW(s.paid), s.shipping_income?`상품 ₩${_stratW(s.gross)} · 배송비 ₩${_stratW(s.shipping_income)}`:'판매금액 ₩'+_stratW(s.gross)),
-      kpi('주문', _stratW(s.orders)+'건', '상품 '+_stratW(s.items)+'건 · 수량 '+_stratW(s.qty)+'개'+(s.naverpay_orders?` · 네이버페이 ${_stratW(s.naverpay_orders)}건`:'')),
-      kpi('쿠폰 사용', _stratW(s.coupon_orders)+'건', '할인 ₩'+_stratW(s.coupon_discount)+(cpPlat?` (${_stratEsc(c.chLabel)} 부담 ₩${_stratW(cpPlat)})`:'')),
+      kpi('주문', _stratW(s.orders)+'건', '상품 '+_stratW(s.items)+'건 · 수량 '+_stratW(s.qty)+'개'),
+      isHome
+        ? kpi('네이버페이 주문형', _stratW(s.naverpay_orders||0)+'건', s.paid?`₩${_stratW(s.naverpay_paid||0)} · 실결제의 ${_stratPct((s.naverpay_paid||0)/s.paid)}`:'')
+        : kpi('쿠폰 사용', _stratW(s.coupon_orders)+'건', '할인 ₩'+_stratW(s.coupon_discount)+(cpPlat?` (${_stratEsc(c.chLabel)} 부담 ₩${_stratW(cpPlat)})`:'')),
       kpi(_stratEsc(a.fee_label||k.fee), '₩'+_stratW(s.fees_est), '수수료율 '+_stratPct(a.fee_rate)),
       kpi('배송비', '₩'+_stratW(s.shipping), _stratW(s.orders)+'건 × ₩'+_stratW(a.shipping_cost_per_order||2200)),
       // 공홈 광고비는 마케팅팀이 다음 날 광고 시트에 넣는다 — 아직이면 0원 대신 미입력 표시 (저녁 재수집 때 채워짐)
@@ -36860,6 +36869,11 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       +(hasCost?'원가는 원가 시트에서 상품명·옵션으로 찾았고, 시트에 없는 색상은 같은 상품의 기본 원가(기본값)를 썼어요.':'이 보고서에는 원가가 포함되지 않았어요.')
       +(s.events_running?` · 진행 중 기획전 ${_stratW(s.events_running)}개`:'')
       +(s.excluded_items?` · 취소·반품 제외 ${_stratW(s.excluded_items)}건`:'');
+
+    document.getElementById('stratEvSec').hidden=isHome;
+    document.getElementById('stratCpSec').hidden=isHome;
+    document.getElementById('stratCouponOnlyWrap').hidden=isHome;
+    if(isHome) document.getElementById('stratCouponOnly').checked=false;
 
     const evs=rep.events||[];
     const _evCnt=st=>evs.filter(e=>e.state===st).length;
@@ -36877,8 +36891,14 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         +cps.map(cp=>`<tr><td>${_stratEsc(cp.name)}</td><td>${_stratEsc(STRAT_COUPON_STATE[cp.state]||cp.state||'-')}</td><td class="n">${_stratEsc(cp.discount)}</td><td class="n">${cp.minimum_price?'₩'+_stratW(cp.minimum_price):'-'}</td><td class="n">${_stratW(cp.used)}/${_stratW(cp.total)}</td><td class="n">₩${_stratW(cp.coupon_discount)}</td><td class="n">${cp.roas!=null?_stratW(cp.roas)+'%':'-'}</td><td>${_stratDay(cp.start)} ~ ${_stratDay(cp.end).startsWith('9999')?'상시':_stratDay(cp.end)}</td></tr>`).join('')
       : `<tr><td class="ably-empty">${_stratEsc(rep.coupons_note||'쿠폰이 없어요.')}</td></tr>`;
 
-    document.getElementById('stratTrend').innerHTML='<tr><th>날짜</th><th class="n">주문</th><th class="n">쿠폰주문</th><th class="n">실결제</th><th class="n">광고비</th><th class="n">원가</th><th class="n">순이익</th></tr>'
-      +days.slice(0,14).map(d=>`<tr class="${d.date===rep.date?'is-on':''}"><td>${_stratEsc(d.date)}</td><td class="n">${_stratW(d.orders)}</td><td class="n">${_stratW(d.coupon_orders)}</td><td class="n">₩${_stratW(d.paid)}</td><td class="n">₩${_stratW(d.ad_spend)}</td><td class="n">${d.cost!=null?'₩'+_stratW(d.cost):'-'}</td><td class="n">₩${_stratW(d.net)}</td></tr>`).join('');
+    // 최근 일별 추이 + 맨 아래 합계 (보이는 날들만 더함)
+    const shown=days.slice(0,14);
+    const T=key=>shown.reduce((acc,d)=>acc+(Number(d[key])||0),0);
+    const money=(v)=>`<span class="${v<0?'neg':''}">₩${_stratW(v)}</span>`;
+    const cpCol=v=>isHome?'':`<td class="n">${_stratW(v)}</td>`;
+    document.getElementById('stratTrend').innerHTML=`<tr><th>날짜</th><th class="n">주문</th>${isHome?'':'<th class="n">쿠폰주문</th>'}<th class="n">실결제</th><th class="n">광고비</th><th class="n">원가</th><th class="n">순이익</th></tr>`
+      +shown.map(d=>`<tr class="${d.date===rep.date?'is-on':''}"><td>${_stratEsc(d.date)}</td><td class="n">${_stratW(d.orders)}</td>${cpCol(d.coupon_orders)}<td class="n">₩${_stratW(d.paid)}</td><td class="n">₩${_stratW(d.ad_spend)}</td><td class="n">${d.cost!=null?'₩'+_stratW(d.cost):'-'}</td><td class="n">${money(Number(d.net)||0)}</td></tr>`).join('')
+      +(shown.length?`<tr class="is-total"><td>합계 · ${shown.length}일</td><td class="n">${_stratW(T('orders'))}</td>${cpCol(T('coupon_orders'))}<td class="n">₩${_stratW(T('paid'))}</td><td class="n">₩${_stratW(T('ad_spend'))}</td><td class="n">${shown.some(d=>d.cost!=null)?'₩'+_stratW(T('cost')):'-'}</td><td class="n">${money(T('net'))}</td></tr>`:'');
 
     const gen=rep.generated_at?new Date(rep.generated_at):null;
     document.getElementById('stratFoot').textContent=(gen?'생성 '+gen.toLocaleString('ko-KR')+' · ':'')+(a.excluded_status||'')+' · 데이터: '+(a.source||k.src)+' (비공개 저장소)';
@@ -36886,14 +36906,15 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
 
   function stratRenderOrders(){
     const rep=_strat.report; if(!rep) return;
-    const only=document.getElementById('stratCouponOnly').checked;
+    const isHome=rep.channel==='home';  // 공홈은 쿠폰 열 없음
+    const only=!isHome && document.getElementById('stratCouponOnly').checked;
     const showSt=document.getElementById('stratStatusShow').checked;  // 상태 열은 기본 접힘
     const all=rep.orders||[];
     const list=only?all.filter(o=>o.coupon>0):all;
     document.getElementById('stratOrdN').textContent=`${list.length}건${only?' (쿠폰 사용)':''}`;
     document.getElementById('stratOrders').innerHTML=list.length
-      ? '<tr><th>결제</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th><th class="n">쿠폰</th><th class="n">기타할인</th><th class="n">실결제</th><th class="n">원가</th>'+(showSt?'<th>상태</th>':'')+'</tr>'
-        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}" title="${_stratEsc(o.status)}"><td>${_stratTime(o.checked_at)}</td><td>${_stratEsc(o.goods_name)}<span class="opt">${_stratEsc(o.option)}</span></td><td class="n">${_stratW(o.ea)}</td><td class="n">₩${_stratW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_stratW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_stratW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_stratW(o.paid)}</td><td class="n" title="${_stratEsc(o.cost_name||'')}">${o.cost_match==null?'-':o.cost_match==='none'?'<span class="neg">미확인</span>':'₩'+_stratW(o.cost)+(o.cost_match==='base'?'<span class="opt">기본값</span>':'')}</td>${showSt?`<td>${_stratEsc(o.status)}</td>`:''}</tr>`).join('')
+      ? `<tr><th>결제</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th>${isHome?'':'<th class="n">쿠폰</th>'}<th class="n">기타할인</th><th class="n">실결제</th><th class="n">원가</th>`+(showSt?'<th>상태</th>':'')+'</tr>'
+        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}" title="${_stratEsc(o.status)}"><td>${_stratTime(o.checked_at)}</td><td>${_stratEsc(o.goods_name)}<span class="opt">${_stratEsc(o.option)}</span></td><td class="n">${_stratW(o.ea)}</td><td class="n">₩${_stratW(o.gross)}</td>${isHome?'':`<td class="n cp">${o.coupon?'−₩'+_stratW(o.coupon):'-'}</td>`}<td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_stratW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_stratW(o.paid)}</td><td class="n" title="${_stratEsc(o.cost_name||'')}">${o.cost_match==null?'-':o.cost_match==='none'?'<span class="neg">미확인</span>':'₩'+_stratW(o.cost)+(o.cost_match==='base'?'<span class="opt">기본값</span>':'')}</td>${showSt?`<td>${_stratEsc(o.status)}</td>`:''}</tr>`).join('')
       : '<tr><td class="ably-empty">해당하는 주문이 없어요.</td></tr>';
   }
 
