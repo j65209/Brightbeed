@@ -4839,6 +4839,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .strat-rep-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0;font-size:16px;font-weight:700;color:var(--text-1)}
   .strat-rep-title .brand-dot{width:10px;height:10px;border-radius:50%;flex:none}
   .strat-rep-title small{font-size:12px;font-weight:500;color:var(--text-3)}
+  .strat-rep-title .strat-live{color:var(--ok);font-weight:700}
+  .ably-kpi-s .warn{color:var(--warn)}
   .strat-rep-head .ably-datebar[hidden]{display:none}
   .strat-pending{display:flex;flex-direction:column;gap:12px}
   .strat-pending[hidden]{display:none}
@@ -36636,6 +36638,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   const _stratEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const _stratPct=n=>((Number(n)||0)*100).toFixed(1)+'%';
   const _stratDay=s=>String(s||'').slice(0,10);
+  const _stratToday=()=>new Date(Date.now()+9*3600e3).toISOString().slice(0,10);  // KST 오늘
+  const _stratDateOptions=days=>days.map(d=>`<option value="${_stratEsc(d.date)}">${_stratEsc(d.date)}${d.as_of?` · ${_stratEsc(d.as_of)} 기준`:''}</option>`).join('');
   const _stratTime=s=>String(s||'').replace('T',' ').slice(11,16);
 
   // 본문 전환 — 'status'(안내 문구) · 'pending'(준비 중 틀) · 'body'(보고서). keepDate: 날짜만 바꾸는 중이면 날짜 막대 유지
@@ -36708,12 +36712,15 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       const idx=_strat.index[c.id];
       const st=idx===undefined?'loading':idx===null?'pending':idx.error?'error':'live';
       const last=st==='live'?(idx.days||[])[0]:null;
+      // as_of = 하루가 안 끝난(30분마다 다시 계산하는) 보고서의 계산 시각
+      const nowLive=!!(last&&last.as_of&&last.date===_stratToday());
+      const when=last?(nowLive?`오늘 ${_stratEsc(last.as_of)} 기준`:_stratEsc(String(last.date).slice(5).replace('-','/'))):'';
       const sub=st==='loading'?'확인 중…'
         :st==='pending'?'데이터 연결 대기'
         :st==='error'?'불러오기 실패'
-        :last?`${_stratEsc(String(last.date).slice(5).replace('-','/'))} 순이익 <b class="${(Number(last.net)||0)<0?'neg':''}">₩${_stratW(last.net)}</b>`:'보고서 없음';
+        :last?`${when} 순이익${last.cost==null?'(원가 전)':''} <b class="${(Number(last.net)||0)<0?'neg':''}">₩${_stratW(last.net)}</b>`:'보고서 없음';
       // 공홈 카드 태그 = 연결 상태 · 플랫폼 카드 태그 = 플랫폼명 (상태는 흐린 카드 + 아랫줄)
-      const tag=plat?c.chLabel:{loading:'…',pending:'준비중',error:'오류',live:'DAILY'}[st];
+      const tag=plat?c.chLabel:{loading:'…',pending:'준비중',error:'오류',live:nowLive?'LIVE':'DAILY'}[st];
       const on=c.id===cur;
       return `<div class="sub-module${on?' is-active':''}${st==='pending'?' is-pending':''}" role="tab" tabindex="0" aria-selected="${on}" style="--m-color:${c.color};--m-border:${c.color}" onclick="stratSelect('${c.id}')" onkeydown="if(event.key==='Enter')stratSelect('${c.id}')">
         <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:${c.dot};box-shadow:0 0 12px ${c.dot}b3"></span></div>
@@ -36735,8 +36742,12 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
 
   function _stratRenderTitle(c, rep){
     const a=(rep&&rep.assumptions)||{};
+    // 오늘 보고서는 맥미니가 30분마다 다시 계산 — 진행 중 · 계산 시각 (날이 지났는데 남아 있으면 그 시각까지 집계)
+    const live=rep&&rep.as_of
+      ?(rep.date===_stratToday()?` <small class="strat-live">● 진행 중 · ${_stratEsc(rep.as_of)} 기준</small>`:` <small>${_stratEsc(rep.as_of)}까지 집계</small>`)
+      :'';
     document.getElementById('stratRepTitle').innerHTML=`<span class="brand-dot" style="background:${c.dot}"></span>${_stratEsc(c.display)} · ${_stratEsc(c.chLabel)} 일일 보고서`
-      +(rep?` <small>${_stratEsc(a.date_basis||'결제일')} 기준</small>`:'');
+      +(rep?` <small>${_stratEsc(a.date_basis||'결제일')} 기준</small>`:'')+live;
   }
 
   async function stratSelect(id){
@@ -36764,7 +36775,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       _stratShow('status','아직 생성된 보고서가 없어요.<br>맥미니 수집기가 매일 아침 어제 보고서를 만들어요.');
       return;
     }
-    document.getElementById('stratDate').innerHTML=days.map(d=>`<option value="${_stratEsc(d.date)}">${_stratEsc(d.date)}</option>`).join('');
+    document.getElementById('stratDate').innerHTML=_stratDateOptions(days);
     // 채널을 바꿔도 보던 날짜 유지 (그날 보고서가 있으면) — 브랜드끼리 같은 날 비교
     await stratLoadDate(days.some(d=>d.date===_strat.date)?_strat.date:days[0].date, seq);
   }
@@ -36781,6 +36792,9 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(navs[0]) navs[0].disabled=i<0||i>=days.length-1;
     if(navs[1]) navs[1].disabled=i<=0;
     const key=c.id+'|'+date;
+    // 오늘(진행 중) 보고서는 30분마다 바뀜 — index 의 계산 시각과 다르면 캐시를 버리고 새로 받음 (화면에 다시 들어왔을 때 카드만 새 숫자인 일 없게)
+    const row=days[i];
+    if(_strat.cache[key] && row && row.as_of && _strat.cache[key].as_of!==row.as_of) delete _strat.cache[key];
     if(!_strat.cache[key]){
       _stratShow('status','불러오는 중…',true);
       try{
@@ -36816,6 +36830,41 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     });
   }
 
+  // 화면을 켜 둔 동안 10분마다 조용히 다시 불러옴 — 맥미니가 오늘 보고서를 30분마다 다시 계산.
+  // 화면을 지우지 않고(보던 위치 그대로), 못 받은 채널은 이전 것을 그대로 둔다. 보고 있는 오늘 보고서가 바뀌었을 때만 본문을 제자리에서 다시 그림.
+  async function _stratQuietRefresh(){
+    _strat.loadedAt=Date.now();
+    await Promise.all(_stratAll().map(c=>_stratGet(c.path+'/index.json').then(j=>{ _strat.index[c.id]=j; }, ()=>{})));
+    _stratRenderChips();
+    const c=_stratCh(_strat.ch[_strat.tab]);
+    const idx=c&&_strat.index[c.id];
+    if(!idx||idx.error) return;
+    const days=idx.days||[];
+    const row=days.find(d=>d.date===_strat.date);
+    if(!row) return;
+    const sel=document.getElementById('stratDate');
+    sel.innerHTML=_stratDateOptions(days);
+    sel.value=_strat.date;
+    const key=c.id+'|'+_strat.date, cur=_strat.cache[key];
+    if(!row.as_of||!cur||cur.as_of===row.as_of||_strat.report!==cur) return;
+    try{
+      const rep=await _stratGet(c.path+'/daily/'+_strat.date+'.json');
+      if(!rep||_strat.report!==cur) return;  // 그사이 다른 채널 · 날짜로 옮겼으면 안 그림
+      _strat.cache[key]=rep;
+      _strat.report=rep;
+      const y=window.scrollY;
+      _stratRender(c, rep, days);
+      window.scrollTo(0,y);
+    }catch(e){ /* 다음 회차에 다시 */ }
+  }
+  setInterval(()=>{
+    const v=document.getElementById('viewStrategy');
+    if(!v || v.hidden || document.hidden || !_strat.inited) return;
+    if(Date.now()-_strat.loadedAt<10*60*1000) return;
+    const today=_stratToday();
+    if(Object.values(_strat.index).some(i=>i && !i.error && (i.days||[]).some(d=>d.as_of && d.date===today))) _stratQuietRefresh();
+  }, 60*1000);
+
   // 수집기 연결 전 채널 — 실제 보고서와 같은 KPI 틀을 빈 값으로
   function _stratShowPending(c){
     const k=STRAT_KIND[c.kind]||STRAT_KIND.home;
@@ -36848,7 +36897,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const net=Number(s.net)||0;
     const cpPlat=Number(s.coupon_by_platform ?? s.coupon_by_ably)||0;  // 플랫폼이 부담한 쿠폰 할인 (에이블리 보고서는 coupon_by_ably)
     document.getElementById('stratKpis').innerHTML=[
-      kpi('순이익', `<span class="${net<0?'neg':''}">₩${_stratW(net)}</span>`, '실결제 대비 '+_stratPct(s.net_rate), 'is-net'),
+      kpi('순이익', `<span class="${net<0?'neg':''}">₩${_stratW(net)}</span>`, (s.cost==null?'<span class="warn">원가 미반영</span> · ':'')+'실결제 대비 '+_stratPct(s.net_rate), 'is-net'),
       // 공홈은 실결제에 고객이 낸 배송비가 들어가서 구성으로 보여 줌
       kpi('실결제 금액', '₩'+_stratW(s.paid), s.shipping_income?`상품 ₩${_stratW(s.gross)} · 배송비 ₩${_stratW(s.shipping_income)}`:'판매금액 ₩'+_stratW(s.gross)),
       kpi('주문', _stratW(s.orders)+'건', '상품 '+_stratW(s.items)+'건 · 수량 '+_stratW(s.qty)+'개'),
@@ -36858,7 +36907,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       kpi(_stratEsc(a.fee_label||k.fee), '₩'+_stratW(s.fees_est), '수수료율 '+_stratPct(a.fee_rate)),
       kpi('배송비', '₩'+_stratW(s.shipping), _stratW(s.orders)+'건 × ₩'+_stratW(a.shipping_cost_per_order||2200)),
       // 공홈 광고비는 마케팅팀이 다음 날 광고 시트에 넣는다 — 아직이면 0원 대신 미입력 표시 (저녁 재수집 때 채워짐)
-      kpi('광고비', '₩'+_stratW(s.ad_spend), /미입력|못 읽음/.test(a.ad_basis||'')?'<span class="neg">광고 시트 미입력</span>':'광고 기여 매출 ₩'+_stratW(s.ad_order_price)),
+      kpi('광고비', '₩'+_stratW(s.ad_spend), a.ad_estimated?'<span class="warn">메타 기준 추정 · 광고 시트 입력 전</span>'
+        :/미입력|못 읽음|시트 없음/.test(a.ad_basis||'')?'<span class="neg">광고 시트 미입력</span>':'광고 기여 매출 ₩'+_stratW(s.ad_order_price)),
       kpi('원가', s.cost!=null?'₩'+_stratW(s.cost):'—', s.cost==null?'원가 미반영 보고서':(s.cost_missing_items?`<span class="neg">미확인 ${_stratW(s.cost_missing_items)}건</span>`:'전 상품 원가 확인')+(s.cost_base_items?` · 기본값 ${_stratW(s.cost_base_items)}건`:'')),
     ].join('');
     const hasCost=s.cost!=null;
