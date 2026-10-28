@@ -69,6 +69,10 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     --neon-vendor:#4f46e5;
     --neon-vendor-2:#3730a3;
     --neon-vendor-glow:rgba(79,70,229,.4);
+    /* 전략팀 — 잉크 블랙 + 골드 (대표 금고·대표 캘린더와 같은 골드 계열, 이웃 벤더 인디고와 분리) */
+    --neon-strategy:#3a3229;
+    --neon-strategy-2:#0c0a09;
+    --neon-strategy-glow:rgba(212,175,55,.45);
     /* 재고연동 (Brightbeed Stock 임베드) — 비비드 에메랄드 (재고·sync) */
     --neon-pa:#059669;
     --neon-pa-2:#047857;
@@ -955,6 +959,27 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       0 0 32px rgba(79,70,229,.65),
       0 0 96px rgba(55,48,163,.4),
       inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* 히어로 — 전략팀 (잉크 블랙 + 골드) */
+  .hero.hero-strategy .hero-eyebrow{color:#b8860b;text-shadow:0 0 12px var(--neon-strategy-glow)}
+  .btn-neon.btn-strategy{
+    background:linear-gradient(135deg,var(--neon-strategy) 0%,var(--neon-strategy-2) 100%);
+    color:#ffffff;
+    border-color:rgba(212,175,55,.55);
+    box-shadow:
+      0 0 0 1px rgba(212,175,55,.4),
+      0 0 24px rgba(212,175,55,.38),
+      0 0 64px rgba(146,64,14,.22),
+      inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .btn-neon.btn-strategy svg{color:#fcd34d}
+  .btn-neon.btn-strategy:hover:not(:disabled){
+    box-shadow:
+      0 0 0 1px rgba(212,175,55,.6),
+      0 0 32px rgba(212,175,55,.6),
+      0 0 96px rgba(146,64,14,.34),
+      inset 0 1px 0 rgba(255,255,255,.3);
   }
 
   /* 재고연동 — 옵션별 표 */
@@ -4739,11 +4764,11 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .sub-module.m-promo {--m-color:#06b6d4;--m-border:rgba(6,182,212,.4)}
   .sub-module.m-promo .sub-module-icon{color:#06b6d4}
   .sub-module.m-promo .sub-module-tag{color:#06b6d4;border-color:rgba(6,182,212,.45);border-style:solid}
-  .sub-module.m-ably {--m-color:#8b5cf6;--m-border:rgba(139,92,246,.4)}
-  .sub-module.m-ably .sub-module-icon{color:#8b5cf6}
-  .sub-module.m-ably .sub-module-tag{color:#8b5cf6;border-color:rgba(139,92,246,.45);border-style:solid}
+  /* .sub-module 의 display:flex 가 hidden 속성을 덮어쓰므로 명시 (권한 카드 숨김: 대표 전용 금고 등) */
+  .sub-module[hidden]{display:none}
 
-  /* ===== 에이블리 일일 보고서 (viewAbly) — 데이터: 비공개 레포 brightbeed-reports/ably (프록시 경유) ===== */
+  /* ===== 일일 손익 보고서 컴포넌트 (.ably-*) — 전략팀(viewStrategy)의 모든 채널이 같이 쓴다.
+     처음 에이블리 일일 보고서로 만들어서 클래스명만 ably. 데이터: 비공개 레포 brightbeed-reports (프록시 경유) ===== */
   .ably-datebar{margin-left:auto;display:flex;align-items:center;gap:6px}
   .ably-datebar select{padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg-1);color:var(--text-1);font-family:var(--sans);font-size:13px;font-weight:600}
   .ably-nav{width:30px;height:30px;border:1px solid var(--line);border-radius:6px;background:var(--bg-1);color:var(--text-2);font-size:16px;cursor:pointer}
@@ -4796,6 +4821,37 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     .ably-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
     .ably-kpi-v{font-size:17px}
     .ably-datebar select{max-width:130px}
+  }
+
+  /* ===== 전략팀 (viewStrategy) — 공홈/플랫폼 탭 + 채널 카드(광고 시트 브랜드 카드 .adsh-brands 모양) + 보고서 ===== */
+  .lg-tabs.strat-tabs{padding:0;max-width:none;margin:0}
+  .sub-modules.strat-chs{margin:0}
+  .strat-chs .sub-module-sub{font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .strat-chs .sub-module-sub b{color:var(--text-1);font-weight:700}
+  .strat-chs .sub-module-sub .neg{color:var(--danger)}
+  .strat-chs .sub-module.is-pending:not(.is-active){background:var(--bg-0)}
+  .strat-chs .sub-module.is-pending:not(.is-active) .sub-module-title{color:var(--text-3)}
+  .strat-chs .sub-module.is-pending .sub-module-tag{border-style:dashed}
+  .strat-rep-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--line)}
+  .strat-rep-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0;font-size:16px;font-weight:700;color:var(--text-1)}
+  .strat-rep-title .brand-dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .strat-rep-title small{font-size:12px;font-weight:500;color:var(--text-3)}
+  .strat-rep-head .ably-datebar[hidden]{display:none}
+  .strat-pending{display:flex;flex-direction:column;gap:12px}
+  .strat-pending[hidden]{display:none}
+  .strat-pending-note{border:1px dashed var(--line-2);border-radius:10px;background:var(--bg-1);padding:14px 16px;font-size:13px;color:var(--text-2);line-height:1.7}
+  .strat-pending-note b{color:var(--text-1)}
+  .strat-pending-path{display:block;margin-top:6px;font-size:11px;color:var(--text-3);word-break:break-all}
+  .strat-pending .ably-kpi{background:var(--bg-0);border-style:dashed}
+  .strat-pending .ably-kpi-v{color:var(--text-3)}
+  @media (max-width:600px){
+    /* 폰: 채널 카드는 광고 시트처럼 가로로 넘기는 칩 — 칩에는 이름·상태 태그만 (순이익 줄은 보고서 본문에서) */
+    .strat-chs .sub-module-sub{display:none}
+    .sub-modules.adsh-brands.strat-chs .sub-module-tag{display:inline-block}
+    .strat-chs .sub-module:not(.is-pending) .sub-module-tag{display:none}
+    .sub-modules.adsh-brands.strat-chs.is-plat .sub-module-tag{display:inline-block}
+    .strat-rep-head{padding-top:12px}
+    .strat-rep-title{font-size:15px}
   }
   .sub-module.m-ceocal {--m-color:#d4af37;--m-border:rgba(212,175,55,.45)}
   .sub-module.m-ceocal .sub-module-icon{color:#d4af37}
@@ -9658,7 +9714,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       <div class="hcc-body" id="homeCeoCalList"></div>
     </div>
 
-    <!-- 팀 카드: 3열 그리드 통합 (인사·업무일지·물류 / MD·마케팅·디자인·벤더) -->
+    <!-- 팀 카드: 3열 그리드 통합 (인사·업무일지·물류 / MD·마케팅·디자인·벤더·전략) -->
     <div class="hero-row hero-row-3">
       <section class="hero hero-hr">
         <div class="hero-eyebrow">HR</div>
@@ -9721,6 +9777,15 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
         <button class="btn-neon btn-vendor" id="vendorBtn" onclick="triggerVendor()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
           <span id="vendorBtnLabel">벤더팀</span>
+        </button>
+      </section>
+
+      <!-- 전략팀 — 전승훈 · 전수빈 · 김수민 PC 에만 노출 (stratRefreshAccess) -->
+      <section class="hero hero-strategy" id="strategyHero" hidden>
+        <div class="hero-eyebrow">STRATEGY</div>
+        <button class="btn-neon btn-strategy" id="strategyBtn" onclick="triggerStrategy()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <span>전략팀</span>
         </button>
       </section>
     </div>
@@ -9934,12 +9999,6 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
           <div class="sub-module-title">기획전 계산기</div>
           <div class="sub-module-sub">에이블리 · 코페리 정가 자동 · 조건별 마진 분석</div>
           <div class="sub-module-tag">TOOL</div>
-        </div>
-        <div class="sub-module m-ably" onclick="triggerAblyReport()">
-          <div class="sub-module-icon">📊</div>
-          <div class="sub-module-title">에이블리 일일 보고서</div>
-          <div class="sub-module-sub">주문 · 쿠폰 · 실결제 · 원가 · 배송비 2,200원 · 광고비 · 순이익 · 기획전</div>
-          <div class="sub-module-tag">DAILY</div>
         </div>
       </div>
     </div>
@@ -11951,56 +12010,81 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     </div>
   </div>
 
-  <!-- ============ 기획전 계산기 v2 ============ -->
-  <div class="view" id="viewAbly" hidden>
+  <!-- ============ 전략팀 — 채널별 일일 손익 보고서 (전승훈 · 전수빈 · 김수민 전용) ============
+       공홈 탭 = 8개 브랜드 자사몰 · 플랫폼 탭 = 에이블리 · 지그재그 · 스마트스토어 (마케팅팀 매출 탭과 같은 목록).
+       모든 채널이 에이블리 일일 보고서와 같은 양식. 데이터 없는 채널은 같은 틀로 "준비 중" 표시. -->
+  <div class="view" id="viewStrategy" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">에이블리 일일 보고서<span class="view-title-sub" id="ablyMarket">/ 결제일 기준</span></h1>
-      <div class="ably-datebar">
-        <button type="button" class="ably-nav" onclick="ablyShift(1)" aria-label="이전 날짜">‹</button>
-        <select id="ablyDate" onchange="ablyLoad(this.value)" aria-label="보고서 날짜"></select>
-        <button type="button" class="ably-nav" onclick="ablyShift(-1)" aria-label="다음 날짜">›</button>
-      </div>
+      <h1 class="view-title">전략팀<span class="view-title-sub">/ 채널별 일일 손익 보고서</span></h1>
+      <button class="btn po-import akoi-refresh-btn" type="button" id="stratRefreshBtn" onclick="stratRefresh()" title="보고서 다시 불러오기" style="margin-left:auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        새로고침
+      </button>
     </div>
 
     <div class="ably-wrap">
-      <div class="ably-status" id="ablyStatus">불러오는 중…</div>
-      <div id="ablyBody" hidden>
-        <div class="ably-kpis" id="ablyKpis"></div>
-        <div class="ably-formula" id="ablyFormula"></div>
+      <div class="lg-tabs strat-tabs" role="tablist">
+        <button class="lg-tab active" data-strat="home" onclick="stratSwitchTab('home')" role="tab" aria-selected="true">공홈 <span class="lg-tab-badge" id="stratCountHome">–</span></button>
+        <button class="lg-tab" data-strat="platform" onclick="stratSwitchTab('platform')" role="tab" aria-selected="false">플랫폼 <span class="lg-tab-badge" id="stratCountPlatform">–</span></button>
+      </div>
+      <div class="sub-modules adsh-brands strat-chs" id="stratChs" role="tablist"></div>
+
+      <div class="strat-rep-head">
+        <h2 class="strat-rep-title" id="stratRepTitle"></h2>
+        <div class="ably-datebar" id="stratDateBar" hidden>
+          <button type="button" class="ably-nav" onclick="stratShift(1)" aria-label="이전 날짜">‹</button>
+          <select id="stratDate" onchange="stratLoadDate(this.value)" aria-label="보고서 날짜"></select>
+          <button type="button" class="ably-nav" onclick="stratShift(-1)" aria-label="다음 날짜">›</button>
+        </div>
+      </div>
+
+      <div class="ably-status" id="stratStatus">불러오는 중…</div>
+
+      <!-- 데이터 연결 전 채널 — 실제 보고서와 같은 KPI 틀을 빈 값으로 -->
+      <div class="strat-pending" id="stratPending" hidden>
+        <div class="strat-pending-note" id="stratPendingNote"></div>
+        <div class="ably-kpis" id="stratPendingKpis"></div>
+        <div class="ably-formula" id="stratPendingFormula"></div>
+      </div>
+
+      <div id="stratBody" hidden>
+        <div class="ably-kpis" id="stratKpis"></div>
+        <div class="ably-formula" id="stratFormula"></div>
 
         <section class="ably-sec">
-          <h2>기획전 <span id="ablyEvN"></span></h2>
-          <div id="ablyEvents"></div>
+          <h2>기획전 <span id="stratEvN"></span></h2>
+          <div id="stratEvents"></div>
         </section>
 
-        <!-- 주문 내역은 기본 접힘. 날짜를 바꿔도 펼침 상태는 유지(표만 다시 그림). -->
+        <!-- 주문 내역은 기본 접힘. 날짜·채널을 바꿔도 펼침 상태는 유지(표만 다시 그림). -->
         <details class="ably-sec ably-fold">
-          <summary><h2>주문 내역 <span id="ablyOrdN"></span></h2></summary>
+          <summary><h2>주문 내역 <span id="stratOrdN"></span></h2></summary>
           <div class="ably-fold-tools">
-            <label class="ably-chk"><input type="checkbox" id="ablyStatusShow" onchange="ablyRenderOrders()"> 상태 보기</label>
-            <label class="ably-chk"><input type="checkbox" id="ablyCouponOnly" onchange="ablyRenderOrders()"> 쿠폰 사용만</label>
+            <label class="ably-chk"><input type="checkbox" id="stratStatusShow" onchange="stratRenderOrders()"> 상태 보기</label>
+            <label class="ably-chk"><input type="checkbox" id="stratCouponOnly" onchange="stratRenderOrders()"> 쿠폰 사용만</label>
           </div>
-          <div class="ably-tbl-wrap"><table class="ably-tbl" id="ablyOrders"></table></div>
+          <div class="ably-tbl-wrap"><table class="ably-tbl" id="stratOrders"></table></div>
         </details>
 
         <section class="ably-sec">
-          <h2>쿠폰 현황 <span id="ablyCpN"></span></h2>
-          <div class="ably-tbl-wrap"><table class="ably-tbl" id="ablyCoupons"></table></div>
+          <h2>쿠폰 현황 <span id="stratCpN"></span></h2>
+          <div class="ably-tbl-wrap"><table class="ably-tbl" id="stratCoupons"></table></div>
         </section>
 
         <section class="ably-sec">
           <h2>최근 일별 추이</h2>
-          <div class="ably-tbl-wrap"><table class="ably-tbl" id="ablyTrend"></table></div>
+          <div class="ably-tbl-wrap"><table class="ably-tbl" id="stratTrend"></table></div>
         </section>
-        <div class="ably-foot" id="ablyFoot"></div>
+        <div class="ably-foot" id="stratFoot"></div>
       </div>
     </div>
   </div>
 
+  <!-- ============ 기획전 계산기 v2 ============ -->
   <div class="view" id="viewPromoCalc" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
@@ -14983,9 +15067,10 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   }
 
   /* ===== 뷰 전환 + 브라우저 history 연동 (좌측 엣지 스와이프 = 뒤로가기) ===== */
-  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewExecVault','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts','viewCeoCal','viewAbly'];
-  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewExecVault:'vault',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx',viewCeoCal:'ceocal',viewAbly:'ably'};
+  const VIEW_IDS=['viewHome','viewHr','viewDiary','viewLg','viewNotice','viewExecVault','viewCs','viewMd','viewMarketing','viewDesign','viewVendor','viewStrategy','viewStock','viewSixA','viewCleartype','viewSixStock','viewNamegen','viewTopping','viewBadge','viewInsta','viewPromoCalc','viewBrandReport','viewFixedCosts','viewCeoCal'];
+  const VIEW_HASH={viewHome:'',viewHr:'hr',viewDiary:'diary',viewLg:'lg',viewNotice:'notice',viewExecVault:'vault',viewCs:'cs',viewMd:'md',viewMarketing:'mkt',viewDesign:'design',viewVendor:'vendor',viewStrategy:'strategy',viewStock:'stock',viewSixA:'sixA',viewCleartype:'cleartype',viewSixStock:'sixstock',viewNamegen:'namegen',viewTopping:'topping',viewBadge:'badge',viewInsta:'insta',viewPromoCalc:'promo',viewBrandReport:'report',viewFixedCosts:'fx',viewCeoCal:'ceocal'};
   const HASH_VIEW=Object.fromEntries(Object.entries(VIEW_HASH).map(([k,v])=>[v,k]));
+  HASH_VIEW.ably='viewStrategy';  // 옛 에이블리 일일 보고서 주소 (#ably) → 전략팀 플랫폼 탭 · 코페리 에이블리
 
   function applyView(id){
     VIEW_IDS.forEach(v=>{
@@ -15065,8 +15150,15 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     if(id==='viewPromoCalc'){
       if(typeof pcInit==='function') pcInit();
     }
-    if(id==='viewAbly'){
-      if(typeof ablyInit==='function') ablyInit();
+    if(id==='viewStrategy'){
+      // 명단 밖 접근 방어 (해시 직입력·옛 #ably 링크로 진입 시)
+      if(typeof stratHasAccess==='function' && !stratHasAccess()){
+        toast('전략팀 전용 화면입니다','err');
+        history.replaceState({view:'viewHome'},'',location.pathname+location.search);
+        applyView('viewHome');
+        return;
+      }
+      if(typeof stratInit==='function') stratInit();
     }
     if(id==='viewDiary'){
       if(typeof initDiaryView==='function') initDiaryView();
@@ -15111,6 +15203,8 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       if(typeof _diaryInitRealtime === 'function') _diaryInitRealtime();
       // 대표 캘린더 위젯 (전승훈/전수빈 PC + 마스터 에만 노출)
       if(typeof cecRenderHomeCard === 'function') cecRenderHomeCard();
+      // 전략팀 카드 (전승훈/전수빈/김수민 PC 에만 노출)
+      if(typeof stratRefreshAccess === 'function') stratRefreshAccess();
     }
   }
 
@@ -21347,6 +21441,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       if(nameEl){ nameEl.textContent = name; }
       if(typeof whtRefreshAccess==='function') whtRefreshAccess();
       if(typeof execRefreshAccess==='function') execRefreshAccess();
+      if(typeof stratRefreshAccess==='function') stratRefreshAccess();
       if(typeof _diaryApplyHomeVisibility==='function') _diaryApplyHomeVisibility();
       toast(`${name}님으로 로그인되었습니다`, 'ok');
     };
@@ -36358,16 +36453,75 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   window.mdwStamp=mdwStamp;
   window.mdwSetTime=mdwSetTime;
 
-  /* ===== 에이블리 일일 보고서 (viewAbly) =====
-     맥미니 수집기(sixshop-collector/src/ably-daily.ts)가 비공개 레포 j65209/brightbeed-reports 에
-     ably/index.json · ably/daily/{date}.json 을 기록 → 여기서는 프록시(ghFetch, PIN)로 읽기만 한다.
-     레포가 비공개라 raw.githubusercontent 직접 읽기는 불가. */
-  const ABLY_REPO_API='https://api.github.com/repos/j65209/brightbeed-reports/contents/';
-  const _ablyState={index:null, report:null, cache:{}};
-  const ABLY_COUPON_STATE={complete:'발급중', suspend:'발급중지', ready:'발급예정', finish:'종료'};
+  /* ===== 전략팀 (viewStrategy) — 채널별 일일 손익 보고서 =====
+     접근: diary_me ∈ {전승훈, 전수빈, 김수민}. 홈 카드 노출 · 화면 진입 모두 이 명단으로 판정 (마스터여도 명단 밖이면 숨김).
+     채널: 공홈 탭 = BRAND_SECTIONS(8 브랜드 자사몰) · 플랫폼 탭 = PLATFORM_SECTIONS — 마케팅팀 매출 탭과 같은 목록·색.
+     양식: 모든 채널이 에이블리 일일 보고서와 같은 JSON (sixshop-collector/src/ably-daily.ts 의 buildReport 결과).
+     맥미니 수집기가 비공개 레포 j65209/brightbeed-reports 에 {경로}/index.json · {경로}/daily/{date}.json 을 기록하고
+     여기서는 프록시(ghFetch, PIN)로 읽기만 한다 (비공개라 raw.githubusercontent 직접 읽기 불가).
+       공홈   home/{브랜드}/        예) home/6a/index.json
+       플랫폼 {플랫폼}/{브랜드}/     예) zigzag/kop/index.json — 코페리 에이블리만 기존 수집기 경로 ably/ 그대로
+     index.json 이 없는(404) 채널 = 수집기 연결 전 → 같은 틀을 빈 값으로 보여 주는 "준비 중".
+     보고서 JSON 에 assumptions.fee_label · fee_note · source, summary.coupon_by_platform 을 넣으면 채널 기본 문구 대신 쓴다. */
+  const STRAT_ALLOWED=new Set(['전승훈','전수빈','김수민']);
+  const STRAT_REPO_API='https://api.github.com/repos/j65209/brightbeed-reports/contents/';
+  const STRAT_LEGACY_PATH={'ably-kop':'ably'};
+  const STRAT_PLAT_ORDER=['ably','zigzag','smartstore'];
+  const STRAT_DEFAULT_CH={home:'home-6a', platform:'ably-kop'};  // 처음 열 때 — 플랫폼은 이미 수집 중인 코페리 에이블리
+  // 채널 종류별 기본 문구
+  const STRAT_KIND={
+    home:      {fee:'결제수수료 (추정)', ad:'메타 광고비',     src:'식스샵 관리자'},
+    ably:      {fee:'수수료 (추정)',     ad:'에이블리 광고비', src:'에이블리 셀러 어드민'},
+    zigzag:    {fee:'수수료 (추정)',     ad:'지그재그 광고비', src:'지그재그 파트너센터'},
+    smartstore:{fee:'수수료 (추정)',     ad:'네이버 광고비',   src:'스마트스토어센터'},
+  };
+  const STRAT_LAST_KEY='brightbeed_strat_last';  // 마지막으로 본 탭·채널 (이 PC 편의용)
+  const STRAT_COUPON_STATE={complete:'발급중', suspend:'발급중지', ready:'발급예정', finish:'종료'};
+  const _strat={
+    tab:'home', ch:{home:null, platform:null}, date:'',
+    index:{},    // 채널 id → index.json | null(준비 중) | {error}
+    loading:{},  // 채널 id → 진행 중인 index 요청
+    cache:{},    // `${채널 id}|${date}` → daily 보고서
+    report:null, seq:0, inited:false, loadedAt:0, fromHash:false,
+  };
+  // 옛 에이블리 일일 보고서 주소(#ably) → 플랫폼 탭 · 코페리 에이블리 (새로 열 때 + 앱이 켜진 채 주소만 바꿀 때)
+  // popstate 쪽이 주소를 #strategy 로 먼저 바꿔 버리므로, 켜진 채 바뀐 경우는 hashchange 의 newURL 로 판별
+  function _stratLegacyAbly(){ _strat.tab='platform'; _strat.ch.platform='ably-kop'; _strat.fromHash=true; }
+  if((location.hash||'').replace('#','')==='ably') _stratLegacyAbly();
+  window.addEventListener('hashchange',e=>{
+    if(!/#ably$/.test(e.newURL||'')) return;
+    _stratLegacyAbly();
+    const v=document.getElementById('viewStrategy');
+    if(v && !v.hidden) stratSwitchTab('platform');
+  });
 
-  async function _ablyGet(path){
-    const r=await ghFetch(ABLY_REPO_API+path+'?ref=main',{headers:{Accept:'application/vnd.github.raw+json'},cache:'no-store'});
+  function stratHasAccess(){ return STRAT_ALLOWED.has(String(_diaryGetMe()||'').trim()); }
+  function stratRefreshAccess(){
+    const ok=stratHasAccess();
+    const card=document.getElementById('strategyHero');
+    if(card) card.hidden=!ok;
+    const v=document.getElementById('viewStrategy');
+    if(!ok && v && !v.hidden) goHome();
+  }
+  function triggerStrategy(){
+    if(!stratHasAccess()){ toast('전략팀 전용 화면입니다','err'); return; }
+    showView('viewStrategy');
+  }
+
+  function _stratChannels(tab){
+    if(tab==='home') return BRAND_SECTIONS.map(b=>({id:'home-'+b.id, tab, brand:b.id, kind:'home', display:b.display, dot:b.dot, color:b.dot, chLabel:'공홈', path:'home/'+b.id}));
+    const order=BRAND_SECTIONS.map(b=>b.id);
+    return PLATFORM_SECTIONS.map(p=>{
+      const kind=_GROUP_TO_PLAT[p.group]||p.group;
+      const b=BRAND_SECTIONS.find(x=>x.id===p.brand);
+      return {id:p.id, tab, brand:p.brand, kind, display:p.display, dot:b?b.dot:p.dot, color:p.dot, chLabel:p.group, path:STRAT_LEGACY_PATH[p.id]||`${kind}/${p.brand}`};
+    }).sort((a,b)=>(order.indexOf(a.brand)-order.indexOf(b.brand))||(STRAT_PLAT_ORDER.indexOf(a.kind)-STRAT_PLAT_ORDER.indexOf(b.kind)));
+  }
+  function _stratAll(){ return _stratChannels('home').concat(_stratChannels('platform')); }
+  function _stratCh(id){ return _stratAll().find(c=>c.id===id); }
+
+  async function _stratGet(path){
+    const r=await ghFetch(STRAT_REPO_API+path+'?ref=main',{headers:{Accept:'application/vnd.github.raw+json'},cache:'no-store'});
     if(r.status===404) return null;
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j=await r.json();
@@ -36379,134 +36533,284 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     }
     return j;
   }
-  const _ablyW=n=>(Math.round(Number(n)||0)).toLocaleString('ko-KR');
-  const _ablyEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const _ablyPct=n=>((Number(n)||0)*100).toFixed(1)+'%';
-  const _ablyDay=s=>String(s||'').slice(0,10);
-  const _ablyTime=s=>String(s||'').replace('T',' ').slice(11,16);
+  const _stratW=n=>(Math.round(Number(n)||0)).toLocaleString('ko-KR');
+  const _stratEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const _stratPct=n=>((Number(n)||0)*100).toFixed(1)+'%';
+  const _stratDay=s=>String(s||'').slice(0,10);
+  const _stratTime=s=>String(s||'').replace('T',' ').slice(11,16);
 
-  function _ablyStatus(msg){
-    const st=document.getElementById('ablyStatus'), body=document.getElementById('ablyBody');
-    if(msg){st.innerHTML=msg;st.hidden=false;body.hidden=true}
-    else{st.hidden=true;body.hidden=false}
+  // 본문 전환 — 'status'(안내 문구) · 'pending'(준비 중 틀) · 'body'(보고서). keepDate: 날짜만 바꾸는 중이면 날짜 막대 유지
+  function _stratShow(mode, msg, keepDate){
+    const st=document.getElementById('stratStatus');
+    if(mode==='status') st.innerHTML=msg||'';
+    st.hidden=mode!=='status';
+    document.getElementById('stratPending').hidden=mode!=='pending';
+    document.getElementById('stratBody').hidden=mode!=='body';
+    document.getElementById('stratDateBar').hidden=!(mode==='body'||keepDate);
   }
 
-  async function ablyInit(){
-    _ablyStatus('불러오는 중…');
-    try{
-      _ablyState.index=await _ablyGet('ably/index.json');
-    }catch(e){
-      _ablyStatus('보고서 저장소에 연결하지 못했어요.<br>서버(맥미니) 프록시가 꺼져 있거나 비공개 레포 접근 권한이 없을 수 있어요. ('+_ablyEsc(e.message)+')');
+  // 채널 index — 결과: index.json | null(준비 중) | {error}. 화면 열 때 확인하고(10분 지나면 다시), 새로고침 때 강제로.
+  function _stratLoadIndex(c, force){
+    if(_strat.loading[c.id] && !force) return _strat.loading[c.id];
+    if(!force && _strat.index[c.id]!==undefined) return Promise.resolve(_strat.index[c.id]);
+    const p=_stratGet(c.path+'/index.json')
+      .then(j=>j, e=>({error:e.message||String(e)}))
+      .then(v=>{
+        _strat.index[c.id]=v;
+        if(_strat.loading[c.id]===p) delete _strat.loading[c.id];
+        _stratRenderChips();
+        return v;
+      });
+    _strat.loading[c.id]=p;
+    return p;
+  }
+
+  function stratInit(){
+    if(!_strat.inited){
+      _strat.inited=true;
+      if(!_strat.fromHash){
+        try{
+          const s=JSON.parse(localStorage.getItem(STRAT_LAST_KEY)||'null');
+          if(s){
+            if(s.tab==='home'||s.tab==='platform') _strat.tab=s.tab;
+            if(s.home) _strat.ch.home=s.home;
+            if(s.platform) _strat.ch.platform=s.platform;
+          }
+        }catch(e){}
+      }
+      document.getElementById('stratCountHome').textContent=_stratChannels('home').length;
+      document.getElementById('stratCountPlatform').textContent=_stratChannels('platform').length;
+    }
+    // 두 탭 채널을 한꺼번에 확인 → 카드에 연결 상태 · 최근 순이익
+    const stale=Date.now()-_strat.loadedAt>10*60*1000;
+    if(stale) _strat.loadedAt=Date.now();
+    _stratAll().forEach(c=>_stratLoadIndex(c, stale));
+    stratSwitchTab(_strat.tab);
+  }
+
+  function stratSwitchTab(tab){
+    _strat.tab=tab==='platform'?'platform':'home';
+    document.querySelectorAll('.lg-tab[data-strat]').forEach(btn=>{
+      const on=btn.dataset.strat===_strat.tab;
+      btn.classList.toggle('active',on);
+      btn.setAttribute('aria-selected',on?'true':'false');
+    });
+    const cur=_strat.ch[_strat.tab];
+    stratSelect(_stratChannels(_strat.tab).some(c=>c.id===cur)?cur:STRAT_DEFAULT_CH[_strat.tab]);
+  }
+
+  function _stratRenderChips(){
+    const wrap=document.getElementById('stratChs');
+    if(!wrap) return;
+    const plat=_strat.tab==='platform';
+    const cur=_strat.ch[_strat.tab];
+    wrap.classList.toggle('is-plat',plat);
+    wrap.innerHTML=_stratChannels(_strat.tab).map(c=>{
+      const idx=_strat.index[c.id];
+      const st=idx===undefined?'loading':idx===null?'pending':idx.error?'error':'live';
+      const last=st==='live'?(idx.days||[])[0]:null;
+      const sub=st==='loading'?'확인 중…'
+        :st==='pending'?'데이터 연결 대기'
+        :st==='error'?'불러오기 실패'
+        :last?`${_stratEsc(String(last.date).slice(5).replace('-','/'))} 순이익 <b class="${(Number(last.net)||0)<0?'neg':''}">₩${_stratW(last.net)}</b>`:'보고서 없음';
+      // 공홈 카드 태그 = 연결 상태 · 플랫폼 카드 태그 = 플랫폼명 (상태는 흐린 카드 + 아랫줄)
+      const tag=plat?c.chLabel:{loading:'…',pending:'준비중',error:'오류',live:'DAILY'}[st];
+      const on=c.id===cur;
+      return `<div class="sub-module${on?' is-active':''}${st==='pending'?' is-pending':''}" role="tab" tabindex="0" aria-selected="${on}" style="--m-color:${c.color};--m-border:${c.color}" onclick="stratSelect('${c.id}')" onkeydown="if(event.key==='Enter')stratSelect('${c.id}')">
+        <div class="sub-module-icon"><span class="sixstock-brand-dot" style="background:${c.dot};box-shadow:0 0 12px ${c.dot}b3"></span></div>
+        <div class="sub-module-title">${_stratEsc(c.display)}</div>
+        <div class="sub-module-sub">${sub}</div>
+        <div class="sub-module-tag">${_stratEsc(tag)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // 폰에서 채널 칩이 가로로 넘칠 때 선택한 칩이 보이게 — 페이지는 그대로, 칩 줄만 옆으로
+  function _stratRevealActive(){
+    const wrap=document.getElementById('stratChs');
+    const on=wrap && wrap.querySelector('.sub-module.is-active');
+    if(!on || wrap.scrollWidth<=wrap.clientWidth) return;
+    const wr=wrap.getBoundingClientRect(), cr=on.getBoundingClientRect();
+    if(cr.left<wr.left || cr.right>wr.right) wrap.scrollLeft+=cr.left-wr.left-16;
+  }
+
+  function _stratRenderTitle(c, rep){
+    const a=(rep&&rep.assumptions)||{};
+    document.getElementById('stratRepTitle').innerHTML=`<span class="brand-dot" style="background:${c.dot}"></span>${_stratEsc(c.display)} · ${_stratEsc(c.chLabel)} 일일 보고서`
+      +(rep?` <small>${_stratEsc(a.date_basis||'결제일')} 기준</small>`:'');
+  }
+
+  async function stratSelect(id){
+    const c=_stratCh(id);
+    if(!c) return;
+    _strat.ch[c.tab]=id;
+    try{ localStorage.setItem(STRAT_LAST_KEY, JSON.stringify({tab:_strat.tab, home:_strat.ch.home, platform:_strat.ch.platform})); }catch(e){}
+    _stratRenderChips();
+    _stratRevealActive();
+    _stratRenderTitle(c, null);
+    const seq=++_strat.seq;
+    let idx=_strat.index[id];
+    if(idx===undefined || _strat.loading[id]){
+      if(idx===undefined) _stratShow('status','불러오는 중…');
+      idx=await _stratLoadIndex(c);
+    }
+    if(seq!==_strat.seq) return;
+    if(idx && idx.error){
+      _stratShow('status','보고서 저장소에 연결하지 못했어요.<br>서버(맥미니) 프록시가 꺼져 있거나 비공개 레포 접근 권한이 없을 수 있어요. ('+_stratEsc(idx.error)+')');
       return;
     }
-    const days=(_ablyState.index&&_ablyState.index.days)||[];
+    if(!idx){ _stratShowPending(c); return; }
+    const days=idx.days||[];
     if(!days.length){
-      _ablyStatus('아직 생성된 보고서가 없어요.<br>맥미니 수집기가 매일 아침 어제 보고서를 만들어요.');
+      _stratShow('status','아직 생성된 보고서가 없어요.<br>맥미니 수집기가 매일 아침 어제 보고서를 만들어요.');
       return;
     }
-    const sel=document.getElementById('ablyDate');
-    const cur=sel.value;
-    sel.innerHTML=days.map(d=>`<option value="${d.date}">${d.date}</option>`).join('');
-    await ablyLoad(days.some(d=>d.date===cur)?cur:days[0].date);
+    document.getElementById('stratDate').innerHTML=days.map(d=>`<option value="${_stratEsc(d.date)}">${_stratEsc(d.date)}</option>`).join('');
+    // 채널을 바꿔도 보던 날짜 유지 (그날 보고서가 있으면) — 브랜드끼리 같은 날 비교
+    await stratLoadDate(days.some(d=>d.date===_strat.date)?_strat.date:days[0].date, seq);
   }
 
-  async function ablyLoad(date){
-    const sel=document.getElementById('ablyDate');
-    sel.value=date;
-    const days=(_ablyState.index&&_ablyState.index.days)||[];
+  async function stratLoadDate(date, seq){
+    const c=_stratCh(_strat.ch[_strat.tab]);
+    if(!c) return;
+    seq=seq||++_strat.seq;
+    _strat.date=date;
+    document.getElementById('stratDate').value=date;
+    const days=((_strat.index[c.id]||{}).days)||[];
     const i=days.findIndex(d=>d.date===date);
-    const navs=document.querySelectorAll('#viewAbly .ably-nav');
+    const navs=document.querySelectorAll('#stratDateBar .ably-nav');
     if(navs[0]) navs[0].disabled=i<0||i>=days.length-1;
     if(navs[1]) navs[1].disabled=i<=0;
-    try{
-      if(!_ablyState.cache[date]){
-        _ablyStatus('불러오는 중…');
-        _ablyState.cache[date]=await _ablyGet('ably/daily/'+date+'.json');
+    const key=c.id+'|'+date;
+    if(!_strat.cache[key]){
+      _stratShow('status','불러오는 중…',true);
+      try{
+        _strat.cache[key]=await _stratGet(c.path+'/daily/'+date+'.json');
+      }catch(e){
+        if(seq===_strat.seq) _stratShow('status',_stratEsc(date)+' 보고서를 불러오지 못했어요. ('+_stratEsc(e.message)+')',true);
+        return;
       }
-    }catch(e){
-      _ablyStatus(_ablyEsc(date)+' 보고서를 불러오지 못했어요. ('+_ablyEsc(e.message)+')');
-      return;
     }
-    const rep=_ablyState.cache[date];
-    if(!rep){_ablyStatus(_ablyEsc(date)+' 보고서가 없어요.');return}
-    _ablyState.report=rep;
-    _ablyRender(rep);
-    _ablyStatus(null);
+    if(seq!==_strat.seq) return;
+    const rep=_strat.cache[key];
+    if(!rep){ _stratShow('status',_stratEsc(date)+' 보고서가 없어요.',true); return; }
+    _strat.report=rep;
+    _stratRender(c, rep, days);
+    _stratShow('body');
   }
 
-  function ablyShift(step){
-    const days=(_ablyState.index&&_ablyState.index.days)||[];
-    const i=days.findIndex(d=>d.date===document.getElementById('ablyDate').value);
+  function stratShift(step){
+    const days=((_strat.index[_strat.ch[_strat.tab]]||{}).days)||[];
+    const i=days.findIndex(d=>d.date===document.getElementById('stratDate').value);
     const n=days[i+step];
-    if(n) ablyLoad(n.date);
+    if(n) stratLoadDate(n.date);
   }
 
-  function _ablyRender(rep){
-    const s=rep.summary||{}, a=rep.assumptions||{};
-    document.getElementById('ablyMarket').textContent='/ '+(rep.market||'에이블리')+' · '+(a.date_basis||'결제일 기준');
+  function stratRefresh(){
+    const btn=document.getElementById('stratRefreshBtn');
+    if(btn){btn.disabled=true;btn.classList.add('spin')}
+    _strat.cache={};
+    _strat.loadedAt=Date.now();
+    Promise.all(_stratAll().map(c=>_stratLoadIndex(c,true))).finally(()=>{
+      if(btn){btn.disabled=false;btn.classList.remove('spin')}
+      stratSelect(_strat.ch[_strat.tab]||STRAT_DEFAULT_CH[_strat.tab]);
+    });
+  }
+
+  // 수집기 연결 전 채널 — 실제 보고서와 같은 KPI 틀을 빈 값으로
+  function _stratShowPending(c){
+    const k=STRAT_KIND[c.kind]||STRAT_KIND.home;
+    document.getElementById('stratPendingNote').innerHTML=
+      `<span class="ably-badge soon">준비 완료</span><b>${_stratEsc(c.display)} ${_stratEsc(c.chLabel)}</b> 일일 보고서 — 데이터 연결을 기다리는 중이에요.<br>`
+      +'에이블리 일일 보고서와 같은 양식(주문 · 쿠폰 · 실결제 · 수수료 · 배송비 · 광고비 · 원가 · 순이익 · 기획전)으로 틀을 만들어 뒀어요. 수집기가 연결되면 매일 아침 어제 보고서가 여기에 자동으로 표시돼요.'
+      +`<span class="strat-pending-path">데이터 위치: brightbeed-reports/${_stratEsc(c.path)}/index.json · ${_stratEsc(c.path)}/daily/YYYY-MM-DD.json</span>`;
+    const kpi=(l,sub,cls)=>`<div class="ably-kpi ${cls||''}"><div class="ably-kpi-l">${l}</div><div class="ably-kpi-v">—</div><div class="ably-kpi-s">${sub}</div></div>`;
+    document.getElementById('stratPendingKpis').innerHTML=[
+      kpi('순이익', '실결제 대비 이익률', 'is-net'),
+      kpi('실결제 금액', '판매금액 − 쿠폰 · 할인'),
+      kpi('주문', '상품 건수 · 수량'),
+      kpi('쿠폰 사용', '쿠폰 주문 · 할인액'),
+      kpi(_stratEsc(k.fee), '수수료율'),
+      kpi('배송비', '주문당 ₩2,200'),
+      kpi('광고비', _stratEsc(k.ad)),
+      kpi('원가', '원가 시트 상품명 · 옵션 매칭'),
+    ].join('');
+    document.getElementById('stratPendingFormula').innerHTML=
+      `<b>순이익</b> = 실결제 − ${_stratEsc(k.fee.replace(' (추정)',''))} − 배송비 − ${_stratEsc(k.ad)} − 원가`;
+    _stratShow('pending');
+  }
+
+  function _stratRender(c, rep, days){
+    const s=rep.summary||{}, a=rep.assumptions||{}, k=STRAT_KIND[c.kind]||STRAT_KIND.home;
+    _stratRenderTitle(c, rep);
     const kpi=(l,v,sub,cls)=>`<div class="ably-kpi ${cls||''}"><div class="ably-kpi-l">${l}</div><div class="ably-kpi-v">${v}</div><div class="ably-kpi-s">${sub||''}</div></div>`;
     const net=Number(s.net)||0;
-    document.getElementById('ablyKpis').innerHTML=[
-      kpi('순이익', `<span class="${net<0?'neg':''}">₩${_ablyW(net)}</span>`, '실결제 대비 '+_ablyPct(s.net_rate), 'is-net'),
-      kpi('실결제 금액', '₩'+_ablyW(s.paid), '판매금액 ₩'+_ablyW(s.gross)),
-      kpi('주문', _ablyW(s.orders)+'건', '상품 '+_ablyW(s.items)+'건 · 수량 '+_ablyW(s.qty)+'개'),
-      kpi('쿠폰 사용', _ablyW(s.coupon_orders)+'건', '할인 ₩'+_ablyW(s.coupon_discount)+(s.coupon_by_ably?' (에이블리 부담 ₩'+_ablyW(s.coupon_by_ably)+')':'')),
-      kpi('수수료 (추정)', '₩'+_ablyW(s.fees_est), '수수료율 '+_ablyPct(a.fee_rate)),
-      kpi('배송비', '₩'+_ablyW(s.shipping), _ablyW(s.orders)+'건 × ₩'+_ablyW(a.shipping_cost_per_order||2200)),
-      kpi('광고비', '₩'+_ablyW(s.ad_spend), '광고 기여 매출 ₩'+_ablyW(s.ad_order_price)),
-      kpi('원가', s.cost!=null?'₩'+_ablyW(s.cost):'—', s.cost==null?'원가 미반영 보고서':(s.cost_missing_items?`<span class="neg">미확인 ${_ablyW(s.cost_missing_items)}건</span>`:'전 상품 원가 확인')+(s.cost_base_items?` · 기본값 ${_ablyW(s.cost_base_items)}건`:'')),
+    const cpPlat=Number(s.coupon_by_platform ?? s.coupon_by_ably)||0;  // 플랫폼이 부담한 쿠폰 할인 (에이블리 보고서는 coupon_by_ably)
+    document.getElementById('stratKpis').innerHTML=[
+      kpi('순이익', `<span class="${net<0?'neg':''}">₩${_stratW(net)}</span>`, '실결제 대비 '+_stratPct(s.net_rate), 'is-net'),
+      kpi('실결제 금액', '₩'+_stratW(s.paid), '판매금액 ₩'+_stratW(s.gross)),
+      kpi('주문', _stratW(s.orders)+'건', '상품 '+_stratW(s.items)+'건 · 수량 '+_stratW(s.qty)+'개'),
+      kpi('쿠폰 사용', _stratW(s.coupon_orders)+'건', '할인 ₩'+_stratW(s.coupon_discount)+(cpPlat?` (${_stratEsc(c.chLabel)} 부담 ₩${_stratW(cpPlat)})`:'')),
+      kpi(_stratEsc(a.fee_label||k.fee), '₩'+_stratW(s.fees_est), '수수료율 '+_stratPct(a.fee_rate)),
+      kpi('배송비', '₩'+_stratW(s.shipping), _stratW(s.orders)+'건 × ₩'+_stratW(a.shipping_cost_per_order||2200)),
+      kpi('광고비', '₩'+_stratW(s.ad_spend), '광고 기여 매출 ₩'+_stratW(s.ad_order_price)),
+      kpi('원가', s.cost!=null?'₩'+_stratW(s.cost):'—', s.cost==null?'원가 미반영 보고서':(s.cost_missing_items?`<span class="neg">미확인 ${_stratW(s.cost_missing_items)}건</span>`:'전 상품 원가 확인')+(s.cost_base_items?` · 기본값 ${_stratW(s.cost_base_items)}건`:'')),
     ].join('');
     const hasCost=s.cost!=null;
-    document.getElementById('ablyFormula').innerHTML=
-      `<b>순이익</b> = 실결제 ₩${_ablyW(s.paid)} − 수수료 ₩${_ablyW(s.fees_est)} − 배송비 ₩${_ablyW(s.shipping)} − 광고비 ₩${_ablyW(s.ad_spend)}${hasCost?` − 원가 ₩${_ablyW(s.cost)}`:''} = <b>₩${_ablyW(net)}</b>`
-      +`<br>수수료는 ${_ablyEsc(a.fee_basis||'최근 정산 내역')}의 평균 수수료율로 추정한 값이에요. `
+    document.getElementById('stratFormula').innerHTML=
+      `<b>순이익</b> = 실결제 ₩${_stratW(s.paid)} − 수수료 ₩${_stratW(s.fees_est)} − 배송비 ₩${_stratW(s.shipping)} − 광고비 ₩${_stratW(s.ad_spend)}${hasCost?` − 원가 ₩${_stratW(s.cost)}`:''} = <b>₩${_stratW(net)}</b>`
+      +'<br>'+(a.fee_note?_stratEsc(a.fee_note)+' ':`수수료는 ${_stratEsc(a.fee_basis||'최근 정산 내역')}의 평균 수수료율로 추정한 값이에요. `)
       +(hasCost?'원가는 원가 시트에서 상품명·옵션으로 찾았고, 시트에 없는 색상은 같은 상품의 기본 원가(기본값)를 썼어요.':'이 보고서에는 원가가 포함되지 않았어요.')
-      +(s.events_running?` · 진행 중 기획전 ${_ablyW(s.events_running)}개`:'')
-      +(s.excluded_items?` · 취소·반품 제외 ${_ablyW(s.excluded_items)}건`:'');
+      +(s.events_running?` · 진행 중 기획전 ${_stratW(s.events_running)}개`:'')
+      +(s.excluded_items?` · 취소·반품 제외 ${_stratW(s.excluded_items)}건`:'');
 
     const evs=rep.events||[];
     const _evCnt=st=>evs.filter(e=>e.state===st).length;
-    document.getElementById('ablyEvN').textContent=evs.length?[['진행중','진행'],['승인대기','승인대기'],['예정','예정']].filter(([st])=>_evCnt(st)).map(([st,l])=>`${_evCnt(st)}개 ${l}`).join(' · '):'';
-    document.getElementById('ablyEvents').innerHTML=evs.length
-      ? '<div class="ably-ev">'+evs.map(e=>`<div class="ably-ev-card"><div class="t"><span class="ably-badge ${e.state==='진행중'?'on':'soon'}">${_ablyEsc(e.state)}</span>${_ablyEsc(e.name)}</div><div class="d">${_ablyDay(e.start)} ~ ${_ablyDay(e.end)} · 승인 ${_ablyW(e.approved_goods)}/${_ablyW(e.applied_goods)}개 상품${e.applied_status==='pending_approval'?' · 승인 대기':''}</div></div>`).join('')+'</div>'
+    document.getElementById('stratEvN').textContent=evs.length?[['진행중','진행'],['승인대기','승인대기'],['예정','예정']].filter(([st])=>_evCnt(st)).map(([st,l])=>`${_evCnt(st)}개 ${l}`).join(' · '):'';
+    document.getElementById('stratEvents').innerHTML=evs.length
+      ? '<div class="ably-ev">'+evs.map(e=>`<div class="ably-ev-card"><div class="t"><span class="ably-badge ${e.state==='진행중'?'on':'soon'}">${_stratEsc(e.state)}</span>${_stratEsc(e.name)}</div><div class="d">${_stratDay(e.start)} ~ ${_stratDay(e.end)} · 승인 ${_stratW(e.approved_goods)}/${_stratW(e.applied_goods)}개 상품${e.applied_status==='pending_approval'?' · 승인 대기':''}</div></div>`).join('')+'</div>'
       : '<div class="ably-empty">참여 중이거나 예정된 기획전이 없어요.</div>';
 
-    ablyRenderOrders();
+    stratRenderOrders();
 
     const cps=rep.coupons||[];
-    document.getElementById('ablyCpN').textContent=cps.length?cps.length+'개':'';
-    document.getElementById('ablyCoupons').innerHTML=cps.length
+    document.getElementById('stratCpN').textContent=cps.length?cps.length+'개':'';
+    document.getElementById('stratCoupons').innerHTML=cps.length
       ? '<tr><th>쿠폰</th><th>상태</th><th class="n">할인</th><th class="n">최소주문</th><th class="n">사용/발급</th><th class="n">할인액</th><th class="n">ROAS</th><th>기간</th></tr>'
-        +cps.map(c=>`<tr><td>${_ablyEsc(c.name)}</td><td>${_ablyEsc(ABLY_COUPON_STATE[c.state]||c.state||'-')}</td><td class="n">${_ablyEsc(c.discount)}</td><td class="n">${c.minimum_price?'₩'+_ablyW(c.minimum_price):'-'}</td><td class="n">${_ablyW(c.used)}/${_ablyW(c.total)}</td><td class="n">₩${_ablyW(c.coupon_discount)}</td><td class="n">${c.roas!=null?_ablyW(c.roas)+'%':'-'}</td><td>${_ablyDay(c.start)} ~ ${_ablyDay(c.end).startsWith('9999')?'상시':_ablyDay(c.end)}</td></tr>`).join('')
+        +cps.map(cp=>`<tr><td>${_stratEsc(cp.name)}</td><td>${_stratEsc(STRAT_COUPON_STATE[cp.state]||cp.state||'-')}</td><td class="n">${_stratEsc(cp.discount)}</td><td class="n">${cp.minimum_price?'₩'+_stratW(cp.minimum_price):'-'}</td><td class="n">${_stratW(cp.used)}/${_stratW(cp.total)}</td><td class="n">₩${_stratW(cp.coupon_discount)}</td><td class="n">${cp.roas!=null?_stratW(cp.roas)+'%':'-'}</td><td>${_stratDay(cp.start)} ~ ${_stratDay(cp.end).startsWith('9999')?'상시':_stratDay(cp.end)}</td></tr>`).join('')
       : '<tr><td class="ably-empty">쿠폰이 없어요.</td></tr>';
 
-    const days=((_ablyState.index&&_ablyState.index.days)||[]).slice(0,14);
-    document.getElementById('ablyTrend').innerHTML='<tr><th>날짜</th><th class="n">주문</th><th class="n">쿠폰주문</th><th class="n">실결제</th><th class="n">광고비</th><th class="n">원가</th><th class="n">순이익</th></tr>'
-      +days.map(d=>`<tr class="${d.date===rep.date?'is-on':''}"><td>${d.date}</td><td class="n">${_ablyW(d.orders)}</td><td class="n">${_ablyW(d.coupon_orders)}</td><td class="n">₩${_ablyW(d.paid)}</td><td class="n">₩${_ablyW(d.ad_spend)}</td><td class="n">${d.cost!=null?'₩'+_ablyW(d.cost):'-'}</td><td class="n">₩${_ablyW(d.net)}</td></tr>`).join('');
+    document.getElementById('stratTrend').innerHTML='<tr><th>날짜</th><th class="n">주문</th><th class="n">쿠폰주문</th><th class="n">실결제</th><th class="n">광고비</th><th class="n">원가</th><th class="n">순이익</th></tr>'
+      +days.slice(0,14).map(d=>`<tr class="${d.date===rep.date?'is-on':''}"><td>${_stratEsc(d.date)}</td><td class="n">${_stratW(d.orders)}</td><td class="n">${_stratW(d.coupon_orders)}</td><td class="n">₩${_stratW(d.paid)}</td><td class="n">₩${_stratW(d.ad_spend)}</td><td class="n">${d.cost!=null?'₩'+_stratW(d.cost):'-'}</td><td class="n">₩${_stratW(d.net)}</td></tr>`).join('');
 
     const gen=rep.generated_at?new Date(rep.generated_at):null;
-    document.getElementById('ablyFoot').textContent=(gen?'생성 '+gen.toLocaleString('ko-KR')+' · ':'')+(a.excluded_status||'')+' · 데이터: 에이블리 셀러 어드민 (비공개 저장소)';
+    document.getElementById('stratFoot').textContent=(gen?'생성 '+gen.toLocaleString('ko-KR')+' · ':'')+(a.excluded_status||'')+' · 데이터: '+(a.source||k.src)+' (비공개 저장소)';
   }
 
-  function ablyRenderOrders(){
-    const rep=_ablyState.report; if(!rep) return;
-    const only=document.getElementById('ablyCouponOnly').checked;
-    const showSt=document.getElementById('ablyStatusShow').checked;  // 상태 열은 기본 접힘
+  function stratRenderOrders(){
+    const rep=_strat.report; if(!rep) return;
+    const only=document.getElementById('stratCouponOnly').checked;
+    const showSt=document.getElementById('stratStatusShow').checked;  // 상태 열은 기본 접힘
     const all=rep.orders||[];
     const list=only?all.filter(o=>o.coupon>0):all;
-    document.getElementById('ablyOrdN').textContent=`${list.length}건${only?' (쿠폰 사용)':''}`;
-    document.getElementById('ablyOrders').innerHTML=list.length
+    document.getElementById('stratOrdN').textContent=`${list.length}건${only?' (쿠폰 사용)':''}`;
+    document.getElementById('stratOrders').innerHTML=list.length
       ? '<tr><th>결제</th><th>상품</th><th class="n">수량</th><th class="n">판매금액</th><th class="n">쿠폰</th><th class="n">기타할인</th><th class="n">실결제</th><th class="n">원가</th>'+(showSt?'<th>상태</th>':'')+'</tr>'
-        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}" title="${_ablyEsc(o.status)}"><td>${_ablyTime(o.checked_at)}</td><td>${_ablyEsc(o.goods_name)}<span class="opt">${_ablyEsc(o.option)}</span></td><td class="n">${_ablyW(o.ea)}</td><td class="n">₩${_ablyW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_ablyW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_ablyW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_ablyW(o.paid)}</td><td class="n" title="${_ablyEsc(o.cost_name||'')}">${o.cost_match==null?'-':o.cost_match==='none'?'<span class="neg">미확인</span>':'₩'+_ablyW(o.cost)+(o.cost_match==='base'?'<span class="opt">기본값</span>':'')}</td>${showSt?`<td>${_ablyEsc(o.status)}</td>`:''}</tr>`).join('')
+        +list.map(o=>`<tr class="${o.excluded?'is-ex':''} ${o.coupon>0?'is-cp':''}" title="${_stratEsc(o.status)}"><td>${_stratTime(o.checked_at)}</td><td>${_stratEsc(o.goods_name)}<span class="opt">${_stratEsc(o.option)}</span></td><td class="n">${_stratW(o.ea)}</td><td class="n">₩${_stratW(o.gross)}</td><td class="n cp">${o.coupon?'−₩'+_stratW(o.coupon):'-'}</td><td class="n">${(o.emoney||0)+(o.pay_benefit||0)?'−₩'+_stratW((o.emoney||0)+(o.pay_benefit||0)):'-'}</td><td class="n">₩${_stratW(o.paid)}</td><td class="n" title="${_stratEsc(o.cost_name||'')}">${o.cost_match==null?'-':o.cost_match==='none'?'<span class="neg">미확인</span>':'₩'+_stratW(o.cost)+(o.cost_match==='base'?'<span class="opt">기본값</span>':'')}</td>${showSt?`<td>${_stratEsc(o.status)}</td>`:''}</tr>`).join('')
       : '<tr><td class="ably-empty">해당하는 주문이 없어요.</td></tr>';
   }
 
-  function triggerAblyReport(){ showView('viewAbly'); }
-  window.triggerAblyReport=triggerAblyReport;
-  window.ablyInit=ablyInit;
-  window.ablyLoad=ablyLoad;
-  window.ablyShift=ablyShift;
-  window.ablyRenderOrders=ablyRenderOrders;
+  window.triggerStrategy=triggerStrategy;
+  window.stratHasAccess=stratHasAccess;
+  window.stratRefreshAccess=stratRefreshAccess;
+  window.stratInit=stratInit;
+  window.stratSwitchTab=stratSwitchTab;
+  window.stratSelect=stratSelect;
+  window.stratLoadDate=stratLoadDate;
+  window.stratShift=stratShift;
+  window.stratRefresh=stratRefresh;
+  window.stratRenderOrders=stratRenderOrders;
+  stratRefreshAccess();
 
   /* ===== MD팀 — 구글시트 6종 실시간 양방향 연동 =====
      · 구글시트 ↔ 오피스는 Apps Script 웹앱(scripts/md-sheets-bridge.gs)이 중계. URL·토큰은 md_sheet_config 테이블.
