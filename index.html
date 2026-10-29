@@ -2048,6 +2048,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   .cred-field-btn:hover{color:var(--text-0);background:var(--bg-1);border-color:var(--line)}
   .cred-field-btn.copied{color:#16a34a;background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.3)}
   .cred-card-memo{padding:8px 14px;font-size:11px;color:var(--text-2);border-top:1px dashed var(--line);background:var(--bg-1);white-space:pre-wrap;word-break:break-word;line-height:1.5}
+  .cred-card-edited{padding:4px 14px 6px;font-size:10px;color:var(--text-3);text-align:right;line-height:1.4}
 
   /* Modal */
   .cred-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:credFade .15s ease-out}
@@ -9967,7 +9968,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       <div class="sub-modules">
         <div class="sub-module m-notice" onclick="triggerNotice()">
           <div class="sub-module-icon">🔐</div>
-          <div class="sub-module-title">사내 공지사항</div>
+          <div class="sub-module-title">업무용 비밀번호 모음</div>
           <div class="sub-module-sub">아이디 · 비밀번호 · 토큰 관리</div>
         </div>
         <div class="sub-module m-execvault" id="execVaultCard" onclick="triggerExecVault()" hidden>
@@ -11501,14 +11502,14 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     </div>
   </div>
 
-  <!-- ============ 사내 공지사항 (자격증명 관리) ============ -->
+  <!-- ============ 업무용 비밀번호 모음 (옛 이름 사내 공지사항 · 자격증명 관리) ============ -->
   <div class="view" id="viewNotice" hidden>
     <div class="view-head">
       <button class="btn-back" onclick="goHome()" aria-label="홈으로">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
         홈
       </button>
-      <h1 class="view-title">사내 공지사항<span class="view-title-sub">/ 아이디 · 비밀번호 · 토큰</span><span id="noticeUpdatedTag" class="sales-updated-tag"></span></h1>
+      <h1 class="view-title">업무용 비밀번호 모음<span class="view-title-sub">/ 아이디 · 비밀번호 · 토큰</span><span id="noticeUpdatedTag" class="sales-updated-tag"></span></h1>
     </div>
     <div class="cred-wrap">
       <div class="cred-toolbar">
@@ -21533,6 +21534,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       if(nameEl){ nameEl.textContent = name; }
       if(typeof whtRefreshAccess==='function') whtRefreshAccess();
       if(typeof execRefreshAccess==='function') execRefreshAccess();
+      if(typeof renderCredentials==='function') renderCredentials();
       if(typeof stratRefreshAccess==='function') stratRefreshAccess();
       if(typeof _diaryApplyHomeVisibility==='function') _diaryApplyHomeVisibility();
       toast(`${name}님으로 로그인되었습니다`, 'ok');
@@ -27220,7 +27222,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
   window.addEventListener('focus', ()=>{ checkMetaAdsStatus() });
 
   /* ===================================================== */
-  /* ============ 사내 공지사항 — 자격증명 관리 (GitHub 동기화) ============ */
+  /* ============ 업무용 비밀번호 모음 (옛 이름 사내 공지사항) — 자격증명 관리 (GitHub 동기화) ============ */
   /* ===================================================== */
   const NOTICE_KEY='brightbeed_notice';
   const NOTICE_PATH='data/notice.json';
@@ -27295,13 +27297,19 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       value: typeof f.value==='string'?f.value:'',
       secret: !!f.secret
     })):[];
-    return {
+    const out={
       id: typeof e.id==='string' && e.id ? e.id : credUid(),
       type,
       name: typeof e.name==='string'?e.name:'',
       fields,
       memo: typeof e.memo==='string'?e.memo:''
     };
+    // 마지막으로 추가·수정한 사람 (2026-10-29~, 대표 화면에만 표시). 그 전 항목은 기록 없음
+    if(typeof e.updatedAt==='number' && e.updatedAt>0){
+      out.updatedAt=e.updatedAt;
+      out.updatedBy=typeof e.updatedBy==='string'?e.updatedBy:'';
+    }
+    return out;
   }
 
   /* 레거시 자유양식 HTML → entries 자동 파싱 */
@@ -27557,8 +27565,10 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const delFn  = scope==='exec' ? 'deleteExecEntry' : 'deleteCredEntry';
     const typeCls = e.type==='custom' ? 'cred-card-type-custom' : 'cred-card-type-login';
     const typeLabel = e.type==='custom' ? '사용자지정' : '로그인';
-    const fieldsHtml=(e.fields||[]).map((f,i)=>renderCredField(e.id, i, f, scope==='exec')).join('');
+    const fieldsHtml=(e.fields||[]).map((f,i)=>renderCredField(e.id, i, f)).join('');
     const memoHtml=e.memo?`<div class="cred-card-memo">${credEscape(e.memo)}</div>`:'';
+    const editedHtml=(e.updatedAt && typeof execHasAccess==='function' && execHasAccess())
+      ?`<div class="cred-card-edited">수정 ${credEscape(e.updatedBy||'이름 미선택')} · ${_credWhen(e.updatedAt)}</div>`:'';
     return `<div class="cred-card" data-id="${credEscape(e.id)}">
       <div class="cred-card-head">
         <div class="cred-card-title-wrap">
@@ -27572,21 +27582,23 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
       </div>
       <div class="cred-card-body">${fieldsHtml || '<div class="cred-field"><span class="cred-field-label">—</span><span class="cred-field-value">필드 없음</span></div>'}</div>
       ${memoHtml}
+      ${editedHtml}
     </div>`;
   }
+  function _credWhen(ms){
+    const d=new Date(ms), p=n=>String(n).padStart(2,'0');
+    return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
 
-  // reveal: 대표 전용 금고 — 금고 암호 + 대표만 들어오는 이중 잠금이라 비밀번호를 처음부터 보여 줌 (🙈 로 다시 가릴 수 있음, 사장님 지시 2026-10-29)
-  function renderCredField(entryId, idx, f, reveal){
+  // 비밀번호도 처음부터 보여 줌 — 업무용 비밀번호 모음 · 대표 전용 금고 둘 다 (사장님 지시 2026-10-29). 🙈 로 다시 가리기
+  function renderCredField(entryId, idx, f){
     const secret=!!f.secret;
     const valueRaw=f.value||'';
-    const hide=secret && !reveal;
-    const shown = hide ? '•'.repeat(Math.min(12, Math.max(4, valueRaw.length))) : valueRaw;
-    const maskedCls = hide ? 'masked' : '';
     return `<div class="cred-field">
       <span class="cred-field-label" title="${credEscape(f.label)}">${credEscape(f.label||'(라벨)')}</span>
-      <span class="cred-field-value ${maskedCls}" data-secret="${secret?'1':'0'}" data-raw="${credEscape(valueRaw)}">${credEscape(shown)}</span>
+      <span class="cred-field-value" data-secret="${secret?'1':'0'}" data-raw="${credEscape(valueRaw)}">${credEscape(valueRaw)}</span>
       <span class="cred-field-btns">
-        ${secret?`<button class="cred-field-btn cred-field-toggle" onclick="toggleCredSecret(this)" title="표시/숨기기">${hide?'👁':'🙈'}</button>`:''}
+        ${secret?`<button class="cred-field-btn cred-field-toggle" onclick="toggleCredSecret(this)" title="표시/숨기기">🙈</button>`:''}
         <button class="cred-field-btn cred-field-copy" onclick="copyCredValue(this)" title="복사">📋</button>
       </span>
     </div>`;
@@ -27799,16 +27811,18 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     }
 
     const n=loadNotice();
+    const now=Date.now();
+    const who=(typeof _diaryGetMe==='function'?_diaryGetMe():'')||(isMaster()?'관리자':'');
     if(_cred_editorState.mode==='edit'){
       const idx=n.entries.findIndex(e=>e.id===_cred_editorState.id);
       if(idx<0){toast('원본을 찾을 수 없어 신규 추가로 저장합니다','err')}
-      const updated={id: _cred_editorState.id || credUid(), type, name, fields, memo};
+      const updated={id: _cred_editorState.id || credUid(), type, name, fields, memo, updatedAt:now, updatedBy:who};
       if(idx>=0) n.entries[idx]=updated;
       else n.entries.push(updated);
     } else {
-      n.entries.push({id:credUid(), type, name, fields, memo});
+      n.entries.push({id:credUid(), type, name, fields, memo, updatedAt:now, updatedBy:who});
     }
-    n.updatedAt=Date.now();
+    n.updatedAt=now;
 
     // local-first — push 1차 실패로 여기서 탈출하면 _cred_modalOpen 이 true 로 남아
     // renderCredentials/syncNoticeFromRemote 가 그 탭에서 영구히 early-return 한다.
