@@ -27557,7 +27557,7 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     const delFn  = scope==='exec' ? 'deleteExecEntry' : 'deleteCredEntry';
     const typeCls = e.type==='custom' ? 'cred-card-type-custom' : 'cred-card-type-login';
     const typeLabel = e.type==='custom' ? '사용자지정' : '로그인';
-    const fieldsHtml=(e.fields||[]).map((f,i)=>renderCredField(e.id, i, f)).join('');
+    const fieldsHtml=(e.fields||[]).map((f,i)=>renderCredField(e.id, i, f, scope==='exec')).join('');
     const memoHtml=e.memo?`<div class="cred-card-memo">${credEscape(e.memo)}</div>`:'';
     return `<div class="cred-card" data-id="${credEscape(e.id)}">
       <div class="cred-card-head">
@@ -27575,16 +27575,18 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel
     </div>`;
   }
 
-  function renderCredField(entryId, idx, f){
+  // reveal: 대표 전용 금고 — 금고 암호 + 대표만 들어오는 이중 잠금이라 비밀번호를 처음부터 보여 줌 (🙈 로 다시 가릴 수 있음, 사장님 지시 2026-10-29)
+  function renderCredField(entryId, idx, f, reveal){
     const secret=!!f.secret;
     const valueRaw=f.value||'';
-    const shown = secret ? '•'.repeat(Math.min(12, Math.max(4, valueRaw.length))) : valueRaw;
-    const maskedCls = secret ? 'masked' : '';
+    const hide=secret && !reveal;
+    const shown = hide ? '•'.repeat(Math.min(12, Math.max(4, valueRaw.length))) : valueRaw;
+    const maskedCls = hide ? 'masked' : '';
     return `<div class="cred-field">
       <span class="cred-field-label" title="${credEscape(f.label)}">${credEscape(f.label||'(라벨)')}</span>
       <span class="cred-field-value ${maskedCls}" data-secret="${secret?'1':'0'}" data-raw="${credEscape(valueRaw)}">${credEscape(shown)}</span>
       <span class="cred-field-btns">
-        ${secret?`<button class="cred-field-btn cred-field-toggle" onclick="toggleCredSecret(this)" title="표시/숨기기">👁</button>`:''}
+        ${secret?`<button class="cred-field-btn cred-field-toggle" onclick="toggleCredSecret(this)" title="표시/숨기기">${hide?'👁':'🙈'}</button>`:''}
         <button class="cred-field-btn cred-field-copy" onclick="copyCredValue(this)" title="복사">📋</button>
       </span>
     </div>`;
